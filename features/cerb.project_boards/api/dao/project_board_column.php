@@ -622,10 +622,6 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 			SearchFields_ProjectBoardColumn::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_ProjectBoardColumn::VIRTUAL_BOARD_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

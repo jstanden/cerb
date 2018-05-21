@@ -669,12 +669,6 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 			SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK,
 		));
 
-		$this->addParamsHidden(array(
-			SearchFields_WorkspacePage::ID,
-			SearchFields_WorkspacePage::OWNER_CONTEXT,
-			SearchFields_WorkspacePage::OWNER_CONTEXT_ID,
-		));
-
 		$this->doResetCriteria();
 	}
 

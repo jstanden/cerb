@@ -468,12 +468,6 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 			SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_DevblocksSession::SESSION_KEY,
-			SearchFields_DevblocksSession::SESSION_DATA,
-			SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

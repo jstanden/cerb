@@ -552,10 +552,6 @@ class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_ClassifierClass::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_ClassifierClass::VIRTUAL_CLASSIFIER_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

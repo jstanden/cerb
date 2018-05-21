@@ -766,11 +766,6 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			SearchFields_AbstractCustomRecord::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_AbstractCustomRecord::OWNER_CONTEXT,
-			SearchFields_AbstractCustomRecord::OWNER_CONTEXT_ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

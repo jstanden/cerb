@@ -550,10 +550,6 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_MailTransport::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_MailTransport::PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

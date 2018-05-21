@@ -1021,7 +1021,6 @@ class UmScAbstractViewLoader {
 		
 		$model->paramsEditable = $view->getEditableParams();
 		$model->paramsDefault = $view->getParamsDefault();
-		$model->paramsHidden = $view->getParamsHidden();
 		$model->paramsRequired = $view->getParamsRequired();
 
 		$model->renderPage = $view->renderPage;
@@ -1049,7 +1048,6 @@ class UmScAbstractViewLoader {
 		
 		$inst->addParams($model->paramsEditable, true);
 		$inst->addParamsDefault($model->paramsDefault, true);
-		$inst->addParamsHidden($model->paramsHidden, true);
 		$inst->addParamsRequired($model->paramsRequired, true);
 
 		$inst->renderPage = $model->renderPage;

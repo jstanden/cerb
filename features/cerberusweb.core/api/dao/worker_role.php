@@ -638,10 +638,6 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_WorkerRole::PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

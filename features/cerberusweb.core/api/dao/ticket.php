@@ -2657,23 +2657,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Ticket::REQUESTER_ID,
-			SearchFields_Ticket::TICKET_STATUS_ID,
-			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH,
-			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH,
-			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH,
-			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH,
-			SearchFields_Ticket::VIRTUAL_MESSAGE_LAST_SEARCH,
-			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH,
-			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
-			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH,
-			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
-			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH,
-			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED,
-			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED,
-		));
-		
 		$this->doResetCriteria();
 	}
 

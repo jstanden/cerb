@@ -604,12 +604,6 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_Classifier::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Classifier::OWNER_CONTEXT,
-			SearchFields_Classifier::OWNER_CONTEXT_ID,
-			SearchFields_Classifier::PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

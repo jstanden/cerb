@@ -677,12 +677,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 			SearchFields_ContextActivityLog::ID,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
-			SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
-			SearchFields_ContextActivityLog::ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

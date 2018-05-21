@@ -801,12 +801,6 @@ class View_PluginLibrary extends C4_AbstractView implements IAbstractView_QuickS
 			SearchFields_PluginLibrary::FULLTEXT_PLUGIN_LIBRARY,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_PluginLibrary::ICON_URL,
-			SearchFields_PluginLibrary::ID,
-			SearchFields_PluginLibrary::REQUIREMENTS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

@@ -1328,12 +1328,6 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			SearchFields_KbArticle::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_KbArticle::CONTENT,
-			SearchFields_KbArticle::FORMAT,
-			SearchFields_KbArticle::ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

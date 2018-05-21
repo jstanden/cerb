@@ -1419,10 +1419,6 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Bucket::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Bucket::VIRTUAL_GROUP_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

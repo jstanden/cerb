@@ -585,11 +585,6 @@ class View_ProjectBoard extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_ProjectBoard::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_ProjectBoard::OWNER_CONTEXT,
-			SearchFields_ProjectBoard::OWNER_CONTEXT_ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

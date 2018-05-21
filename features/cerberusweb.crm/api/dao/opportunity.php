@@ -747,10 +747,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$this->addParamsDefault(array(
 			SearchFields_CrmOpportunity::STATUS_ID => new DevblocksSearchCriteria(SearchFields_CrmOpportunity::STATUS_ID,'=',0),
 		));
-		$this->addParamsHidden(array(
-			SearchFields_CrmOpportunity::ID,
-		));
-		
+
 		$this->doResetCriteria();
 	}
 

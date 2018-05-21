@@ -606,9 +606,6 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_ProfileWidget::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 

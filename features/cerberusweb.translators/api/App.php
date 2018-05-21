@@ -400,10 +400,6 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 			SearchFields_Translation::ID,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Translation::ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

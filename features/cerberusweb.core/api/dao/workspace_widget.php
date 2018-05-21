@@ -614,10 +614,6 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_WorkspaceWidget::VIRTUAL_CONTEXT_LINK,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_WorkspaceWidget::PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

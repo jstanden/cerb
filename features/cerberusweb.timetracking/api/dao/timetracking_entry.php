@@ -842,11 +842,6 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_TimeTrackingEntry::VIRTUAL_WORKER_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_TimeTrackingEntry::ID,
-			SearchFields_TimeTrackingEntry::VIRTUAL_WORKER_SEARCH,
-		));
-		
 		$this->addParamsDefault(array(
 			SearchFields_TimeTrackingEntry::IS_CLOSED => new DevblocksSearchCriteria(SearchFields_TimeTrackingEntry::IS_CLOSED,DevblocksSearchCriteria::OPER_EQ,0),
 		));

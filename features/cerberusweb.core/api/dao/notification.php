@@ -809,14 +809,6 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_Notification::VIRTUAL_WORKER_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Notification::CONTEXT,
-			SearchFields_Notification::CONTEXT_ID,
-			SearchFields_Notification::ENTRY_JSON,
-			SearchFields_Notification::ID,
-			SearchFields_Notification::VIRTUAL_WORKER_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

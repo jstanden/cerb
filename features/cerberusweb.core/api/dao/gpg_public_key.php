@@ -508,9 +508,6 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_GpgPublicKey::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 

@@ -29,7 +29,6 @@ abstract class C4_AbstractView {
 	private $_paramsDefault = [];
 	private $_paramsRequired = [];
 	private $_paramsRequiredQuery = null;
-	private $_paramsHidden = [];
 	
 	public $renderPage = 0;
 	public $renderLimit = 10;
@@ -286,10 +285,6 @@ abstract class C4_AbstractView {
 	
 	function getParamsAvailable($filter_fieldsets=false) {
 		$params = $this->getFields();
-		
-		if(is_array($this->_paramsHidden))
-		foreach($this->_paramsHidden as $param)
-			unset($params[$param]);
 		
 		// Hide other custom fields when filtering to a specific fieldset
 		if($filter_fieldsets)
@@ -704,19 +699,6 @@ abstract class C4_AbstractView {
 	
 	function setParamsRequiredQuery($query) {
 		$this->_paramsRequiredQuery = $query;
-	}
-	
-	// Params Hidden
-	
-	function addParamsHidden($params, $replace=false) {
-		if($replace)
-			$this->_paramsHidden = $params;
-		else
-			$this->_paramsHidden = array_unique(array_merge($this->_paramsHidden, $params));
-	}
-	
-	function getParamsHidden() {
-		return $this->_paramsHidden;
 	}
 	
 	// Search params
@@ -3955,7 +3937,6 @@ class C4_AbstractViewModel {
 	public $paramsDefault = [];
 	public $paramsRequired = [];
 	public $paramsRequiredQuery = '';
-	public $paramsHidden = [];
 
 	public $renderPage = 0;
 	public $renderLimit = 10;
@@ -4083,8 +4064,6 @@ class C4_AbstractViewLoader {
 		$model->paramsDefault = $view->getParamsDefault();
 		$model->paramsRequired = $view->getParamsRequired();
 		$model->paramsRequiredQuery = $view->getParamsRequiredQuery();
-		// Only persist hidden params that are distinct from the parent (so we can inherit parent changes)
-		$model->paramsHidden = array_diff($view->getParamsHidden(), $parent->getParamsHidden());
 		
 		$model->renderPage = intval($view->renderPage);
 		$model->renderLimit = intval($view->renderLimit);
@@ -4133,8 +4112,6 @@ class C4_AbstractViewLoader {
 			$inst->addParamsRequired($model->paramsRequired, true);
 		if($model->paramsRequiredQuery)
 			$inst->setParamsRequiredQuery($model->paramsRequiredQuery);
-		if(is_array($model->paramsHidden))
-			$inst->addParamsHidden($model->paramsHidden, false);
 
 		if(null !== $model->renderPage)
 			$inst->renderPage = intval($model->renderPage);
@@ -4170,7 +4147,6 @@ class C4_AbstractViewLoader {
 		$parent->__auto_persist = false;
 		// [TODO] This is a rather heavy way to accomplish this, these could be static
 		$inst->addColumnsHidden($parent->getColumnsHidden());
-		$inst->addParamsHidden($parent->getParamsHidden());
 		$inst->addParamsRequired($parent->getParamsRequired());
 		unset($parent);
 		
@@ -4300,7 +4276,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 	const PARAMS_QUERY = 'params_query';
 	const PARAMS_DEFAULT_JSON = 'params_default_json';
 	const PARAMS_EDITABLE_JSON = 'params_editable_json';
-	const PARAMS_HIDDEN_JSON = 'params_hidden_json';
 	const PARAMS_REQUIRED_JSON = 'params_required_json';
 	const PARAMS_REQUIRED_QUERY = 'params_required_query';
 	const RENDER_LIMIT = 'render_limit';
@@ -4356,12 +4331,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 		// text
 		$validation
 			->addField(self::PARAMS_EDITABLE_JSON)
-			->string()
-			->setMaxLength(65535)
-			;
-		// text
-		$validation
-			->addField(self::PARAMS_HIDDEN_JSON)
 			->string()
 			->setMaxLength(65535)
 			;
@@ -4461,7 +4430,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'params_required_json',
 			'params_required_query',
 			'params_default_json',
-			'params_hidden_json',
 			'render_page',
 			'render_total',
 			'render_limit',
@@ -4500,7 +4468,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			$model->paramsEditable = self::decodeParamsJson($row['params_editable_json']);
 			$model->paramsRequired = self::decodeParamsJson($row['params_required_json']);
 			$model->paramsDefault = self::decodeParamsJson($row['params_default_json']);
-			$model->paramsHidden = json_decode($row['params_hidden_json'], true);
 			$model->renderSort = json_decode($row['render_sort_json'], true);
 			
 			// Make sure it's a well-formed view
@@ -4587,7 +4554,6 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			'params_required_json' => $db->qstr(json_encode($model->paramsRequired)),
 			'params_required_query' => $db->qstr($model->paramsRequiredQuery),
 			'params_default_json' => $db->qstr(json_encode($model->paramsDefault)),
-			'params_hidden_json' => $db->qstr(json_encode($model->paramsHidden)),
 			'render_page' => abs(intval($model->renderPage)),
 			'render_total' => !empty($model->renderTotal) ? 1 : 0,
 			'render_limit' => max(intval($model->renderLimit),0),

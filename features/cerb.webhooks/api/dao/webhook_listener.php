@@ -547,10 +547,6 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 			SearchFields_WebhookListener::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_WebhookListener::EXTENSION_PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

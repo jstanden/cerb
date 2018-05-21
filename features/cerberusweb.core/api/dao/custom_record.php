@@ -649,10 +649,6 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_CustomRecord::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_CustomRecord::PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

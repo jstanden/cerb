@@ -519,15 +519,6 @@ class View_DecisionNode extends C4_AbstractView {
 			SearchFields_DecisionNode::POS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_DecisionNode::ID,
-			SearchFields_DecisionNode::PARENT_ID,
-			SearchFields_DecisionNode::TRIGGER_ID,
-			SearchFields_DecisionNode::PARAMS_JSON,
-			SearchFields_DecisionNode::NODE_TYPE,
-			SearchFields_DecisionNode::POS,
-		));
-		
 		$this->doResetCriteria();
 	}
 

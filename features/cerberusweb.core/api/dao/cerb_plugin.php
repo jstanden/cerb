@@ -363,11 +363,6 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_CerbPlugin::MANIFEST_CACHE_JSON,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_CerbPlugin::DIR,
-			SearchFields_CerbPlugin::MANIFEST_CACHE_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

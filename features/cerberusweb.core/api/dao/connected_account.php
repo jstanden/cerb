@@ -680,11 +680,6 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 			SearchFields_ConnectedAccount::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_ConnectedAccount::OWNER_CONTEXT,
-			SearchFields_ConnectedAccount::OWNER_CONTEXT_ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

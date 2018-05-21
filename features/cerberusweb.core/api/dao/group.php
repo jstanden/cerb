@@ -1305,10 +1305,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			SearchFields_Group::VIRTUAL_MEMBER_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Group::VIRTUAL_MEMBER_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

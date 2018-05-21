@@ -703,10 +703,6 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Mailbox::VIRTUAL_WATCHERS,
 		));
 
-		$this->addParamsHidden(array(
-			SearchFields_Mailbox::PASSWORD,
-		));
-
 		$this->doResetCriteria();
 	}
 

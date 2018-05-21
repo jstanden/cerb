@@ -615,9 +615,6 @@ class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 

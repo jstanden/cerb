@@ -608,9 +608,6 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 			SearchFields_MailHtmlTemplate::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 
