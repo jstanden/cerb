@@ -1068,9 +1068,11 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_ProfileWidget::ID,
+			'extension_id' => DAO_ProfileWidget::EXTENSION_ID,
 			'links' => '_links',
 			'name' => DAO_ProfileWidget::NAME,
 			'pos' => DAO_ProfileWidget::POS,
+			'profile_tab_id' => DAO_ProfileWidget::PROFILE_TAB_ID,
 			'updated_at' => DAO_ProfileWidget::UPDATED_AT,
 			'width_units' => DAO_ProfileWidget::WIDTH_UNITS,
 			'zone' => DAO_ProfileWidget::ZONE,
@@ -1079,6 +1081,20 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'extension_params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_ProfileWidget::EXTENSION_PARAMS_JSON] = $json;
+				break;
+			
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;

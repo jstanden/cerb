@@ -990,6 +990,20 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'extension_params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_ProfileTab::EXTENSION_PARAMS_JSON] = $json;
+				break;
+			
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
 				break;
