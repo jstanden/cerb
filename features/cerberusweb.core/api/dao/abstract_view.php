@@ -2697,10 +2697,7 @@ abstract class C4_AbstractView {
 				'label' => $custom_fieldset->name,
 				'filter' => array(
 					'field' => $field_key,
-					'oper' => DevblocksSearchCriteria::OPER_EQ,
-					'values' => array(
-						'options[]' => $custom_fieldset->id,
-					)
+					'query' => 'fieldset:(id:['. $custom_fieldset->id . '])',
 				),
 				'children' => [],
 			);

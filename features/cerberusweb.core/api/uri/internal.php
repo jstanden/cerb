@@ -2718,7 +2718,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$field = DevblocksPlatform::importGPC($_REQUEST['field'], 'string', null);
 		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'], 'string', null);
 		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
-		@$replace = DevblocksPlatform::importGPC($_REQUEST['replace'], 'integer', 0);
+		@$replace = DevblocksPlatform::importGPC($_REQUEST['replace'], 'string', '');
 		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',[]);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
@@ -2732,17 +2732,17 @@ class ChInternalController extends DevblocksControllerExtension {
 			$original_params = $view->getEditableParams();
 			$view->addParams($view->getParamsRequired(), true);
 		}
-			
+		
 		// Nuke criteria
 		if(is_array($field_deletes) && !empty($field_deletes)) {
 			foreach($field_deletes as $field_delete) {
 				$view->doRemoveCriteria($field_delete);
 			}
 		}
-
+		
 		// Remove the same param at the top level
 		if($replace) {
-			$view->removeParamByField($field);
+			$view->removeParamByField($replace);
 		}
 		
 		// Add

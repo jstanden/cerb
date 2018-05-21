@@ -27,9 +27,9 @@
 					</ul>
 				</li>
 			{elseif $data->type == 'search' && $data->params}
-				<li data-token="{$data->key}" data-label="{$data->label}" data-type="search" data-context="{$data->params.context}" data-query="{$data->params.query}"><div style="font-weight:bold;">{$data->l}</div></li>
+				<li data-token="{$data->key}" data-label="{$data->label}" data-type="search" data-context="{$data->params.context}" data-query="{$data->params.query}" data-query-required="{$data->params.query_required}"><div style="font-weight:bold;">{$data->l}</div></li>
 			{elseif $data->type == 'chooser' && $data->params}
-				<li data-token="{$data->key}" data-label="{$data->label}" data-type="chooser" data-context="{$data->params.context}" data-query="{$data->params.query}"><div style="font-weight:bold;">{$data->l}</div></li>
+				<li data-token="{$data->key}" data-label="{$data->label}" data-type="chooser" data-context="{$data->params.context}" data-query="{$data->params.query}" data-query-required="{$data->params.query_required}"><div style="font-weight:bold;">{$data->l}</div></li>
 			{elseif $data->key}
 				<li data-token="{$data->key}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l}</div></li>
 			{/if}
