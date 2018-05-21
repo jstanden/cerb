@@ -314,17 +314,52 @@ var cAjaxCalls = function() {
 		}
 	}
 	
-	this.viewAddFilter = function(view_id, field, oper, values, replace) {
+	this.viewAddQuery = function(view_id, query, replace) {
 		var $view = $('#view'+view_id);
 		
 		var post_str = 'c=internal' +
 			'&a=viewAddFilter' + 
 			'&id=' + view_id +
-			'&replace=' + encodeURIComponent(replace ? 1 : 0) +
-			'&field=' + encodeURIComponent(field) +
-			'&oper=' + encodeURIComponent(oper) +
-			'&' + $.param(values, true)
+			'&add_mode=query' +
+			'&replace=' + encodeURIComponent(replace) +
+			'&query=' + encodeURIComponent(query)
 			;
+		
+		var cb = function(o) {
+			var $view_filters = $('#viewCustomFilters'+view_id);
+			
+			if(0 != $view_filters.length) {
+				$view_filters.html(o);
+				$view_filters.trigger('view_refresh')
+			}
+		}
+		
+		var options = {};
+		options.type = 'POST';
+		options.data = post_str; //$('#'+formName).serialize();
+		options.url = DevblocksAppPath+'ajax.php';//+(null!=args?('?'+args):''),
+		options.cache = false;
+		options.success = cb;
+		
+		if(null == options.headers)
+			options.headers = {};
+		
+		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
+		
+		$.ajax(options);
+	}
+	
+	this.viewAddFilter = function(view_id, field, oper, values, replace) {
+		var $view = $('#view'+view_id);
+		
+		var post_str = 'c=internal' +
+		'&a=viewAddFilter' + 
+		'&id=' + view_id +
+		'&replace=' + encodeURIComponent(replace) +
+		'&field=' + encodeURIComponent(field) +
+		'&oper=' + encodeURIComponent(oper) +
+		'&' + $.param(values, true)
+		;
 		
 		var cb = function(o) {
 			var $view_filters = $('#viewCustomFilters'+view_id);
