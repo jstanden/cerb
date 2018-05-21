@@ -432,6 +432,7 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 	const UPDATED_AT = 'w_updated_at';
 	const WORKER_ID = 'w_worker_id';
 	
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WORKER_SEARCH = '*_worker_search';
 	
 	static private $_fields = null;
@@ -449,6 +450,10 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL)), self::getPrimaryKey());
+				break;
+			
 			case self::VIRTUAL_WORKER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'webapi_credentials.worker_id');
 				break;
@@ -488,6 +493,7 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 			self::SECRET_KEY => new DevblocksSearchField(self::SECRET_KEY, 'webapi_credentials', 'secret_key', $translate->_('dao.webapi_credentials.secret_key'), null, true),
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'webapi_credentials', 'params_json', $translate->_('dao.webapi_credentials.params_json'), null, false),
 			
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, false),
 		);
 		
@@ -541,6 +547,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 			SearchFields_WebApiCredentials::ID,
 			SearchFields_WebApiCredentials::PARAMS_JSON,
 			SearchFields_WebApiCredentials::SECRET_KEY,
+			SearchFields_WebApiCredentials::VIRTUAL_HAS_FIELDSET,
 			SearchFields_WebApiCredentials::VIRTUAL_WORKER_SEARCH,
 		));
 		
@@ -580,6 +587,14 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WebApiCredentials::ACCESS_KEY, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_WebApiCredentials::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL],
+					]
 				),
 			'name' => 
 				array(
@@ -622,6 +637,10 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+			
 			case 'worker':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_WebApiCredentials::VIRTUAL_WORKER_SEARCH);
 				break;
@@ -664,6 +683,10 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_WebApiCredentials::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
+				
 			case SearchFields_WebApiCredentials::VIRTUAL_WORKER_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.worker')),
@@ -703,6 +726,11 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 				
 			case SearchFields_WebApiCredentials::WORKER_ID:
 				$criteria = $this->_doSetCriteriaWorker($field, $oper);
+				break;
+				
+			case SearchFields_WebApiCredentials::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 		}
 
@@ -1025,7 +1053,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

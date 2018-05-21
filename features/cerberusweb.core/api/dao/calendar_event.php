@@ -416,6 +416,7 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_CALENDAR_SEARCH = '*_calendar_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	
 	static private $_fields = null;
 	
@@ -438,6 +439,10 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CALENDAR_EVENT, self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CALENDAR_EVENT)), self::getPrimaryKey());
 				break;
 				
 			default:
@@ -475,6 +480,7 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 			self::DATE_END => new DevblocksSearchField(self::DATE_END, 'calendar_event', 'date_end', $translate->_('dao.calendar_event.date_end'), Model_CustomField::TYPE_DATE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 		);
 		
 		// Custom fields with fieldsets
@@ -581,6 +587,7 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 					
 				// Virtuals
 				case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_CalendarEvent::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
 					
@@ -627,6 +634,10 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
+			case SearchFields_CalendarEvent::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
+				break;
+				
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
@@ -668,6 +679,14 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_CalendarEvent::DATE_END),
+				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_CalendarEvent::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CALENDAR_EVENT],
+					]
 				),
 			'id' => 
 				array(
@@ -721,6 +740,10 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 		switch($field) {
 			case 'calendar':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_CalendarEvent::VIRTUAL_CALENDAR_SEARCH);
+				break;
+				
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
 				
 			case 'status':
@@ -821,6 +844,10 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				);
 				break;
 		
+			case SearchFields_CalendarEvent::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
+				
 			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
@@ -1281,7 +1308,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

@@ -645,6 +645,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const UPDATED_AT = 't_updated_at';
 	
 	const VIRTUAL_BOT_SEARCH = '*_bot_search';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_USABLE_BY = '*_usable_by';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
@@ -665,6 +666,10 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_BOT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BOT, 'trigger_event.bot_id');
+				break;
+				
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_BEHAVIOR)), self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_USABLE_BY:
@@ -739,6 +744,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'trigger_event', 'updated_at', $translate->_('common.updated'), null, true),
 				
 			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
@@ -1527,6 +1533,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					break;
 					
 				// Virtuals
+				case SearchFields_TriggerEvent::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
 					$pass = true;
 					break;
@@ -1573,6 +1580,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				$bots = DAO_Bot::getAll();
 				$labels = array_column(json_decode(json_encode($bots), true), 'name', 'id');
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $labels);
+				break;
+				
+			case SearchFields_TriggerEvent::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
@@ -1634,6 +1645,14 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 						['type' => 'list', 'values' => $events],
 					]
 				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_TriggerEvent::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_BEHAVIOR],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -1690,6 +1709,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		switch($field) {
 			case 'bot':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH);
+				break;
+				
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
 				
 			case 'usableBy.bot':
@@ -1808,7 +1831,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 						);
 						break;
 				}
-				
+				break;
+			
+			case SearchFields_TriggerEvent::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
 				break;
 			
 			case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
@@ -2297,7 +2323,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 						DAO_ContextLink::getContextLinkCounts(
 							CerberusContexts::CONTEXT_BEHAVIOR,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

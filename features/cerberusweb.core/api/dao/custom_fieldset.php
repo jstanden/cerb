@@ -392,7 +392,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			new Model_DevblocksEvent(
 				'context.delete',
 				array(
-					'context' => 'cerberusweb.contexts.custom_fieldset',
+					'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET,
 					'context_ids' => $ids
 				)
 			)
@@ -1303,7 +1303,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);
