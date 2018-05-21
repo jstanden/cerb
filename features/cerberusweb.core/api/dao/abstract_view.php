@@ -2266,6 +2266,31 @@ abstract class C4_AbstractView {
 		
 		$menu['(sort)'] = $sort_menu;
 		
+		// Subtotals
+		
+		if($this instanceof IAbstractView_Subtotals) {
+			$subtotals_menu = new DevblocksMenuItemPlaceholder();
+			
+			$subtotal_fields = $this->getSubtotalFields();
+			
+			foreach($search_fields as $field_key => $field) {
+				if(false == ($param = @$params[$field['options']['param_key']]))
+					continue;
+				
+				if(!array_key_exists($param->token, $subtotal_fields))
+					continue;
+				
+				$item = new DevblocksMenuItemPlaceholder();
+				$item->label = $field_key;
+				$item->l = $field_key;
+				$item->key = 'subtotal:'.$field_key;
+				
+				$subtotals_menu->children[$field_key] = $item;
+			}
+			
+			$menu['(subtotal)'] = $subtotals_menu;
+		}
+		
 		// Fields
 		
 		$fields_menu = new DevblocksMenuItemPlaceholder();
