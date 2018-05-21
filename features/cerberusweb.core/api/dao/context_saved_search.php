@@ -516,6 +516,8 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 	const OWNER_CONTEXT = 'c_owner_context';
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
 	const UPDATED_AT = 'c_updated_at';
+	
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 
 	static private $_fields = null;
 	
@@ -531,6 +533,10 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_SAVED_SEARCH)), self::getPrimaryKey());
+				break;
+				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -566,6 +572,8 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'context_saved_search', 'owner_context', null, null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'context_saved_search', 'owner_context_id', null, null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'context_saved_search', 'updated_at', $translate->_('common.updated'), null, true),
+			
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 		);
 		
 		// Custom Fields
@@ -683,6 +691,7 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 			switch($field_key) {
 				// Fields
 				case SearchFields_ContextSavedSearch::CONTEXT:
+				case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
 			}
@@ -707,6 +716,10 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 				$contexts = DevblocksPlatform::objectsToArrays(Extension_DevblocksContext::getAll(false));
 				$label_map = array_column($contexts, 'name', 'id');
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
+			case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 
 			default:
@@ -734,6 +747,14 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContextSavedSearch::CONTEXT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_SAVED_SEARCH],
+					]
 				),
 			'id' => 
 				array(
@@ -777,6 +798,10 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+			
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -822,6 +847,9 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
+			case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
 		}
 	}
 
@@ -848,9 +876,9 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+			case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			default:

@@ -421,11 +421,9 @@ class SearchFields_GpgPublicKey extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, self::getPrimaryKey());
 				break;
 				
-			/*
-			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, '', self::getPrimaryKey());
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY)), self::getPrimaryKey());
 				break;
-			*/
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -626,6 +624,14 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_GpgPublicKey::EXPIRES_AT),
 				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_GpgPublicKey::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_GPG_PUBLIC_KEY],
+					]
+				),
 			'fingerprint' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -671,6 +677,10 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -1090,7 +1100,7 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

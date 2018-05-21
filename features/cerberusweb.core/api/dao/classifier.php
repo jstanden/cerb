@@ -491,6 +491,10 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CLASSIFIER, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CLASSIFIER)), self::getPrimaryKey());
+				break;
+				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'classifier.owner_context', 'classifier.owner_context_id');
 				break;
@@ -722,6 +726,14 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Classifier::CREATED_AT),
 				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Classifier::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CLASSIFIER],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -768,6 +780,10 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		$search_fields = $this->getQuickSearchFields();
 		
 		switch($field) {
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+			
 			default:
 				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_Classifier::VIRTUAL_OWNER);
@@ -1220,7 +1236,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

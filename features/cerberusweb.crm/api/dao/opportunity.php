@@ -615,6 +615,10 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_OPPORTUNITY, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_OPPORTUNITY)), self::getPrimaryKey());
+				break;
+				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_OPPORTUNITY, self::getPrimaryKey());
 				break;
@@ -893,6 +897,14 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CURRENCY, 'q' => ''],
 					],
 				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_CrmOpportunity::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_OPPORTUNITY],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -964,6 +976,10 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+			
 			case 'status':
 				$field_key = SearchFields_CrmOpportunity::STATUS_ID;
 				$oper = null;
@@ -1574,7 +1590,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

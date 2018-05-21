@@ -2286,7 +2286,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

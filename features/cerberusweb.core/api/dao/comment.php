@@ -549,6 +549,10 @@ class SearchFields_Comment extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_COMMENT, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_COMMENT)), self::getPrimaryKey());
+				break;
+				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'owner_context', 'owner_context_id');
 				break;
@@ -961,6 +965,14 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Comment::CREATED),
 				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Comment::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_COMMENT],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -1017,6 +1029,10 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case 'attachments':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH);
+				break;
+				
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
 				
 			default:
@@ -1540,7 +1556,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

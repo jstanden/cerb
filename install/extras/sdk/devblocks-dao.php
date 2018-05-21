@@ -456,7 +456,11 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, '<?php echo $ctx_ext_id; ?>', self::getPrimaryKey());
 				break;
-				
+			
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr('<?php echo $ctx_ext_id; ?>')), self::getPrimaryKey());
+				break;
+			
 			/*
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, '', self::getPrimaryKey());
@@ -672,6 +676,14 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::CREATED_AT),
 				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . '<?php echo $ctx_ext_id; ?>'],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -719,6 +731,10 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 	// [TODO] Implement quick search fields
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -1209,7 +1225,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

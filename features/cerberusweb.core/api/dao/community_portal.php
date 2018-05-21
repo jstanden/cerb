@@ -531,6 +531,10 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_PORTAL, self::getPrimaryKey());
 				break;
 				
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_PORTAL)), self::getPrimaryKey());
+				break;
+				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -1015,6 +1019,14 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CommunityTool::CODE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_CommunityTool::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_PORTAL],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -1053,6 +1065,10 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+			
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
@@ -1101,6 +1117,16 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 			
 			default:
 				parent::renderCriteriaParam($param);
+				break;
+		}
+	}
+	
+	function renderVirtualCriteria($param) {
+		$key = $param->field;
+		
+		switch($key) {
+			case SearchFields_CommunityTool::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
 				break;
 		}
 	}
@@ -1481,7 +1507,7 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

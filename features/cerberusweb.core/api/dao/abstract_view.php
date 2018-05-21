@@ -1093,51 +1093,11 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _renderVirtualHasFieldset($param) {
-		$strings = [];
-		$custom_fieldsets = DAO_CustomFieldset::getAll();
-		
-		foreach($param->value as $param_data) {
-			if(isset($custom_fieldsets[$param_data]))
-				$strings[] = sprintf('<b>%s</b>', DevblocksPlatform::strEscapeHtml($custom_fieldsets[$param_data]->name));
-		}
-		
-		$label_singular = 'Fieldset';
-		$label_plural = 'Fieldsets';
-
-		$list_of_strings = implode(' or ', $strings);
-		
-		if(count($strings) > 2) {
-			$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d %s)</abbr>",
-				strip_tags($list_of_strings),
-				count($strings),
-				DevblocksPlatform::strLower($label_plural)
-			);
-		}
-		
-		switch($param->operator) {
-			case DevblocksSearchCriteria::OPER_IS_NULL:
-				echo sprintf("There are no <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_plural))
-				);
-				break;
-			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
-				echo sprintf("There are <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_plural))
-				);
-				break;
-			case DevblocksSearchCriteria::OPER_IN:
-				echo sprintf("%s is %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
-				break;
-			case DevblocksSearchCriteria::OPER_IN_OR_NULL:
-				echo sprintf("%s is blank or %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
-				break;
-			case DevblocksSearchCriteria::OPER_NIN:
-				echo sprintf("%s is not %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
-				break;
-			case DevblocksSearchCriteria::OPER_NIN_OR_NULL:
-				echo sprintf("%s is blank or not %s", DevblocksPlatform::strEscapeHtml($label_singular), $list_of_strings);
-				break;
-		}
+		echo sprintf("%s matches <b>%s</b>",
+			DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.custom_fieldset')),
+			DevblocksPlatform::strEscapeHtml($param->value)
+		);
+		return;
 	}
 	
 	protected function _renderVirtualWatchers($param) {
@@ -2761,10 +2721,6 @@ abstract class C4_AbstractView {
 		
 		if(false == ($dao_class = $context_ext->getDaoClass()))
 			return [];
-		
-		// [TODO] Is this the best way to go about this?
-		// Show all linked custom fieldsets; ignore current fieldset filters
-		unset($params['*_has_fieldset']);
 		
 		if(!method_exists($dao_class, 'getSearchQueryComponents'))
 			return [];

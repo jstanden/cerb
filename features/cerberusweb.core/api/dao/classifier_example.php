@@ -450,6 +450,7 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 	
 	const VIRTUAL_CLASSIFIER_SEARCH = '*_classifier_search';
 	const VIRTUAL_CLASSIFIER_CLASS_SEARCH = '*_classifier_class_search';
+	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 
 	static private $_fields = null;
 	
@@ -473,6 +474,10 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_CLASSIFIER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CLASSIFIER, 'classifier_example.classifier_id');
+				break;
+				
+			case self::VIRTUAL_HAS_FIELDSET:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE)), self::getPrimaryKey());
 				break;
 			
 			default:
@@ -510,6 +515,7 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 				
 			self::VIRTUAL_CLASSIFIER_SEARCH => new DevblocksSearchField(self::VIRTUAL_CLASSIFIER_SEARCH, '*', 'classifier_search', null, null, false),
 			self::VIRTUAL_CLASSIFIER_CLASS_SEARCH => new DevblocksSearchField(self::VIRTUAL_CLASSIFIER_CLASS_SEARCH, '*', 'classifier_class_search', null, null, false),
+			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 		);
 		
 		// Custom Fields
@@ -604,6 +610,7 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				// Fields
 				case SearchFields_ClassifierExample::CLASS_ID:
 				case SearchFields_ClassifierExample::CLASSIFIER_ID:
+				case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
 					
@@ -644,6 +651,10 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($classifiers), 'name', 'id');
 				
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
+			case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			default:
@@ -704,6 +715,14 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ClassifierExample::EXPRESSION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'fieldset' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -741,6 +760,10 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				
 			case 'classifier':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_SEARCH);
+				break;
+				
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
 			
 			default:
@@ -809,6 +832,10 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 			case SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_SEARCH:
 				echo sprintf("Classifier matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
 				break;
+				
+			case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
+				$this->_renderVirtualHasFieldset($param);
+				break;
 		}
 	}
 
@@ -834,9 +861,9 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
+			case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			default:
@@ -1252,7 +1279,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);

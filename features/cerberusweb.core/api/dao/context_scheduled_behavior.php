@@ -978,6 +978,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContextScheduledBehavior::VIRTUAL_BOT_SEARCH);
 				break;
 				
+			case 'fieldset':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+				
 			default:
 				if($field == 'on' || DevblocksPlatform::strStartsWith($field, 'on.'))
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'on', SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET);
@@ -1436,7 +1440,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$context_id,
-							array(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+							[]
 						),
 				),
 			);
