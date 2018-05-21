@@ -466,12 +466,6 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 	
-		array_walk_recursive(
-			$params,
-			array('DAO_CustomField', '_translateVirtualParameters'),
-			$args
-		);
-		
 		return array(
 			'primary_table' => 'custom_field',
 			'select' => $select_sql,
@@ -479,20 +473,6 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			'where' => $where_sql,
 			'sort' => $sort_sql,
 		);
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
-		$from_index = 'custom_field.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-		}
 	}
 	
 	/**

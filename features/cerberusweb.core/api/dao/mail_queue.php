@@ -805,12 +805,6 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 			SearchFields_MailQueue::VIRTUAL_WORKER_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_MailQueue::ID,
-			SearchFields_MailQueue::TICKET_ID,
-			SearchFields_MailQueue::VIRTUAL_WORKER_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 
@@ -1397,14 +1391,6 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		$view->addParamsRequired(array(
 			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=',0),
 		), true);
-		
-		$view->addParamsHidden(array(
-			SearchFields_MailQueue::ID,
-			SearchFields_MailQueue::IS_QUEUED,
-			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
-			SearchFields_MailQueue::QUEUE_FAILS,
-			SearchFields_MailQueue::TICKET_ID,
-		));
 		
 		$view->renderSortBy = SearchFields_MailQueue::UPDATED;
 		$view->renderSortAsc = false;

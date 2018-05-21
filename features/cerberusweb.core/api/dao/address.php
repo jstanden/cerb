@@ -841,12 +841,6 @@ class DAO_Address extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 		
-		array_walk_recursive(
-			$params,
-			array('DAO_Address', '_translateVirtualParameters'),
-			$args
-		);
-		
 		$result = array(
 			'primary_table' => 'a',
 			'select' => $select_sql,
@@ -856,23 +850,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		);
 		
 		return $result;
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-
-		$from_context = CerberusContexts::CONTEXT_ADDRESS;
-		$from_index = 'a.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_Address::VIRTUAL_HAS_FIELDSET:
-				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		}
 	}
 	
 	static function autocomplete($term, $as='models', $query=null) {

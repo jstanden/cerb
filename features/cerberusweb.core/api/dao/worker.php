@@ -1184,12 +1184,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 		
-		array_walk_recursive(
-			$params,
-			array('DAO_Worker', '_translateVirtualParameters'),
-			$args
-		);
-		
 		$result = array(
 			'primary_table' => 'w',
 			'select' => $select_sql,
@@ -1199,23 +1193,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		);
 		
 		return $result;
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = CerberusContexts::CONTEXT_WORKER;
-		$from_index = 'w.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
-				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		}
 	}
 	
 	static function autocomplete($term, $as='models', $query=null) {

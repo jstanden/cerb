@@ -346,12 +346,6 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 
-		array_walk_recursive(
-			$params,
-			array('DAO_FileBundle', '_translateVirtualParameters'),
-			$args
-		);
-
 		return array(
 			'primary_table' => 'file_bundle',
 			'select' => $select_sql,
@@ -359,54 +353,6 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 			'where' => $where_sql,
 			'sort' => $sort_sql,
 		);
-	}
-
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = CerberusContexts::CONTEXT_FILE_BUNDLE;
-		$from_index = 'file_bundle.id';
-
-		$param_key = $param->field;
-		settype($param_key, 'string');
-
-		switch($param_key) {
-			case SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET:
-				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-
-			case SearchFields_FileBundle::VIRTUAL_OWNER:
-				if(!is_array($param->value))
-					break;
-				
-				$wheres = array();
-					
-				foreach($param->value as $owner_context) {
-					@list($context, $context_id) = explode(':', $owner_context);
-					
-					if(empty($context))
-						continue;
-					
-					if(!empty($context_id)) {
-						$wheres[] = sprintf("(file_bundle.owner_context = %s AND file_bundle.owner_context_id = %d)",
-							Cerb_ORMHelper::qstr($context),
-							$context_id
-						);
-						
-					} else {
-						$wheres[] = sprintf("(file_bundle.owner_context = %s)",
-							Cerb_ORMHelper::qstr($context)
-						);
-					}
-					
-				}
-				
-				if(!empty($wheres))
-					$args['where_sql'] .= 'AND ' . implode(' OR ', $wheres);
-				
-				break;
-		}
 	}
 
 	static function autocomplete($term, $as='models', $actor=null) {

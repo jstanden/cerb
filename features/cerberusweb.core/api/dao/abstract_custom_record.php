@@ -506,12 +506,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 	
-		array_walk_recursive(
-			$params,
-			array('DAO_AbstractCustomRecord', '_translateVirtualParameters'),
-			$args
-		);
-		
 		return array(
 			'primary_table' => $table_name,
 			'select' => $select_sql,
@@ -519,26 +513,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			'where' => $where_sql,
 			'sort' => $sort_sql,
 		);
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-		
-		$table_name = self::_getTableName();
-		$context_name = self::_getContextName();
-			
-		$from_context = $context_name;
-		$from_index = sprintf('%s.id', self::escape($table_name));
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET:
-				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		}
 	}
 	
 	static function autocomplete($term, $as='models') {
