@@ -693,7 +693,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 				
 			default:
 				// Custom fields
-				if('cf_' == substr($column,0,3)) {
+				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				

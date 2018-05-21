@@ -1392,7 +1392,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			
 			default:
 				// Custom fields
-				if('cf_' == substr($column,0,3)) {
+				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
