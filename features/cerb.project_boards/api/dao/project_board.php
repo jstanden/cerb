@@ -334,12 +334,6 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 	
-		array_walk_recursive(
-			$params,
-			array('DAO_ProjectBoard', '_translateVirtualParameters'),
-			$args
-		);
-		
 		return array(
 			'primary_table' => 'project_board',
 			'select' => $select_sql,
@@ -347,23 +341,6 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 			'where' => $where_sql,
 			'sort' => $sort_sql,
 		);
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = Context_ProjectBoard::ID;
-		$from_index = 'project_board.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_ProjectBoard::VIRTUAL_HAS_FIELDSET:
-				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		}
 	}
 	
 	/**

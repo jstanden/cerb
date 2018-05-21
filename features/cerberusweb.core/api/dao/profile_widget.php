@@ -396,12 +396,6 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 	
-		array_walk_recursive(
-			$params,
-			array('DAO_ProfileWidget', '_translateVirtualParameters'),
-			$args
-		);
-		
 		return array(
 			'primary_table' => 'profile_widget',
 			'select' => $select_sql,
@@ -409,23 +403,6 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			'where' => $where_sql,
 			'sort' => $sort_sql,
 		);
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = CerberusContexts::CONTEXT_PROFILE_WIDGET;
-		$from_index = 'profile_widget.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_ProfileWidget::VIRTUAL_HAS_FIELDSET:
-				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		}
 	}
 	
 	/**

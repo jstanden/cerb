@@ -449,13 +449,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 		
-		// Virtuals
-		array_walk_recursive(
-			$params,
-			array('DAO_Snippet', '_translateVirtualParameters'),
-			$args
-		);
-		
 		$result = array(
 			'primary_table' => 'snippet',
 			'select' => $select_sql,
@@ -465,24 +458,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		);
 		
 		return $result;
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-			
-		$from_context = CerberusContexts::CONTEXT_SNIPPET;
-		$from_index = 'snippet.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		
-		switch($param_key) {
-			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
-				if(is_array($args) && isset($args['join_sql']) && isset($args['where_sql']))
-					self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		}
 	}
 	
 	/**

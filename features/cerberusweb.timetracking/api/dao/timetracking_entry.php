@@ -597,12 +597,6 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			'tables' => &$tables,
 		);
 		
-		array_walk_recursive(
-			$params,
-			array('DAO_TimeTrackingEntry', '_translateVirtualParameters'),
-			$args
-		);
-		
 		$result = array(
 			'primary_table' => 'tt',
 			'select' => $select_sql,
@@ -612,22 +606,6 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		);
 		
 		return $result;
-	}
-	
-	private static function _translateVirtualParameters($param, $key, &$args) {
-		if(!is_a($param, 'DevblocksSearchCriteria'))
-			return;
-		
-		$from_context = 'cerberusweb.contexts.timetracking';
-		$from_index = 'tt.id';
-		
-		$param_key = $param->field;
-		settype($param_key, 'string');
-		switch($param_key) {
-			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				self::_searchComponentsVirtualHasFieldset($param, $from_context, $from_index, $args['join_sql'], $args['where_sql']);
-				break;
-		}
 	}
 	
 	/**
