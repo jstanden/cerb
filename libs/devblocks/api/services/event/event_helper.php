@@ -654,14 +654,6 @@ class DevblocksEventHelper {
 		// Lazy load custom fields
 		$dict->custom_;
 		
-		/**
-		 * If we have a fieldset-based custom field that doesn't exist in scope yet
-		 * then link it.
-		 */
-		if($custom_field->custom_fieldset_id && !isset($dict->$token)) {
-			DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $custom_field->custom_fieldset_id);
-		}
-		
 		switch($custom_field->type) {
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_MULTI_LINE:

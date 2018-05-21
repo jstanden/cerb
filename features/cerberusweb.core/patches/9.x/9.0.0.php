@@ -86,6 +86,39 @@ if(isset($columns['params_hidden_json'])) {
 $db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_display_inline_log'");
 
 // ===========================================================================
+// Add `context_to_custom_fieldset`
+
+if(!isset($tables['context_to_custom_fieldset'])) {
+	$sql = sprintf("
+	CREATE TABLE `context_to_custom_fieldset` (
+		context VARCHAR(255) DEFAULT '',
+		context_id INT UNSIGNED NOT NULL,
+		custom_fieldset_id INT UNSIGNED NOT NULL,
+		primary key (context,custom_fieldset_id, context_id)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+
+	$tables['context_to_custom_fieldset'] = 'context_to_custom_fieldset';
+	
+	// Populate `context_to_custom_fieldset`
+	$db->ExecuteMaster("INSERT IGNORE into context_to_custom_fieldset (context, context_id, custom_fieldset_id) SELECT custom_field_stringvalue.context, context_id, custom_field.custom_fieldset_id from custom_field_stringvalue inner join custom_field on (custom_field_stringvalue.field_id=custom_field.id and custom_field.custom_fieldset_id != 0)");
+	$db->ExecuteMaster("INSERT IGNORE into context_to_custom_fieldset (context, context_id, custom_fieldset_id) SELECT custom_field_numbervalue.context, context_id, custom_field.custom_fieldset_id from custom_field_numbervalue inner join custom_field on (custom_field_numbervalue.field_id=custom_field.id and custom_field.custom_fieldset_id != 0)");
+	$db->ExecuteMaster("INSERT IGNORE into context_to_custom_fieldset (context, context_id, custom_fieldset_id) SELECT custom_field_clobvalue.context, context_id, custom_field.custom_fieldset_id from custom_field_clobvalue inner join custom_field on (custom_field_clobvalue.field_id=custom_field.id and custom_field.custom_fieldset_id != 0)");
+}
+
+// ===========================================================================
+// Remove `context_link` records for custom fieldsets
+
+$db->ExecuteMaster("DELETE FROM context_link WHERE from_context = 'cerberusweb.contexts.custom_fieldset'");
+$db->ExecuteMaster("DELETE FROM context_link WHERE to_context = 'cerberusweb.contexts.custom_fieldset'");
+
+// ===========================================================================
+// Clean up custom fieldset link logs
+
+$db->ExecuteMaster("DELETE FROM context_activity_log WHERE target_context = 'cerberusweb.contexts.custom_fieldset'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

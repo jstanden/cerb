@@ -1564,7 +1564,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$contexts = Extension_DevblocksContext::getAll(false);
 		
-		$counts = DAO_ContextLink::getContextLinkCounts($context, $context_id, [CerberusContexts::CONTEXT_CUSTOM_FIELDSET]);
+		$counts = DAO_ContextLink::getContextLinkCounts($context, $context_id, []);
 		$results = [];
 		
 		foreach($counts as $ext_id => $count) {

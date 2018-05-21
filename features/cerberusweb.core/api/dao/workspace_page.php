@@ -930,13 +930,64 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	}
 };
 
-class Context_WorkspacePage extends Extension_DevblocksContext implements IDevblocksContextPeek {
+class Context_WorkspacePage extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+	const ID = 'cerberusweb.contexts.workspace.page';
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $models);
+	}
+	
+	function profileGetUrl($context_id) {
+		if(empty($context_id))
+			return '';
+	
+		$url_writer = DevblocksPlatform::services()->url();
+		$url = $url_writer->writeNoProxy('c=pages&id='.$context_id, true);
+		return $url;
+	}
+	
+	function profileGetFields($model=null) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		if(is_null($model))
+			$model = new Model_WorkspacePage();
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['owner'] = array(
+			'label' => mb_ucfirst($translate->_('common.owner')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->owner_context_id,
+			'params' => [
+				'context' => $model->owner_context,
+			]
+		);
+		
+		$properties['extension_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => @$model->getExtension()->manifest->name,
+		);
+		
+		$properties['updated'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated_at,
+		);
+		
+		return $properties;
 	}
 	
 	function getRandom() {
@@ -949,11 +1000,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		if(null == ($workspace_page = DAO_WorkspacePage::get($context_id)))
 			return [];
 		
-		$url = $url_writer->write(sprintf("c=pages&id=%d",
-			$workspace_page->id
-		));
-		
-		//$url = $this->profileGetUrl($context_id);
+		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($workspace_page->name);
 
 		if(!empty($friendly))
@@ -996,6 +1043,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
 			'extension_id' => $prefix.$translate->_('Extension ID'),
@@ -1007,6 +1055,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner__label' =>'context_url',
 			'extension__label' => Model_CustomField::TYPE_SINGLE_LINE,

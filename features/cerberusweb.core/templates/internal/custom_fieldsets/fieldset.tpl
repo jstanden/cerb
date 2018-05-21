@@ -10,9 +10,7 @@
 	<span class="glyphicons glyphicons-circle-remove delete" style="font-size:16px;cursor:pointer;float:right;margin-top:-20px;display:none;"></span>
 	
 	{if empty($field_wrapper)}
-	{if $custom_fieldset_is_new}
-	<input type="hidden" name="custom_fieldset_adds[]" value="{$custom_fieldset->id}">
-	{else}{* We can only delete fieldsets that existed first *}
+	{if !$custom_fieldset_is_new}{* We can only delete fieldsets that existed first *}
 	<input type="hidden" name="custom_fieldset_deletes[]" value="">
 	{/if}
 	{/if}

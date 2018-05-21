@@ -1894,7 +1894,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 						DAO_ContextLink::getContextLinkCounts(
 							$context,
 							$record->id,
-							[CerberusContexts::CONTEXT_CUSTOM_FIELDSET]
+							[]
 						),
 				],
 			];

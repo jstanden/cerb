@@ -723,6 +723,46 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		return $output;
 	}
 	
+	private static function _handleFieldsets($context, $context_id, &$values) {
+		$custom_fields = DAO_CustomField::getByContext($context, true);
+		
+		//==========================================================
+		// Remove custom fieldsets upon request
+		
+		// If we have a request variable hint about removing fieldsets, do that now
+		@$param = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'], 'array', []);
+		
+		// Which fieldsets are we deleting?
+		$remove_fieldset_ids = array_flip(array_filter($param, function($d) {
+			return !empty($d);
+		}));
+		
+		foreach($values as $field_id => $value) {
+			if(
+				false == (@$custom_field = $custom_fields[$field_id]) 
+				|| array_key_exists($custom_field->custom_fieldset_id, $remove_fieldset_ids)) {
+				self::unsetFieldValue($context, $context_id, $field_id);
+				unset($values[$field_id]);
+			}
+		}
+		
+		if($remove_fieldset_ids)
+			DAO_CustomFieldset::removeFromContext(array_keys($remove_fieldset_ids), $context, $context_id);
+		
+		//==========================================================
+		// Link any remaining fields with fieldsets
+		
+		$set_fields = array_intersect_key($custom_fields, $values);
+		$add_fieldsets = array_unique(array_column($set_fields, 'custom_fieldset_id'));
+		$add_fieldset_ids = array_values(array_filter($add_fieldsets, function($d) {
+			return !empty($d);
+		}));
+		
+		DAO_CustomFieldset::addToContext($add_fieldset_ids, $context, $context_id);
+		
+		return true;
+	}
+	
 	/**
 	 *
 	 * @param object $context
@@ -736,14 +776,14 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		if(empty($context) || empty($context_id) || !is_array($values))
 			return;
 		
-		self::_linkCustomFieldsets($context, $context_id, $values);
-		
 		$fields = DAO_CustomField::getByContext($context);
-
+		
+		self::_handleFieldsets($context, $context_id, $values);
+		
 		foreach($values as $field_id => $value) {
 			if(!isset($fields[$field_id]))
 				continue;
-
+			
 			$field =& $fields[$field_id]; /* @var $field Model_CustomField */
 			$is_delta = (Model_CustomField::hasMultipleValues($field->type))
 					? $delta
@@ -1186,72 +1226,6 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		return true;
 	}
 
-	private static function _linkCustomFieldsets($context, $context_id, &$field_values) {
-		/*
-		 * If we have a request variable with hints about new custom fieldsets, use it
-		 */
-		if(isset($_REQUEST['custom_fieldset_adds'])) {
-			@$custom_fieldset_adds = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_adds'], 'array', []);
-			
-			if(is_array($custom_fieldset_adds))
-			foreach($custom_fieldset_adds as $cfset_id) {
-				if(empty($cfset_id))
-					continue;
-			
-				DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $cfset_id);
-			}
-			
-		/*
-		 * Otherwise, if the request variable doesn't exist we need to introspect the cfields
-		 * and look for fieldsets.
-		 */
-		} else {
-			$custom_fields = DAO_CustomField::getAll();
-			$custom_fieldsets = DAO_CustomFieldset::getByContextLink($context, $context_id);
-	
-			foreach(array_keys($field_values) as $field_id) {
-				if(!isset($custom_fields[$field_id]))
-					continue;
-				
-				@$cfset_id = $custom_fields[$field_id]->custom_fieldset_id;
-				
-				if($cfset_id && !isset($custom_fieldsets[$cfset_id])) {
-					DAO_ContextLink::setLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $cfset_id);
-				}
-			}
-		}
-		
-		/*
-		 * If we have a request variable hint about removing fieldsets, do that now
-		 */
-		@$custom_fieldset_deletes = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_deletes'], 'array', []);
-		
-		if(is_array($custom_fieldset_deletes))
-		foreach($custom_fieldset_deletes as $cfset_id) {
-			if(empty($cfset_id))
-				continue;
-		
-			$custom_fieldset = DAO_CustomFieldset::get($cfset_id);
-			$custom_fieldset_fields = $custom_fieldset->getCustomFields();
-			
-			// Remove the custom field values
-			if(is_array($custom_fieldset_fields))
-			foreach(array_keys($custom_fieldset_fields) as $cf_id) {
-				// Remove any data for this field on this record
-				DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $cf_id);
-				
-				// Remove any field values we're currently setting
-				if(isset($field_values[$cf_id]))
-					unset($field_values[$cf_id]);
-			}
-			
-			// Break the context link
-			DAO_ContextLink::deleteLink($context, $context_id, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $cfset_id);
-		}
-		
-		return true;
-	}
-	
 	public static function getValuesByContextIds($context, $context_ids, $only_field_ids=null) {
 		if(is_null($context_ids))
 			return [];

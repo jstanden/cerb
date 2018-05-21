@@ -2687,7 +2687,7 @@ abstract class C4_AbstractView {
 		$data = $this->_getSubtotalDataForHasFieldsetColumn($context, $context);
 		
 		foreach($data as $row) {
-			@$custom_fieldset = $custom_fieldsets[$row['link_fieldset_id']];
+			@$custom_fieldset = $custom_fieldsets[$row['custom_fieldset_id']];
 			
 			if(empty($custom_fieldset))
 				continue;
@@ -2737,22 +2737,18 @@ abstract class C4_AbstractView {
 		
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
-
-		// This intentionally isn't constrained with a LIMIT
-		$sql = sprintf("SELECT from_context_id AS link_fieldset_id, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) AND from_context = %s GROUP BY from_context_id ORDER BY hits DESC ",
+		
+		$sql = sprintf("SELECT custom_fieldset_id, COUNT(*) AS hits FROM context_to_custom_fieldset WHERE context = %s AND context_id IN (%s) GROUP BY custom_fieldset_id ORDER BY hits DESC",
 			$db->qstr($context),
 			(
 				sprintf("SELECT %s.id ", $query_parts['primary_table']).
 				$query_parts['join'] .
 				$query_parts['where']
-			),
-			$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELDSET)
+			)
 		);
-		
 		$results = $db->GetArraySlave($sql);
-
-		return $results;
 		
+		return $results;
 	}
 	
 	protected function _getSubtotalCountForCustomColumn($context, $field_key) {
@@ -3105,12 +3101,6 @@ abstract class C4_AbstractView {
 						DAO_CustomFieldValue::unsetFieldValue($context,$id,$cf_id);
 				}
 			}
-		}
-		
-		// Link any utilized custom fieldsets to these IDs
-		if(is_array($ids))
-		foreach($ids as $id) {
-			DAO_CustomFieldset::linkToContextByFieldIds($context, $id, array_keys($custom_fields));
 		}
 	}
 	
