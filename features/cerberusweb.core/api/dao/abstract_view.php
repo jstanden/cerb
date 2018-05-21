@@ -2228,10 +2228,47 @@ abstract class C4_AbstractView {
 			}
 		}
 		
+		// Search fields
+		
+		$search_fields = $this->getQuickSearchFields();
+		$params = $this->getParamsAvailable();
+		
+		// Sort
+		
+		$sort_menu = new DevblocksMenuItemPlaceholder();
+		
+		foreach($search_fields as $field_key => $field) {
+			if(!$field['is_sortable'])
+				continue;
+			
+			if(false == ($param = @$params[$field['options']['param_key']]))
+				continue;
+			
+			$item = new DevblocksMenuItemPlaceholder();
+			$item->label = $field_key;
+			$item->l = $field_key;
+			$item->key = 'sort:'.$field_key;
+			
+			$item_asc = new DevblocksMenuItemPlaceholder();
+			$item_asc->label = 'ascending';
+			$item_asc->l = 'ascending';
+			$item_asc->key = 'sort:'.$field_key;
+			$item->children['ascending'] = $item_asc;
+			
+			$item_desc = new DevblocksMenuItemPlaceholder();
+			$item_desc->label = 'descending';
+			$item_desc->l = 'descending';
+			$item_desc->key = 'sort:-'.$field_key;
+			$item->children['descending'] = $item_desc;
+			
+			$sort_menu->children[$field_key] = $item;
+		}
+		
+		$menu['(sort)'] = $sort_menu;
+		
 		// Fields
 		
 		$fields_menu = new DevblocksMenuItemPlaceholder();
-		$search_fields = $this->getQuickSearchFields();
 		
 		if(!empty($search_fields)) {
 			$labels = array_keys($search_fields);
