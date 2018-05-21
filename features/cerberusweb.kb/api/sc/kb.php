@@ -369,11 +369,6 @@ class UmSc_KbArticleView extends C4_AbstractView {
 			SearchFields_KbArticle::VIEWS,
 		);
 		
-		$this->addParamsHidden(array(
-			SearchFields_KbArticle::ID,
-			SearchFields_KbArticle::FORMAT,
-		));
-
 		$this->doResetCriteria();
 	}
 

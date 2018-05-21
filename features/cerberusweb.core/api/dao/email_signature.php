@@ -542,11 +542,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 			SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_EmailSignature::OWNER_CONTEXT,
-			SearchFields_EmailSignature::OWNER_CONTEXT_ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

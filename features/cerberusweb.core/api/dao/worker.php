@@ -2036,16 +2036,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::FULLTEXT_WORKER,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Worker::CALENDAR_ID,
-			SearchFields_Worker::EMAIL_ID,
-			SearchFields_Worker::ID,
-			SearchFields_Worker::VIRTUAL_ALIAS,
-			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
-			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
-			SearchFields_Worker::VIRTUAL_ROLE_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

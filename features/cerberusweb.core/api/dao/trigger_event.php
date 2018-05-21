@@ -1480,11 +1480,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 			SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH,
-			SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
-		));
-		
 		$this->doResetCriteria();
 	}
 

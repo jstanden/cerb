@@ -541,8 +541,6 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_ProfileTab::VIRTUAL_HAS_FIELDSET,
 		]);
 		
-		$this->addParamsHidden([]);
-		
 		$this->doResetCriteria();
 	}
 

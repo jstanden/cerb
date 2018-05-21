@@ -938,12 +938,6 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Calendar::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Calendar::OWNER_CONTEXT,
-			SearchFields_Calendar::OWNER_CONTEXT_ID,
-			SearchFields_Calendar::PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

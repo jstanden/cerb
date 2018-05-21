@@ -154,11 +154,6 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 			$view->addParamsRequired(array(
 				SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=', 1)
 			), true);
-			$view->addParamsHidden(array(
-				SearchFields_MailQueue::ID,
-				SearchFields_MailQueue::IS_QUEUED,
-				SearchFields_MailQueue::TICKET_ID,
-			), true);
 			
 			$tpl->assign('view', $view);
 		}

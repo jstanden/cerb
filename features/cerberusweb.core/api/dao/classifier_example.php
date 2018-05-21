@@ -561,11 +561,7 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 		$this->addColumnsHidden(array(
 			SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_CLASS_SEARCH,
 			SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_SEARCH,
-		));
-		
-		$this->addParamsHidden(array(
-			SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_CLASS_SEARCH,
-			SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_SEARCH,
+			SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET,
 		));
 		
 		$this->doResetCriteria();

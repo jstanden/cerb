@@ -535,10 +535,6 @@ class View_ClassifierEntity extends C4_AbstractView implements IAbstractView_Sub
 			SearchFields_ClassifierEntity::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_ClassifierEntity::PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

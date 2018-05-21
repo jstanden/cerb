@@ -536,10 +536,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_CalendarEvent::ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

@@ -2333,12 +2333,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				SearchFields_ContextActivityLog::ID,
 			), true);
 			
-			$view->addParamsHidden(array(
-				SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
-				SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
-				SearchFields_ContextActivityLog::ID,
-			), true);
-			
 			$view->addParamsRequired($params, true);
 			
 			$tpl->assign('view', $view);

@@ -1517,17 +1517,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Message::VIRTUAL_TICKET_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Message::ADDRESS_ID,
-			SearchFields_Message::HTML_ATTACHMENT_ID,
-			SearchFields_Message::ID,
-			SearchFields_Message::TICKET_STATUS_ID,
-			SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH,
-			SearchFields_Message::VIRTUAL_HEADER_MESSAGE_ID,
-			SearchFields_Message::VIRTUAL_NOTES_SEARCH,
-			SearchFields_Message::VIRTUAL_TICKET_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

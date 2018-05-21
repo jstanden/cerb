@@ -806,21 +806,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			SearchFields_ContextScheduledBehavior::VIRTUAL_BOT_SEARCH,
 		));
 
-		$this->addParamsHidden(array(
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
-			SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID,
-			SearchFields_ContextScheduledBehavior::CONTEXT,
-			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
-			SearchFields_ContextScheduledBehavior::ID,
-			SearchFields_ContextScheduledBehavior::REPEAT_JSON,
-			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
-			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
-			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
-			SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH,
-			SearchFields_ContextScheduledBehavior::VIRTUAL_BOT_SEARCH,
-			SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET,
-		));
-
 		$this->doResetCriteria();
 	}
 

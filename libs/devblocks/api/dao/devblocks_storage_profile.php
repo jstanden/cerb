@@ -57,11 +57,6 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 			SearchFields_DevblocksStorageProfile::PARAMS_JSON,
 		), true);
 		
-		$this->addParamsHidden(array(
-			SearchFields_DevblocksStorageProfile::ID,
-			SearchFields_DevblocksStorageProfile::PARAMS_JSON,
-		), true);
-		
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_DevblocksStorageProfile::ID;
 		$this->renderSortAsc = true;

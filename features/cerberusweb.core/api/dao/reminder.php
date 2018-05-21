@@ -593,11 +593,6 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Reminder::VIRTUAL_WORKER_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Reminder::PARAMS_JSON,
-			SearchFields_Reminder::VIRTUAL_WORKER_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

@@ -540,10 +540,6 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			SearchFields_Skill::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Skill::VIRTUAL_SKILLSET_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

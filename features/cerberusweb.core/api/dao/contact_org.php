@@ -987,12 +987,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_ContactOrg::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_ContactOrg::ID,
-			SearchFields_ContactOrg::EMAIL_ID,
-			SearchFields_ContactOrg::VIRTUAL_ALIAS,
-		));
-		
 		$this->doResetCriteria();
 	}
 

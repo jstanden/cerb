@@ -994,9 +994,6 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_KbCategory::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 

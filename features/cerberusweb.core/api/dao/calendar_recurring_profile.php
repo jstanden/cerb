@@ -705,10 +705,6 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 			SearchFields_CalendarRecurringProfile::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_CalendarRecurringProfile::VIRTUAL_CALENDAR_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

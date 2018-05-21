@@ -520,9 +520,6 @@ class View_Skillset extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Skillset::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 

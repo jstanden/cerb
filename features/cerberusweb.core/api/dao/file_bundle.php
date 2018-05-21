@@ -598,11 +598,6 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_FileBundle::VIRTUAL_WATCHERS,
 		));
 
-		$this->addParamsHidden(array(
-			SearchFields_FileBundle::OWNER_CONTEXT,
-			SearchFields_FileBundle::OWNER_CONTEXT_ID,
-		));
-
 		$this->doResetCriteria();
 	}
 

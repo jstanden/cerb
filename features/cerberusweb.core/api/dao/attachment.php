@@ -1217,11 +1217,6 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_Attachment::VIRTUAL_ON,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH,
-			SearchFields_Attachment::VIRTUAL_ON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

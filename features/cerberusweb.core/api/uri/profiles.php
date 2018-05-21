@@ -715,8 +715,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					SearchFields_DevblocksSession::USER_ID => new DevblocksSearchCriteria(SearchFields_DevblocksSession::USER_ID, '=', $worker->id),
 				));
 				
-				$view->addParamsHidden(array(SearchFields_DevblocksSession::USER_ID));
-				
 				$tpl->assign('view', $view);
 				$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 				break;

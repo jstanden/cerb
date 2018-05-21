@@ -552,10 +552,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 			SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS,
 		));
 		
-		// [TODO] Filter fields
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 

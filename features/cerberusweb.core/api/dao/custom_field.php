@@ -1585,11 +1585,6 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 			SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_CustomField::PARAMS_JSON,
-			SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH,
-		));
-		
 		$this->doResetCriteria();
 	}
 

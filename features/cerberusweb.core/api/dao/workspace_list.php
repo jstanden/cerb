@@ -680,9 +680,6 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_WorkspaceList::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 

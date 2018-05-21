@@ -899,9 +899,6 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 			SearchFields_CommunityTool::VIRTUAL_HAS_FIELDSET,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->addParamsDefault(array(
 		));
 		

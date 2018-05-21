@@ -757,12 +757,6 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 			SearchFields_Bot::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Bot::OWNER_CONTEXT,
-			SearchFields_Bot::OWNER_CONTEXT_ID,
-			SearchFields_Bot::PARAMS_JSON,
-		));
-		
 		$this->doResetCriteria();
 	}
 

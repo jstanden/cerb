@@ -572,9 +572,6 @@ class View_Currency extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Currency::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-		));
-		
 		$this->doResetCriteria();
 	}
 

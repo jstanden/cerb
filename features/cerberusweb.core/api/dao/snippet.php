@@ -862,14 +862,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Snippet::VIRTUAL_USABLE_BY,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Snippet::ID,
-			SearchFields_Snippet::OWNER_CONTEXT,
-			SearchFields_Snippet::OWNER_CONTEXT_ID,
-			SearchFields_Snippet::USE_HISTORY_MINE,
-			SearchFields_Snippet::VIRTUAL_USABLE_BY,
-		));
-		
 		$this->doResetCriteria();
 	}
 

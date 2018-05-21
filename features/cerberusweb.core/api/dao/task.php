@@ -786,11 +786,6 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			SearchFields_Task::VIRTUAL_WATCHERS,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Task::ID,
-			SearchFields_Task::VIRTUAL_OWNER_SEARCH,
-		));
-		
 		$this->addParamsDefault(array(
 			SearchFields_Task::STATUS_ID => new DevblocksSearchCriteria(SearchFields_Task::STATUS_ID,'=',0),
 		));

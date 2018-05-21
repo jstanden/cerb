@@ -571,12 +571,6 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_FeedbackEntry::VIRTUAL_WORKER_SEARCH,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_FeedbackEntry::ID,
-			SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID,
-			SearchFields_FeedbackEntry::VIRTUAL_EMAIL_SEARCH,
-			SearchFields_FeedbackEntry::VIRTUAL_WORKER_SEARCH,
-		));
 		$this->addParamsDefault(array(
 			SearchFields_FeedbackEntry::LOG_DATE => new DevblocksSearchCriteria(SearchFields_FeedbackEntry::LOG_DATE,DevblocksSearchCriteria::OPER_BETWEEN,array('-1 month','now')),
 		));

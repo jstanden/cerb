@@ -299,10 +299,6 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 			SearchFields_Ticket::TICKET_LAST_WROTE_ID,
 		);
 		
-		$this->addParamsHidden(array(
-			SearchFields_Ticket::TICKET_ID,
-		));
-		
 		$this->doResetCriteria();
 	}
 

@@ -1405,15 +1405,6 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Address::VIRTUAL_TICKET_SEARCH,
 			SearchFields_Address::VIRTUAL_WATCHERS,
 		));
-		
-		$this->addParamsHidden(array(
-			SearchFields_Address::ID,
-			SearchFields_Address::ORG_NAME,
-			SearchFields_Address::VIRTUAL_CONTACT_SEARCH,
-			SearchFields_Address::VIRTUAL_ORG_SEARCH,
-			SearchFields_Address::VIRTUAL_TICKET_ID,
-			SearchFields_Address::VIRTUAL_TICKET_SEARCH,
-		));
 	}
 
 	function getData() {

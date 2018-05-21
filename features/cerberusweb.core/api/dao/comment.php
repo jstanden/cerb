@@ -838,17 +838,6 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Comment::VIRTUAL_OWNER,
 		));
 		
-		$this->addParamsHidden(array(
-			SearchFields_Comment::CONTEXT,
-			SearchFields_Comment::CONTEXT_ID,
-			SearchFields_Comment::ID,
-			SearchFields_Comment::OWNER_CONTEXT,
-			SearchFields_Comment::OWNER_CONTEXT_ID,
-			SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH,
-			SearchFields_Comment::VIRTUAL_OWNER,
-			SearchFields_Comment::VIRTUAL_TARGET,
-		));
-		
 		$this->doResetCriteria();
 	}
 

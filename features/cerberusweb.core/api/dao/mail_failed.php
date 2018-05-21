@@ -82,9 +82,6 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		$this->addColumnsHidden(array(
 		));
 		
-		$this->addParamsHidden(array(
-		));
-
 		$this->doResetCriteria();
 	}
 
