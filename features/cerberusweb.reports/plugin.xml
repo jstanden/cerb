@@ -4,14 +4,14 @@
 	<name>Reports</name>
 	<description>Pluggable reporting area with default reports on various metrics.  This adds a Reports menu and several plugin hooks for creating new reports.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>8.3.8</version>
+	<version>9.0.0</version>
 	<link>http://wiki.cerbweb.com/Features:Reports</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="8.3" max="8.3.99" />
+		<app_version min="9.0" max="9.0.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
