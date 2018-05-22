@@ -1813,6 +1813,16 @@ class Model_Worker {
 	function getLatestSession() {
 		return DAO_DevblocksSession::getLatestByUserId($this->id);
 	}
+	
+	function getGenderAsString() {
+		$genders = [
+			'' => '',
+			'M' => DevblocksPlatform::translateCapitalized('common.gender.male'),
+			'F' => DevblocksPlatform::translateCapitalized('common.gender.female'),
+		];
+		
+		return @$genders[$this->gender];
+	}
 
 	/**
 	 * 
@@ -2820,10 +2830,16 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->location,
 		);
 		
-		$properties['location'] = array(
+		$properties['title'] = array(
 			'label' => mb_ucfirst($translate->_('common.title')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->title,
+		);
+		
+		$properties['gender'] = array(
+			'label' => mb_ucfirst($translate->_('common.gender')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->getGenderAsString(),
 		);
 		
 		$properties['is_superuser'] = array(
