@@ -1090,6 +1090,16 @@ class Model_Contact {
 		return $name;
 	}
 	
+	function getGenderAsString() {
+		$genders = [
+			'' => '',
+			'M' => DevblocksPlatform::translateCapitalized('common.gender.male'),
+			'F' => DevblocksPlatform::translateCapitalized('common.gender.female'),
+		];
+		
+		return @$genders[$this->gender];
+	}
+	
 	function getInitials() {
 		return mb_convert_case(DevblocksPlatform::strToInitials($this->getName()), MB_CASE_UPPER);
 	}
@@ -1755,6 +1765,12 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->org_id,
 			'params' => array('context' => CerberusContexts::CONTEXT_ORG),
+		);
+		
+		$properties['gender'] = array(
+			'label' => mb_ucfirst($translate->_('common.gender')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->getGenderAsString(),
 		);
 		
 		$properties['title'] = array(
