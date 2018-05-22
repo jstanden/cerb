@@ -1756,14 +1756,38 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			],
 		);
 		
-		$properties['reply_to'] = array(
-			'label' => mb_ucfirst($translate->_('common.email')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => null,
+		$properties['send_from'] = array(
+			'label' => mb_ucfirst($translate->_('common.send.from')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->reply_address_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_ADDRESS,
+			],
 		);
 		
-		if(false != ($reply_to = $model->getReplyTo()))
-			$properties['reply_to']['value'] = $reply_to->email;
+		$properties['send_as'] = array(
+			'label' => mb_ucfirst($translate->_('common.send.as')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->reply_personal,
+		);
+		
+		$properties['template_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.email_template')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->reply_html_template_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
+			],
+		);
+		
+		$properties['signature_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.signature')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->reply_signature_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_EMAIL_SIGNATURE,
+			],
+		);
 		
 		$properties['is_default'] = array(
 			'label' => mb_ucfirst($translate->_('common.default')),
@@ -1775,6 +1799,18 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'label' => mb_ucfirst($translate->_('common.private')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->is_private,
+		);
+		
+		$properties['created_at'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created,
+		);
+		
+		$properties['updated_at'] = array(
+			'label' => mb_ucfirst($translate->_('common.updated')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated,
 		);
 		
 		return $properties;
