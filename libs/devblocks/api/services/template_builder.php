@@ -337,8 +337,12 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		unset($this->_dictionary[$name]);
 	}
 	
+	public function clearCaches() {
+		$this->_cached_contexts = null;
+	}
+	
 	private function _cacheContexts() {
-		$contexts = array();
+		$contexts = [];
 		
 		// Match our root context
 		if(isset($this->_dictionary['_context'])) {
@@ -392,6 +396,8 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		
 		$contexts = $this->getContextsForName($name);
 		
+		$is_cache_invalid = false;
+		
 		if(is_array($contexts))
 		foreach($contexts as $context_data) {
 			$context_ext = $this->_dictionary[$context_data['key']];
@@ -407,7 +413,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 			$local = $this->getDictionary($context_data['prefix'], false);
 			
 			$loaded_values = $context->lazyLoadContextValues($token, $local);
-
+			
 			// Push the context into the stack so we can track ancestry
 			CerberusContexts::pushStack($context_data['context']);
 			
@@ -416,20 +422,34 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 			
 			if(is_array($loaded_values))
 			foreach($loaded_values as $k => $v) {
+				$new_key = $context_data['prefix'] . $k;
+				
+				// Only invalidate the cache if we loaded new contexts the first time
+				if(DevblocksPlatform::strEndsWith($new_key, '__context')
+					&& !array_key_exists($new_key, $this->_dictionary)) {
+					$is_cache_invalid = true;
+				}
+				
 				// The getDictionary() call above already filters out _labels and _types
-				$this->_dictionary[$context_data['prefix'] . $k] = $v;
+				$this->_dictionary[$new_key] = $v;
 			}
-			
-			// [TODO] Is there a better way to test that we loaded new contexts?
-			$this->_cached_contexts = null;
 		}
+		
+		if($is_cache_invalid)
+			$this->clearCaches();
 		
 		if(is_array($contexts))
 		for($n=0; $n < count($contexts); $n++)
 			CerberusContexts::popStack();
 		
-		if(!$this->exists($name))
-			return $this->_null;
+		if(!$this->exists($name)) {
+			// If the key isn't found and we invalidated the cache, recurse
+			if($is_cache_invalid) {
+				return $this->__get($name);
+			} else {
+				return $this->_null;
+			}
+		}
 		
 		return $this->_dictionary[$name];
 	}
