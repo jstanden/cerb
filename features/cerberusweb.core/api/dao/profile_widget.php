@@ -487,6 +487,7 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_TAB_SEARCH = '*_tab_search';
 	
 	static private $_fields = null;
 	
@@ -508,6 +509,10 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_PROFILE_WIDGET)), self::getPrimaryKey());
+				break;
+				
+			case self::VIRTUAL_TAB_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_PROFILE_TAB, 'profile_widget.profile_tab_id');
 				break;
 				
 			default:
@@ -549,6 +554,7 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_TAB_SEARCH => new DevblocksSearchField(self::VIRTUAL_TAB_SEARCH, '*', 'tab_search', null, null, false),
 		);
 		
 		// Custom Fields
@@ -608,6 +614,7 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			SearchFields_ProfileWidget::EXTENSION_PARAMS_JSON,
 			SearchFields_ProfileWidget::VIRTUAL_CONTEXT_LINK,
 			SearchFields_ProfileWidget::VIRTUAL_HAS_FIELDSET,
+			SearchFields_ProfileWidget::VIRTUAL_TAB_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -744,6 +751,22 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_ProfileWidget::POS),
 				),
+			'tab.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_ProfileWidget::PROFILE_TAB_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_PROFILE_TAB, 'q' => ''],
+					]
+				),
+			'tab' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ProfileWidget::VIRTUAL_TAB_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_PROFILE_TAB, 'q' => ''],
+					]
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -783,6 +806,10 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+				
+			case 'tab':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ProfileWidget::VIRTUAL_TAB_SEARCH);
 				break;
 			
 			default:
@@ -835,6 +862,13 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 				
 			case SearchFields_ProfileWidget::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+				
+			case SearchFields_ProfileWidget::VIRTUAL_TAB_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.profile.tab')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 		}
 	}
@@ -937,7 +971,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			],
 		);
 		
-		$properties['tab'] = array(
+		$properties['profile_tab_id'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.tab'),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->profile_tab_id,
@@ -946,11 +980,10 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			],
 		);
 		
-		// [TODO] As extension label
 		$properties['type'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.type'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->extension_id,
+			'value' => @$model->getExtension()->manifest->name,
 		);
 		
 		$properties['updated'] = array(
@@ -1050,6 +1083,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			$token_values['id'] = $profile_widget->id;
 			$token_values['name'] = $profile_widget->name;
 			$token_values['pos'] = $profile_widget->pos;
+			$token_values['profile_tab_id'] = $profile_widget->profile_tab_id;
 			$token_values['updated_at'] = $profile_widget->updated_at;
 			$token_values['width_units'] = $profile_widget->width_units;
 			$token_values['zone'] = $profile_widget->zone;
@@ -1061,6 +1095,19 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=profile_widget&id=%d-%s",$profile_widget->id, DevblocksPlatform::strToPermalink($profile_widget->name)), true);
 		}
+		
+		// Tab
+		$merge_token_labels = $merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_TAB, null, $merge_token_labels, $merge_token_values, '', true);
+		
+			CerberusContexts::merge(
+				'profile_tab_',
+				$prefix.'Tab:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
 		
 		return true;
 	}

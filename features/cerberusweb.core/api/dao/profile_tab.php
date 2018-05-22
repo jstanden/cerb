@@ -519,8 +519,16 @@ class Model_ProfileTab {
 	public $extension_params = [];
 	public $updated_at = 0;
 	
+	function getContextExtension($as_instance=true) {
+		return Extension_DevblocksContext::get($this->context, $as_instance);
+	}
+	
 	function getExtension() {
 		return Extension_ProfileTab::get($this->extension_id);
+	}
+	
+	function getWidgets() {
+		return DAO_ProfileWidget::getByTab($this->id);
 	}
 };
 
@@ -866,6 +874,18 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			'params' => [
 				'context' => self::ID,
 			],
+		);
+		
+		$properties['context'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.record'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => @$model->getContextExtension(false)->name,
+		);
+		
+		$properties['extension_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.type'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => @$model->getExtension()->manifest->name,
 		);
 		
 		$properties['updated'] = array(
