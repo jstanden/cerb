@@ -913,14 +913,13 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function profileGetFields($model=null) {
-		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
 		
 		if(is_null($model))
 			$model = new Model_WorkerRole();
 		
 		$properties['name'] = array(
-			'label' => mb_ucfirst($translate->_('common.name')),
+			'label' => DevblocksPlatform::translateCapitalized('common.name'),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->id,
 			'params' => [
@@ -929,7 +928,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		);
 		
 		$properties['updated_at'] = [
-			'label' => DevblocksPlatform::translate('common.updated'),
+			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $model->updated_at,
 		];
@@ -1078,6 +1077,10 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		switch($token) {
+			// [TODO]
+			case 'privileges':
+				break;
+				
 			default:
 				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
