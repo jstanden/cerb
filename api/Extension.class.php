@@ -350,7 +350,7 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 		return null;
 	}
 	
-	abstract function render(Model_ProfileWidget $model, $context, $context_id);
+	abstract function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]);
 };
 
 abstract class Extension_ContextProfileScript extends DevblocksExtension {

@@ -108,7 +108,16 @@ $(function() {
 		genericAjaxGet('', 'c=profiles&a=handleProfileTabAction&tab_id={$model->id}&action=reorderWidgets' 
 			+ '&' + $.param(results)
 		);
-	})
+	});
+	
+	$container.on('cerb-widget-refresh', function(e) {
+		var widget_id = e.widget_id;
+		var refresh_options = (e.refresh_options && typeof e.refresh_options == 'object') ? e.refresh_options : {};
+		
+		async.series([ async.apply(loadWidgetFunc, widget_id, false, refresh_options) ], function(err, json) {
+			// Done
+		});
+	});
 	
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-profile-widget--menu');
@@ -122,7 +131,7 @@ $(function() {
 					if($li.is('.cerb-profile-widget-menu--refresh')) {
 						var $widget = $li.closest('.cerb-profile-widget');
 						
-						async.series([ async.apply(loadWidgetFunc, $widget.attr('data-widget-id'), false) ], function(err, json) {
+						async.series([ async.apply(loadWidgetFunc, $widget.attr('data-widget-id'), false, {}) ], function(err, json) {
 							// Done
 						});
 					}
@@ -138,7 +147,7 @@ $(function() {
 		$menu.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			.on('cerb-peek-saved', function(e) {
-				async.series([ async.apply(loadWidgetFunc, e.id, true) ], function(err, json) {
+				async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
 					// Done
 				});
 			})
@@ -163,18 +172,26 @@ $(function() {
 			var $placeholder = $('<div class="cerb-profile-widget"/>').hide().prependTo($zone);
 			var $widget = $('<div/>').attr('id', 'profileWidget' + e.id).appendTo($placeholder);
 			
-			async.series([ async.apply(loadWidgetFunc, e.id, true) ], function(err, json) {
+			async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
 				$container.trigger('cerb-reorder');
 			});
 		})
 		;
 	{/if}
 	
-	var loadWidgetFunc = function(widget_id, is_full, callback) {
+	var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
 		var $widget = $('#profileWidget' + widget_id).empty();
 		var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($widget);
 		
-		genericAjaxGet('', 'c=profiles&a=handleProfileTabAction&tab_id={$model->id}&action=renderWidget&context={$context}&context_id={$context_id}&id=' + encodeURIComponent(widget_id) + '&full=' + encodeURIComponent(is_full ? 1 : 0), function(html) {
+		var request_url = 'c=profiles&a=handleProfileTabAction&tab_id={$model->id}&action=renderWidget&context={$context}&context_id={$context_id}&id=' 
+			+ encodeURIComponent(widget_id) 
+			+ '&full=' + encodeURIComponent(is_full ? 1 : 0)
+			;
+		
+		if(typeof refresh_options == 'object')
+			request_url += '&' + $.param({ 'options': refresh_options });
+		
+		genericAjaxGet('', request_url, function(html) {
 			if(0 == html.length) {
 				$widget.empty();
 				
@@ -201,7 +218,7 @@ $(function() {
 	{foreach from=$zones item=zone}
 	{foreach from=$zone item=widget}
 	jobs.push(
-		async.apply(loadWidgetFunc, {$widget->id|default:0}, false)
+		async.apply(loadWidgetFunc, {$widget->id|default:0}, false, {})
 	);
 	{/foreach}
 	{/foreach}
