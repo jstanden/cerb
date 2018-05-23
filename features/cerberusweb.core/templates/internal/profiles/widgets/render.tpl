@@ -22,7 +22,7 @@
 		<div id="profileWidget{$widget->id}" class="cerb-profile-widget--content">
 			{* We only have full content on create/edit *}
 			{if $extension}
-				{$extension->render($widget, $context, $context_id)}
+				{$extension->render($widget, $context, $context_id, [])}
 			{/if}
 		</div>
 	</div>

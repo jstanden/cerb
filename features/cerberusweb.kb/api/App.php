@@ -338,7 +338,7 @@ class ProfileWidget_KbArticle extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		

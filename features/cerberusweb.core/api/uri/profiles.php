@@ -379,6 +379,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
 		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'integer', 0);
+		@$refresh_options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', []);
 		
 		if(false == ($widget = DAO_ProfileWidget::get($id)))
 			return;
@@ -399,8 +400,9 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			$tpl->assign('extension', $extension);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl');
+			
 		} else {
-			$extension->render($widget, $context, $context_id);
+			$extension->render($widget, $context, $context_id, $refresh_options);
 		}
 	}
 	
@@ -975,7 +977,7 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		@$view_context = $model->extension_params['context'];
 		@$query = $model->extension_params['query'];
 		@$query_required = $model->extension_params['query_required'];
@@ -1119,7 +1121,7 @@ class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1212,7 +1214,7 @@ class ProfileWidget_TicketSpamAnalysis extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		if(0 != strcasecmp($context, CerberusContexts::CONTEXT_TICKET))
 			return;
 		
@@ -1252,7 +1254,7 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		switch($context) {
@@ -1395,7 +1397,7 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -1545,7 +1547,7 @@ class ProfileWidget_BehaviorTree extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -1626,7 +1628,7 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -1749,7 +1751,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		@$target_context = $model->extension_params['context'];
 		@$target_context_id = $model->extension_params['context_id'];
 		
@@ -2128,7 +2130,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('widget', $model);
@@ -2311,7 +2313,7 @@ class ProfileWidget_CustomHtml extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		@$template = $model->extension_params['template'];
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -2349,7 +2351,7 @@ class ProfileWidget_Comments extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id) {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		// [TODO] Translate 'context' and 'context_id' settings (may not be this record)
