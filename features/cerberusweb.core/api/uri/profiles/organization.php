@@ -18,14 +18,14 @@
 class PageSection_ProfilesOrganization extends Extension_PageSection {
 	function render() {
 		$response = DevblocksPlatform::getHttpResponse();
-		
 		$stack = $response->path;
 		@array_shift($stack); // profiles
 		@array_shift($stack); // org
-		@$id = intval(array_shift($stack));
+		@$context_id = intval(array_shift($stack));
 		
 		$context = CerberusContexts::CONTEXT_ORG;
-		Page_Profiles::renderProfile($context, $id);
+		
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekPopupJsonAction() {

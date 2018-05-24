@@ -113,18 +113,13 @@ function DevblocksClass() {
 	}
 	
 	this.getDefaultjQueryUiTabOptions = function() {
+		var $this = this;
+		
 		return {
 			activate: function(event, ui) {
 				var tabsId = ui.newPanel.closest('.ui-tabs').attr('id');
 				var index = ui.newTab.index();
-				
-				var selectedTabs = {};
-				
-				if(undefined != localStorage.selectedTabs)
-					selectedTabs = JSON.parse(localStorage.selectedTabs);
-				
-				selectedTabs[tabsId] = index;
-				localStorage.selectedTabs = JSON.stringify(selectedTabs);
+				$this.setjQueryUiTabSelected(tabsId, index);
 			},
 			beforeLoad: function(event, ui) {
 				var tab_title = ui.tab.find('> a').first().clone();
@@ -137,6 +132,16 @@ function DevblocksClass() {
 				ui.panel.html($div);
 			}
 		};
+	}
+	
+	this.setjQueryUiTabSelected = function(tabsId, index) {
+		var selectedTabs = {};
+		
+		if(undefined != localStorage.selectedTabs)
+			selectedTabs = JSON.parse(localStorage.selectedTabs);
+		
+		selectedTabs[tabsId] = index;
+		localStorage.selectedTabs = JSON.stringify(selectedTabs);
 	}
 	
 	this.getjQueryUiTabSelected = function(tabsId, activeTab) {

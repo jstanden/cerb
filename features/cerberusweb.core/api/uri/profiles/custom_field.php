@@ -25,7 +25,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

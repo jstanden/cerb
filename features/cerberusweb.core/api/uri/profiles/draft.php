@@ -25,7 +25,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_DRAFT;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function saveDraft() {

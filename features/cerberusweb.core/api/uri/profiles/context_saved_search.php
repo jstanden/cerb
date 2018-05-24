@@ -25,7 +25,7 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

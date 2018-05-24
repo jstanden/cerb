@@ -25,7 +25,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		@array_shift($stack); // address
 		@$context_id = intval(array_shift($stack));
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

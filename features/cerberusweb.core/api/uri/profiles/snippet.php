@@ -25,7 +25,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 
 		$context = CerberusContexts::CONTEXT_SNIPPET;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function viewExploreAction() {

@@ -25,7 +25,7 @@ class PageSection_ProfilesClassifierEntity extends Extension_PageSection {
 
 		$context = CerberusContexts::CONTEXT_CLASSIFIER_ENTITY;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

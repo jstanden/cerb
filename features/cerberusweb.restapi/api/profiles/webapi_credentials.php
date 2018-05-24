@@ -25,7 +25,7 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

@@ -25,7 +25,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 
 		$context = Context_ProjectBoard::ID;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

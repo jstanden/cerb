@@ -25,7 +25,7 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

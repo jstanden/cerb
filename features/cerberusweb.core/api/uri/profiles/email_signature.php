@@ -25,7 +25,7 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 
 		$context = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

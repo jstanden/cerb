@@ -25,7 +25,7 @@ class PageSection_ProfilesWorkspaceList extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_WORKSPACE_WORKLIST;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

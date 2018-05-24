@@ -22,7 +22,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@array_shift($stack); // profiles
 		@array_shift($stack); // ticket
 		@$id_string = array_shift($stack);
-		@$section = array_shift($stack);
 		
 		$context = CerberusContexts::CONTEXT_TICKET;
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -108,6 +107,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 						$tpl->assign('merge_parent', $merge_parent);
 			}
 		}
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function getPeekPreviewAction() {

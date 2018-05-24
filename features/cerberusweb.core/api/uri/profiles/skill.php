@@ -25,7 +25,7 @@ class PageSection_ProfilesSkill extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_SKILL;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	// [TODO] cards

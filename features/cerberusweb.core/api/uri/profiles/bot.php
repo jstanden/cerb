@@ -25,7 +25,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 
 		$context = CerberusContexts::CONTEXT_BOT;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

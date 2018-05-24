@@ -25,7 +25,7 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_PORTAL;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

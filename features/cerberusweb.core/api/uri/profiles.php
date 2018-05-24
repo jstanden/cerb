@@ -38,7 +38,7 @@ class Page_Profiles extends CerberusPageExtension {
 
 		if(empty($section_uri))
 			$section_uri = 'worker';
-
+		
 		// Subpage
 		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
 		$tpl->assign('subpage', $subpage);
@@ -46,17 +46,13 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
 	}
 	
-	static function renderProfile($context, $context_id) {
+	static function renderProfile($context, $context_id, $path=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		// Remember the last tab/URL
-		$point = sprintf("profile.%s", $context);
-		$tpl->assign('point', $point);
-		
 		// Context
-
+		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
 			return;
 		
@@ -83,6 +79,12 @@ class Page_Profiles extends CerberusPageExtension {
 		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
 		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
 		$tpl->assign('interactions_menu', $interactions_menu);
+		
+		// Active tab
+		
+		if(!empty($path)) {
+			$tpl->assign('tab_selected', array_shift($path));
+		}
 
 		// Template
 		
@@ -378,7 +380,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'integer', 0);
+		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'bool', false);
 		@$refresh_options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', []);
 		
 		if(false == ($widget = DAO_ProfileWidget::get($id)))
@@ -1499,7 +1501,6 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 		
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		

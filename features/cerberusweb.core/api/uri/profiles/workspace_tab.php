@@ -25,7 +25,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function getTabParamsAction() {

@@ -25,7 +25,7 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_KB_CATEGORY;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

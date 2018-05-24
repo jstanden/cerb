@@ -25,7 +25,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 
 		$context = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {
