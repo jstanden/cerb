@@ -23,7 +23,7 @@
 					</p>
 				</div>
 			{elseif 'core.mail.transport.null' == $reply_transport->extension_id}
-				<div class="help-box">
+				<div class="error-box">
 					<h1>Your message will not be delivered.</h1>
 					<p>
 						This bucket is configured to discard outgoing messages. 
