@@ -655,9 +655,9 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_ProfileWidget::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_ProfileWidget::PROFILE_TAB_ID:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_ProfileWidget::VIRTUAL_CONTEXT_LINK:
@@ -688,13 +688,18 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			return [];
 		
 		switch($column) {
-//			case SearchFields_ProfileWidget::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
-
-//			case SearchFields_ProfileWidget::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-//				break;
+			case SearchFields_ProfileWidget::PROFILE_TAB_ID:
+				$label_map = function($ids) {
+					$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+					
+					if(!is_array($ids))
+						return [];
+					
+					$widgets = DAO_ProfileTab::getIds($ids);
+					return array_column($widgets, 'name', 'id');
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map);
+				break;
 				
 			case SearchFields_ProfileWidget::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
