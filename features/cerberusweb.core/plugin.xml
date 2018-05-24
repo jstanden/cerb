@@ -5917,15 +5917,6 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
-			<id>cerb.profile.tab.widget.snippet</id>
-			<name>Snippet</name>
-			<class>
-				<file>api/uri/profiles.php</file>
-				<name>ProfileWidget_Snippet</name>
-			</class>
-		</extension>
-		
-		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.ticket.convo</id>
 			<name>Ticket Conversation</name>
 			<class>
