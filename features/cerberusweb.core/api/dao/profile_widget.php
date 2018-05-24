@@ -834,6 +834,10 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_PROFILE_WIDGET);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Tabs
+		$profile_tabs = DAO_ProfileTab::getAll();
+		$tpl->assign('profile_tabs', $profile_tabs);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/profiles/widgets/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -844,6 +848,17 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_ProfileWidget::PROFILE_TAB_ID:
+				$label_map = function($ids) {
+					if(!is_array($ids))
+						return [];
+					
+					$tabs = DAO_ProfileTab::getIds($ids);
+					return array_column($tabs, 'name', 'id');
+				};
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1015,7 +1030,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 	
 	function getDefaultProperties() {
 		return array(
-			'extension__label',
+			'extension_id',
 			'profile_tab__label',
 			'updated_at',
 		);
@@ -1042,6 +1057,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'extension_id' => $prefix.$translate->_('common.extension'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'pos' => $prefix.$translate->_('common.order'),
@@ -1054,6 +1070,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'extension_id' => 'extension',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'pos' => Model_CustomField::TYPE_NUMBER,
@@ -1080,6 +1097,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		if($profile_widget) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $profile_widget->name;
+			$token_values['extension_id'] = $profile_widget->extension_id;
 			$token_values['id'] = $profile_widget->id;
 			$token_values['name'] = $profile_widget->name;
 			$token_values['pos'] = $profile_widget->pos;

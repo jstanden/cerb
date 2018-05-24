@@ -652,6 +652,11 @@
 				<seg>Content</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.context.id">
+			<tuv xml:lang="en_US">
+				<seg>Context</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.context">
 			<tuv xml:lang="en_US">
 				<seg>Context</seg>
@@ -975,6 +980,11 @@
 		<tu tuid="common.extension">
 			<tuv xml:lang="en_US">
 				<seg>Extension</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.extension.id">
+			<tuv xml:lang="en_US">
+				<seg>Extension ID</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.field">

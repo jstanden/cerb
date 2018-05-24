@@ -82,6 +82,20 @@
 			</ul>
 		{/if}
 	{/if}
+{elseif $types.$k == 'context'}
+	{$display_ctx = Extension_DevblocksContext::get($dict->$k)}
+	{if $display_ctx}
+		{$display_ctx->manifest->name}
+	{else}
+		{$dict->$k}
+	{/if}
+{elseif $types.$k == 'extension'}
+	{$display_ext = DevblocksPlatform::getExtension($dict->$k, false)}
+	{if $display_ext}
+		{$display_ext->name}
+	{else}
+		{$dict->$k}
+	{/if}
 {elseif $types.$k == 'id'}
 	{$dict->$k}
 {elseif $types.$k == 'percent'}

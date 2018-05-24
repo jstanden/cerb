@@ -591,9 +591,10 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_ProfileTab::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_ProfileTab::CONTEXT:
+				case SearchFields_ProfileTab::EXTENSION_ID:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_ProfileTab::VIRTUAL_CONTEXT_LINK:
@@ -624,13 +625,21 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 			return [];
 		
 		switch($column) {
-//			case SearchFields_ProfileTab::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
-
-//			case SearchFields_ProfileTab::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-//				break;
+			case SearchFields_ProfileTab::CONTEXT:
+				$label_map = function($ids) {
+					$contexts = Extension_DevblocksContext::getAll(false);
+					return array_column(array_intersect_key($contexts, array_flip($ids)), 'name', 'id');
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
+			case SearchFields_ProfileTab::EXTENSION_ID:
+				$label_map = function($ids) {
+					$exts = Extension_ProfileTab::getAll(false);
+					return array_column(array_intersect_key($exts, array_flip($ids)), 'name', 'id');
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
 				
 			case SearchFields_ProfileTab::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
@@ -760,6 +769,22 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_ProfileTab::CONTEXT:
+				$label_map = function($ids) {
+					$contexts = Extension_DevblocksContext::getAll(false);
+					return array_column(array_intersect_key($contexts, array_flip($ids)), 'name', 'id');
+				};
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
+			case SearchFields_ProfileTab::EXTENSION_ID:
+				$label_map = function($ids) {
+					$exts = Extension_ProfileTab::getAll(false);
+					return array_column(array_intersect_key($exts, array_flip($ids)), 'name', 'id');
+				};
+				$this->_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -944,8 +969,8 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'context' => $prefix.$translate->_('common.context'),
-			'extension_id' => $prefix.$translate->_('common.extension'),
+			'context' => $prefix.$translate->_('common.record'),
+			'extension_id' => $prefix.$translate->_('common.type'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -955,8 +980,8 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'context' => Model_CustomField::TYPE_SINGLE_LINE,
-			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'context' => 'context',
+			'extension_id' => 'extension',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
