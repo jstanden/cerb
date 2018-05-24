@@ -42,7 +42,15 @@
 		{if !$draft->is_queued}
 			<div style="margin-top:10px;">
 			{if $draft->worker_id==$active_worker->id && isset($draft->params.in_reply_message_id)}
-				<button type="button" onclick="displayReply('{$draft->params.in_reply_message_id}',{if $draft->type=='ticket.forward'}1{else}0{/if},{$draft_id});"><span class="glyphicons glyphicons-share"></span> {'Resume'|devblocks_translate|capitalize}</button>
+				<button type="button" class="cerb-button-resume"><span class="glyphicons glyphicons-share"></span> {'Resume'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if $draft->ticket_id}
+				{$ticket = $draft->getTicket()}
+				{if $ticket}
+					{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#draft{$draft->id}"}
+					<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span> {'common.permalink'|devblocks_translate|capitalize}</button>
+					{/if}
 			{/if}
 			
 			{if $draft->worker_id==$active_worker->id || $active_worker->hasPriv('contexts.cerberusweb.contexts.draft.delete')}

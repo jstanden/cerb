@@ -603,6 +603,10 @@ class Model_MailQueue {
 	public $queue_delivery_date;
 	public $queue_fails;
 	
+	public function getTicket() {
+		return DAO_Ticket::get($this->ticket_id);
+	}
+	
 	/**
 	 * @return boolean
 	 */
