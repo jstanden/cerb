@@ -22,17 +22,26 @@
 </div>
 
 <script type="text/javascript">
-$div = $('#replyConfirm{$id}');
-
-$div.find('button.submit')
-	.click(function(e) {
-		displayReply('{$id}',0,0,{$reply_mode},1);
-	})
-	.focus()
-	;
-
-$div.find('button.cancel').click(function(e) {
-	$('#replyConfirm{$id}').fadeOut();
+$(function() {
+	var $div = $('#replyConfirm{$id}');
+	
+	$div.find('button.submit')
+		.click(function(e) {
+			var evt = jQuery.Event('cerb_reply');
+			evt.message_id = '{$id}';
+			evt.is_forward = 0;
+			evt.draft_id = 0;
+			evt.reply_mode = '{$reply_mode}';
+			evt.is_confirmed = 1;
+			console.log(evt);
+			
+			$div.trigger(evt);
+		})
+		.focus()
+		;
+	
+	$div.find('button.cancel').click(function(e) {
+		$('#replyConfirm{$id}').fadeOut();
+	});
 });
-
 </script>

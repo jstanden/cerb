@@ -2041,29 +2041,35 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 	
 	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
-		
 		$tpl->assign('widget', $model);
 		
-		$this->_showConversationAction($context_id);
+		// [TODO] Handle focus?
+		
+		$this->_showConversationAction($context_id, $refresh_options);
 	}
 	
-	private function _showConversationAction($id) {
-		@$focus_ctx = DevblocksPlatform::importGPC($_REQUEST['focus_ctx'],'string','');
-		@$focus_ctx_id = DevblocksPlatform::importGPC($_REQUEST['focus_ctx_id'],'integer',0);
-		@$expand_all = DevblocksPlatform::importGPC($_REQUEST['expand_all'],'integer',0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
+	private function _showConversationAction($id, $display_options=[]) {
+		@$expand_all = DevblocksPlatform::importVar($display_options['expand_all'], 'bit', 0);
 
 		$tpl = DevblocksPlatform::services()->template();
 
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl->assign('expand_all', $expand_all);
-		$tpl->assign('focus_ctx', $focus_ctx);
-		$tpl->assign('focus_ctx_id', $focus_ctx_id);
 		
 		$ticket = DAO_Ticket::get($id);
 		$tpl->assign('ticket', $ticket);
 		$tpl->assign('requesters', $ticket->getRequesters());
+		
+		// If deleted, check for a new merge parent URL
+		if($ticket->status_id == Model_Ticket::STATUS_DELETED) {
+			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($ticket->mask))) {
+				if(false !== ($merge_parent = DAO_Ticket::getTicketByMask($new_mask)))
+					if(!empty($merge_parent->mask)) {
+						$tpl->assign('merge_parent', $merge_parent);
+					}
+			}
+		}
 		
 		// Drafts
 		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND (%s = %s OR %s = %s)",
@@ -2162,11 +2168,6 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		}
 		$tpl->assign('convo_timeline', $convo_timeline);
 		
-		if(empty($convo_timeline)) {
-			$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/empty.tpl');
-			return;
-		}
-		
 		// Message Notes
 		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages));
 		$message_notes = [];
@@ -2204,7 +2205,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
 		$tpl->assign('mail_reply_button', $mail_reply_button);
 		
-		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/conversation.tpl');
 	}
 	
 	function renderConfig(Model_ProfileWidget $model) {

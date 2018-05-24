@@ -3425,7 +3425,7 @@
 		</tu>
 		<tu tuid="display.convo.no_messages">
 			<tuv xml:lang="en_US">
-				<seg>No messages on ticket.</seg>
+				<seg>there are no messages in this conversation</seg>
 			</tuv>
 		</tu>
 		<tu tuid="display.convo.order_oldest">

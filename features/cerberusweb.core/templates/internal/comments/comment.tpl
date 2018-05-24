@@ -21,12 +21,12 @@
 	({$owner_meta.context_ext->manifest->name|lower})
 	
 	<div class="toolbar" style="display:none;float:right;margin-right:20px;">
+		<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>
+		
 		{if $comment->context == CerberusContexts::CONTEXT_TICKET}
-			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$comment->id}{/devblocks_url}"}
+			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#comment{$comment->id}"}
 			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 		{/if}
-		
-		<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>
 	</div>
 	
 	{if isset($owner_meta.context_ext->manifest->params.alias)}

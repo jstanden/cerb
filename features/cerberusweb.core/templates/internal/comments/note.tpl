@@ -27,13 +27,13 @@
 	{/if}
 	
 	<div class="toolbar" style="display:none;float:right;margin-right:20px;">
-		{if $note->context == CerberusContexts::CONTEXT_MESSAGE}
-			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}&focus=comment&focus_id={$note->id}{/devblocks_url}"}
-			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
-		{/if}
-		
 		{if !$readonly}
 			<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$note->id}"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>
+		{/if}
+		
+		{if $note->context == CerberusContexts::CONTEXT_MESSAGE}
+			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#comment{$note->id}"}
+			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 		{/if}
 	</div>
 	

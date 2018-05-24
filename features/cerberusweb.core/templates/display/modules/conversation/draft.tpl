@@ -73,5 +73,16 @@ $(function() {
 	var $draft = $('#draft{$draft->id}');
 	
 	$draft.find('.cerb-peek-trigger').cerbPeekTrigger();
+	
+	$draft.find('button.cerb-button-resume').on('click', function() {
+		var evt = jQuery.Event('cerb_reply');
+		evt.message_id = '{$draft->params.in_reply_message_id}';
+		evt.is_forward = {if $draft->type=='ticket.forward'}1{else}0{/if};
+		evt.draft_id = {$draft_id};
+		evt.reply_mode = '{$reply_mode}';
+		evt.is_confirmed = 1;
+		
+		$draft.trigger(evt);
+	});
 });
 </script>

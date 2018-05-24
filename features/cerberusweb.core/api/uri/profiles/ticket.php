@@ -47,61 +47,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Permissions
 		
-		if(false == ($group = $ticket->getGroup()))
-			return;
-		
-		// Check group membership ACL
 		if(!Context_Ticket::isReadableByActor($ticket, $active_worker)) {
 			echo DevblocksPlatform::translateCapitalized('common.access_denied');
 			exit;
 		}
 		
-		Page_Profiles::renderProfile($context, $context_id);
-		
-		if(!empty($section)) {
-			switch($section) {
-				case 'conversation':
-					@$tab_option = array_shift($stack);
-			
-					if($mail_always_show_all || 0==strcasecmp("read_all",$tab_option)) {
-						$tpl->assign('expand_all', true);
-					}
-					break;
-					
-				case 'comment':
-					@$focus_id = intval(array_shift($stack));
-					$section = 'conversation';
-					
-					if(!empty($focus_id)) {
-						$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_COMMENT);
-						$tpl->assign('convo_focus_ctx_id', $focus_id);
-					}
-					
-					break;
-					
-				case 'message':
-					@$focus_id = intval(array_shift($stack));
-					$section = 'conversation';
-					
-					if(!empty($focus_id)) {
-						$tpl->assign('convo_focus_ctx', CerberusContexts::CONTEXT_MESSAGE);
-						$tpl->assign('convo_focus_ctx_id', $focus_id);
-					}
-					
-					break;
-			}
-			
-			$tpl->assign('tab', $section);
-		}
-		
-		// If deleted, check for a new merge parent URL
-		if($dict->status_id == Model_Ticket::STATUS_DELETED) {
-			if(false !== ($new_mask = DAO_Ticket::getMergeParentByMask($dict->mask))) {
-				if(false !== ($merge_parent = DAO_Ticket::getTicketByMask($new_mask)))
-					if(!empty($merge_parent->mask))
-						$tpl->assign('merge_parent', $merge_parent);
-			}
-		}
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
