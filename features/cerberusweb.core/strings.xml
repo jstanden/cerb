@@ -742,6 +742,16 @@
 				<seg>customize</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.data">
+			<tuv xml:lang="en_US">
+				<seg>data</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.data.no">
+			<tuv xml:lang="en_US">
+				<seg>no data</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.day">
 			<tuv xml:lang="en_US">
 				<seg>day</seg>
@@ -1460,6 +1470,11 @@
 				<seg>or</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.original">
+			<tuv xml:lang="en_US">
+				<seg>original</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.order">
 			<tuv xml:lang="en_US">
 				<seg>order</seg>
@@ -1533,6 +1548,11 @@
 		<tu tuid="common.list">
 			<tuv xml:lang="en_US">
 				<seg>List</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.live">
+			<tuv xml:lang="en_US">
+				<seg>live</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.load">
@@ -1743,6 +1763,16 @@
 		<tu tuid="common.profile">
 			<tuv xml:lang="en_US">
 				<seg>Profile</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.probability">
+			<tuv xml:lang="en_US">
+				<seg>probability</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.probabilities">
+			<tuv xml:lang="en_US">
+				<seg>probabilities</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.profile.tab">
@@ -2479,6 +2509,16 @@
 		<tu tuid="common.width">
 			<tuv xml:lang="en_US">
 				<seg>width</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.word">
+			<tuv xml:lang="en_US">
+				<seg>word</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.words">
+			<tuv xml:lang="en_US">
+				<seg>words</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.worker">
