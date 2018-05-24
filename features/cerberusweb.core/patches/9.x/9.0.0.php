@@ -53,6 +53,15 @@ if(!isset($tables['profile_widget'])) {
 }
 
 // ===========================================================================
+// Insert default search buttons
+
+$db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES (%s, %s, %s)",
+	$db->qstr('cerberusweb.core'),
+	$db->qstr('card:search:cerberusweb.contexts.profile.tab'),
+	$db->qstr('[{"context":"cerberusweb.contexts.profile.widget","label_singular":"Widget","label_plural":"Widgets","query":"tab.id:{{id}}"}]')
+));
+
+// ===========================================================================
 // Drop `view_filters_preset` (this is now `context_saved_search`)
 
 if(isset($tables['view_filters_preset'])) {
