@@ -58,11 +58,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		Page_Profiles::renderProfile($context, $context_id);
 		
-		@$mail_always_show_all = DAO_WorkerPref::get($active_worker->id,'mail_always_show_all',0);
-
-		if($mail_always_show_all)
-			$tpl->assign('expand_all', true);
-		
 		if(!empty($section)) {
 			switch($section) {
 				case 'conversation':
