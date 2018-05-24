@@ -6,35 +6,48 @@
 		{/if}
 	</div>
 
-	{if empty($comments)}
-		<div style="color:rgb(120,120,120);text-align:center;font-size:1.2em;">
-		(there are no comments on this record)
-		</div>
-	{else}
+	<div class="cerb-comments">
 		{foreach from=$comments item=comment}
 		<div id="comment{$comment->id}">
 			{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
 		</div>
 		{/foreach}
-	{/if}
+	</div>
 </div>
 
 <script type="text/javascript">
 $(function() {
 	var $comments = $('#widget{$widget->id}Comments');
+	var $container = $comments.find('.cerb-comments');
 	var $button = $comments.find('button.cerb-button-add');
 	
 	var $parent = $comments.closest('div.cerb-profile-widget');
 	var $refresh = $parent.find('li.cerb-profile-widget-menu--refresh > a');
 	
+	// Make sure we only ever listen once
+	$parent
+		.off('cerb_profile_comment_created.widget{$widget->id}')
+		.on('cerb_profile_comment_created.widget{$widget->id}', function(e) {
+			if(e.comment_id && e.comment_html) {
+				var $new_comment = $('<div id="comment' + e.comment_id + '"/>')
+					.html(e.comment_html)
+					.prependTo($container)
+				;
+			}
+		})
+		;
+	
 	$button
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function(e) {
 			e.stopPropagation();
-			
-			// [TODO] We can insert this into the DOM 
-			// [TODO] Just use an event on widget instead?
-			$refresh.click();
+
+			if(e.id && e.comment_html) {
+				var $new_comment = $('<div id="comment' + e.id + '"/>')
+					.html(e.comment_html)
+					.prependTo($container)
+				;
+			}
 		})
 	;
 });

@@ -28,11 +28,17 @@
 			</span>
 			
 			<!-- Card -->
-			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (V){/if}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span></button>
+			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (V){/if}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span> {'common.card'|devblocks_translate|capitalize}</button>
 			
 			<!-- Edit -->
 			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-			<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+			<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{/if}
+			
+			{if array_key_exists('comment', $context_ext->manifest->params.acl.0)}
+			<button type="button" id="btnProfileComment" title="(O)" data-context="cerberusweb.contexts.comment" data-context-id="0" data-edit="context:{$page_context} context.id:{$page_context_id}">
+				<span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}
+			</button>
 			{/if}
 			
 			{if $context_ext->hasOption('watchers')}
@@ -117,6 +123,32 @@ $(function() {
 		})
 	;
 	
+	// Comments
+	$('#btnProfileComment')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
+
+			if(e.id && e.comment_html) {
+				var $tabs = $("#{$tabset_id}");
+				var $tab_content = $('#' + $tabs.find('li.ui-tabs-active').attr('aria-controls'));
+				var $widgets = $tab_content.find('div.cerb-profile-widget');
+				
+				var event_new_comment = $.Event('cerb_profile_comment_created');
+				event_new_comment.comment_id = e.id;
+				event_new_comment.comment_html = e.comment_html;
+				
+				$widgets.each(function() {
+					if(!event_new_comment.isPropagationStopped()) {
+						var $widget = $(this);
+						console.log($widget);
+						$widget.triggerHandler(event_new_comment);
+					}
+				});
+			}
+		})
+		;
+	
 	// Interactions
 	var $interaction_container = $('#spanInteractions');
 	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
@@ -139,6 +171,12 @@ $(function() {
 		e.preventDefault();
 		e.stopPropagation();
 		$('#spanInteractions').find('> button').click();
+	});
+	
+	$body.bind('keypress', 'O', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$('#btnProfileComment').click();
 	});
 	
 	$body.bind('keypress', 'V', function(e) {
