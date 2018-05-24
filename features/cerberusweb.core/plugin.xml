@@ -5909,8 +5909,8 @@
 			<params>
 				<param key="contexts">
 					<value>
-						<data key="group" />
-						<data key="worker" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
 			</params>
@@ -5942,7 +5942,7 @@
 			<params>
 				<param key="contexts">
 					<value>
-						<data key="ticket" />
+						<data key="cerberusweb.contexts.ticket" />
 					</value>
 				</param>
 			</params>
@@ -5958,7 +5958,7 @@
 			<params>
 			</params>
 		</extension>
-
+		
 		<!-- Workspace Pages -->
 		
 		<extension point="cerberusweb.ui.workspace.page">

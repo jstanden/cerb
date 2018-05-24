@@ -170,6 +170,21 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/fields/fields_config_tabs.tpl');
 	}
 	
+	function getExtensionsByTabContextJsonAction() {
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'string','');
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(!$tab_id || false == ($profile_tab = DAO_ProfileTab::get($tab_id))) {
+			echo json_encode([]);
+			return;
+		}
+		
+		$widget_manifests = Extension_ProfileWidget::getByContext($profile_tab->context, false);
+		
+		echo json_encode(array_column(DevblocksPlatform::objectsToArrays($widget_manifests), 'name', 'id'));
+	}
+	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

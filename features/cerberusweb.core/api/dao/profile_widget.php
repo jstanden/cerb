@@ -1265,10 +1265,10 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(empty($context_id) && !empty($edit)) {
+			$model = new Model_ProfileWidget();
+			
+			if(!empty($edit)) {
 				$tokens = explode(' ', trim($edit));
-				
-				$model = new Model_ProfileWidget();
 				
 				foreach($tokens as $token) {
 					@list($k,$v) = explode(':', $token);
@@ -1280,8 +1280,6 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 							break;
 					}
 				}
-				
-				$tpl->assign('model', $model);
 			}
 			
 			// Custom fields
@@ -1296,8 +1294,11 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			$tpl->assign('types', $types);
 			
 			// Widget extensions
-			$widget_extensions = Extension_ProfileWidget::getAll(false);
-			$tpl->assign('widget_extensions', $widget_extensions);
+			
+			if(false != ($profile_tab = $model->getProfileTab())) {
+				$widget_extensions = Extension_ProfileWidget::getByContext($profile_tab->context, false);
+				$tpl->assign('widget_extensions', $widget_extensions);
+			}
 			
 			// Placeholder menu
 			
