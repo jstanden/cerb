@@ -25,7 +25,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		@array_shift($stack); // contact
 		@$context_id = intval(array_shift($stack)); // 123
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

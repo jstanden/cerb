@@ -1704,7 +1704,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		
 		$context = '<?php echo $ctx_ext_id; ?>';
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

@@ -25,7 +25,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

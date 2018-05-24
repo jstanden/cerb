@@ -25,7 +25,7 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 
 		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

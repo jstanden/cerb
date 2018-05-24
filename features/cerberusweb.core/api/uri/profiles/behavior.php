@@ -25,7 +25,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 
 		$context = CerberusContexts::CONTEXT_BEHAVIOR;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	// [TODO] Merge with the version on c=internal

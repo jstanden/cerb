@@ -25,7 +25,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 
 		$context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	// [TODO] Is this used?

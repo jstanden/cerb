@@ -25,7 +25,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_TIMETRACKING;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

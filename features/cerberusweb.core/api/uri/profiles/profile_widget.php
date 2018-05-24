@@ -25,7 +25,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_PROFILE_WIDGET;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

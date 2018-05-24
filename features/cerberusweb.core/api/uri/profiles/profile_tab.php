@@ -25,7 +25,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_PROFILE_TAB;
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

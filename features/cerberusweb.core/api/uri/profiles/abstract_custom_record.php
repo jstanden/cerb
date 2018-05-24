@@ -33,7 +33,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		
 		$context = self::_getContextName();
 		
-		Page_Profiles::renderProfile($context, $context_id);
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

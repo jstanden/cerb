@@ -37,9 +37,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_WORKER;
 		
-		Page_Profiles::renderProfile($context, $context_id);
-		
-		// Prefs
+		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {

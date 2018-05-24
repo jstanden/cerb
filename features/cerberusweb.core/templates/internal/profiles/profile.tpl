@@ -1,6 +1,7 @@
 {$page_context = $dict->_context}
 {$page_context_id = $dict->id}
 {$is_writeable = CerberusContexts::isWriteableByActor($page_context, $record, $active_worker)}
+{$tabset_id = "profile-tabs-{DevblocksPlatform::strAlphaNum($page_context,'','_')}"}
 
 {if $context_ext->hasOption('avatars')}
 <div style="float:left;margin-right:10px;">
@@ -58,14 +59,14 @@
 {include file="devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl" context=$page_context context_id=$page_context_id}
 </div>
 
-<div style="clear:both;" id="profileTabs">
+<div style="clear:both;" id="{$tabset_id}">
 	<ul>
 		{$tabs = []}
 		
 		{$profile_tabs = DAO_ProfileTab::getByProfile($page_context)}
 		
 		{foreach from=$profile_tabs item=profile_tab}
-			{$tabs[] = "tab_{$profile_tab->id}"}
+			{$tabs[] = "{$profile_tab->name|lower|devblocks_permalink}"}
 			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showProfileTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$profile_tab->name}</a></li>
 		{/foreach}
 		
@@ -79,10 +80,17 @@
 <script type="text/javascript">
 $(function() {
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-	tabOptions.active = Devblocks.getjQueryUiTabSelected('profileTabs');
+	
+	{if $tab_selected && in_array($tab_selected, $tabs)}
+	{$tab_idx = array_search($tab_selected, $tabs)}
+	tabOptions.active = {$tab_idx};
+	Devblocks.setjQueryUiTabSelected('{$tabset_id}', {$tab_idx});
+	{else}
+	tabOptions.active = Devblocks.getjQueryUiTabSelected('{$tabset_id}');
+	{/if}
 	
 	// Tabs
-	var tabs = $("#profileTabs").tabs(tabOptions);
+	var tabs = $("#{$tabset_id}").tabs(tabOptions);
 	
 	// Set the browser tab label to the record label
 	document.title = "{$dict->_label|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
@@ -151,7 +159,7 @@ $(function() {
 		
 		try {
 			var idx = event.which-49;
-			$tabs = $("#profileTabs").tabs();
+			$tabs = $("#{$tabset_id}").tabs();
 			$tabs.tabs('option', 'active', idx);
 		} catch(ex) { }
 	});
@@ -160,10 +168,8 @@ $(function() {
 		if($(e.target).is(':input'))
 			return;
 		
-		var $tabs = $("#profileTabs");
-			
+		var $tabs = $("#{$tabset_id}");
 		var $tab_content = $('#' + $tabs.find('li.ui-tabs-active').attr('aria-controls'));
-		
 		var $widgets = $tab_content.find('div.cerb-profile-widget');
 		
 		$widgets.each(function() {
