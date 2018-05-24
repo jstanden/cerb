@@ -23,7 +23,7 @@
 			<b>{'dashboard'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="profile_tab_id" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-single="true" data-query-required="type:&quot;cerb.profile.tab.dashboard&quot;" data-autocomplete="type:&quot;cerb.profile.tab.dashboard&quot;" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="profile_tab_id" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-single="true" data-query-required="type:&quot;cerb.profile.tab.dashboard&quot;"><span class="glyphicons glyphicons-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{if $model->profile_tab_id}
@@ -36,24 +36,26 @@
 		</td>
 	</tr>
 
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'common.type'|devblocks_translate|capitalize}:</b>
-		</td>
-		<td width="99%" valign="top">
-			{if $model->id}
-				{$widget_extension = $model->getExtension()}
-				{$widget_extension->manifest->name}
-			{else}
-				<select name="extension_id">
-					<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
-					{foreach from=$widget_extensions item=widget_extension}
-					<option value="{$widget_extension->id}">{$widget_extension->name}</option>
-					{/foreach}
-				</select>
-			{/if}
-		</td>
-	</tr>
+	<tbody class="cerb-widget-extension" style="{if !$widget_extensions}display:none;{/if}">
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top">
+				<b>{'common.type'|devblocks_translate|capitalize}:</b>
+			</td>
+			<td width="99%" valign="top">
+				{if $model->id}
+					{$widget_extension = $model->getExtension()}
+					{$widget_extension->manifest->name}
+				{else}
+					<select name="extension_id">
+						<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
+						{foreach from=$widget_extensions item=widget_extension}
+						<option value="{$widget_extension->id}">{$widget_extension->name}</option>
+						{/foreach}
+					</select>
+				{/if}
+			</td>
+		</tr>
+	</tbody>
 	
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top">
@@ -137,6 +139,8 @@ $(function() {
 		// Toolbar
 		var $toolbar = $popup.find('.cerb-placeholder-menu').detach();
 		var $params = $popup.find('.cerb-widget-params');
+		var $select_extension = $popup.find('select[name="extension_id"]');
+		var $tbody_widget_extension = $popup.find('tbody.cerb-widget-extension');
 
 		// Abstract choosers
 		$popup.find('button.chooser-abstract')
@@ -148,12 +152,31 @@ $(function() {
 					var $bubble = $target.siblings('ul.chooser-container').find('> li:first input:hidden');
 					var id = $bubble.first().val();
 					
+					$select_extension.hide().empty();
+					$toolbar.empty().detach();
+					$params.hide().empty();
+					
 					if(id) {
-						$toolbar.empty().detach();
 						genericAjaxGet($toolbar,'c=profiles&a=handleProfileTabAction&tab_id=' + encodeURIComponent(id) + '&action=getPlaceholderToolbarForTab');
 						
+						genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=profile_widget&action=getExtensionsByTabContextJson&tab_id=' + encodeURIComponent(id), function(json) {
+							for(k in json) {
+								if(json.hasOwnProperty(k)) {
+									var $option = $('<option/>')
+										.attr('value', k)
+										.text(json[k])
+										;
+									
+									$option.appendTo($select_extension);
+								}
+							}
+							
+							$select_extension.fadeIn();
+							$tbody_widget_extension.fadeIn();
+						});
+						
 					} else {
-						$toolbar.empty().detach();
+						$tbody_widget_extension.hide();
 					}
 				}
 			})
@@ -179,6 +202,7 @@ $(function() {
 			genericAjaxGet($params, 'c=profiles&a=renderWidgetConfig&extension=' + encodeURIComponent(extension_id), function(html) {
 				$params.find('button.chooser-abstract').cerbChooserTrigger();
 				$params.find('.cerb-peek-trigger').cerbPeekTrigger();
+				$params.fadeIn();
 			});
 		});
 		
