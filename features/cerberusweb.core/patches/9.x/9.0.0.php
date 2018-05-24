@@ -84,6 +84,7 @@ if(isset($columns['params_hidden_json'])) {
 // Remove old worker prefs
 
 $db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_display_inline_log'");
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mail_always_show_all'");
 
 // ===========================================================================
 // Add `context_to_custom_fieldset`

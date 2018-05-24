@@ -665,7 +665,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 			case 'mail':
 				$prefs = [];
 				$prefs['mail_disable_html_display'] = DAO_WorkerPref::get($worker->id,'mail_disable_html_display',0);
-				$prefs['mail_always_show_all'] = DAO_WorkerPref::get($worker->id,'mail_always_show_all',0);
 				$prefs['mail_reply_html'] = DAO_WorkerPref::get($worker->id,'mail_reply_html',0);
 				$prefs['mail_reply_textbox_size_auto'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_auto',0);
 				$prefs['mail_reply_textbox_size_px'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_px',300);
@@ -877,9 +876,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				case 'mail':
 					@$mail_disable_html_display = DevblocksPlatform::importGPC($_REQUEST['mail_disable_html_display'],'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_disable_html_display', $mail_disable_html_display);
-					
-					@$mail_always_show_all = DevblocksPlatform::importGPC($_REQUEST['mail_always_show_all'],'integer',0);
-					DAO_WorkerPref::set($worker->id, 'mail_always_show_all', $mail_always_show_all);
 					
 					@$mail_reply_html = DevblocksPlatform::importGPC($_REQUEST['mail_reply_html'],'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_reply_html', $mail_reply_html);
