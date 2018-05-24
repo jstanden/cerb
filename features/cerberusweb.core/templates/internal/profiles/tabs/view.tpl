@@ -87,6 +87,24 @@
 				<a href="{devblocks_url}c=profiles&type=profile_tab&id={$result.p_id}-{$result.p_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.p_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.p_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
+			{elseif $column == "p_context"}
+			<td>
+				{$display_ctx = Extension_DevblocksContext::get($result.$column, false)}
+				{if $display_ctx}
+					{$display_ctx->name}
+				{else}
+					{$result.$column}
+				{/if}
+			</td>
+			{elseif $column == "p_extension_id"}
+			<td>
+				{$display_ext = Extension_ProfileTab::get($result.$column)}
+				{if $display_ext}
+					{$display_ext->manifest->name}
+				{else}
+					{$result.$column}
+				{/if}
+			</td>
 			{elseif in_array($column, ["p_updated_at"])}
 				<td>
 					{if !empty($result.$column)}

@@ -100,8 +100,24 @@
 		<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
 		{/if}
 	{/foreach}
+{elseif $v.type == 'context'}
+	{$display_ctx = Extension_DevblocksContext::get($v.value)}
+	{if $display_ctx}
+		{$display_ctx->manifest->name}
+	{else}
+		{$v.value}
+	{/if}
+{elseif $v.type == 'extension'}
+	{$display_ext = DevblocksPlatform::getExtension($v.value, false)}
+	{if $display_ext}
+		{$display_ext->name}
+	{else}
+		{$v.value}
+	{/if}
 {elseif $v.type == 'percent'}
 	{$v.value*100}%
+{elseif $v.type == 'phone'}
+	<a href="tel:{$dict->$k}">{$v.value}</a>
 {elseif $v.type == 'slider'}
 	{$min = $v.params.min}
 	{$max = $v.params.max}
@@ -110,6 +126,8 @@
 	<div style="display:inline-block;margin-top:5px;width:100px;height:10px;background-color:rgb(220,220,220);border-radius:8px;">
 		<div style="position:relative;margin-left:-5px;top:-1px;left:{$v.value}%;width:12px;height:12px;border-radius:12px;background-color:{if $v.value < $mid}rgb(0,200,0);{elseif $v.value > $mid}rgb(230,70,70);{else}rgb(175,175,175);{/if}"></div>
 	</div>
+{elseif $v.type == 'size_bytes'}
+	{$v.value|devblocks_prettybytes}
 {elseif $v.type == 'time_mins'}
 	{{$v.value*60}|devblocks_prettysecs:2}
 {elseif $v.type == 'time_secs'}

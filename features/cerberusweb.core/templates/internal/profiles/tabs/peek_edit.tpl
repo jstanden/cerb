@@ -22,7 +22,12 @@
 		<td width="1%" nowrap="nowrap"><b>{'common.record'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			{if $model->id}
-				{$model->context}
+				{$model_context = $model->getContextExtension(false)}
+				{if $model_context}
+					{$model_context->name}
+				{else}
+					{$model->context}
+				{/if}
 			{else}
 				<select name="context">
 					<option value=""></option>
@@ -39,7 +44,12 @@
 		<td width="1%" nowrap="nowrap"><b>{'common.type'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			{if $model->id}
-				{$model->extension_id}
+				{$tab_extension = $model->getExtension()}
+				{if $tab_extension}
+					{$tab_extension->manifest->name}
+				{else}
+					{$model->extension_id}
+				{/if}
 			{else}
 				<select name="extension_id">
 					<option value=""></option>
