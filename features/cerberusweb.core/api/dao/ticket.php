@@ -5185,8 +5185,44 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		if(empty($context_id) || $edit_mode) {
-			if($model)
-				$tpl->assign('ticket', $model);
+			$field_overrides = [];
+			
+			if($model && $edit_mode) {
+				$tokens = explode(' ', trim($edit_mode));
+				
+				foreach($tokens as $token) {
+					@list($k,$v) = explode(':', $token);
+					
+					if($v)
+					switch($k) {
+						case 'status':
+							$statuses = [
+								'o' => 0,
+								'w' => 1,
+								'c' => 2,
+								'd' => 3,
+							];
+							
+							$status_code = substr(DevblocksPlatform::strLower($v),0,1);
+							
+							if(array_key_exists($status_code, $statuses))
+								$model->status_id = $statuses[$status_code];
+							
+							$tpl->assign('focus_submit', true);
+							break;
+							
+						case 'spam':
+							$options = [
+								'n' => CerberusTicketSpamTraining::NOT_SPAM,
+								'y' => CerberusTicketSpamTraining::SPAM,
+							];
+							
+							if(null !== ($option = $options[substr(DevblocksPlatform::strLower($v),0,1)]))
+								$field_overrides['spam_training'] = $option;
+							break;
+					}
+				}
+			}
 			
 			// Props
 			$workers = DAO_Worker::getAllActive();
@@ -5212,6 +5248,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$custom_field_values = @DAO_CustomFieldValue::getValuesByContextIds($context, $model->id)[$model->id] ?: [];
 			$tpl->assign('custom_field_values', $custom_field_values);
 			
+			$tpl->assign('ticket', $model);
+			$tpl->assign('field_overrides', $field_overrides);
 			$tpl->display('devblocks:cerberusweb.core::tickets/peek_edit.tpl');
 			
 		} else {

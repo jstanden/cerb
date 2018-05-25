@@ -1265,7 +1265,8 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		if(empty($context_id) || $edit) {
-			$model = new Model_ProfileWidget();
+			if(empty($context_id))
+				$model = new Model_ProfileWidget();
 			
 			if(!empty($edit)) {
 				$tokens = explode(' ', trim($edit));
