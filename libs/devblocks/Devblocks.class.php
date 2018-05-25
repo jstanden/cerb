@@ -2231,15 +2231,16 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 		} else { // All
 			$cache->remove(self::CACHE_ACL);
-			$cache->remove(self::CACHE_CONTEXT_ALIASES);
-			$cache->remove(self::CACHE_PLUGINS);
 			$cache->remove(self::CACHE_ACTIVITY_POINTS);
-			$cache->remove(self::CACHE_EVENT_POINTS);
+			$cache->remove(self::CACHE_CONTEXT_ALIASES);
 			$cache->remove(self::CACHE_EVENTS);
+			$cache->remove(self::CACHE_EVENT_POINTS);
 			$cache->remove(self::CACHE_EXTENSIONS);
+			$cache->remove(self::CACHE_PLUGINS);
 			$cache->remove(self::CACHE_POINTS);
 			$cache->remove(self::CACHE_TABLES);
-			$cache->remove('devblocks:plugin:devblocks.core:settings');
+			$cache->remove('devblocks:plugin:cerberusweb.core:params');
+			$cache->remove('devblocks:plugin:devblocks.core:params');
 			$cache->remove(_DevblocksClassLoadManager::CACHE_CLASS_MAP);
 			
 			// Flush template cache
