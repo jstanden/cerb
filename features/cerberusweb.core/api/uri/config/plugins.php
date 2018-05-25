@@ -191,6 +191,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 			}
 			
 			DevblocksPlatform::clearCache();
+			DevblocksPlatform::clearCache(sprintf('devblocks:plugin:%s:params', $plugin->id));
 			
 			echo json_encode(array(
 				'status' => true,
