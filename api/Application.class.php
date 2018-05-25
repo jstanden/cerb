@@ -2360,7 +2360,9 @@ class Model_Application {
 	public $name = 'Cerb';
 }
 
-class Context_Application extends Extension_DevblocksContext {
+class Context_Application extends Extension_DevblocksContext implements IDevblocksContextProfile {
+	const ID = 'cerberusweb.contexts.app';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -2377,7 +2379,38 @@ class Context_Application extends Extension_DevblocksContext {
 
 		return CerberusContexts::denyEverything($models);
 	}
-
+	
+	function profileGetUrl($context_id) {
+		return null;
+	}
+	
+	function profileGetFields($model=null) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		/* @var $model Model_Application */
+		
+		if(is_null($model))
+			$model = new Model_Application();
+		
+		$properties['name'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
+		return $properties;
+	}
+	
 	function getRandom() {
 		return 0;
 	}

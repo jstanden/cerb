@@ -985,7 +985,9 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	}
 };
 
-class Context_ContextActivityLog extends Extension_DevblocksContext {
+class Context_ContextActivityLog extends Extension_DevblocksContext implements IDevblocksContextProfile {
+	const ID = 'cerberusweb.contexts.activity_log';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
@@ -1001,6 +1003,68 @@ class Context_ContextActivityLog extends Extension_DevblocksContext {
 			return CerberusContexts::allowEverything($models);
 		
 		return CerberusContexts::denyEverything($models);
+	}
+	
+	function profileGetUrl($context_id) {
+		return null;
+	}
+	
+	function profileGetFields($model=null) {
+		$translate = DevblocksPlatform::getTranslationService();
+		$properties = [];
+		
+		/* @var $model Model_ContextActivityLog */
+		
+		if(is_null($model))
+			$model = new Model_ContextActivityLog();
+		
+		$properties['label'] = array(
+			'label' => mb_ucfirst($translate->_('common.name')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->id,
+			'params' => [
+				'context' => self::ID,
+			],
+		);
+		
+		// [TODO] Translate value
+		$properties['activity'] = array(
+			'label' => mb_ucfirst($translate->_('common.activity')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->activity_point,
+		);
+		
+		$properties['created'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created,
+		);
+		
+		$properties['actor'] = array(
+			'label' => mb_ucfirst($translate->_('common.actor')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->actor_context_id,
+			'params' => [
+				'context' => $model->actor_context,
+			],
+		);
+		
+		$properties['target'] = array(
+			'label' => mb_ucfirst($translate->_('common.target')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->target_context_id,
+			'params' => [
+				'context' => $model->target_context,
+			],
+		);
+		
+		$properties['id'] = array(
+			'label' => mb_ucfirst($translate->_('common.id')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
+		return $properties;
 	}
 	
 	function getRandom() {
