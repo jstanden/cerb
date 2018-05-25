@@ -1776,7 +1776,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 			'widget_id' => $model->id,
 		]);
 		
-		if($target_context && $target_context_id) {
+		if($target_context && !is_null($target_context_id)) {
 			$context = $target_context;
 			$context_id = $tpl_builder->build($target_context_id, $record_dict);
 			
@@ -1785,7 +1785,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 			
 			$dao_class = $context_ext->getDaoClass();
 			
-			if(false == ($record = $dao_class::get($context_id))) {
+			if(!method_exists($dao_class, 'get') || false == ($record = $dao_class::get($context_id))) {
 				$tpl->assign('context_ext', $context_ext);
 				$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/fields/empty.tpl');
 				return;

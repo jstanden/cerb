@@ -140,6 +140,9 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
+		if(!($context_ext instanceof IDevblocksContextProfile))
+			return;
+		
 		$tpl->assign('context_ext', $context_ext);
 		
 		// =================================================================

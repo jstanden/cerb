@@ -14,7 +14,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap">Subject: </td>
 		<td width="100%">
-			<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" autofocus="autofocus" value="{$ticket->subject}">
+			<input type="text" name="subject" size="45" maxlength="255" style="width:98%;" value="{$ticket->subject}">
 		</td>
 	</tr>
 	
@@ -82,9 +82,9 @@
 	<tr>
 		<td width="0%" nowrap="nowrap">Spam Training: </td>
 		<td width="100%">
-			<label><input type="radio" name="spam_training" value="" checked="checked"> Unknown</label>
-			<label><input type="radio" name="spam_training" value="S"> Spam</label>
-			<label><input type="radio" name="spam_training" value="N"> Not Spam</label> 
+			<label><input type="radio" name="spam_training" value="" {if !$field_overrides.spam_training}checked="checked"{/if}> Unknown</label>
+			<label><input type="radio" name="spam_training" value="S" {if 'S' == $field_overrides.spam_training}checked="checked"{/if}> Spam</label>
+			<label><input type="radio" name="spam_training" value="N" {if 'N' == $field_overrides.spam_training}checked="checked"{/if}> Not Spam</label> 
 		</td>
 	</tr>
 	{/if}
@@ -264,6 +264,12 @@ $(function() {
 			$chooser_owner.attr('data-query', 'group:(id:' + group_id + ')');
 			$chooser_owner.attr('data-autocomplete', 'group:(id:' + group_id + ')');
 		});
+		
+		{if $focus_submit}
+		$frm.find('button.submit').focus();
+		{else}
+		$frm.find('input:text,textarea').first().focus();
+		{/if}
 	});
 });
 </script>
