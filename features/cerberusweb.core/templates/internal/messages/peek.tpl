@@ -101,10 +101,10 @@ $(function() {
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {
 			if(e.shiftKey || e.metaKey) {
-				window.open('{devblocks_url}c=profiles&type=ticket&id={$dict->ticket_mask}&what=message&msgid={$dict->id}{/devblocks_url}', '_blank', 'noopener');
+				window.open('{devblocks_url}c=profiles&type=ticket&id={$dict->ticket_mask}{/devblocks_url}#message{$dict->id}', '_blank', 'noopener');
 				
 			} else {
-				document.location='{devblocks_url}c=profiles&type=ticket&id={$dict->ticket_mask}&what=message&msgid={$dict->id}{/devblocks_url}';
+				document.location='{devblocks_url}c=profiles&type=ticket&id={$dict->ticket_mask}{/devblocks_url}#message{$dict->id}';
 			}
 		});
 		
