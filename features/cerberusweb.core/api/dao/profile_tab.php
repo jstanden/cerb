@@ -288,13 +288,23 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = [$ids];
+		
 		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
 		
 		$ids_list = implode(',', $ids);
+		
+		// Delete each tab's profile widgets
+		foreach($ids as $tab_id) {
+			$widgets = DAO_ProfileWidget::getByTab($tab_id);
+		
+			if($widgets)
+				DAO_ProfileWidget::delete(array_keys($widgets));
+		}
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM profile_tab WHERE id IN (%s)", $ids_list));
 		
