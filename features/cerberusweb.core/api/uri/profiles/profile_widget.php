@@ -188,6 +188,48 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		echo json_encode(array_column(DevblocksPlatform::objectsToArrays($widget_manifests), 'name', 'id'));
 	}
 	
+	function testWidgetTemplateAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
+		@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'int', 0);
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$template = $params['template'];
+		
+		if(false == ($profile_tab = DAO_ProfileTab::get($profile_tab_id)))
+			return;
+		
+		if(false == ($context_ext = $profile_tab->getContextExtension(true)))
+			return;
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'record_id' => $context_ext->getRandom(),
+			'record__context' => $context_ext->id,
+			'widget_id' => $id,
+			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+		]);
+		
+		$success = false;
+		$output = '';
+		
+		if(!is_string($template) || false === (@$out = $tpl_builder->build($template, $dict))) {
+			// If we failed, show the compile errors
+			$errors = $tpl_builder->getErrors();
+			$success = false;
+			$output = @array_shift($errors);
+			
+		} else {
+			$success = true;
+			$output = $out;
+		}
+		
+		$tpl->assign('success', $success);
+		$tpl->assign('output', $output);
+		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+	}
+	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

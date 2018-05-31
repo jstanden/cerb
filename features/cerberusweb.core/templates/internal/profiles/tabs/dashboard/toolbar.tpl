@@ -104,7 +104,7 @@ $(function() {
 		var strNamespace = hits[1];
 		var strName = hits[2];
 		
-		genericAjaxPost($(this).closest('form').attr('id'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
+		genericAjaxPost($div.closest('form'), divTester, 'c=profiles&a=handleSectionAction&section=profile_widget&action=testWidgetTemplate');
 	});
 	
 	$placeholder_menu_trigger
