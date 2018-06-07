@@ -1187,7 +1187,6 @@ class CerberusContexts {
 
 		if($skip_labels) {
 			unset($values['_labels']);
-			unset($values['_types']);
 
 		} else {
 			if(is_array($labels)) {
