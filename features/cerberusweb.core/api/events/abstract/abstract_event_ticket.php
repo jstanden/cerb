@@ -162,7 +162,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		/**
 		 * Return
 		 */
-
+		
 		$this->setLabels($labels);
 		$this->setValues($values);
 	}
@@ -300,7 +300,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		return $conditions;
 	}
 	
-	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $as_token, $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
