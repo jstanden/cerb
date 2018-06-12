@@ -1134,7 +1134,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	
 	protected function _importModelCustomFieldsAsValues($model, $token_values) {
 		@$custom_fields = $model->custom_fields;
-
+		
 		if($custom_fields) {
 			$custom_values = $this->_lazyLoadCustomFields(
 				'custom_',
@@ -1166,7 +1166,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	protected function _lazyLoadCustomFields($token, $context, $context_id, $field_values=null) {
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values['custom'] = [];
-
+		
 		// If (0 == $context_id), we need to null out all the fields and return w/o queries
 		if(empty($context_id))
 			return $token_values;
@@ -1570,7 +1570,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 	function getTypes() {
 		if(!isset($this->_values['_types']))
-			return array();
+			return [];
 
 		return $this->_values['_types'];
 	}
@@ -1581,7 +1581,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		// Custom fields
 
-		$cfields = array();
+		$cfields = [];
 		$custom_fields = DAO_CustomField::getAll();
 		$vars = array();
 

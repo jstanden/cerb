@@ -4501,7 +4501,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_TICKET;
 		$token_values['_types'] = $token_types;
