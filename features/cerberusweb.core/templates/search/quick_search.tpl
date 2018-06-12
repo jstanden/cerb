@@ -9,8 +9,16 @@
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 	<div style="border:1px solid rgb(200,200,200);border-radius:10px;display:inline-block;">
-		<input type="text" name="query" class="input_search cerb-input-quicksearch" style="border:0;" size="50" value="{$view->getParamsQuery()}" autocomplete="off" spellcheck="false">
-		<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span></a>
+		<table cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td width="100%" valign="top">
+					<input type="text" name="query" class="input_search cerb-input-quicksearch" style="border:0;width:100%;" size="16" value="{$view->getParamsQuery()}" autocomplete="off" spellcheck="false">
+				</td>
+				<td width="0%" nowrap="nowrap" valign="top">
+					<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span></a>
+				</td>
+			</tr>
+		</table>
 	</div>
 	
 	{function tree level=0}
@@ -50,7 +58,10 @@ $(function() {
 	var $menu = $frm.find('ul.cerb-menu').menu().zIndex($popup.zIndex()+1);
 	
 	var $menu_trigger = $frm.find('a.cerb-quick-search-menu-trigger').click(function() {
-		$menu.toggle();
+		$menu
+			.toggle()
+			.position({ my: "right top", at: "right bottom", of: $menu_trigger, collision: "fit" })
+			;
 	});
 	
 	$menu.find('li').on('click', function(e) {

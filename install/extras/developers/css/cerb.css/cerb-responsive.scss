@@ -1,0 +1,11 @@
+@media all and (max-width:1050px) {
+	.cerb-profile-layout--sidebar-right {
+		.cerb-profile-layout-zone--content {
+			order:2;
+		}
+		
+		.cerb-profile-layout-zone--sidebar {
+			order:1;
+		}
+	}
+}

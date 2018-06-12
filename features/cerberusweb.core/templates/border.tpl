@@ -7,19 +7,20 @@
 {/if}
 
 {if !empty($tour_enabled)}{include file="devblocks:cerberusweb.core::internal/tour/banner.tpl"}{/if}
-<table cellspacing="0" cellpadding="2" border="0" width="100%">
-	<tr>
-		<td align="left" valign="bottom">
-			{assign var=logo_url value=$settings->get('cerberusweb.core','helpdesk_logo_url','')}
-			{if empty($logo_url)}
-			<a href="{devblocks_url}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0" id="logo"></a>
-			{else}
-			<a href="{devblocks_url}{/devblocks_url}"><img src="{$logo_url}" border="0" id="logo"></a>
-			{/if}
-		</td>
-		<td align="right" valign="bottom" style="line-height:150%;">
+<div style="display:flex;flex-flow:row wrap;">
+	<div style="flex:2 2;">
+		{assign var=logo_url value=$settings->get('cerberusweb.core','helpdesk_logo_url','')}
+		{if empty($logo_url)}
+		<a href="{devblocks_url}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0" id="logo"></a>
+		{else}
+		<a href="{devblocks_url}{/devblocks_url}"><img src="{$logo_url}" border="0" id="logo"></a>
+		{/if}
+	</div>
+	<div style="flex:1 1 250px;text-align:right;padding-bottom:5px;margin-top:auto;">
 		{if empty($visit)}
-			{'header.not_signed_in'|devblocks_translate} <a href="{devblocks_url}c=login{/devblocks_url}">{'header.signon'|devblocks_translate|lower}</a>
+			<div class="badge badge-lightgray">
+				<a href="{devblocks_url}c=login{/devblocks_url}" class="no-underline"><b>{'header.signon'|devblocks_translate|lower}</b></a>
+			</div>
 		{elseif !empty($active_worker)}
 			<img src="{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id}{/devblocks_url}?v={$active_worker->updated}" style="height:1.75em;width:1.75em;border-radius:0.875em;vertical-align:middle;">
 			<b><a href="javascript:;" id="lnkSignedIn" data-worker-id="{$active_worker->id}" data-worker-name="{$active_worker->getName()}">{$active_worker->getName()}</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span>
@@ -38,9 +39,8 @@
 				<li><a href="{devblocks_url}c=login&a=signout&w=all{/devblocks_url}">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
 			</ul>
 		{/if}
-		</td>
-	</tr>
-</table>
+	</div>
+</div>
 
 <script type="text/javascript">
 $(function(e) {
@@ -79,10 +79,7 @@ $(function(e) {
 			
 			$menu
 				.show()
-				.css('position','absolute')
-				.css('top',$(this).offset().top+($(this).height())+'px')
-				.css('left',$(this).offset().left-(10+$menu.width()-$(this).width())+'px')
-				.show()
+				.position({ my: "left top", at: "left bottom", of: $('#lnkSignedIn'), collision: "fit" })
 			;
 		});
 
