@@ -1,13 +1,11 @@
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
-	<tr>
-		{if empty($view->renderSubtotals) || '__'==substr($view->renderSubtotals,0,2)}
-		<td valign="top" width="0%" nowrap="nowrap" id="view{$view->id}_sidebar"></td>
-		{else}
-		<td valign="top" width="0%" nowrap="nowrap" id="view{$view->id}_sidebar" style="padding-right:5px;">{$view->renderSubtotals()}</td>
+{$show_subtotals = !(!$view->renderSubtotals || DevblocksPlatform::strStartsWith($view->renderSubtotals,'__'))}
+<div style="display:flex;flex-flow:row wrap;">
+	<div style="flex:0 0 250px;padding-right:5px;{if !$show_subtotals}display:none;{/if}" id="view{$view->id}_sidebar">
+		{if $show_subtotals}
+		{$view->renderSubtotals()}
 		{/if}
-
-		<td valign="top" width="100%">
-			{include file=$view_template}
-		</td>
-	</tr>
-</table>
+	</div>
+	<div style="flex:1 1 250px;">
+		{include file=$view_template}
+	</div>
+</div>

@@ -88,14 +88,15 @@ $(function() {
 	
 	// Subtotals
 	$view.find('table.worklist A.subtotals').click(function(event) {
-		genericAjaxGet('view{$view->id}_sidebar','c=internal&a=viewSubtotal&view_id={$view->id}&toggle=1');
-		
-		$sidebar = $('#view{$view->id}_sidebar');
-		if(0 == $sidebar.html().length) {
-			$sidebar.css('padding-right','5px');
-		} else {
-			$sidebar.css('padding-right','0px');
-		}
+		genericAjaxGet('view{$view->id}_sidebar','c=internal&a=viewSubtotal&view_id={$view->id}&toggle=1', function(html) {
+			var $sidebar = $('#view{$view->id}_sidebar');
+			
+			if(0 == html.length) {
+				$sidebar.hide();
+			} else {
+				$sidebar.show();
+			}
+		});
 	});
 	
 	// Select all
@@ -120,7 +121,7 @@ $(function() {
 			$checkbox.prop('checked', e.checked);
 			$(this).prop('checked', e.checked);
 			$rows.addClass('selected'); 
-			$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');	
+			$view_actions.find('button,.action-on-select').not('.action-always-show').fadeIn('fast');
 		} else {
 			$checkbox.prop('checked', e.checked);
 			$(this).prop('checked', e.checked);

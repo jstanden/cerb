@@ -261,7 +261,15 @@
 							<br>
 							
 							<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin:5px 0px 0px 20px;">
-							<b>{'display.reply.next.resume'|devblocks_translate}</b> {'display.reply.next.resume_eg'|devblocks_translate}<br> 
+							
+							<div style="display:flex;flex-flow:row wrap;">
+								<div style="flex:1 1 45%;padding-right:10px;">
+									<b>{'display.reply.next.resume'|devblocks_translate}</b>
+								</div>
+								<div style="flex:1 1 45%;">
+									{'display.reply.next.resume_eg'|devblocks_translate} 
+								</div>
+							</div>
 							<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
 							{'display.reply.next.resume_blank'|devblocks_translate}<br>
 							</div>

@@ -5,7 +5,7 @@
 {/if}
 
 {if 'sidebar_left' == $layout}
-	<div id="profileTab{$model->id}" class="cerb-profile-layout" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--sidebar-left" style="vertical-align:top;display:flex;flex-flow:row wrap;">
 		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;">
 			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
@@ -23,8 +23,8 @@
 		</div>
 	</div>
 {elseif 'sidebar_right' == $layout}
-	<div id="profileTab{$model->id}" class="cerb-profile-layout" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:2 2 66%;min-width:345px;">
+	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--sidebar-right" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone cerb-profile-layout-zone--content" style="flex:2 2 66%;min-width:345px;">
 			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -32,7 +32,7 @@
 			</div>
 		</div>
 		
-		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;">
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone cerb-profile-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;">
 			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -41,7 +41,7 @@
 		</div>
 	</div>
 {else}
-	<div id="profileTab{$model->id}" class="cerb-profile-layout" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--content" style="vertical-align:top;display:flex;flex-flow:row wrap;">
 		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:1 1 100%;">
 			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}

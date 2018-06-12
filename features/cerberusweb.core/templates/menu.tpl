@@ -152,9 +152,13 @@ $(function() {
 			
 			if(items > 20) {
 				var cols = Math.min(Math.floor(items / 20) + 1, 4);
+				var width = (185 * cols);
+				
+				if(width > window.innerWidth)
+					width = window.innerWidth - 50;
 				
 				$search_menu
-					.css('width', '' + (185 * cols) + 'px')
+					.css('width', '' + width + 'px')
 					.css('column-width', '175px')
 					.css('column-count', 'auto')
 					.css('column-gap', '10px')

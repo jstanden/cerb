@@ -613,7 +613,13 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			width = Math.floor($(window).width() * parseInt(width)/100);
 		}
 		
-		options.width = Math.max(parseInt(width), 500) + 'px';
+		if(width < 500)
+			width = 500;
+		
+		if(width > window.innerWidth)
+			width = window.innerWidth - 30;
+		
+		options.width = width + 'px';
 	}
 	
 	if(null != modal)

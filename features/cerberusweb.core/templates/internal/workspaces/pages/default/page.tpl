@@ -17,7 +17,7 @@
 		{/foreach}
 
 		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
-			<li><a href="{devblocks_url}ajax.php?c=pages&a=showAddTabs&page_id={$page->id}{/devblocks_url}">+</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=pages&a=showAddTabs&page_id={$page->id}{/devblocks_url}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
 		{/if}
 	</ul>
 </div>

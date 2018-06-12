@@ -131,6 +131,10 @@ BUTTON SPAN {
   vertical-align: middle;
 }
 
+#logo {
+  max-width: 100vw;
+}
+
 DIV.cerb-form {
   margin: 0px 0px 10px 0px;
 }
@@ -5425,4 +5429,13 @@ iframe.markItUpPreviewFrame {
 .tada {
   -webkit-animation-name: tada;
   animation-name: tada;
+}
+
+@media all and (max-width: 1050px) {
+  .cerb-profile-layout--sidebar-right .cerb-profile-layout-zone--content {
+    order: 2;
+  }
+  .cerb-profile-layout--sidebar-right .cerb-profile-layout-zone--sidebar {
+    order: 1;
+  }
 }
