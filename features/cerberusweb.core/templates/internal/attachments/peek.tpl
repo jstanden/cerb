@@ -45,15 +45,15 @@
 		<img src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="max-width:100%;border:1px solid rgb(200,200,200);">
 	{elseif in_array($dict->mime_type, [ 'application/json', 'message/rfc822', 'text/css', 'text/csv', 'text/javascript', 'text/plain', 'text/xml' ])}
 		{if $dict->size < 1000000}
-		<iframe sandbox src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
+		<iframe sandbox="allow-same-origin" src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
 		{/if}
 	{elseif in_array($dict->mime_type, [ 'application/pgp-signature', 'multipart/encrypted', 'multipart/signed' ])}
 		{if $dict->size < 1000000}
-		<iframe sandbox src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
+		<iframe sandbox="allow-same-origin" src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
 		{/if}
 	{elseif in_array($dict->mime_type, [ 'application/xhtml+xml', 'text/html' ])}
 		{if $dict->size < 1000000}
-		<iframe sandbox src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
+		<iframe sandbox="allow-same-origin" src="{devblocks_url}c=files&id={$dict->id}&name={$dict->_label|devblocks_permalink}{/devblocks_url}" style="width:100%; height:300px;border:1px solid rgb(200,200,200);"></iframe>
 		{/if}
 	{elseif in_array($dict->mime_type, [ 'application/pdf' ])}
 		{if $dict->size < 5000000}
