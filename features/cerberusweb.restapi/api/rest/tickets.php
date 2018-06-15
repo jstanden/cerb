@@ -483,6 +483,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 			$container['total'] = $total;
 			$container['count'] = count($objects);
 			$container['page'] = $page;
+			$container['limit'] = $limit;
 		}
 		
 		if(!empty($subtotals)) {

@@ -370,6 +370,7 @@ class ChRest_Records extends Extension_RestController {
 			$container['total'] = $total;
 			$container['count'] = count($objects);
 			$container['page'] = $page;
+			$container['limit'] = $limit;
 		}
 		
 		if(!empty($subtotals)) {
