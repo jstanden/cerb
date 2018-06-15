@@ -559,6 +559,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 	
 	const VIRTUAL_BEHAVIOR_SEARCH = '*_behavior_search';
 	const VIRTUAL_BOT_SEARCH = '*_bot_search';
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_TARGET = '*_target';
 
 	static private $_fields = null;
@@ -583,6 +584,10 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_BOT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BOT, 'trigger_event.bot_id');
+				break;
+				
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED, self::getPrimaryKey());
 				break;
 			
 			case self::VIRTUAL_TARGET:
@@ -631,6 +636,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 			
 			self::VIRTUAL_BEHAVIOR_SEARCH => new DevblocksSearchField(self::VIRTUAL_BEHAVIOR_SEARCH, '*', 'behavior_search', null, null, false),
 			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_TARGET => new DevblocksSearchField(self::VIRTUAL_TARGET, '*', 'target', $translate->_('common.on'), null, false),
 		);
 		
@@ -804,6 +810,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH,
 			SearchFields_ContextScheduledBehavior::VIRTUAL_BOT_SEARCH,
+			SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK,
 		));
 
 		$this->doResetCriteria();
