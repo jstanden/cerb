@@ -5710,6 +5710,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.workspace_page</id>
+				<name>Workspace Page Section</name>
+				<class>
+					<file>api/uri/profiles/workspace_page.php</file>
+					<name>PageSection_ProfilesWorkspacePage</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="workspace_page" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.workspace_tab</id>
 				<name>Workspace Tab Section</name>
 				<class>
