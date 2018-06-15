@@ -845,6 +845,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			$pass = false;
 			
 			switch($field_key) {
+				case SearchFields_Task::IMPORTANCE:
 				case SearchFields_Task::OWNER_ID:
 				case SearchFields_Task::STATUS_ID:
 					$pass = true;
@@ -880,6 +881,10 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			return array();
 		
 		switch($column) {
+			case SearchFields_Task::IMPORTANCE:
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
+				break;
+				
 			case SearchFields_Task::OWNER_ID:
 				$label_map = function($ids) {
 					$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
