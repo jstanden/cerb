@@ -6,16 +6,16 @@
 
 {if 'sidebar_left' == $layout}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--sidebar-left" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;">
-			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
 			{/foreach}
 			</div>
 		</div>
 		
-		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:2 2 66%;min-width:345px;">
-			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:2 2 66%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
 			{/foreach}
@@ -24,16 +24,16 @@
 	</div>
 {elseif 'sidebar_right' == $layout}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--sidebar-right" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="content" class="cerb-profile-layout-zone cerb-profile-layout-zone--content" style="flex:2 2 66%;min-width:345px;">
-			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone cerb-profile-layout-zone--content" style="flex:2 2 66%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
 			{/foreach}
 			</div>
 		</div>
 		
-		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone cerb-profile-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;">
-			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone cerb-profile-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
 			{/foreach}
@@ -42,8 +42,8 @@
 	</div>
 {else}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--content" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:1 1 100%;">
-			<div class="cerb-profile-layout-zone--widgets" style="margin:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:1 1 100%;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.content item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
 			{/foreach}
@@ -121,6 +121,7 @@ $(function() {
 	
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-profile-widget--menu');
+		var $menu_link = $target.find('.cerb-profile-widget--link');
 		
 		$menu
 			.menu({
@@ -139,9 +140,9 @@ $(function() {
 			})
 			;
 		
-		$target.find('.cerb-profile-widget--link').on('click', function(e) {
+		$menu_link.on('click', function(e) {
 			e.stopPropagation();
-			$(this).closest('div').find('.cerb-profile-widget--menu').toggle();
+			$(this).closest('.cerb-profile-widget').find('.cerb-profile-widget--menu').toggle();
 		});
 		
 		$menu.find('.cerb-peek-trigger')

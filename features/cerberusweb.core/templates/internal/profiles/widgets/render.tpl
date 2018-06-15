@@ -1,5 +1,5 @@
 {$width_units = $widget->width_units|default:1}
-<div class="cerb-profile-widget" data-widget-id="{$widget->id}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;min-width:345px;">
+<div class="cerb-profile-widget" data-widget-id="{$widget->id}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;min-width:345px;overflow-x:hidden;">
 	<div style="padding:0px 5px 10px 5px;">
 		<div class="cerb-profile-widget--header" style="border:2px solid rgb(200,200,200);box-shadow:0px 0px 2px rgb(200,200,200);background-color:rgb(235,235,235);padding:5px 0 5px 10px;margin:0 0 10px 0;border-radius:5px;position:relative;">
 			<b style="font-size:1.4em;color:rgb(0,0,0);">
@@ -8,7 +8,9 @@
 				{/if}
 				<a href="javascript:;" class="cerb-profile-widget--link no-underline">{$widget->name}</a>
 			</b>
-			<ul class="cerb-profile-widget--menu cerb-popupmenu cerb-float" style="display:none;">
+		</div>
+		<div>
+			<ul class="cerb-profile-widget--menu cerb-popupmenu cerb-float" style="display:none;margin-top:-12px;">
 				{if $active_worker->is_superuser}
 				<li class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="{$widget->id}" data-edit="true">
 					<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
