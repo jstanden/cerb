@@ -475,8 +475,6 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 
-		$visit->set(ChConfigurationPage::ID, 'mail_import');
-		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_import.tpl');
 	}
 	
