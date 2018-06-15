@@ -845,6 +845,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			$pass = false;
 			
 			switch($field_key) {
+				case SearchFields_Task::OWNER_ID:
 				case SearchFields_Task::STATUS_ID:
 					$pass = true;
 					break;
@@ -879,6 +880,15 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 			return array();
 		
 		switch($column) {
+			case SearchFields_Task::OWNER_ID:
+				$label_map = function($ids) {
+					$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
+					$worker_names = DAO_Worker::getNames(false);
+					return array_intersect_key($worker_names, array_flip($ids));
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'worker_id');
+				break;
+				
 			case SearchFields_Task::STATUS_ID:
 				$label_map = [0 => 'Open', 1 => 'Closed', 2 => 'Waiting'];
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options');

@@ -607,12 +607,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 	/**
 	 * @return array
 	 */
-	static function getNames() {
+	static function getNames($as_mentions=true) {
 		$workers = DAO_Worker::getAllActive();
 		$names = array();
 		
 		foreach($workers as $worker) {
-			$names[$worker->id] = !empty($worker->at_mention_name) ? $worker->at_mention_name : $worker->getName();
+			$names[$worker->id] = ($as_mentions && !empty($worker->at_mention_name)) ? $worker->at_mention_name : $worker->getName();
 		}
 		
 		return $names;
