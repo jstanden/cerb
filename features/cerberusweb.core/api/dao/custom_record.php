@@ -83,8 +83,10 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 				name VARCHAR(255) DEFAULT '',
 				owner_context VARCHAR(255) DEFAULT '',
 				owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+				created_at INT UNSIGNED NOT NULL DEFAULT 0,
 				updated_at INT UNSIGNED NOT NULL DEFAULT 0,
 				primary key (id),
+				index (created_at),
 				index (updated_at),
 				index owner (owner_context, owner_context_id)
 			) ENGINE=%s;

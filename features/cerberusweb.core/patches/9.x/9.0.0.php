@@ -408,7 +408,7 @@ SET @context = %s;
 SET @record_name = %s;
 INSERT INTO profile_tab (name, context, extension_id, extension_params_json, updated_at) VALUES ('Overview',@context,'cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP());
 SET @last_tab_id = LAST_INSERT_ID();
-INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, zone, pos, width_units, updated_at) VALUES (@record_name,@last_tab_id,'cerb.profile.tab.widget.fields','{\"context\":\"%s\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"updated\"]],\"links\":{\"show\":\"1\"}}','sidebar',1,4,UNIX_TIMESTAMP());
+INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, zone, pos, width_units, updated_at) VALUES (@record_name,@last_tab_id,'cerb.profile.tab.widget.fields','{\"context\":\"%s\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"created\",\"updated\"]],\"links\":{\"show\":\"1\"}}','sidebar',1,4,UNIX_TIMESTAMP());
 INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, zone, pos, width_units, updated_at) VALUES ('Discussion',@last_tab_id,'cerb.profile.tab.widget.comments','{\"context\":\"%s\",\"context_id\":\"{{record_id}}\",\"height\":\"\"}','content',1,4,UNIX_TIMESTAMP());
 INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.core','profile:tabs:%s',CONCAT('[',@last_tab_id,']'));
 EOD;
@@ -503,6 +503,27 @@ $db->ExecuteMaster("DELETE FROM context_link WHERE to_context = 'cerberusweb.con
 // Clean up custom fieldset link logs
 
 $db->ExecuteMaster("DELETE FROM context_activity_log WHERE target_context = 'cerberusweb.contexts.custom_fieldset'");
+// ===========================================================================
+// Add `created_at` to all custom record tables
+
+foreach(array_keys($tables) as $table_name) {
+	if(!DevblocksPlatform::strStartsWith($table_name, 'custom_record_'))
+		continue;
+	
+	list($columns, $indexes) = $db->metaTable($table_name);
+	
+	if(!isset($columns['created_at'])) {
+		$sql = sprintf("ALTER TABLE %s ADD COLUMN created_at INT UNSIGNED NOT NULL DEFAULT 0",
+			$db->escape($table_name)
+		);
+		$db->ExecuteMaster($sql);
+		
+		$db->ExecuteMaster(sprintf("UPDATE %s SET created_at=updated_at WHERE created_at=0",
+			$db->escape($table_name)
+		));
+	}
+}
+
 
 // ===========================================================================
 // Finish up

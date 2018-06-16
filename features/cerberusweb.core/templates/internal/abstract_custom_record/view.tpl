@@ -137,7 +137,7 @@
 						{/if}
 					{/if}
 				</td>
-			{elseif in_array($column, ["a_updated_at"])}
+			{elseif in_array($column, ["a_created_at","a_updated_at"])}
 				<td>
 					{if !empty($result.$column)}
 						<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
