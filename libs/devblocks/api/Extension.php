@@ -2016,6 +2016,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							break;
 
 						case Model_CustomField::TYPE_NUMBER:
+						case 'time_mins':
+						case 'time_secs':
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
 							@$desired_value = intval($params['value']);
