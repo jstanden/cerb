@@ -12,7 +12,7 @@
 		<div>
 			<ul class="cerb-profile-widget--menu cerb-popupmenu cerb-float" style="display:none;margin-top:-12px;">
 				{if $active_worker->is_superuser}
-				<li class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="{$widget->id}" data-edit="true">
+				<li class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_PROFILE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
 					<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
 				</li>
 				{/if}

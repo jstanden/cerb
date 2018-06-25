@@ -929,7 +929,7 @@ abstract class C4_AbstractView {
 		if(empty($view_context))
 			return;
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($view_context)))
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($view_context, true)))
 			return;
 		
 		if(null == ($dao_class = $context_ext->getDaoClass()))
@@ -1028,7 +1028,7 @@ abstract class C4_AbstractView {
 						case 'month':
 							$date_format_mysql = '%Y-%m';
 							$date_format_php = '%Y-%m';
-							$date_label = '%b %Y';
+							$date_label = $date_format_php;
 							break;
 								
 						case 'year':

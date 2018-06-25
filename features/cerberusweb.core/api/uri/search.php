@@ -66,6 +66,7 @@ class Page_Search extends CerberusPageExtension {
 		// Quick search initialization
 		
 		if(!empty($query)) {
+			$view->setParamsQuery($query);
 			$view->addParamsWithQuickSearch($query, true);
 			$view->renderPage = 0;
 		}

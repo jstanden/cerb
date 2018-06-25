@@ -1649,15 +1649,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Ticket');
 
-		// Translate virtual fields
-		
-		$args = array(
-			'select_sql' => &$select_sql,
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-		
 		$result = array(
 			'primary_table' => 't',
 			'select' => $select_sql,
