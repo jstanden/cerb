@@ -192,11 +192,12 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
 		@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'int', 0);
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$template_key = DevblocksPlatform::importGPC($_REQUEST['template_key'], 'string', '');
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$template = $params['template'];
+		@$template = $params[$template_key];
 		
 		if(false == ($profile_tab = DAO_ProfileTab::get($profile_tab_id)))
 			return;
