@@ -249,6 +249,10 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function translateCapitalized($token) {
 		return self::translate($token, DevblocksPlatform::TRANSLATE_CAPITALIZE);
 	}
+	
+	static function translateLower($token) {
+		return self::translate($token, DevblocksPlatform::TRANSLATE_LOWER);
+	}
 
 	static function installPluginZip($zip_filename) {
 		$plugin_path = APP_STORAGE_PATH . '/plugins/';
