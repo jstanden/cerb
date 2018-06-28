@@ -1,6 +1,6 @@
 <select name="{$namePrefix}[is_available]">
-	<option value="1" {if $params.is_available}selected="selected"{/if}>available</option>
-	<option value="0" {if !$params.is_available}selected="selected"{/if}>busy</option>
+	<option value="1" {if $params.is_available}selected="selected"{/if}>{'common.available'|devblocks_translate|lower}</option>
+	<option value="0" {if !$params.is_available}selected="selected"{/if}>{'common.busy'|devblocks_translate|lower}</option>
 </select>
 
 between

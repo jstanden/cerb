@@ -32,8 +32,8 @@
 {* [TODO] Text *}
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<select name="{$namePrefix}[is_available]">
-		<option value="1" {if $params.is_available}selected="selected"{/if}>Available</option>
-		<option value="0" {if !$params.is_available}selected="selected"{/if}>Busy</option>
+		<option value="1" {if $params.is_available}selected="selected"{/if}>{'common.available'|devblocks_translate|capitalize}</option>
+		<option value="0" {if !$params.is_available}selected="selected"{/if}>{'common.busy'|devblocks_translate|capitalize}</option>
 	</select>
 </div>
 

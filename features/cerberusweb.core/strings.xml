@@ -349,7 +349,7 @@
 		</tu>
 		<tu tuid="common.available">
 			<tuv xml:lang="en_US">
-				<seg>Available</seg>
+				<seg>available</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.availability">
@@ -460,6 +460,11 @@
 		<tu tuid="common.bulk_update.with">
 			<tuv xml:lang="en_US">
 				<seg>With</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.busy">
+			<tuv xml:lang="en_US">
+				<seg>busy</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.cache">

@@ -1,7 +1,7 @@
 <b>Is:</b><br>
 <select name="is_available">
-	<option value="1" {if $param->value.2}selected="selected"{/if}>Available</option>
-	<option value="0" {if !empty($param->value) && empty($param->value.2)}selected="selected"{/if}>Busy</option>
+	<option value="1" {if $param->value.2}selected="selected"{/if}>{'common.available'|devblocks_translate|capitalize}</option>
+	<option value="0" {if !empty($param->value) && empty($param->value.2)}selected="selected"{/if}>{'common.busy'|devblocks_translate|capitalize}</option>
 </select>
 <br>
 <br>

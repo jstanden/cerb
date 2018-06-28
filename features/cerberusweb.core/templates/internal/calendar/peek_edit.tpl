@@ -67,11 +67,11 @@
 <fieldset class="calendar-events peek" style="{if !empty($model->params.manual_disabled)}display:none;{/if}">
 	<legend>Created Events</legend>
 	
-	<b>Available</b> events are 
+	<b>{'common.available'|devblocks_translate|capitalize}</b> events are 
 	<input type="text" name="params[color_available]" value="{$model->params.color_available|default:'#A0D95B'}" style="width:100%;" class="color-picker">
 	<br>
 	
-	<b>Busy</b> events are 
+	<b>{'common.busy'|devblocks_translate|capitalize}</b> events are 
 	<input type="text" name="params[color_busy]" value="{$model->params.color_busy|default:'C8C8C8'}" style="width:100%;" class="color-picker">
 	<br>
 </fieldset>
