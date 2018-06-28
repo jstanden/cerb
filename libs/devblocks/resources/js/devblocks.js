@@ -260,37 +260,38 @@ function DevblocksClass() {
 		$(element).trigger(e);
 	}
 	
-	this._loadedScripts = {};
+	this._loadedResources = {};
 	
-	this.getScriptState = function(url) {
-		var state = this._loadedScripts.hasOwnProperty(url) ? this._loadedScripts[url] : null;
+	this.getResourceState = function(url) {
+		var state = this._loadedResources.hasOwnProperty(url) ? this._loadedResources[url] : null;
 		return state;
 	}
 	
-	this.setScriptState = function(url, state) {
-		this._loadedScripts[url] = state;
+	this.setResourceState = function(url, state) {
+		this._loadedResources[url] = state;
 	}
 	
-	this.loadScript = function(url, callback) {
+	this.loadStylesheet = function(url, callback) {
 		var $instance = this;
-		var state = $instance.getScriptState(url);
+		var state = $instance.getResourceState(url);
 		
 		if(null == state) {
 			var options = {
-				dataType: "script",
+				dataType: "text",
 				cache: true,
 				url: url
 			}
 			
-			$instance.setScriptState(url, 'loading');
+			$instance.setResourceState(url, 'loading');
 			
 			return jQuery.ajax(options)
-				.done(function() {
-					$instance.setScriptState(url, 'loaded');
+				.done(function(data) {
+					$('<style type="text/css">\n' + data + '</style>').appendTo('head');
+					$instance.setResourceState(url, 'loaded');
 					callback();
 				})
 				.fail(function() {
-					$instance.setScriptState(url, 'failed');
+					$instance.setResourceState(url, 'failed');
 					callback(false);
 				})
 			;
@@ -299,7 +300,52 @@ function DevblocksClass() {
 			var timer = null;
 			
 			timer = setInterval(function() {
-				var state = $instance.getScriptState(url);
+				var state = $instance.getResourceState(url);
+				
+				if('loaded' == state) {
+					clearInterval(timer);
+					callback();
+					
+				} else if ('failed' == state) {
+					clearInterval(timer);
+					callback(false);
+				}
+			}, 50);
+			
+		} else {
+			callback();
+		}
+	}
+	
+	this.loadScript = function(url, callback) {
+		var $instance = this;
+		var state = $instance.getResourceState(url);
+		
+		if(null == state) {
+			var options = {
+				dataType: "script",
+				cache: true,
+				url: url
+			}
+			
+			$instance.setResourceState(url, 'loading');
+			
+			return jQuery.ajax(options)
+				.done(function() {
+					$instance.setResourceState(url, 'loaded');
+					callback();
+				})
+				.fail(function() {
+					$instance.setResourceState(url, 'failed');
+					callback(false);
+				})
+			;
+			
+		} else if ('loading' === state) {
+			var timer = null;
+			
+			timer = setInterval(function() {
+				var state = $instance.getResourceState(url);
 				
 				if('loaded' == state) {
 					clearInterval(timer);
@@ -329,6 +375,45 @@ function DevblocksClass() {
 			
 			jobs.push(async.apply($instance.loadScript.bind($instance), url));
 		});
+		
+		async.parallelLimit(jobs, 2, function(err, json) {
+			if(err)
+				return finished(err);
+			
+			finished();
+		});
+	}
+	
+	this.loadResources = function(resources, finished) {
+		if(typeof(resources) != 'object')
+			return callback(false);
+		
+		var $instance = this;
+		var jobs = [];
+		
+		if(resources.hasOwnProperty('css')) {
+			if(!$.isArray(resources.css))
+				return callback(false);
+			
+			resources.css.forEach(function(url) {
+				if(url.substring(0,1) == '/')
+					url = DevblocksWebPath + url.substring(1);
+				
+				jobs.push(async.apply($instance.loadStylesheet.bind($instance), url));
+			});
+		}
+		
+		if(resources.hasOwnProperty('js')) {
+			resources.js.forEach(function(url) {
+				if(!$.isArray(resources.js))
+					return callback(false);
+				
+				if(url.substring(0,1) == '/')
+					url = DevblocksWebPath + url.substring(1);
+				
+				jobs.push(async.apply($instance.loadScript.bind($instance), url));
+			});
+		}
 		
 		async.parallelLimit(jobs, 2, function(err, json) {
 			if(err)
