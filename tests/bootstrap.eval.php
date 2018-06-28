@@ -234,8 +234,8 @@ class CerbTestHelper {
 	function commentOnTicket($id, $comment_text) {
 		$driver = $this->driver();
 		
-		$by = WebDriverBy::id('btnComment');
-			
+		$by = WebDriverBy::id('btnProfileComment');
+		
 		$driver->wait(10)->until(
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
 		);
