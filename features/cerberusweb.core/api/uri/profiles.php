@@ -1611,9 +1611,6 @@ class ProfileWidget_BehaviorTree extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('widget', $model);
 		
-		$context_mfts = Extension_DevblocksContext::getAll(false);
-		$tpl->assign('context_mfts', $context_mfts);
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/behavior_tree/config.tpl');
 	}
 }

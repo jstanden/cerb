@@ -4113,7 +4113,7 @@
 			</params>
 		</extension>
 		
-		<!-- VA Actions -->
+		<!-- Bot Actions -->
 		
 		<extension point="devblocks.event.action">
 			<id>core.va.action.classifier_prediction</id>

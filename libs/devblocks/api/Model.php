@@ -1225,7 +1225,7 @@ class DevblocksSearchCriteria {
 			
 		} else {
 			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
-			$link_contexts = array();
+			$link_contexts = [];
 			
 			$oper = null;
 			$value = null;

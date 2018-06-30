@@ -15,13 +15,10 @@
 |	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
-if(class_exists('Extension_PageSection')):
 class PageSection_InternalWorkspaces extends Extension_PageSection {
 	function render() {}
 };
-endif;
 
-if(class_exists('Extension_WorkspacePage')):
 class WorkspacePage_Workspace extends Extension_WorkspacePage {
 	const ID = 'core.workspace.page.workspace';
 	
@@ -30,7 +27,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('page', $page);
-
+		
 		$tabs = $page->getTabs($active_worker);
 		$tpl->assign('page_tabs', $tabs);
 		
@@ -45,7 +42,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 				'uid' => 'workspace_page_' . $page->id,
 				'name' => $page->name,
 				'extension_id' => $page->extension_id,
-				'tabs' => array(),
+				'tabs' => [],
 			),
 		);
 		
@@ -80,7 +77,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 				return false;
 			
 			@$name = $tab_json['name'];
-			@$params = $tab_json['params'] ?: array();
+			@$params = $tab_json['params'] ?: [];
 			
 			$tab_id = DAO_WorkspaceTab::create(array(
 				DAO_WorkspaceTab::NAME => $name ?: 'New Tab',
@@ -100,9 +97,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 	}
 	
 };
-endif;
 
-if(class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	const ID = 'core.workspace.tab.worklists';
 	
@@ -302,4 +297,3 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 		return true;
 	}
 };
-endif;

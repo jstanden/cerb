@@ -624,7 +624,7 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		
 		switch($column) {
 			case SearchFields_WebhookListener::EXTENSION_ID:
-				$label_map = array();
+				$label_map = [];
 				$manifests = Extension_WebhookListenerEngine::getAll(false);
 				if(is_array($manifests))
 				foreach($manifests as $k => $mft) {
@@ -652,7 +652,6 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
 					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
-				
 				break;
 		}
 		

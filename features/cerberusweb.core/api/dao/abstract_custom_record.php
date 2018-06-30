@@ -824,11 +824,6 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 			$pass = false;
 			
 			switch($field_key) {
-				// Fields
-				//case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
-				//	$pass = true;
-				//	break;
-					
 				// Virtuals
 				case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_AbstractCustomRecord::VIRTUAL_HAS_FIELDSET:

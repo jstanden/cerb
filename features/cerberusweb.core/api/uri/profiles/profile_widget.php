@@ -99,7 +99,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 					DAO_ProfileWidget::update($id, $fields);
 					DAO_ProfileWidget::onUpdateByActor($active_worker, $id, $fields);
 				}
-	
+				
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_WIDGET, $id, $field_ids, $error))
@@ -152,7 +152,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		
 		$tpl->assign('custom_field_values', []);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, []);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, null);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);

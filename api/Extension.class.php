@@ -841,6 +841,8 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 };
 
 abstract class Extension_CommunityPortal extends DevblocksExtension implements DevblocksHttpRequestHandler {
+	const ID = 'cerb.portal';
+	
 	private $portal = '';
 	
 	static $_registry = [];

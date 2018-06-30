@@ -210,7 +210,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						@$var_labels = DevblocksPlatform::importGPC($_REQUEST['var_label'],'array',array());
 						@$var_is_private = DevblocksPlatform::importGPC($_REQUEST['var_is_private'],'array',array());
 						
-						$variables = array();
+						$variables = [];
 						
 						if(is_array($var_labels))
 						foreach($var_labels as $idx => $v) {

@@ -123,10 +123,11 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 			);
 			
 		} else {
-			$select_query = sprintf("%s.%s",
-				$metric_field->db_table,
-				$metric_field->db_column
-			);
+			if($metric_field)
+				$select_query = sprintf("%s.%s",
+					$metric_field->db_table,
+					$metric_field->db_column
+				);
 			
 			switch($metric_func) {
 				case 'sum':

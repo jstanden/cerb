@@ -1838,7 +1838,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		$logger->info('');
 		$logger->info(sprintf("Checking condition `%s`...", $token));
-
+		
 		// Built-in conditions
 		switch($token) {
 			case '_calendar_availability':
@@ -1973,7 +1973,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					if(null == (@$value = $dict->$token)) {
 						$value = '';
 					}
-
+					
 					// Automatic types
 					switch(@$condition['type']) {
 						case Model_CustomField::TYPE_CHECKBOX:

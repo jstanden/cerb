@@ -161,7 +161,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						
 						if(!empty($view_id) && !empty($id))
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $id);
-			
+						
 						echo json_encode([
 							'status' => true,
 							'id' => $id,

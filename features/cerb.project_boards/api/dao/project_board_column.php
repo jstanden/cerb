@@ -650,7 +650,7 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -843,7 +843,7 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
+		$values = !is_array($param->value) ? [$param->value] : $param->value;
 
 		switch($field) {
 			default:

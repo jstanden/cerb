@@ -2291,6 +2291,16 @@
 				<seg>Test</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.template">
+			<tuv xml:lang="en_US">
+				<seg>template</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.templates">
+			<tuv xml:lang="en_US">
+				<seg>templates</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.text">
 			<tuv xml:lang="en_US">
 				<seg>Text</seg>

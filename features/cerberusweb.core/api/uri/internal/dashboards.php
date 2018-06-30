@@ -122,8 +122,8 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		
 		header('Content-Type: application/json');
 		
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
 		CerberusContexts::getContext($context, null, $labels, $values, null, true);
 		
@@ -132,7 +132,7 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 			return;
 		}
 		
-		$types = @$values['_types'] ?: array();
+		$types = @$values['_types'] ?: [];
 		$results = array();
 		
 		foreach($labels as $k => $v) {
@@ -187,7 +187,6 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 }
 endif;
 
-if(class_exists('Extension_WorkspaceTab')):
 class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	const ID = 'core.workspace.tab';
 	
@@ -327,7 +326,6 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		return true;
 	}
 }
-endif;
 
 class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	private function _loadData(Model_WorkspaceWidget &$widget) {

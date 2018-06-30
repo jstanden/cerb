@@ -576,7 +576,7 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				}
 
 				if(is_array($param->value)) {
-					$wheres = array();
+					$wheres = [];
 					foreach($param->value as $context_pair) {
 						@list($context, $context_id) = explode(':', $context_pair);
 						if(!empty($context_id)) {
@@ -596,7 +596,10 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				}
 				
 				if(!empty($wheres))
-					return '(' . implode(' OR ', $wheres) . ') ';
+					return 
+						($param->operator == DevblocksSearchCriteria::OPER_NIN ? 'NOT ' : '') .
+						'(' . implode(' OR ', $wheres) . ') '
+						;
 				
 				break;
 				
@@ -961,19 +964,19 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 				break;
 
 			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
 			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
-				@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
+				@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$contexts);
 				break;
 				
 			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
 			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 		}
