@@ -368,6 +368,8 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 	}
 	
 	abstract function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]);
+	abstract function renderConfig(Model_ProfileWidget $model);
+	function saveConfig(array $fields, $id, &$error=null) { return true; }
 };
 
 abstract class Extension_ContextProfileScript extends DevblocksExtension {
