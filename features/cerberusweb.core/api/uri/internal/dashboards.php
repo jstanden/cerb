@@ -188,42 +188,17 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 endif;
 
 class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
-	const ID = 'core.workspace.tab';
+	const ID = 'core.workspace.tab.dashboard';
 	
 	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('workspace_page', $page);
-		$tpl->assign('workspace_tab', $tab);
-		
-		// Render template
-		
+		$tpl->assign('tab', $tab);
+
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/dashboard/config.tpl');
 	}
 	
 	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array');
-
-		@$prev_column_count = intval($tab->params['num_columns']);
-		@$new_column_count = DevblocksPlatform::intClamp(intval($params['num_columns']), 1, 4);
-
-		// Rebalance widgets if we're reducing the columns
-		if($new_column_count < $prev_column_count) {
-			$widgets = DAO_WorkspaceWidget::getByTab($tab->id);
-			$columns_left = $new_column_count;
-			
-			for($col_idx = 0; $col_idx < $new_column_count; $col_idx++) {
-				$idx = 0;
-				$items = array_splice($widgets, 0, ceil(count($widgets)/$columns_left));
-				
-				foreach($items as $item) {
-					$pos = sprintf("%d%03d", $col_idx, $idx++);
-					DAO_WorkspaceWidget::update($item->id, array(DAO_WorkspaceWidget::POS => $pos));
-				}
-				
-				$columns_left--;
-			}
-		}
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 		
 		DAO_WorkspaceTab::update($tab->id, array(
 			DAO_WorkspaceTab::PARAMS_JSON => json_encode($params),
@@ -233,42 +208,44 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		$tpl->assign('workspace_page', $page);
-		$tpl->assign('workspace_tab', $tab);
+		$widgets = DAO_WorkspaceWidget::getByTab($tab->id);
 		
-		$widget_extensions = Extension_WorkspaceWidget::getAll();
-		$tpl->assign('widget_extensions', $widget_extensions);
+		@$layout = $tab->params['layout'] ?: '';
 		
-		// Get by workspace tab
-		// [TODO] Cache
-		$widgets = DAO_WorkspaceWidget::getWhere(
-			sprintf("%s = %d",
-				DAO_WorkspaceWidget::WORKSPACE_TAB_ID,
-				$tab->id
-			),
-			DAO_WorkspaceWidget::POS,
-			true
-		);
+		$zones = [
+			'content' => [],
+		];
 		
-		$columns = [];
+		switch($layout) {
+			case 'sidebar_left':
+				$zones = [
+					'sidebar' => [],
+					'content' => [],
+				];
+				break;
+				
+			case 'sidebar_right':
+				$zones = [
+					'content' => [],
+					'sidebar' => [],
+				];
+				break;
+		}
 
-		// [TODO] If the col_idx is greater than the number of cols on this dashboard,
-		//   move widget to first col
-		
-		if(is_array($widgets))
-		foreach($widgets as $widget) { /* @var $widget Model_WorkspaceWidget */
-			$pos = !empty($widget->pos) ? $widget->pos : '0000';
-			$col_idx = substr($pos,0,1);
+		// Sanitize zones
+		foreach($widgets as $widget_id => $widget) {
+			if(array_key_exists($widget->zone, $zones)) {
+				$zones[$widget->zone][$widget_id] = $widget;
+				continue;
+			}
 			
-			if(!isset($columns[$col_idx]))
-				$columns[$col_idx] = [];
-			
-			$columns[$col_idx][$widget->id] = $widget;
+			// If the zone doesn't exist, drop the widget into the first zone
+			$zones[key($zones)][$widget_id] = $widget;
 		}
 		
-		unset($widgets);
-		
-		$tpl->assign('columns', $columns);
+		$tpl->assign('layout', $layout);
+		$tpl->assign('zones', $zones);
+		$tpl->assign('model', $tab);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/tab.tpl');
 	}
@@ -292,6 +269,8 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 				'label' => $widget->label,
 				'extension_id' => $widget->extension_id,
 				'pos' => $widget->pos,
+				'width_units' => $widget->width_units,
+				'zone' => $widget->zone,
 				'params' => $widget->params,
 			);
 			
@@ -319,6 +298,8 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 				DAO_WorkspaceWidget::POS => $widget['pos'],
 				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget['params']),
 				DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $tab->id,
+				DAO_WorkspaceWidget::WIDTH_UNITS => @$widget['width_units'] ?: 2,
+				DAO_WorkspaceWidget::ZONE => @$widget['zone'] ?: '',
 				DAO_WorkspaceWidget::UPDATED_AT => time(),
 			]);
 		}

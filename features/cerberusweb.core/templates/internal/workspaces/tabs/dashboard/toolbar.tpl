@@ -104,7 +104,7 @@ $(function() {
 		var strNamespace = hits[1];
 		var strName = hits[2];
 		
-		genericAjaxPost($div.closest('form'), divTester, 'c=profiles&a=handleSectionAction&section=profile_widget&action=testWidgetTemplate&template_key=' + encodeURIComponent(strName));
+		genericAjaxPost($div.closest('form'), divTester, 'c=profiles&a=handleSectionAction&section=workspace_widget&action=testWidgetTemplate&template_key=' + encodeURIComponent(strName));
 	});
 	
 	$placeholder_menu_trigger

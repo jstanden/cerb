@@ -62,6 +62,21 @@ class Page_Custom extends CerberusPageExtension {
 		}
 	}
 	
+	function handleWorkspaceWidgetActionAction() {
+		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
+		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
+		
+		if(false == ($workspace_widget = DAO_WorkspaceWidget::get($widget_id)))
+			return;
+		
+		if(false == ($extension = $workspace_widget->getExtension()))
+			return;
+		
+		if($extension instanceof Extension_WorkspaceWidget && method_exists($extension, $action.'Action')) {
+			call_user_func_array([$extension, $action.'Action'], [$workspace_widget]);
+		}
+	}
+	
 	function render() {
 		$response = DevblocksPlatform::getHttpResponse();
 		

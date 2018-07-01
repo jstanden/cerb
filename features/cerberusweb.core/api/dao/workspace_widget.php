@@ -23,7 +23,9 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 	const POS = 'pos';
 	const UPDATED_AT = 'updated_at';
+	const WIDTH_UNITS = 'width_units';
 	const WORKSPACE_TAB_ID = 'workspace_tab_id';
+	const ZONE = 'zone';
 	
 	private function __construct() {}
 
@@ -61,16 +63,24 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(65535)
 			;
-		// char(4)
+		// tinyint(3)
 		$validation
 			->addField(self::POS)
-			->string()
-			->setMaxLength(4)
+			->number()
+			->setMin(0)
+			->setMax(255)
 			;
 		// int(10) unsigned
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
+			;
+		// tinyint(3)
+		$validation
+			->addField(self::WIDTH_UNITS)
+			->number()
+			->setMin(0)
+			->setMax(255)
 			;
 		// int(10) unsigned
 		$validation
@@ -78,6 +88,12 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			->id()
 			->setRequired(true)
 			->addValidator($validation->validators()->contextId(Context_WorkspaceTab::ID))
+			;
+		// zone
+		$validation
+			->addField(self::ZONE)
+			->string()
+			->setMaxLength(255)
 			;
 		$validation
 			->addField('_links')
@@ -148,6 +164,29 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		parent::_updateWhere('workspace_widget', $fields, $where);
 	}
 	
+	static function reorder(array $zones=[]) {
+		if(empty($zones))
+			return;
+		
+		$db = DevblocksPlatform::services()->database();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$values = [];
+		
+		foreach($zones as $zone => $ids)
+			foreach($ids as $pos => $id)
+				$values[] = sprintf("(%d,%s,%d)", $id, $db->qstr($zone), $pos+1);
+		
+		if(empty($values))
+			return;
+		
+		$sql = sprintf("INSERT INTO workspace_widget (id, zone, pos) VALUES %s ON DUPLICATE KEY UPDATE zone=VALUES(zone), pos=VALUES(pos)",
+			implode(',', $values)
+		);
+		
+		$db->ExecuteMaster($sql);
+	}
+	
 	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
 		
@@ -189,7 +228,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, extension_id, workspace_tab_id, label, updated_at, params_json, pos, cache_ttl ".
+		$sql = "SELECT id, extension_id, workspace_tab_id, label, updated_at, params_json, pos, width_units, zone, cache_ttl ".
 			"FROM workspace_widget ".
 			$where_sql.
 			$sort_sql.
@@ -302,7 +341,9 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			$object->extension_id = $row['extension_id'];
 			$object->id = intval($row['id']);
 			$object->label = $row['label'];
-			$object->pos = $row['pos'];
+			$object->pos = intval($row['pos']);
+			$object->width_units = intval($row['width_units']);
+			$object->zone = $row['zone'];
 			$object->updated_at = intval($row['updated_at']);
 			$object->workspace_tab_id = intval($row['workspace_tab_id']);
 			
@@ -381,6 +422,8 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			"workspace_widget.updated_at as %s, ".
 			"workspace_widget.params_json as %s, ".
 			"workspace_widget.pos as %s, ".
+			"workspace_widget.width_units as %s, ".
+			"workspace_widget.zone as %s, ".
 			"workspace_widget.cache_ttl as %s ",
 				SearchFields_WorkspaceWidget::ID,
 				SearchFields_WorkspaceWidget::EXTENSION_ID,
@@ -389,6 +432,8 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 				SearchFields_WorkspaceWidget::UPDATED_AT,
 				SearchFields_WorkspaceWidget::PARAMS_JSON,
 				SearchFields_WorkspaceWidget::POS,
+				SearchFields_WorkspaceWidget::WIDTH_UNITS,
+				SearchFields_WorkspaceWidget::ZONE,
 				SearchFields_WorkspaceWidget::CACHE_TTL
 			);
 			
@@ -477,14 +522,16 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 };
 
 class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
-	const ID = 'w_id';
+	const CACHE_TTL = 'w_cache_ttl';
 	const EXTENSION_ID = 'w_extension_id';
-	const WORKSPACE_TAB_ID = 'w_workspace_tab_id';
+	const ID = 'w_id';
 	const LABEL = 'w_label';
-	const UPDATED_AT = 'w_updated_at';
 	const PARAMS_JSON = 'w_params_json';
 	const POS = 'w_pos';
-	const CACHE_TTL = 'w_cache_ttl';
+	const UPDATED_AT = 'w_updated_at';
+	const WIDTH_UNITS = 'w_width_units';
+	const WORKSPACE_TAB_ID = 'w_workspace_tab_id';
+	const ZONE = 'w_zone';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -576,7 +623,9 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'workspace_widget', 'params_json', null, null, false),
 			self::POS => new DevblocksSearchField(self::POS, 'workspace_widget', 'pos', $translate->_('common.order'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workspace_widget', 'updated_at', $translate->_('common.updated'), null, true),
+			self::WIDTH_UNITS => new DevblocksSearchField(self::WIDTH_UNITS, 'workspace_widget', 'width_units', $translate->_('common.width'), null, true),
 			self::WORKSPACE_TAB_ID => new DevblocksSearchField(self::WORKSPACE_TAB_ID, 'workspace_widget', 'workspace_tab_id', $translate->_('common.workspace.tab'), Model_CustomField::TYPE_NUMBER, true),
+			self::ZONE => new DevblocksSearchField(self::ZONE, 'workspace_widget', 'zone', $translate->_('common.zone'), null, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -596,14 +645,16 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 };
 
 class Model_WorkspaceWidget {
-	public $id = 0;
-	public $extension_id = '';
-	public $workspace_tab_id = 0;
-	public $label = '';
-	public $updated_at = 0;
-	public $pos = '0000';
 	public $cache_ttl = 60;
+	public $extension_id = '';
+	public $id = 0;
+	public $label = '';
 	public $params = [];
+	public $pos = 0;
+	public $updated_at = 0;
+	public $width_units = 4;
+	public $workspace_tab_id = 0;
+	public $zone = '';
 	
 	function getExtension() {
 		return Extension_WorkspaceWidget::get($this->extension_id);
@@ -786,18 +837,28 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID),
 					'examples' => [
-						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKSPACE_TAB, 'q' => 'type:"core.workspace.tab"'],
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKSPACE_TAB, 'q' => 'type:"core.workspace.tab.dashboard"'],
 					]
 				),
 			'tab.pos' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_WorkspaceWidget::POS),
 				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_WorkspaceWidget::UPDATED_AT),
+				),
+			'width' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkspaceWidget::WIDTH_UNITS),
+				),
+			'zone' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkspaceWidget::ZONE),
 				),
 		);
 		
@@ -893,14 +954,16 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_WorkspaceWidget::ID:
+			case SearchFields_WorkspaceWidget::CACHE_TTL:
 			case SearchFields_WorkspaceWidget::EXTENSION_ID:
-			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
+			case SearchFields_WorkspaceWidget::ID:
 			case SearchFields_WorkspaceWidget::LABEL:
-			case SearchFields_WorkspaceWidget::UPDATED_AT:
 			case SearchFields_WorkspaceWidget::PARAMS_JSON:
 			case SearchFields_WorkspaceWidget::POS:
-			case SearchFields_WorkspaceWidget::CACHE_TTL:
+			case SearchFields_WorkspaceWidget::UPDATED_AT:
+			case SearchFields_WorkspaceWidget::WIDTH_UNITS:
+			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
+			case SearchFields_WorkspaceWidget::ZONE:
 			case 'placeholder_string':
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -1010,6 +1073,18 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			'value' => $model->updated_at,
 		);
 		
+		$properties['width_units'] = array(
+			'label' => mb_ucfirst($translate->_('common.width')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->width_units
+		);
+		
+		$properties['zone'] = array(
+			'label' => mb_ucfirst($translate->_('common.zone')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->zone
+		);
+		
 		return $properties;
 	}
 	
@@ -1062,6 +1137,8 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			'params' => $prefix.$translate->_('common.params'),
 			'pos' => $prefix.$translate->_('common.order'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'width_units' => $prefix.$translate->_('common.width'),
+			'zone' => $prefix.$translate->_('common.zone'),
 		);
 		
 		// Token types
@@ -1073,6 +1150,8 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			'params' => null,
 			'pos' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'width_units' => Model_CustomField::TYPE_NUMBER,
+			'zone' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1095,6 +1174,8 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			$token_values['params'] = $widget->params;
 			$token_values['pos'] = $widget->pos;
 			$token_values['updated_at'] = $widget->updated_at;
+			$token_values['width_units'] = $widget->width_units;
+			$token_values['zone'] = $widget->zone;
 			
 			$token_values['tab_id'] = $widget->workspace_tab_id;
 			
@@ -1129,6 +1210,8 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			'pos' => DAO_WorkspaceWidget::POS,
 			'tab_id' => DAO_WorkspaceWidget::WORKSPACE_TAB_ID,
 			'updated_at' => DAO_WorkspaceWidget::UPDATED_AT,
+			'width_units' => DAO_WorkspaceWidget::WIDTH_UNITS,
+			'zone' => DAO_WorkspaceWidget::ZONE,
 		];
 	}
 	
@@ -1280,6 +1363,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 					
 					if($v)
 					switch($k) {
+						case 'tab':
 						case 'tab.id':
 							$model->workspace_tab_id = intval($v);
 							break;
@@ -1305,6 +1389,25 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
+			
+			// Placeholder menu
+			
+			if(isset($model)) {
+				$labels = $values = [];
+				
+				// Merge in the widget dictionary
+				$merge_labels = $merge_values = [];
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, null, $merge_labels, $merge_values, '', true);
+				CerberusContexts::merge('widget_', 'Widget ', $merge_labels, $merge_values, $labels, $values);
+				
+				// Merge in the current worker dictionary
+				$merge_labels = $merge_values = [];
+				CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_labels, $merge_values, '', true);
+				CerberusContexts::merge('current_worker_', 'Current worker ', $merge_labels, $merge_values, $labels, $values);
+				
+				$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+				$tpl->assign('placeholders', $placeholders);
+			}
 			
 			// View
 			$tpl->assign('id', $context_id);

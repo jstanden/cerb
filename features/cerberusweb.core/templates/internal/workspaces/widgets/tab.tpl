@@ -1,175 +1,233 @@
-{if empty($columns)}
-	{if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}
-	<form action="#" onsubmit="return false;">
-	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-	<div class="help-box" style="padding:5px;border:0;">
-		<h1 style="margin-bottom:5px;text-align:left;">Let's put this dashboard to good use</h1>
-		
-		<p>
-			You now have a new dashboard tab. You can click the 
-			<button type="button" onclick="$btn=$('#frmWorkspacePage{$page->id} button.config-page.split-left'); $(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }, function(e) { $(this).click(); } ); } );"><span class="glyphicons glyphicons-cogwheel"></span></button> 
-			button in the top right and select <b>Edit Tab</b> from the menu to configure how many columns of widgets this tab can display. Click the <button type="button" onclick="var $btn = $('#frmAddWidget{$workspace_tab->id} BUTTON.add_widget'); $(this).effect('transfer', { to:$btn, className:'effects-transfer' }, 500, function() { $btn.effect('pulsate', {  times: 3 }, function(e) { $(this).click(); } ); } );"><span class="glyphicons glyphicons-circle-plus"></span> Add Widget</button> button to add new widgets to the dashboard.
-		</p>
-	</div>
-	</form>
-	{else}
-	<div class="help-box" style="padding:5px;border:0;">
-		<h1 style="margin-bottom:5px;text-align:left;">This dashboard is empty</h1>
-		
-		<p>
-			This dashboard has no content, and you don't have permission to modify it.  You'll have to wait until someone else adds something.
-		</p>
-	</div>
-	{/if}
+{if $active_worker->is_superuser}
+<div style="margin-bottom:5px;">
+	<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+</div>
 {/if}
 
-{if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.create")}
-<form id="frmAddWidget{$workspace_tab->id}" action="#">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-<button type="button" class="add_widget" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab.id:{$workspace_tab->id}"><span class="glyphicons glyphicons-circle-plus"></span> Add Widget</button>
-</form>
-{/if}
-
-{$column_count = DevblocksPlatform::intClamp($workspace_tab->params.num_columns, 1, 4)}
-{$column_ids = range(0, $column_count-1)}
-
-<table cellpadding="0" cellspacing="0" border="0" width="100%" id="dashboard{$workspace_tab->id}">
-	<tr>
-		{$column_width_remaining = 100}
-		
-		{foreach from=$column_ids item=column_id name=columns}
-		{if $smarty.foreach.columns.last}{$column_width=$column_width_remaining}{else}{$column_width=floor(100/$column_count)}{$column_width_remaining = $column_width_remaining - $column_width}{/if}
-		<td width="{$column_width}%" valign="top" class="column">
-			{foreach from=$columns.$column_id item=widget key=widget_id name=widgets}
-			{capture name=widget_content}{$widget_is_preloaded = Extension_WorkspaceWidget::renderWidgetFromCache($widget, false)}{/capture}
-			
-			<div class="dashboard-widget{if $widget_is_preloaded} widget-preloaded{/if}" id="widget{$widget_id}">
-				{if $widget_is_preloaded}
-					{$smarty.capture.widget_content nofilter}
-					
-				{else}
-					<div class="dashboard-widget-title" style="margin-bottom:5px;">
-						{$widget->label}
-					</div>
-					<div style="text-align:center;">
-						<span class="cerb-ajax-spinner"></span>
-					</div>
-				{/if}
-			</div>
+{if 'sidebar_left' == $layout}
+	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--sidebar-left" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="sidebar" class="cerb-workspace-layout-zone" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.sidebar item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
 			{/foreach}
-		</td>
-		{/foreach}
-	</tr>
-</table>
+			</div>
+		</div>
+		
+		<div data-layout-zone="content" class="cerb-workspace-layout-zone" style="flex:2 2 66%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.content item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+	</div>
+{elseif 'sidebar_right' == $layout}
+	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--sidebar-right" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="content" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--content" style="flex:2 2 66%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.content item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+		
+		<div data-layout-zone="sidebar" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.sidebar item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+	</div>
+{else}
+	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--content" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="content" class="cerb-workspace-layout-zone" style="flex:1 1 100%;overflow-x:hidden;">
+			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.content item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+	</div>
+{/if}
 
 <script type="text/javascript">
-	// Page title
+$(function() {
+	var $container = $('#workspaceTab{$model->id}');
+	var $add_button = $('#btnWorkspaceTabAddWidget{$model->id}');
 	
-	document.title = "{$workspace_tab->name|escape:'javascript' nofilter} - {$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
-
-	// Widget loader
+	// Drag
+	{if $active_worker->is_superuser}
+	$container.find('.cerb-workspace-layout-zone--widgets')
+		.sortable({
+			tolerance: 'pointer',
+			items: '.cerb-workspace-widget',
+			helper: 'clone',
+			placeholder: 'ui-state-highlight',
+			forceHelperSize: true,
+			forcePlaceholderSize: true,
+			handle: '.cerb-workspace-widget--header .glyphicons-menu-hamburger',
+			connectWith: '.cerb-workspace-layout-zone--widgets',
+			opacity: 0.7,
+			start: function(event, ui) {
+				$container.find('.cerb-workspace-layout-zone--widgets')
+					.css('border', '2px dashed orange')
+					.css('background-color', 'rgb(250,250,250)')
+					.css('min-height', '100vh')
+					;
+			},
+			stop: function(event, ui) {
+				$container.find('.cerb-workspace-layout-zone--widgets')
+					.css('border', '')
+					.css('background-color', '')
+					.css('min-height', 'initial')
+					;
+			},
+			//receive: function(e, ui) {},
+			update: function(event, ui) {
+				$container.trigger('cerb-reorder');
+			}
+		})
+		;
+	{/if}
 	
-	var async_tasks = [];
-	
-	var cerbLoadWidget = function(widget_id, callback) {
-		genericAjaxGet('widget' + widget_id, 'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id, function() {
-			callback(null);
-		});
-	}
-	
-	{foreach from=$columns item=widgets}
-		{foreach from=$widgets item=widget key=widget_id}
-			if(!$('#widget{$widget_id}').is('.widget-preloaded'))
-				async_tasks.push(async.apply(cerbLoadWidget, '{$widget_id}'));
-		{/foreach}
-	{/foreach}
-	
-	async.parallelLimit(async_tasks, 3, function(err, data) {
-		// Done!
+	$container.on('cerb-reorder', function(e) {
+		var results = { 'zones': { } };
+		
+		// Zones
+		$container.find('> .cerb-workspace-layout-zone')
+			.each(function(d) {
+				var $cell = $(this);
+				var zone = $cell.attr('data-layout-zone');
+				var ids = $cell.find('.cerb-workspace-widget').map(function(d) { return $(this).attr('data-widget-id'); });
+				
+				results.zones[zone] = $.makeArray(ids);
+			})
+			;
+		
+		genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=reorderWidgets&tab_id={$model->id}' 
+			+ '&' + $.param(results)
+		);
 	});
 	
-	try {
-		clearInterval(window.dashboardTimer{$workspace_tab->id});
+	$container.on('cerb-widget-refresh', function(e) {
+		var widget_id = e.widget_id;
+		var refresh_options = (e.refresh_options && typeof e.refresh_options == 'object') ? e.refresh_options : {};
 		
-		var tick = function() {
-			var $dashboard = $('#dashboard{$workspace_tab->id}');
-			
-			if($dashboard.length == 0 || !$dashboard.is(':visible')) {
-				clearInterval(window.dashboardTimer{$workspace_tab->id});
-				delete window.dashboardTimer{$workspace_tab->id};
-				return;
-			}
-			
-			$dashboard.find('DIV.dashboard-widget').trigger('dashboard_heartbeat');
-		};
+		async.series([ async.apply(loadWidgetFunc, widget_id, false, refresh_options) ], function(err, json) {
+			// Done
+		});
+	});
+	
+	var addEvents = function($target) {
+		var $menu = $target.find('.cerb-workspace-widget--menu');
+		var $menu_link = $target.find('.cerb-workspace-widget--link');
 		
-		window.dashboardTimer{$workspace_tab->id} = setInterval(tick, 1000);
+		$menu
+			.menu({
+				select: function(event, ui) {
+					var $li = $(ui.item);
+					$li.closest('ul').hide();
+					
+					if($li.is('.cerb-workspace-widget-menu--refresh')) {
+						var $widget = $li.closest('.cerb-workspace-widget');
+						
+						async.series([ async.apply(loadWidgetFunc, $widget.attr('data-widget-id'), false, {}) ], function(err, json) {
+							// Done
+						});
+					}
+				}
+			})
+			;
 		
-	} catch(e) {
+		$menu_link.on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('.cerb-workspace-widget').find('.cerb-workspace-widget--menu').toggle();
+		});
+		
+		$menu.find('.cerb-peek-trigger')
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved', function(e) {
+				// [TODO] Check the event type
+				async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
+					// Done
+				});
+			})
+			.on('cerb-peek-deleted', function(e) {
+				$('#workspaceWidget' + e.id).closest('.cerb-workspace-widget').remove();
+				$container.trigger('cerb-reorder');
+			})
+			;
+		
+		return $target;
 	}
-
-	$('#frmAddWidget{$workspace_tab->id} button.add_widget')
+	
+	addEvents($container);
+	
+	var jobs = [];
+	
+	{if $active_worker->is_superuser}
+	$add_button
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function(e) {
-			if(null == e.id)
-				return;
+			var $zone = $container.find('> .cerb-workspace-layout-zone:first > .cerb-workspace-layout-zone--widgets:first');
+			var $placeholder = $('<div class="cerb-workspace-widget"/>').hide().prependTo($zone);
+			var $widget = $('<div/>').attr('id', 'workspaceWidget' + e.id).appendTo($placeholder);
 			
-			var widget_id = e.id;
-			
-			// Create the widget DOM
-			var $new_widget = $('<div class="dashboard-widget"></div>').attr('id','widget' + widget_id);
-			
-			// Append it to the first column
-			var $dashboard = $('#dashboard{$workspace_tab->id}');
-			
-			$dashboard.find('tr td:first').prepend($new_widget);
-			
-			// Redraw
-			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id);
-			
-			// Save new order
-			$dashboard.trigger('reorder');
+			async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
+				$container.trigger('cerb-reorder');
+			});
 		})
-	;
+		;
+	{/if}
 	
-	var $dashboard = $('#dashboard{$workspace_tab->id}');
-	
-	// Reusable hover events
-	$dashboard.on('mouseover mouseout', 'div.dashboard-widget', 
-		function(e) {
-			if(e.type=='mouseover') {
-				$(this).find('div.dashboard-widget-title > div.toolbar, canvas.overlay').show();
-				$(this).trigger('widget-hover');
+	var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
+		var $widget = $('#workspaceWidget' + widget_id).empty();
+		var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($widget);
+		
+		var request_url = 'c=profiles&a=handleSectionAction&section=workspace_widget&action=renderWidget&id=' 
+			+ encodeURIComponent(widget_id) 
+			+ '&full=' + encodeURIComponent(is_full ? 1 : 0)
+			;
+		
+		if(typeof refresh_options == 'object')
+			request_url += '&' + $.param({ 'options': refresh_options });
+		
+		genericAjaxGet('', request_url, function(html) {
+			if(0 == html.length) {
+				$widget.empty();
+				
 			} else {
-				$(this).find('div.dashboard-widget-title > div.toolbar, canvas.overlay').hide();
-				$(this).trigger('widget-unhover');
+				try {
+					if(is_full) {
+						addEvents($(html)).insertBefore(
+							$widget.attr('id',null).closest('.cerb-workspace-widget').hide()
+						);
+						
+						$widget.closest('.cerb-workspace-widget').remove();
+					} else {
+						$widget.html(html);
+					}
+				} catch(e) {
+					if(console)
+						console.error(e);
+				}
 			}
-		}
+			callback();
+		});
+	};
+	
+	{foreach from=$zones item=zone}
+	{foreach from=$zone item=widget}
+	jobs.push(
+		async.apply(loadWidgetFunc, {$widget->id|default:0}, false, {})
 	);
+	{/foreach}
+	{/foreach}
 	
-	$dashboard.on('reorder', function(e) {
-		var $tr = $dashboard.find('TBODY > TR');
-		var widget_positions = '';
+	async.parallelLimit(jobs, 2, function(err, json) {
 		
-		{foreach from=$column_ids item=column_id}
-		var $col_widgets = $tr.find('> TD:nth({$column_id})').find('input:hidden[name="widget_pos[]"]').map(function() { return $(this).val(); }).get().join(',');
-		widget_positions += '&column[]=' + $col_widgets;
-		{/foreach}
-		
-		genericAjaxGet('', 'c=internal&a=handleSectionAction&section=dashboards&action=setWidgetPositions&workspace_tab_id={$workspace_tab->id}' + widget_positions)
 	});
-	
-	$dashboard.find('td.column').sortable({
-		'items': 'div.dashboard-widget',
-		'handle': 'div.dashboard-widget-title',
-		'distance': 20,
-		'placeholder': 'ui-state-highlight',
-		'forcePlaceholderSize': true,
-		'tolerance': 'pointer',
-		'cursorAt': { 'top':0, 'left':0 },
-		'connectWith': 'table#dashboard{$workspace_tab->id} td.column',
-		'stop':function(e) {
-			$('table#dashboard{$workspace_tab->id}').trigger('reorder');
-		}
-	});
+});
 </script>

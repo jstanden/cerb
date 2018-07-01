@@ -1,70 +1,31 @@
-{$widget_extension = Extension_WorkspaceWidget::get($widget->extension_id)}
-
-<div class="dashboard-widget-title" style="margin-bottom:5px;">
-	{$widget->label}
-	<div style="float:right;display:none;" class="toolbar">
-		<a href="javascript:;" class="dashboard-widget-menu"><span class="glyphicons glyphicons-cogwheel"></span></a>
-		
-		<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;margin-left:-180px;">
-			{if Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.update")}
-			<li><a href="javascript:;" class="dashboard-widget-edit" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="{$widget->id}" data-edit="true">Configure</a></li>
+{$width_units = $widget->width_units|default:1}
+<div class="cerb-workspace-widget" data-widget-id="{$widget->id}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;min-width:345px;overflow-x:hidden;">
+	<div style="padding:0px 5px 10px 5px;">
+		<div class="cerb-workspace-widget--header" style="border:2px solid rgb(200,200,200);box-shadow:0px 0px 2px rgb(200,200,200);background-color:rgb(235,235,235);padding:5px 0 5px 10px;margin:0 0 10px 0;border-radius:5px;position:relative;">
+			<b style="font-size:1.4em;color:rgb(0,0,0);">
+				{if $active_worker->is_superuser}
+				<span class="glyphicons glyphicons-menu-hamburger" style="vertical-align:top;cursor:move;color:rgb(150,150,150);font-size:1.2em;"></span>
+				{/if}
+				<a href="javascript:;" class="cerb-workspace-widget--link no-underline">{$widget->label}</a>
+			</b>
+		</div>
+		<div>
+			<ul class="cerb-workspace-widget--menu cerb-popupmenu cerb-float" style="display:none;margin-top:-12px;">
+				{if $active_worker->is_superuser}
+				<li class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
+					<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
+				</li>
+				{/if}
+				<li class="cerb-workspace-widget-menu--refresh">
+					<a href="javascript:;">{'common.refresh'|devblocks_translate|capitalize}</a>
+				</li>
+			</ul>
+		</div>
+		<div id="workspaceWidget{$widget->id}" class="cerb-workspace-widget--content">
+			{* We only have full content on create/edit *}
+			{if $extension}
+				{$extension->render($widget, $context, $context_id, [])}
 			{/if}
-			<li><a href="javascript:;" class="dashboard-widget-refresh" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1');">Refresh</a></li>
-			
-			{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.export")}
-			<li><a href="javascript:;" class="dashboard-widget-export" onclick="genericAjaxPopup('widget_export','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetExportPopup&widget_id={$widget->id}',null,false,'650');">Export Widget</a></li>
-			{/if}
-			
-			{if $widget_extension instanceof ICerbWorkspaceWidget_ExportData && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}.export")}
-			<li><a href="javascript:;" class="dashboard-widget-export-data" onclick="genericAjaxPopup('widget_export_data','c=internal&a=handleSectionAction&section=dashboards&action=showWidgetExportDataPopup&widget_id={$widget->id}',null,false,'650');">Export Data</a></li>
-			{/if}
-		</ul>
+		</div>
 	</div>
 </div>
-
-<script type="text/javascript">
-$(function() {
-	var $widget = $('#widget{$widget->id}');
-	
-	$widget
-		.find('div.dashboard-widget-title > div.toolbar > a.dashboard-widget-menu')
-		.click(function() {
-			$(this).next('ul.cerb-popupmenu').toggle();
-		})
-		.next('ul.cerb-popupmenu')
-		.hover(
-			function(e) { }, 
-			function(e) { $(this).hide(); }
-		)
-		.find('> li')
-		.click(function(e) {
-			$(this).closest('ul.cerb-popupmenu').hide();
-			
-			e.stopPropagation();
-			if(!$(e.target).is('li'))
-				return;
-			
-			$(this).find('a').trigger('click');
-		})
-	;
-	
-	$widget
-		.find('a.dashboard-widget-edit')
-		.cerbPeekTrigger()
-		.on('cerb-peek-saved', function(e) {
-			var widget_id = e.id;
-			genericAjaxGet('widget' + widget_id,'c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id=' + widget_id + '&nocache=1');
-		})
-		.on('cerb-peek-deleted', function(e) {
-			// Nuke the widget DOM
-			$('#widget' + e.id).remove();
-		})
-	;
-});
-</script>
-
-<input type="hidden" name="widget_pos[]" value="{$widget->id}">
-
-{if $widget_extension instanceof Extension_WorkspaceWidget}
-	{$widget_extension->render($widget)}
-{/if}

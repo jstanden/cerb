@@ -1,21 +1,63 @@
-<fieldset id="tabConfig{$workspace_tab->id}" class="peek">
-<legend>Dashboard</legend>
-
-{$params_num_tabs = $workspace_tab->params.num_columns|default:3}
-
-<b>Display this many columns:</b><br> 
-<select name="params[num_columns]">
-	{$num_cols = [1,2,3,4]}
-	{foreach from=$num_cols item=num}
-	<option value="{$num}" {if $num==$params_num_tabs}selected="selected"{/if}>{$num}</option>
-	{/foreach}
-</select>
-<br>
-
-</fieldset>
+<div id="tab{$tab->id}Config" style="margin-top:10px;">
+	<fieldset class="peek">
+		<legend>{'common.layout'|devblocks_translate|capitalize}</legend>
+		
+		<div style="margin:5px;display:inline-block;">
+			<label>
+				<input type="radio" name="params[layout]" value="" {if empty($tab->params.layout)}checked="checked"{/if}>
+				<svg width="100" height="80" style="vertical-align:middle;">
+					<g style="fill:lightgray;stroke:gray;stroke-width:1">
+						<rect x="1" y="1" width="98" height="78" />
+					</g>
+					<g style="fill:rgb(180,180,180);stroke:gray;stroke-width:1">
+						<rect x="5" y="5" width="90" height="70" />
+					</g>
+				</svg>
+			</label>
+		</div>
+		
+		<div style="margin:5px;display:inline-block;">
+			<label>
+				<input type="radio" name="params[layout]" value="sidebar_left" {if 'sidebar_left' == $tab->params.layout}checked="checked"{/if}>
+				<svg width="100" height="80" style="vertical-align:middle;">
+					<g style="fill:lightgray;stroke:gray;stroke-width:1">
+						<rect x="1" y="1" width="98" height="78" />
+					</g>
+					<g style="fill:rgb(180,180,180);;stroke:gray;stroke-width:1">
+						<rect x="5" y="5" width="30" height="70" />
+						<rect x="40" y="5" width="55" height="70" />
+					</g>
+				</svg>
+			</label>
+		</div>
+		
+		<div style="margin:5px;display:inline-block;">
+			<label>
+				<input type="radio" name="params[layout]" value="sidebar_right" {if 'sidebar_right' == $tab->params.layout}checked="checked"{/if}>
+				<svg width="100" height="80" style="vertical-align:middle;">
+					<g style="fill:lightgray;stroke:gray;stroke-width:1">
+						<rect x="1" y="1" width="98" height="78" />
+					</g>
+					<g style="fill:rgb(180,180,180);;stroke:gray;stroke-width:1">
+						<rect x="5" y="5" width="55" height="70" />
+						<rect x="65" y="5" width="30" height="70" />
+					</g>
+				</svg>
+			</label>
+		</div>
+		
+	</fieldset>
+</div>
 
 <script type="text/javascript">
 $(function() {
-	var $fieldset = $('#tabConfig{$workspace_tab->id}');
+	var $frm = $('#tab{$tab->id}Config');
+	
+	var $textarea = $frm.find('.placeholders');
+	
+	var $editor = $textarea
+		.cerbCodeEditor()
+		.nextAll('pre.ace_editor')
+		;
 });
 </script>

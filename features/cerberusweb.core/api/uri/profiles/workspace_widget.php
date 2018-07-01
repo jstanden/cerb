@@ -175,8 +175,10 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 						@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
 						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+						@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
 						@$cache_ttl = DevblocksPlatform::importGPC($_REQUEST['cache_ttl'], 'integer', 0);
 						
+						$width_units = DevblocksPlatform::intClamp($width_units, 1, 4);
 						$cache_ttl = DevblocksPlatform::intClamp($cache_ttl, 0, 604800);
 						
 						if(empty($id)) { // New
@@ -185,6 +187,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 								DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
 								DAO_WorkspaceWidget::LABEL => $name,
 								DAO_WorkspaceWidget::UPDATED_AT => time(),
+								DAO_WorkspaceWidget::WIDTH_UNITS => $width_units,
 								DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
 							);
 							
@@ -205,6 +208,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 								DAO_WorkspaceWidget::CACHE_TTL => $cache_ttl,
 								DAO_WorkspaceWidget::LABEL => $name,
 								DAO_WorkspaceWidget::UPDATED_AT => time(),
+								DAO_WorkspaceWidget::WIDTH_UNITS => $width_units,
 								DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
 							);
 							
@@ -276,6 +280,95 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			return;
 		
 		$datasource_ext->renderConfig($widget, $widget->params, $params_prefix);
+	}
+	
+	function renderWidgetAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'bool', false);
+		@$refresh_options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', []);
+		
+		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
+			return;
+		
+		if(false == ($extension = $widget->getExtension()))
+			return;
+		
+		// If full, we also want to replace the container
+		if($full) {
+			$tpl = DevblocksPlatform::services()->template();
+			$tpl->assign('widget', $widget);
+			
+			if(false == ($tab = $widget->getWorkspaceTab()))
+				return;
+			
+			$tpl->assign('extension', $extension);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl');
+			
+		} else {
+			$extension->render($widget, $refresh_options);
+		}
+	}
+	
+	function reorderWidgetsAction() {
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'integer', 0);
+		@$zones = DevblocksPlatform::importGPC($_REQUEST['zones'], 'array', []);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(false == ($tab = DAO_WorkspaceTab::get($tab_id)))
+			return;
+		
+		// ACL
+		if(!Context_WorkspaceTab::isWriteableByActor($tab, $active_worker))
+			return;
+		
+		$widgets = DAO_WorkspaceWidget::getByTab($tab_id);
+		
+		// Sanitize widget IDs
+		foreach($zones as &$zone) {
+			$zone = array_values(array_intersect($zone, array_keys($widgets)));
+		}
+		
+		DAO_WorkspaceWidget::reorder($zones);
+	}
+	
+	function testWidgetTemplateAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$template_key = DevblocksPlatform::importGPC($_REQUEST['template_key'], 'string', '');
+		
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$template = $params[$template_key];
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker_id' => $active_worker->id,
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'widget_id' => $id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+		]);
+		
+		$success = false;
+		$output = '';
+		
+		if(!is_string($template) || false === (@$out = $tpl_builder->build($template, $dict))) {
+			// If we failed, show the compile errors
+			$errors = $tpl_builder->getErrors();
+			$success = false;
+			$output = @array_shift($errors);
+			
+		} else {
+			$success = true;
+			$output = $out;
+		}
+		
+		$tpl->assign('success', $success);
+		$tpl->assign('output', $output);
+		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 	}
 	
 	function viewExploreAction() {

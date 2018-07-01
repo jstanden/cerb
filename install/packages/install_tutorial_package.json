@@ -2124,9 +2124,9 @@
 			"name": "Dashboards",
 			"page_id": "{{{uid.workspace_tutorial}}}",
 			"pos": 5,
-			"extension_id": "core.workspace.tab",
+			"extension_id": "core.workspace.tab.dashboard",
 			"params": {
-				"num_columns": "3"
+				"layout": ""
 			}
 		},
 		{

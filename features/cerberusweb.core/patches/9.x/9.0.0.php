@@ -524,6 +524,54 @@ foreach(array_keys($tables) as $table_name) {
 	}
 }
 
+// ===========================================================================
+// Add `width_units` and `zone` to all `workspace_widget`
+
+list($columns, $indexes) = $db->metaTable('workspace_widget');
+
+if($columns['pos'] && 0 == strcasecmp('char(4)', $columns['pos']['type'])) {
+	$sql = "ALTER TABLE workspace_widget CHANGE COLUMN pos pos_legacy char(4)";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "ALTER TABLE workspace_widget ADD COLUMN pos tinyint(255) default 0";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "set @rank := 0, @tab_id := ''";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "create temporary table _tmp_widget_pos select workspace_tab.id as workspace_tab_id, blah.id as widget_id, blah.rank, blah.col_pos, blah.col_num, blah.id from workspace_tab inner join (select @rank:=if(@tab_id = workspace_widget.workspace_tab_id,@rank+1,1) as rank, @tab_id:=workspace_widget.workspace_tab_id, workspace_widget.id, workspace_widget.workspace_tab_id, workspace_widget.label, workspace_widget.pos, substring(workspace_widget.pos_legacy,1,1) as col_num, substring(workspace_widget.pos_legacy,2) as col_pos from workspace_widget order by workspace_tab_id, col_pos, col_num) as blah on (workspace_tab.extension_id = 'core.workspace.tab' and blah.workspace_tab_id=workspace_tab.id)";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "update workspace_widget inner join _tmp_widget_pos on (_tmp_widget_pos.widget_id=workspace_widget.id) SET pos = _tmp_widget_pos.rank";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "ALTER TABLE workspace_widget DROP COLUMN pos_legacy";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "drop table _tmp_widget_pos";
+	$db->ExecuteMaster($sql);
+}
+
+if(!isset($columns['width_units'])) {
+	$sql = "ALTER TABLE workspace_widget ADD COLUMN width_units TINYINT UNSIGNED NOT NULL DEFAULT 1";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "UPDATE workspace_widget SET width_units = 2";
+	$db->ExecuteMaster($sql);
+}
+
+if(!isset($columns['zone'])) {
+	$sql = "ALTER TABLE workspace_widget ADD COLUMN zone VARCHAR(255) NOT NULL DEFAULT ''";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "UPDATE workspace_widget SET zone = 'content' ";
+	$db->ExecuteMaster($sql);
+}
+
+// Migrate legacy dashboards to the new format
+$sql = "UPDATE workspace_tab SET extension_id = 'core.workspace.tab.dashboard', params_json='{\"layout\":\"\"}' WHERE extension_id = 'core.workspace.tab'";
+$db->ExecuteMaster($sql);
+
 
 // ===========================================================================
 // Finish up
