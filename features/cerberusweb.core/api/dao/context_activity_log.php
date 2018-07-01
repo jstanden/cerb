@@ -613,6 +613,107 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'actor':
+				$field_actor_context = $search_fields[SearchFields_ContextActivityLog::ACTOR_CONTEXT];
+				$field_actor_context_id = $search_fields[SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => 'actor',
+					'sql_select' => sprintf("CONCAT_WS(':', %s.%s, %s.%s)",
+						Cerb_ORMHelper::escape($field_actor_context->db_table),
+						Cerb_ORMHelper::escape($field_actor_context->db_column),
+						Cerb_ORMHelper::escape($field_actor_context_id->db_table),
+						Cerb_ORMHelper::escape($field_actor_context_id->db_column)
+					)
+				];
+				break;
+				
+			case 'actor.type':
+				$search_field = $search_fields[SearchFields_ContextActivityLog::ACTOR_CONTEXT];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_field->token,
+					'sql_select' => sprintf("%s.%s",
+						Cerb_ORMHelper::escape($search_field->db_table),
+						Cerb_ORMHelper::escape($search_field->db_column)
+					)
+				];
+				break;
+				
+			case 'target':
+				$field_target_context = $search_fields[SearchFields_ContextActivityLog::TARGET_CONTEXT];
+				$field_target_context_id = $search_fields[SearchFields_ContextActivityLog::TARGET_CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => 'target',
+					'sql_select' => sprintf("CONCAT_WS(':', %s.%s, %s.%s)",
+						Cerb_ORMHelper::escape($field_target_context->db_table),
+						Cerb_ORMHelper::escape($field_target_context->db_column),
+						Cerb_ORMHelper::escape($field_target_context_id->db_table),
+						Cerb_ORMHelper::escape($field_target_context_id->db_column)
+					)
+				];
+				break;
+				
+			case 'target.type':
+				$search_field = $search_fields[SearchFields_ContextActivityLog::TARGET_CONTEXT];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_field->token,
+					'sql_select' => sprintf("%s.%s",
+						Cerb_ORMHelper::escape($search_field->db_table),
+						Cerb_ORMHelper::escape($search_field->db_column)
+					)
+				];
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
+				$strings = [];
+				
+				$activities = DevblocksPlatform::getActivityPointRegistry();
+				$translate = DevblocksPlatform::getTranslationService();
+				
+				if(is_array($values))
+				foreach($values as $v) {
+					$string = $v;
+					if(isset($activities[$v])) {
+						@$string_id = $activities[$v]['params']['label_key'];
+						if(!empty($string_id))
+							$string = $translate->_($string_id);
+					}
+					
+					$strings[$v] = $string;
+				}
+				
+				return $strings;
+				break;
+			
+			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
+			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
+				return self::_getLabelsForKeyContextValues($values);
+				break;
+				
+			case 'actor':
+			case 'target':
+				return self::_getLabelsForKeyContextAndIdValues($values);
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -892,41 +993,12 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		switch($field) {
 			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
 			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
-				$strings = array();
-				$contexts = Extension_DevblocksContext::getAll(false);
-				
-				if(is_array($values))
-				foreach($values as $v) {
-					$string = $v;
-					if(isset($contexts[$v])) {
-						if(isset($contexts[$v]->name))
-							$string = $contexts[$v]->name;
-					}
-					
-					$strings[] = $string;
-				}
-				
+				$strings = SearchFields_ContextActivityLog::getLabelsForKeyValues($field, $values);
 				return implode(' or ', $strings);
 				break;
 				
 			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
-				$strings = array();
-				
-				$activities = DevblocksPlatform::getActivityPointRegistry();
-				$translate = DevblocksPlatform::getTranslationService();
-				
-				if(is_array($values))
-				foreach($values as $v) {
-					$string = $v;
-					if(isset($activities[$v])) {
-						@$string_id = $activities[$v]['params']['label_key'];
-						if(!empty($string_id))
-							$string = $translate->_($string_id);
-					}
-					
-					$strings[] = $string;
-				}
-				
+				$strings = SearchFields_ContextActivityLog::getLabelsForKeyValues($field, $values);
 				return implode(' or ', $strings);
 				break;
 				

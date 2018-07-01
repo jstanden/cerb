@@ -470,6 +470,52 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'default':
+				$key = 'isDefault';
+				break;
+				
+			case 'owner':
+				$key = 'owner';
+				$search_key = 'owner';
+				$owner_field = $search_fields[SearchFields_EmailSignature::OWNER_CONTEXT];
+				$owner_id_field = $search_fields[SearchFields_EmailSignature::OWNER_CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("CONCAT_WS(':',%s.%s,%s.%s)",
+						Cerb_ORMHelper::escape($owner_field->db_table),
+						Cerb_ORMHelper::escape($owner_field->db_column),
+						Cerb_ORMHelper::escape($owner_id_field->db_table),
+						Cerb_ORMHelper::escape($owner_id_field->db_column)
+					),
+				];
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_EmailSignature::ID:
+				$models = DAO_EmailSignature::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_EmailSignature::IS_DEFAULT:
+				return parent::_getLabelsForKeyBooleanValues();
+				break;
+				
+			case 'owner':
+				return parent::_getLabelsForKeyContextAndIdValues($values);
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */

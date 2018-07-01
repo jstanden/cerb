@@ -575,6 +575,39 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'parent':
+				$key = 'parent.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_KbCategory::ARTICLE_ID:
+				$models = DAO_KbArticle::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'title', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_KbCategory::ID:
+			case SearchFields_KbCategory::PARENT_ID:
+				$models = DAO_KbCategory::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1042,9 +1075,9 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_KbCategory::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_KbCategory::PARENT_ID:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_KbCategory::VIRTUAL_CONTEXT_LINK:
@@ -1076,13 +1109,12 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 			return [];
 		
 		switch($column) {
-//			case SearchFields_KbCategory::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
-
-//			case SearchFields_KbCategory::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-//				break;
+			case SearchFields_KbCategory::PARENT_ID:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_KbCategory::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
 				
 			case SearchFields_KbCategory::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
@@ -1223,37 +1255,9 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 
 		switch($field) {
 			case SearchFields_KbCategory::ARTICLE_ID:
-				$articles = DAO_KbArticle::getIds($values);
-				
-				$strings = [];
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
-					} else {
-						if(!isset($articles[$val]))
-							continue;
-						$strings[] = DevblocksPlatform::strEscapeHtml($articles[$val]->title);
-					}
-				}
-				echo implode(" or ", $strings);
-				break;
-			
 			case SearchFields_KbCategory::PARENT_ID:
-				$categories = DAO_KbCategory::getAll();
-				
-				$strings = [];
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
-					} else {
-						if(!isset($categories[$val]))
-							continue;
-						$strings[] = DevblocksPlatform::strEscapeHtml($categories[$val]->name);
-					}
-				}
-				echo implode(" or ", $strings);
+				$label_map = SearchFields_KbCategory::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 			
 			default:

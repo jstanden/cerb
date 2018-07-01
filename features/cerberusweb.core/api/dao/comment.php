@@ -571,6 +571,64 @@ class SearchFields_Comment extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'author':
+				$key = 'author';
+				$search_key = 'author';
+				$owner_field = $search_fields[SearchFields_Comment::OWNER_CONTEXT];
+				$owner_id_field = $search_fields[SearchFields_Comment::OWNER_CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("CONCAT_WS(':',%s.%s,%s.%s)",
+						Cerb_ORMHelper::escape($owner_field->db_table),
+						Cerb_ORMHelper::escape($owner_field->db_column),
+						Cerb_ORMHelper::escape($owner_id_field->db_table),
+						Cerb_ORMHelper::escape($owner_id_field->db_column)
+					),
+				];
+				break;
+				
+			case 'on':
+				$key = 'on';
+				$search_key = 'on';
+				$owner_field = $search_fields[SearchFields_Comment::CONTEXT];
+				$owner_id_field = $search_fields[SearchFields_Comment::CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("CONCAT_WS(':',%s.%s,%s.%s)",
+						Cerb_ORMHelper::escape($owner_field->db_table),
+						Cerb_ORMHelper::escape($owner_field->db_column),
+						Cerb_ORMHelper::escape($owner_id_field->db_table),
+						Cerb_ORMHelper::escape($owner_id_field->db_column)
+					),
+				];
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Comment::ID:
+				$models = DAO_Comment::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'comment', 'id');
+				break;
+				
+			case 'author':
+			case 'on':
+				return self::_getLabelsForKeyContextAndIdValues($values);
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */

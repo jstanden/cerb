@@ -475,6 +475,35 @@ class SearchFields_ClassifierClass extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'classifier':
+				$key = 'classifier.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ClassifierClass::CLASSIFIER_ID:
+				$models = DAO_Classifier::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_ClassifierClass::ID:
+				$models = DAO_ClassifierClass::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -770,8 +799,7 @@ class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subt
 
 		switch($field) {
 			case SearchFields_ClassifierClass::CLASSIFIER_ID:
-				$classifiers = DAO_Classifier::getAll();
-				$label_map = array_column(json_decode(json_encode($classifiers), true), 'name', 'id');
+				$label_map = SearchFields_ClassifierClass::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				

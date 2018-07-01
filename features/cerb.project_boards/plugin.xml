@@ -173,7 +173,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.tab">
 			<id>core.workspace.tab.board</id>
-			<name>Board Workspace Tab</name>
+			<name>Project Board</name>
 			<class>
 				<file>api/App.php</file>
 				<name>WorkspaceTab_Board</name>

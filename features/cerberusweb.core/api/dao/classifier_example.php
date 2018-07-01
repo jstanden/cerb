@@ -490,6 +490,47 @@ class SearchFields_ClassifierExample extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'classifier':
+				$key = 'classifier.id';
+				break;
+				
+			case 'class':
+				$key = 'class.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ClassifierExample::CLASSIFIER_ID:
+				$models = DAO_Classifier::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_ClassifierExample::CLASS_ID:
+				$models = DAO_ClassifierClass::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+			
+			case SearchFields_ClassifierExample::ID:
+				$models = DAO_ClassifierExample::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'expression', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -804,13 +845,13 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 
 		switch($field) {
 			case SearchFields_ClassifierExample::CLASS_ID:
-				$labels = array_column(json_decode(json_encode(DAO_ClassifierClass::getAll()), true), 'name', 'id');
-				self::_renderCriteriaParamString($param, $labels);
+				$label_map = SearchFields_ClassifierExample::getLabelsForKeyValues($field, $values);
+				self::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_ClassifierExample::CLASSIFIER_ID:
-				$labels = array_column(json_decode(json_encode(DAO_Classifier::getAll()), true), 'name', 'id');
-				self::_renderCriteriaParamString($param, $labels);
+				$label_map = SearchFields_ClassifierExample::getLabelsForKeyValues($field, $values);
+				self::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			default:

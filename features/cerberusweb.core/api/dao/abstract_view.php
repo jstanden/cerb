@@ -1768,7 +1768,7 @@ abstract class C4_AbstractView {
 		
 		$fields[$prefix] = array(
 			'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-			'options' => [],
+			'options' => ['param_key' => $param_key],
 		);
 		
 		if($param_key)
@@ -2724,7 +2724,7 @@ abstract class C4_AbstractView {
 							array(
 								'field' => $field_key,
 								'oper' => $value_oper,
-								'values' => array($value_key => $key),
+								'values' => [$value_key => $key],
 							),
 						'children' => []
 					);

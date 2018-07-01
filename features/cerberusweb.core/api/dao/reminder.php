@@ -469,6 +469,40 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'worker':
+				$key = 'worker.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Reminder::ID:
+				$models = DAO_Reminder::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_Reminder::IS_CLOSED:
+				return parent::_getLabelsForKeyBooleanValues();
+				break;
+				
+			case SearchFields_Reminder::WORKER_ID:
+				$models = DAO_Worker::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				if(in_array(0, $label_map))
+					$label_map[0] = DevblocksPlatform::translate('common.nobody');
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -674,13 +708,10 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				break;
 
 			case SearchFields_Reminder::WORKER_ID:
-				$label_map = array(
-					'0' => '(nobody)',
-				);
-				$workers = DAO_Worker::getAll();
-				foreach($workers as $k => $v)
-					$label_map[$k] = $v->getName();
-				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_Reminder::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'worker_id[]');
 				break;
 				
 			case SearchFields_Reminder::VIRTUAL_CONTEXT_LINK:
@@ -831,7 +862,8 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 				break;
 				
 			case SearchFields_Reminder::WORKER_ID:
-				parent::_renderCriteriaParamWorker($param);
+				$label_map = SearchFields_Reminder::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			default:

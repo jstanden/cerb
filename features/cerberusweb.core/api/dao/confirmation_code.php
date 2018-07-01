@@ -324,6 +324,24 @@ class SearchFields_ConfirmationCode extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ConfirmationCode::ID:
+				$models = DAO_ConfirmationCode::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'confirmation_code', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */

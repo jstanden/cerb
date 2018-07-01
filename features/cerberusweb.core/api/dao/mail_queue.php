@@ -547,6 +547,42 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'worker':
+				$key = 'worker.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_MailQueue::ID:
+				$models = DAO_MailQueue::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_DRAFT);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+				
+			case SearchFields_MailQueue::TYPE:
+				$label_map = array(
+					'mail.compose' => 'Compose',
+					'ticket.reply' => 'Reply',
+				);
+				return $label_map;
+				break;
+				
+			case SearchFields_MailQueue::WORKER_ID:
+				$models = DAO_Worker::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -930,6 +966,11 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailQueue::HINT_TO, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_MailQueue::TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -1011,10 +1052,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 				break;
 			
 			case SearchFields_MailQueue::TYPE:
-				$label_map = array(
-					'mail.compose' => 'Compose',
-					'ticket.reply' => 'Reply',
-				);
+				$label_map = SearchFields_MailQueue::getLabelsForKeyValues($field, $values);
 				$this->_renderCriteriaParamString($param, $label_map);
 				break;
 				

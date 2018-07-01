@@ -36,6 +36,8 @@ interface IDevblocksSearchFields {
 	static function getPrimaryKey();
 	static function getCustomFieldContextKeys();
 	static function getWhereSQL(DevblocksSearchCriteria $param);
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key);
+	static function getLabelsForKeyValues($key, $values);
 }
 
 abstract class DevblocksSearchFields implements IDevblocksSearchFields {
@@ -46,6 +48,154 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			return false;
 		
 		return $map[$context];
+	}
+	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		@list($key, $bin) = explode('@', $key, 2);
+		
+		if(isset($query_fields[$key])) {
+			$search_key = $query_fields[$key]['options']['param_key'];
+			$search_field = $search_fields[$search_key]; /* @var $search_field DevblocksSearchField */
+			
+			// Make sure the field is a date if we're binning
+			if($bin && $search_field->type != Model_CustomField::TYPE_DATE)
+				$bin = null;
+			
+			if(DevblocksPlatform::strStartsWith($search_key, '*_')) {
+				// Ignore virtual fields that made it this far
+				return false;
+				
+			} else if(DevblocksPlatform::strStartsWith($search_key, 'cf_')) {
+				@$custom_field_id = intval(substr($search_key, 3));
+				@$custom_field = DAO_CustomField::get($custom_field_id);
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
+						DAO_CustomFieldValue::getValueTableName($custom_field->id),
+						Cerb_ORMHelper::qstr($custom_field->context),
+						$primary_key,
+						$custom_field->id
+					)
+				];
+				
+			} else {
+				$bin = DevblocksPlatform::strLower($bin);
+				switch($bin) {
+					case 'day':
+					case 'month':
+					case 'year':
+						$date_format = [
+							'day' => '%Y-%m-%d',
+							'month' => '%Y-%m',
+							'year' => '%Y',
+						];
+						
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), %s)",
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::qstr($date_format[$bin])
+							),
+						];
+						break;
+						
+					default:
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'sql_select' => sprintf("%s.%s",
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column)
+							),
+						];
+						break;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		if(DevblocksPlatform::strStartsWith($key, 'cf_')) {
+			$custom_field_id = intval(substr($key, 3));
+			
+			if(false != ($custom_field = DAO_CustomField::get($custom_field_id)))
+				switch($custom_field->type) {
+					case Model_CustomField::TYPE_LINK:
+						if(false == ($dao_context = Extension_DevblocksContext::get($custom_field->params['context'], true)))
+							break;
+							
+						$models = $dao_context->getModelObjects($values);
+						$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $dao_context->id);
+						
+						$map = [];
+						
+						foreach($dicts as $id => $dict)
+							$map[$id] = $dict->_label;
+						
+						return $map;
+						break;
+				}
+		}
+		
+		//return array_combine($values, $values);
+		return $values;
+	}
+	
+	static function _getLabelsForKeyExtensionValues($extension_id) {
+		$extensions = DevblocksPlatform::getExtensions($extension_id, false);
+		$label_map = array_column(DevblocksPlatform::objectsToArrays($extensions), 'name', 'id');
+		return $label_map;
+	}
+	
+	static function _getLabelsForKeyContextValues() {
+		$contexts = Extension_DevblocksContext::getAll(false);
+		$label_map = array_column(DevblocksPlatform::objectsToArrays($contexts), 'name', 'id');
+		return $label_map;
+	}
+	
+	static function _getLabelsForKeyBooleanValues() {
+		$label_map = [
+			0 => DevblocksPlatform::translate('common.no'),
+			1 => DevblocksPlatform::translate('common.yes'),
+		];
+		return $label_map;
+	}
+	
+	static function _getLabelsForKeyContextAndIdValues($values) {
+		$context_map = [];
+		$label_map = [];
+		
+		foreach($values as $v) {
+			@list($context, $context_id) = explode(':', $v, 2);
+			if(!array_key_exists($context, $context_map))
+				$context_map[$context] = [];
+			
+			$context_map[$context][] = intval($context_id);
+		}
+		
+		foreach($context_map as $context => $ids) {
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				continue;
+			
+			if(false == ($models = $context_ext->getModelObjects($ids)))
+				continue;
+			
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context);
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, '_label');
+			
+			$labels = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+			
+			foreach($labels as $id => $label)
+				$label_map[$context . ':' . $id] = $label;
+		}
+		
+		return $label_map;
 	}
 	
 	static function getCustomFieldContextWhereKey($context) {
@@ -1225,7 +1375,7 @@ class DevblocksSearchCriteria {
 			
 		} else {
 			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
-			$link_contexts = [];
+			$link_contexts = array();
 			
 			$oper = null;
 			$value = null;

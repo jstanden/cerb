@@ -162,7 +162,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	 * @param resource $rs
 	 */
 	static private function _createObjectsFromResultSet($rs=null) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -347,9 +347,9 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($article_id))
-			return array();
+			return [];
 		
-		$categories = array();
+		$categories = [];
 		
 		$rs = $db->ExecuteSlave(sprintf("SELECT kb_category_id ".
 			"FROM kb_article_to_category ".
@@ -375,7 +375,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		
 		$tree = DAO_KbCategory::getTree(0);
 		
-		$articles_by_category = array();
+		$articles_by_category = [];
 		
 		// [TODO] Cache by category?
 		
@@ -391,7 +391,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			if(is_array($results))
 			foreach($results as $result) {
 				if(!isset($articles_by_category[$result['parent_id']]))
-					$articles_by_category[$result['parent_id']] = array();
+					$articles_by_category[$result['parent_id']] = [];
 				
 				$articles_by_category[$result['parent_id']][] = $result;
 			}
@@ -549,7 +549,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -637,6 +637,44 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'category':
+			case 'category.id':
+			case 'topic.id':
+				$key = null;
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_KbArticle::CATEGORY_ID:
+			case SearchFields_KbArticle::TOP_CATEGORY_ID:
+				$models = DAO_KbCategory::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_KbArticle::ID:
+				$models = DAO_KbArticle::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'title', 'id');
+				break;
+				
+			case SearchFields_KbArticle::FORMAT:
+				$label_map = [
+					'0' => 'Plaintext',
+					'1' => 'HTML',
+					'2' => 'Markdown',
+				];
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -697,7 +735,7 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function getAttributes() {
-		return array();
+		return [];
 	}
 	
 	public function getFields() {
@@ -734,7 +772,7 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 		}
 	}
 	
-	public function query($query, $attributes=array(), $limit=null) {
+	public function query($query, $attributes=[], $limit=null) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
 
@@ -831,7 +869,7 @@ class Model_KbArticle {
 		switch($this->format) {
 			case self::FORMAT_HTML:
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$html = $tpl_builder->build($this->content, array());
+				$html = $tpl_builder->build($this->content, []);
 				break;
 				
 			case self::FORMAT_PLAINTEXT:
@@ -840,7 +878,7 @@ class Model_KbArticle {
 				
 			case self::FORMAT_MARKDOWN:
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$html = DevblocksPlatform::parseMarkdown($tpl_builder->build($this->content, array()));
+				$html = DevblocksPlatform::parseMarkdown($tpl_builder->build($this->content, []));
 				break;
 		}
 		
@@ -856,12 +894,12 @@ class Model_KbArticle {
 		$categories = DAO_KbCategory::getAll();
 		$cats = DAO_KbArticle::getCategoriesByArticleId($this->id);
 
-		$trails = array();
+		$trails = [];
 		
 		if(is_array($cats))
 		foreach($cats as $cat_id) {
 			$pid = $cat_id;
-			$trail = array();
+			$trail = [];
 			while($pid) {
 				array_unshift($trail,$pid);
 				$pid = $categories[$pid]->parent_id;
@@ -882,7 +920,7 @@ class Model_KbArticle {
 			}
 		}
 		
-		$breadcrumbs = array();
+		$breadcrumbs = [];
 		
 		if(is_array($trails))
 		foreach($trails as $idx => $trail) {
@@ -891,7 +929,7 @@ class Model_KbArticle {
 			
 			foreach($trail as $step) {
 				if(!isset($breadcrumbs[$last_step]))
-					$breadcrumbs[$last_step] = array();
+					$breadcrumbs[$last_step] = [];
 					
 				$breadcrumbs[$last_step][$step] = $categories[$step];
 			}
@@ -1064,7 +1102,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_KB_ARTICLE;
 		$token_values['_types'] = $token_types;
@@ -1140,10 +1178,10 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1154,12 +1192,12 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 					&& null != ($categories = $article->getCategories()) 
 					&& is_array($categories)
 					) {
-					$values['categories'] = array();
+					$values['categories'] = [];
 					
 					foreach($categories as $category_id => $trail) {
 						foreach($trail as $step_id => $step) {
 							if(!isset($values['categories'][$category_id]))
-								$values['categories'][$category_id] = array();
+								$values['categories'][$category_id] = [];
 							$values['categories'][$category_id][$step_id] = $step->name;
 						}
 					}
@@ -1196,7 +1234,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->addParams(array(), true);
+		$view->addParams([], true);
 		$view->renderSortBy = SearchFields_KbArticle::UPDATED;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
@@ -1205,7 +1243,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1213,7 +1251,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
@@ -1362,7 +1400,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -1396,31 +1434,26 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
+			case SearchFields_KbArticle::CATEGORY_ID:
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
-				$topics = DAO_KbCategory::getAll();
-				$label_map = array();
-				foreach($topics as $topic_id => $topic) {
-					if(!empty($topic->parent_id))
-						continue;
-					$label_map[$topic_id] = $topic->name;
-				}
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_KbArticle::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_KbArticle::FORMAT:
-				$label_map = array(
-					'0' => 'Plaintext',
-					'1' => 'HTML',
-					'2' => 'Markdown',
-				);
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_KbArticle::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
 				break;
 
@@ -1480,6 +1513,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_KB_ARTICLE],
 					]
 				),
+			'format' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_KbArticle::FORMAT),
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -1520,7 +1558,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		
 		// Engine/schema examples: Fulltext
 		
-		$ft_examples = array();
+		$ft_examples = [];
 		
 		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_KbArticle::ID))) {
 			if(false != ($engine = $schema->getEngine())) {
@@ -1605,59 +1643,14 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		
 		switch($field) {
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
-				// [TODO] Does this use cache?
-				$topics = DAO_KbCategory::getWhere(sprintf("%s = %d",
-					DAO_KbCategory::PARENT_ID,
-					0
-				));
-				$strings = array();
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
-					} else {
-						if(!isset($topics[$val]))
-							continue;
-						$strings[] = DevblocksPlatform::strEscapeHtml($topics[$val]->name);
-					}
-				}
-				echo implode(" or ", $strings);
-				break;
-				
 			case SearchFields_KbArticle::CATEGORY_ID:
-				$categories = DAO_KbCategory::getAll();
-				
-				$strings = [];
-
-				foreach($values as $val) {
-					if(0==$val) {
-						$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
-					} else {
-						if(!isset($categories[$val]))
-							continue;
-						$strings[] = DevblocksPlatform::strEscapeHtml($categories[$val]->name);
-					}
-				}
-				echo implode(" or ", $strings);
+				$label_map = SearchFields_KbArticle::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_KbArticle::FORMAT:
-				$strings = array();
-
-				foreach($values as $val) {
-					switch($val) {
-						case 0:
-							$strings[] = DevblocksPlatform::strEscapeHtml("Plaintext");
-							break;
-						case 1:
-							$strings[] = DevblocksPlatform::strEscapeHtml("HTML");
-							break;
-						case 2:
-							$strings[] = DevblocksPlatform::strEscapeHtml("Markdown");
-							break;
-					}
-				}
-				echo implode(" or ", $strings);
+				$label_map = SearchFields_KbArticle::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 
 			default:
@@ -1691,7 +1684,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				break;
 				
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', []);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $options);
 				break;
 				
@@ -1701,17 +1694,17 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_KbArticle::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				

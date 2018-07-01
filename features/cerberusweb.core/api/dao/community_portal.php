@@ -545,6 +545,31 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'extension':
+				$key = 'type';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_CommunityTool::EXTENSION_ID:
+				return parent::_getLabelsForKeyExtensionValues(Extension_CommunityPortal::ID);
+				break;
+				
+			case SearchFields_CommunityTool::ID:
+				$models = DAO_CommunityTool::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -933,7 +958,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 		return $this->_doGetDataSample('DAO_CommunityTool', $size);
 	}
 	
-		function getSubtotalFields() {
+	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
 		$fields = [];
@@ -943,11 +968,6 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 			$pass = false;
 			
 			switch($field_key) {
-				// Fields
-//				case SearchFields_CommunityTool::EXAMPLE:
-//					$pass = true;
-//					break;
-					
 				// Virtuals
 				case SearchFields_CommunityTool::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_CommunityTool::VIRTUAL_HAS_FIELDSET:
@@ -1103,16 +1123,8 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 
 		switch($field) {
 			case SearchFields_CommunityTool::EXTENSION_ID:
-				$portals = DevblocksPlatform::getExtensions('cerb.portal', false);
-				$strings = array();
-				
-				foreach($values as $val) {
-					if(!isset($portals[$val]))
-						continue;
-					else
-						$strings[] = DevblocksPlatform::strEscapeHtml($portals[$val]->name);
-				}
-				echo implode(", ", $strings);
+				$label_map = SearchFields_CommunityTool::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 			
 			default:

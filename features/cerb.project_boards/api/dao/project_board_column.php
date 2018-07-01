@@ -500,6 +500,32 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'board':
+				$key = 'board.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ProjectBoardColumn::ID:
+				$models = DAO_ProjectBoardColumn::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_ProjectBoardColumn::BOARD_ID:
+				$models = DAO_ProjectBoard::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -846,6 +872,16 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 		$values = !is_array($param->value) ? [$param->value] : $param->value;
 
 		switch($field) {
+			case SearchFields_ProjectBoardColumn::ID:
+				$label_map = SearchFields_ProjectBoardColumn::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
+			case SearchFields_ProjectBoardColumn::BOARD_ID:
+				$label_map = SearchFields_ProjectBoardColumn::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;

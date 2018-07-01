@@ -1017,6 +1017,59 @@ class SearchFields_Group extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'send.from':
+				$key = 'send.from.id';
+				break;
+				
+			case 'signature':
+				$key = 'signature.id';
+				break;
+				
+			case 'template':
+				$key = 'template.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Group::ID:
+				$models = DAO_Group::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_Group::IS_DEFAULT:
+			case SearchFields_Group::IS_PRIVATE:
+				$label_map = [
+					0 => DevblocksPlatform::translate('common.no'),
+					1 => DevblocksPlatform::translate('common.yes'),
+				];
+				return $label_map;
+				break;
+				
+			case SearchFields_Group::REPLY_ADDRESS_ID:
+				$models = DAO_Address::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'email', 'id');
+				break;
+				
+			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
+				$models = DAO_MailHtmlTemplate::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_Group::REPLY_SIGNATURE_ID:
+				$models = DAO_EmailSignature::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1349,7 +1402,6 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				case SearchFields_Group::IS_DEFAULT:
 				case SearchFields_Group::IS_PRIVATE:
 				case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
@@ -1592,27 +1644,9 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				break;
 				
 			case SearchFields_Group::REPLY_ADDRESS_ID:
-				$label_map = function($values) {
-					if(!is_array($values))
-						return [];
-					
-					if(false == ($addresses = DAO_Address::getIds($values)))
-						return [];
-					
-					return array_column($addresses, 'email', 'id');
-				};
-				parent::_renderCriteriaParamString($param, $label_map);
-				break;
-				
-			case SearchFields_Group::REPLY_SIGNATURE_ID:
-				$signatures = DAO_EmailSignature::getAll();
-				$label_map = array_column($signatures, 'name', 'id');
-				parent::_renderCriteriaParamString($param, $label_map);
-				break;
-				
 			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
-				$templates = DAO_MailHtmlTemplate::getAll();
-				$label_map = array_column($templates, 'name', 'id');
+			case SearchFields_Group::REPLY_SIGNATURE_ID:
+				$label_map = SearchFields_Group::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				

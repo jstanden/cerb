@@ -522,6 +522,36 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'tab':
+				$key = 'tab.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_WorkspaceWidget::EXTENSION_ID:
+				return parent::_getLabelsForKeyExtensionValues(Extension_WorkspaceWidget::POINT);
+				break;
+				
+			case SearchFields_WorkspaceWidget::ID:
+				$models = DAO_WorkspaceWidget::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'label', 'id');
+				break;
+				
+			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
+				$models = DAO_WorkspaceTab::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -694,25 +724,11 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 		
 		switch($column) {
 			case SearchFields_WorkspaceWidget::EXTENSION_ID:
-				$widget_extensions = Extension_WorkspaceWidget::getAll(false);
-				
-				$label_map = array_map(
-					function($manifest) {
-						return DevblocksPlatform::translateCapitalized($manifest->name);
-					},
-					$widget_extensions
-				);
-				
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
-				break;
-				
 			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
-				$label_func = function($ids) {
-					$tabs = DAO_WorkspaceTab::getIds($ids);
-					return array_column($tabs, 'name', 'id');
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_WorkspaceWidget::getLabelsForKeyValues($column, $values);
 				};
-				
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_func, '=', 'value');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
 				break;
 				
 			case SearchFields_WorkspaceWidget::VIRTUAL_CONTEXT_LINK:
@@ -842,16 +858,8 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 
 		switch($field) {
 			case SearchFields_WorkspaceWidget::EXTENSION_ID:
-				$widget_extensions = Extension_WorkspaceWidget::getAll(false);
-				$label_map = array_column($widget_extensions, 'name', 'id');
-				parent::_renderCriteriaParamString($param, $label_map);
-				break;
-				
 			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
-				$label_map = function($ids) {
-					$tabs = DAO_WorkspaceTab::getIds($ids);
-					return array_column($tabs, 'name', 'id');
-				};
+				$label_map = SearchFields_WorkspaceWidget::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				

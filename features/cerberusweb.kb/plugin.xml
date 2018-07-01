@@ -232,7 +232,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.tab">
 			<id>cerberusweb.kb.tab.browse</id>
-			<name>Knowledgebase Browser Tab</name>
+			<name>Knowledgebase Browser</name>
 			<class>
 				<file>api/App.php</file>
 				<name>WorkspaceTab_KbBrowse</name>

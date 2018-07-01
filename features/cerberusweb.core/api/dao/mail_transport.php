@@ -470,6 +470,28 @@ class SearchFields_MailTransport extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_MailTransport::EXTENSION_ID:
+				return parent::_getLabelsForKeyExtensionValues(Extension_MailTransport::POINT);
+				break;
+				
+			case SearchFields_MailTransport::ID:
+				$models = DAO_MailTransport::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -627,7 +649,10 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		
 		switch($column) {
 			case SearchFields_MailTransport::EXTENSION_ID:
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_MailTransport::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
 			case SearchFields_MailTransport::VIRTUAL_CONTEXT_LINK:
@@ -757,6 +782,11 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_MailTransport::EXTENSION_ID:
+				$label_map = SearchFields_MailTransport::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;

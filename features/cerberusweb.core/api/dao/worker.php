@@ -1491,6 +1491,42 @@ class SearchFields_Worker extends DevblocksSearchFields {
 		return false;
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'lang':
+				$key = 'language';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Worker::GENDER:
+				$label_map = [
+					'' => DevblocksPlatform::translateCapitalized('common.unknown'),
+					'F' => DevblocksPlatform::translateCapitalized('common.gender.female'),
+					'M' => DevblocksPlatform::translateCapitalized('common.gender.male'),
+				];
+				return $label_map;
+				break;
+				
+			case SearchFields_Worker::ID:
+				$models = DAO_Worker::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+				
+			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_SUPERUSER:
+				return parent::_getLabelsForKeyBooleanValues();
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	static function getFields() {
 		if(is_null(self::$_fields))
 			self::$_fields = self::_getFields();
@@ -2138,11 +2174,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Worker::GENDER:
-				$label_map = array(
-					'M' => 'Male',
-					'F' => 'Female',
-					'' => '(unknown)',
-				);
+				$label_map = SearchFields_Worker::getLabelsForKeyValues($column, $values);
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 
@@ -2534,24 +2566,8 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 		switch($field) {
 			case SearchFields_Worker::GENDER:
-				$strings = array();
-				$values = is_array($param->value) ? $param->value : array($param->value);
-				
-				foreach($values as $value) {
-					switch($value) {
-						case 'M':
-							$strings[] = '<b>Male</b>';
-							break;
-						case 'F':
-							$strings[] = '<b>Female</b>';
-							break;
-						default:
-							$strings[] = '<b>(unknown)</b>';
-							break;
-					}
-				}
-				
-				echo sprintf("%s", implode(' or ', $strings));
+				$label_map = SearchFields_Worker::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 			
 			case SearchFields_Worker::IS_DISABLED:

@@ -604,6 +604,52 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'behavior':
+				$key = 'behavior.id';
+				break;
+				
+			case 'on':
+				$field_target_context = $search_fields[SearchFields_ContextScheduledBehavior::CONTEXT];
+				$field_target_context_id = $search_fields[SearchFields_ContextScheduledBehavior::CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => 'on',
+					'sql_select' => sprintf("CONCAT_WS(':', %s.%s, %s.%s)",
+						Cerb_ORMHelper::escape($field_target_context->db_table),
+						Cerb_ORMHelper::escape($field_target_context->db_column),
+						Cerb_ORMHelper::escape($field_target_context_id->db_table),
+						Cerb_ORMHelper::escape($field_target_context_id->db_column)
+					)
+				];
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
+				$models = DAO_TriggerEvent::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'title', 'id');
+				break;
+				
+			case SearchFields_ContextScheduledBehavior::ID:
+				$models = DAO_ContextScheduledBehavior::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case 'on':
+				return parent::_getLabelsForKeyContextAndIdValues($values);
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */

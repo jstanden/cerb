@@ -471,6 +471,32 @@ class SearchFields_Skill extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'skillset':
+				$key = 'skillset.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Skill::ID:
+				$models = DAO_Skill::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_Skill::SKILLSET_ID:
+				$models = DAO_Skillset::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -617,12 +643,10 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		
 		switch($column) {
 			case SearchFields_Skill::SKILLSET_ID:
-				$skillsets = DAO_Skillset::getAll();
-				$labels = array();
-				foreach($skillsets as $skillset)
-					$labels[$skillset->id] = $skillset->name;
-				
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $labels, 'in', 'options[]');
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_Skill::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_Skill::VIRTUAL_CONTEXT_LINK:
@@ -772,9 +796,8 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 
 		switch($field) {
 			case SearchFields_Skill::SKILLSET_ID:
-				$skillsets = DAO_Skillset::getAll();
-				$label_map = DevblocksPlatform::objectsToStrings($skillsets);
-				$this->_renderCriteriaParamString($param, $label_map);
+				$label_map = SearchFields_Skill::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			default:

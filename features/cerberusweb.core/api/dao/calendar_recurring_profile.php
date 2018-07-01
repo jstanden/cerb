@@ -516,6 +516,43 @@ class SearchFields_CalendarRecurringProfile extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'calendar':
+				$key = 'calendar.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_CalendarRecurringProfile::CALENDAR_ID:
+				$models = DAO_Calendar::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_CalendarRecurringProfile::ID:
+				$models = DAO_CalendarRecurringProfile::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'event_name', 'id');
+				break;
+				
+			case SearchFields_CalendarRecurringProfile::IS_AVAILABLE:
+				$label_map = [
+					0 => DevblocksPlatform::translateLower('common.busy'),
+					1 => DevblocksPlatform::translateLower('common.available'),
+				];
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -994,11 +1031,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 
 		switch($field) {
 			case SearchFields_CalendarRecurringProfile::CALENDAR_ID:
-				$label_map = array();
-				$calendars = DAO_Calendar::getAll();
-				foreach($calendars as $calendar)
-					$label_map[$calendar->id] = $calendar->name;
-				
+				$label_map = SearchFields_CalendarRecurringProfile::getLabelsForKeyValues($field, $values);
 				$this->_renderCriteriaParamString($param, $label_map);
 				break;
 				

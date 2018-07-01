@@ -1067,6 +1067,62 @@ class SearchFields_Address extends DevblocksSearchFields {
 		return null;
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'contact':
+				$key = 'contact.id';
+				break;
+				
+			case 'mailtransport':
+			case 'mailTransport':
+				$key = 'mailTransport.id';
+				break;
+				
+			case 'org':
+				$key = 'org.id';
+				break;
+				
+			case 'worker':
+				$key = 'worker.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Address::ID:
+				$models = DAO_Address::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'email', 'id');
+				break;
+				
+			case SearchFields_Address::CONTACT_ID:
+				$models = DAO_Contact::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+				
+			case SearchFields_Address::CONTACT_ORG_ID:
+				$models = DAO_ContactOrg::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_Address::MAIL_TRANSPORT_ID:
+				$models = DAO_MailTransport::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_Address::WORKER_ID:
+				$models = DAO_Worker::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1448,6 +1504,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Address::HOST:
 				case SearchFields_Address::IS_BANNED:
 				case SearchFields_Address::IS_DEFUNCT:
+				case SearchFields_Address::CONTACT_ID:
 				case SearchFields_Address::CONTACT_ORG_ID:
 				case SearchFields_Address::MAIL_TRANSPORT_ID:
 				case SearchFields_Address::WORKER_ID:
@@ -1491,6 +1548,15 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Address::HOST:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+				
+			case SearchFields_Address::CONTACT_ID:
+				$label_map = function($ids) {
+					$models = DAO_Contact::getIds($ids);
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT);
+					return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, SearchFields_Address::CONTACT_ID, $label_map, '=', 'value[]');
 				break;
 				
 			case SearchFields_Address::CONTACT_ORG_ID:
@@ -1865,49 +1931,22 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Address::CONTACT_ID:
-				if(empty($param->value)) {
-					$contact_names[] = '(empty)';
-					
-				} else {
-					$contact_ids = !is_array($param->value) ? array($param->value) : $param->value;
-					$contacts = DAO_Contact::getIds($contact_ids);
-					$contact_names = array();
-					
-					foreach($contacts as $contact)
-						$contact_names[] = sprintf("<b>%s</b>", DevblocksPlatform::strEscapeHtml($contact->getName()));
-				}
-				
-				echo implode(' or ', $contact_names);
+				$label_map = SearchFields_Address::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Address::CONTACT_ORG_ID:
-				if(empty($param->value)) {
-					$org_names[] = '(empty)';
-					
-				} else {
-					$org_ids = !is_array($param->value) ? array($param->value) : $param->value;
-					$orgs = DAO_ContactOrg::getIds($org_ids);
-					$org_names = array();
-					
-					foreach($orgs as $org)
-						$org_names[] = sprintf('<b>%s</b>', DevblocksPlatform::strEscapeHtml($org->name));
-				}
-				
-				echo implode(' or ', $org_names);
+				$label_map = SearchFields_Address::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 			
 			case SearchFields_Address::MAIL_TRANSPORT_ID:
-				$transports = DAO_MailTransport::getAll();
-				$label_map = array_column($transports, 'name', 'id');
+				$label_map = SearchFields_Address::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Address::WORKER_ID:
-				$label_map = function($ids) {
-					return array_map(function($worker) {
-						return $worker->getName();
-					}, DAO_Worker::getIds($ids));
-				};
+				$label_map = SearchFields_Address::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
@@ -1937,6 +1976,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
+			case SearchFields_Address::CONTACT_ID:
 			case SearchFields_Address::CONTACT_ORG_ID:
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$value);
 				break;

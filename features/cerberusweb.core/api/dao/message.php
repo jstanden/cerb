@@ -753,6 +753,109 @@ class SearchFields_Message extends DevblocksSearchFields {
 		return false;
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'group':
+				$key = 'group.id';
+				break;
+				
+			case 'sender':
+				$key = 'sender.id';
+				break;
+				
+			case 'ticket':
+				$key = 'ticket.id';
+				break;
+				
+			case 'ticket.group':
+				$key = $key;
+				$search_key = $key;
+				$mask_field = $search_fields[SearchFields_Message::TICKET_GROUP_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("(SELECT group_id FROM ticket WHERE id = m.ticket_id)",
+						Cerb_ORMHelper::escape($mask_field->db_table),
+						Cerb_ORMHelper::escape($mask_field->db_column)
+					),
+				];
+				break;
+				
+			case 'ticket.mask':
+				$key = $key;
+				$search_key = $key;
+				$mask_field = $search_fields[SearchFields_Message::TICKET_MASK];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("(SELECT mask FROM ticket WHERE id = m.ticket_id)",
+						Cerb_ORMHelper::escape($mask_field->db_table),
+						Cerb_ORMHelper::escape($mask_field->db_column)
+					),
+				];
+				break;
+				
+			case 'worker':
+				$key = 'worker.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Message::ADDRESS_ID:
+				$models = DAO_Address::getIds($values);
+				$label_map = array_column($models, 'email', 'id');
+				$label_map[0] = DevblocksPlatform::translate('common.nobody');
+				return $label_map;
+				break;
+				
+			case 'ticket.group':
+				$models = DAO_Group::getIds($values);
+				$label_map = array_column($models, 'name', 'id');
+				$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_Message::TICKET_ID:
+				$models = DAO_Ticket::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TICKET);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				return $label_map;
+				break;
+				
+			case SearchFields_Message::ID:
+				$models = DAO_Message::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE);
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_');
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, '_label');
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+				
+			case SearchFields_Message::IS_BROADCAST:
+			case SearchFields_Message::IS_NOT_SENT:
+			case SearchFields_Message::IS_OUTGOING:
+			case SearchFields_Message::WAS_ENCRYPTED:
+			case SearchFields_Message::WAS_SIGNED:
+				return parent::_getLabelsForKeyBooleanValues();
+				break;
+				
+			case SearchFields_Message::WORKER_ID:
+				$models = DAO_Worker::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				$label_map[0] = DevblocksPlatform::translate('common.nobody');
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1987,31 +2090,11 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 				
-			case SearchFields_Message::TICKET_GROUP_ID:
-				$groups = DAO_Group::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(!isset($groups[$val]))
-					continue;
-
-					$strings[] = DevblocksPlatform::strEscapeHtml($groups[$val]->name);
-				}
-				echo implode(" or ", $strings);
-				break;
-				
 			case SearchFields_Message::ADDRESS_ID:
-				$senders = DAO_Address::getIds($values);
-				$strings = array();
-
-				foreach($senders as $sender) {
-					$strings[] = DevblocksPlatform::strEscapeHtml($sender->getNameWithEmail());
-				}
-				echo implode(" or ", $strings);
-				break;
-				
+			case SearchFields_Message::TICKET_GROUP_ID:
 			case SearchFields_Message::WORKER_ID:
-				$this->_renderCriteriaParamWorker($param);
+				$label_map = SearchFields_Message::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Message::RESPONSE_TIME:

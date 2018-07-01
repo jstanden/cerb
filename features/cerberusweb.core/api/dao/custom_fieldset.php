@@ -552,6 +552,48 @@ class SearchFields_CustomFieldset extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'owner':
+				$key = 'owner';
+				$search_key = 'owner';
+				$owner_field = $search_fields[SearchFields_CustomFieldset::OWNER_CONTEXT];
+				$owner_id_field = $search_fields[SearchFields_CustomFieldset::OWNER_CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("CONCAT_WS(':',%s.%s,%s.%s)",
+						Cerb_ORMHelper::escape($owner_field->db_table),
+						Cerb_ORMHelper::escape($owner_field->db_column),
+						Cerb_ORMHelper::escape($owner_id_field->db_table),
+						Cerb_ORMHelper::escape($owner_id_field->db_column)
+					),
+				];
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_CustomFieldset::CONTEXT:
+				return parent::_getLabelsForKeyContextValues();
+				break;
+				
+			case SearchFields_CustomFieldset::ID:
+				$models = DAO_CustomFieldset::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case 'owner':
+				return self::_getLabelsForKeyContextAndIdValues($values);
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -722,13 +764,9 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 				break;
 			
 			case SearchFields_CustomFieldset::CONTEXT:
-				$label_map = array();
-				$contexts = Extension_DevblocksContext::getAll(false);
-				
-				foreach($contexts as $k => $mft) {
-					$label_map[$k] = $mft->name;
-				}
-				
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_CustomField::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'contexts[]');
 				break;
 			
@@ -838,16 +876,8 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 
 		switch($field) {
 			case SearchFields_CustomFieldset::CONTEXT:
-				$contexts = Extension_DevblocksContext::getAll(false);
-				$strings = array();
-				
-				foreach($values as $context_id) {
-					if(isset($contexts[$context_id])) {
-						$strings[] = sprintf('<b>%s</b>',DevblocksPlatform::strEscapeHtml($contexts[$context_id]->name));
-					}
-				}
-				
-				echo implode(' or ', $strings);
+				$label_map = SearchFields_CustomFieldset::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 			
 			default:

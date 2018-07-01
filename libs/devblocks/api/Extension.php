@@ -3123,7 +3123,20 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 };
 
 abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
-	protected $_options = array();
+	const ID = 'devblocks.storage.engine';
+	
+	protected $_options = [];
+	
+	public static function getAll($as_instances=false) {
+		$extensions = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
+
+		if($as_instances)
+			DevblocksPlatform::sortObjects($extensions, 'manifest->params->[label]');
+		else
+			DevblocksPlatform::sortObjects($extensions, 'params->[label]');
+
+		return $extensions;
+	}
 
 	abstract function renderConfig(Model_DevblocksStorageProfile $profile);
 	abstract function saveConfig(Model_DevblocksStorageProfile $profile);

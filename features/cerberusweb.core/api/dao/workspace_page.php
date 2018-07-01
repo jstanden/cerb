@@ -555,6 +555,48 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'owner':
+				$key = 'owner';
+				$search_key = 'owner';
+				$owner_field = $search_fields[SearchFields_WorkspacePage::OWNER_CONTEXT];
+				$owner_id_field = $search_fields[SearchFields_WorkspacePage::OWNER_CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("CONCAT_WS(':',%s.%s,%s.%s)",
+						Cerb_ORMHelper::escape($owner_field->db_table),
+						Cerb_ORMHelper::escape($owner_field->db_column),
+						Cerb_ORMHelper::escape($owner_id_field->db_table),
+						Cerb_ORMHelper::escape($owner_id_field->db_column)
+					),
+				];
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_WorkspacePage::EXTENSION_ID:
+				return parent::_getLabelsForKeyExtensionValues(Extension_WorkspacePage::POINT);
+				break;
+				
+			case SearchFields_WorkspacePage::ID:
+				$models = DAO_WorkspacePage::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case 'owner':
+				return self::_getLabelsForKeyContextAndIdValues($values);
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -736,15 +778,9 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 		
 		switch($column) {
 			case SearchFields_WorkspacePage::EXTENSION_ID:
-				$page_extensions = Extension_WorkspacePage::getAll(false);
-				
-				$label_map = array_map(
-					function($manifest) {
-						return DevblocksPlatform::translateCapitalized($manifest->params['label']);
-					},
-					$page_extensions
-				);
-				
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_WorkspacePage::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
 				break;
 				
@@ -869,14 +905,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 
 		switch($field) {
 			case SearchFields_WorkspacePage::EXTENSION_ID:
-				$page_extensions = Extension_WorkspacePage::getAll(false);
-				
-				$label_map = array_map(
-					function($manifest) {
-						return DevblocksPlatform::translateCapitalized($manifest->params['label']);
-					},
-					$page_extensions
-				);
+				$label_map = SearchFields_WorkspacePage::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				

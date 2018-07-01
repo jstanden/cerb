@@ -1956,6 +1956,9 @@
 					<value>
 						<data key="calendar recurring event" value="singular" />
 						<data key="calendar recurring events" value="plural" />
+						<data key="calendar_event_recurring" value="singular" />
+						<data key="calendar_events_recurring" value="plural" />
+						<data key="calendar_recurring_events" value="plural" />
 						<data key="recurring event" value="singular short" />
 						<data key="recurring events" value="plural short" />
 					</value>
@@ -5976,7 +5979,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.page">
 			<id>core.workspace.page.workspace</id>
-			<name>Workspace Page</name>
+			<name>Workspace</name>
 			<class>
 				<file>api/uri/internal/workspaces.php</file>
 				<name>WorkspacePage_Workspace</name>
@@ -5990,7 +5993,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.tab">
 			<id>core.workspace.tab.calendar</id>
-			<name>Calendar Workspace Tab</name>
+			<name>Calendar</name>
 			<class>
 				<file>api/uri/internal/workspaces/calendar.php</file>
 				<name>WorkspaceTab_Calendar</name>
@@ -6002,7 +6005,7 @@
 
 		<extension point="cerberusweb.ui.workspace.tab">
 			<id>core.workspace.tab</id>
-			<name>Dashboards Workspace Tab</name>
+			<name>Dashboard</name>
 			<class>
 				<file>api/uri/internal/dashboards.php</file>
 				<name>WorkspaceTab_Dashboards</name>
@@ -6014,7 +6017,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.tab">
 			<id>core.workspace.tab.worklists</id>
-			<name>Workspace Worklists Tab</name>
+			<name>Worklists</name>
 			<class>
 				<file>api/uri/internal/workspaces.php</file>
 				<name>WorkspaceTab_Worklists</name>

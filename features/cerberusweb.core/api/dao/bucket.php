@@ -709,6 +709,59 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'group':
+				$key = 'group.id';
+				break;
+				
+			case 'signature':
+				$key = 'signature.id';
+				break;
+				
+			case 'template':
+				$key = 'template.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Bucket::ID:
+				$models = DAO_Bucket::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_Bucket::GROUP_ID:
+				$models = DAO_Group::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0,$values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_Bucket::REPLY_SIGNATURE_ID:
+				$models = DAO_EmailSignature::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0,$values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
+				$models = DAO_MailHtmlTemplate::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0,$values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1696,15 +1749,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 		switch($field) {
 			case SearchFields_Bucket::GROUP_ID:
-				$groups = DAO_Group::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(!isset($groups[$val]))
-						continue;
-
-					$strings[] = DevblocksPlatform::strEscapeHtml($groups[$val]->name);
-				}
+				$strings = SearchFields_Bucket::getLabelsForKeyValues($field, $values);
 				echo implode(", ", $strings);
 				break;
 				
@@ -1722,14 +1767,12 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Bucket::REPLY_SIGNATURE_ID:
-				$signatures = DAO_EmailSignature::getAll();
-				$label_map = array_column($signatures, 'name', 'id');
+				$label_map = SearchFields_Bucket::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
-				$templates = DAO_MailHtmlTemplate::getAll();
-				$label_map = array_column($templates, 'name', 'id');
+				$label_map = SearchFields_Bucket::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 			

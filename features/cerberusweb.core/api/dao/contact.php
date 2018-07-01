@@ -809,7 +809,63 @@ class SearchFields_Contact extends DevblocksSearchFields {
 				break;
 		}
 	}
+	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'email':
+				$key = 'email.id';
+				break;
+				
+			case 'language':
+				$key = 'lang';
+				break;
+				
+			case 'org':
+				$key = 'org.id';
+				break;
+				
+			case 'tz':
+				$key = 'timezone';
+				break;
+		}
 		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Contact::GENDER:
+				$label_map = [
+					'' => DevblocksPlatform::translateCapitalized('common.unknown'),
+					'F' => DevblocksPlatform::translateCapitalized('common.gender.female'),
+					'M' => DevblocksPlatform::translateCapitalized('common.gender.male'),
+				];
+				return $label_map;
+				break;
+				
+			case SearchFields_Contact::ID:
+				$models = DAO_Contact::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_CONTACT);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_Contact::ORG_ID:
+				$records = DAO_ContactOrg::getIds($values);
+				return array_column($records, 'name', 'id');
+				break;
+				
+			case SearchFields_Contact::PRIMARY_EMAIL_ID:
+				$records = DAO_Address::getIds($values);
+				return array_column($records, 'email', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1245,7 +1301,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 			switch($field_key) {
 				// Fields
 				case SearchFields_Contact::GENDER:
-				case SearchFields_Contact::ORG_NAME:
+				case SearchFields_Contact::ORG_ID:
 				case SearchFields_Contact::LANGUAGE:
 				case SearchFields_Contact::TIMEZONE:
 					$pass = true;
@@ -1290,7 +1346,14 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
-			case SearchFields_Contact::ORG_NAME:
+			case SearchFields_Contact::ORG_ID:
+				$label_map = function($ids) {
+					$orgs = DAO_ContactOrg::getIds($ids);
+					return array_column($orgs, 'name', 'id');
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map);
+				break;
+				
 			case SearchFields_Contact::LANGUAGE:
 			case SearchFields_Contact::TIMEZONE:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
@@ -1547,48 +1610,18 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		switch($field) {
 			case SearchFields_Contact::GENDER:
-				$strings = array();
-				$values = is_array($param->value) ? $param->value : array($param->value);
-				
-				foreach($values as $value) {
-					switch($value) {
-						case 'M':
-							$strings[] = '<b>Male</b>';
-							break;
-						case 'F':
-							$strings[] = '<b>Female</b>';
-							break;
-						default:
-							$strings[] = '<b>(unknown)</b>';
-							break;
-					}
-				}
-				
-				echo sprintf("%s", implode(' or ', $strings));
+				$label_map = SearchFields_Contact::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Contact::ORG_ID:
-				$string = null;
-				
-				if(empty($param->value)) {
-					$string = '(blank)';
-				} else if(false != ($org = DAO_ContactOrg::get($param->value))) {
-					$string = $org->name;
-				}
-				
-				echo sprintf("<b>%s</b>", DevblocksPlatform::strEscapeHtml($string));
+				$label_map = SearchFields_Contact::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Contact::PRIMARY_EMAIL_ID:
-				$string = null;
-				
-				if(empty($param->value)) {
-					$string = '(blank)';
-				} else if(false != ($addy = DAO_Address::get($param->value))) {
-					$string = $addy->email;
-				}
-				
-				echo sprintf("<b>%s</b>", DevblocksPlatform::strEscapeHtml($string));
+				$label_map = SearchFields_Contact::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			default:

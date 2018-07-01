@@ -435,6 +435,24 @@ class SearchFields_GpgPublicKey extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_GpgPublicKey::ID:
+				$models = DAO_GpgPublicKey::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -543,11 +561,6 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 			$pass = false;
 			
 			switch($field_key) {
-				// Fields
-//				case SearchFields_GpgPublicKey::EXAMPLE:
-//					$pass = true;
-//					break;
-					
 				// Virtuals
 				case SearchFields_GpgPublicKey::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_GpgPublicKey::VIRTUAL_HAS_FIELDSET:

@@ -1578,6 +1578,16 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					!$sortAsc,
 				);
 				break;
+				
+			case SearchFields_Ticket::VIRTUAL_STATUS:
+				$sortBy = array(
+					SearchFields_Ticket::TICKET_STATUS_ID,
+				);
+				
+				$sortAsc = array(
+					$sortAsc,
+				);
+				break;
 		}
 		
 		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Ticket', $sortBy);
@@ -2324,6 +2334,99 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 		return '0';
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'bucket':
+				$key = 'bucket.id';
+				break;
+				
+			case 'group':
+				$key = 'group.id';
+				break;
+				
+			case 'org':
+				$key = 'org.id';
+				break;
+				
+			case 'owner':
+				$key = 'owner.id';
+				break;
+				
+			case 'status':
+			case 'status.id':
+				$search_key = SearchFields_Ticket::TICKET_STATUS_ID;
+				$search_field = $search_fields[$search_key];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("%s.%s",
+						Cerb_ORMHelper::escape($search_field->db_table),
+						Cerb_ORMHelper::escape($search_field->db_column)
+					),
+				];
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Ticket::TICKET_ID:
+				$models = DAO_Ticket::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TICKET);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+				
+			case SearchFields_Ticket::TICKET_BUCKET_ID:
+				$records = DAO_Bucket::getIds($values);
+				return array_column($records, 'name', 'id');
+				break;
+				
+			case SearchFields_Ticket::TICKET_GROUP_ID:
+				$records = DAO_Group::getIds($values);
+				return array_column($records, 'name', 'id');
+				break;
+				
+			case SearchFields_Ticket::TICKET_ORG_ID:
+				$records = DAO_ContactOrg::getIds($values);
+				$label_map = array_column($records, 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_Ticket::TICKET_OWNER_ID:
+				$records = DAO_Worker::getIds($values);
+				$label_map = DAO_Worker::getNames(false);
+				$label_map[0] = DevblocksPlatform::translate('common.nobody');
+				return array_intersect_key($label_map, array_flip($values));
+				break;
+				
+			case SearchFields_Ticket::TICKET_STATUS_ID:
+				$statuses = [
+					0 => DevblocksPlatform::translateCapitalized('status.open'),
+					1 => DevblocksPlatform::translateCapitalized('status.waiting.abbr'),
+					2 => DevblocksPlatform::translateCapitalized('status.closed'),
+					3 => DevblocksPlatform::translateCapitalized('status.deleted'),
+				];
+				return $statuses;
+				break;
+				
+			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
+				$label_map = [
+					'' => DevblocksPlatform::translateLower('common.unknown'),
+					'N' => DevblocksPlatform::translateLower('common.notspam'),
+					'S' => DevblocksPlatform::translateLower('common.spam'),
+				];
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -2749,30 +2852,23 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'value[]');
 				break;
 				
+			case SearchFields_Ticket::TICKET_OWNER_ID:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_Ticket::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'worker_id[]');
+				break;
+				
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
-				$label_map = array(
-					'' => 'Not trained',
-					'S' => 'Spam',
-					'N' => 'Not spam',
-				);
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_Ticket::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
-			case SearchFields_Ticket::TICKET_OWNER_ID:
-				$label_map = array(
-					'0' => '(nobody)',
-				);
-				$workers = DAO_Worker::getAll();
-				foreach($workers as $k => $v)
-					$label_map[$k] = $v->getName();
-				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
-				break;
-				
 			case SearchFields_Ticket::TICKET_ORG_ID:
-				$label_map = function($ids) {
-					$models = DAO_ContactOrg::getIds($ids);
-					$results = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-					return $results;
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_Ticket::getLabelsForKeyValues($column, $values);
 				};
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'context_id[]');
 				break;
@@ -3811,44 +3907,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$this->_renderCriteriaParamWorker($param);
 				break;
 				
-			case SearchFields_Ticket::TICKET_GROUP_ID:
-				$groups = DAO_Group::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(!isset($groups[$val]))
-						continue;
-
-					$strings[] = DevblocksPlatform::strEscapeHtml($groups[$val]->name);
-				}
-				echo implode(", ", $strings);
-				break;
-				
-			case SearchFields_Ticket::TICKET_ORG_ID:
-				$strings = array();
-				
-				$orgs = DAO_ContactOrg::getIds($values);
-				
-				foreach($orgs as $org) {
-					$strings[] = DevblocksPlatform::strEscapeHtml($org->name);
-				}
-				echo implode(", ", $strings);
-				break;
-					
 			case SearchFields_Ticket::TICKET_BUCKET_ID:
-				$buckets = DAO_Bucket::getAll();
-				$strings = array();
-
-				foreach($values as $val) {
-					if(!isset($buckets[$val])) {
-						continue;
-						
-					} else {
-						if(false != ($group = $buckets[$val]->getGroup()))
-							$strings[] = DevblocksPlatform::strEscapeHtml($group->name . ': ' . $buckets[$val]->name);
-					}
-				}
-				echo implode(", ", $strings);
+			case SearchFields_Ticket::TICKET_GROUP_ID:
+			case SearchFields_Ticket::TICKET_ORG_ID:
+			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
+				$label_map = SearchFields_Ticket::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_ID:
@@ -3861,29 +3925,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				};
 				
 				self::_renderCriteriaParamString($param, $label_map);
-				break;
-				
-			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
-				$strings = array();
-				
-				if(!is_array($values))
-					$values = array($values);
-				
-				if(is_array($values))
-				foreach($values as $val) {
-					switch($val) {
-						case 'S':
-							$strings[] = DevblocksPlatform::strEscapeHtml("Spam");
-							break;
-						case 'N':
-							$strings[] = DevblocksPlatform::strEscapeHtml("Not Spam");
-							break;
-						default:
-							$strings[] = DevblocksPlatform::strEscapeHtml("Not Trained");
-							break;
-					}
-				}
-				echo implode(", ", $strings);
 				break;
 				
 			case SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST:

@@ -446,6 +446,24 @@ class SearchFields_Skillset extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Skillset::ID:
+				$models = DAO_Skillset::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -561,11 +579,6 @@ class View_Skillset extends C4_AbstractView implements IAbstractView_Subtotals, 
 			$pass = false;
 			
 			switch($field_key) {
-				// Fields
-//				case SearchFields_Skillset::EXAMPLE:
-//					$pass = true;
-//					break;
-					
 				// Virtuals
 				case SearchFields_Skillset::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Skillset::VIRTUAL_HAS_FIELDSET:

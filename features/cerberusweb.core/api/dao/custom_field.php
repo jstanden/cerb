@@ -1492,6 +1492,40 @@ class SearchFields_CustomField extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'fieldset':
+				$key = 'fieldset.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_CustomField::CONTEXT:
+				return parent::_getLabelsForKeyContextValues();
+				break;
+				
+			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
+				$models = DAO_CustomFieldset::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_CustomField::ID:
+				$models = DAO_CustomField::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_CustomField::TYPE:
+				return array_intersect_key(Model_CustomField::getTypes(), array_flip($values));
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1632,19 +1666,17 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 		
 		switch($column) {
 			case SearchFields_CustomField::CONTEXT:
-				$context_mfts = Extension_DevblocksContext::getAll(false);
-				$label_map = array_column($context_mfts, 'name', 'id');
+			case SearchFields_CustomField::TYPE:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_CustomField::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
 			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
-				$fieldsets = DAO_CustomFieldset::getAll();
-				$label_map = array_column($fieldsets, 'name', 'id');
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
-				break;
-				
-			case SearchFields_CustomField::TYPE:
-				$label_map = Model_CustomField::getTypes();
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_CustomField::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
@@ -1800,19 +1832,9 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 
 		switch($field) {
 			case SearchFields_CustomField::CONTEXT:
-				$context_mfts = Extension_DevblocksContext::getAll(false);
-				$label_map = array_column($context_mfts, 'name', 'id');
-				$this->_renderCriteriaParamString($param, $label_map);
-				break;
-				
 			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
-				$fieldsets = DAO_CustomFieldset::getAll();
-				$label_map = array_column($fieldsets, 'name', 'id');
-				$this->_renderCriteriaParamString($param, $label_map);
-				break;
-				
 			case SearchFields_CustomField::TYPE:
-				$label_map = Model_CustomField::getTypes();
+				$label_map = SearchFields_CustomField::getLabelsForKeyValues($field, $values);
 				$this->_renderCriteriaParamString($param, $label_map);
 				break;
 				

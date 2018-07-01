@@ -251,7 +251,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	 * @return Model_FeedbackEntry[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -390,7 +390,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -499,6 +499,42 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 		return false;
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'email':
+				$key = 'email.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID:
+				$models = DAO_Address::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'email', 'id');
+				break;
+				
+			case SearchFields_FeedbackEntry::ID:
+				$models = DAO_FeedbackEntry::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_FEEDBACK);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+				
+			case SearchFields_FeedbackEntry::QUOTE_MOOD:
+				$label_map = [
+					'0' => DevblocksPlatform::translate('feedback.mood.neutral'),
+					'1' => DevblocksPlatform::translate('feedback.mood.praise'),
+					'2' => DevblocksPlatform::translate('feedback.mood.criticism'),
+				];
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -520,10 +556,10 @@ class SearchFields_FeedbackEntry extends DevblocksSearchFields {
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'f', 'worker_id', $translate->_('feedback_entry.worker_id'), null, true),
 			self::QUOTE_TEXT => new DevblocksSearchField(self::QUOTE_TEXT, 'f', 'quote_text', $translate->_('feedback_entry.quote_text'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::QUOTE_MOOD => new DevblocksSearchField(self::QUOTE_MOOD, 'f', 'quote_mood', $translate->_('feedback_entry.quote_mood'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::QUOTE_ADDRESS_ID => new DevblocksSearchField(self::QUOTE_ADDRESS_ID, 'f', 'quote_address_id', null, null, true),
+			self::QUOTE_ADDRESS_ID => new DevblocksSearchField(self::QUOTE_ADDRESS_ID, 'f', 'quote_address_id', $translate->_('feedback_entry.quote_address'), Model_CustomField::TYPE_NUMBER, null, true),
 			self::SOURCE_URL => new DevblocksSearchField(self::SOURCE_URL, 'f', 'source_url', $translate->_('feedback_entry.source_url'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			
-			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', $translate->_('feedback_entry.quote_address'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::ADDRESS_EMAIL => new DevblocksSearchField(self::ADDRESS_EMAIL, 'a', 'email', null, Model_CustomField::TYPE_SINGLE_LINE, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
@@ -609,7 +645,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -617,7 +653,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 			
 			switch($field_key) {
 				// Booleans
-				case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
+				case SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID:
 				case SearchFields_FeedbackEntry::QUOTE_MOOD:
 					$pass = true;
 					break;
@@ -643,16 +679,26 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_FEEDBACK;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
-			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+			case SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_FeedbackEntry::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
+				
+			case SearchFields_FeedbackEntry::QUOTE_MOOD:
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_FeedbackEntry::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
@@ -661,18 +707,6 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
 				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
-				break;
-				
-			case SearchFields_FeedbackEntry::QUOTE_MOOD:
-				$translate = DevblocksPlatform::getTranslationService();
-				
-				$label_map = array(
-					'1' => $translate->_('feedback.mood.praise'),
-					'0' => $translate->_('feedback.mood.neutral'),
-					'2' => $translate->_('feedback.mood.criticism'),
-				);
-				
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
 				break;
 
 			default:
@@ -797,11 +831,11 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 			case 'mood':
 				$field_key = SearchFields_FeedbackEntry::QUOTE_MOOD;
 				$oper = null;
-				$patterns = array();
+				$patterns = [];
 				
 				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $patterns);
 				
-				$values = array();
+				$values = [];
 				
 				foreach($patterns as $pattern) {
 					switch(DevblocksPlatform::strLower(substr($pattern,0,1))) {
@@ -899,21 +933,10 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				$this->_renderCriteriaParamWorker($param);
 				break;
 
+			case SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID:
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
-				$translate = DevblocksPlatform::getTranslationService();
-				$strings = array();
-				
-				$options = array(
-					'1' => $translate->_('feedback.mood.praise'),
-					'0' => $translate->_('feedback.mood.neutral'),
-					'2' => $translate->_('feedback.mood.criticism'),
-				);
-				
-				foreach($values as $val) {
-					if(isset($options[$val]))
-						$strings[] = DevblocksPlatform::strEscapeHtml($options[$val]);
-				}
-				echo implode(" or ", $strings);
+				$label_map = SearchFields_FeedbackEntry::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			default:
@@ -932,11 +955,11 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 		switch($field) {
 			case SearchFields_FeedbackEntry::QUOTE_TEXT:
 			case SearchFields_FeedbackEntry::SOURCE_URL:
-			case SearchFields_FeedbackEntry::ADDRESS_EMAIL:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_FeedbackEntry::ID:
+			case SearchFields_FeedbackEntry::QUOTE_ADDRESS_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -945,27 +968,27 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			case SearchFields_FeedbackEntry::WORKER_ID:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 				
 			case SearchFields_FeedbackEntry::QUOTE_MOOD:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_FeedbackEntry::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -1164,14 +1187,14 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	function startBulkUpdateJsonAction() {
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-		$ids = array();
+		$ids = [];
 		
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
-		$do = array();
+		$do = [];
 		
 		// Do: Custom fields
 		$do = DAO_CustomFieldValue::handleBulkPost($do);
@@ -1358,7 +1381,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_FEEDBACK;
 		$token_values['_types'] = $token_types;
@@ -1388,8 +1411,8 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		}
 
 		// Author
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
@@ -1402,8 +1425,8 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		);
 		
 		// Created by (Worker)
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
@@ -1449,10 +1472,10 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1505,7 +1528,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1514,7 +1537,7 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Feedback';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(

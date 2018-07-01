@@ -679,6 +679,45 @@ class SearchFields_Task extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'owner':
+				$key = 'owner.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_Task::ID:
+				$models = DAO_Task::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'title', 'id');
+				break;
+				
+			case SearchFields_Task::OWNER_ID:
+				$models = DAO_Worker::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.nobody');
+				return $label_map;
+				break;
+				
+			case SearchFields_Task::STATUS_ID:
+				$label_map = [
+					0 => DevblocksPlatform::translate('status.open'),
+					1 => DevblocksPlatform::translate('status.closed'),
+					2 => DevblocksPlatform::translate('status.waiting.abbr'),
+				];
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -859,7 +898,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_TASK;
 
@@ -872,16 +911,16 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				break;
 				
 			case SearchFields_Task::OWNER_ID:
-				$label_map = function($ids) {
-					$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
-					$worker_names = DAO_Worker::getNames(false);
-					return array_intersect_key($worker_names, array_flip($ids));
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_Task::getLabelsForKeyValues($column, $values);
 				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'worker_id');
 				break;
 				
 			case SearchFields_Task::STATUS_ID:
-				$label_map = [0 => 'Open', 1 => 'Closed', 2 => 'Waiting'];
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_Task::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options');
 				break;
 				
@@ -1160,12 +1199,8 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 
 		switch($field) {
 			case SearchFields_Task::STATUS_ID:
-				$label_map = [
-					0 => 'Open',
-					1 => 'Closed',
-					2 => 'Waiting',
-				];
-				$this->_renderCriteriaParamString($param, $label_map);
+				$label_map = SearchFields_Task::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			case SearchFields_Task::OWNER_ID:

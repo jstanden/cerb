@@ -47,7 +47,7 @@
 	
 	<extension point="cerberusweb.ui.workspace.page">
 		<id>reports.workspace.page</id>
-		<name>Reports Workspace Page</name>
+		<name>Reports</name>
 		<class>
 			<file>api/App.php</file>
 			<name>ChReportsWorkspacePage</name>

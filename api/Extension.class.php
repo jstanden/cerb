@@ -592,6 +592,8 @@ interface ICerbWorkspaceWidget_ExportData {
 };
 
 abstract class Extension_WorkspaceWidget extends DevblocksExtension {
+	const POINT = 'cerberusweb.ui.workspace.widget';
+	
 	static $_registry = [];
 	
 	static function getAll($as_instances=false) {

@@ -717,6 +717,41 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 		return '0';
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'bot':
+				$key = 'bot.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_TriggerEvent::BOT_ID:
+				$models = DAO_Bot::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_TriggerEvent::EVENT_POINT:
+				return parent::_getLabelsForKeyExtensionValues(Extension_DevblocksEvent::POINT);
+				break;
+				
+			case SearchFields_TriggerEvent::ID:
+				$models = DAO_TriggerEvent::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'title', 'id');
+				break;
+				
+			case SearchFields_TriggerEvent::IS_DISABLED:
+			case SearchFields_TriggerEvent::IS_PRIVATE:
+				return parent::_getLabelsForKeyBooleanValues();
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -1561,10 +1596,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 			return array();
 		
 		switch($column) {
+			case SearchFields_TriggerEvent::BOT_ID:
 			case SearchFields_TriggerEvent::EVENT_POINT:
-				$events = Extension_DevblocksEvent::getAll(false);
-				$labels = array_column(json_decode(json_encode($events), true), 'name', 'id');
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $labels);
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_TriggerEvent::getLabelsForKeyValues($column, $values);
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
 			case SearchFields_TriggerEvent::IS_DISABLED:
@@ -1576,12 +1613,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
 				break;
 
-			case SearchFields_TriggerEvent::BOT_ID:
-				$bots = DAO_Bot::getAll();
-				$labels = array_column(json_decode(json_encode($bots), true), 'name', 'id');
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $labels);
-				break;
-				
 			case SearchFields_TriggerEvent::VIRTUAL_HAS_FIELDSET:
 				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;

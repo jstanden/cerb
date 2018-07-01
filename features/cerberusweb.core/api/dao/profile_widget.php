@@ -525,6 +525,42 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'tab':
+				$key = 'tab.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ProfileWidget::ID:
+				$models = DAO_ProfileWidget::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_ProfileWidget::PROFILE_TAB_ID:
+				$models = DAO_ProfileTab::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_ProfileWidget::WIDTH_UNITS:
+				$label_map = [
+					1 => '25%',
+					2 => '50%',
+					3 => '75%',
+					4 => '100%',
+				];
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -689,16 +725,10 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 		
 		switch($column) {
 			case SearchFields_ProfileWidget::PROFILE_TAB_ID:
-				$label_map = function($ids) {
-					$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
-					
-					if(!is_array($ids))
-						return [];
-					
-					$widgets = DAO_ProfileTab::getIds($ids);
-					return array_column($widgets, 'name', 'id');
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_ProfileWidget::getLabelsForKeyValues($column, $values);
 				};
-				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map);
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
 			case SearchFields_ProfileWidget::VIRTUAL_CONTEXT_LINK:
@@ -785,7 +815,7 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			'zone' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ProfileWidget::ZONE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_ProfileWidget::ZONE),
 				),
 		);
 		
@@ -854,13 +884,8 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 
 		switch($field) {
 			case SearchFields_ProfileWidget::PROFILE_TAB_ID:
-				$label_map = function($ids) {
-					if(!is_array($ids))
-						return [];
-					
-					$tabs = DAO_ProfileTab::getIds($ids);
-					return array_column($tabs, 'name', 'id');
-				};
+			case SearchFields_ProfileWidget::WIDTH_UNITS:
+				$label_map = SearchFields_ProfileWidget::getLabelsForKeyValues($field, $values);
 				$this->_renderCriteriaParamString($param, $label_map);
 				break;
 				

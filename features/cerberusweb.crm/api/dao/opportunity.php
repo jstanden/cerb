@@ -633,6 +633,33 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_CrmOpportunity::ID:
+				$models = DAO_CrmOpportunity::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_CrmOpportunity::STATUS_ID:
+				$label_map = [
+					0 => DevblocksPlatform::translate('crm.opp.status.open'),
+					1 => DevblocksPlatform::translate('crm.opp.status.closed.won'),
+					2 => DevblocksPlatform::translate('crm.opp.status.closed.lost'),
+				];
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -782,7 +809,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -815,24 +842,18 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
-			case '_string':
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-				break;
-				
 			case SearchFields_CrmOpportunity::STATUS_ID:
-				$label_map = [
-					0 => DevblocksPlatform::translateCapitalized('crm.opp.status.open'),
-					1 => DevblocksPlatform::translateCapitalized('crm.opp.status.closed.won'),
-					2 => DevblocksPlatform::translateCapitalized('crm.opp.status.closed.lost'),
-				];
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_CrmOpportunity::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 			
@@ -1076,12 +1097,8 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 
 		switch($field) {
 			case SearchFields_CrmOpportunity::STATUS_ID:
-				$label_map = [
-					0 => DevblocksPlatform::translate('crm.opp.status.open'),
-					1 => DevblocksPlatform::translate('crm.opp.status.closed.won'),
-					2 => DevblocksPlatform::translate('crm.opp.status.closed.lost'),
-				];
-				$this->_renderCriteriaParamString($param, $label_map);
+				$label_map = SearchFields_CrmOpportunity::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
 			default:

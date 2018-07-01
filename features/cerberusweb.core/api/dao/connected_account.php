@@ -561,6 +561,52 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'extension':
+				$key = 'service';
+				break;
+				
+			case 'owner':
+				$key = 'owner';
+				$search_key = 'owner';
+				$owner_field = $search_fields[SearchFields_ConnectedAccount::OWNER_CONTEXT];
+				$owner_id_field = $search_fields[SearchFields_ConnectedAccount::OWNER_CONTEXT_ID];
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $search_key,
+					'sql_select' => sprintf("CONCAT_WS(':',%s.%s,%s.%s)",
+						Cerb_ORMHelper::escape($owner_field->db_table),
+						Cerb_ORMHelper::escape($owner_field->db_column),
+						Cerb_ORMHelper::escape($owner_id_field->db_table),
+						Cerb_ORMHelper::escape($owner_id_field->db_column)
+					),
+				];
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ConnectedAccount::EXTENSION_ID:
+				return self::_getLabelsForKeyExtensionValues(Extension_ServiceProvider::POINT);
+				break;
+				
+			case SearchFields_ConnectedAccount::ID:
+				$models = DAO_ConnectedAccount::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case 'owner':
+				return self::_getLabelsForKeyContextAndIdValues($values);
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -900,7 +946,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 
 		switch($field) {
 			case SearchFields_ConnectedAccount::EXTENSION_ID:
-				$label_map = array_column(DevblocksPlatform::objectsToArrays(Extension_ServiceProvider::getAll(false)), 'name', 'id');
+				$label_map = SearchFields_ConnectedAccount::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				

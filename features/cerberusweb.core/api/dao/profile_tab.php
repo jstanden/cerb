@@ -481,6 +481,32 @@ class SearchFields_ProfileTab extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_ProfileTab::CONTEXT:
+				return parent::_getLabelsForKeyContextValues();
+				break;
+				
+			case SearchFields_ProfileTab::EXTENSION_ID:
+				return parent::_getLabelsForKeyExtensionValues(Extension_ProfileTab::POINT);
+				break;
+				
+			case SearchFields_ProfileTab::ID:
+				$models = DAO_ProfileTab::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -636,17 +662,9 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		switch($column) {
 			case SearchFields_ProfileTab::CONTEXT:
-				$label_map = function($ids) {
-					$contexts = Extension_DevblocksContext::getAll(false);
-					return array_column(array_intersect_key($contexts, array_flip($ids)), 'name', 'id');
-				};
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
-				break;
-				
 			case SearchFields_ProfileTab::EXTENSION_ID:
-				$label_map = function($ids) {
-					$exts = Extension_ProfileTab::getAll(false);
-					return array_column(array_intersect_key($exts, array_flip($ids)), 'name', 'id');
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_ProfileTab::getLabelsForKeyValues($column, $values);
 				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
@@ -780,18 +798,8 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 
 		switch($field) {
 			case SearchFields_ProfileTab::CONTEXT:
-				$label_map = function($ids) {
-					$contexts = Extension_DevblocksContext::getAll(false);
-					return array_column(array_intersect_key($contexts, array_flip($ids)), 'name', 'id');
-				};
-				$this->_renderCriteriaParamString($param, $label_map);
-				break;
-				
 			case SearchFields_ProfileTab::EXTENSION_ID:
-				$label_map = function($ids) {
-					$exts = Extension_ProfileTab::getAll(false);
-					return array_column(array_intersect_key($exts, array_flip($ids)), 'name', 'id');
-				};
+				$label_map = SearchFields_ProfileTab::getLabelsForKeyValues($field, $values);
 				$this->_renderCriteriaParamString($param, $label_map);
 				break;
 				

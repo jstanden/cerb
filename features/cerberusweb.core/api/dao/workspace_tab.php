@@ -512,6 +512,36 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 		}
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'page':
+				$key = 'page.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_WorkspaceTab::EXTENSION_ID:
+				return parent::_getLabelsForKeyExtensionValues(Extension_WorkspaceTab::POINT);
+				break;
+				
+			case SearchFields_WorkspaceTab::ID:
+				$models = DAO_WorkspaceTab::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
+				$models = DAO_WorkspacePage::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
@@ -695,25 +725,11 @@ class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtota
 		
 		switch($column) {
 			case SearchFields_WorkspaceTab::EXTENSION_ID:
-				$tab_extensions = Extension_WorkspaceTab::getAll(false);
-				
-				$label_map = array_map(
-					function($manifest) {
-						return DevblocksPlatform::translateCapitalized($manifest->params['label']);
-					},
-					$tab_extensions
-				);
-				
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
-				break;
-				
 			case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
-				$label_func = function($ids) {
-					$pages = DAO_WorkspacePage::getIds($ids);
-					return array_column($pages, 'name', 'id');
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_WorkspaceTab::getLabelsForKeyValues($column, $values);
 				};
-				
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_func, '=', 'value');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
 				break;
 
 			case SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK:
@@ -852,18 +868,8 @@ class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtota
 
 		switch($field) {
 			case SearchFields_WorkspaceTab::EXTENSION_ID:
-				$tab_extensions = Extension_WorkspaceTab::getAll(false);
-				$label_map = array_map(function($manifest) {
-					return DevblocksPlatform::translateCapitalized(@$manifest->params['label']);
-				}, $tab_extensions);
-				parent::_renderCriteriaParamString($param, $label_map);
-				break;
-				
 			case SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID:
-				$label_map = function($ids) {
-					$pages = DAO_WorkspacePage::getIds($ids);
-					return array_column($pages, 'name', 'id');
-				};
+				$label_map = SearchFields_WorkspaceTab::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 			

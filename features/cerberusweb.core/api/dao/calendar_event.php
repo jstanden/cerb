@@ -465,6 +465,43 @@ class SearchFields_CalendarEvent extends DevblocksSearchFields {
 		return self::$_fields;
 	}
 	
+	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+		switch($key) {
+			case 'calendar':
+				$key = 'calendar.id';
+				break;
+		}
+		
+		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+	}
+	
+	static function getLabelsForKeyValues($key, $values) {
+		switch($key) {
+			case SearchFields_CalendarEvent::CALENDAR_ID:
+				$models = DAO_Calendar::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
+			case SearchFields_CalendarEvent::ID:
+				$models = DAO_CalendarEvent::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_CalendarEvent::IS_AVAILABLE:
+				$label_map = [
+					0 => DevblocksPlatform::translateLower('common.busy'),
+					1 => DevblocksPlatform::translateLower('common.available'),
+				];
+				return $label_map;
+				break;
+		}
+		
+		return parent::getLabelsForKeyValues($key, $values);
+	}
+	
 	/**
 	 * @return DevblocksSearchField[]
 	 */
