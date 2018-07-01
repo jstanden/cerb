@@ -901,6 +901,7 @@ var ajax = new cAjaxCalls();
 				
 				var twig_functions = [
 					{ value: "array_diff(arr1,arr2)", meta: "function" },
+					{ value: "array_combine(keys,values)", meta: "function" },
 					{ value: "attribute(object,attr)", meta: "function" },
 					{ value: "cerb_avatar_image(context,id,updated)", meta: "function" },
 					{ value: "cerb_avatar_url(context,id,updated)", meta: "function" },

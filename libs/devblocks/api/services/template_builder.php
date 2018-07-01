@@ -123,6 +123,7 @@ class _DevblocksTemplateBuilder {
 			];
 			
 			$functions = [
+				'array_combine',
 				'array_diff',
 				'cerb_avatar_image',
 				'cerb_avatar_url',
@@ -699,6 +700,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFunctions() {
 		return array(
+			new Twig_SimpleFunction('array_combine', [$this, 'function_array_combine']),
 			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
 			new Twig_SimpleFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
@@ -721,6 +723,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('xml_xpath_ns', [$this, 'function_xml_xpath_ns']),
 			new Twig_SimpleFunction('xml_xpath', [$this, 'function_xml_xpath']),
 		);
+	}
+	
+	function function_array_combine($keys, $values) {
+		if(!is_array($keys) || !is_array($values))
+			return;
+		
+		return array_combine($keys, $values);
 	}
 	
 	function function_array_diff($arr1, $arr2) {
