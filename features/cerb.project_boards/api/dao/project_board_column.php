@@ -684,9 +684,9 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_ProjectBoardColumn::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_ProjectBoardColumn::BOARD_ID:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK:
@@ -718,13 +718,13 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 			return array();
 		
 		switch($column) {
-//			case SearchFields_ProjectBoardColumn::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
-
-//			case SearchFields_ProjectBoardColumn::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-//				break;
+			case SearchFields_ProjectBoardColumn::BOARD_ID:
+				$label_map = function($ids) {
+					$models = DAO_ProjectBoard::getIds($ids);
+					return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				};
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
+				break;
 				
 			case SearchFields_ProjectBoardColumn::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
@@ -751,7 +751,6 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 	}
 	
 	function getQuickSearchFields() {
-		// [TODO] Implement quick search fields
 		$search_fields = SearchFields_ProjectBoardColumn::getFields();
 	
 		$fields = array(
