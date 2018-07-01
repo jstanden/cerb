@@ -125,6 +125,7 @@ class _DevblocksTemplateBuilder {
 			$functions = [
 				'array_combine',
 				'array_diff',
+				'array_intersect',
 				'cerb_avatar_image',
 				'cerb_avatar_url',
 				'cerb_file_url',
@@ -702,6 +703,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return array(
 			new Twig_SimpleFunction('array_combine', [$this, 'function_array_combine']),
 			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
+			new Twig_SimpleFunction('array_intersect', [$this, 'function_array_intersect']),
 			new Twig_SimpleFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
@@ -737,6 +739,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return;
 		
 		return array_diff($arr1, $arr2);
+	}
+	
+	function function_array_intersect($arr1, $arr2) {
+		if(!is_array($arr1) || !is_array($arr2))
+			return;
+		
+		return array_intersect($arr1, $arr2);
 	}
 	
 	function function_cerb_has_priv($priv, $actor_context=null, $actor_id=null) {
