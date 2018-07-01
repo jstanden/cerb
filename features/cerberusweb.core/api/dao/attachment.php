@@ -1322,8 +1322,13 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($column) {
 			case SearchFields_Attachment::NAME:
 			case SearchFields_Attachment::MIME_TYPE:
-			case SearchFields_Attachment::STORAGE_EXTENSION:
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+				
+			case SearchFields_Attachment::STORAGE_EXTENSION:
+				$extensions = Extension_DevblocksStorageEngine::getAll(false);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($extensions), 'name', 'id');
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 				
 			case SearchFields_Attachment::VIRTUAL_CONTEXT_LINK:
@@ -1407,6 +1412,11 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 						'<=512KB',
 					]
 				),
+			'storage.extension' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Attachment::STORAGE_EXTENSION),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -1485,6 +1495,11 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_Attachment::STORAGE_EXTENSION:
+				$label_map = SearchFields_Attachment::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
