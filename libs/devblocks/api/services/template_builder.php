@@ -127,6 +127,7 @@ class _DevblocksTemplateBuilder {
 				'array_diff',
 				'array_intersect',
 				'array_sort_keys',
+				'array_unique',
 				'cerb_avatar_image',
 				'cerb_avatar_url',
 				'cerb_file_url',
@@ -706,6 +707,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
 			new Twig_SimpleFunction('array_intersect', [$this, 'function_array_intersect']),
 			new Twig_SimpleFunction('array_sort_keys', [$this, 'function_array_sort_keys']),
+			new Twig_SimpleFunction('array_unique', [$this, 'function_array_unique']),
 			new Twig_SimpleFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
@@ -757,6 +759,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		ksort($arr);
 		
 		return $arr;
+	}
+	
+	function function_array_unique($arr) {
+		if(!is_array($arr))
+			return;
+		
+		return array_unique($arr);
 	}
 	
 	function function_cerb_has_priv($priv, $actor_context=null, $actor_id=null) {

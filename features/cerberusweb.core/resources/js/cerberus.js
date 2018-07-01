@@ -904,6 +904,7 @@ var ajax = new cAjaxCalls();
 					{ value: "array_diff(array1,array2)", meta: "function" },
 					{ value: "array_intersect(array1,array2)", meta: "function" },
 					{ value: "array_sort_keys(array)", meta: "function" },
+					{ value: "array_unique(array)", meta: "function" },
 					{ value: "attribute(object,attr)", meta: "function" },
 					{ value: "cerb_avatar_image(context,id,updated)", meta: "function" },
 					{ value: "cerb_avatar_url(context,id,updated)", meta: "function" },
