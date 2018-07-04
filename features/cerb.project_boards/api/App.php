@@ -143,3 +143,54 @@ class ProfileWidget_ProjectBoard extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerb.project_boards::widgets/project_board/config.tpl');
 	}
 }
+
+class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
+	const ID = 'cerb.workspace.widget.project_board';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$project_board_template = $widget->params['project_board_id'];
+		
+		$record_dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		]);
+		
+		$board_id = $tpl_builder->build($project_board_template, $record_dict);
+		
+		if(false == ($board = DAO_ProjectBoard::get($board_id)))
+			return;
+		
+		$tpl->assign('board', $board);
+		
+		$contexts = Extension_DevblocksContext::getAll(false, 'links');
+		$tpl->assign('contexts', $contexts);
+		
+		$tpl->display('devblocks:cerb.project_boards::boards/board/board.tpl');
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $widget);
+		
+		$tpl->display('devblocks:cerb.project_boards::workspaces/widgets/project_board/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+	}
+}

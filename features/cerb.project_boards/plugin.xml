@@ -196,5 +196,18 @@
 			</params>
 		</extension>
 		
+		<!-- Workspace widgets -->
+		
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.project_board</id>
+			<name>Project Board</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WorkspaceWidget_ProjectBoard</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 	</extensions>
 </plugin>
