@@ -845,6 +845,11 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_WorkspaceWidget::POS),
 				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkspaceWidget::EXTENSION_ID),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
