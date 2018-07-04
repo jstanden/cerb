@@ -662,6 +662,34 @@ class WorkspaceWidgetDatasource_Manual extends Extension_WorkspaceWidgetDatasour
 	}
 };
 
+class WorkspaceWidgetDatasource_DataQuery extends Extension_WorkspaceWidgetDatasource {
+	function renderConfig(Model_WorkspaceWidget $widget, $params=[], $params_prefix=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('params', $params);
+		$tpl->assign('params_prefix', $params);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/datasources/config_data_query.tpl');
+	}
+	
+	function getData(Model_WorkspaceWidget $widget, array $params=[], $params_prefix=null) {
+		$data = DevblocksPlatform::services()->data();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		@$query = DevblocksPlatform::importGPC($params['data_query'], 'string', '');
+		
+		$results = $data->executeQuery($query);
+		
+		if(count($results)) {
+			$metric_value = current($results)[1];
+			$params['metric_value'] = $metric_value;
+		}
+		
+		return $params;
+	}
+};
+
 class WorkspaceWidgetDatasource_BotBehavior extends Extension_WorkspaceWidgetDatasource {
 	function renderConfig(Model_WorkspaceWidget $widget, $params=array(), $params_prefix=null) {
 		$tpl = DevblocksPlatform::services()->template();

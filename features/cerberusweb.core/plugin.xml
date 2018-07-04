@@ -3366,6 +3366,16 @@
 		</extension>
 		
 		<extension point="devblocks.event">
+			<id>event.data.query.datasource</id>
+			<name>Data Query Datasource</name>
+			<class>
+				<file>api/events/datasource/data_query_datasource.php</file>
+				<name>Event_DataQueryDatasource</name>
+			</class>
+			<params/>
+		</extension>
+		
+		<extension point="devblocks.event">
 			<id>event.mail.received.app</id>
 			<name>Before new incoming message is accepted</name>
 			<class>
