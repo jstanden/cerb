@@ -828,7 +828,7 @@ class Model_ContextScheduledBehavior {
 	}
 };
 
-class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstractView_QuickSearch {
+class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstractView_QuickSearch, IAbstractView_Subtotals {
 	const DEFAULT_ID = 'contextscheduledbehavior';
 
 	function __construct() {
@@ -897,13 +897,13 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_ContextScheduledBehavior::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
+					$pass = true;
+					break;
 					
 				// Virtuals
 				case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_ContextScheduledBehavior::VIRTUAL_HAS_FIELDSET:
+				case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
 					$pass = true;
 					break;
 					
@@ -930,22 +930,22 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			return [];
 		
 		switch($column) {
-//			case SearchFields_ContextScheduledBehavior::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
+				$label_map = function(array $ids) use ($column) {
+					$labels = SearchFields_ContextScheduledBehavior::getLabelsForKeyValues($column, $ids);
+					return $labels;
+				};
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map);
+				break;
 
-//			case SearchFields_ContextScheduledBehavior::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-//				break;
-				
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
-			case SearchFields_ContextScheduledBehavior::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_ContextScheduledBehavior::CONTEXT, DAO_ContextScheduledBehavior::CONTEXT_ID);
 				break;
-				
+
 			default:
 				// Custom fields
 				if(DevblocksPlatform::strStartsWith($column, 'cf_')) {
@@ -1031,10 +1031,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContextScheduledBehavior::VIRTUAL_BOT_SEARCH);
 				break;
 				
-			case 'fieldset':
-				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
-				
 			default:
 				if($field == 'on' || DevblocksPlatform::strStartsWith($field, 'on.'))
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'on', SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET);
@@ -1071,6 +1067,11 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
+				$label_map = SearchFields_ContextScheduledBehavior::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -1113,6 +1114,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
+				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
+				break;
+				
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
