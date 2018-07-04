@@ -1,1 +1,0 @@
-<a href="{devblocks_url}c=config&a=timetracking{/devblocks_url}">{'timetracking.activity.tab'|devblocks_translate|capitalize}</a>

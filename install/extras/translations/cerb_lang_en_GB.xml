@@ -4813,14 +4813,9 @@ For example: *receipt*</seg>
 				<seg>Track Time</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.cfg.activities">
+		<tu tuid="timetracking.common.activities">
 			<tuv xml:lang="en_GB">
 				<seg>Activities</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking.ui.cfg.add_activity">
-			<tuv xml:lang="en_GB">
-				<seg>Add Activity</seg>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking.ui.cfg.add_new_activity">

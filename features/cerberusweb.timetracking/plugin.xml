@@ -25,17 +25,22 @@
 	<patches>
 		<patch version="4.1.0" revision="4" file="patches/4.1.0.php" />
 		<patch version="5.1.0-dev" revision="9" file="patches/5.1.0.php" />
-		<patch version="9.0.0" revision="10" file="patches/9.0.0.php" />
+		<patch version="9.0.0" revision="11" file="patches/9.0.0.php" />
 	</patches>
 	
 	<!-- Exported Classes -->
 	
 	<class_loader>
+		<file path="api/dao/timetracking_activity.php">
+			<class name="Context_TimeTrackingActivity" />
+			<class name="DAO_TimeTrackingActivity" />
+			<class name="Model_TimeTrackingActivity" />
+			<class name="SearchFields_TimeTrackingActivity" />
+			<class name="View_TimeTrackingActivity" />
+		</file>
 		<file path="api/dao/timetracking_entry.php">
 			<class name="Context_TimeTrackingEntry" />
-			<class name="DAO_TimeTrackingActivity" />
 			<class name="DAO_TimeTrackingEntry" />
-			<class name="Model_TimeTrackingActivity" />
 			<class name="Model_TimeTrackingEntry" />
 			<class name="SearchFields_TimeTrackingEntry" />
 			<class name="View_TimeTracking" />
@@ -72,6 +77,50 @@
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.timetracking.activity</id>
+			<name>Time Tracking Activity</name>
+			<class>
+				<file>api/dao/timetracking_activity.php</file>
+				<name>Context_TimeTrackingActivity</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="time tracking activity" value="singular" />
+						<data key="time tracking activities" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="timetracking_activity" />
+				<param key="dao_class" value="DAO_TimeTrackingActivity" />
+				<param key="view_class" value="View_TimeTrackingActivity" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.timetracking</id>
 			<name>Time Tracking</name>
 			<class>
@@ -88,6 +137,8 @@
 						<data key="time tracking" value="singular" />
 						<data key="time slip" value="singular" />
 						<data key="time slips" value="plural" />
+						<data key="timetracking" value="singular" />
+						<data key="time_tracking" value="singular" />
 					</value>
 				</param>
 				<param key="alias" value="time_entry" />
@@ -209,36 +260,6 @@
 			</params>
 		</extension>
 		
-		<!-- Setup Page Sections -->
-		
-		<extension point="cerberusweb.ui.page.section">
-			<id>timetracking.setup.section.timetracking</id>
-			<name>Setup Page Simulator Section</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTracking_SetupPageSection</name>
-			</class>
-			<params>
-				<param key="page_id" value="core.page.configuration" />
-				<param key="uri" value="timetracking" />
-			</params>
-		</extension>
-		
-		<!-- Setup Page Menu Item -->
-		
-		<extension point="cerberusweb.ui.page.menu.item">
-			<id>timetracking.setup.menu.plugins.timetracking</id>
-			<name>Time Tracking</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTracking_SetupPluginsMenuItem</name>
-			</class>
-			<params>
-				<param key="page_id" value="core.page.configuration" />
-				<param key="menu_id" value="core.setup.menu.settings" />
-			</params>
-		</extension>
-	
 		<!-- Pages -->
 		
 		<extension point="cerberusweb.page">
@@ -266,6 +287,19 @@
 			<params>
 				<param key="page_id" value="core.page.profiles" />
 				<param key="uri" value="time_tracking" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>cerb.page.profiles.timetracking_activity</id>
+			<name>Time Tracking Activity Section</name>
+			<class>
+				<file>api/profiles/timetracking_activity.php</file>
+				<name>PageSection_ProfilesTimeTrackingActivity</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="timetracking_activity" />
 			</params>
 		</extension>
 		

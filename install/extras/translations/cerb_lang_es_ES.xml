@@ -4348,14 +4348,9 @@ Por ejemplo: *recibo*</seg>
 				<seg>Controlar Horas</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.cfg.activities">
+		<tu tuid="timetracking.common.activities">
 			<tuv xml:lang="es_ES">
 				<seg>Actividades</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking.ui.cfg.add_activity">
-			<tuv xml:lang="es_ES">
-				<seg>Añadir Actividad</seg>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking.ui.cfg.add_new_activity">

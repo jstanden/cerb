@@ -4309,14 +4309,9 @@
 				<seg>Track Time</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.cfg.activities">
+		<tu tuid="timetracking.common.activities">
 			<tuv xml:lang="nl_NL">
 				<seg>Activiteiten</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking.ui.cfg.add_activity">
-			<tuv xml:lang="nl_NL">
-				<seg>Activiteit toevoegen</seg>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking.ui.cfg.add_new_activity">

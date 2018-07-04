@@ -4342,14 +4342,9 @@ login &lt;ftp&#13;
 				<seg>Контроль времени</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.cfg.activities">
+		<tu tuid="timetracking.common.activities">
 			<tuv xml:lang="ru_RU">
 				<seg>Activities</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking.ui.cfg.add_activity">
-			<tuv xml:lang="ru_RU">
-				<seg>Добавить активность</seg>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking.ui.cfg.add_new_activity">

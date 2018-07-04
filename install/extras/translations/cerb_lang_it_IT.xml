@@ -4303,12 +4303,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.cfg.activities">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking.ui.cfg.add_activity">
+		<tu tuid="timetracking.common.activities">
 			<tuv xml:lang="it_IT">
 				<seg/>
 			</tuv>

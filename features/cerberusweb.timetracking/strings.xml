@@ -14,6 +14,15 @@
 			<tuv xml:lang="en_US"><seg>Track Time</seg></tuv>
 		</tu>
 		
+		<!-- Common -->
+		
+		<tu tuid='timetracking.common.activity'>
+			<tuv xml:lang="en_US"><seg>Time Tracking Activity</seg></tuv>
+		</tu>
+		<tu tuid='timetracking.common.activities'>
+			<tuv xml:lang="en_US"><seg>Time Tracking Activities</seg></tuv>
+		</tu>
+		
 		<!-- Activity points -->
 		
 		<tu tuid='activities.timetracking.status'>
@@ -97,12 +106,6 @@
 		
 		<!-- Config -->
 		
-		<tu tuid='timetracking.ui.cfg.activities'>
-			<tuv xml:lang="en_US"><seg>Activities</seg></tuv>
-		</tu>
-		<tu tuid='timetracking.ui.cfg.add_activity'>
-			<tuv xml:lang="en_US"><seg>Add Activity</seg></tuv>
-		</tu>
 		<tu tuid='timetracking.ui.cfg.add_new_activity'>
 			<tuv xml:lang="en_US"><seg>add new activity</seg></tuv>
 		</tu>

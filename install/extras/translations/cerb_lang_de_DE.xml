@@ -4339,14 +4339,9 @@ login</seg>
 				<seg>Zeit erfassen</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.cfg.activities">
+		<tu tuid="timetracking.common.activities">
 			<tuv xml:lang="de_DE">
 				<seg>Tätigkeiten</seg>
-			</tuv>
-		</tu>
-		<tu tuid="timetracking.ui.cfg.add_activity">
-			<tuv xml:lang="de_DE">
-				<seg>Tätigkeit hinzufügen</seg>
 			</tuv>
 		</tu>
 		<tu tuid="timetracking.ui.cfg.add_new_activity">
