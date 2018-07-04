@@ -1065,6 +1065,11 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CommunityTool::URI, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CommunityTool::EXTENSION_ID),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
