@@ -27,30 +27,36 @@ class PageSection_SetupBranding extends Extension_PageSection {
 	
 	function saveJsonAction() {
 		try {
+			$settings = DevblocksPlatform::services()->pluginSettings();
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception("You are not a superuser.");
 			
+			header('Content-Type: application/json; charset=utf-8');
+			
 			@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
 			@$favicon = DevblocksPlatform::importGPC($_POST['favicon'],'string','');
-			@$logo = DevblocksPlatform::importGPC($_POST['logo'],'string');
+			@$user_stylesheet = DevblocksPlatform::importGPC($_POST['user_stylesheet'],'string');
 	
 			if(empty($title))
 				$title = CerberusSettingsDefaults::HELPDESK_TITLE;
 			
-			// Test the logo
-			if(!empty($logo) && null == parse_url($logo, PHP_URL_SCHEME))
-				throw new Exception("The logo URL is not valid. Please include a full URL like http://example.com/logo.png");
-			
 			// Test the favicon
 			if(!empty($favicon) && null == parse_url($favicon, PHP_URL_SCHEME))
 				throw new Exception("The favicon URL is not valid. Please include a full URL like http://example.com/favicon.ico");
-				
-			$settings = DevblocksPlatform::services()->pluginSettings();
+			
+			// Is there a user-defined stylesheet?
+			if($user_stylesheet) {
+				$user_stylesheet_updated_at = time();
+			} else {
+				$user_stylesheet_updated_at = 0;
+			}
+			
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_TITLE, $title);
 			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_FAVICON_URL, $favicon);
-			$settings->set('cerberusweb.core',CerberusSettings::HELPDESK_LOGO_URL, $logo); // [TODO] Enforce some kind of max resolution?
+			$settings->set('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET, $user_stylesheet);
+			$settings->set('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET_UPDATED_AT, $user_stylesheet_updated_at);
 			
 			echo json_encode(array('status'=>true));
 			return;

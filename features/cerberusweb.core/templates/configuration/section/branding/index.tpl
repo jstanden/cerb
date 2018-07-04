@@ -10,35 +10,44 @@
 <fieldset>
 	<legend>Settings</legend>
 	
-	<b>Logo URL:</b> (leave blank for default)<br>
-	<input type="text" name="logo" value="{$settings->get('cerberusweb.core','helpdesk_logo_url')}" size="64"><br>
-	<br>
-	
 	<b>Favicon URL:</b> (leave blank for default)<br>
 	<input type="text" name="favicon" value="{$settings->get('cerberusweb.core','helpdesk_favicon_url')}" size="64"><br>
 	<br>
 
 	<b>Browser Title:</b><br>
 	<input type="text" name="title" value="{$settings->get('cerberusweb.core','helpdesk_title')}" size="64"><br>
-	<br>
-	
-	<div class="status"></div>
-	
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </fieldset>
+
+<fieldset>
+	<legend>Custom Stylesheet</legend>
+	
+	<textarea name="user_stylesheet" class="cerb-editor" data-editor-mode="ace/mode/css">{$settings->get('cerberusweb.core','ui_user_stylesheet')}</textarea>
+</fieldset>
+
+<div class="cerb-buttons">
+	<div class="status"></div>
+	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+</div>
 </form>
 
 <script type="text/javascript">
-	$('#frmSetupBranding BUTTON.submit')
+$(function() {
+	var $frm = $('#frmSetupBranding');
+	
+	$frm.find('BUTTON.submit')
 		.click(function(e) {
 			genericAjaxPost('frmSetupBranding','',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError('#frmSetupBranding div.status',$o.error);
+				if(false == json || false == json.status) {
+					Devblocks.showError('#frmSetupBranding div.status',json.error);
 				} else {
 					Devblocks.showSuccess('#frmSetupBranding div.status','Your changes have been saved.');
 				}
 			});
 		})
-	;
+		;
+	
+	$frm.find('textarea.cerb-editor')
+		.cerbCodeEditor()
+		;
+});
 </script>

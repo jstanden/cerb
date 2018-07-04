@@ -26,6 +26,11 @@ class Controller_Resource extends DevblocksControllerExtension {
 		$plugin_id = array_shift($stack); // cerberusweb.core
 		$path = $stack; // images/image.png
 		
+		if('common' == $plugin_id) {
+			$this->_handleCommonRequest($path);
+			exit;
+		}
+		
 		if(null == ($plugin = DevblocksPlatform::getPlugin($plugin_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404); // not found
 		
@@ -117,5 +122,37 @@ class Controller_Resource extends DevblocksControllerExtension {
 		}
 		
 		exit;
+	}
+	
+	private function _handleCommonRequest(array $path) {
+		$file = implode(DIRECTORY_SEPARATOR, $path); // combine path
+		
+		switch($file) {
+			case 'images/logo.png':
+				header('Content-type: image/png');
+				header('Cache-control: max-age=86400', true); // 1 day // , must-revalidate
+				header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1 day
+				
+				$plugin = DevblocksPlatform::getPlugin('cerberusweb.core');
+				$dir = $plugin->getStoragePath() . '/' . 'resources';
+				$resource = $dir . DIRECTORY_SEPARATOR . 'images/wgm/cerb_logo.png';
+				
+				$out = file_get_contents($resource, false);
+		
+				// Pass through
+				if($out) {
+					header('Content-Length: '. strlen($out));
+					echo $out;
+				}
+				break;
+				
+			case 'css/user.css':
+				header('Content-type: text/css');
+				header('Cache-control: max-age=86400', true); // 1 day // , must-revalidate
+				header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1 day
+				
+				echo DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::UI_USER_STYLESHEET, '');
+				break;
+		}
 	}
 };

@@ -1,6 +1,6 @@
 <br>
 
-<table align="center" border="0" cellpadding="2" cellspacing="0" width="100%">
+<table align="center" border="0" cellpadding="2" cellspacing="0" width="100%" id="footer">
 	<tr>
 		<td valign="top">
 			{$fair_pay=CerberusLicense::getInstance()}
@@ -9,7 +9,7 @@
 			{if (1 || $debug) && !empty($render_time)}
 			<span style="color:rgb(180,180,180);font-size:90%;">
 			page generated in: {math equation="x*1000" x=$render_time format="%d"} ms; {if !empty($render_peak_memory)} peak memory used: {$render_peak_memory|devblocks_prettybytes:2}{/if} 
-			 -  
+			-  
 			{if !$fair_pay->key}
 			No License (Evaluation Edition)
 			{else}

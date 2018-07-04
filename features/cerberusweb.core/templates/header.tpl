@@ -12,7 +12,7 @@
 	<![endif]-->
 	
 	<title>{$settings->get('cerberusweb.core','helpdesk_title')}</title>
-	{assign var=favicon_url value=$settings->get('cerberusweb.core','helpdesk_favicon_url','')}
+	{$favicon_url = $settings->get('cerberusweb.core','helpdesk_favicon_url','')}
 	{if empty($favicon_url)}
 	<link rel="icon" type="image/png" sizes="32x32" href="{devblocks_url}c=resource&p=cerberusweb.core&f=images/favicon-32x32.png{/devblocks_url}">
 	<link rel="icon" type="image/png" sizes="96x96" href="{devblocks_url}c=resource&p=cerberusweb.core&f=images/favicon-96x96.png{/devblocks_url}">
@@ -35,6 +35,12 @@
 	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerb.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/markitup/jquery.markitup.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=2017021301"></script>
+	
+	<!-- User-defined styles -->
+	{$user_stylesheet_timestamp = $settings->get('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET_UPDATED_AT,0)}
+	{if $user_stylesheet_timestamp}
+	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=common&f=css/user.css{/devblocks_url}?v={$user_stylesheet_timestamp}">
+	{/if}
 </head>
 
 <body>

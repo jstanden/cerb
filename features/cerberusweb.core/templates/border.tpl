@@ -9,12 +9,7 @@
 {if !empty($tour_enabled)}{include file="devblocks:cerberusweb.core::internal/tour/banner.tpl"}{/if}
 <div style="display:flex;flex-flow:row wrap;">
 	<div style="flex:2 2;">
-		{assign var=logo_url value=$settings->get('cerberusweb.core','helpdesk_logo_url','')}
-		{if empty($logo_url)}
-		<a href="{devblocks_url}{/devblocks_url}"><img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/cerb_logo.png{/devblocks_url}?v={$smarty.const.APP_BUILD}" border="0" id="logo"></a>
-		{else}
-		<a href="{devblocks_url}{/devblocks_url}"><img src="{$logo_url}" border="0" id="logo"></a>
-		{/if}
+		<a href="{devblocks_url}{/devblocks_url}"><div id="logo"></div></a>
 	</div>
 	<div style="flex:1 1 250px;text-align:right;padding-bottom:5px;margin-top:auto;">
 		{if empty($visit)}
