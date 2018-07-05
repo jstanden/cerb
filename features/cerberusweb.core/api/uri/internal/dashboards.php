@@ -869,6 +869,9 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 };
 
 class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		
 		@$behavior_id = $widget->params['behavior_id'];
 		@$behavior_vars = DevblocksPlatform::importVar(@$widget->params['behavior_vars'], 'array', []);
 		
@@ -910,7 +913,7 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 				if(!isset($widget_behavior->variables[$k]))
 					continue;
 				
-				$value = $widget_behavior->formatVariable($behavior->variables[$k], $v);
+				$value = $widget_behavior->formatVariable($widget_behavior->variables[$k], $v);
 				$dict->set($k, $value);
 			}
 		}
