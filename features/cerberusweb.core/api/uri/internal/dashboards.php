@@ -406,14 +406,17 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 		
 		$len = count($params['threshold_colors']);
 		
-		if(0 == strcasecmp($params['threshold_colors'][0], '#FFFFFF')) {
-			$params['threshold_colors'][0] = '#CF2C1D';
+		if($len) {
+			if(0 == strcasecmp($params['threshold_colors'][0], '#FFFFFF')) {
+				$params['threshold_colors'][0] = '#CF2C1D';
+			}
+			
+			if(0 == strcasecmp($params['threshold_colors'][$len-1], '#FFFFFF')) {
+				$params['threshold_colors'][$len-1] = '#66AD11';
+			}
+			
+			$params['threshold_colors'] = DevblocksPlatform::colorLerpArray($params['threshold_colors']);
 		}
-		
-		if(0 == strcasecmp($params['threshold_colors'][$len-1], '#FFFFFF')) {
-			$params['threshold_colors'][$len-1] = '#66AD11';
-		}
-		$params['threshold_colors'] = DevblocksPlatform::colorLerpArray($params['threshold_colors']);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
