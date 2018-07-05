@@ -709,13 +709,25 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		// Strip <script> blocks
 		$dirty_html = "<script>alert('hi!');</script><b>Bold</b>";
 		$expected = "<b>Bold</b>";
-		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, false);
+		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true);
 		$this->assertEquals($expected, $actual);
 		
 		// Inline style attributes
 		$dirty_html = "<html><head><style>span { font-weight:bold; }</style></head><body><span>Bold</span></body></html>";
 		$expected = '<span style="font-weight:bold;">Bold</span>';
-		$actual = DevblocksPlatform::purifyHTML($dirty_html, true, false);
+		$actual = DevblocksPlatform::purifyHTML($dirty_html, true, true);
+		$this->assertEquals($expected, $actual);
+		
+		// Test trusted ($is_untrusted=false)
+		$dirty_html = '<a href="https://cerb.ai" target="_blank">Website</a>';
+		$expected = '<a href="https://cerb.ai" target="_blank">Website</a>';
+		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, false);
+		$this->assertEquals($expected, $actual);
+		
+		// Test untrusted ($is_untrusted=true)
+		$dirty_html = '<a href="https://cerb.ai" target="_blank">Website</a>';
+		$expected = '<a href="https://cerb.ai">Website</a>';
+		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true);
 		$this->assertEquals($expected, $actual);
 	}
 	
