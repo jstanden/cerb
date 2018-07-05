@@ -6068,6 +6068,17 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.behavior.tree</id>
+			<name>Behavior Tree</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_BehaviorTree</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.gauge</id>
 			<name>Gauge</name>
 			<class>
