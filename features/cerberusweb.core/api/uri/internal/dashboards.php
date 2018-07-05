@@ -964,13 +964,40 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	function render(Model_WorkspaceWidget $widget) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'], 'integer', null);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'], 'integer', null);
 		
-		$tpl->assign('widget', $widget);
+		@$calendar_id_template = $widget->params['calendar_id'];
 		
-		@$calendar_id = $widget->params['calendar_id'];
+		$labels = $values = $merge_token_labels = $merge_token_values = [];
+		
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $merge_token_labels, $merge_token_values, null, true, true);
+		
+		CerberusContexts::merge(
+			'current_worker_',
+			'Current Worker:',
+			$merge_token_labels,
+			$merge_token_values,
+			$labels,
+			$values
+		);
+		
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $widget, $merge_token_labels, $merge_token_values, null, true, true);
+		
+		CerberusContexts::merge(
+			'widget_',
+			'Widget:',
+			$merge_token_labels,
+			$merge_token_values,
+			$labels,
+			$values
+		);
+		
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		
+		$calendar_id = $tpl_builder->build($calendar_id_template, $dict);
 		
 		if(empty($calendar_id) || null == ($calendar = DAO_Calendar::get($calendar_id))) { /* @var Model_Calendar $calendar */
 			echo "A calendar isn't linked to this widget. Configure it to select one.";
@@ -983,6 +1010,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		
 		// Template scope
 		
+		$tpl->assign('widget', $widget);
 		$tpl->assign('calendar', $calendar);
 		$tpl->assign('calendar_events', $calendar_events);
 		$tpl->assign('calendar_properties', $calendar_properties);
@@ -1018,6 +1046,41 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+	}
+	
+	function showCalendarTabAction(Model_WorkspaceWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+		
+		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
+		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::services()->template();
+
+		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
+			return;
+		
+		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
+		
+		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
+		
+		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
+
+		// Occlusion
+		
+		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
+		$availability->occludeCalendarEvents($calendar_events);
+		
+		// Template scope
+		$tpl->assign('widget', $model);
+		$tpl->assign('calendar', $calendar);
+		$tpl->assign('calendar_events', $calendar_events);
+		$tpl->assign('calendar_properties', $calendar_properties);
+		
+		// Template
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/calendar/calendar.tpl');
 	}
 	
 	// Export

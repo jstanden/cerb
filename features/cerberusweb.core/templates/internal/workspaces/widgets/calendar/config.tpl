@@ -1,26 +1,24 @@
-<div id="widget{$widget->id}ConfigTabDatasource" style="margin-top:10px;">
-	<fieldset id="widget{$widget->id}Datasource" class="peek">
+<div id="widget{$widget->id}Config" style="margin-top:10px;">
+	<fieldset class="peek">
 		<legend>Display this calendar:</legend>
 		
-		{$calendar_id = $widget->params.calendar_id}
-		{$calendar = null}
-		<div style="margin-left:10px;margin-bottom:0.5em;">
-			<button type="button" class="chooser-abstract" data-field-name="params[calendar_id]" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-				{if $calendar_id}
-					{$calendar = DAO_Calendar::get($calendar_id)}
-					{if $calendar}
-						<li><input type="hidden" name="params[calendar_id]" value="{$calendar->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
-					{/if}
-				{/if}
-			</ul>
+		<b><a href="javascript:;" class="cerb-chooser" data-context="{Context_Calendar::ID}" data-single="true">ID</a>:</b>
+		
+		<div style="margin-left:10px;">
+			<input type="text" name="params[calendar_id]" value="{$widget->params.calendar_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
 		</div>
 	</fieldset>
 </div>
 
 <script type="text/javascript">
 $(function() {
-	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
+	var $config = $('#widget{$widget->id}Config');
+	var $input = $config.find('input[name="params[calendar_id]"]');
+	
+	$config.find('.cerb-chooser').cerbChooserTrigger()
+		.on('cerb-chooser-selected', function(e) {
+			{literal}$input.val(e.values[0] + '{# ' + e.labels[0] + ' #}');{/literal}
+		})
+		;
 });
 </script>

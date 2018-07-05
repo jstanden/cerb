@@ -1,19 +1,20 @@
 {$guid = uniqid()}
 
 <form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
-	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-	
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
+		
+		<span style="margin-left:10px;">
+			<ul class="bubbles">
+				<li><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a></li>
+			</ul> 
+		</span>
 	</div>
 
 	<div style="float:right;">
-		<span style="margin-right:10px;">
-			<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
-		</span>
-		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');">&lt;</button>
-		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=&year=');">Today</button>
-		<button type="button" onclick="genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');">&gt;</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-workspace-widget--content'), 'c=pages&a=handleWorkspaceWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');"><span class="glyphicons glyphicons-chevron-left"></span></button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-workspace-widget--content'), 'c=pages&a=handleWorkspaceWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-workspace-widget--content'), 'c=pages&a=handleWorkspaceWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');"><span class="glyphicons glyphicons-chevron-right"></span></button>
 	</div>
 	
 	<br clear="all">
@@ -40,27 +41,48 @@
 {/if}
 </tr>
 {foreach from=$calendar_properties.calendar_weeks item=week name=weeks}
-<tr class="week" style="height:50px;">
+<tr class="week">
 	{foreach from=$week item=day name=days}
-		<td class="{if $calendar_properties.today == $day.timestamp}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}" style="cursor:pointer;">
+		<td class="{if $calendar_properties.today == $day.timestamp}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}" style="position:relative;">
 			<div class="day_header">
 				{if $calendar->params.manual_disabled}
-				{$day.dom}
+					{if $calendar_properties.today == $day.timestamp}
+					<a href="javascript:;">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+					{else}
+					<a href="javascript:;">{$day.dom}</a>
+					{/if}
 				{else}
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context-id="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">{$day.dom}</a>
+					{if $calendar_properties.today == $day.timestamp}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+					{else}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT}" data-context="0" data-edit="calendar.id:{$calendar->id} start:{$day.timestamp}">{$day.dom}</a>
+					{/if}
 				{/if}
 			</div>
-			<div style="text-align:center;">
+			<div class="day_contents">
 				{if $calendar_events.{$day.timestamp}}
-					<div class="badge" style="background:none;background-color:#999;border:0;margin:5px;">&nbsp;{$calendar_events.{$day.timestamp}|count}&nbsp;</div>
-					<div class="bubble-popup" style="position:absolute;display:none;border-radius:5px;text-align:left;background-color:rgb(240,240,240);padding:5px;border:3px solid rgb(150,150,150);white-space:nowrap;">
-					<b>{$day.timestamp|devblocks_date:'M d Y'}</b>
 					{foreach from=$calendar_events.{$day.timestamp} item=event}
-						<div class="bubble-popup-event" link="{$event.link}" style="border-radius:5px;padding:3px;margin-bottom:2px;{if $event.color}background-color:{$event.color}{/if}">
-							<a href="javascript:;" class="cerb-peek-trigger" data-context="{$event.context}" data-context-id="{$event.context_id}">{$event.label}</a>
+						<div class="event" style="background-color:{$event.color|default:'#C8C8C8'};" link="{$event.link}">
+							<a href="javascript:;" class="cerb-peek-trigger" data-context="{$event.context}" data-context-id="{$event.context_id}">
+							
+							{$worker_prefs = DAO_WorkerPref::getByWorker($active_worker->id)}
+							{$time_format = $worker_prefs.time_format|default:'D, d M Y h:i a'}
+							{if $time_format = 'D, d M Y h:i a'}{$hour_format = 'g'}{else}{$hour_format = 'H'}{/if}
+							
+							{if !$calendar->params.hide_start_time}
+							<b>
+							{if $event.ts|devblocks_date:'i' == '00'}
+								{$event.ts|devblocks_date:$hour_format}{if $hour_format=='g'}{$event.ts|devblocks_date:'a'|substr:0:1}{/if}
+							{else}
+								{$event.ts|devblocks_date:"{$hour_format}:i"}{if $hour_format=='g'}{$event.ts|devblocks_date:'a'|substr:0:1}{/if}
+							{/if}
+							</b>
+							{/if}
+							
+							{$event.label}
+							</a>
 						</div>
 					{/foreach}
-					</div>
 				{/if}
 			</div>
 		</td>
@@ -71,51 +93,10 @@
 
 <script type="text/javascript">
 $(function() {
-	var $widget = $('#widget{$widget->id}');
-	var $calendar = $widget.find('TABLE.calendar');
-	var $calendar_cell = $calendar.find('TR.week:first TD:first');
-	
-	// Size all calendar cells to be square
-	$calendar.find('TR.week').css('min-height', $calendar_cell.width() + 'px');
-	
-	$calendar.find('TR.week TD').hoverIntent({
-		sensitivity:10,
-		interval:100,
-		timeout:0,
-		over:function() {
-			var $this = $(this);
-			var $window = $(window);
-			
-			var $tooltip = $this.find('DIV.bubble-popup');
-			
-			if($tooltip.length == 0)
-				return;
-			
-			$tooltip.show();
-	
-			if($tooltip.offset().left + 16 + $tooltip.width() > $window.width()) {
-				var left_offset = $tooltip.offset().left + 16 + $tooltip.width() - $window.width() + 10;
-				$tooltip.css('margin-left', '-' + left_offset + 'px');
-			}
-			
-			$tooltip.show();
-		},
-		out:function() {
-			var $this = $(this);
-			$this.removeClass('hover');
-			var $tooltip = $this.find('DIV.bubble-popup');
-			
-			if($tooltip.length == 0)
-				return;
-			
-			$tooltip.css('margin-left', 0);
-			$tooltip.hide();
-		}
-	});
-	
 	var $frm = $('#frm{$guid}');
+	var $tab = $frm.closest('div.cerb-workspace-widget--content');
 	
-	$widget.find('.cerb-peek-trigger')
+	$tab.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
 		})
@@ -123,7 +104,7 @@ $(function() {
 			var month = (e.month) ? e.month : '{$calendar_properties.month}';
 			var year = (e.year) ? e.year : '{$calendar_properties.year}';
 			
-			genericAjaxGet('widget{$widget->id}','c=internal&a=handleSectionAction&section=dashboards&action=renderWidget&widget_id={$widget->id}&nocache=1&month=' + month + '&year=' + year);
+			genericAjaxGet($('#frm{$guid}').closest('div.cerb-workspace-widget--content'), 'c=pages&a=handleWorkspaceWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
 			event.stopPropagation();
 		})
 		.on('cerb-peek-closed', function(e) {
