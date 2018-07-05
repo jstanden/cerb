@@ -6167,6 +6167,17 @@
 		</extension>
 
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.record.fields</id>
+			<name>Record Fields</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_RecordFields</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+	
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.scatterplot</id>
 			<name>Scatterplot</name>
 			<class>

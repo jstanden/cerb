@@ -333,6 +333,47 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		DAO_WorkspaceWidget::reorder($zones);
 	}
 	
+	function getFieldsTabsByContextAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		if(!($context_ext instanceof IDevblocksContextProfile))
+			return;
+		
+		$tpl->assign('context_ext', $context_ext);
+		
+		// =================================================================
+		// Properties
+		
+		$properties = $context_ext->profileGetFields();
+		
+		$tpl->assign('custom_field_values', []);
+		
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, null);
+		
+		if(!empty($properties_cfields))
+			$properties = array_merge($properties, $properties_cfields);
+		
+		$tpl->assign('properties', $properties);
+		
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, null, [], true);
+		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
+		
+		// =================================================================
+		// Search buttons
+		
+		$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
+		$tpl->assign('search_contexts', $search_contexts);
+		
+		// =================================================================
+		// Template
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/record_fields/fields_config_tabs.tpl');
+	}
+	
 	function testWidgetTemplateAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);

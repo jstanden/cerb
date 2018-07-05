@@ -1173,6 +1173,45 @@ SPAN.tag {
 
 // Property List
 
+/*
+DIV.cerb-fields-container {
+	display: flex;
+	flex-flow: row wrap;
+
+	.cerb-fields-container-item {
+		flex: 1 1 165px;
+		margin: 2px 0px;
+		text-overflow: ellipsis;
+	}
+}
+*/
+
+DIV.cerb-fields-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(165px,1fr));
+	grid-gap: 0 2.5px;
+	justify-content: space-between;
+	
+	.cerb-fields-container-item {
+		max-width: 200px;
+		text-overflow: ellipsis;
+	}
+}
+
+DIV.cerb-properties {
+	margin:0px;
+
+	> DIV {
+		display:inline-block;
+		margin:1px 10px 1px 0px;
+
+		> LABEL {
+			font-weight:bold;
+			margin-right:1px;
+		}
+	}
+}
+
 DIV.cerb-properties {
 	margin:0px;
 

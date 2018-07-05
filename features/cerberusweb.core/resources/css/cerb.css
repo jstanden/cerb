@@ -1219,6 +1219,41 @@ SPAN.tag.tag-orange {
   color: white;
 }
 
+/*
+DIV.cerb-fields-container {
+	display: flex;
+	flex-flow: row wrap;
+
+	.cerb-fields-container-item {
+		flex: 1 1 165px;
+		margin: 2px 0px;
+		text-overflow: ellipsis;
+	}
+}
+*/
+DIV.cerb-fields-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+  grid-gap: 0 2.5px;
+  justify-content: space-between;
+}
+DIV.cerb-fields-container .cerb-fields-container-item {
+  max-width: 200px;
+  text-overflow: ellipsis;
+}
+
+DIV.cerb-properties {
+  margin: 0px;
+}
+DIV.cerb-properties > DIV {
+  display: inline-block;
+  margin: 1px 10px 1px 0px;
+}
+DIV.cerb-properties > DIV > LABEL {
+  font-weight: bold;
+  margin-right: 1px;
+}
+
 DIV.cerb-properties {
   margin: 0px;
 }
