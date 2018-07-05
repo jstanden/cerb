@@ -1056,8 +1056,8 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/worklist/config.tpl');
 	}
 	
-	function saveConfig(Model_ProfileWidget $model) {
-		
+	function saveConfig(array $fields, $id=null, &$error=null) {
+		return true;
 	}
 	
 	private function _getContextColumns($context, $columns_selected=[]) {

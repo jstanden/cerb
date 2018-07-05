@@ -69,6 +69,12 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						DAO_ProfileWidget::WIDTH_UNITS => $width_units,
 					);
 					
+					if(false == ($extension = Extension_ProfileWidget::get($extension_id)))
+						throw new Exception_DevblocksAjaxValidationError("Invalid profile widget type.");
+					
+					if(!$extension->saveConfig($fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					if(!DAO_ProfileWidget::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
@@ -89,6 +95,15 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						DAO_ProfileWidget::UPDATED_AT => time(),
 						DAO_ProfileWidget::WIDTH_UNITS => $width_units,
 					);
+					
+					if(false == ($widget = DAO_ProfileWidget::get($id)))
+						throw new Exception_DevblocksAjaxValidationError("This profile widget no longer exists.");
+					
+					if(false == ($extension = $widget->getExtension()))
+						throw new Exception_DevblocksAjaxValidationError("Invalid profile widget type.");
+					
+					if(!$extension->saveConfig($fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					if(!DAO_ProfileWidget::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
