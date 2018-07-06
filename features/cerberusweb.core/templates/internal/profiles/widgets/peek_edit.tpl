@@ -49,7 +49,10 @@
 					<select name="extension_id">
 						<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
 						{foreach from=$widget_extensions item=widget_extension}
+						{if DevblocksPlatform::strStartsWith($widget_extension->name, '(Deprecated)')}
+						{else}
 						<option value="{$widget_extension->id}">{$widget_extension->name}</option>
+						{/if}
 						{/foreach}
 					</select>
 				{/if}
