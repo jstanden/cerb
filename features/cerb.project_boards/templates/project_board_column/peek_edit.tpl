@@ -10,34 +10,34 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellspacing="0" cellpadding="2" border="0" width="98%">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
+		</td>
+	</tr>
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'projects.common.board'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<button type="button" class="chooser-abstract" data-field-name="board_id" data-context="{Context_ProjectBoard::ID}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-				
-				<ul class="bubbles chooser-container">
-					{if $model}
-						{$board = $model->getProjectBoard()}
-						{if $board}
-							<li><input type="hidden" name="board_id" value="{$board->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a></li>
-						{/if}
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'projects.common.board'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<button type="button" class="chooser-abstract" data-field-name="board_id" data-context="{Context_ProjectBoard::ID}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			
+			<ul class="bubbles chooser-container">
+				{if $model}
+					{$board = $model->getProjectBoard()}
+					{if $board}
+						<li><input type="hidden" name="board_id" value="{$board->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a></li>
 					{/if}
-				</ul>
-			</td>
-		</tr>
-	</table>
-</fieldset>
+				{/if}
+			</ul>
+		</td>
+	</tr>
+	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 
 <div class="behaviors">
 {foreach from=$behaviors item=behavior}
@@ -55,13 +55,6 @@
 <div style="margin:5px 0px 10px 0px;">
 	<button type="button" class="chooser-behavior" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="" data-query-required="disabled:n private:n event:event.macro.*"><span class="glyphicons glyphicons-circle-plus"></span> {'common.behaviors'|devblocks_translate|capitalize}</button>
 </div>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 

@@ -10,66 +10,56 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.name'|devblocks_translate}</legend>
+<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize} ({'common.singular'|devblocks_translate|capitalize}):</b></td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus" placeholder="US Dollar">
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize} ({'common.plural'|devblocks_translate|capitalize}):</b></td>
+		<td width="99%">
+			<input type="text" name="name_plural" value="{$model->name_plural}" style="width:98%;" placeholder="US Dollars">
+		</td>
+	</tr>
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.singular'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus" placeholder="US Dollar">
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.plural'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="name_plural" value="{$model->name_plural}" style="width:98%;" placeholder="US Dollars">
-			</td>
-		</tr>
-	</table>
-</fieldset>
-
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
-
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'dao.currency.symbol'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="symbol" size="4" maxlength="2" value="{$model->symbol}" style="width:4em;" placeholder="$">
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'dao.currency.code'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="code" size="4" maxlength="3" value="{$model->code}" style="width:4em;" placeholder="USD">
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'dao.currency.decimal_at'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="decimal_at" size="3" maxlength="2" value="{$model->decimal_at}" style="width:4em;" placeholder="2">
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.default'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<label>
-					<input type="radio" name="is_default" value="1" {if $model->is_default}checked="checked"{/if}> 
-					{'common.yes'|devblocks_translate|capitalize}
-				</label>
-				<label>
-					<input type="radio" name="is_default" value="0" {if !$model->is_default}checked="checked"{/if}> 
-					{'common.no'|devblocks_translate|capitalize}
-				</label>
-			</td>
-		</tr>
-		
-		{if !empty($custom_fields)}
-		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}
-		{/if}
-	</table>
-</fieldset>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'dao.currency.symbol'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="symbol" size="4" maxlength="2" value="{$model->symbol}" style="width:4em;" placeholder="$">
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'dao.currency.code'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="code" size="4" maxlength="3" value="{$model->code}" style="width:4em;" placeholder="USD">
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'dao.currency.decimal_at'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="decimal_at" size="3" maxlength="2" value="{$model->decimal_at}" style="width:4em;" placeholder="2">
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.default'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<label>
+				<input type="radio" name="is_default" value="1" {if $model->is_default}checked="checked"{/if}> 
+				{'common.yes'|devblocks_translate|capitalize}
+			</label>
+			<label>
+				<input type="radio" name="is_default" value="0" {if !$model->is_default}checked="checked"{/if}> 
+				{'common.no'|devblocks_translate|capitalize}
+			</label>
+		</td>
+	</tr>
+	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}
+	{/if}
+</table>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 

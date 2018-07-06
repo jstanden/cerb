@@ -9,89 +9,81 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;"
+	<tr>
+		<td width="1%" nowrap="nowrap">{'common.title'|devblocks_translate|capitalize}: </td>
+		<td width="99%">
+			<input type="text" name="title" style="width:98%;" value="{$task->title}" autofocus="autofocus">
+		</td>
+	</tr>
 	
-	<table cellpadding="0" cellspacing="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap">{'common.title'|devblocks_translate|capitalize}: </td>
-			<td width="99%">
-				<input type="text" name="title" style="width:98%;" value="{$task->title}" autofocus="autofocus">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
-			<td width="99%">
-				<label><input type="radio" name="status_id" value="0" onclick="toggleDiv('taskClosed','none');" {if $task->status_id == 0}checked{/if}> {'status.open'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="status_id" value="2" onclick="toggleDiv('taskClosed','block');" {if $task->status_id == 2}checked{/if}> {'status.waiting.abbr'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="status_id" value="1" onclick="toggleDiv('taskClosed','none');" {if $task->status_id == 1}checked{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
-				
-				<div id="taskClosed" style="display:{if in_array($task->status_id,[2])}block{else}none{/if};margin:5px 0px 5px 15px;">
-					<b>When would you like to resume this task?</b><br>
-					<i>{'display.reply.next.resume_eg'|devblocks_translate}</i><br>
-					<input type="text" name="reopen_at" size="32" class="input_date" value="{if !empty($task->reopen_at)}{$task->reopen_at|devblocks_date}{/if}" style="width:75%;"><br>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
+		<td width="99%">
+			<label><input type="radio" name="status_id" value="0" onclick="toggleDiv('taskClosed','none');" {if $task->status_id == 0}checked{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status_id" value="2" onclick="toggleDiv('taskClosed','block');" {if $task->status_id == 2}checked{/if}> {'status.waiting.abbr'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status_id" value="1" onclick="toggleDiv('taskClosed','none');" {if $task->status_id == 1}checked{/if}> {'status.closed'|devblocks_translate|capitalize}</label>
+			
+			<div id="taskClosed" style="display:{if in_array($task->status_id,[2])}block{else}none{/if};margin:5px 0px 5px 15px;">
+				<b>When would you like to resume this task?</b><br>
+				<i>{'display.reply.next.resume_eg'|devblocks_translate}</i><br>
+				<input type="text" name="reopen_at" size="32" class="input_date" value="{if !empty($task->reopen_at)}{$task->reopen_at|devblocks_date}{/if}" style="width:75%;"><br>
+			</div>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
+		<td width="99%">
+			<input type="text" name="due_date" size="45" class="input_date" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}">
+		</td>
+	</tr>
+	
+	{* Importance *}
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="middle">{'common.importance'|devblocks_translate|capitalize}: </td>
+		<td width="100%">
+			<div class="cerb-delta-slider-container" style="margin-left:10px;">
+			<input type="hidden" name="importance" value="{$task->importance|default:0}">
+				<div class="cerb-delta-slider {if $task->importance < 50}cerb-slider-green{elseif $task->importance > 50}cerb-slider-red{else}cerb-slider-gray{/if}">
+					<span class="cerb-delta-slider-midpoint"></span>
 				</div>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">{'task.due_date'|devblocks_translate|capitalize}: </td>
-			<td width="99%">
-				<input type="text" name="due_date" size="45" class="input_date" value="{if !empty($task->due_date)}{$task->due_date|devblocks_date}{/if}">
-			</td>
-		</tr>
-		
-		{* Importance *}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="middle">{'common.importance'|devblocks_translate|capitalize}: </td>
-			<td width="100%">
-				<div class="cerb-delta-slider-container" style="margin-left:10px;">
-				<input type="hidden" name="importance" value="{$task->importance|default:0}">
-					<div class="cerb-delta-slider {if $task->importance < 50}cerb-slider-green{elseif $task->importance > 50}cerb-slider-red{else}cerb-slider-gray{/if}">
-						<span class="cerb-delta-slider-midpoint"></span>
-					</div>
-				</div>
-			</td>
-		</tr>
-		
-		{* Owner *}
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="middle">{'common.owner'|devblocks_translate|capitalize}: </td>
-			<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-				
-				<ul class="bubbles chooser-container">
-					{if $task}
-						{$owner = $task->getOwner()}
-						{if $owner}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
-						{/if}
+			</div>
+		</td>
+	</tr>
+	
+	{* Owner *}
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="middle">{'common.owner'|devblocks_translate|capitalize}: </td>
+		<td width="99%" valign="top">
+			<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			
+			<ul class="bubbles chooser-container">
+				{if $task}
+					{$owner = $task->getOwner()}
+					{if $owner}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
 					{/if}
-				</ul>
-			</td>
-		</tr>
-		
-		{* Watchers *}
-		{if empty($task->id)}
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="middle">{'common.watchers'|devblocks_translate|capitalize}: </td>
-			<td width="99%" valign="top">
-				<button type="button" class="chooser-abstract" data-field-name="add_watcher_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container" style="display:block;"></ul>
-			</td>
-		</tr>
-		{/if}
-		
-	</table>
-</fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
+				{/if}
+			</ul>
+		</td>
+	</tr>
+	
+	{* Watchers *}
+	{if empty($task->id)}
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="middle">{'common.watchers'|devblocks_translate|capitalize}: </td>
+		<td width="99%" valign="top">
+			<button type="button" class="chooser-abstract" data-field-name="add_watcher_ids[]" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
+			<ul class="bubbles chooser-container" style="display:block;"></ul>
+		</td>
+	</tr>
+	{/if}
+	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$task->id}
 

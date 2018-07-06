@@ -15,156 +15,155 @@
 	{$addy = $model->getEmail()}
 {/if}
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellspacing="0" cellpadding="2" border="0" width="98%">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name.first'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="first_name" value="{$model->first_name}" style="width:98%;" autocomplete="off" spellcheck="false" autofocus="autofocus">
+		</td>
+	</tr>
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name.first'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="first_name" value="{$model->first_name}" style="width:98%;" autocomplete="off" spellcheck="false" autofocus="autofocus">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name.last'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="last_name" value="{$model->last_name}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top" title="(one per line)">
-				<b>{'common.aliases'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%" valign="top">
-				<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.title'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="title" value="{$model->title}" style="width:98%;" autocomplete="off" spellcheck="true">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.organization'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%" valign="top">
-					<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
-					
-					<ul class="bubbles chooser-container">
-						{if $org}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"><input type="hidden" name="org_id" value="{$org->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a></li>
-						{/if}
-					</ul>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.email'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%" valign="top">
-					<button type="button" class="chooser-abstract" data-field-name="primary_email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
-					
-					<ul class="bubbles chooser-container">
-						{if $addy}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="primary_email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
-						{/if}
-					</ul>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="location" value="{$model->location}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.language'|devblocks_translate}:</b></td>
-			<td width="100%">
-				<select name="language">
-					<option value=""></option>
-					{foreach from=$languages key=lang_code item=lang_name}
-					<option value="{$lang_code}" {if $model->language==$lang_code}selected="selected"{/if}>{$lang_name}</option>
-					{/foreach}
-				</select>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.timezone'|devblocks_translate}:</b></td>
-			<td width="100%">
-				<select name="timezone">
-					<option value=""></option>
-					{foreach from=$timezones item=timezone}
-					<option value="{$timezone}" {if $model->timezone==$timezone}selected="selected"{/if}>{$timezone}</option>
-					{/foreach}
-				</select>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.phone'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="phone" value="{$model->phone}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.mobile'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="mobile" value="{$model->mobile}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.gender'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<label><input type="radio" name="gender" value="M" {if $model->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
-				&nbsp; 
-				&nbsp; 
-				<label><input type="radio" name="gender" value="F" {if $model->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
-				&nbsp; 
-				&nbsp; 
-				<label><input type="radio" name="gender" value="" {if empty($model->gender)}checked="checked"{/if}> {'common.unknown'|devblocks_translate|capitalize}</label>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.dob'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="dob" value="{if $model->dob}{$model->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
-			</td>
-		</tr>
-		
-		{if empty($model->id)}
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top">{$translate->_('common.watchers')|capitalize}: </td>
-			<td width="100%">
-				<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="chooser-container bubbles" style="display:block;"></ul>
-			</td>
-		</tr>
-		{/if}
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.photo'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%" valign="top">
-				<div style="float:left;margin-right:5px;">
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
-				</div>
-				<div style="float:left;">
-					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$model->id}" data-create-defaults="{if $addy}email:{$addy->id}{/if} {if $org}org:{$org->id}{/if}">{'common.edit'|devblocks_translate|capitalize}</button>
-					<input type="hidden" name="avatar_image">
-				</div>
-			</td>
-		</tr>
-		
-	</table>
-</fieldset>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name.last'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="last_name" value="{$model->last_name}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top" title="(one per line)">
+			<b>{'common.aliases'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%" valign="top">
+			<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.title'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="title" value="{$model->title}" style="width:98%;" autocomplete="off" spellcheck="true">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.organization'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%" valign="top">
+				<button type="button" class="chooser-abstract" data-field-name="org_id" data-context="{CerberusContexts::CONTEXT_ORG}" data-single="true" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{if $org}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=org&context_id={$org->id}{/devblocks_url}?v={$org->updated}"><input type="hidden" name="org_id" value="{$org->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a></li>
+					{/if}
+				</ul>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="middle"><b>{'common.email'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%" valign="top">
+				<button type="button" class="chooser-abstract" data-field-name="primary_email_id" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-single="true" data-query="org.id:{$org->id}" data-autocomplete="" data-autocomplete-if-empty="true" data-create="if-null"><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{if $addy}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=address&context_id={$addy->id}{/devblocks_url}?v={$addy->updated}"><input type="hidden" name="primary_email_id" value="{$addy->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a></li>
+					{/if}
+				</ul>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.location'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="location" value="{$model->location}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.language'|devblocks_translate}:</b></td>
+		<td width="100%">
+			<select name="language">
+				<option value=""></option>
+				{foreach from=$languages key=lang_code item=lang_name}
+				<option value="{$lang_code}" {if $model->language==$lang_code}selected="selected"{/if}>{$lang_name}</option>
+				{/foreach}
+			</select>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="middle"><b>{'common.timezone'|devblocks_translate}:</b></td>
+		<td width="100%">
+			<select name="timezone">
+				<option value=""></option>
+				{foreach from=$timezones item=timezone}
+				<option value="{$timezone}" {if $model->timezone==$timezone}selected="selected"{/if}>{$timezone}</option>
+				{/foreach}
+			</select>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.phone'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="phone" value="{$model->phone}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.mobile'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="mobile" value="{$model->mobile}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.gender'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<label><input type="radio" name="gender" value="M" {if $model->gender == 'M'}checked="checked"{/if}> <span class="glyphicons glyphicons-male" style="color:rgb(2,139,212);"></span> {'common.gender.male'|devblocks_translate|capitalize}</label>
+			&nbsp; 
+			&nbsp; 
+			<label><input type="radio" name="gender" value="F" {if $model->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
+			&nbsp; 
+			&nbsp; 
+			<label><input type="radio" name="gender" value="" {if empty($model->gender)}checked="checked"{/if}> {'common.unknown'|devblocks_translate|capitalize}</label>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.dob'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="dob" value="{if $model->dob}{$model->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
+		</td>
+	</tr>
+	
+	{if empty($model->id)}
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top">{$translate->_('common.watchers')|capitalize}: </td>
+		<td width="100%">
+			<button type="button" class="chooser_watcher"><span class="glyphicons glyphicons-search"></span></button>
+			<ul class="chooser-container bubbles" style="display:block;"></ul>
+		</td>
+	</tr>
+	{/if}
+	
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.photo'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%" valign="top">
+			<div style="float:left;margin-right:5px;">
+				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=contact&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
+			</div>
+			<div style="float:left;">
+				<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$model->id}" data-create-defaults="{if $addy}email:{$addy->id}{/if} {if $org}org:{$org->id}{/if}">{'common.edit'|devblocks_translate|capitalize}</button>
+				<input type="hidden" name="avatar_image">
+			</div>
+		</td>
+	</tr>
+	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 	
 <fieldset class="peek">
 	<legend>Authentication</legend>
@@ -185,13 +184,6 @@
 		</tr>
 	</table>
 </fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 

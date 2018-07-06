@@ -10,39 +10,39 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
-	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.reminder'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.when'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="remind_at" value="{$model->remind_at|devblocks_date}" style="width:98%;">
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.for'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="isDisabled:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-				
-				<ul class="bubbles chooser-container">
-					{if $model}
-						{$worker = $model->getWorker()}
-						{if $worker}
-							<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}"><input type="hidden" name="worker_id" value="{$worker->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
-						{/if}
+<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.reminder'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.when'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="remind_at" value="{$model->remind_at|devblocks_date}" style="width:98%;">
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.for'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="isDisabled:n" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			
+			<ul class="bubbles chooser-container">
+				{if $model}
+					{$worker = $model->getWorker()}
+					{if $worker}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$worker->id}{/devblocks_url}?v={$worker->updated}"><input type="hidden" name="worker_id" value="{$worker->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker->id}">{$worker->getName()}</a></li>
 					{/if}
-				</ul>
-			</td>
-		</tr>
-	</table>
-</fieldset>
+				{/if}
+			</ul>
+		</td>
+	</tr>
+	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 
 <div class="behaviors">
 {if $model->params.behaviors}
@@ -63,13 +63,6 @@
 <div style="margin:5px 0px 10px 0px;">
 	<button type="button" class="chooser-behavior" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="" data-query-required="disabled:n private:n event:event.macro.reminder"><span class="glyphicons glyphicons-circle-plus"></span> {'common.behaviors'|devblocks_translate|capitalize}</button>
 </div>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 

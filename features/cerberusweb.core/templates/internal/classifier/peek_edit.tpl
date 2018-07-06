@@ -10,41 +10,34 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
+		</td>
+	</tr>
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" valign="top" nowrap="nowrap"><b>{'common.owner'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-			</td>
-		</tr>
-		
-		{if !empty($model)}
-		<tr>
-			<td width="1%" valign="top" nowrap="nowrap"><b>{'common.training'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%">
-				<label><input type="checkbox" name="do_retrain" value="1"> Build a new model using the training examples</label>
-			</td>
-		</tr>
-		{/if}
-	</table>
-</fieldset>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
+	<tr>
+		<td width="1%" valign="top" nowrap="nowrap"><b>{'common.owner'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+		</td>
+	</tr>
+	
+	{if !empty($model)}
+	<tr>
+		<td width="1%" valign="top" nowrap="nowrap"><b>{'common.training'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%">
+			<label><input type="checkbox" name="do_retrain" value="1"> Build a new model using the training examples</label>
+		</td>
+	</tr>
+	{/if}
+	
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 

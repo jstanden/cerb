@@ -10,57 +10,48 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate}</legend>
+<table cellspacing="0" cellpadding="2" border="0" width="98%">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
+		</td>
+	</tr>
 	
-	<table cellspacing="0" cellpadding="2" border="0" width="98%">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%">
-				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate}:</b></td>
-			<td width="99%">
-				<label><input type="radio" name="is_disabled" value="0" {if empty($model->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="is_disabled" value="1" {if !empty($model->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.image'|devblocks_translate|capitalize}:</b></td>
-			<td width="99%" valign="top">
-				<div style="float:left;margin-right:5px;">
-					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
-				</div>
-				<div style="float:left;">
-					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
-					<input type="hidden" name="avatar_image">
-				</div>
-			</td>
-		</tr>
-		
-	</table>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%">
+			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+		</td>
+	</tr>
 	
-</fieldset>
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate}:</b></td>
+		<td width="99%">
+			<label><input type="radio" name="is_disabled" value="0" {if empty($model->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="is_disabled" value="1" {if !empty($model->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.image'|devblocks_translate|capitalize}:</b></td>
+		<td width="99%" valign="top">
+			<div style="float:left;margin-right:5px;">
+				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=bot&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
+			</div>
+			<div style="float:left;">
+				<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_BOT}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+				<input type="hidden" name="avatar_image">
+			</div>
+		</td>
+	</tr>
 
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
+	{if !empty($custom_fields)}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	{/if}
+</table>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_BOT context_id=$model->id}
 
