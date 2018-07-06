@@ -217,6 +217,18 @@
 		</extension>
 		
 		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.rest.controller.data</id>
+			<name>Data</name>
+			<class>
+				<file>api/rest/data.php</file>
+				<name>ChRest_Data</name>
+			</class>
+			<params>
+				<param key="uri" value="data" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.rest.controller">
 			<id>cerberusweb.rest.controller.groups</id>
 			<name>Groups</name>
 			<class>
