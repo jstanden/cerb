@@ -642,6 +642,13 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	
 	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
+			case 'activity':
+				$key = 'activity.id';
+				break;
+				
+			case 'closed':
+				$key = 'isClosed';
+				break;
 		}
 		
 		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
@@ -649,9 +656,22 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	
 	static function getLabelsForKeyValues($key, $values) {
 		switch($key) {
+			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
+				$models = DAO_TimeTrackingActivity::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
 			case SearchFields_TimeTrackingEntry::ID:
 				$models = DAO_TimeTrackingEntry::getIds($values);
-				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TIMETRACKING);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+				break;
+				
+			case SearchFields_TimeTrackingEntry::IS_CLOSED:
+				return parent::_getLabelsForKeyBooleanValues();
 				break;
 		}
 		
@@ -812,15 +832,9 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		
 		switch($column) {
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
-				$activities = DAO_TimeTrackingActivity::getWhere();
-				$label_map = array(
-					'0' => '(none)',
-				);
-				
-				foreach($activities as $activity_id => $activity) {
-					$label_map[$activity_id] = $activity->name;
-				}
-				
+				$label_map = function(array $values) use ($column) {
+					return SearchFields_TimeTrackingEntry::getLabelsForKeyValues($column, $values);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, DevblocksSearchCriteria::OPER_IN, 'options[]');
 				break;
 				
@@ -870,6 +884,14 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT),
+				),
+			'activity.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_TimeTrackingEntry::ACTIVITY_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY, 'q' => ''],
+					]
 				),
 			'comments' => 
 				array(
@@ -1091,23 +1113,8 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
-				$activities = DAO_TimeTrackingActivity::getWhere(); // [TODO] getAll cache
-				$strings = array();
-
-				if(empty($values)) {
-					
-				} else {
-					foreach($values as $val) {
-						if(empty($val)) {
-							$strings[] = DevblocksPlatform::strEscapeHtml("(none)");
-						} else {
-							if(!isset($activities[$val]))
-								continue;
-							$strings[] = DevblocksPlatform::strEscapeHtml($activities[$val]->name);
-						}
-					}
-					echo implode(", ", $strings);
-				}
+				$label_map = SearchFields_TimeTrackingEntry::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 
 			default:
