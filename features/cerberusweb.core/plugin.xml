@@ -6252,6 +6252,23 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget.datasource">
+			<id>cerb.workspace.widget.datasource.data_query</id>
+			<name>Data Query</name>
+			<class>
+				<file>api/uri/internal/dashboards/widget_datasources.php</file>
+				<name>WorkspaceWidgetDatasource_DataQuery</name>
+			</class>
+			<params>
+				<param key="widgets">
+					<value>
+						<data key="core.workspace.widget.counter" />
+						<data key="core.workspace.widget.gauge" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget.datasource">
 			<id>core.workspace.widget.datasource.url</id>
 			<name>URL</name>
 			<class>
