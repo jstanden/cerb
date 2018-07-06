@@ -670,6 +670,80 @@ class _DevblocksDataProviderWorklistTimeSeries extends _DevblocksDataProvider {
 	}
 }
 
+class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
+	function getData($query, $chart_fields, array $options=[]) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$behavior_alias = $options['behavior_alias'];
+		
+		if(false == ($data_behavior = Event_DataQueryDatasource::getByAlias($behavior_alias)))
+			throw new Exception_DevblocksValidationError("A bot behavior isn't configured.");
+		
+		$behavior_vars = [];
+		
+		foreach($chart_fields as $chart_field) {
+			if($chart_field->key == 'type')
+				continue;
+			
+			$var_key = 'var_' . $chart_field->key;
+			
+			if(array_key_exists($var_key, $data_behavior->variables)) {
+				CerbQuickSearchLexer::getOperStringFromTokens($chart_field->tokens, $oper, $value);
+				$behavior_vars[$var_key] = $value;
+			}
+		}
+		
+		// Event model
+		
+		$actions = [];
+		
+		$event_model = new Model_DevblocksEvent(
+			Event_DataQueryDatasource::ID,
+			[
+				'_variables' => $behavior_vars,
+				'actions' => &$actions,
+			]
+		);
+		
+		if(false == ($event = $data_behavior->getEvent()))
+			return;
+			
+		$event->setEvent($event_model, $data_behavior);
+		
+		$values = $event->getValues();
+		
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		
+		// Format behavior vars
+		
+		if(is_array($behavior_vars))
+		foreach($behavior_vars as $k => &$v) {
+			if(DevblocksPlatform::strStartsWith($k, 'var_')) {
+				if(!isset($data_behavior->variables[$k]))
+					continue;
+				
+				$value = $data_behavior->formatVariable($data_behavior->variables[$k], $v);
+				$dict->set($k, $value);
+			}
+		}
+		
+		// Run tree
+		
+		$result = $data_behavior->runDecisionTree($dict, false, $event);
+		
+		foreach($actions as $action) {
+			switch($action['_action']) {
+				case 'return_data':
+					$data = @$action['data'];
+					return $data;
+					break;
+			}
+		}
+		
+		return [];
+	}
+}
+
 class _DevblocksDataService {
 	static $instance = null;
 	
@@ -719,6 +793,13 @@ class _DevblocksDataService {
 				break;
 				
 			default:
+				if(DevblocksPlatform::strStartsWith($chart_type, 'behavior.')) {
+					$behavior_alias = substr($chart_type, 9);
+					$provider = new _DevblocksDataProviderBotBehavior();
+					$results = $provider->getData($query, $chart_fields, ['behavior_alias' => $behavior_alias]);
+					break;
+				}
+				
 				throw new Exception_DevblocksValidationError("A valid chart type is required.");
 				break;
 		}
