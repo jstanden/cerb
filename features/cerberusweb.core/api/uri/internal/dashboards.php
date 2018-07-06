@@ -1649,6 +1649,104 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 	}
 };
 
+class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		
+		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$subchart = DevblocksPlatform::importGPC($widget->params['subchart'], 'int', 0);
+		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', 'line');
+		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
+		@$xaxis_key = DevblocksPlatform::importGPC($widget->params['xaxis_key'], 'string', 'ts');
+		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '%Y-%m-%d');
+		@$xaxis_tick_format = DevblocksPlatform::importGPC($widget->params['xaxis_tick_format'], 'string', '');
+		
+		if(!$query)
+			return;
+		
+		$results = $data->executeQuery($query);
+		
+		$config_json = [
+			'bindto' => sprintf("#widget%d", $widget->id),
+			'data' => [
+				'x' => 'ts',
+				'xFormat' => '%Y-%m-%d',
+				'json' => $results,
+				'type' => 'line'
+			],
+			'axis' => [
+				'x' => [
+					'type' => 'timeseries',
+					'ticks' => [
+						
+					]
+				]
+			],
+			'subchart' => [
+				'show' => false,
+				'size' => [
+					'height' => 50,
+				]
+			],
+			'point' => [
+				'show' => true
+			]
+		];
+		
+		$config_json['data']['xFormat']  = $xaxis_format;
+		
+		if($xaxis_tick_format)
+			$config_json['axis']['x']['tick']['format']  = $xaxis_tick_format;
+		
+		$config_json['subchart']['show']  = @$options['subchart'] ? true : false;
+		$config_json['point']['show']  = @$options['show_points'] ? true : false;
+		
+		switch($chart_as) {
+			case 'line':
+				$config_json['data']['type']  = 'line';
+				break;
+				
+			case 'spline':
+				$config_json['data']['type']  = 'spline';
+				break;
+				
+			case 'area':
+				$config_json['data']['type']  = 'area';
+				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results), [$xaxis_key]))];
+				break;
+				
+			case 'bar':
+				$config_json['data']['type']  = 'bar';
+				break;
+				
+			case 'bar_stacked':
+				$config_json['data']['type']  = 'bar';
+				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results), [$xaxis_key]))];
+				break;
+		}
+		
+		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/timeseries/render.tpl');
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/timeseries/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+	}
+};
+
 class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	private function _loadData(Model_WorkspaceWidget &$widget) {
 		@$series = $widget->params['series'];

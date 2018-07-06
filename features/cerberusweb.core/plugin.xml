@@ -6112,6 +6112,17 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.chart.timeseries</id>
+			<name>Chart: Time Series</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_ChartTimeSeries</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.chart</id>
 			<name>(Deprecated) Line/Bar Chart</name>
 			<class>
