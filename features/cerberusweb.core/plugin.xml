@@ -6179,7 +6179,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.pie_chart</id>
-			<name>Pie Chart</name>
+			<name>(Deprecated) Pie Chart</name>
 			<class>
 				<file>api/uri/internal/dashboards.php</file>
 				<name>WorkspaceWidget_PieChart</name>
