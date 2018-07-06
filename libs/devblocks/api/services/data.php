@@ -158,6 +158,270 @@ class _DevblocksDataProviderWorklistMetric extends _DevblocksDataProvider {
 	}
 }
 
+class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
+	function getData($query, $chart_fields, array $options=[]) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$chart_model = [
+			'type' => 'worklist.subtotals',
+			'metric' => '',
+		];
+		
+		$subtotals_context = null;
+		
+		foreach($chart_fields as $field) {
+			if(!($field instanceof DevblocksSearchCriteria))
+				continue;
+			
+			if($field->key == 'metric') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['metric'] = $value;
+				
+			} else if($field->key == 'format') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['format'] = $value;
+				
+			} else if($field->key == 'limit') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['limit'] = $value;
+				
+			} else if($field->key == 'of') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				if(false == ($subtotals_context = Extension_DevblocksContext::getByAlias($value, true)))
+					continue;
+				
+				$chart_model['context'] = $subtotals_context->id;
+				
+			} else if($field->key == 'by') {
+				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+				$chart_model['by'] = $value;
+				
+			} else if($field->key == 'query') {
+				$data_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
+				$data_query = substr($data_query, 1, -1);
+				$chart_model['query'] = $data_query;
+			}
+		}
+		
+		if(!$subtotals_context)
+			return [];
+		
+		// Convert 'by:' keys to fields
+		
+		$dao_class = $subtotals_context->getDaoClass();
+		$search_class = $subtotals_context->getSearchClass();
+		$view = $subtotals_context->getSearchView(uniqid());
+		$view->setAutoPersist(false);
+		
+		$view->addParamsWithQuickSearch(@$chart_model['query']);
+		
+		$query_fields = $view->getQuickSearchFields();
+		$search_fields = $view->getFields();
+		
+		if($chart_model['by']) {
+			$subtotal_by = $chart_model['by'];
+			unset($chart_model['by']);
+			
+			if(!is_array($subtotal_by))
+				$subtotal_by = [$subtotal_by];
+				
+			foreach($subtotal_by as $idx => $by) {
+				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $query_fields, $search_fields, $search_class::getPrimaryKey())))
+					continue;
+				
+				$chart_model['by'][] = $subtotal_field;
+			}
+		}
+		
+		if(!isset($chart_model['by']) || !$chart_model['by'])
+			return [];
+		
+		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
+		
+		$custom_fields = DAO_CustomField::getAll();
+		
+		$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s GROUP BY %s",
+			implode(', ', array_map(function($e) use ($db) {
+				return sprintf("%s AS `%s`",
+					$e['sql_select'],
+					$db->escape($e['key_select'])
+				);
+			}, $chart_model['by'])),
+			$query_parts['join'],
+			$query_parts['where'],
+			implode(', ', array_map(function($e) use ($db) {
+				return sprintf("`%s`",
+					$db->escape($e['key_select'])
+				);
+			}, $chart_model['by']))
+		);
+		
+		// [TODO] LIMIT
+		//$chart_model['limit'] intClamp
+		$sql .= ' LIMIT 500';
+		
+		$response = [];
+		
+		if(false == ($rows = $db->GetArraySlave($sql)))
+			return [];
+		
+		$labels = [];
+		$by_token_to_field = [];
+		
+		foreach($chart_model['by'] as $by) {
+			$values = array_column($rows, $by['key_select']);
+			$by_token_to_field[$by['key_select']] = $by['key_query'];
+			
+			if(false !== ($by_labels = $search_class::getLabelsForKeyValues($by['key_select'], $values))) {
+				$labels[$by['key_select']] = $by_labels;
+				continue;
+			}
+		}
+		
+		$response = ['children' => []];
+		$last_k = array_slice(array_keys($rows[0]), -1, 1)[0];
+		
+		foreach($rows as $row) {
+			$ptr =& $response['children'];
+			
+			foreach(array_slice(array_keys($row),1) as $k) {
+				$label = (array_key_exists($k, $labels) && array_key_exists($row[$k], $labels[$k])) ? $labels[$k][$row[$k]] : $row[$k];
+				
+				if(false === ($idx = array_search($label, array_column($ptr, 'name')))) {
+					$data = [
+						'name' => $label,
+						'value' => $row[$k],
+						'hits' => 0,
+					];
+					
+					$ptr[] = $data;
+					end($ptr);
+					$ptr =& $ptr[key($ptr)];
+					
+				} else {
+					$ptr =& $ptr[$idx];
+				}
+				
+				$ptr['hits'] += $row['hits'];
+				
+				if($k != $last_k) {
+					if(!array_key_exists('children', $ptr))
+						$ptr['children'] = [];
+					
+					$ptr =& $ptr['children'];
+				}
+			}
+		}
+		
+		$sort_children = function(&$children) use (&$sort_children) {
+			usort($children, function($a, $b) {
+				if($a['hits'] == $b['hits'])
+					return 0;
+				
+				return $a['hits'] < $b['hits'] ? 1 : -1;
+			});
+			
+			foreach($children as &$child) {
+				if(array_key_exists('children', $child))
+					$sort_children($child['children']);
+			}
+		};
+		
+		$sort_children($response['children']);
+		
+		switch(@$chart_model['format']) {
+			case 'categories':
+				return $this->_convertTreeToCategories($response);
+				break;
+				
+			case 'timeseries':
+				return $this->_convertTreeToTimeSeries($response);
+				break;
+				
+			case 'tree':
+			default:
+				return $response;
+				break;
+		}
+	}
+	
+	function _convertTreeToCategories($response) {
+		if(!isset($response['children']))
+			return [];
+		
+		// [TODO] Do we have nested data?
+		$nested = @$response['children'][0]['children'] ? true : false;
+		
+		if($nested) {
+			$parents = [];
+			$xvalues = [];
+			
+			$output = [
+				['label'],
+			];
+			
+			$parents = array_column($response['children'], 'name');
+			$output[0] = array_merge($output[0], $parents);
+			
+			foreach($response['children'] as $parent) {
+				foreach($parent['children'] as $child) {
+					$xvalues[$child['name']] = array_fill_keys($parents, 0);
+				}
+			}
+			
+			foreach($response['children'] as $parent) {
+				foreach($parent['children'] as $child) {
+					$xvalues[$child['name']][$parent['name']] = $child['hits'];
+				}
+			}
+			
+			foreach($xvalues as $child_name => $parents) {
+				$values = array_values($parents);
+				array_unshift($values, $child_name);
+				$output[] = $values;
+			}
+			
+		} else {
+			$output = [
+				['label'], ['hits']
+			];
+			
+			foreach($response['children'] as $subtotal) {
+				$output[0][] = $subtotal['name'];
+				$output[1][] = $subtotal['hits'];
+			}
+		}
+		
+		return ['subtotals' => $output, 'stacked' => $nested];
+	}
+	
+	function _convertTreeToTimeSeries($response) {
+		if(!isset($response['children']))
+			return [];
+		
+		$x_series = array_fill_keys(array_column($response['children'], 'name'), 0);
+		$output = [ 'ts' => array_map(function($d) { return strval($d); }, array_keys($x_series)) ];
+		
+		foreach($response['children'] as $date) {
+			if(!isset($date['children']))
+				continue;
+			
+			foreach($date['children'] as $series) {
+				if(!isset($output[$series['name']]))
+					$output[$series['name']] = $x_series;
+				
+				$output[$series['name']][$date['name']] = $series['hits'];
+			}
+		}
+		
+		foreach(array_keys($output) as $series_key) {
+			$output[$series_key] = array_values($output[$series_key]);
+		}
+		
+		return $output;
+	}
+}
+
 class _DevblocksDataService {
 	static $instance = null;
 	
@@ -193,6 +457,11 @@ class _DevblocksDataService {
 		switch($chart_type) {
 			case 'worklist.metric':
 				$provider = new _DevblocksDataProviderWorklistMetric();
+				$results = $provider->getData($query, $chart_fields);
+				break;
+				
+			case 'worklist.subtotals':
+				$provider = new _DevblocksDataProviderWorklistSubtotals();
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
