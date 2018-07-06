@@ -19,7 +19,7 @@
 
 <b>Quick search query:</b>
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<input type="text" name="{$namePrefix}[query]" value="{$params.query}" style="width:100%;" class="cerb-query-trigger" data-context="{$params.context}">
+	<textarea name="{$namePrefix}[query]" style="width:100%;" class="placeholders">{$params.query}</textarea>
 </div>
 
 <b>Metric</b> is 
@@ -60,11 +60,8 @@
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 	var $select = $action.find('select.context');
-	var $query = $action.find('input.cerb-query-trigger');
 	
 	$select.on('change', function(e) {
-		$query.attr('data-context', $select.val());
-		
 		var ctx = $select.val();
 		
 		if(0 == ctx.length)
@@ -95,20 +92,12 @@ $(function() {
 		
 		var $select_metric_field = $action.find('select.metric_field');
 		
-		if(val == 'count')
+		if(val == 'count') {
+			$select_metric_field.val('');
 			$select_metric_field.hide();
-		else
+		} else {
 			$select_metric_field.show();
+		}
 	});
-	
-	// Query builders
-	
-	$query
-		.cerbQueryTrigger()
-		.on('cerb-query-saved', function(e) {
-			//var $trigger = $(this);
-			//$trigger.val(e.worklist_quicksearch);
-		})
-	;
 });
 </script>

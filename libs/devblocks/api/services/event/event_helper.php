@@ -1716,15 +1716,14 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionGetWorklistMetric($params, DevblocksDictionaryDelegate $dict) {
-		@$key = DevblocksPlatform::importVar($params['key'],'string','');
 		@$var = DevblocksPlatform::importVar($params['var'],'string','');
-
+		
 		$out = '';
 		
 		$trigger = $dict->__trigger;
 
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$key = $tpl_builder->build($key, $dict);
+		@$query = $tpl_builder->build($params['query'], $dict) ?: '';
 		
 		// Run it in the simulator too
 		self::runActionGetWorklistMetric($params, $dict);
@@ -1733,7 +1732,7 @@ class DevblocksEventHelper {
 		
 		$out .= sprintf(">> Getting value for worklist metric:\nType: %s\nQuery: %s\nFunction: %s\nField: %s\n\n%s",
 			@$params['context'],
-			@$params['query'],
+			$query,
 			@$params['metric_func'],
 			@$params['metric_field'],
 			$value
@@ -1748,6 +1747,8 @@ class DevblocksEventHelper {
 		@$metric_func = DevblocksPlatform::importVar($params['metric_func'],'string','');
 		@$metric_field = DevblocksPlatform::importVar($params['metric_field'],'string','');
 		@$var = DevblocksPlatform::importVar($params['var'],'string','');
+		
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return false;
@@ -1768,6 +1769,8 @@ class DevblocksEventHelper {
 		
 		$fields = $view->getFields();
 		@$metric_field = $fields[$metric_field]; /* @var $metric_field DevblocksSearchField */
+		
+		$query = $tpl_builder->build($query, $dict);
 		
 		$view->addParamsWithQuickSearch($query, true);
 		$view->renderPage = 0;
@@ -1810,10 +1813,12 @@ class DevblocksEventHelper {
 			);
 			
 		} else {
-			$select_query = sprintf("%s.%s",
-				$metric_field->db_table,
-				$metric_field->db_column
-			);
+			if($metric_field) {
+				$select_query = sprintf("%s.%s",
+					$metric_field->db_table,
+					$metric_field->db_column
+				);
+			}
 			
 			switch($metric_func) {
 				case 'sum':
