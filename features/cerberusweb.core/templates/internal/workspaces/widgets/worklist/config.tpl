@@ -1,70 +1,121 @@
-<div id="widget{$widget->id}ConfigTabs">
-	<ul>
-		<li><a href="#widget{$widget->id}ConfigTabDatasource">Data Source</a></li>
-	</ul>
-	
-	<div id="widget{$widget->id}ConfigTabDatasource">
-	
-		<fieldset id="widget{$widget->id}Datasource" class="peek">
-			{$div_popup_worklist = uniqid()}
-
-			{$worklist_ctx_id = $widget->params.worklist_model.context}
-			
-			<b>Display </b>
-			
-			<select class="context">
-				<option value=""> - {'common.choose'|devblocks_translate|lower} - </option>
-				{foreach from=$context_mfts item=context_mft key=context_id}
-				<option value="{$context_id}" {if $worklist_ctx_id==$context_id}selected="selected"{/if}>{$context_mft->name}</option>
+<div id="widget{$widget->id}Config" style="margin-top:10px;">
+	<fieldset id="widget{$widget->id}Worklist" class="peek">
+		<legend>Worklist:</legend>
+		
+		<b>Record type:</b>
+		
+		<div style="margin-left:10px;">
+			<select name="params[context]">
+				<option value=""></option>
+				{foreach from=$context_mfts item=context_mft}
+				<option value="{$context_mft->id}" {if $widget->params.context == $context_mft->id}selected="selected"{/if}>{$context_mft->name}</option>
 				{/foreach}
 			</select>
-			
-			data using 
-			
-			<div id="popup{$div_popup_worklist}" class="badge badge-lightgray" style="font-weight:bold;color:rgb(80,80,80);cursor:pointer;display:inline;"><span class="name">Worklist</span> &#x25be;</div>
-			
-			<input type="hidden" name="params[worklist_model_json]" value="{$widget->params.worklist_model|json_encode}" class="model">
-			
-			<br>
-			
-			<label><input type="checkbox" name="params[search_mode]" value="quick_search" class="mode" {if $widget->params.search_mode == "quick_search"}checked="checked"{/if}> Filter using quick search:</label>
-			
-			<div style="margin-left:20px;">
-				<input type="text" name="params[quick_search]" value="{$widget->params.quick_search}" class="quicksearch" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+		</div>
+		
+		<b>Filter using required query:</b>
+		
+		<div style="margin-left:10px;">
+			<input type="text" name="params[query_required]" value="{$widget->params.query_required}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+		</div>
+		
+		<b>Default query:</b>
+		
+		<div style="margin-left:10px;">
+			<input type="text" name="params[query]" value="{$widget->params.query}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+		</div>
+		
+		<b>Records per page:</b>
+		
+		<div style="margin-left:10px;">
+			<input type="text" name="params[render_limit]" value="{$widget->params.render_limit|default:5}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+		</div>
+		
+		<b>{'common.color'|devblocks_translate|capitalize}:</b>
+		
+		<div style="margin-left:10px;">
+			<input type="text" name="params[header_color]" value="{$widget->params.header_color|default:'#6a87db'}" class="color-picker">
+		</div>
+		
+		<b>{'dashboard.columns'|devblocks_translate|capitalize}:</b>
+		
+		<div style="margin-left:10px;">
+			<div class="cerb-columns" style="column-width:200px;">
+				{foreach from=$columns item=column}
+				<div>
+					<label>
+						{if $column.is_selected}
+						<input type="checkbox" name="params[columns][]" value="{$column.key}" checked="checked"> 
+						<b>{$column.label}</b>
+						{else}
+						<input type="checkbox" name="params[columns][]" value="{$column.key}"> 
+						{$column.label}
+						{/if}
+					</label>
+				</div>
+				{/foreach}
 			</div>
-		</fieldset>
-	</div>
+		</div>
+	</fieldset>
 </div>
 
 <script type="text/javascript">
 $(function() {
-	var $fieldset = $('fieldset#widget{$widget->id}Datasource');
+	var $config = $('#widget{$widget->id}Config');
+	var $select = $config.find("select[name='params[context]']");
+	var $columns = $config.find('div.cerb-columns');
 	
-	$('#widget{$widget->id}ConfigTabs').tabs();
+	$config.find('input:text.color-picker').minicolors({
+		swatches: ['#6a87db','#9a9a9a','#CF2C1D','#FEAF03','#57970A','#9669DB','#626c70']
+	});
 	
-	$('#popup{$div_popup_worklist}').click(function(e) {
-		var $select = $(this).siblings('select.context');
-		var context = $select.val();
-		var $mode = $fieldset.find('input.mode');
-		var q = '';
+	$select.on('change', function(e) {
+		var ctx = $select.val();
 		
-		if($mode.is(':checked')) {
-			q = $fieldset.find('input.quicksearch').val();
-		}
-		
-		if(context.length == 0) {
-			$select.effect('highlight','slow');
+		if(0 == ctx.length) {
+			$columns.empty();
 			return;
 		}
 		
-		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist_config"}&q=' + encodeURIComponent(q),null,true,'750');
+		var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($columns.empty());
 		
-		$chooser.on('chooser_save',function(event) {
-			if(null != event.worklist_model) {
-				$fieldset.find('input:hidden.model').val(event.worklist_model);
-				$fieldset.find('input.quicksearch').val(event.worklist_quicksearch);
+		genericAjaxGet('','c=profiles&a=handleSectionAction&section=profile_tab&action=getContextColumnsJson&context=' + encodeURIComponent(ctx), function(json) {
+			if('object' == typeof(json) && json.length > 0) {
+				$columns.empty();
+				
+				for(idx in json) {
+					var field = json[idx];
+					
+					var $div = $('<div/>').appendTo($columns);
+					var $label = $('<label/>').text(' ' + field.label).appendTo($div);
+					var $checkbox = $('<input/>').attr('name', 'params[columns][]').attr('type','checkbox').attr('value',field.key).prependTo($label);
+					
+					$checkbox.on('change', function(e) {
+						e.stopPropagation();
+						
+						var $this = $(this);
+						var $label = $this.closest('label');
+						if($this.is(':checked')) {
+							$label.css('font-weight', 'bold');
+						} else {
+							$label.css('font-weight', 'normal');
+						}
+					});
+					
+					if(true == field.is_selected) {
+						$label.css('font-weight', 'bold');
+						$checkbox.attr('checked', 'checked');
+					}
+				}
 			}
 		});
+	});
+	
+	$columns.sortable({
+		tolerance: 'pointer',
+		items: 'div',
+		helper: 'clone',
+		opacity: 0.7
 	});
 });
 </script>

@@ -2362,49 +2362,81 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	const ID = 'core.workspace.widget.worklist';
 	
-	public function getView(Model_WorkspaceWidget $widget) {
-		$view_id = sprintf("widget%d_worklist", $widget->id);
-		
-		if(null == ($view = Extension_WorkspaceWidget::getViewFromParams($widget, $widget->params, $view_id)))
-			return false;
-		
-		return $view;
-	}
-	
 	function render(Model_WorkspaceWidget $widget) {
-		if(false == ($view = $this->getView($widget)))
-			return;
+		@$view_context = $widget->params['context'];
+		@$query = $widget->params['query'];
+		@$query_required = $widget->params['query_required'];
+		
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('view_id', $view->id);
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		// Unique instance per widget/record combo
+		$view_id = sprintf('widget_%d_worklist', $widget->id);
+		
+		if(false == $view_context || false == ($view_context_ext = Extension_DevblocksContext::get($view_context)))
+			return;
+		
+		if(false == ($view = $view_context_ext->getSearchView($view_id)))
+			return;
+		
+		if($view->getContext() != $view_context_ext->id) {
+			DAO_WorkerViewModel::deleteView(CerberusApplication::getActiveWorker()->id, $view_id);
+			
+			if(false == ($view = $view_context_ext->getSearchView($view_id)))
+				return;
+		}
+		
+		$view->name = ' ';
+		$view->addParams([], true);
+		$view->addParamsDefault([], true);
+		$view->is_ephemeral = true;
+		$view->view_columns = @$widget->params['columns'] ?: $view->view_columns;
+		$view->options['header_color'] = @$widget->params['header_color'] ?: '#626c70';
+		$view->renderLimit = DevblocksPlatform::intClamp(@$widget->params['render_limit'], 1, 50);
+		$view->renderPage = 0;
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WORKLIST,
+			'widget_id' => $widget->id,
+		]);
+		
+		if($query_required) {
+			$query_required = $tpl_builder->build($query_required, $dict);
+		}
+		
+		$view->addParamsRequiredWithQuickSearch($query_required);
+		
+		if($query) {
+			$query = $tpl_builder->build($query, $dict);
+		}
+		
+		$view->setParamsQuery($query);
+		$view->addParamsWithQuickSearch($query);
+		
+		$view->persist();
+		
 		$tpl->assign('view', $view);
-
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/render.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	function renderConfig(Model_WorkspaceWidget $widget) {
-		if(empty($widget))
-			return;
-		
 		$tpl = DevblocksPlatform::services()->template();
-		
-		// Widget
-		
 		$tpl->assign('widget', $widget);
 		
-		// Contexts
-		
-		$context_mfts = Extension_DevblocksContext::getAll(false, 'workspace');
+		$context_mfts = Extension_DevblocksContext::getAll(false, ['workspace']);
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		// Grab the latest view and copy it to _config
-
-		if(false !== ($view = $this->getView($widget))) {
-			$view->id .= '_config';
-			$view->is_ephemeral = true;
-		}
+		@$context = $widget->params['context'];
+		@$columns = @$widget->params['columns'] ?: [];
 		
-		// Template
+		if($context)
+			$columns = $this->_getContextColumns($context, $columns);
+			
+		$tpl->assign('columns', $columns);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/config.tpl');
 	}
@@ -2412,27 +2444,61 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
 
-		// Convert the serialized model to proper JSON before saving
-		
-		if(isset($params['worklist_model_json'])) {
-			$worklist_model = json_decode($params['worklist_model_json'], true);
-			unset($params['worklist_model_json']);
-			
-			if(empty($worklist_model) && isset($params['context'])) {
-				if(false != ($context_ext = Extension_DevblocksContext::get($params['context']))) {
-					if(false != (@$worklist_model = json_decode(C4_AbstractViewLoader::serializeViewToAbstractJson($context_ext->getChooserView(), $context_ext->id), true))) {
-						$worklist_model['context'] = $context_ext->id;
-					}
-				}
-			}
-			
-			$params['worklist_model'] = $worklist_model;
-		}
-		
 		// Save
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+	}
+	
+	private function _getContextColumns($context, $columns_selected=[]) {
+		if(null == ($context_ext = Extension_DevblocksContext::get($context))) {
+			return json_encode(false);
+		}
+		
+		$view_class = $context_ext->getViewClass();
+		
+		if(null == ($view = new $view_class())) /* @var $view C4_AbstractView */
+			return json_encode(false);
+		
+		$view->setAutoPersist(false);
+		
+		$results = [];
+		
+		$columns_avail = $view->getColumnsAvailable();
+		
+		if(empty($columns_selected))
+			$columns_selected = $view->view_columns;
+		
+		if(is_array($columns_avail))
+		foreach($columns_avail as $column) {
+			if(empty($column->db_label))
+				continue;
+			
+			$results[] = array(
+				'key' => $column->token,
+				'label' => mb_convert_case($column->db_label, MB_CASE_TITLE),
+				'type' => $column->type,
+				'is_selected' => in_array($column->token, $columns_selected),
+			);
+		}
+		
+		usort($results, function($a, $b) use ($columns_selected) {
+			if($a['is_selected'] == $b['is_selected']) {
+				if($a['is_selected']) {
+					$a_idx = array_search($a['key'], $columns_selected);
+					$b_idx = array_search($b['key'], $columns_selected);
+					return $a_idx < $b_idx ? -1 : 1;
+					
+				} else {
+					return $a['label'] < $b['label'] ? -1 : 1;
+				}
+				
+			} else {
+				return $a['is_selected'] ? -1 : 1;
+			}
+		});
+		
+		return $results;
 	}
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {

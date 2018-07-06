@@ -573,6 +573,45 @@ $sql = "UPDATE workspace_tab SET extension_id = 'core.workspace.tab.dashboard', 
 $db->ExecuteMaster($sql);
 
 // ===========================================================================
+// Migrate legacy workspace worklist widgets to the new config format
+
+list($columns, $indexes) = $db->metaTable('workspace_widget');
+
+$sql = "SELECT id, params_json FROM workspace_widget WHERE extension_id = 'core.workspace.widget.worklist' AND params_json like '%\"worklist_model\"%'";
+$results = $db->ExecuteMaster($sql);
+
+foreach($results as $result) {
+	if(false == ($old_json = json_decode($result['params_json'], true)))
+		continue;
+	
+	@$worklist_context = $old_json['worklist_model']['context'] ?: '';
+	@$worklist_columns = $old_json['worklist_model']['columns'] ?: [];
+	@$worklist_query = $old_json['quick_search'] ?: '';
+	@$worklist_search_mode = $old_json['worklist_model']['search_mode'] ?: '';
+	@$worklist_params = $old_json['worklist_model']['params'] ?: [];
+	@$worklist_limit = $old_json['worklist_model']['limit'] ?: 5;
+	
+	$new_json = [
+		'context' => $worklist_context,
+		'query_required' => $worklist_query,
+		'query' => '',
+		'render_limit' => $worklist_limit,
+		'header_color' => '#6a87db',
+		'columns' => $worklist_columns,
+	];
+	
+	// Store a remidner of the old params
+	if($worklist_search_mode != 'quick_search')
+		$new_json['query'] = '{# ' . json_encode($worklist_params) . ' #}';
+	
+	$sql = sprintf("UPDATE workspace_widget SET params_json = %s WHERE id = %d",
+		$db->qstr(json_encode($new_json)),
+		$result['id']
+	);
+	$db->Execute($sql);
+}
+
+// ===========================================================================
 // Convert logo URLs to custom stylesheets
 
 $logo_url = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' and setting = 'helpdesk_logo_url'");
