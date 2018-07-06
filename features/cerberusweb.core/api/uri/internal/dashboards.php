@@ -1579,7 +1579,7 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 	}
 };
 
-class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
+class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	private function _loadData(Model_WorkspaceWidget &$widget) {
 		@$series = $widget->params['series'];
 
@@ -1659,7 +1659,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 	
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
-
+		
 		if(false == ($this->_loadData($widget))) {
 			echo "This chart doesn't have any data sources. Configure it and select one.";
 			return;
@@ -1768,12 +1768,13 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 		
 		switch($widget->params['chart_type']) {
 			case 'bar':
-				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/bar_chart.tpl');
+				$tpl->assign('group_names', json_encode($group_names));
+				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/_legacy/chart/bar_chart_legacy.tpl');
 				break;
 				
 			default:
 			case 'line':
-				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/line_chart.tpl');
+				$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/_legacy/chart/line_chart_legacy.tpl');
 				break;
 		}
 	}
@@ -1797,7 +1798,7 @@ class WorkspaceWidget_Chart extends Extension_WorkspaceWidget implements ICerbWo
 		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/config.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/_legacy/chart/config.tpl');
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {

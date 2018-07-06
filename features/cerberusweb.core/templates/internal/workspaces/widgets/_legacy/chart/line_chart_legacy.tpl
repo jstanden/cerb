@@ -73,7 +73,7 @@
 <script type="text/javascript">
 $(function() {
 try {
-	var $widget = $('#widget{$widget->id}');
+	var $widget = $('#workspaceWidget{$widget->id}');
 	var width = $widget.width();
 	
 	if(width > 0)
