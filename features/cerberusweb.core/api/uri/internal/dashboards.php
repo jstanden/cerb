@@ -2576,7 +2576,7 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		$html = $this->_getHtml($widget);
 		$tpl->assign('html', $html);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/custom_html/render.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/_legacy/custom_html/render.tpl');
 	}
 	
 	// Config
@@ -2586,9 +2586,6 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 			return;
 		
 		$tpl = DevblocksPlatform::services()->template();
-		
-		// Widget
-		
 		$tpl->assign('widget', $widget);
 		
 		// Placeholders
@@ -2603,7 +2600,7 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		
 		// Template
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/custom_html/config.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/_legacy/custom_html/config.tpl');
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
