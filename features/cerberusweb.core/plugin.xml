@@ -5992,6 +5992,17 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.visualization</id>
+			<name>Data Query Visualization</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_Visualization</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.worklist</id>
 			<name>Worklist</name>
 			<class>
