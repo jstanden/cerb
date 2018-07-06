@@ -635,6 +635,9 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	
 	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
+			case 'currency':
+				$key = 'currency.id';
+				break;
 		}
 		
 		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
@@ -642,6 +645,11 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 	
 	static function getLabelsForKeyValues($key, $values) {
 		switch($key) {
+			case SearchFields_CrmOpportunity::CURRENCY_ID:
+				$models = DAO_Currency::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
 			case SearchFields_CrmOpportunity::ID:
 				$models = DAO_CrmOpportunity::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
@@ -817,6 +825,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			
 			switch($field_key) {
 				// Strings
+				case SearchFields_CrmOpportunity::CURRENCY_ID:
 				case SearchFields_CrmOpportunity::STATUS_ID:
 					$pass = true;
 					break;
@@ -850,6 +859,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 			return [];
 		
 		switch($column) {
+			case SearchFields_CrmOpportunity::CURRENCY_ID:
 			case SearchFields_CrmOpportunity::STATUS_ID:
 				$label_map = function(array $values) use ($column) {
 					return SearchFields_CrmOpportunity::getLabelsForKeyValues($column, $values);
@@ -1096,6 +1106,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_CrmOpportunity::CURRENCY_ID:
 			case SearchFields_CrmOpportunity::STATUS_ID:
 				$label_map = SearchFields_CrmOpportunity::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
