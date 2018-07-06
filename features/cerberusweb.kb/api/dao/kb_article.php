@@ -1481,8 +1481,6 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $counts;
 	}
 	
-	// [TODO] Fulltext: Comments
-	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_KbArticle::getFields();
 		

@@ -1338,11 +1338,19 @@ class DevblocksSearchCriteria {
 			
 		} else {
 			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
-			$link_contexts = array();
+			$link_contexts = [];
 			
 			$oper = null;
 			$value = null;
 			CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
+
+			$opers_valid = [
+				DevblocksSearchCriteria::OPER_IN => true,
+				DevblocksSearchCriteria::OPER_NIN => true,
+			];
+			
+			if(!array_key_exists($oper, $opers_valid))
+				$oper = DevblocksSearchCriteria::OPER_IN;
 			
 			if(is_array($value))
 			foreach($value as $alias) {
@@ -1352,7 +1360,7 @@ class DevblocksSearchCriteria {
 			
 			$param = new DevblocksSearchCriteria(
 				$search_field_key,
-				DevblocksSearchCriteria::OPER_IN,
+				$oper,
 				array_keys($link_contexts)
 			);
 			return $param;
