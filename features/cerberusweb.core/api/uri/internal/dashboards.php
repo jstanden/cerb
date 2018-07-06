@@ -1579,6 +1579,76 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 	}
 };
 
+class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		
+		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$xaxis_key = DevblocksPlatform::importGPC($widget->params['xaxis_key'], 'string', 'label');
+		
+		if(!$query)
+			return;
+		
+		$results = $data->executeQuery($query);
+		
+		$config_json = [
+			'bindto' => sprintf("#widget%d", $widget->id),
+			'data' => [
+				'x' => $xaxis_key,
+				'columns' => $results['subtotals'],
+				'type' => 'bar',
+				'colors' => [
+					'hits' => '#1f77b4'
+				]
+			],
+			'axis' => [
+				'rotated' => true,
+				'x' => [
+					'type' => 'category'
+				],
+				'y' => [
+					
+				]
+			],
+			'legend' => [
+				'show' => true,
+			]
+		];
+		
+		if(@$results['stacked']) {
+			$config_json['data']['type']  = 'bar';
+			$groups = array_column($results['subtotals'], 0);
+			array_shift($groups);
+			$config_json['data']['groups'] = [array_values($groups)];
+			$config_json['legend']['show'] = true;
+			
+		} else {
+			$config_json['data']['type']  = 'bar';
+			$config_json['legend']['show'] = false;
+		}
+		
+		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/categories/render.tpl');
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/categories/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+	}
+};
+
 class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	private function _loadData(Model_WorkspaceWidget &$widget) {
 		@$series = $widget->params['series'];
