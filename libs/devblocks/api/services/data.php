@@ -422,6 +422,254 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 	}
 }
 
+class _DevblocksDataProviderWorklistTimeSeries extends _DevblocksDataProvider {
+	function getData($query, $chart_fields, array $options=[]) {
+				$db = DevblocksPlatform::services()->database();
+		
+		$chart_model = [
+			'type' => 'worklist.timeseries',
+			'x' => '',
+			'y' => '',
+			'series' => [],
+		];
+		
+		foreach($chart_fields as $field) {
+			if(!($field instanceof DevblocksSearchCriteria))
+				continue;
+			
+			if($field->key == 'x') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['x'] = $value;
+				
+			} else if($field->key == 'y') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['y'] = $value;
+				
+			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
+				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
+				$series_query = substr($series_query, 1, -1);
+				
+				$series_fields = CerbQuickSearchLexer::getFieldsFromQuery($series_query);
+				
+				$series_model = [
+					'id' => explode('.', $field->key, 2)[1],
+				];
+				
+				$series_context = null;
+				
+				foreach($series_fields as $series_field) {
+					if($series_field->key == 'of') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						if(false == ($series_context = Extension_DevblocksContext::getByAlias($value, true)))
+							continue;
+						
+						$series_model['context'] = $series_context->id;
+						
+					} else if($series_field->key == 'x') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['x'] = $value;
+						
+					} else if($series_field->key == 'y') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['y'] = $value;
+						
+					} else if($series_field->key == 'query') {
+						$data_query = CerbQuickSearchLexer::getTokensAsQuery($series_field->tokens);
+						$data_query = substr($data_query, 1, -1);
+						$series_model['query'] = $data_query;
+					}
+				}
+				
+				// Convert series x/y to SearchFields_* using context
+				
+				if($series_context) {
+					$view_class = $series_context->getViewClass();
+					$view = new $view_class();
+					
+					$query_fields = $view->getQuickSearchFields();
+					$search_fields = $view->getFields();
+					
+					// [TODO] The field has to be a date type
+					if(array_key_exists('x', $series_model)) {
+						if(isset($query_fields[$series_model['x']])) {
+							$search_key = $query_fields[$series_model['x']]['options']['param_key'];
+							$search_field = $search_fields[$search_key];
+							$series_model['x'] = $search_field;
+						} else {
+							unset($series_model['x']);
+						}
+					}
+					
+					if(array_key_exists('y', $series_model)) {
+						if(isset($query_fields[$series_model['y']])) {
+							$search_key = $query_fields[$series_model['y']]['options']['param_key'];
+							$search_field = $search_fields[$search_key];
+							$series_model['y'] = $search_field;
+						} else {
+							unset($series_model['y']);
+						}
+					}
+				}
+				
+				$chart_model['series'][] = $series_model;
+			}
+		}
+		
+		// Fetch data for each series
+		
+		if(isset($chart_model['series']))
+		foreach($chart_model['series'] as $series_idx => $series) {
+			if(!isset($series['context']))
+				continue;
+			
+			@$query = $series['query'];
+			
+			$context_ext = Extension_DevblocksContext::get($series['context'], true);
+			$dao_class = $context_ext->getDaoClass();
+			$view = $context_ext->getSearchView(uniqid());
+			$view->setAutoPersist(false);
+			$view->addParamsWithQuickSearch($query);
+			
+			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
+			
+			switch($chart_model['x']) {
+				case 'date.year':
+					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y')",
+						Cerb_ORMHelper::escape($series['x']->db_table),
+						Cerb_ORMHelper::escape($series['x']->db_column)
+					);
+					break;
+					
+				case 'date.month':
+					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m')",
+						Cerb_ORMHelper::escape($series['x']->db_table),
+						Cerb_ORMHelper::escape($series['x']->db_column)
+					);
+					break;
+					
+				case 'date.day':
+					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m-%%d')",
+						Cerb_ORMHelper::escape($series['x']->db_table),
+						Cerb_ORMHelper::escape($series['x']->db_column)
+					);
+					break;
+					
+				case 'date.hour':
+					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m-%%d-%%H')",
+						Cerb_ORMHelper::escape($series['x']->db_table),
+						Cerb_ORMHelper::escape($series['x']->db_column)
+					);
+					break;
+					
+				case 'date.minute':
+					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m-%%d-%%H-%%i')",
+						Cerb_ORMHelper::escape($series['x']->db_table),
+						Cerb_ORMHelper::escape($series['x']->db_column)
+					);
+					break;
+					
+				case 'date.second':
+					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m-%%d-%%H-%%i-%%s')",
+						Cerb_ORMHelper::escape($series['x']->db_table),
+						Cerb_ORMHelper::escape($series['x']->db_column)
+					);
+					break;
+					
+				default:
+					$date_field = null;
+					break;
+			}
+			
+			switch($chart_model['y']) {
+				case 'number.average':
+					$metric_field = sprintf("AVG(%s.%s)",
+						Cerb_ORMHelper::escape($series['y']->db_table),
+						Cerb_ORMHelper::escape($series['y']->db_column)
+					);
+					break;
+					
+				default:
+				case 'number.count':
+					$metric_field = "COUNT(*)";
+					break;
+					
+				case 'number.max':
+					$metric_field = sprintf("MAX(%s.%s)",
+						Cerb_ORMHelper::escape($series['y']->db_table),
+						Cerb_ORMHelper::escape($series['y']->db_column)
+					);
+					break;
+					
+				case 'number.min':
+					$metric_field = sprintf("MIN(%s.%s)",
+						Cerb_ORMHelper::escape($series['y']->db_table),
+						Cerb_ORMHelper::escape($series['y']->db_column)
+					);
+					break;
+					
+				case 'number.sum':
+					$metric_field = sprintf("SUM(%s.%s)",
+						Cerb_ORMHelper::escape($series['y']->db_table),
+						Cerb_ORMHelper::escape($series['y']->db_column)
+					);
+					break;
+			}
+			
+			if(!$date_field || !$metric_field)
+				continue;
+			
+			// [TODO] Limit
+			$sql = sprintf("SELECT %s AS metric, %s AS value %s %s GROUP BY %s LIMIT 300",
+				$metric_field,
+				$date_field,
+				$query_parts['join'],
+				$query_parts['where'],
+				$date_field
+			);
+			
+			$results = $db->GetArraySlave($sql);
+			
+			$results = array_column($results, 'metric', 'value');
+			ksort($results);
+			
+			$chart_model['series'][$series_idx]['data'] = $results;
+		}
+		
+		// Domain
+		
+		$x_domain = [];
+		
+		if(isset($chart_model['series']))
+		foreach($chart_model['series'] as $series) {
+			if(!isset($series['data']))
+				continue;
+				
+			$x_domain += array_keys($series['data']);
+		}
+		
+		sort($x_domain);
+		
+		// Respond
+		
+		$response = [
+			'ts' => $x_domain,
+		];
+		
+		if(isset($chart_model['series']))
+		foreach($chart_model['series'] as $series) {
+			$values = [];
+			
+			foreach($x_domain as $k) {
+				$values[] = floatval(@$series['data'][$k] ?: 0);
+			}
+			
+			$response[$series['id']] = $values;
+		}
+		
+		return $response;
+	}
+}
+
 class _DevblocksDataService {
 	static $instance = null;
 	
@@ -462,6 +710,11 @@ class _DevblocksDataService {
 				
 			case 'worklist.subtotals':
 				$provider = new _DevblocksDataProviderWorklistSubtotals();
+				$results = $provider->getData($query, $chart_fields);
+				break;
+				
+			case 'worklist.timeseries':
+				$provider = new _DevblocksDataProviderWorklistTimeSeries();
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
