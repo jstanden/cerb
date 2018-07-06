@@ -46,6 +46,14 @@ class _DevblocksServices {
 	
 	/**
 	 * 
+	 * @return _DevblocksDataService
+	 */
+	function data() {
+		return _DevblocksDataService::getInstance();
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksDatabaseManager|NULL
 	 */
 	function database() {
