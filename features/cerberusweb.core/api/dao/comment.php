@@ -617,7 +617,8 @@ class SearchFields_Comment extends DevblocksSearchFields {
 		switch($key) {
 			case SearchFields_Comment::ID:
 				$models = DAO_Comment::getIds($values);
-				return array_column(DevblocksPlatform::objectsToArrays($models), 'comment', 'id');
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_COMMENT);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
 				break;
 				
 			case 'author':
