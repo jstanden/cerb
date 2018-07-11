@@ -182,7 +182,7 @@ function DevblocksClass() {
 		if(!(typeof e == 'object'))
 			return false;
 		
-		var $button = $(this);
+		var $button = $(e.target);
 		var $popup = genericAjaxPopupFind($button);
 		var $frm = $popup.find('form').first();
 		var $status = $popup.find('div.status');

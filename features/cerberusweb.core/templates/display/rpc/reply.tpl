@@ -1,11 +1,8 @@
 {$headers = $message->getHeaders()}
-<div class="block reply_frame" style="width:98%;margin:10px;">
+<div class="reply_frame" style="width:98%;margin:10px;">
 <form id="reply{$message->id}_part1" onsubmit="return false;">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
-	<tr>
-		<td><h2 style="color:rgb(50,50,50);">{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'common.reply'|devblocks_translate|capitalize}{/if}</h2></td>
-	</tr>
 	<tr>
 		<td width="100%">
 			{if !$reply_transport}
@@ -352,7 +349,7 @@
 				{if $active_worker->hasPriv('core.mail.save_without_sending')}<li><a href="javascript:;" class="save">{'display.ui.save_nosend'|devblocks_translate}</a></li>{/if}
 				<li><a href="javascript:;" class="draft">{'display.ui.continue_later'|devblocks_translate}</a></li>
 			</ul>
-			<button type="button" class="discard" onclick="window.onbeforeunload=null;if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id='+escape($frm.find('input:hidden[name=draft_id]').val()), function(o) { $frm = $('#reply{$message->id}_part2'); $('#draft'+escape($frm.find('input:hidden[name=draft_id]').val())).remove(); $('#reply{$message->id}').html('');  } ); }"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'display.ui.discard'|devblocks_translate|capitalize}</button>
+			<button type="button" class="discard" onclick="window.onbeforeunload=null;if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id='+escape($frm.find('input:hidden[name=draft_id]').val()), function(o) { $frm = $('#reply{$message->id}_part2'); $('#draft'+escape($frm.find('input:hidden[name=draft_id]').val())).remove(); genericAjaxPopupClose($popup);  } ); }"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'display.ui.discard'|devblocks_translate|capitalize}</button>
 		</td>
 	</tr>
 </table>
@@ -364,7 +361,20 @@
 	if(draftAutoSaveInterval == undefined)
 		var draftAutoSaveInterval = null;
 	
-	$(function(e) {
+	var $popup = genericAjaxPopupFind('#reply{$message->id}_part2');
+	
+	$popup.one('popup_open',function(event,ui) {
+		$popup.dialog('option','title','{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'common.reply'|devblocks_translate|capitalize}{/if}');
+		$popup.css('overflow', 'inherit');
+		
+		// Close confirmation
+		
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			var keycode = e.keyCode || e.which;
+			if(keycode == 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+		
 		var $frm = $('#reply{$message->id}_part1');
 		var $frm2 = $('#reply{$message->id}_part2');
 		
@@ -757,19 +767,21 @@
 		
 		// Focus
 		
-		{if !$is_forward}
-			var $textarea = $frm2.find('textarea[name=content]');
-			$textarea.focus();
-			setElementSelRange($textarea.get(0), 0, 0);
-		{else}
-			$frm.find('input:text[name=to]').focus();
+		{if !$recent_activity}
+			{if !$is_forward}
+				var $textarea = $frm2.find('textarea[name=content]');
+				$textarea.focus();
+				setElementSelRange($textarea.get(0), 0, 0);
+			{else}
+				$frm.find('input:text[name=to]').focus();
+			{/if}
 		{/if}
 		
 		// Reply action buttons
 		
 		var $buttons = $('#reply{$message->id}_buttons');
 		
-		$buttons.find('a.send').click(function() {
+		$buttons.find('a.send').click(function(e) {
 			var $button = $(this);
 			var $status = $frm2.find('div.status').html('').hide();
 			$status.text('').hide();
@@ -782,10 +794,19 @@
 						draftAutoSaveInterval = null;
 					}
 					
+					showLoadingPanel();
+					
 					$frm2.find('input:hidden[name=reply_mode]').val('');
 					$button.closest('td').hide();
-					showLoadingPanel();
-					$frm2.submit();
+					
+					genericAjaxPost($frm2, '', null, function() {
+						hideLoadingPanel();
+						
+						var event = new $.Event('cerb-reply-sent');
+						$popup.trigger(event);
+						
+						genericAjaxPopupClose($popup);
+					});
 					
 				} else {
 					$status.text(json.message).addClass('error').fadeIn();
@@ -793,30 +814,50 @@
 			});
 		});
 		
-		$buttons.find('a.save').click(function() {
+		$buttons.find('a.save').on('click', function(e) {
+			var $button = $(this);
+			
+			// Stop draft auto-save
 			if(null != draftAutoSaveInterval) {
 				clearTimeout(draftAutoSaveInterval);
 				draftAutoSaveInterval = null;
 			}
 			
-			var $frm = $(this).closest('form');
-			$frm.find('input:hidden[name=reply_mode]').val('save');
-			$(this).closest('td').hide();
 			showLoadingPanel();
-			$frm.submit();
+			
+			$frm2.find('input:hidden[name=reply_mode]').val('save');
+			$button.closest('td').hide();
+			
+			genericAjaxPost($frm2, '', null, function() {
+				hideLoadingPanel();
+				
+				var event = new $.Event('cerb-reply-saved');
+				$popup.trigger(event);
+				
+				genericAjaxPopupClose($popup);
+			});
 		});
-
+		
 		$buttons.find('a.draft').click(function() {
+			// Stop the draft auto-save
 			if(null != draftAutoSaveInterval) {
 				clearTimeout(draftAutoSaveInterval);
 				draftAutoSaveInterval = null;
 			}
 			
-			var $frm = $(this).closest('form');
-			$frm.find('input:hidden[name=a]').val('saveDraftReply');
+			$frm2.find('input:hidden[name=a]').val('saveDraftReply');
 			$(this).closest('td').hide();
+			
 			showLoadingPanel();
-			$frm.submit();
+			
+			genericAjaxPost($frm2, '', null, function() {
+				hideLoadingPanel();
+				
+				var event = new $.Event('cerb-reply-draft');
+				$popup.trigger(event);
+				
+				genericAjaxPopupClose($popup);
+			});
 		});
 		
 		// Interactions
@@ -843,15 +884,22 @@
 					}
 				);
 			})
-			.click(); // save now
+			;
+			
+		// Focus 
+		{if $recent_activity}
+			$collisions.find('button:first').focus();
+			
+		{else}
+			$frm.find('button[name=saveDraft]').click(); // save now
+			if(null != draftAutoSaveInterval) {
+				clearTimeout(draftAutoSaveInterval);
+				draftAutoSaveInterval = null;
+			}
+			// and every 30 sec
+			draftAutoSaveInterval = setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000);
+		{/if}
 		
-		$frm.find('button[name=saveDraft]').click(); // save now
-		if(null != draftAutoSaveInterval) {
-			clearTimeout(draftAutoSaveInterval);
-			draftAutoSaveInterval = null;
-		}
-		draftAutoSaveInterval = setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000); // and every 30 sec
-
 		// Files
 		$frm2.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');

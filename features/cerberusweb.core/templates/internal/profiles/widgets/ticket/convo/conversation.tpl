@@ -151,23 +151,14 @@ $(function() {
 			return;
 		}
 		
-		showLoadingPanel();
+		var url = 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&reply_mode='+reply_mode+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid;
 		
-		genericAjaxGet('', 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&reply_mode='+reply_mode+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid,
-			function(html) {
-				var $div = $('#reply' + msgid);
-				
-				hideLoadingPanel();
-				
-				if(0 == $div.length)
-					return;
-				
-				$div.html(html);
-				
-				var offset = $div.offset();
-				window.scrollTo(offset.left, offset.top);
-			}
-		);
+		var $popup = genericAjaxPopup('reply' + msgid, url, null, false, '70%');
+		
+		$popup.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
+			// Profile reload
+			document.location.reload();
+		});
 	});
 	
 	var anchor = window.location.hash.substr(1);
