@@ -383,11 +383,8 @@ class ChDisplayPage extends CerberusPageExtension {
 			@$since_timestamp = DevblocksPlatform::importGPC($_REQUEST['timestamp'],'integer',0);
 			$recent_activity = $this->_checkRecentTicketActivity($message->ticket_id, $since_timestamp);
 			
-			if(!empty($recent_activity)) {
+			if(!empty($recent_activity))
 				$tpl->assign('recent_activity', $recent_activity);
-				$tpl->display('devblocks:cerberusweb.core::display/rpc/reply_confirm.tpl');
-				return;
-			}
 		}
 		
 		// Continue

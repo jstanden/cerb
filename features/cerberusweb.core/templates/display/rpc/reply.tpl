@@ -5,6 +5,25 @@
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td width="100%">
+			{if $recent_activity}
+				<div class="cerb-collision help-box">
+					<h1>There is recent activity on this ticket:</h1>
+					<table style="margin-left:20px;">
+						{foreach from=$recent_activity item=activity}
+						<tr>
+							<td align="right" style="padding-right:15px;vertical-align:middle;"><b>{$activity.timestamp|devblocks_prettytime}</b></td>
+							<td style="vertical-align:middle;">{$activity.message}</td>
+						</tr>
+						{/foreach}
+					</table>
+					
+					<div style="margin-top:10px;">
+						<button type="button" class="cerb-collision--continue"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+						<button type="button" class="cerb-collision--cancel"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(180,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+					</div>
+				</div>
+			{/if}
+			
 			{if !$reply_transport}
 				<div class="help-box">
 					<h1>Your message will not be delivered.</h1>
@@ -377,6 +396,33 @@
 		
 		var $frm = $('#reply{$message->id}_part1');
 		var $frm2 = $('#reply{$message->id}_part2');
+		var $collisions = $popup.find('.cerb-collision');
+		
+		// Collision detection
+		
+		$collisions.find('.cerb-collision--continue').on('click', function(e) {
+			$collisions.remove();
+			
+			// Save a draft now
+			$frm.find('button[name=saveDraft]').click();
+			
+			// Start draft auto-save timer every 30 seconds
+			if(null != draftAutoSaveInterval) {
+				clearTimeout(draftAutoSaveInterval);
+				draftAutoSaveInterval = null;
+			}
+			draftAutoSaveInterval = setInterval("$('#reply{$message->id}_part1 button[name=saveDraft]').click();", 30000);
+			
+			// Move cursor
+			var $textarea = $frm2.find('textarea[name=content]');
+			$textarea.focus();
+			setElementSelRange($textarea.get(0), 0, 0);
+			
+		});
+		
+		$collisions.find('.cerb-collision--cancel').on('click', function(e) {
+			genericAjaxPopupClose($popup);
+		});
 		
 		// Disable ENTER submission on the FORM text input
 		$frm2

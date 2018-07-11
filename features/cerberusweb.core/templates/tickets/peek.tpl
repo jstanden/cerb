@@ -147,7 +147,7 @@ $(function() {
 		
 		// Timeline
 		{if $is_readable}
-		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl"}
+		{include file="devblocks:cerberusweb.core::internal/peek/card_timeline_script.tpl" view_id=$view_id}
 		{/if}
 	});
 });

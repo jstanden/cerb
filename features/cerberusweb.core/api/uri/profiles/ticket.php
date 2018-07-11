@@ -58,8 +58,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	function getPeekPreviewAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		
 		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_MESSAGE:
