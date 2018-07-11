@@ -600,12 +600,20 @@ foreach($results as $result) {
 		'columns' => $worklist_columns,
 	];
 	
-	// Store a remidner of the old params
-	if($worklist_search_mode != 'quick_search')
-		$new_json['query'] = '{# ' . json_encode($worklist_params) . ' #}';
+	$changes = [];
 	
-	$sql = sprintf("UPDATE workspace_widget SET params_json = %s WHERE id = %d",
-		$db->qstr(json_encode($new_json)),
+	// Store a remidner of the old params
+	if($worklist_search_mode != 'quick_search') {
+		$changes['label'] = "CONCAT_WS(' ',label,'(!)')";
+		$new_json['query'] = '{# ' . json_encode($worklist_params) . ' #}';
+	}
+	
+	$changes['params_json'] = $db->qstr(json_encode($new_json));
+	
+	$sql = sprintf("UPDATE workspace_widget SET %s WHERE id = %d",
+		implode(', ', array_map(function($k,$v) {
+			return sprintf("%s = %s", $k, $v);
+		}, array_keys($changes), $changes)),
 		$result['id']
 	);
 	$db->Execute($sql);
