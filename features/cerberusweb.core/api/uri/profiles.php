@@ -2293,6 +2293,114 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 	}
 }
 
+class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
+	const ID = 'cerb.profile.tab.widget.chart.timeseries';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+	
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
+		@$subchart = DevblocksPlatform::importGPC($model->extension_params['subchart'], 'int', 0);
+		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', 'line');
+		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
+		@$xaxis_key = DevblocksPlatform::importGPC($model->extension_params['xaxis_key'], 'string', 'ts');
+		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', '%Y-%m-%d');
+		@$xaxis_tick_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_tick_format'], 'string', '');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'record__context' => $context,
+			'record_id' => $context_id,
+			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+			'widget_id' => $model->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
+		
+		if(!$query)
+			return;
+		
+		$results = $data->executeQuery($query);
+		
+		$config_json = [
+			'bindto' => sprintf("#widget%d", $model->id),
+			'data' => [
+				'x' => 'ts',
+				'xFormat' => '%Y-%m-%d',
+				'json' => $results,
+				'type' => 'line'
+			],
+			'axis' => [
+				'x' => [
+					'type' => 'timeseries',
+					'ticks' => [
+						
+					]
+				]
+			],
+			'subchart' => [
+				'show' => false,
+				'size' => [
+					'height' => 50,
+				]
+			],
+			'point' => [
+				'show' => true
+			]
+		];
+		
+		$config_json['data']['xFormat']  = $xaxis_format;
+		
+		if($xaxis_tick_format)
+			$config_json['axis']['x']['tick']['format']  = $xaxis_tick_format;
+		
+		$config_json['subchart']['show']  = @$options['subchart'] ? true : false;
+		$config_json['point']['show']  = @$options['show_points'] ? true : false;
+		
+		switch($chart_as) {
+			case 'line':
+				$config_json['data']['type']  = 'line';
+				break;
+				
+			case 'spline':
+				$config_json['data']['type']  = 'spline';
+				break;
+				
+			case 'area':
+				$config_json['data']['type']  = 'area';
+				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results), [$xaxis_key]))];
+				break;
+				
+			case 'bar':
+				$config_json['data']['type']  = 'bar';
+				break;
+				
+			case 'bar_stacked':
+				$config_json['data']['type']  = 'bar';
+				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results), [$xaxis_key]))];
+				break;
+		}
+		
+		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/timeseries/render.tpl');
+	}
+	
+	function renderConfig(Model_ProfileWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/timeseries/config.tpl');
+	}
+}
+
 class ProfileWidget_Visualization extends Extension_ProfileWidget {
 	const ID = 'cerb.profile.tab.widget.visualization';
 
