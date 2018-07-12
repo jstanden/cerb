@@ -13,7 +13,7 @@
 			</select>
 		</div>
 		
-		<b>ID:</b>
+		<b><a href="javascript:;" class="cerb-chooser" data-context="{$widget->extension_params.context}" data-single="true">ID</a>:</b>
 		
 		<div style="margin-left:10px;">
 			<input type="text" name="params[context_id]" value="{$widget->extension_params.context_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
@@ -29,6 +29,8 @@
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	var $select = $config.find("select[name='params[context]']");
+	var $label_context_id = $config.find('a.cerb-chooser');
+	var $input_context_id = $config.find('input[name="params[context_id]"]');
 	var $tab_fields = $config.find('#widget{$widget->id}TabFields');
 	var $context_tabs = $config.find('div.cerb-context-tabs');
 	
@@ -42,6 +44,8 @@ $(function() {
 			return;
 		}
 		
+		$label_context_id.attr('data-context', context);
+		
 		// When the context changes, redraw the tabs
 		genericAjaxGet($context_tabs, 'c=profiles&a=handleSectionAction&section=profile_widget&action=getFieldsTabsByContext&context=' + encodeURIComponent(context), function() {
 			var $tabs = $context_tabs.find('div.cerb-tabs');
@@ -53,5 +57,11 @@ $(function() {
 			$tabs.tabs().show();
 		});
 	});
+	
+	$config.find('.cerb-chooser').cerbChooserTrigger()
+		.on('cerb-chooser-selected', function(e) {
+			{literal}$input_context_id.val(e.values[0] + '{# ' + e.labels[0] + ' #}');{/literal}
+		})
+		;
 });
 </script>
