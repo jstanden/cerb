@@ -5899,6 +5899,17 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.chart.categories</id>
+			<name>Chart: Categories</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_ChartCategories</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.comments</id>
 			<name>Comments</name>
 			<class>
@@ -6223,7 +6234,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.subtotals</id>
-			<name>Subtotals</name>
+			<name>(Deprecated) Subtotals</name>
 			<class>
 				<file>api/uri/internal/dashboards.php</file>
 				<name>WorkspaceWidget_Subtotals</name>

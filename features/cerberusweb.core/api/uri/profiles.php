@@ -2213,6 +2213,86 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 	}
 }
 
+class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
+	const ID = 'cerb.profile.tab.widget.chart.categories';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+	
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
+		@$xaxis_key = DevblocksPlatform::importGPC($model->extension_params['xaxis_key'], 'string', 'label');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'record__context' => $context,
+			'record_id' => $context_id,
+			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+			'widget_id' => $model->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
+		
+		if(!$query)
+			return;
+		
+		$results = $data->executeQuery($query);
+		
+		$config_json = [
+			'bindto' => sprintf("#widget%d", $model->id),
+			'data' => [
+				'x' => $xaxis_key,
+				'columns' => $results['subtotals'],
+				'type' => 'bar',
+				'colors' => [
+					'hits' => '#1f77b4'
+				]
+			],
+			'axis' => [
+				'rotated' => true,
+				'x' => [
+					'type' => 'category'
+				],
+				'y' => [
+					
+				]
+			],
+			'legend' => [
+				'show' => true,
+			]
+		];
+		
+		if(@$results['stacked']) {
+			$config_json['data']['type']  = 'bar';
+			$groups = array_column($results['subtotals'], 0);
+			array_shift($groups);
+			$config_json['data']['groups'] = [array_values($groups)];
+			$config_json['legend']['show'] = true;
+			
+		} else {
+			$config_json['data']['type']  = 'bar';
+			$config_json['legend']['show'] = false;
+		}
+		
+		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/categories/render.tpl');
+	}
+	
+	function renderConfig(Model_ProfileWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/categories/config.tpl');
+	}
+}
+
 class ProfileWidget_Visualization extends Extension_ProfileWidget {
 	const ID = 'cerb.profile.tab.widget.visualization';
 
