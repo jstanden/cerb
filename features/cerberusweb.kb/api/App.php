@@ -342,7 +342,6 @@ class ProfileWidget_KbArticle extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$target_context = $model->extension_params['context'];
 		@$target_context_id = $model->extension_params['context_id'];
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
@@ -355,7 +354,7 @@ class ProfileWidget_KbArticle extends Extension_ProfileWidget {
 		
 		// Are we showing fields for a different record?
 		
-		if($target_context && $target_context_id) {
+		if($target_context_id) {
 			$labels = $values = $merge_token_labels = $merge_token_values = [];
 			
 			CerberusContexts::getContext($context, $record, $merge_token_labels, $merge_token_values, null, true, true);
