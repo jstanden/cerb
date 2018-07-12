@@ -3,7 +3,7 @@
 		"name": "Chat Bot",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "8.2.4",
+			"cerb_version": "9.0.0",
 			"plugins": [
 
 			]

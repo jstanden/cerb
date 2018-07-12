@@ -3,7 +3,7 @@
 		"name": "Tutorial Package",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "8.2.4",
+			"cerb_version": "9.0.0",
 			"plugins": [
 				"cerb.project_boards"
 			]
@@ -2126,7 +2126,7 @@
 			"pos": 5,
 			"extension_id": "core.workspace.tab.dashboard",
 			"params": {
-				"layout": ""
+				"layout": "sidebar_left"
 			}
 		},
 		{
@@ -2587,7 +2587,7 @@
 					"limit": 5,
 					"sort_by": "c_updated_at",
 					"sort_asc": true,
-					"subtotals": "o_name",
+					"subtotals": "c_org_id",
 					"context": "cerberusweb.contexts.contact"
 				}
 			}
@@ -2631,7 +2631,9 @@
 			"label": "Subtotals: Tickets by Status",
 			"cache_ttl": "300",
 			"extension_id": "core.workspace.widget.subtotals",
-			"pos": "0000",
+			"zone": "sidebar",
+			"width_units": 4,
+			"pos": 2,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"style": "list",
@@ -2664,7 +2666,9 @@
 			"label": "Gauge: Avg. Response Time (30d)",
 			"cache_ttl": "300",
 			"extension_id": "core.workspace.widget.gauge",
-			"pos": "0001",
+			"zone": "sidebar",
+			"width_units": 4,
+			"pos": 3,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"metric_min": "0",
@@ -2737,7 +2741,9 @@
 			"label": "Counter: # Open Tickets",
 			"cache_ttl": "0",
 			"extension_id": "core.workspace.widget.counter",
-			"pos": "0002",
+			"zone": "sidebar",
+			"width_units": 4,
+			"pos": 10,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"datasource": "core.workspace.widget.datasource.worklist.metric",
@@ -2778,7 +2784,9 @@
 			"label": "Chart: New tickets by week",
 			"cache_ttl": "300",
 			"extension_id": "core.workspace.widget.chart",
-			"pos": "0003",
+			"zone": "content",
+			"width_units": 4,
+			"pos": 4,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"chart_type": "line",
@@ -2845,94 +2853,17 @@
 			}
 		},
 		{
-			"uid": "workspace_widget_eval_scatterplot_resolve_vs_nummessages",
-			"_context": "workspace_widget",
-			"label": "Scatterplot: Time to Close vs Convo Length",
-			"cache_ttl": "300",
-			"extension_id": "core.workspace.widget.scatterplot",
-			"pos": "0004",
-			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
-			"params": {
-				"axes_independent": "0",
-				"series": [
-					{
-						"datasource": "core.workspace.widget.datasource.worklist.series",
-						"label": "First Resolution vs # Messages",
-						"context": "cerberusweb.contexts.ticket",
-						"search_mode": "quick_search",
-						"quick_search": "resolution.first:\">-1 year\" status:c",
-						"xaxis_field": "t_elapsed_resolution_first",
-						"xaxis_tick": "hour",
-						"xaxis_format": "seconds",
-						"yaxis_func": "value",
-						"yaxis_field": "t_num_messages",
-						"yaxis_format": "number",
-						"line_color": "#058dc7",
-						"worklist_model": {
-							"options": [
-
-							],
-							"columns": [
-								"t_last_wrote_address_id",
-								"t_updated_date",
-								"t_group_id",
-								"t_bucket_id",
-								"t_owner_id"
-							],
-							"params": {
-								"59bc2291191b7": {
-									"field": "t_elapsed_resolution_first",
-									"operator": ">",
-									"value": -31536000
-								},
-								"59bc2291191e3": {
-									"field": "*_status",
-									"operator": "in",
-									"value": [
-										"closed"
-									]
-								}
-							},
-							"limit": 10,
-							"sort_by": "t_updated_date",
-							"sort_asc": false,
-							"subtotals": "",
-							"context": "cerberusweb.contexts.ticket"
-						}
-					},
-					{
-						"datasource": "",
-						"label": "",
-						"line_color": "#058dc7"
-					},
-					{
-						"datasource": "",
-						"label": "",
-						"line_color": "#058dc7"
-					},
-					{
-						"datasource": "",
-						"label": "",
-						"line_color": "#058dc7"
-					},
-					{
-						"datasource": "",
-						"label": "",
-						"line_color": "#058dc7"
-					}
-				]
-			}
-		},
-		{
 			"uid": "workspace_widget_eval_calendar",
 			"_context": "workspace_widget",
 			"label": "Calendar: Office Holidays",
 			"cache_ttl": "300",
 			"extension_id": "core.workspace.widget.calendar",
-			"pos": "1000",
+			"zone": "content",
+			"width_units": 4,
+			"pos": 1,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
-				"calendar_id": "{{{uid.calendar_usholidays}}}"
+				"calendar_id": "{{{uid.calendar_usholidays}}}{# Office Holidays #}"
 			}
 		},
 		{
@@ -2941,7 +2872,9 @@
 			"label": "Subtotals: Orgs by Country",
 			"cache_ttl": "300",
 			"extension_id": "core.workspace.widget.subtotals",
-			"pos": "1001",
+			"zone": "content",
+			"width_units": 2,
+			"pos": 3,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"style": "pie",
@@ -2967,24 +2900,14 @@
 			}
 		},
 		{
-			"uid": "workspace_widget_eval_html_map",
-			"_context": "workspace_widget",
-			"label": "HTML: Google Maps",
-			"cache_ttl": "300",
-			"extension_id": "core.workspace.widget.custom_html",
-			"pos": "1002",
-			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
-			"params": {
-				"content": "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1252.1542032017605!2d-122.01098193075943!3d37.32628748557081!2m3!1f0!2f39.09567279676287!3f0!3m2!1i1024!2i768!4f35!3m3!1m2!1s0x0%3A0xa6fc33ba56a4e147!2sApple+Park!5e1!3m2!1sen!2sus!4v1505500527082\" width=\"100%\" height=\"300\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>"
-			}
-		},
-		{
 			"uid": "workspace_widget_eval_bot_behavior_shortcuts",
 			"_context": "workspace_widget",
 			"label": "Bot Behavior: Interaction Shortcuts",
 			"cache_ttl": "0",
 			"extension_id": "core.workspace.widget.bot",
-			"pos": "2000",
+			"zone": "sidebar",
+			"width_units": 4,
+			"pos": 1,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"behavior_id": "{{{uid.behavior_eval_render_dashboard_widget}}}"
@@ -2996,7 +2919,9 @@
 			"label": "Clock: Los Angeles",
 			"cache_ttl": "0",
 			"extension_id": "core.workspace.widget.clock",
-			"pos": "2001",
+			"zone": "sidebar",
+			"width_units": 4,
+			"pos": 4,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"timezone": "America/Los_Angeles",
@@ -3010,7 +2935,9 @@
 			"label": "Clock: London",
 			"cache_ttl": "0",
 			"extension_id": "core.workspace.widget.clock",
-			"pos": "2002",
+			"zone": "sidebar",
+			"width_units": 4,
+			"pos": 5,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"timezone": "Europe/London",
@@ -3024,7 +2951,9 @@
 			"label": "Clock: Tokyo",
 			"cache_ttl": "0",
 			"extension_id": "core.workspace.widget.clock",
-			"pos": "2003",
+			"zone": "sidebar",
+			"width_units": 4,
+			"pos": 6,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"timezone": "Asia/Tokyo",
@@ -3038,7 +2967,9 @@
 			"label": "Countdown: Year 2038 Problem",
 			"cache_ttl": "0",
 			"extension_id": "core.workspace.widget.countdown",
-			"pos": "2004",
+			"zone": "sidebar",
+			"width_units": 4,
+			"pos": 7,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
 				"target_timestamp": 2147483647,
@@ -3051,35 +2982,21 @@
 			"label": "Worklist: Open Tasks",
 			"cache_ttl": "0",
 			"extension_id": "core.workspace.widget.worklist",
-			"pos": "2005",
+			"zone": "content",
+			"width_units": 4,
+			"pos": 2,
 			"tab_id": "{{{uid.workspace_tab_eval_dashboard}}}",
 			"params": {
-				"search_mode": "quick_search",
-				"quick_search": "status:o",
-				"worklist_model": {
-					"options": [
-
-					],
-					"columns": [
-						"t_due_date",
-						"t_importance",
-						"t_owner_id"
-					],
-					"params": {
-						"59bc2674de30d": {
-							"field": "t_status_id",
-							"operator": "in",
-							"value": [
-								0
-							]
-						}
-					},
-					"limit": 10,
-					"sort_by": "t_due_date",
-					"sort_asc": true,
-					"subtotals": "__*_has_fieldset",
-					"context": "cerberusweb.contexts.task"
-				}
+				"context": "cerberusweb.contexts.task",
+				"query_required": "status:o sort:due",
+				"query": "",
+				"render_limit": 10,
+				"header_color": "#6a87db",
+				"columns": [
+					"t_due_date",
+					"t_importance",
+					"t_owner_id"
+				]
 			}
 		},
 		{
@@ -3348,7 +3265,7 @@
 								"actions": [
 									{
 										"action": "render_html",
-										"html": "<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-params=\"option=default\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><img src=\"{{cerb_avatar_url('app',0,0)}}\" width=\"35\" height=\"35\">\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-params=\"option=reminder\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-alarm\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-params=\"option=contacts\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-address-book\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-params=\"option=mail\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-envelope\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<script type=\"text/javascript\">\r\n$(function() {\r\n\tvar $widget = $('#widget{{widget_id}}');\r\n\t$widget.find('.cerb-bot-trigger').cerbBotTrigger();\r\n});\r\n</script>"
+										"html": "<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-params=\"option=default\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><img src=\"{{cerb_avatar_url('app',0,0)}}\" width=\"35\" height=\"35\">\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-params=\"option=reminder\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-alarm\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-params=\"option=contacts\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-address-book\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<button type=\"button\" style=\"height:inherit;\" class=\"cerb-bot-trigger\" data-interaction=\"dashboard.widget.example\" data-interaction-params=\"option=mail\" data-behavior-id=\"{{{uid.behavior_eval_handle_interaction}}}\"><span class=\"glyphicons glyphicons-envelope\" style=\"font-size:35px;\"></span>\r\n</button>\r\n\r\n<script type=\"text/javascript\">\r\n$(function() {\r\n\tvar $widget = $('#workspaceWidget{{widget_id}}');\r\n\t$widget.find('.cerb-bot-trigger').cerbBotTrigger();\r\n});\r\n</script>"
 									}
 								]
 							}

@@ -1,10 +1,10 @@
 {
 	"package": {
 		"name": "Customer Satisfaction Workflow",
-		"cerb_version": "8.3.0",
+		"cerb_version": "9.0.0",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "8.3.0",
+			"cerb_version": "9.0.0",
 			"plugins": [
 				"cerb.bots.portal.widget"
 			]
@@ -2296,16 +2296,18 @@
 				{
 					"uid": "workspace_tab_47",
 					"name": "NPS",
-					"extension_id": "core.workspace.tab",
+					"extension_id": "core.workspace.tab.dashboard",
 					"params": {
-						"num_columns": "2"
+						"layout": "sidebar_left"
 					},
 					"widgets": [
 						{
 							"uid": "workspace_widget_48",
 							"label": "Net Promoter Score (NPS)",
 							"extension_id": "core.workspace.widget.gauge",
-							"pos": "0000",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 0,
 							"params": {
 								"metric_min": "-100",
 								"threshold_labels": [
@@ -2336,7 +2338,9 @@
 							"uid": "workspace_widget_41",
 							"label": "Net Promoter Score (NPS)",
 							"extension_id": "core.workspace.widget.bot",
-							"pos": "0001",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 1,
 							"params": {
 								"behavior_id": "{{{uid.behavior_298}}}"
 							}
@@ -2345,7 +2349,9 @@
 							"uid": "workspace_widget_42",
 							"label": "Total Ratings",
 							"extension_id": "core.workspace.widget.counter",
-							"pos": "0002",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 2,
 							"params": {
 								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.contact",
@@ -2392,7 +2398,9 @@
 							"uid": "workspace_widget_43",
 							"label": "Promoters",
 							"extension_id": "core.workspace.widget.counter",
-							"pos": "0003",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 3,
 							"params": {
 								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.contact",
@@ -2439,7 +2447,9 @@
 							"uid": "workspace_widget_44",
 							"label": "Detractors",
 							"extension_id": "core.workspace.widget.counter",
-							"pos": "0004",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 4,
 							"params": {
 								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.contact",
@@ -2486,7 +2496,9 @@
 							"uid": "workspace_widget_55",
 							"label": "Recent Ratings",
 							"extension_id": "core.workspace.widget.bot",
-							"pos": "1001",
+							"zone": "content",
+							"width_units": 4,
+							"pos": 1,
 							"params": {
 								"behavior_id": "{{{uid.behavior_300}}}"
 							}
@@ -2495,7 +2507,9 @@
 							"uid": "workspace_widget_56",
 							"label": "Ratings Over Time (YTD)",
 							"extension_id": "core.workspace.widget.chart",
-							"pos": "1002",
+							"zone": "content",
+							"width_units": 4,
+							"pos": 2,
 							"params": {
 								"chart_type": "bar",
 								"chart_display": "",
@@ -2660,16 +2674,18 @@
 				{
 					"uid": "workspace_tab_51",
 					"name": "CSAT",
-					"extension_id": "core.workspace.tab",
+					"extension_id": "core.workspace.tab.dashboard",
 					"params": {
-						"num_columns": "3"
+						"layout": "sidebar_left"
 					},
 					"widgets": [
 						{
 							"uid": "workspace_widget_58",
 							"label": "Avg. Customer Satisfaction Score (CSAT)",
 							"extension_id": "core.workspace.widget.gauge",
-							"pos": "0000",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 0,
 							"params": {
 								"metric_min": "1",
 								"threshold_labels": [
@@ -2726,7 +2742,9 @@
 							"uid": "workspace_widget_59",
 							"label": "# Ratings",
 							"extension_id": "core.workspace.widget.counter",
-							"pos": "0001",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 1,
 							"params": {
 								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.message",
@@ -2767,7 +2785,9 @@
 							"uid": "workspace_widget_60",
 							"label": "CSAT Ratings Over Time (90 days)",
 							"extension_id": "core.workspace.widget.chart",
-							"pos": "1000",
+							"zone": "content",
+							"width_units": 4,
+							"pos": 2,
 							"params": {
 								"chart_type": "bar",
 								"chart_display": "",
@@ -2900,7 +2920,9 @@
 							"uid": "workspace_widget_61",
 							"label": "Recent Ratings",
 							"extension_id": "core.workspace.widget.bot",
-							"pos": "2000",
+							"zone": "content",
+							"width_units": 4,
+							"pos": 1,
 							"params": {
 								"behavior_id": "{{{uid.behavior_318}}}"
 							}
@@ -2910,16 +2932,18 @@
 				{
 					"uid": "workspace_tab_50",
 					"name": "CES",
-					"extension_id": "core.workspace.tab",
+					"extension_id": "core.workspace.tab.dashboard",
 					"params": {
-						"num_columns": "3"
+						"layout": "sidebar_left"
 					},
 					"widgets": [
 						{
 							"uid": "workspace_widget_57",
 							"label": "\"The {{{product_name}}} team made it easy to resolve my issue\"",
 							"extension_id": "core.workspace.widget.gauge",
-							"pos": "0000",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 0,
 							"params": {
 								"metric_min": "0",
 								"threshold_labels": [
@@ -2988,7 +3012,9 @@
 							"uid": "workspace_widget_62",
 							"label": "# Ratings",
 							"extension_id": "core.workspace.widget.counter",
-							"pos": "0001",
+							"zone": "sidebar",
+							"width_units": 4,
+							"pos": 1,
 							"params": {
 								"datasource": "core.workspace.widget.datasource.worklist.metric",
 								"context": "cerberusweb.contexts.ticket",
@@ -3038,7 +3064,9 @@
 							"uid": "workspace_widget_64",
 							"label": "Ratings Over Time (90 days)",
 							"extension_id": "core.workspace.widget.chart",
-							"pos": "1000",
+							"zone": "content",
+							"width_units": 4,
+							"pos": 2,
 							"params": {
 								"chart_type": "bar",
 								"chart_display": "",
@@ -3203,7 +3231,9 @@
 							"uid": "workspace_widget_63",
 							"label": "Recent Ratings",
 							"extension_id": "core.workspace.widget.bot",
-							"pos": "2000",
+							"zone": "content",
+							"width_units": 4,
+							"pos": 1,
 							"params": {
 								"behavior_id": "{{{uid.behavior_320}}}"
 							}

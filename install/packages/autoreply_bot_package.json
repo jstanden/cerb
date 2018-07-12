@@ -1,10 +1,10 @@
 {
 	"package": {
 		"name": "Auto-Reply Bot",
-		"cerb_version": "8.0.1",
+		"cerb_version": "9.0.0",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "8.0.0",
+			"cerb_version": "9.0.0",
 			"plugins": [
 
 			]
