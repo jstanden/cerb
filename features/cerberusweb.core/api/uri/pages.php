@@ -180,6 +180,10 @@ class Page_Custom extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		switch($page_type) {
+			case 'home':
+				$page = $this->_createWizardHomePage();
+				break;
+				
 			case 'mail':
 				$page = $this->_createWizardMailPage();
 				break;
@@ -259,6 +263,27 @@ class Page_Custom extends CerberusPageExtension {
 		CerberusApplication::packages()->import($package_json, $prompts, $records_created);
 		
 		@$page = $records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE]['workspace_reports'];
+		
+		return $page;
+	}
+	
+	private function _createWizardHomePage() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Import as a package
+		
+		if(false == ($package_json = file_get_contents(APP_PATH . '/features/cerberusweb.core/packages/wizard_home_page_package.json')))
+			return false;
+		
+		$records_created = [];
+		
+		$prompts = [
+			'target_worker_id' => $active_worker->id,
+		];
+		
+		CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+		
+		@$page = $records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE]['workspace_home'];
 		
 		return $page;
 	}

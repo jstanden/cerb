@@ -9,7 +9,28 @@
 	
 	<div style="margin-bottom:10px;">
 		<label>
-			<input type="radio" name="page_type" value="mail" checked="checked"> 
+			<input type="radio" name="page_type" value="home" checked="checked"> 
+			<h2 style="display:inline;">Home</h2>
+		</label>
+		<div style="margin-left:20px;">
+			<div class="tabs">
+				<ul>
+					<li><a href="#home_tab1">Overview</a></li>
+				</ul>
+				
+				<div id="home_tab1">
+					<div style="display:inline-block;margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">My tickets</div>
+					<div style="display:inline-block;margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">My tasks</div>
+					<div style="display:inline-block;margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">My calendar</div>
+					<div style="display:inline-block;margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">My reminders</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div style="margin-bottom:10px;">
+		<label>
+			<input type="radio" name="page_type" value="mail"> 
 			<h2 style="display:inline;">Mail</h2>
 		</label>
 		<div style="margin-left:20px;">
@@ -21,13 +42,13 @@
 				</ul>
 				
 				<div id="mail_tab1">
-					<div style="margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">Needs attention</div>
+					<div style="display:inline-block;margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">Needs attention</div>
 				</div>
 				<div id="mail_tab2">
-					<div style="margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">My drafts</div>
+					<div style="display:inline-block;margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">My drafts</div>
 				</div>
 				<div id="mail_tab3">
-					<div style="margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">My sent messages</div>
+					<div style="display:inline-block;margin-bottom:5px;font-weight:bold;color:white;background-color:rgb(100,135,225);padding:5px 10px;border-radius:5px 5px 0px 0px;-moz-border-radius:5px 5px 0px 0px;-webkit-border-radius:5px 5px 0px 0px;">My sent messages</div>
 				</div>
 			</div>
 		</div>
