@@ -5910,6 +5910,17 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.chart.pie</id>
+			<name>Chart: Pie</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_ChartPie</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.chart.scatterplot</id>
 			<name>Chart: Scatterplot</name>
 			<class>

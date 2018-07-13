@@ -2293,6 +2293,76 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 	}
 }
 
+class ProfileWidget_ChartPie extends Extension_ProfileWidget {
+	const ID = 'cerb.profile.tab.widget.chart.pie';
+
+	function __construct($manifest=null) {
+		parent::__construct($manifest);
+	}
+	
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
+		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', null);
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $model->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
+		
+		if(!$query)
+			return;
+		
+		$results = $data->executeQuery($query);
+		
+		$config_json = [
+			'bindto' => sprintf("#widget%d", $model->id),
+			'data' => [
+				'columns' => $results,
+				'type' => $chart_as == 'pie' ? 'pie' : 'donut',
+			],
+			'donut' => [
+				'label' => [
+					'show' => false,
+					'format' => null,
+				],
+			],
+			'pie' => [
+				'label' => [
+					'show' => false,
+					'format' => null,
+				],
+			],
+			'tooltip' => [
+				'format' => [
+					'value' => null,
+				],
+			],
+			'legend' => [
+				'show' => true,
+			]
+		];
+		
+		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/pie/render.tpl');
+	}
+	
+	function renderConfig(Model_ProfileWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/pie/config.tpl');
+	}
+}
+
 class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 	const ID = 'cerb.profile.tab.widget.chart.scatterplot';
 
