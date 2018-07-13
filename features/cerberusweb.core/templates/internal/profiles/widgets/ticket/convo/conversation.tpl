@@ -95,6 +95,7 @@ $(function() {
 	// Quick reply
 	$parent
 		.on('keydown.widget{$widget->id}', null, 'R', function(e) {
+			e.preventDefault();
 			e.stopPropagation();
 			{if $expand_all}
 			$('#conversation').find('div[id^="message"]').last().find('button.reply').click();
@@ -107,6 +108,7 @@ $(function() {
 	// Reply menu
 	$parent
 		.on('keydown.widget{$widget->id}', null, 'Shift+R', function(e) {
+			e.preventDefault();
 			e.stopPropagation();
 			{if $expand_all}
 			$('#conversation').find('div[id^="message"]').last().find('button.split-right').click();
@@ -129,6 +131,7 @@ $(function() {
 		;
 	
 	$widget.on('cerb_reply', function(e) {
+		e.preventDefault();
 		e.stopPropagation();
 		
 		if(undefined == e.message_id)
