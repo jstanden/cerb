@@ -1649,6 +1649,78 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 	}
 };
 
+class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', null);
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
+		
+		if(!$query)
+			return;
+		
+		$results = $data->executeQuery($query);
+		
+		$config_json = [
+			'bindto' => sprintf("#widget%d", $widget->id),
+			'data' => [
+				'columns' => $results,
+				'type' => $chart_as == 'pie' ? 'pie' : 'donut'
+			],
+			'donut' => [
+				'label' => [
+					'show' => false,
+					'format' => null,
+				],
+			],
+			'pie' => [
+				'label' => [
+					'show' => false,
+					'format' => null,
+				],
+			],
+			'tooltip' => [
+				'format' => [
+					'value' => null,
+				],
+			],
+			'legend' => [
+				'show' => true,
+			]
+		];
+		
+		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/pie/render.tpl');
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/pie/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+	}
+};
+
 class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
 	function render(Model_WorkspaceWidget $widget) {
 		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);

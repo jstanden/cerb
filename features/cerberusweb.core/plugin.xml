@@ -6156,6 +6156,17 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.chart.pie</id>
+			<name>Chart: Pie</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_ChartPie</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>cerb.workspace.widget.chart.scatterplot</id>
 			<name>Chart: Scatterplot</name>
 			<class>
