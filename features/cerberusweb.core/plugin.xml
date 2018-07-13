@@ -6145,6 +6145,17 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.chart.scatterplot</id>
+			<name>Chart: Scatterplot</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_ChartScatterplot</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>cerb.workspace.widget.chart.timeseries</id>
 			<name>Chart: Time Series</name>
 			<class>

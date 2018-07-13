@@ -1649,6 +1649,81 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 	}
 };
 
+class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
+	function render(Model_WorkspaceWidget $widget) {
+		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
+		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
+		
+		if(!$query)
+			return;
+		
+		$results = $data->executeQuery($query);
+		
+		$config_json = [
+			'bindto' => sprintf("#widget%d", $widget->id),
+			'data' => [
+				'xs' => [],
+				'columns' => $results,
+				'type' => 'scatter',
+			],
+			'axis' => [
+				'x' => [
+					'tick' => [
+						'format' => null,
+						'fit' => false,
+					]
+				],
+				'y' => [
+					'tick' => [
+						'fit' => false,
+						'format' => null,
+					]
+				]
+			],
+		];
+		
+		foreach($results as $result) {
+			if(DevblocksPlatform::strEndsWith($result[0], '_x'))
+				$config_json['data']['xs'][mb_substr($result[0],0,-2)] = $result[0];
+		}
+		
+		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('xaxis_format', $xaxis_format);
+		$tpl->assign('yaxis_format', $yaxis_format);
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/scatterplot/render.tpl');
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/scatterplot/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+	}
+};
+
 class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
