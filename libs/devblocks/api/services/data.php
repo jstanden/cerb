@@ -519,6 +519,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				return $this->_convertTreeToCategories($response);
 				break;
 				
+			case 'pie':
+				return $this->_convertTreeToPie($response);
+				break;
+				
 			case 'timeseries':
 				return $this->_convertTreeToTimeSeries($response);
 				break;
@@ -578,6 +582,19 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		return ['subtotals' => $output, 'stacked' => $nested];
+	}
+	
+	function _convertTreeToPie($response) {
+		if(!isset($response['children']))
+			return [];
+		
+		$output = [];
+		
+		foreach($response['children'] as $subtotal) {
+			$output[] = [$subtotal['name'], $subtotal['hits']];
+		}
+		
+		return $output;
 	}
 	
 	function _convertTreeToTimeSeries($response) {
