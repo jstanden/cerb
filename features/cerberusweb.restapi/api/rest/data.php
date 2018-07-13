@@ -17,6 +17,14 @@ class ChRest_Data extends Extension_RestController { //implements IExtensionRest
 	}
 	
 	function postAction($stack) {
+		@$action = array_shift($stack);
+		
+		switch($action) {
+			case 'query':
+				$this->postQuery();
+				break;
+		}
+		
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
@@ -32,6 +40,20 @@ class ChRest_Data extends Extension_RestController { //implements IExtensionRest
 		
 		if(empty($query))
 			$this->error(self::ERRNO_CUSTOM, "The 'q' query parameter is required.");
+		
+		$results = $data->executeQuery($query);
+		
+		$this->success($results);
+	}
+	
+	private function postQuery() {
+		$worker = CerberusApplication::getActiveWorker();
+		$data = DevblocksPlatform::services()->data();
+		
+		@$query = DevblocksPlatform::getHttpBody();
+		
+		if(empty($query))
+			$this->error(self::ERRNO_CUSTOM, "A query is required in the HTTP request body.");
 		
 		$results = $data->executeQuery($query);
 		
