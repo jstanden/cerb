@@ -63,12 +63,18 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		switch($context) {
 			case CerberusContexts::CONTEXT_MESSAGE:
 				if(false == ($message = DAO_Message::get($context_id)))
 					return;
-				
+					
 				$tpl->assign('message', $message);
+				
+				$is_writeable = Context_Message::isWriteableByActor($message, $active_worker);
+				$tpl->assign('is_writeable', $is_writeable);
+				
 				$tpl->display('devblocks:cerberusweb.core::tickets/peek_preview.tpl');
 				break;
 				

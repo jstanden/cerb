@@ -74,9 +74,11 @@
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$message_custom_fieldsets}
 	</div>
 	
+	{if $is_writeable}
 	<div style="margin-top:10px;">
 		<button type="button" class="cerb-button-reply"><span class="glyphicons glyphicons-share" style="color:rgb(0,180,0);"></span> {'common.reply'|devblocks_translate|capitalize}</button>
 	</div>
+	{/if}
 	
 {elseif $comment && $comment instanceof Model_Comment}
 	{$owner_meta = $comment->getOwnerMeta()}
