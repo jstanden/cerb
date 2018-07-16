@@ -61,7 +61,20 @@
 	<div style="clear:both;"></div>
 	
 	<div style="margin:2px;padding:5px;">
-		<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+		{if DAO_WorkerPref::get($active_worker->id, 'mail_disable_html_display', 0)}
+			{$html_body = null}
+		{else}
+			{$html_body = $message->getContentAsHtml()}
+		{/if}
+
+		{if !empty($html_body)}
+			<div class="emailBodyHtml">
+				{$html_body nofilter}
+			</div>
+		{else}
+			<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+		{/if}
+		<br>
 	</div>
 	
 	{* Attachments *}
