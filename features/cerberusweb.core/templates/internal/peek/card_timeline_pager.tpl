@@ -16,8 +16,10 @@
 	</table>
 </div>
 
+<div style="overflow:auto;">
 <fieldset class="peek cerb-peek-timeline" style="margin:5px 0px 0px 0px;">
 	<div class="cerb-peek-timeline-preview" style="margin:0px 5px;">
 		<span class="cerb-ajax-spinner"></span>
 	</div>
 </fieldset>
+</div>
