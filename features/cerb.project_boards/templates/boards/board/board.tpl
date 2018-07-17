@@ -75,6 +75,7 @@ div.cerb-board div.cerb-board-column div.cerb-board-card {
 	margin: 5px;
 	padding: 0;
 	cursor: move;
+	overflow: hidden;
 	position:relative;
 }
 
