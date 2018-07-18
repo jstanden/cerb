@@ -60,7 +60,7 @@
 	
 	<div style="clear:both;"></div>
 	
-	<div style="margin:2px;padding:5px;">
+	<div style="margin:0;padding:0;">
 		{if DAO_WorkerPref::get($active_worker->id, 'mail_disable_html_display', 0)}
 			{$html_body = null}
 		{else}
