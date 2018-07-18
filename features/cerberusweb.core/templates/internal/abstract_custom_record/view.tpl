@@ -2,6 +2,8 @@
 {$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
+{$data_count = count($data)}
+{$avatar_limit = 50}
 {$are_rows_two_lines = !in_array('a_name', $view->view_columns)}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
@@ -45,7 +47,7 @@
 		</th>
 		{/if}
 
-		{if $custom_record->hasOption('avatars')}
+		{if $custom_record->hasOption('avatars') && $data_count <= $avatar_limit}
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.photo'|devblocks_translate|capitalize}">
 			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
 		</th>
@@ -94,7 +96,7 @@
 			</td>
 			{/if}
 			
-			{if $custom_record->hasOption('avatars')}
+			{if $custom_record->hasOption('avatars') && $data_count <= $avatar_limit}
 			<td data-column="*_image" align="center" {if $are_rows_two_lines}rowspan="2"{/if} nowrap="nowrap" style="padding:5px;">
 				<div style="position:relative;">
 					<img src="{devblocks_url}c=avatars&context={$view_context}&context_id={$result.a_id}{/devblocks_url}?v={$result.a_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">

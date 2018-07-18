@@ -3,6 +3,8 @@
 {$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
+{$data_count = count($data)}
+{$avatar_limit = 50}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -45,9 +47,11 @@
 		</th>
 		{/if}
 		
+		{if $data_count <= $avatar_limit}
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.photo'|devblocks_translate|capitalize}">
 			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
 		</th>
+		{/if}
 
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
@@ -89,11 +93,13 @@
 				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.c_id}
 			</td>
 			
+			{if $data_count <= $avatar_limit}
 			<td data-column="*_image" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				<div style="position:relative;">
 					<img src="{devblocks_url}c=avatars&context=org&context_id={$result.c_id}{/devblocks_url}?v={$result.c_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
 				</div>
 			</td>
+			{/if}
 			
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">

@@ -3,6 +3,8 @@
 {$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
+{$data_count = count($data)}
+{$avatar_limit = 50}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -39,9 +41,11 @@
 	{* Column Headers *}
 	<thead>
 	<tr>
+		{if $data_count <= $avatar_limit}
 		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.photo'|devblocks_translate|capitalize}">
 			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
 		</th>
+		{/if}
 	
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
@@ -78,12 +82,14 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
+			{if $data_count <= $avatar_limit}
 			<td data-column="*_image" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;">
 				<div style="position:relative;">
 					<img src="{devblocks_url}c=avatars&context=worker&context_id={$result.w_id}{/devblocks_url}?v={$result.w_updated}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
 					{if $result.w_is_disabled}<span class="plugin_icon_overlay_disabled" style="background-size:32px 32px;"></span>{/if}
 				</div>
 			</td>
+			{/if}
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				{$worker_name = "{$result.w_first_name}{if !empty($result.w_last_name)} {$result.w_last_name}{/if}"}
 				<input type="checkbox" name="row_id[]" value="{$result.w_id}" style="display:none;">
