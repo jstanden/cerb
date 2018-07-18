@@ -2778,6 +2778,17 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $id);
+		
+		if(DevblocksPlatform::strStartsWith($id, ['profile_widget_', 'widget_'])) {
+			$error_title = "Configure the widget";
+			$tpl->assign('error_title', $error_title);
+			
+			$error_msg = "This worklist is configured in the widget.";
+			$tpl->assign('error_message', $error_msg);
+			
+			$tpl->display('devblocks:cerberusweb.core::internal/views/view_error.tpl');
+			return;
+		}
 
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;
