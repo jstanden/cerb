@@ -53,6 +53,9 @@
 				<label><input type="checkbox" name="params[options][subchart]" value="1" {if $widget->extension_params.options.subchart}checked="checked"{/if}> Show zoomable timeline</label>
 			</div>
 			<div>
+				<label><input type="checkbox" name="params[options][show_legend]" value="1" {if $widget->extension_params.options.show_legend}checked="checked"{/if}> Show legend</label>
+			</div>
+			<div>
 				<label><input type="checkbox" name="params[options][show_points]" value="1" {if $widget->extension_params.options.show_points}checked="checked"{/if}> Show data points</label>
 			</div>
 		</div>

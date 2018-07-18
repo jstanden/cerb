@@ -1651,6 +1651,7 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 		
 		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', null);
+		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -1693,6 +1694,8 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 				'show' => true,
 			]
 		];
+		
+		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $widget);
@@ -1819,8 +1822,13 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 			'axis' => [
 				'x' => [
 					'type' => 'timeseries',
-					'ticks' => [
-						
+					'tick' => [
+						'fit' => false,
+					]
+				],
+				'y' => [
+					'tick' => [
+						'fit' => false,
 					]
 				]
 			],
@@ -1830,8 +1838,11 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 					'height' => 50,
 				]
 			],
+			'legend' => [
+				'show' => true,
+			],
 			'point' => [
-				'show' => true
+				'show' => true,
 			]
 		];
 		
@@ -1841,6 +1852,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 			$config_json['axis']['x']['tick']['format']  = $xaxis_tick_format;
 		
 		$config_json['subchart']['show']  = @$options['subchart'] ? true : false;
+		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
 		$config_json['point']['show']  = @$options['show_points'] ? true : false;
 		
 		switch($chart_as) {

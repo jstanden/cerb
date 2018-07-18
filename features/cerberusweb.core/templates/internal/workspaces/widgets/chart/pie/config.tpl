@@ -20,6 +20,16 @@
 				{/foreach}
 			</select>
 		</div>
+		
+		<div>
+			Use these <b>options</b>:
+		</div>
+		
+		<div>
+			<div>
+				<label><input type="checkbox" name="params[options][show_legend]" value="1" {if $widget->params.options.show_legend}checked="checked"{/if}> Show legend</label>
+			</div>
+		</div>
 	</fieldset>
 </div>
 

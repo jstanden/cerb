@@ -2308,6 +2308,7 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', null);
+		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -2350,6 +2351,8 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 				'show' => true,
 			]
 		];
+		
+		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $model);
@@ -2497,6 +2500,9 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 					'height' => 50,
 				]
 			],
+			'legend' => [
+				'show' => true
+			],
 			'point' => [
 				'show' => true
 			]
@@ -2508,6 +2514,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 			$config_json['axis']['x']['tick']['format']  = $xaxis_tick_format;
 		
 		$config_json['subchart']['show']  = @$options['subchart'] ? true : false;
+		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
 		$config_json['point']['show']  = @$options['show_points'] ? true : false;
 		
 		switch($chart_as) {
