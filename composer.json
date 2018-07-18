@@ -20,10 +20,10 @@
 		"swiftmailer/swiftmailer" : "5.4.9",
 		"mtdowling/cron-expression" : "^1.2",
 		"defuse/php-encryption": "^2.1",
-		"sebastian/diff": "1.4.3",
-		"giggsey/libphonenumber-for-php": "^8.8"
+		"sebastian/diff": "1.4.3"
 	},
 	"require-dev" : {
+		"giggsey/libphonenumber-for-php": "^8.8"
 	},
 	"support" : {
 		"email" : "support@webgroupmedia.com",
