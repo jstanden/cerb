@@ -626,45 +626,6 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		return null;
 	}
 	
-	static function renderWidgetFromCache($widget, $autoload=true, $nocache=false) {
-		// Polymorph
-		if($widget instanceof Model_WorkspaceWidget) {
-			// Do nothing, it's what we want.
-			
-		} elseif (is_numeric($widget)) {
-			$widget = DAO_WorkspaceWidget::get($widget);
-			
-		} else {
-			$widget = null;
-		}
-		
-		$cache = DevblocksPlatform::services()->cache();
-		$is_cached = false;
-				
-		if($widget && $widget instanceof Model_WorkspaceWidget) {
-			$cache_key = sprintf("widget%d_render", $widget->id);
-			
-			// Fetch and cache
-			if($nocache || empty($widget->cache_ttl) || null === ($widget_contents = $cache->load($cache_key))) {
-				if($autoload) {
-					$tpl = DevblocksPlatform::services()->template();
-					$tpl->assign('widget', $widget);
-					
-					if(false !== ($widget_contents = $tpl->fetch('devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl')))
-						$cache->save($widget_contents, $cache_key, null, $widget->cache_ttl);
-				}
-				
-			} else {
-				$is_cached = true;
-			}
-			
-			if(isset($widget_contents))
-				echo $widget_contents;
-		}
-		
-		return $is_cached;
-	}
-	
 	abstract function render(Model_WorkspaceWidget $widget);
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);

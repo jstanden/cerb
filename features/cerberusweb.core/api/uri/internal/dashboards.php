@@ -19,12 +19,6 @@ if(class_exists('Extension_PageSection')):
 class PageSection_InternalDashboards extends Extension_PageSection {
 	function render() {}
 	
-	function renderWidgetAction() {
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
-		@$nocache = DevblocksPlatform::importGPC($_REQUEST['nocache'], 'boolean', false);
-		Extension_WorkspaceWidget::renderWidgetFromCache($widget_id, true, $nocache);
-	}
-	
 	function showWidgetExportPopupAction() {
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
 
@@ -40,7 +34,6 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 				'uid' => 'workspace_widget_' . $widget->id,
 				'label' => $widget->label,
 				'extension_id' => $widget->extension_id,
-				'cache_ttl' => $widget->cache_ttl,
 				'params' => $widget->params,
 			),
 		));

@@ -16,7 +16,6 @@
  ***********************************************************************/
 
 class DAO_WorkspaceWidget extends Cerb_ORMHelper {
-	const CACHE_TTL = 'cache_ttl';
 	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const LABEL = 'label';
@@ -32,11 +31,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
-		// mediumint(8) unsigned
-		$validation
-			->addField(self::CACHE_TTL)
-			->uint(3)
-			;
 		// varchar(255)
 		$validation
 			->addField(self::EXTENSION_ID)
@@ -228,7 +222,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, extension_id, workspace_tab_id, label, updated_at, params_json, pos, width_units, zone, cache_ttl ".
+		$sql = "SELECT id, extension_id, workspace_tab_id, label, updated_at, params_json, pos, width_units, zone ".
 			"FROM workspace_widget ".
 			$where_sql.
 			$sort_sql.
@@ -337,7 +331,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkspaceWidget();
-			$object->cache_ttl = intval($row['cache_ttl']);
 			$object->extension_id = $row['extension_id'];
 			$object->id = intval($row['id']);
 			$object->label = $row['label'];
@@ -423,8 +416,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			"workspace_widget.params_json as %s, ".
 			"workspace_widget.pos as %s, ".
 			"workspace_widget.width_units as %s, ".
-			"workspace_widget.zone as %s, ".
-			"workspace_widget.cache_ttl as %s ",
+			"workspace_widget.zone as %s ",
 				SearchFields_WorkspaceWidget::ID,
 				SearchFields_WorkspaceWidget::EXTENSION_ID,
 				SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID,
@@ -433,8 +425,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 				SearchFields_WorkspaceWidget::PARAMS_JSON,
 				SearchFields_WorkspaceWidget::POS,
 				SearchFields_WorkspaceWidget::WIDTH_UNITS,
-				SearchFields_WorkspaceWidget::ZONE,
-				SearchFields_WorkspaceWidget::CACHE_TTL
+				SearchFields_WorkspaceWidget::ZONE
 			);
 			
 		$join_sql = "FROM workspace_widget ";
@@ -522,7 +513,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 };
 
 class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
-	const CACHE_TTL = 'w_cache_ttl';
 	const EXTENSION_ID = 'w_extension_id';
 	const ID = 'w_id';
 	const LABEL = 'w_label';
@@ -616,7 +606,6 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::CACHE_TTL => new DevblocksSearchField(self::CACHE_TTL, 'workspace_widget', 'cache_ttl', $translate->_('Cache TTL'), Model_CustomField::TYPE_NUMBER, true),
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'workspace_widget', 'extension_id', $translate->_('common.type'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::ID => new DevblocksSearchField(self::ID, 'workspace_widget', 'id', $translate->_('common.id'), null, true),
 			self::LABEL => new DevblocksSearchField(self::LABEL, 'workspace_widget', 'label', $translate->_('common.label'), null, true),
@@ -645,7 +634,6 @@ class SearchFields_WorkspaceWidget extends DevblocksSearchFields {
 };
 
 class Model_WorkspaceWidget {
-	public $cache_ttl = 60;
 	public $extension_id = '';
 	public $id = 0;
 	public $label = '';
@@ -959,7 +947,6 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_WorkspaceWidget::CACHE_TTL:
 			case SearchFields_WorkspaceWidget::EXTENSION_ID:
 			case SearchFields_WorkspaceWidget::ID:
 			case SearchFields_WorkspaceWidget::LABEL:
@@ -1064,12 +1051,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			'params' => [
 				'context' => CerberusContexts::CONTEXT_WORKSPACE_TAB
 			]
-		);
-		
-		$properties['cache_ttl'] = array(
-			'label' => DevblocksPlatform::translate('Cache TTL'),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => DevblocksPlatform::strSecsToString($model->cache_ttl),
 		);
 		
 		$properties['updated'] = array(
@@ -1207,7 +1188,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 	
 	function getKeyToDaoFieldMap() {
 		return [
-			'cache_ttl' => DAO_WorkspaceWidget::CACHE_TTL,
 			'id' => DAO_WorkspaceWidget::ID,
 			'extension_id' => DAO_WorkspaceWidget::EXTENSION_ID,
 			'label' => DAO_WorkspaceWidget::LABEL,
@@ -1354,7 +1334,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
 		
 		$model = new Model_WorkspaceWidget();
-		$model->cache_ttl = 60;
 		
 		if(!empty($context_id)) {
 			$model = DAO_WorkspaceWidget::get($context_id);

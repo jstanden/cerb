@@ -146,7 +146,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 							DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
 							DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
 							DAO_WorkspaceWidget::POS => '0000',
-							DAO_WorkspaceWidget::CACHE_TTL => @$widget_json['widget']['cache_ttl'] ?: 60,
 							DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget_json['widget']['params'])
 						];
 						
@@ -176,14 +175,11 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
 						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
 						@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
-						@$cache_ttl = DevblocksPlatform::importGPC($_REQUEST['cache_ttl'], 'integer', 0);
 						
 						$width_units = DevblocksPlatform::intClamp($width_units, 1, 4);
-						$cache_ttl = DevblocksPlatform::intClamp($cache_ttl, 0, 604800);
 						
 						if(empty($id)) { // New
 							$fields = array(
-								DAO_WorkspaceWidget::CACHE_TTL => $cache_ttl,
 								DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
 								DAO_WorkspaceWidget::LABEL => $name,
 								DAO_WorkspaceWidget::UPDATED_AT => time(),
@@ -205,7 +201,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 							
 						} else { // Edit
 							$fields = array(
-								DAO_WorkspaceWidget::CACHE_TTL => $cache_ttl,
 								DAO_WorkspaceWidget::LABEL => $name,
 								DAO_WorkspaceWidget::UPDATED_AT => time(),
 								DAO_WorkspaceWidget::WIDTH_UNITS => $width_units,

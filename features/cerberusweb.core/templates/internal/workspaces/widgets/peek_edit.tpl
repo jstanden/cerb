@@ -73,15 +73,6 @@
 				</select>
 			</td>
 		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap">
-				<b>Cache:</b>
-			</td>
-			<td width="99%">
-				<input type="text" name="cache_ttl" value="{$model->cache_ttl}" size="10"> seconds
-			</td>
-		</tr>
 	</tbody>
 	
 	<tr>

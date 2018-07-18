@@ -568,6 +568,11 @@ if(!isset($columns['zone'])) {
 	$db->ExecuteMaster($sql);
 }
 
+if(isset($columns['cache_ttl'])) {
+	$sql = "ALTER TABLE workspace_widget DROP COLUMN cache_ttl";
+	$db->ExecuteMaster($sql);
+}
+
 // Migrate legacy dashboards to the new format
 $sql = "UPDATE workspace_tab SET extension_id = 'core.workspace.tab.dashboard', params_json='{\"layout\":\"\"}' WHERE extension_id = 'core.workspace.tab'";
 $db->ExecuteMaster($sql);
