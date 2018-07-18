@@ -1652,6 +1652,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(!empty($q)) {
 			$view->addParamsWithQuickSearch($q, true);
+			$view->setParamsQuery($q);
 			$view->renderPage = 0;
 		}
 		
