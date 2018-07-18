@@ -35,17 +35,17 @@
 </fieldset>
 
 <fieldset>
-	<legend>Step 2: Scan this QR code with the Google Authenticator app</legend>
+	<legend>Step 2: Scan this QR code with 1Password, Google Authenticator, etc:</legend>
 	
 	<div id="qrcode"></div>
 	
 	<p style="margin-top:10px;">
-		If you haven't already, visit <a href="http://m.google.com/authenticator" target="_blank" rel="noopener noreferrer" tabindex="-1">http://m.google.com/authenticator</a> from your iOS, Android, or Blackberry mobile device to install the Google Authenticator app.
+		See: <a href="https://cerb.ai/guides/security/configure-two-factor/" target="_blank" rel="noopener noreferrer" tabindex="-1">Configure two-factor authentication</a>
 	</p>
 </fieldset>
 
 <fieldset>
-	<legend>Step 3: Type the current access code from the Google Authenticator app</legend>
+	<legend>Step 3: Type the current access code from your two-factor app:</legend>
 
 	<input type="text" name="otp_code" size="8" maxlength="6" autocomplete="off">
 </fieldset>

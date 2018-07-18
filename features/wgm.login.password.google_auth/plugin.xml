@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>wgm.login.password.google_auth</id>
-	<name>Google Authenticator</name>
-	<description>Enable two-factor worker logins with passwords and the Google Authenticator app on iOS, Android, or Blackberry.</description>
+	<name>Two-Factor Authentication</name>
+	<description>Enable two-factor authentication for worker logins (e.g. 1Password, Google Authenticator).</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<link>https://cerb.ai</link>
 	<image>plugin.png</image>
 
@@ -29,7 +29,7 @@
 
 		<extension point="cerberusweb.login">
 			<id>login.password.google_auth</id>
-			<name>Password + Google Authenticator</name>
+			<name>Password + Two-Factor Auth</name>
 			<class>
 				<file>api/App.php</file>
 				<name>Login_PasswordAndGoogleAuth</name>

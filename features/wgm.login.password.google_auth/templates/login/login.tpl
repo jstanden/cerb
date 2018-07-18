@@ -43,7 +43,7 @@
 			<input type="text" name="access_code" size="8" maxlength="6" autocomplete="off">
 		</td>
 		<td>
-			(from your Google Authenticator mobile app)
+			(from 1Password, Google Authenticator, etc.)
 		</td>
 	</tr>
 	</table>
