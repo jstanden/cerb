@@ -1580,6 +1580,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 		
 		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
 		@$xaxis_key = DevblocksPlatform::importGPC($widget->params['xaxis_key'], 'string', 'label');
+		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		if(!$query)
 			return;
@@ -1617,10 +1618,19 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 			$config_json['data']['groups'] = [array_values($groups)];
 			$config_json['legend']['show'] = true;
 			
+			if(!$height)
+				$height = (50 * count($results['subtotals'][0]));
+			
 		} else {
 			$config_json['data']['type']  = 'bar';
 			$config_json['legend']['show'] = false;
+			
+			if(!$height)
+				$height = (50 * count($results['subtotals'][0]));
 		}
+		
+		if($height)
+			$config_json['size'] = ['height' => $height];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $widget);
@@ -1652,6 +1662,7 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', null);
 		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
+		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -1697,6 +1708,9 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 		
 		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
 		
+		if($height)
+			$config_json['size'] = ['height' => $height];
+		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $widget);
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/pie/render.tpl');
@@ -1722,6 +1736,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
 		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
+		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -1770,6 +1785,9 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 				$config_json['data']['xs'][mb_substr($result[0],0,-2)] = $result[0];
 		}
 		
+		if($height)
+			$config_json['size'] = ['height' => $height];
+		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('xaxis_format', $xaxis_format);
 		$tpl->assign('yaxis_format', $yaxis_format);
@@ -1805,6 +1823,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 		@$xaxis_key = DevblocksPlatform::importGPC($widget->params['xaxis_key'], 'string', 'ts');
 		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '%Y-%m-%d');
 		@$xaxis_tick_format = DevblocksPlatform::importGPC($widget->params['xaxis_tick_format'], 'string', '');
+		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		if(!$query)
 			return;
@@ -1878,6 +1897,9 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results), [$xaxis_key]))];
 				break;
 		}
+		
+		if($height)
+			$config_json['size'] = ['height' => $height];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $widget);

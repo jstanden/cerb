@@ -12,7 +12,7 @@
 			<b>Display</b> the chart as:
 		</div>
 		
-		<div>
+		<div style="margin:0 0 5px 10px;">
 			{$chart_types = [ 'donut' => 'donut', 'pie' => 'pie' ] }
 			<select name="params[chart_as]">
 				{foreach from=$chart_types item=label key=key}
@@ -22,10 +22,18 @@
 		</div>
 		
 		<div>
-			Use these <b>options</b>:
+			The <b>chart height</b> is:
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<input type="text" size="5" maxlength="4" name="params[height]" placeholder="(auto)" value="{$widget->params.height}"> pixels
 		</div>
 		
 		<div>
+			Use these <b>options</b>:
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
 			<div>
 				<label><input type="checkbox" name="params[options][show_legend]" value="1" {if $widget->params.options.show_legend}checked="checked"{/if}> Show legend</label>
 			</div>

@@ -14,17 +14,19 @@
 		
 		{$chart_types = [ 'line' => 'lines', 'spline' => 'splines', 'area' => 'areas', 'bar' => 'bars', 'bar_stacked' => 'bars (stacked)' ] }
 		
-		<select name="params[chart_as]">
-			{foreach from=$chart_types item=label key=key}
-			<option value="{$key}" {if $widget->extension_params.chart_as == $key}selected="selected"{/if}>{$label}</option>
-			{/foreach}
-		</select>
+		<div style="margin:0 0 5px 10px;">
+			<select name="params[chart_as]">
+				{foreach from=$chart_types item=label key=key}
+				<option value="{$key}" {if $widget->extension_params.chart_as == $key}selected="selected"{/if}>{$label}</option>
+				{/foreach}
+			</select>
+		</div>
 		
 		<div>
 			The <b>x-axis dates</b> are in the key:
 		</div>
 		
-		<div>
+		<div style="margin:0 0 5px 10px;">
 			<textarea name="params[xaxis_key]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->extension_params.xaxis_key|default:'ts'}</textarea>
 		</div>
 		
@@ -32,7 +34,7 @@
 			Parse the <b>x-axis data</b> using this <b>date format</b>:
 		</div>
 		
-		<div>
+		<div style="margin:0 0 5px 10px;">
 			<textarea name="params[xaxis_format]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->extension_params.xaxis_format|default:'%Y-%m-%d'}</textarea>
 		</div>
 		
@@ -40,15 +42,23 @@
 			Format <b>x-axis</b> dates using this <b>date format</b> (optional):
 		</div>
 		
-		<div>
+		<div style="margin:0 0 5px 10px;">
 			<textarea name="params[xaxis_tick_format]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->extension_params.xaxis_tick_format|default:''}</textarea>
+		</div>
+		
+		<div>
+			The <b>chart height</b> is:
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<input type="text" size="5" maxlength="4" name="params[height]" placeholder="(auto)" value="{$widget->extension_params.height}"> pixels
 		</div>
 		
 		<div>
 			Use these <b>options</b>:
 		</div>
 		
-		<div>
+		<div style="margin:0 0 5px 10px;">
 			<div>
 				<label><input type="checkbox" name="params[options][subchart]" value="1" {if $widget->extension_params.options.subchart}checked="checked"{/if}> Show zoomable timeline</label>
 			</div>

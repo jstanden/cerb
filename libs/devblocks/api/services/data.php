@@ -455,12 +455,17 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			$values = array_column($results, $by['key_select']);
 			
-			$sql_where .= sprintf(" AND %s IN (%s)",
-				$by['sql_select'],
-				implode(',', array_map(function($v) use ($db) {
-					return $db->qstr($v);
-				}, $values))
-			);
+			if(!empty($values)) {
+				$sql_where .= sprintf(" AND %s IN (%s)",
+					$by['sql_select'],
+					implode(',', array_map(function($v) use ($db) {
+						return $db->qstr($v);
+					}, $values))
+				);
+				
+			} else {
+				$sql_where .= ' AND 0';
+			}
 		}
 		
 		$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s GROUP BY %s",

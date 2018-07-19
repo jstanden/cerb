@@ -2223,6 +2223,7 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$xaxis_key = DevblocksPlatform::importGPC($model->extension_params['xaxis_key'], 'string', 'label');
+		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -2243,7 +2244,11 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 		if(!$query)
 			return;
 		
-		$results = $data->executeQuery($query);
+		if(false == ($results = $data->executeQuery($query)))
+			return;
+		
+		if(!array_key_exists('subtotals', $results))
+			return;
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $model->id),
@@ -2276,10 +2281,19 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 			$config_json['data']['groups'] = [array_values($groups)];
 			$config_json['legend']['show'] = true;
 			
-		} else {
+			if(!$height)
+				$height = (50 * count($results['subtotals'][0]));
+			
+		} else if ($results) {
 			$config_json['data']['type']  = 'bar';
 			$config_json['legend']['show'] = false;
+			
+			if(!$height)
+				$height = (50 * count($results['subtotals'][0]));
 		}
+		
+		if($height)
+			$config_json['size'] = ['height' => $height];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $model);
@@ -2309,6 +2323,7 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', null);
 		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
+		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -2354,6 +2369,9 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		
 		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
 		
+		if($height)
+			$config_json['size'] = ['height' => $height];
+		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/pie/render.tpl');
@@ -2377,6 +2395,7 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', '');
+		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -2427,6 +2446,9 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 				$config_json['data']['xs'][mb_substr($result[0],0,-2)] = $result[0];
 		}
 		
+		if($height)
+			$config_json['size'] = ['height' => $height];
+		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('xaxis_format', $xaxis_format);
 		$tpl->assign('yaxis_format', $yaxis_format);
@@ -2456,6 +2478,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		@$xaxis_key = DevblocksPlatform::importGPC($model->extension_params['xaxis_key'], 'string', 'ts');
 		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', '%Y-%m-%d');
 		@$xaxis_tick_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_tick_format'], 'string', '');
+		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -2540,6 +2563,9 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results), [$xaxis_key]))];
 				break;
 		}
+		
+		if($height)
+			$config_json['size'] = ['height' => $height];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $model);

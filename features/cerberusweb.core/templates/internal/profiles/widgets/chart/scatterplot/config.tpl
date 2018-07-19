@@ -14,7 +14,7 @@
 			<b>Format x-axis</b> values as: (optional)
 		</div>
 		
-		<div>
+		<div style="margin:0 0 5px 10px;">
 			<select name="params[xaxis_format]">
 				{foreach from=$formats item=label key=k}
 				<option value="{$k}" {if $k == $widget->extension_params.xaxis_format}selected="selected"{/if}>{$label}</option>
@@ -26,12 +26,20 @@
 			<b>Format y-axis</b> values as: (optional)
 		</div>
 		
-		<div>
+		<div style="margin:0 0 5px 10px;">
 			<select name="params[yaxis_format]">
 				{foreach from=$formats item=label key=k}
 				<option value="{$k}" {if $k == $widget->extension_params.yaxis_format}selected="selected"{/if}>{$label}</option>
 				{/foreach}
 			</select>
+		</div>
+		
+		<div>
+			The <b>chart height</b> is:
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<input type="text" size="5" maxlength="4" name="params[height]" placeholder="(auto)" value="{$widget->extension_params.height}"> pixels
 		</div>
 	</fieldset>
 </div>

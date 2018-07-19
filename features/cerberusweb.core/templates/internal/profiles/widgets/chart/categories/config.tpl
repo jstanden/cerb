@@ -12,8 +12,16 @@
 			The <b>x-axis labels</b> are in the key:
 		</div>
 		
-		<div>
+		<div style="margin:0 0 5px 10px;">
 			<textarea name="params[xaxis_key]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->extension_params.xaxis_key|default:'label'}</textarea>
+		</div>
+		
+		<div>
+			The <b>chart height</b> is:
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<input type="text" size="5" maxlength="4" name="params[height]" placeholder="(auto)" value="{$widget->extension_params.height}"> pixels
 		</div>
 	</fieldset>
 </div>
