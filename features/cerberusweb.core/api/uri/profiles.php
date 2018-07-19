@@ -2252,6 +2252,9 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $model->id),
+			'padding' => [
+				'left' => 150,
+			],
 			'data' => [
 				'x' => $xaxis_key,
 				'columns' => $results['subtotals'],
@@ -2263,10 +2266,14 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 			'axis' => [
 				'rotated' => true,
 				'x' => [
-					'type' => 'category'
+					'type' => 'category',
+					'tick' => [
+						'multiline' => true,
+						'multilineMax' => 2,
+						'width' => 150,
+					]
 				],
 				'y' => [
-					
 				]
 			],
 			'legend' => [
@@ -2512,8 +2519,13 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 			'axis' => [
 				'x' => [
 					'type' => 'timeseries',
-					'ticks' => [
-						
+					'tick' => [
+						'fit' => true,
+					]
+				],
+				'y' => [
+					'tick' => [
+						'fit' => true,
 					]
 				]
 			],

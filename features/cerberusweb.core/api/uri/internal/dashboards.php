@@ -1589,6 +1589,9 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
+			'padding' => [
+				'left' => 150,
+			],
 			'data' => [
 				'x' => $xaxis_key,
 				'columns' => $results['subtotals'],
@@ -1600,7 +1603,12 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 			'axis' => [
 				'rotated' => true,
 				'x' => [
-					'type' => 'category'
+					'type' => 'category',
+					'tick' => [
+						'multiline' => true,
+						'multilineMax' => 2,
+						'width' => 150,
+					]
 				],
 				'y' => [
 					
@@ -1842,12 +1850,12 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 				'x' => [
 					'type' => 'timeseries',
 					'tick' => [
-						'fit' => false,
+						'fit' => true,
 					]
 				],
 				'y' => [
 					'tick' => [
-						'fit' => false,
+						'fit' => true,
 					]
 				]
 			],
