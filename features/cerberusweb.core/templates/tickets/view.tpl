@@ -195,7 +195,7 @@
 			{$org_id = $result.t_org_id}
 			{if $org_id && isset($object_orgs.$org_id)}
 				{$org = $object_orgs.$org_id}
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a>
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name|truncate:30:'...':true}</a>
 			{/if}
 		</td>
 		{elseif $column=="t_group_id"}
