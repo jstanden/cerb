@@ -411,8 +411,16 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$subtotal_by = [$subtotal_by];
 				
 			foreach($subtotal_by as $idx => $by) {
+				// Handle limits and orders
+				@list($by, $limit) = explode('~', $by, 2);
+				@$limit_desc = DevblocksPlatform::strStartsWith($limit, '-') ? false : true;
+				@$limit = DevblocksPlatform::intClamp(abs($limit), 0, 250) ?: 25;
+				
 				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $query_fields, $search_fields, $search_class::getPrimaryKey())))
 					continue;
+				
+				$subtotal_field['limit'] = $limit;
+				$subtotal_field['limit_desc'] = $limit_desc;
 				
 				$chart_model['by'][] = $subtotal_field;
 			}
@@ -425,6 +433,36 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		$custom_fields = DAO_CustomField::getAll();
 		
+		$sql_where = $query_parts['where'];
+		
+		foreach($chart_model['by'] as $by) {
+			$limit = DevblocksPlatform::intClamp($by['limit'], 0, 250) ?: 25;
+			@$limit_desc = $by['limit_desc'];
+			
+			$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s GROUP BY %s ORDER BY hits %s LIMIT %d",
+				sprintf("%s AS `%s`",
+					$by['sql_select'],
+					$db->escape($by['key_select'])
+				),
+				$query_parts['join'],
+				$query_parts['where'],
+				$db->escape($by['key_select']),
+				$limit_desc ? 'DESC' : 'ASC',
+				$limit
+			);
+			
+			$results = $db->GetArraySlave($sql);
+			
+			$values = array_column($results, $by['key_select']);
+			
+			$sql_where .= sprintf(" AND %s IN (%s)",
+				$by['sql_select'],
+				implode(',', array_map(function($v) use ($db) {
+					return $db->qstr($v);
+				}, $values))
+			);
+		}
+		
 		$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s GROUP BY %s",
 			implode(', ', array_map(function($e) use ($db) {
 				return sprintf("%s AS `%s`",
@@ -433,17 +471,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				);
 			}, $chart_model['by'])),
 			$query_parts['join'],
-			$query_parts['where'],
+			$sql_where,
 			implode(', ', array_map(function($e) use ($db) {
 				return sprintf("`%s`",
-					$db->escape($e['key_select'])
+					$e['key_select']
 				);
 			}, $chart_model['by']))
 		);
-		
-		// [TODO] LIMIT
-		//$chart_model['limit'] intClamp
-		$sql .= ' LIMIT 500';
 		
 		$response = [];
 		
