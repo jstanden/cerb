@@ -230,26 +230,23 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 					$view_class = $series_context->getViewClass();
 					$view = new $view_class();
 					
+					$search_class = $series_context->getSearchClass();
 					$query_fields = $view->getQuickSearchFields();
 					$search_fields = $view->getFields();
 					
 					if(array_key_exists('x', $series_model)) {
-						if(isset($query_fields[$series_model['x']])) {
-							$search_key = $query_fields[$series_model['x']]['options']['param_key'];
-							$search_field = $search_fields[$search_key];
-							$series_model['x'] = $search_field;
-						} else {
+						if(false == ($x_field = $search_class::getFieldForSubtotalKey($series_model['x'], $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 							unset($series_model['x']);
+						} else {
+							$series_model['x'] = $x_field;
 						}
 					}
 					
 					if(array_key_exists('y', $series_model)) {
-						if(isset($query_fields[$series_model['y']])) {
-							$search_key = $query_fields[$series_model['y']]['options']['param_key'];
-							$search_field = $search_fields[$search_key];
-							$series_model['y'] = $search_field;
-						} else {
+						if(false == ($y_field = $search_class::getFieldForSubtotalKey($series_model['y'], $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 							unset($series_model['y']);
+						} else {
+							$series_model['y'] = $y_field;
 						}
 					}
 				}
@@ -269,47 +266,35 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 			
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
+			$search_class = $context_ext->getSearchClass();
 			$view = $context_ext->getSearchView(uniqid());
 			$view->setAutoPersist(false);
 			$view->addParamsWithQuickSearch($query);
 			
-			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
+			$query_parts = $dao_class::getSearchQueryComponents(
+				[],
+				$view->getParams()
+			);
+			
 			
 			$x_field = $y_field = null;
 			
-			switch($chart_model['x']) {
-				default:
-					$x_field = sprintf("%s.%s",
-						Cerb_ORMHelper::escape($series['x']->db_table),
-						Cerb_ORMHelper::escape($series['x']->db_column)
-					);
-					break;
-			}
-			
-			switch($chart_model['y']) {
-				default:
-					$y_field = sprintf("%s.%s",
-						Cerb_ORMHelper::escape($series['y']->db_table),
-						Cerb_ORMHelper::escape($series['y']->db_column)
-					);
-					break;
-			}
-			
-			if(!$x_field || !$y_field)
+			if(!array_key_exists('x', $series) || !array_key_exists('y', $series))
 				continue;
 			
-			// [TODO] Limit
-			$sql = sprintf("SELECT %s AS x, %s AS y %s %s LIMIT 5000",
+			$x_field = $series['x']['sql_select'];
+			$y_field = $series['y']['sql_select'];
+			
 				$x_field,
 				$y_field,
 				$query_parts['join'],
-				$query_parts['where']
+				$query_parts['where'],
 			);
 			
-			$results = $db->GetArraySlave($sql);
+			if(false == ($results = $db->GetArraySlave($sql)))
+				$results = [];
 			
 			$results = array_column($results, 'y', 'x');
-			
 			$chart_model['series'][$series_idx]['data'] = $results;
 		}
 		
@@ -881,13 +866,13 @@ class _DevblocksDataProviderWorklistTimeSeries extends _DevblocksDataProvider {
 			if(!$date_field || !$metric_field)
 				continue;
 			
-			// [TODO] Limit
-			$sql = sprintf("SELECT %s AS metric, %s AS value %s %s GROUP BY %s LIMIT 300",
+			$sql = sprintf("SELECT %s AS metric, %s AS value %s %s GROUP BY %s LIMIT %d",
 				$metric_field,
 				$date_field,
 				$query_parts['join'],
 				$query_parts['where'],
-				$date_field
+				$date_field,
+				$view->renderLimit
 			);
 			
 			$results = $db->GetArraySlave($sql);

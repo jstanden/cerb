@@ -283,7 +283,7 @@ abstract class DevblocksORMHelper {
 		// Append custom fields to the SELECT if (and only if) we're sorting on it
 		
 		foreach($sortBy as $sort_field) {
-			if('cf_' != substr($sort_field,0,3))
+			if(!DevblocksPlatform::strStartsWith($sort_field, 'cf_'))
 				continue;
 			
 			if(false == ($field_id = intval(substr($sort_field, 3))))
@@ -310,7 +310,7 @@ abstract class DevblocksORMHelper {
 		}
 		
 		if(is_array($sortBy) && is_array($sortAsc) && count($sortBy) == count($sortAsc)) {
-			$sorts = array();
+			$sorts = [];
 			
 			foreach($sortBy as $idx => $field) {
 				// We can't sort on virtual fields, the field must exist, and must be flagged sortable
@@ -334,6 +334,87 @@ abstract class DevblocksORMHelper {
 		}
 		
 		return $sort_sql;
+	}
+	
+	static public function buildSort($sortBy, $sortAsc, $fields, $search_class=null) {
+		$sort_sql = null;
+		
+		if(!is_array($sortBy))
+			$sortBy = [$sortBy];
+		
+		if(!is_array($sortAsc))
+			$sortAsc = [$sortAsc];
+		
+		// Append custom fields to the SELECT if (and only if) we're sorting on it
+		
+		$results = [
+			'fields' => [],
+			'sql_select' => '',
+			'sql_sort' => '',
+		];
+		
+		if(is_array($sortBy) && is_array($sortAsc) && count($sortBy) == count($sortAsc)) {
+			$selects = [];
+			$sorts = [];
+			
+			foreach($sortBy as $idx => $field) {
+				// We can't sort on virtual fields, the field must exist, and must be flagged sortable
+				if('*'==substr($field,0,1) 
+						|| !isset($fields[$field]) 
+						|| !$fields[$field]->is_sortable) {
+					continue;
+				}
+				
+				$sort_field = DevblocksPlatform::objectToArray($fields[$field]);
+				
+				$sort_field['sql_select'] = null;
+				$sort_field['sql_key'] = sprintf("%s.%s",
+					Cerb_ORMHelper::escape($sort_field['db_table']),
+					Cerb_ORMHelper::escape($sort_field['db_column'])
+				);
+				unset($sort_field['is_sortable']);
+				
+				// Custom fields
+				if(DevblocksPlatform::strStartsWith($field, 'cf_')) {
+					if(false != ($field_id = intval(substr($field, 3)))) {
+						if(false != ($custom_field = DAO_CustomField::get($field_id))) {
+							$cfield_key = null;
+							
+							if($search_class && class_exists($search_class))
+								$cfield_key = $search_class::getCustomFieldContextWhereKey($custom_field->context);
+							
+							if($cfield_key) {
+								$sort_field['sql_key'] = $field;
+								$selects[] = sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d ORDER BY field_value LIMIT 1) AS %s",
+									DAO_CustomFieldValue::getValueTableName($custom_field->id),
+									Cerb_ORMHelper::qstr($custom_field->context),
+									$cfield_key,
+									$custom_field->id,
+									$field
+								);
+							}
+						}
+					}
+				}
+				
+				$results['fields'][$field] = $sort_field;
+				
+				@$asc = $sortAsc[$idx];
+				
+				$sorts[] = sprintf("%s %s",
+					$results['fields'][$field]['sql_key'],
+					($asc || is_null($asc)) ? "ASC" : "DESC"
+				);
+			}
+			
+			if($selects)
+				$results['sql_select'] = implode(', ', $selects);
+			
+			if($sorts)
+				$results['sql_sort'] = sprintf('ORDER BY %s', implode(', ', $sorts));
+		}
+		
+		return $results;
 	}
 	
 	static protected function _getWhereSQL($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
