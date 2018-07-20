@@ -161,12 +161,12 @@ class _DevblocksDataProviderWorklistMetric extends _DevblocksDataProvider {
 	}
 }
 
-class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
+class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 	function getData($query, $chart_fields, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
-			'type' => 'worklist.scatterplot',
+			'type' => 'worklist.xy',
 			'x' => '',
 			'y' => '',
 			'series' => [],
@@ -370,7 +370,7 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 		}
 		
 		return ['data' => $response, '_' => [
-			'type' => 'worklist.scatterplot',
+			'type' => 'worklist.xy',
 			'format' => 'pie',
 		]];
 	}
@@ -1104,11 +1104,6 @@ class _DevblocksDataService {
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
-			case 'worklist.scatterplot':
-				$provider = new _DevblocksDataProviderWorklistScatterplot();
-				$results = $provider->getData($query, $chart_fields);
-				break;
-				
 			case 'worklist.subtotals':
 				$provider = new _DevblocksDataProviderWorklistSubtotals();
 				$results = $provider->getData($query, $chart_fields);
@@ -1116,6 +1111,11 @@ class _DevblocksDataService {
 				
 			case 'worklist.timeseries':
 				$provider = new _DevblocksDataProviderWorklistTimeSeries();
+				$results = $provider->getData($query, $chart_fields);
+				break;
+				
+			case 'worklist.xy':
+				$provider = new _DevblocksDataProviderWorklistXy();
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
