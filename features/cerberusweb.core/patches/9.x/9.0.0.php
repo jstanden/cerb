@@ -630,7 +630,7 @@ foreach($results as $result) {
 $logo_url = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' and setting = 'helpdesk_logo_url'");
 
 if($logo_url) {
-	$custom_css = sprintf("#logo {\n\tbackground: url(%s) no-repeat;\n\tbackground-size: contain;\n\twidth: 500px;\n\theight: 80px;\n}", $logo_url);
+	$custom_css = sprintf("#cerb-logo {\n\tbackground: url(%s) no-repeat;\n\tbackground-size: contain;\n\twidth: 500px;\n\theight: 80px;\n}", $logo_url);
 	
 	$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.core','ui_user_stylesheet', %s), ('cerberusweb.core','ui_user_stylesheet_updated_at', UNIX_TIMESTAMP())",
 		$db->qstr($custom_css)

@@ -35,7 +35,7 @@ class ChCoreTour extends DevblocksHttpResponseListenerExtension {
 								5
 							),
 							new DevblocksTourCallout(
-								'#logo',
+								'#cerb-logo',
 								'Logo',
 								'Click the logo as a shortcut to your default page.',
 								'topLeft',

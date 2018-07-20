@@ -9,7 +9,7 @@
 {if !empty($tour_enabled)}{include file="devblocks:cerberusweb.core::internal/tour/banner.tpl"}{/if}
 <div style="display:flex;flex-flow:row wrap;">
 	<div style="flex:2 2;">
-		<a href="{devblocks_url}{/devblocks_url}"><div id="logo"></div></a>
+		<a href="{devblocks_url}{/devblocks_url}"><div id="cerb-logo"></div></a>
 	</div>
 	<div style="flex:1 1 250px;text-align:right;padding-bottom:5px;margin-top:auto;">
 		{if empty($visit)}
