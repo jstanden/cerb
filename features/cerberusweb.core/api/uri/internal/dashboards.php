@@ -1594,7 +1594,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 			],
 			'data' => [
 				'x' => $xaxis_key,
-				'columns' => $results['subtotals'],
+				'columns' => $results['data'],
 				'type' => 'bar',
 				'colors' => [
 					'hits' => '#1f77b4'
@@ -1619,22 +1619,22 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 			]
 		];
 		
-		if(@$results['stacked']) {
+		if(@$results['_']['stacked']) {
 			$config_json['data']['type']  = 'bar';
-			$groups = array_column($results['subtotals'], 0);
+			$groups = array_column($results['data'], 0);
 			array_shift($groups);
 			$config_json['data']['groups'] = [array_values($groups)];
 			$config_json['legend']['show'] = true;
 			
 			if(!$height)
-				$height = (50 * count($results['subtotals'][0]));
+				$height = (50 * count($results['data'][0]));
 			
 		} else {
 			$config_json['data']['type']  = 'bar';
 			$config_json['legend']['show'] = false;
 			
 			if(!$height)
-				$height = (50 * count($results['subtotals'][0]));
+				$height = (50 * count($results['data'][0]));
 		}
 		
 		if($height)
@@ -1689,7 +1689,7 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
 			'data' => [
-				'columns' => $results,
+				'columns' => $results['data'],
 				'type' => $chart_as == 'pie' ? 'pie' : 'donut'
 			],
 			'donut' => [
@@ -1769,7 +1769,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 			'bindto' => sprintf("#widget%d", $widget->id),
 			'data' => [
 				'xs' => [],
-				'columns' => $results,
+				'columns' => $results['data'],
 				'type' => 'scatter',
 			],
 			'axis' => [
@@ -1788,7 +1788,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 			],
 		];
 		
-		foreach($results as $result) {
+		foreach($results['data'] as $result) {
 			if(DevblocksPlatform::strEndsWith($result[0], '_x'))
 				$config_json['data']['xs'][mb_substr($result[0],0,-2)] = $result[0];
 		}
@@ -1843,7 +1843,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 			'data' => [
 				'x' => 'ts',
 				'xFormat' => '%Y-%m-%d',
-				'json' => $results,
+				'json' => $results['data'],
 				'type' => 'line'
 			],
 			'axis' => [
@@ -1893,7 +1893,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 				
 			case 'area':
 				$config_json['data']['type']  = 'area';
-				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results), [$xaxis_key]))];
+				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
 				
 			case 'bar':
@@ -1902,7 +1902,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 				
 			case 'bar_stacked':
 				$config_json['data']['type']  = 'bar';
-				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results), [$xaxis_key]))];
+				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
 		}
 		

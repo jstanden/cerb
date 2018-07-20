@@ -154,7 +154,10 @@ class _DevblocksDataProviderWorklistMetric extends _DevblocksDataProvider {
 					$response[] = [$value['id'],$value['value']];
 			}
 		
-		return $response;
+		return ['data' => $response, '_' => [
+			'type' => 'worklist.metric',
+			'format' => 'metric',
+		]];
 	}
 }
 
@@ -167,6 +170,7 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 			'x' => '',
 			'y' => '',
 			'series' => [],
+			'format' => 'scatterplot',
 		];
 		
 		foreach($chart_fields as $field) {
@@ -180,6 +184,10 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 			} else if($field->key == 'y') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['y'] = $value;
+				
+			} else if($field->key == 'format') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['format'] = $value;
 				
 			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
@@ -307,29 +315,27 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 		
 		// Respond
 		
+		switch($chart_model['format']) {
+			default:
+				return $this->_convertSeriesDataToScatterplot($chart_model['series']);
+				break;
+		}
+	}
+	
 		$response = [];
 		
-		if(isset($chart_model['series']))
-		foreach($chart_model['series'] as $series) {
+	function _convertSeriesDataToScatterplot($series_data) {
+		$response = [];
+		
+		foreach($series_data as $series) {
 			$id = $series['id'];
-			
-			$format_values = function($d, $axis) use ($chart_model) {
-				switch(@$chart_model[$axis]) {
-					case 'time.seconds':
-						return DevblocksPlatform::strSecsToString($d);
-						break;
-						
-					default:
-						return floatval($d);
-						break;
-				}
-			};
 			
 			$x_values = $y_values = [];
 			
+			if(array_key_exists('data', $series))
 			foreach($series['data'] as $x => $y) {
-				$x_values[] = $format_values($x, 'x');
-				$y_values[] = $format_values($y, 'y');
+				$x_values[] = $x;
+				$y_values[] = $y;
 			}
 			
 			array_unshift($x_values, $id . '_x');
@@ -339,7 +345,10 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 			$response[] = $y_values;
 		}
 		
-		return $response;
+		return ['data' => $response, '_' => [
+			'type' => 'worklist.subtotals',
+			'format' => 'scatterplot',
+		]];
 	}
 }
 
@@ -568,7 +577,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 			case 'tree':
 			default:
-				return $response;
+				return ['data' => $response, '_' => [
+					'type' => 'worklist.subtotals',
+					'format' => 'tree',
+				]];
 				break;
 		}
 	}
@@ -577,7 +589,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		if(!isset($response['children']))
 			return [];
 		
-		// [TODO] Do we have nested data?
+		// Do we have nested data?
 		$nested = @$response['children'][0]['children'] ? true : false;
 		
 		if($nested) {
@@ -620,7 +632,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 		}
 		
-		return ['subtotals' => $output, 'stacked' => $nested];
+		return ['data' => $output, '_' => [
+			'type' => 'worklist.subtotals',
+			'stacked' => $nested,
+			'format' => 'categories',
+		]];
 	}
 	
 	function _convertTreeToPie($response) {
@@ -633,7 +649,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$output[] = [$subtotal['name'], $subtotal['hits']];
 		}
 		
-		return $output;
+		return ['data' => $output, '_' => [
+			'type' => 'worklist.subtotals',
+			'format' => 'pie',
+		]];
 	}
 	
 	function _convertTreeToTimeSeries($response) {
@@ -659,7 +678,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$output[$series_key] = array_values($output[$series_key]);
 		}
 		
-		return $output;
+		return ['data' => $output, '_' => [
+			'type' => 'worklist.subtotals',
+			'format' => 'timeseries',
+		]];
 	}
 }
 
@@ -907,7 +929,10 @@ class _DevblocksDataProviderWorklistTimeSeries extends _DevblocksDataProvider {
 			$response[$series['id']] = $values;
 		}
 		
-		return $response;
+		return ['data' => $response, '_' => [
+			'type' => 'worklist.timeseries',
+			'format' => 'timeseries',
+		]];
 	}
 }
 
@@ -975,8 +1000,11 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 		foreach($actions as $action) {
 			switch($action['_action']) {
 				case 'return_data':
-					$data = @$action['data'];
-					return $data;
+					$data = @json_decode($action['data'], true);
+					
+					return ['data' => $data, '_' => [
+						'type' => 'behavior.' . $behavior_alias,
+					]];
 					break;
 			}
 		}

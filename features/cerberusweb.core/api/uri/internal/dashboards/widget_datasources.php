@@ -680,9 +680,10 @@ class WorkspaceWidgetDatasource_DataQuery extends Extension_WorkspaceWidgetDatas
 		@$query = DevblocksPlatform::importGPC($params['data_query'], 'string', '');
 		
 		$results = $data->executeQuery($query);
+		$data = $results['data'];
 		
-		if(count($results)) {
-			$metric_value = current($results)[1];
+		if(count($data)) {
+			$metric_value = current($data)[1];
 			$params['metric_value'] = $metric_value;
 		}
 		
