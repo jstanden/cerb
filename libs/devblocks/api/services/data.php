@@ -1079,7 +1079,7 @@ class _DevblocksDataService {
 		return self::$instance;
 	}
 	
-	function executeQuery($query) {
+	function executeQuery($query, &$error=null) {
 		$chart_fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
 		
 		$type_field = array_filter($chart_fields, function($field) {
@@ -1089,8 +1089,10 @@ class _DevblocksDataService {
 			return false;
 		});
 		
-		if(!is_array($type_field) || 1 != count($type_field))
-			throw new Exception_DevblocksValidationError("A valid chart type is required.");
+		if(!is_array($type_field) || 1 != count($type_field)) {
+			$error = "A valid chart type is required.";
+			return false;
+		}
 		
 		CerbQuickSearchLexer::getOperStringFromTokens($type_field[0]->tokens, $oper, $chart_type);
 		
@@ -1125,7 +1127,8 @@ class _DevblocksDataService {
 					break;
 				}
 				
-				throw new Exception_DevblocksValidationError("A valid chart type is required.");
+				$error = "A valid chart type is required.";
+				return false;
 				break;
 		}
 		

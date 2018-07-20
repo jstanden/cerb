@@ -41,7 +41,9 @@ class ChRest_Data extends Extension_RestController { //implements IExtensionRest
 		if(empty($query))
 			$this->error(self::ERRNO_CUSTOM, "The 'q' query parameter is required.");
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			$this->error(self::ERRNO_CUSTOM, $error);
+		}
 		
 		$this->success($results);
 	}
@@ -55,7 +57,9 @@ class ChRest_Data extends Extension_RestController { //implements IExtensionRest
 		if(empty($query))
 			$this->error(self::ERRNO_CUSTOM, "A query is required in the HTTP request body.");
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			$this->error(self::ERRNO_CUSTOM, $error);
+		}
 		
 		$this->success($results);
 	}

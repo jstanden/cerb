@@ -2244,8 +2244,10 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 		if(!$query)
 			return;
 		
-		if(false == ($results = $data->executeQuery($query)))
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
+		}
 		
 		if(!array_key_exists('data', $results))
 			return;
@@ -2344,7 +2346,10 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		if(!$query)
 			return;
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $model->id),
@@ -2423,7 +2428,10 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 		if(!$query)
 			return;
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $model->id),
@@ -2506,7 +2514,10 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		if(!$query)
 			return;
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $model->id),
@@ -2630,7 +2641,10 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 			);
 			
 			if(!$cache_ttl || false == ($results = $cache->load($cache_key))) {
-				$results = $data_service->executeQuery($query);
+				if(false === ($results = $data_service->executeQuery($query, $error))) {
+					echo DevblocksPlatform::strEscapeHtml($error);
+					return;
+				}
 				
 				if($cache_ttl)
 					$cache->save($results, $cache_key, [], $cache_ttl);

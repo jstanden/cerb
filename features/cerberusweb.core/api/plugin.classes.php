@@ -2324,7 +2324,7 @@ class BotAction_DataQuery extends Extension_DevblocksEventAction {
 		if(!$query)
 			return;
 		
-		if(false == ($json = $data->executeQuery($query)))
+		if(false === ($json = $data->executeQuery($query, $error)))
 			return;
 		
 		if(is_string($json) && false == ($json = json_decode($json, true)))

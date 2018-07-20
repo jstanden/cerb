@@ -679,7 +679,9 @@ class WorkspaceWidgetDatasource_DataQuery extends Extension_WorkspaceWidgetDatas
 		
 		@$query = DevblocksPlatform::importGPC($params['data_query'], 'string', '');
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query)))
+			return [];
+		
 		$data = $results['data'];
 		
 		if(count($data)) {

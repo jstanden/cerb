@@ -1585,7 +1585,10 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 		if(!$query)
 			return;
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
@@ -1684,7 +1687,10 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 		if(!$query)
 			return;
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
@@ -1763,7 +1769,10 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 		if(!$query)
 			return;
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
@@ -1836,7 +1845,10 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 		if(!$query)
 			return;
 		
-		$results = $data->executeQuery($query);
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
