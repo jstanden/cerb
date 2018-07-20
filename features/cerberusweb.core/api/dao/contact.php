@@ -610,34 +610,40 @@ class DAO_Contact extends Cerb_ORMHelper {
 		$ids = [];
 		
 		if(DevblocksPlatform::strStartsWith($term, '@')) {
-			$results = $db->GetArraySlave(sprintf("SELECT id ".
+			$sql = sprintf("SELECT id ".
 				"FROM contact ".
 				"WHERE primary_email_id IN (".
 					"SELECT id FROM address WHERE host LIKE %s ORDER BY num_nonspam DESC ".
-				")",
-				$db->qstr(substr($term, 1) . '%')
-			));
+				") ".
+				"LIMIT %d",
+				$db->qstr(substr($term, 1) . '%'),
+				25
+			);
+			$results = $db->GetArraySlave($sql);
 			
 		} else {
-			$results = $db->GetArraySlave(sprintf("SELECT id ".
+			$sql = sprintf("SELECT contact.id, address.num_nonspam ".
 				"FROM contact ".
+				"INNER JOIN address ON (contact.primary_email_id=address.id) ".
 				"WHERE (".
 					"first_name LIKE %s ".
 					"OR last_name LIKE %s ".
 					"%s".
-				")",
+				") ".
+				"ORDER BY num_nonspam DESC ".
+				"LIMIT %d",
 				$db->qstr($term.'%'),
 				$db->qstr($term.'%'),
 				(false != strpos($term,' ')
 					? sprintf("OR concat(first_name,' ',last_name) LIKE %s ", $db->qstr($term.'%'))
-					: '')
-			));
+					: ''),
+				25
+			);
+			$results = $db->GetArraySlave($sql);
 		}
 		
 		if(is_array($results))
-		foreach($results as $row) {
-			$ids[] = $row['id'];
-		}
+			$ids = array_column($results, 'id');
 		
 		switch($as) {
 			case 'ids':
