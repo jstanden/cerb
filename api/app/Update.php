@@ -62,6 +62,10 @@ class ChUpdateController extends DevblocksControllerExtension {
 				
 			case 'locked':
 				if(!DevblocksPlatform::versionConsistencyCheck()) {
+					echo "<html><head>";
+					echo '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">';
+					echo "</head>";
+					echo "<body>";
 					echo sprintf("<h1>Cerb %s</h1>", APP_VERSION);
 					echo "The application is currently waiting for an administrator to finish upgrading. ".
 						"Please wait a few minutes and then ".
@@ -71,6 +75,8 @@ class ChUpdateController extends DevblocksControllerExtension {
 					echo sprintf("If you're an admin you may <a href='%s'>finish the upgrade</a>.",
 						$url->write('c=update')
 					);
+					echo "</body>";
+					echo "</html>";
 				} else {
 					DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 				}

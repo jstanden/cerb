@@ -3,6 +3,7 @@
 	<title>Installing Cerb...</title>
 	<link rel="stylesheet" href="install.css" type="text/css">
 	<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 </head>
 
 <body>

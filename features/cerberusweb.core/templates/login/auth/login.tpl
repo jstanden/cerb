@@ -19,7 +19,7 @@
 			<b>{$email}</b>
 			<input type="hidden" name="email" value="{$email}">
 			{else}
-			<input type="text" name="email" size="45" class="input_email" value="{$email}">
+			<input type="text" name="email" size="40" class="input_email" value="{$email}">
 			{/if}
 		</td>
 		<td>
