@@ -306,14 +306,55 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 		// Respond
 		
 		switch($chart_model['format']) {
+			case 'categories':
+				return $this->_convertSeriesDataToCategories($chart_model['series']);
+				break;
+				
+			case 'pie':
+				return $this->_convertSeriesDataToPie($chart_model['series']);
+				break;
+				
 			default:
 				return $this->_convertSeriesDataToScatterplot($chart_model['series']);
 				break;
 		}
 	}
 	
+	function _convertSeriesDataToCategories($series_data) {
+		$response = [
+			['label'],['hits']
+		];
+		
+		foreach($series_data as $series) {
+			if(array_key_exists('data', $series))
+			foreach($series['data'] as $x => $y) {
+				$response[0][] = $x;
+				$response[1][] = $y;
+			}
+		}
+		
+		return ['data' => $response, '_' => [
+			'type' => 'worklist.scaterplot',
+			'format' => 'categories',
+		]];
+	}
+	
+	function _convertSeriesDataToPie($series_data) {
 		$response = [];
 		
+		foreach($series_data as $series) {
+			if(array_key_exists('data', $series))
+			foreach($series['data'] as $x => $y) {
+				$response[] = [$x, $y];
+			}
+		}
+		
+		return ['data' => $response, '_' => [
+			'type' => 'worklist.scatterplot',
+			'format' => 'pie',
+		]];
+	}
+	
 	function _convertSeriesDataToScatterplot($series_data) {
 		$response = [];
 		
