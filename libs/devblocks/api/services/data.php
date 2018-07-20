@@ -276,6 +276,7 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 				$view->getParams()
 			);
 			
+			$sort_data = Cerb_ORMHelper::buildSort($view->renderSortBy, $view->renderSortAsc, $view->getFields(), $search_class);
 			
 			$x_field = $y_field = null;
 			
@@ -285,10 +286,14 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 			$x_field = $series['x']['sql_select'];
 			$y_field = $series['y']['sql_select'];
 			
+			$sql = sprintf("SELECT %s AS x, %s AS y%s %s %s %s LIMIT %d",
 				$x_field,
 				$y_field,
+				$sort_data['sql_select'] ? sprintf(", %s", $sort_data['sql_select']) : '',
 				$query_parts['join'],
 				$query_parts['where'],
+				$sort_data['sql_sort'],
+				$view->renderLimit
 			);
 			
 			if(false == ($results = $db->GetArraySlave($sql)))
