@@ -3837,12 +3837,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				echo sprintf("In <b>%s</b>'s groups", DevblocksPlatform::strEscapeHtml($worker_name));
 				break;
 				
-			// [TODO] Handle long multiple value strings
 			case SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID:
 				$sep = ' or ';
-				$strings = array();
+				$strings = [];
 				
-				$ids = is_array($param->value) ? $param->value : array($param->value);
+				$ids = is_array($param->value) ? $param->value : [$param->value];
 				$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 				
 				$addresses = DAO_Address::getIds($ids);
@@ -3851,7 +3850,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($address->getNameWithEmail()) . '</b>';
 				}
 				
-				echo sprintf("Participant is %s", implode($sep, $strings));
+				$list_of_strings = implode(' or ', $strings);
+				
+				if(count($strings) > 2) {
+					$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
+						strip_tags($list_of_strings),
+						count($strings)
+					);
+				}
+				
+				echo sprintf("Participant is %s", $list_of_strings);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
