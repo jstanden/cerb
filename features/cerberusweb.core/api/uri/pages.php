@@ -83,7 +83,7 @@ class Page_Custom extends CerberusPageExtension {
 		$stack = $response->path;
 		@array_shift($stack); // pages
 		@$page_uri = array_shift($stack);
-
+		
 		$pages = DAO_WorkspacePage::getAll();
 		
 		$page_id = 0;
@@ -99,7 +99,7 @@ class Page_Custom extends CerberusPageExtension {
 			$this->_renderIndex();
 			
 		} else {
-			$this->_renderPage($page_id);
+			$this->_renderPage($page_id, $stack);
 		}
 		
 		return;
@@ -139,7 +139,7 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::pages/index.tpl');
 	}
 	
-	private function _renderPage($page_id) {
+	private function _renderPage($page_id, array $path=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -154,6 +154,12 @@ class Page_Custom extends CerberusPageExtension {
 			$page_id
 		);
 		$tpl->assign('point', $point);
+		
+		// Active tab
+		
+		if(!empty($path)) {
+			$tpl->assign('tab_selected', array_shift($path));
+		}
 
 		// Template
 		if(null != ($page_extension = DevblocksPlatform::getExtension($page->extension_id, true)))

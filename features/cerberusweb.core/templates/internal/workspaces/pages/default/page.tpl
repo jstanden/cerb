@@ -12,7 +12,7 @@
 		{$tabs = []}
 		
 		{foreach from=$page_tabs item=tab}
-			{$tabs[] = 'w_'|cat:$tab->id}
+			{$tabs[] = "{$tab->name|lower|devblocks_permalink}"}
 			<li class="drag" tab_id="{$tab->id}"><a href="{devblocks_url}ajax.php?c=pages&a=showWorkspaceTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">{$tab->name}</a></li>
 		{/foreach}
 
@@ -32,7 +32,14 @@ $(function() {
 	var $tabs = $("#pageTabs{$page->id}");
 	
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	
+	{if $tab_selected && in_array($tab_selected, $tabs)}
+	{$tab_idx = array_search($tab_selected, $tabs)}
+	tabOptions.active = {$tab_idx};
+	Devblocks.setjQueryUiTabSelected('pageTabs{$page->id}', {$tab_idx});
+	{else}
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('pageTabs{$page->id}');
+	{/if}
 	
 	tabOptions.create = function(e, ui) {
 		var tab_id = $(ui.tab).attr('tab_id');
