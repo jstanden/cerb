@@ -143,8 +143,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				}
 		}
 		
-		//return array_combine($values, $values);
-		return $values;
+		return array_combine($values, $values);
 	}
 	
 	static function _getLabelsForKeyExtensionValues($extension_id) {

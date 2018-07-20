@@ -299,8 +299,12 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 			if(false == ($results = $db->GetArraySlave($sql)))
 				$results = [];
 			
+			$x_labels = $search_class::getLabelsForKeyValues($series['x']['key_select'], array_column($results, 'x'));
+			$y_labels = $search_class::getLabelsForKeyValues($series['y']['key_select'], array_column($results, 'y'));
+			
 			$results = array_column($results, 'y', 'x');
 			$chart_model['series'][$series_idx]['data'] = $results;
+			$chart_model['series'][$series_idx]['labels'] = ['x' => $x_labels, 'y' => $y_labels];
 		}
 		
 		// Respond
@@ -326,10 +330,18 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 		];
 		
 		foreach($series_data as $series) {
-			if(array_key_exists('data', $series))
-			foreach($series['data'] as $x => $y) {
-				$response[0][] = $x;
-				$response[1][] = $y;
+			if(!array_key_exists('data', $series))
+				continue;
+			
+			$x_values = array_keys($series['data']);
+			$x_labels = $series['labels']['x'];
+			
+			$y_values = array_values($series['data']);
+			$y_labels = $series['labels']['y'];
+			
+			foreach($x_values as $idx => $x) {
+				$response[0][] = $x_labels[$x];
+				$response[1][] = $y_labels[$y_values[$idx]];
 			}
 		}
 		
@@ -343,9 +355,17 @@ class _DevblocksDataProviderWorklistScatterplot extends _DevblocksDataProvider {
 		$response = [];
 		
 		foreach($series_data as $series) {
-			if(array_key_exists('data', $series))
-			foreach($series['data'] as $x => $y) {
-				$response[] = [$x, $y];
+			if(!array_key_exists('data', $series))
+				continue;
+			
+			$x_values = array_keys($series['data']);
+			$x_labels = $series['labels']['x'];
+			
+			$y_values = array_values($series['data']);
+			$y_labels = $series['labels']['y'];
+			
+			foreach($x_values as $idx => $x) {
+				$response[] = [$x_labels[$x], $y_labels[$y_values[$idx]]];
 			}
 		}
 		
