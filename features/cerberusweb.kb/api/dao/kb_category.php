@@ -441,7 +441,8 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		
 		$results = $db->GetArraySlave(sprintf("SELECT id ".
 			"FROM kb_category ".
-			"WHERE name LIKE %s ",
+			"WHERE name LIKE %s ".
+			"LIMIT 25",
 			$db->qstr($term.'%')
 		));
 		

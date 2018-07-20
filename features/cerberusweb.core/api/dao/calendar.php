@@ -398,7 +398,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			"FROM calendar ".
 			"WHERE ".
 			"name LIKE %s ".
-			"",
+			"LIMIT 25",
 			$db->qstr($term.'%')
 		));
 		
