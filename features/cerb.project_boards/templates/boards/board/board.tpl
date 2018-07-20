@@ -148,8 +148,6 @@ div.cerb-board div.cerb-board-column div.cerb-board-card div.cerb-board-card-typ
 $(function() {
 	var $board = $('#board{$tab->id}');
 	
-	document.title = "{$board->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
-	
 	var $menu = $board.siblings('ul.menu')
 		.menu()
 		// Catch menu item clicks
