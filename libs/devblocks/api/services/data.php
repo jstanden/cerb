@@ -418,17 +418,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if($field->key == 'metric') {
+			if($field->key == 'function') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['metric'] = $value;
+				$chart_model['function'] = DevblocksPlatform::strLower($value);
 				
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['format'] = $value;
-				
-			} else if($field->key == 'limit') {
-				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['limit'] = $value;
+				$chart_model['format'] = DevblocksPlatform::strLower($value);
 				
 			} else if($field->key == 'of') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -528,20 +524,37 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 		}
 		
-		$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s GROUP BY %s",
+		$func = 'COUNT(*)';
+		$by_fields = $chart_model['by'];
+		
+		$func_map = [
+			'avg' => 'AVG',
+			'average' => 'AVG',
+			'sum' => 'SUM',
+			'min' => 'MIN',
+			'max' => 'MAX',
+		];
+		
+		if(array_key_exists($chart_model['function'], $func_map)) {
+			$func_field = array_pop($by_fields);
+			$func = sprintf('%s(%s)', $func_map[$chart_model['function']], $func_field['sql_select']);
+		}
+		
+		$sql = sprintf("SELECT %s AS hits, %s %s %s GROUP BY %s",
+			$func,
 			implode(', ', array_map(function($e) use ($db) {
 				return sprintf("%s AS `%s`",
 					$e['sql_select'],
 					$db->escape($e['key_select'])
 				);
-			}, $chart_model['by'])),
+			}, $by_fields)),
 			$query_parts['join'],
 			$sql_where,
 			implode(', ', array_map(function($e) use ($db) {
 				return sprintf("`%s`",
 					$e['key_select']
 				);
-			}, $chart_model['by']))
+			}, $by_fields))
 		);
 		
 		$response = [];
