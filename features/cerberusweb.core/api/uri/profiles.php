@@ -2492,6 +2492,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
 		@$xaxis_key = DevblocksPlatform::importGPC($model->extension_params['xaxis_key'], 'string', 'ts');
 		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', '%Y-%m-%d');
+		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', '');
 		@$xaxis_tick_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_tick_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
@@ -2591,6 +2592,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 			$config_json['size'] = ['height' => $height];
 		
 		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('yaxis_format', $yaxis_format);
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/timeseries/render.tpl');
 	}

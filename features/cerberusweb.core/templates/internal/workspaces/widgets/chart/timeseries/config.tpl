@@ -46,6 +46,20 @@
 			<textarea name="params[xaxis_tick_format]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->params.xaxis_tick_format|default:''}</textarea>
 		</div>
 		
+		{$formats = ['number'=>'Number','number.minutes'=>'Time elapsed (minutes)','number.seconds'=>'Time elapsed (seconds)']}
+		
+		<div>
+			<b>Format y-axis</b> values as: (optional)
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<select name="params[yaxis_format]">
+				{foreach from=$formats item=label key=k}
+				<option value="{$k}" {if $k == $widget->params.yaxis_format}selected="selected"{/if}>{$label}</option>
+				{/foreach}
+			</select>
+		</div>
+		
 		<div>
 			The <b>chart height</b> is:
 		</div>
