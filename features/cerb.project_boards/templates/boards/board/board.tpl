@@ -277,7 +277,7 @@ $(function() {
 			tolerance: 'pointer',
 			items: '.cerb-board-column',
 			helper: 'clone',
-			//handle: '.cerb-board-column-toolbar',
+			handle: '.cerb-board-column-toolbar .glyphicons-menu-hamburger',
 			opacity: 0.7,
 			update: function(event, ui) {
 				$board.trigger('cerb-persist');

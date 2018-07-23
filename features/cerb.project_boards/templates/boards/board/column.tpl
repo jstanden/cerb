@@ -3,7 +3,12 @@
 		<button type="button" class="cerb-board-column-edit" data-context="{Context_ProjectBoardColumn::ID}" data-context-id="{$column->id}"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		<button type="button" class="cerb-board-card-add" data-context="{CerberusContexts::CONTEXT_TASK}" data-query="isCompleted:no"><span class="glyphicons glyphicons-circle-plus"></span></button>
 	</div>
-	<h2>{$column->name}</h2>
+	<div style="text-align:left;">
+		<b style="margin-left:10px;font-size:1.4em;color:rgb(0,0,0);">
+			<span class="glyphicons glyphicons-menu-hamburger" style="vertical-align:top;cursor:move;color:rgb(150,150,150);font-size:1.2em;"></span>
+			{$column->name}
+		</b>
+	</div>
 </div>
 <form action="#">
 {foreach from=$column->getCards() item=card}
