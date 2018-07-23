@@ -409,7 +409,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		$chart_model = [
 			'type' => 'worklist.subtotals',
-			'metric' => '',
+			'function' => 'count',
 		];
 		
 		$subtotals_context = null;
@@ -489,9 +489,29 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		$custom_fields = DAO_CustomField::getAll();
 		
+		// Aggregate function
+		
+		$func = 'COUNT(*)';
+		$by_fields = $chart_model['by'];
+		
+		$func_map = [
+			'avg' => 'AVG',
+			'average' => 'AVG',
+			'sum' => 'SUM',
+			'min' => 'MIN',
+			'max' => 'MAX',
+		];
+		
+		if(array_key_exists($chart_model['function'], $func_map)) {
+			$func_field = array_pop($by_fields);
+			$func = sprintf('%s(%s)', $func_map[$chart_model['function']], $func_field['sql_select']);
+		}
+		
+		// Pre-filter
+		
 		$sql_where = $query_parts['where'];
 		
-		foreach($chart_model['by'] as $by) {
+		foreach($by_fields as $by) {
 			$limit = DevblocksPlatform::intClamp($by['limit'], 0, 250) ?: 25;
 			@$limit_desc = $by['limit_desc'];
 			
@@ -522,22 +542,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			} else {
 				$sql_where .= ' AND 0';
 			}
-		}
-		
-		$func = 'COUNT(*)';
-		$by_fields = $chart_model['by'];
-		
-		$func_map = [
-			'avg' => 'AVG',
-			'average' => 'AVG',
-			'sum' => 'SUM',
-			'min' => 'MIN',
-			'max' => 'MAX',
-		];
-		
-		if(array_key_exists($chart_model['function'], $func_map)) {
-			$func_field = array_pop($by_fields);
-			$func = sprintf('%s(%s)', $func_map[$chart_model['function']], $func_field['sql_select']);
 		}
 		
 		$sql = sprintf("SELECT %s AS hits, %s %s %s GROUP BY %s",
