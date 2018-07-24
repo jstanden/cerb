@@ -1851,6 +1851,11 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 			return;
 		}
 		
+		if(!$results || 0 != strcasecmp('timeseries', $results['_']['format'])) {
+			echo DevblocksPlatform::strEscapeHtml("The data should be in 'timeseries' format.");
+			return;
+		}
+		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
 			'data' => [
