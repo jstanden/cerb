@@ -755,10 +755,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
-			case 'group':
-				$key = 'group.id';
-				break;
-				
 			case 'sender':
 				$key = 'sender.id';
 				break;
@@ -767,17 +763,18 @@ class SearchFields_Message extends DevblocksSearchFields {
 				$key = 'ticket.id';
 				break;
 				
+			case 'group':
 			case 'ticket.group':
 				$key = $key;
 				$search_key = $key;
-				$mask_field = $search_fields[SearchFields_Message::TICKET_GROUP_ID];
+				$group_field = $search_fields[SearchFields_Message::TICKET_GROUP_ID];
 				
 				return [
 					'key_query' => $key,
 					'key_select' => $search_key,
 					'sql_select' => sprintf("(SELECT group_id FROM ticket WHERE id = m.ticket_id)",
-						Cerb_ORMHelper::escape($mask_field->db_table),
-						Cerb_ORMHelper::escape($mask_field->db_column)
+						Cerb_ORMHelper::escape($group_field->db_table),
+						Cerb_ORMHelper::escape($group_field->db_column)
 					),
 				];
 				break;
@@ -814,6 +811,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 				return $label_map;
 				break;
 				
+			case 'group':
 			case 'ticket.group':
 				$models = DAO_Group::getIds($values);
 				$label_map = array_column($models, 'name', 'id');
