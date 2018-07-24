@@ -649,6 +649,10 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 			case 'closed':
 				$key = 'isClosed';
 				break;
+				
+			case 'worker':
+				$key = 'worker.id';
+				break;
 		}
 		
 		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
@@ -672,6 +676,12 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 				
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
 				return parent::_getLabelsForKeyBooleanValues();
+				break;
+				
+			case SearchFields_TimeTrackingEntry::WORKER_ID:
+				$models = DAO_Worker::getIds($values);
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_WORKER);
+				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
 				break;
 		}
 		
