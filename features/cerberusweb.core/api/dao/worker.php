@@ -1568,7 +1568,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null),
-			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null),
+			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', DevblocksPlatform::translateCapitalized('common.groups'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability', null),
 			self::VIRTUAL_SESSION_ACTIVITY => new DevblocksSearchField(self::VIRTUAL_SESSION_ACTIVITY, '*', 'session_activity', 'Last Activity', null),
@@ -2116,7 +2116,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -2137,6 +2137,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					break;
 					
 				case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_Worker::VIRTUAL_GROUP_SEARCH:
 				case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
@@ -2187,6 +2188,15 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
+			case SearchFields_Worker::VIRTUAL_GROUP_SEARCH:
+				$label_map = function($ids) {
+					$rows = DAO_Group::getIds($ids);
+					return array_column(DevblocksPlatform::objectsToArrays($rows), 'name', 'id');
+				};
+				
+				$counts = $this->_getSubtotalCountForGroup($column, $label_map);
+				break;
+				
 			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
 				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
@@ -2198,6 +2208,71 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				}
 				
 				break;
+		}
+		
+		return $counts;
+	}
+	
+	private function _getSubtotalCountForGroup($field_key, $label_map=[]) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$fields = $this->getFields();
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		if(!isset($columns[$field_key]))
+			$columns[] = $field_key;
+		
+		$query_parts = DAO_Worker::getSearchQueryComponents(
+			$columns,
+			$params,
+			$this->renderSortBy,
+			$this->renderSortAsc
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		
+		$sql = sprintf("SELECT wtg.group_id AS label, count(*) AS hits ".
+			"%s ". // from
+			"INNER JOIN worker_to_group AS wtg ON (wtg.worker_id=w.id) ".
+			"%s ". // where
+			"GROUP BY label ".
+			"ORDER BY hits DESC ".
+			"LIMIT 25",
+			$query_parts['join'],
+			$query_parts['where']
+		);
+		
+		$counts = [];
+		
+		if(false == ($results = $db->GetArraySlave($sql)))
+			return $counts;
+		
+		if(is_callable($label_map)) {
+			$label_map = $label_map(array_column($results, 'label'));
+		}
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			$group_id = $result['label'];
+			$label = $result['label'];
+			$key = $label;
+			$hits = $result['hits'];
+
+			if(is_array($label_map) && isset($label_map[$label]))
+				$label = $label_map[$label];
+			
+			if(!isset($counts[$key]))
+				$counts[$key] = [
+					'hits' => $hits,
+					'label' => $label,
+					'filter' => [
+						'field' => SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
+						'query' => sprintf('group:(id:[%d])', $group_id),
+					],
+					'children' => [],
+				];
 		}
 		
 		return $counts;
