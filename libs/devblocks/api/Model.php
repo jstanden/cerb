@@ -54,14 +54,42 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		@list($key, $bin) = explode('@', $key, 2);
 		
 		if(isset($query_fields[$key])) {
-			$search_key = $query_fields[$key]['options']['param_key'];
-			$search_field = $search_fields[$search_key]; /* @var $search_field DevblocksSearchField */
+			@$search_key = $query_fields[$key]['options']['param_key'];
+			@$search_field = $search_fields[$search_key]; /* @var $search_field DevblocksSearchField */
 			
 			// Make sure the field is a date if we're binning
 			if($bin && $search_field->type != Model_CustomField::TYPE_DATE)
 				$bin = null;
 			
-			if(DevblocksPlatform::strStartsWith($search_key, '*_')) {
+			if('*_context_link' == $search_key) {
+				@$link_context_alias = substr($key, 6);
+				@$link_context = Extension_DevblocksContext::getByAlias($link_context_alias, false);
+				
+				$key_select = 'links' . '_' . uniqid();
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $key_select,
+					'sql_select' => sprintf("CONCAT_WS(':',`%s`.to_context,`%s`.to_context_id)",
+						Cerb_ORMHelper::escape($key_select),
+						Cerb_ORMHelper::escape($key_select)
+					),
+					'sql_join' => sprintf("INNER JOIN context_link AS `%s` ON (`%s`.from_context = %s AND `%s`.from_context_id = %s%s)",
+						Cerb_ORMHelper::escape($key_select),
+						Cerb_ORMHelper::escape($key_select),
+						Cerb_ORMHelper::qstr($context), // .from_context
+						Cerb_ORMHelper::escape($key_select),
+						$primary_key, // .from_context_id
+						$link_context 
+							? sprintf(" AND `%s`.to_context = %s",
+								Cerb_ORMHelper::escape($key_select),
+								Cerb_ORMHelper::qstr($link_context->id) // .to_context
+							)
+							: ''
+					),
+				];
+				
+			} else if(DevblocksPlatform::strStartsWith($search_key, '*_')) {
 				// Ignore virtual fields that made it this far
 				return false;
 				
@@ -121,7 +149,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 	}
 	
 	static function getLabelsForKeyValues($key, $values) {
-		if(DevblocksPlatform::strStartsWith($key, 'cf_')) {
+		if(DevblocksPlatform::strStartsWith($key, 'links_')) {
+			return self::_getLabelsForKeyContextAndIdValues($values);
+			
+		} else if(DevblocksPlatform::strStartsWith($key, 'cf_')) {
 			$custom_field_id = intval(substr($key, 3));
 			
 			if(false != ($custom_field = DAO_CustomField::get($custom_field_id)))

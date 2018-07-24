@@ -515,12 +515,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$limit = DevblocksPlatform::intClamp($by['limit'], 0, 250) ?: 25;
 			@$limit_desc = $by['limit_desc'];
 			
-			$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s GROUP BY %s ORDER BY hits %s LIMIT %d",
+			$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s %s GROUP BY `%s` ORDER BY hits %s LIMIT %d",
 				sprintf("%s AS `%s`",
 					$by['sql_select'],
 					$db->escape($by['key_select'])
 				),
 				$query_parts['join'],
+				@$by['sql_join'] ?: '',
 				$query_parts['where'],
 				$db->escape($by['key_select']),
 				$limit_desc ? 'DESC' : 'ASC',
@@ -544,7 +545,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 		}
 		
-		$sql = sprintf("SELECT %s AS hits, %s %s %s GROUP BY %s",
+		$sql = sprintf("SELECT %s AS hits, %s %s %s %s GROUP BY %s",
 			$func,
 			implode(', ', array_map(function($e) use ($db) {
 				return sprintf("%s AS `%s`",
@@ -553,10 +554,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				);
 			}, $by_fields)),
 			$query_parts['join'],
+			implode(' ', array_map(function($e) use ($db) {
+				return @$e['sql_join'];
+			}, $by_fields)),
 			$sql_where,
 			implode(', ', array_map(function($e) use ($db) {
 				return sprintf("`%s`",
-					$e['key_select']
+					$db->escape($e['key_select'])
 				);
 			}, $by_fields))
 		);
