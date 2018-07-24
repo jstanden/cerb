@@ -2156,12 +2156,12 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_WORKER;
 		
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_Worker::AT_MENTION_NAME:
@@ -2174,7 +2174,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Worker::GENDER:
-				$label_map = SearchFields_Worker::getLabelsForKeyValues($column, $values);
+				$label_map = SearchFields_Worker::getLabelsForKeyValues($column, []);
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
 				break;
 

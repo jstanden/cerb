@@ -404,10 +404,10 @@ function DevblocksClass() {
 		}
 		
 		if(resources.hasOwnProperty('js')) {
+			if(!$.isArray(resources.js))
+				return callback(false);
+			
 			resources.js.forEach(function(url) {
-				if(!$.isArray(resources.js))
-					return callback(false);
-				
 				if(url.substring(0,1) == '/')
 					url = DevblocksWebPath + url.substring(1);
 				
