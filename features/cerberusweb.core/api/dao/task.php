@@ -679,14 +679,14 @@ class SearchFields_Task extends DevblocksSearchFields {
 		}
 	}
 	
-	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
 			case 'owner':
 				$key = 'owner.id';
 				break;
 		}
 		
-		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
 	}
 	
 	static function getLabelsForKeyValues($key, $values) {

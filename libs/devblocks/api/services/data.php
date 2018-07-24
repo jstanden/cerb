@@ -235,7 +235,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 					$search_fields = $view->getFields();
 					
 					if(array_key_exists('x', $series_model)) {
-						if(false == ($x_field = $search_class::getFieldForSubtotalKey($series_model['x'], $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
+						if(false == ($x_field = $search_class::getFieldForSubtotalKey($series_model['x'], $series_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 							unset($series_model['x']);
 						} else {
 							$series_model['x'] = $x_field;
@@ -243,7 +243,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 					}
 					
 					if(array_key_exists('y', $series_model)) {
-						if(false == ($y_field = $search_class::getFieldForSubtotalKey($series_model['y'], $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
+						if(false == ($y_field = $search_class::getFieldForSubtotalKey($series_model['y'], $series_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 							unset($series_model['y']);
 						} else {
 							$series_model['y'] = $y_field;
@@ -472,7 +472,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				@$limit_desc = DevblocksPlatform::strStartsWith($limit, '-') ? false : true;
 				@$limit = DevblocksPlatform::intClamp(abs($limit), 0, 250) ?: 25;
 				
-				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $query_fields, $search_fields, $search_class::getPrimaryKey())))
+				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $subtotals_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey())))
 					continue;
 				
 				$subtotal_field['limit'] = $limit;

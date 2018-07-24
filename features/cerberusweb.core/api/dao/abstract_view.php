@@ -585,7 +585,7 @@ abstract class C4_AbstractView {
 		
 		if(!is_array($subtotal_keys) || empty($subtotal_keys))
 			return [];
-			
+		
 		foreach($subtotal_keys as $subtotal_key) {
 			@$search_field = $search_fields[$subtotal_key];
 			
@@ -1784,7 +1784,9 @@ abstract class C4_AbstractView {
 			
 			$field = array(
 				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-				'options' => [],
+				'options' => [
+					'param_key' => $param_key
+				],
 				'examples' => [
 					['type' => 'search', 'context' => $context_mft->id, 'q' => ''],
 				]

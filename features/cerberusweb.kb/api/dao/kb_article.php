@@ -637,7 +637,8 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 		}
 	}
 	
-	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
+		// [TODO] Category
 		switch($key) {
 			case 'category':
 			case 'category.id':
@@ -646,7 +647,7 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 				break;
 		}
 		
-		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
 	}
 	
 	static function getLabelsForKeyValues($key, $values) {

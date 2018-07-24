@@ -470,7 +470,7 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 		}
 	}
 	
-	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
 			case 'default':
 				$key = 'isDefault';
@@ -494,7 +494,7 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 				];
 		}
 		
-		return parent::getFieldForSubtotalKey($key, $query_fields, $search_fields, $primary_key);
+		return parent::getFieldForSubtotalKey($key, $context, $query_fields, $search_fields, $primary_key);
 	}
 	
 	static function getLabelsForKeyValues($key, $values) {

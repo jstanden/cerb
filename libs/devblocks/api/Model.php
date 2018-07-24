@@ -36,7 +36,7 @@ interface IDevblocksSearchFields {
 	static function getPrimaryKey();
 	static function getCustomFieldContextKeys();
 	static function getWhereSQL(DevblocksSearchCriteria $param);
-	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key);
+	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key);
 	static function getLabelsForKeyValues($key, $values);
 }
 
@@ -50,7 +50,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		return $map[$context];
 	}
 	
-	static function getFieldForSubtotalKey($key, array $query_fields, array $search_fields, $primary_key) {
+	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		@list($key, $bin) = explode('@', $key, 2);
 		
 		if(isset($query_fields[$key])) {
