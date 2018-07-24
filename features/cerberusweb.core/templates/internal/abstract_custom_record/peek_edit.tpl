@@ -25,7 +25,7 @@
 			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
-			{if 1 == count($owners_menu)}
+			{if 1 == count($owners_menu) && array_key_exists('App', $owners_menu)}
 			{$owner = array_shift($owners_menu)}
 			{$owner_parts = explode(':', $owner->key)}
 			<ul class="chooser-container bubbles">
