@@ -69,8 +69,10 @@ $(function(e) {
 	
 	$('#lnkSignedIn')
 		.click(function(e) {
-			if($menu.is(':visible'))
+			if($menu.is(':visible')) {
+				$menu.hide();
 				return;
+			}
 			
 			$menu
 				.show()
