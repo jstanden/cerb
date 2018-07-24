@@ -2188,8 +2188,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->renderPage = 0;
 		$view->renderLimit = 250;
 		$pos = 0;
-		$keys = array();
-		$contexts = array();
+		$keys = [];
+		$contexts = [];
 		
 		$view->renderTotal = false;
 		
@@ -2258,7 +2258,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				'worker_id' => $active_worker->id,
 				'total' => $pos,
 				'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=profiles&k=worker&id=me&tab=notifications', true),
-				//'toolbar_extension_id' => '',
 			),
 			0
 		);

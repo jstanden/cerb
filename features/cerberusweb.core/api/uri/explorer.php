@@ -91,14 +91,6 @@ class ChExplorerController extends DevblocksControllerExtension {
 			$tpl->assign('count', $total);
 			$tpl->assign('return_url', $return_url);
 			
-			// Toolbar
-			if(isset($meta->params['toolbar_extension_id'])) {
-				$toolbar_extension_id = $meta->params['toolbar_extension_id'];
-				if(!empty($toolbar_extension_id) && null !== ($toolbar_extension = DevblocksPlatform::getExtension($toolbar_extension_id, true))) {
-					$tpl->assign('toolbar_extension', $toolbar_extension);
-				}
-			}
-			
 			// Update the access time on the first request, and no more often than every 30 seconds thereafter
 			if(!isset($meta->params['last_accessed']) || $meta->params['last_accessed'] < (time()-30)) {
 				$meta->params['last_accessed'] = time();

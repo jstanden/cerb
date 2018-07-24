@@ -252,7 +252,6 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=gpg_public_key', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.gpg_public_key.explore.toolbar',
 				);
 				$models[] = $model;
 				

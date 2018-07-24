@@ -197,7 +197,6 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=bucket', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.bucket.explore.toolbar',
 				);
 				$models[] = $model;
 				

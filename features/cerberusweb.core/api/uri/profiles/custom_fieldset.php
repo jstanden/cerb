@@ -178,7 +178,6 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=custom_fieldset', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.custom.fieldset.explore.toolbar',
 				);
 				$models[] = $model;
 				

@@ -186,7 +186,6 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=webapi_credentials', true),
-					'toolbar_extension_id' => 'CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL.explore.toolbar',
 				);
 				$models[] = $model;
 				

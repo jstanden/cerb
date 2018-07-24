@@ -193,7 +193,6 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=saved_search', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.context.saved.search.explore.toolbar',
 				);
 				$models[] = $model;
 				

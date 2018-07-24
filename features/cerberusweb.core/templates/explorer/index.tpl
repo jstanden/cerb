@@ -51,9 +51,6 @@
 									<a href="{$url}" target="_blank" rel="noopener">{$url|truncate:100}</a>
 								{/if} 
 								<div style="margin-top:5px;">
-								{if !empty($toolbar_extension) && !empty($item) && method_exists($toolbar_extension, 'render')}
-									{$toolbar_extension->render($item)}
-								{/if}
 								</div>
 							</td>
 							<td width="1%" nowrap="nowrap" align="right" valign="top" style="padding-right:10px;padding-top:10px;">

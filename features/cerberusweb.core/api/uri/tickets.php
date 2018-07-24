@@ -142,7 +142,6 @@ class ChTicketsPage extends CerberusPageExtension {
 					//'worker_id' => $active_worker->id,
 					'total' => min($total, $max_pages * $view->renderLimit),
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets&tab=messages', true),
-//					'toolbar_extension_id' => 'cerberusweb.explorer.toolbar.',
 				);
 				$models[] = $model;
 				

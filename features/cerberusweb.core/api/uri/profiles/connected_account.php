@@ -260,7 +260,6 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=connected_account', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.connected_account.explore.toolbar',
 				);
 				$models[] = $model;
 				

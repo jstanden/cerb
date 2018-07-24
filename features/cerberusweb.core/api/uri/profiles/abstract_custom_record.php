@@ -347,7 +347,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					'created' => time(),
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy(sprintf('c=search&type=%s', $custom_record->uri), true),
-					'toolbar_extension_id' => sprintf('%s.explore.toolbar', self::_getContextName()),
 				];
 				$models[] = $model;
 				

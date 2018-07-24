@@ -1879,7 +1879,6 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=<?php echo $table_name; ?>', true),
-					'toolbar_extension_id' => '<?php echo $ctx_ext_id; ?>.explore.toolbar',
 				);
 				$models[] = $model;
 				

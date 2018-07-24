@@ -274,7 +274,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=mailbox', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.mailbox.explore.toolbar',
 				);
 				$models[] = $model;
 				

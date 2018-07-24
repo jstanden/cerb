@@ -208,7 +208,6 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=custom_record', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.custom_record.explore.toolbar',
 				);
 				$models[] = $model;
 				

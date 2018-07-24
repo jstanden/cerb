@@ -167,7 +167,6 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=classifier_class', true),
-					'toolbar_extension_id' => 'cerberusweb.contexts.classifier.class.explore.toolbar',
 				);
 				$models[] = $model;
 				
