@@ -258,7 +258,3 @@ class ChTimeTrackingPage extends CerberusPageExtension {
 		$this->_destroyTimer();
 	}
 };
-
-class ChReportGroupTimeTracking extends Extension_ReportGroup {
-	// [TODO] This stub is pointless and should be refactored out.
-};
