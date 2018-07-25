@@ -311,20 +311,20 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		
 		switch($chart_model['format']) {
 			case 'categories':
-				return $this->_convertSeriesDataToCategories($chart_model['series']);
+				return $this->_formatDataAsCategories($chart_model['series']);
 				break;
 				
 			case 'pie':
-				return $this->_convertSeriesDataToPie($chart_model['series']);
+				return $this->_formatDataAsPie($chart_model['series']);
 				break;
 				
 			default:
-				return $this->_convertSeriesDataToScatterplot($chart_model['series']);
+				return $this->_formatDataAsScatterplot($chart_model['series']);
 				break;
 		}
 	}
 	
-	function _convertSeriesDataToCategories($series_data) {
+	function _formatDataAsCategories($series_data) {
 		$response = [
 			['label'],['hits']
 		];
@@ -351,7 +351,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _convertSeriesDataToPie($series_data) {
+	function _formatDataAsPie($series_data) {
 		$response = [];
 		
 		foreach($series_data as $series) {
@@ -375,7 +375,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _convertSeriesDataToScatterplot($series_data) {
+	function _formatDataAsScatterplot($series_data) {
 		$response = [];
 		
 		foreach($series_data as $series) {
@@ -636,28 +636,39 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		switch(@$chart_model['format']) {
 			case 'categories':
-				return $this->_convertTreeToCategories($response);
+				return $this->_formatDataAsCategories($response, $chart_model);
 				break;
 				
 			case 'pie':
-				return $this->_convertTreeToPie($response);
+				return $this->_formatDataAsPie($response, $chart_model);
+				break;
+				
+			case 'table':
+				return $this->_formatDataAsTable($response, $chart_model);
 				break;
 				
 			case 'timeseries':
-				return $this->_convertTreeToTimeSeries($response);
+				return $this->_formatDataAsTimeSeries($response, $chart_model);
 				break;
 				
 			case 'tree':
 			default:
-				return ['data' => $response, '_' => [
-					'type' => 'worklist.subtotals',
-					'format' => 'tree',
-				]];
+				return $this->_formatDataAsTree($response, $chart_model);
 				break;
 		}
 	}
 	
-	function _convertTreeToCategories($response) {
+	function _formatDataAsTree($response, $chart_model) {
+		return [
+			'data' => $response, 
+			'_' => [
+				'type' => 'worklist.subtotals',
+				'format' => 'tree',
+			]
+		];
+	}
+	
+	function _formatDataAsCategories($response) {
 		if(!isset($response['children']))
 			return [];
 		
@@ -711,7 +722,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _convertTreeToPie($response) {
+	function _formatDataAsPie($response) {
 		if(!isset($response['children']))
 			return [];
 		
@@ -727,7 +738,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _convertTreeToTimeSeries($response) {
+	function _formatDataAsTimeSeries($response) {
 		if(!isset($response['children']))
 			return [];
 		
@@ -759,7 +770,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 
 class _DevblocksDataProviderWorklistTimeSeries extends _DevblocksDataProvider {
 	function getData($query, $chart_fields, array $options=[]) {
-				$db = DevblocksPlatform::services()->database();
+		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
 			'type' => 'worklist.timeseries',
