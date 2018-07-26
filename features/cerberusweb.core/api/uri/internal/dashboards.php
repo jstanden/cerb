@@ -1834,6 +1834,47 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 	}
 };
 
+class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		
+		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		
+		if(!$query)
+			return;
+		
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
+		
+		if(!$results || 0 != strcasecmp('table', @$results['_']['format'])) {
+			echo DevblocksPlatform::strEscapeHtml("The data should be in 'table' format.");
+			return;
+		}
+		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('results', $results);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/table/render.tpl');
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $widget);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/table/config.tpl');
+	}
+	
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		
+		DAO_WorkspaceWidget::update($widget->id, array(
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		));
+	}
+};
+
 class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();

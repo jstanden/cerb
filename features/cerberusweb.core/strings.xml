@@ -692,6 +692,11 @@
 				<seg>copy</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.count">
+			<tuv xml:lang="en_US">
+				<seg>count</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.create">
 			<tuv xml:lang="en_US">
 				<seg>create</seg>
