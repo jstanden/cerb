@@ -617,6 +617,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => 'on',
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
 					'sql_select' => sprintf("CONCAT_WS(':', %s.%s, %s.%s)",
 						Cerb_ORMHelper::escape($field_target_context->db_table),
 						Cerb_ORMHelper::escape($field_target_context->db_column),

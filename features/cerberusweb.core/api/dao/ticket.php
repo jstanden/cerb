@@ -2360,6 +2360,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $search_key,
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'sql_select' => sprintf("%s.%s",
 						Cerb_ORMHelper::escape($search_field->db_table),
 						Cerb_ORMHelper::escape($search_field->db_column)
@@ -3202,7 +3203,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 			'group.id' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_GROUP,
+					],
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_GROUP_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_GROUP, 'q' => ''],
@@ -3282,7 +3286,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 			'org.id' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_ORG,
+					],
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_ORG_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ORG, 'q' => ''],
@@ -3290,7 +3297,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 			'owner' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_OWNER_SEARCH),
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],

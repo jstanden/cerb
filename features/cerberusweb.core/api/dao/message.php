@@ -772,6 +772,10 @@ class SearchFields_Message extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $search_key,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_GROUP,
+					],
 					'sql_select' => sprintf("(SELECT group_id FROM ticket WHERE id = m.ticket_id)",
 						Cerb_ORMHelper::escape($group_field->db_table),
 						Cerb_ORMHelper::escape($group_field->db_column)
@@ -787,6 +791,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $search_key,
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'sql_select' => sprintf("(SELECT mask FROM ticket WHERE id = m.ticket_id)",
 						Cerb_ORMHelper::escape($mask_field->db_table),
 						Cerb_ORMHelper::escape($mask_field->db_column)
@@ -872,7 +877,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 		
 		$columns = array(
 			SearchFields_Message::ID => new DevblocksSearchField(SearchFields_Message::ID, 'm', 'id', $translate->_('common.id'), null, true),
-			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id', $translate->_('common.sender'), true),
+			SearchFields_Message::ADDRESS_ID => new DevblocksSearchField(SearchFields_Message::ADDRESS_ID, 'm', 'address_id', $translate->_('common.sender'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::CREATED_DATE => new DevblocksSearchField(SearchFields_Message::CREATED_DATE, 'm', 'created_date', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Message::IS_OUTGOING => new DevblocksSearchField(SearchFields_Message::IS_OUTGOING, 'm', 'is_outgoing', $translate->_('message.is_outgoing'), Model_CustomField::TYPE_CHECKBOX, true),
 			SearchFields_Message::TICKET_ID => new DevblocksSearchField(SearchFields_Message::TICKET_ID, 'm', 'ticket_id', 'Ticket ID', null, true),
@@ -1847,7 +1852,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 			'responseTime' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER_SECONDS,
 					'options' => array('param_key' => SearchFields_Message::RESPONSE_TIME),
 				),
 			'sender' => 
@@ -1973,13 +1978,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				}
 				break;
 			
-			case 'responseTime':
-				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens);
-				
-				$field_key = SearchFields_Message::RESPONSE_TIME;
-				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
-				break;
-				
 			case 'ticket':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Message::VIRTUAL_TICKET_SEARCH);
 				break;

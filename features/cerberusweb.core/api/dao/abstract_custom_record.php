@@ -710,6 +710,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $search_key,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
 					'sql_select' => sprintf("CONCAT_WS(':',%s.%s,%s.%s)",
 						Cerb_ORMHelper::escape($owner_field->db_table),
 						Cerb_ORMHelper::escape($owner_field->db_column),

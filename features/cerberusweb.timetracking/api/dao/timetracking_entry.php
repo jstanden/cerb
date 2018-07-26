@@ -897,7 +897,10 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				),
 			'activity.id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY,
+					],
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::ACTIVITY_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY, 'q' => ''],
@@ -936,7 +939,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				),
 			'timeSpent' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER_MINUTES,
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS),
 					'examples' => array(
 						'30',
@@ -958,7 +961,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				),
 			'worker.id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
 					'options' => array('param_key' => SearchFields_TimeTrackingEntry::WORKER_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],

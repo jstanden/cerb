@@ -622,6 +622,7 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => 'actor',
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
 					'sql_select' => sprintf("CONCAT_WS(':', %s.%s, %s.%s)",
 						Cerb_ORMHelper::escape($field_actor_context->db_table),
 						Cerb_ORMHelper::escape($field_actor_context->db_column),
@@ -637,6 +638,7 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $search_field->token,
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'sql_select' => sprintf("%s.%s",
 						Cerb_ORMHelper::escape($search_field->db_table),
 						Cerb_ORMHelper::escape($search_field->db_column)
@@ -651,6 +653,7 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => 'target',
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
 					'sql_select' => sprintf("CONCAT_WS(':', %s.%s, %s.%s)",
 						Cerb_ORMHelper::escape($field_target_context->db_table),
 						Cerb_ORMHelper::escape($field_target_context->db_column),
@@ -666,6 +669,7 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $search_field->token,
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'sql_select' => sprintf("%s.%s",
 						Cerb_ORMHelper::escape($search_field->db_table),
 						Cerb_ORMHelper::escape($search_field->db_column)

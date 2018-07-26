@@ -54,7 +54,8 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		@list($key, $bin) = explode('@', $key, 2);
 		
 		if(isset($query_fields[$key])) {
-			@$search_key = $query_fields[$key]['options']['param_key'];
+			@$query_field = $query_fields[$key];
+			@$search_key = $query_field['options']['param_key'];
 			@$search_field = $search_fields[$search_key]; /* @var $search_field DevblocksSearchField */
 			
 			// Make sure the field is a date if we're binning
@@ -70,6 +71,8 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $key_select,
+					'label' => @$link_context->name, // [TODO] Context name
+					'type' => 'context',
 					'sql_select' => sprintf("CONCAT_WS(':',`%s`.to_context,`%s`.to_context_id)",
 						Cerb_ORMHelper::escape($key_select),
 						Cerb_ORMHelper::escape($key_select)
@@ -100,6 +103,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				return [
 					'key_query' => $key,
 					'key_select' => $search_key,
+					'label' => $custom_field->name,
+					'type' => $custom_field->type,
+					'type_options' => $custom_field->params,
 					'sql_select' => sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
 						DAO_CustomFieldValue::getValueTableName($custom_field->id),
 						Cerb_ORMHelper::qstr($custom_field->context),
@@ -123,6 +129,8 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						return [
 							'key_query' => $key,
 							'key_select' => $search_key,
+							'label' => $search_field->db_label,
+							'type' => DevblocksSearchCriteria::TYPE_TEXT,
 							'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), %s)",
 								Cerb_ORMHelper::escape($search_field->db_table),
 								Cerb_ORMHelper::escape($search_field->db_column),
@@ -132,14 +140,23 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						break;
 						
 					default:
-						return [
+						$meta = [
 							'key_query' => $key,
 							'key_select' => $search_key,
+							'label' => $search_field->db_label,
 							'sql_select' => sprintf("%s.%s",
 								Cerb_ORMHelper::escape($search_field->db_table),
 								Cerb_ORMHelper::escape($search_field->db_column)
 							),
 						];
+						
+						if(array_key_exists('type', $query_field))
+							$meta['type'] = $query_field['type'];
+							
+						if(array_key_exists('type_options', $query_field))
+							$meta['type_options'] = $query_field['type_options'];
+						
+						return $meta;
 						break;
 				}
 			}
@@ -913,9 +930,13 @@ class DevblocksSearchCriteria {
 	const GROUP_OR_NOT = 'OR NOT';
 	
 	const TYPE_BOOL = 'bool';
+	const TYPE_CONTEXT = 'context';
 	const TYPE_DATE = 'date';
 	const TYPE_FULLTEXT = 'fulltext';
 	const TYPE_NUMBER = 'number';
+	const TYPE_NUMBER_MINUTES = 'number_minutes';
+	const TYPE_NUMBER_MS = 'number_ms';
+	const TYPE_NUMBER_SECONDS = 'number_seconds';
 	const TYPE_TEXT = 'text';
 	const TYPE_VIRTUAL = 'virtual';
 	const TYPE_WORKER = 'worker';
@@ -1013,6 +1034,11 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::TYPE_NUMBER:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens)))
 					return $param;
+				break;
+				
+			case DevblocksSearchCriteria::TYPE_NUMBER_SECONDS:
+				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens);
+				return DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens);
 				break;
 				
 			case DevblocksSearchCriteria::TYPE_TEXT:
