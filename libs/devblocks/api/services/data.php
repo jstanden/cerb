@@ -658,7 +658,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 	}
 	
-	function _formatDataAsTree($response, $chart_model) {
+	function _formatDataAsTree($response, array $chart_model=[]) {
 		return [
 			'data' => $response, 
 			'_' => [
@@ -668,7 +668,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		];
 	}
 	
-	function _formatDataAsCategories($response) {
+	function _formatDataAsCategories($response, array $chart_model=[]) {
 		if(!isset($response['children']))
 			return [];
 		
@@ -722,7 +722,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _formatDataAsPie($response) {
+	function _formatDataAsPie($response, array $chart_model=[]) {
 		if(!isset($response['children']))
 			return [];
 		
@@ -738,7 +738,180 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _formatDataAsTimeSeries($response) {
+	function _formatDataAsTable($response, array $chart_model=[]) {
+		if(!isset($response['children']))
+			return [];
+		
+		$rows = [];
+		
+		$output = [
+			'columns' => [],
+			'rows' => &$rows,
+		];
+		
+		$by_len = count($chart_model['by']);
+		foreach($chart_model['by'] as $by_index => $by) {
+			$label = null;
+			
+			// If this is the last column
+			if($by_index+1 == $by_len) {
+				@$func_label = $chart_model['function'];
+				
+				switch($chart_model['function']) {
+					case 'avg':
+					case 'average':
+						$func_label = 'Avg.';
+						break;
+						
+					case 'max':
+						$func_label = 'Max.';
+						break;
+						
+					case 'min':
+						$func_label = 'Min.';
+						break;
+						
+					case 'sum':
+						$func_label = 'Total';
+						break;
+						
+					default:
+						$func_label = '';
+						break;
+				}
+				
+				$label = $func_label ? ($func_label . ' ') : '';
+			}
+			
+			@$type = $by['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
+			
+			switch($type) {
+				case DevblocksSearchCriteria::TYPE_CONTEXT:
+					$type_options = [];
+					
+					if(array_key_exists('type_options', $by)) {
+						if(array_key_exists('context', $by['type_options']))
+							$type_options['context'] = $by['type_options']['context'];
+						
+						if(array_key_exists('context_key', $by['type_options']))
+							$type_options['context_key'] = $by['type_options']['context_key'];
+					
+						@$type_options['context_id_key'] = $by['type_options']['context_id_key'] ?: $by['key_query'];
+						
+					} else {
+						@$type_options['context_key'] = $by['key_query'] . '__context';
+						@$type_options['context_id_key'] = $by['key_query'];
+					}
+					
+					$output['columns'][$by['key_query'] . '_label'] = [
+						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'type' => $type,
+						'type_options' => $type_options,
+					];
+					break;
+					
+				case DevblocksSearchCriteria::TYPE_WORKER:
+					$output['columns'][$by['key_query'] . '_label'] = [
+						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'type' => $type,
+						'type_options' => [
+							'context_id_key' => $by['key_query'],
+						]
+					];
+					break;
+				
+				default:
+					$output['columns'][$by['key_query']] = [
+						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'type' => $type,
+					];
+					break;
+			}
+		}
+		
+		// If we're counting, add a 'Count' column to the end
+		if(in_array($chart_model['function'],['','count'])) {
+			$output['columns']['count'] = [
+				'label' => DevblocksPlatform::translateCapitalized('common.count'),
+				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+			];
+		}
+		
+		$rows = [];
+		
+		// Build a table recursively from the tree
+		$recurse = function($node, $depth=0, $parents=[]) use (&$recurse, $chart_model, &$rows) {
+			@$by = $chart_model['by'][$depth];
+			
+			if(array_key_exists('name', $node))
+				$parents[] = &$node;
+			
+			// If this is a leaf
+			if(!array_key_exists('children', $node)) {
+				$row = [];
+				
+				foreach($chart_model['by'] as $column_index => $column) {
+					@$type = $column['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
+					
+					if($column_index == $depth) {
+						$value = $node['hits'];
+						
+					} else {
+						if(array_key_exists($column_index, $parents))
+							$value = $parents[$column_index]['name'];
+					}
+					
+					switch($type) {
+						case DevblocksSearchCriteria::TYPE_CONTEXT:
+							$value = $parents[$column_index]['value'];
+							
+							if(!array_key_exists('type_options', $column)) {
+								if(false !== (strpos($value,':'))) {
+									@list($context, $context_id) = explode(':', $value, 2);
+									$row[$column['key_query'] . '__context'] = $context;
+									$row[$column['key_query']] = $context_id;
+									$row[$column['key_query'] . '_label'] = $parents[$column_index]['name'];
+								}
+							} else {
+								$row[$column['key_query']] = $value;
+								$row[$column['key_query'] . '_label'] = $parents[$column_index]['name'];
+							}
+							
+							break;
+							
+						case DevblocksSearchCriteria::TYPE_WORKER:
+							$row[$column['key_query'] . '_label'] = $parents[$column_index]['name'];
+							$row[$column['key_query']] = $parents[$column_index]['value'];
+							break;
+							
+						default:
+							$row[$column['key_query']] = $value;
+							break;
+					}
+				}
+				
+				if(in_array($chart_model['function'], ['','count'])) {
+					$row['count'] = $node['hits'];
+				}
+				
+				$rows[] = $row;
+				return;
+			}
+			
+			foreach($node['children'] as $child) {
+				$recurse($child, $depth+1, $parents);
+			}
+		};
+		
+		$recurse($response, 0);
+		
+		return ['data' => $output, '_' => [
+			'type' => 'worklist.subtotals',
+			'format' => 'table',
+		]];
+	}
+	
+	function _formatDataAsTimeSeries($response, array $chart_model=[]) {
 		if(!isset($response['children']))
 			return [];
 		
