@@ -1931,6 +1931,101 @@ div.cerb-uploads p.failure {
   opacity: 0.8;
 }
 
+div.cerb-board div.cerb-board-columns {
+  white-space: nowrap;
+}
+div.cerb-board div.cerb-board-column-add {
+  text-align: center;
+  vertical-align: top;
+  position: relative;
+  display: inline-block;
+  width: 300px;
+  background-color: white;
+  border: 1px dashed gainsboro;
+  border-radius: 5px;
+  min-height: 100px;
+  margin: 5px;
+  padding: 5px 0px;
+}
+div.cerb-board div.cerb-board-column-add p {
+  position: absolute;
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  color: #c8c8c8;
+  font-size: 1.5em;
+}
+div.cerb-board div.cerb-board-column-add p a {
+  text-decoration: none;
+}
+div.cerb-board div.cerb-board-column-add p a:hover {
+  text-decoration: underline;
+}
+div.cerb-board div.cerb-board-column {
+  white-space: normal;
+  text-align: center;
+  vertical-align: top;
+  display: inline-block;
+  width: 300px;
+  background-color: #fafafa;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  min-height: 500px;
+  margin: 5px;
+  padding: 5px 0px;
+}
+div.cerb-board div.cerb-board-column div.cerb-board-column-toolbar-buttons {
+  float: right;
+  margin: 0px 5px 0px 0px;
+}
+div.cerb-board div.cerb-board-column h2 {
+  text-align: left;
+  color: #323232;
+  margin-left: 10px;
+  font-size: 130%;
+  cursor: move;
+}
+div.cerb-board div.cerb-board-column div.cerb-board-card {
+  text-align: left;
+  border-radius: 5px;
+  background-color: white;
+  border: 1px solid #e6e6e6;
+  display: inline-block;
+  width: 280px;
+  min-height: 50px;
+  margin: 5px;
+  padding: 0;
+  cursor: move;
+  overflow: hidden;
+  position: relative;
+}
+div.cerb-board div.cerb-board-column div.cerb-board-card > div {
+  margin: 10px;
+}
+div.cerb-board div.cerb-board-column div.cerb-board-card h3 {
+  margin: 0px 0px 5px 0px;
+  padding: 0;
+  font-size: 120%;
+}
+div.cerb-board div.cerb-board-column div.cerb-board-card h3 a {
+  color: #2d6eb4;
+  text-decoration: none;
+}
+div.cerb-board div.cerb-board-column div.cerb-board-card h3 a:hover {
+  text-decoration: underline;
+}
+div.cerb-board div.cerb-board-column div.cerb-board-card div.cerb-board-card-type {
+  float: right;
+  background-color: white;
+  border: 1px solid #e6e6e6;
+  color: gray;
+  padding: 3px;
+  font-size: 90%;
+  text-transform: uppercase;
+}
+
 /* jQueryUI (Redmond theme) */
 .ui-widget,
 .ui-widget input,
