@@ -1592,6 +1592,11 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 			return;
 		}
 		
+		if(empty($results)) {
+			echo "(no data)";
+			return;
+		}
+		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
 			'padding' => [
@@ -1699,6 +1704,11 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 			return;
 		}
 		
+		if(empty($results)) {
+			echo "(no data)";
+			return;
+		}
+		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
 			'data' => [
@@ -1781,6 +1791,11 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 			return;
 		}
 		
+		if(empty($results)) {
+			echo "(no data)";
+			return;
+		}
+		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
 			'data' => [
@@ -1850,7 +1865,12 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget { // implemen
 			return;
 		}
 		
-		if(!$results || 0 != strcasecmp('table', @$results['_']['format'])) {
+		if(empty($results)) {
+			echo "(no data)";
+			return;
+		}
+		
+		if(0 != strcasecmp('table', @$results['_']['format'])) {
 			echo DevblocksPlatform::strEscapeHtml("The data should be in 'table' format.");
 			return;
 		}
@@ -1899,7 +1919,12 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 			return;
 		}
 		
-		if(!$results || 0 != strcasecmp('timeseries', @$results['_']['format'])) {
+		if(!$results) {
+			echo "(no data)";
+			return;
+		}
+		
+		if(0 != strcasecmp('timeseries', @$results['_']['format'])) {
 			echo DevblocksPlatform::strEscapeHtml("The data should be in 'timeseries' format.");
 			return;
 		}

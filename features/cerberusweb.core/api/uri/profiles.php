@@ -2251,6 +2251,11 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 			return;
 		}
 		
+		if(empty($results)) {
+			echo "(no data)";
+			return;
+		}
+		
 		if(!array_key_exists('data', $results))
 			return;
 		
@@ -2359,6 +2364,11 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 			return;
 		}
 		
+		if(empty($results)) {
+			echo "(no data)";
+			return;
+		}
+		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $model->id),
 			'data' => [
@@ -2438,6 +2448,11 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 		
 		if(false === ($results = $data->executeQuery($query, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
+		
+		if(empty($results)) {
+			echo "(no data)";
 			return;
 		}
 		
@@ -2528,7 +2543,11 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 			return;
 		}
 		
-		if(!$results || 0 != strcasecmp('timeseries', @$results['_']['format'])) {
+		if(!$results) {
+			echo "(no data)";
+			return;
+		}
+		if(0 != strcasecmp('timeseries', @$results['_']['format'])) {
 			echo DevblocksPlatform::strEscapeHtml("The data should be in 'timeseries' format.");
 			return;
 		}
