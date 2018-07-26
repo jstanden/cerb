@@ -9,7 +9,7 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;"
+<table cellpadding="0" cellspacing="2" border="0" width="98%" style="margin-bottom:10px;">
 	<tr>
 		<td width="1%" nowrap="nowrap">{'common.title'|devblocks_translate|capitalize}: </td>
 		<td width="99%">
