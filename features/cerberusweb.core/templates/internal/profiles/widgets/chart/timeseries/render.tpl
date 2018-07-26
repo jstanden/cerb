@@ -10,8 +10,7 @@ $(function() {
 		],
 		'js': [
 			{if $is_date_formatted}
-			'/resource/devblocks.core/js/momentjs/moment.js',
-			'/resource/devblocks.core/js/momentjs/moment-duration-format.js',
+			'/resource/devblocks.core/js/humanize-duration.js',
 			{/if}
 			'/resource/devblocks.core/js/d3/d3.v5.min.js',
 			'/resource/devblocks.core/js/c3/c3.min.js'
@@ -24,19 +23,11 @@ $(function() {
 			
 			{if $is_date_formatted}
 				var format_seconds = function(secs) {
-					var duration = moment.duration(secs, 'seconds');
-					var formatted = duration.format("y[y],w[w],d[d],h[h],m[m],s[s]", {
-						largest: 2
-					});
-					return formatted;
+					return humanizeDuration(secs * 1000, { largest:2 });
 				};
 				
 				var format_minutes = function(minutes) {
-					var duration = moment.duration(minutes, 'minutes');
-					var formatted = duration.format("y[y],w[w],d[d],h[h],m[m]", {
-						largest: 2
-					});
-					return formatted;
+					return humanizeDuration(minutes * 60 * 1000, { largest:2 });
 				};
 			{/if}
 			
