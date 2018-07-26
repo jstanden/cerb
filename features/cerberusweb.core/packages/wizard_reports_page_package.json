@@ -534,7 +534,7 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[activity,timeSpent]\r\nquery:()\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[activity,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table"
 			}
 		},
 		{
@@ -547,7 +547,7 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[created@month,activity,timeSpent]\r\nquery:()\r\nformat:timeseries",
+				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[created@month,activity,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:timeseries",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -613,7 +613,7 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nof:timetracking\r\nfunction:sum\r\nby:[created@month,links.org~10,timeSpent]\r\nquery:()\r\nformat:timeseries",
+				"data_query": "type:worklist.subtotals\r\nof:timetracking\r\nfunction:sum\r\nby:[created@month,links.org~10,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:timeseries",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -679,7 +679,7 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[created@month,worker,timeSpent]\r\nquery:()\r\nformat:timeseries",
+				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[created@month,worker,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:timeseries",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
