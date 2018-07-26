@@ -625,6 +625,11 @@ foreach($results as $result) {
 }
 
 // ===========================================================================
+// Remove legacy reports pages
+
+$db->ExecuteMaster("DELETE FROM workspace_page WHERE extension_id = 'reports.workspace.page'");
+
+// ===========================================================================
 // Convert logo URLs to custom stylesheets
 
 $logo_url = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' and setting = 'helpdesk_logo_url'");

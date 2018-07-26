@@ -54,6 +54,46 @@
 		</div>
 	</div>
 	
+	<div style="margin-bottom:10px;">
+		<label>
+			<input type="radio" name="page_type" value="reports"> 
+			<h2 style="display:inline;">Reports</h2>
+		</label>
+		<div style="margin-left:20px;">
+			<div class="tabs">
+				<ul>
+					<li><a href="#reports_tickets_created_group">Created Tickets by Group</a></li>
+					<li><a href="#reports_tickets_created_org">Created Tickets by Org</a></li>
+					<li><a href="#reports_closed_tickets_by_group">Closed Tickets by Group</a></li>
+					<li><a href="#reports_worker_replies">Worker Replies</a></li>
+					<li><a href="#reports_group_replies">Group Replies</a></li>
+					<li><a href="#reports_groups_roster">Groups Roster</a></li>
+					<li><a href="#reports_response_time">Average Response Time</a></li>
+					<li><a href="#reports_time_activity">Time Spent by Activity</a></li>
+					<li><a href="#reports_time_org">Time Spent by Org</a></li>
+					<li><a href="#reports_time_worker">Time Spent by Worker</a></li>
+					<li><a href="#reports_usage_bot">Bot Usage</a></li>
+					<li><a href="#reports_usage_snippet">Snippet Usage</a></li>
+					<li><a href="#reports_logins_failed">Failed Logins</a></li>
+				</ul>
+				
+				<div id="reports_tickets_created_group"></div>
+				<div id="reports_tickets_created_org"></div>
+				<div id="reports_closed_tickets_by_group"></div>
+				<div id="reports_worker_replies"></div>
+				<div id="reports_group_replies"></div>
+				<div id="reports_groups_roster"></div>
+				<div id="reports_response_time"></div>
+				<div id="reports_time_activity"></div>
+				<div id="reports_time_org"></div>
+				<div id="reports_time_worker"></div>
+				<div id="reports_usage_bot"></div>
+				<div id="reports_usage_snippet"></div>
+				<div id="reports_logins_failed"></div>
+			</div>
+		</div>
+	</div>
+	
 	{if DevblocksPlatform::isPluginEnabled('cerberusweb.kb')}
 	<div style="margin-bottom:10px;">
 		<label>
@@ -64,24 +104,6 @@
 			<div class="tabs">
 				<ul>
 					<li><a href="#reports_tab">Knowledgebase</a></li>
-				</ul>
-				
-				<div id="reports_tab"></div>
-			</div>
-		</div>
-	</div>
-	{/if}
-	
-	{if DevblocksPlatform::isPluginEnabled('cerberusweb.reports')}
-	<div style="margin-bottom:10px;">
-		<label>
-			<input type="radio" name="page_type" value="reports"> 
-			<h2 style="display:inline;">Reports</h2>
-		</label>
-		<div style="margin-left:20px;">
-			<div class="tabs">
-				<ul>
-					<li><a href="#reports_tab">Reports</a></li>
 				</ul>
 				
 				<div id="reports_tab"></div>

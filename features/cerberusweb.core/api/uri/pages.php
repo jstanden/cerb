@@ -252,9 +252,6 @@ class Page_Custom extends CerberusPageExtension {
 	private function _createWizardReportsPage() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!DevblocksPlatform::isPluginEnabled('cerberusweb.reports'))
-			return;
-		
 		// Import as a package
 		
 		if(false == ($package_json = file_get_contents(APP_PATH . '/features/cerberusweb.core/packages/wizard_reports_page_package.json')))

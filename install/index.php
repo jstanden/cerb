@@ -552,7 +552,6 @@ switch($step) {
 					case 'cerberusweb.crm':
 					case 'cerberusweb.feedback':
 					case 'cerberusweb.kb':
-					case 'cerberusweb.reports':
 					case 'cerberusweb.restapi':
 					case 'cerberusweb.support_center':
 					case 'cerberusweb.simulator':
