@@ -1580,6 +1580,8 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 		
 		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
 		@$xaxis_key = DevblocksPlatform::importGPC($widget->params['xaxis_key'], 'string', 'label');
+		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
+		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		if(!$query)
@@ -1608,13 +1610,16 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 				'x' => [
 					'type' => 'category',
 					'tick' => [
+						'format' => null,
 						'multiline' => true,
 						'multilineMax' => 2,
 						'width' => 150,
 					]
 				],
 				'y' => [
-					
+					'tick' => [
+						'format' => null
+					]
 				]
 			],
 			'legend' => [
@@ -1644,6 +1649,8 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 			$config_json['size'] = ['height' => $height];
 		
 		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('xaxis_format', $xaxis_format);
+		$tpl->assign('yaxis_format', $yaxis_format);
 		$tpl->assign('widget', $widget);
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/categories/render.tpl');
 	}

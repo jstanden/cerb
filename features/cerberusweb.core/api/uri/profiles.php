@@ -2223,6 +2223,8 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$xaxis_key = DevblocksPlatform::importGPC($model->extension_params['xaxis_key'], 'string', 'label');
+		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', 'label');
+		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', 'label');
 		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -2270,12 +2272,16 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 				'x' => [
 					'type' => 'category',
 					'tick' => [
+						'format' => null,
 						'multiline' => true,
 						'multilineMax' => 2,
 						'width' => 150,
 					]
 				],
 				'y' => [
+					'tick' => [
+						'format' => null,
+					]
 				]
 			],
 			'legend' => [
@@ -2305,6 +2311,8 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 			$config_json['size'] = ['height' => $height];
 		
 		$tpl->assign('config_json', json_encode($config_json));
+		$tpl->assign('xaxis_format', $xaxis_format);
+		$tpl->assign('yaxis_format', $yaxis_format);
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/categories/render.tpl');
 	}
