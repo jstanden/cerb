@@ -843,6 +843,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		return mb_convert_case($string, MB_CASE_UPPER);
 	}
 	
+	static function strTitleCase($string) {
+		return mb_convert_case($string, MB_CASE_TITLE);
+	}
+	
 	static function strUpperFirst($string, $lower_rest=false) {
 		if(is_array($string)) {
 			$string = implode(', ', $string);
