@@ -1129,6 +1129,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		$chart_model = [
 			'type' => 'worklist.series',
 			'series' => [],
+			'x.label' => 'Metric',
 			'format' => 'timeseries',
 		];
 		
@@ -1140,7 +1141,9 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = DevblocksPlatform::strLower($value);
 				
+			} else if($field->key == 'x.label') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['x.label'] = $value;
 				
 			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
@@ -1152,6 +1155,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				
 				$series_model = [
 					'id' => $series_id,
+					'label' => $series_id,
 					'x' => '',
 					'y' => 'id',
 					'function' => 'count',
@@ -1170,6 +1174,10 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 					} else if($series_field->key == 'function') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['function'] = $value;
+						
+					} else if($series_field->key == 'label') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['label'] = $value;
 						
 					} else if($series_field->key == 'x') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
