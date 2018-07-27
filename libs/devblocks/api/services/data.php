@@ -1853,19 +1853,19 @@ class _DevblocksDataService {
 	function executeQuery($query, &$error=null) {
 		$chart_fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
 		
-		$type_field = array_filter($chart_fields, function($field) {
+		@$type_field = array_shift(array_filter($chart_fields, function($field) {
 			if($field->key == 'type')
 				return true;
 			
 			return false;
-		});
+		}));
 		
-		if(!is_array($type_field) || 1 != count($type_field)) {
-			$error = "A valid chart type is required.";
+		if(!$type_field) {
+			$error = "A data query 'type:' is required.";
 			return false;
 		}
 		
-		CerbQuickSearchLexer::getOperStringFromTokens($type_field[0]->tokens, $oper, $chart_type);
+		CerbQuickSearchLexer::getOperStringFromTokens($type_field->tokens, $oper, $chart_type);
 		
 		$results = [];
 		
@@ -1908,7 +1908,7 @@ class _DevblocksDataService {
 					break;
 				}
 				
-				$error = "A valid chart type is required.";
+				$error = sprintf("'%s' is not a known data query type.", $chart_type);
 				return false;
 				break;
 		}
