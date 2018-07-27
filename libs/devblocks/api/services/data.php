@@ -3,13 +3,13 @@ abstract class _DevblocksDataProvider {
 	abstract function getData($query, $chart_fields, array $options=[]);
 }
 
-class _DevblocksDataProviderWorklistMetric extends _DevblocksDataProvider {
+class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 	function getData($query, $chart_fields, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
-			'type' => 'worklist.metric',
 			'metric' => '',
+			'type' => 'worklist.metrics',
 			'values' => [],
 		];
 		
@@ -146,6 +146,15 @@ class _DevblocksDataProviderWorklistMetric extends _DevblocksDataProvider {
 			$chart_model['values'][$series_idx]['value'] = $value;
 		}
 		
+		switch($chart_model['format']) {
+			default:
+			case 'metric':
+				return $this->_formatDataAsMetric($chart_model);
+				break;
+		}
+	}
+	
+	private function _formatDataAsMetric(array $chart_model=[]) {
 		$response = [];
 		
 		if(isset($chart_model['values']))
@@ -154,10 +163,15 @@ class _DevblocksDataProviderWorklistMetric extends _DevblocksDataProvider {
 					$response[] = [$value['id'],$value['value']];
 			}
 		
-		return ['data' => $response, '_' => [
-			'type' => 'worklist.metric',
-			'format' => 'metric',
-		]];
+		$response = [
+			'data' => $response,
+			'_' => [
+				'type' => 'worklist.metrics',
+				'format' => 'metric',
+			]
+		];
+		
+		return $response;
 	}
 }
 
@@ -1732,8 +1746,8 @@ class _DevblocksDataService {
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
-			case 'worklist.metric':
-				$provider = new _DevblocksDataProviderWorklistMetric();
+			case 'worklist.metrics':
+				$provider = new _DevblocksDataProviderWorklistMetrics();
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
