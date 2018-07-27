@@ -662,7 +662,7 @@ class WorkspaceWidgetDatasource_Manual extends Extension_WorkspaceWidgetDatasour
 	}
 };
 
-class WorkspaceWidgetDatasource_DataQuery extends Extension_WorkspaceWidgetDatasource {
+class WorkspaceWidgetDatasource_DataQueryMetric extends Extension_WorkspaceWidgetDatasource {
 	function renderConfig(Model_WorkspaceWidget $widget, $params=[], $params_prefix=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -682,11 +682,18 @@ class WorkspaceWidgetDatasource_DataQuery extends Extension_WorkspaceWidgetDatas
 		if(false === ($results = $data->executeQuery($query)))
 			return [];
 		
+		@$type = $results['_']['type'];
+		@$format = $results['_']['format'];
 		$data = $results['data'];
 		
-		if(count($data)) {
-			$metric_value = current($data)[1];
-			$params['metric_value'] = $metric_value;
+		switch($type) {
+			case 'worklist.metrics':
+				switch($format) {
+					case 'table':
+						$params['metric_value'] = @$data['rows'][0]['value'] ?: 0;
+						break;
+				}
+				break;
 		}
 		
 		return $params;

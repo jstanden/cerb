@@ -6356,7 +6356,7 @@
 			<name>Data Query</name>
 			<class>
 				<file>api/uri/internal/dashboards/widget_datasources.php</file>
-				<name>WorkspaceWidgetDatasource_DataQuery</name>
+				<name>WorkspaceWidgetDatasource_DataQueryMetric</name>
 			</class>
 			<params>
 				<param key="widgets">
