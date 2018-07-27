@@ -1129,13 +1129,16 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		$chart_model = [
 			'type' => 'worklist.series',
 			'series' => [],
+			'format' => 'timeseries',
 		];
 		
 		foreach($chart_fields as $field) {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
+			if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['format'] = DevblocksPlatform::strLower($value);
 				
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				
@@ -1198,6 +1201,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 					$search_fields = $view->getFields();
 					
 					// [TODO] The field has to be a date type
+					
 					if(array_key_exists('x', $series_model)) {
 						if(false == ($x_field = $search_class::getFieldForSubtotalKey($series_model['x'], $series_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 							unset($series_model['x']);
@@ -1291,11 +1295,75 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		}
 		
 		switch(@$chart_model['format']) {
+			case 'table':
+				return $this->_formatDataAsTable($chart_model);
+				break;
+				
 			default:
 			case 'timeseries':
 				return $this->_formatDataAsTimeSeries($chart_model);
 				break;
 		}
+	}
+	
+	private function _formatDataAsTable(array $chart_model) {
+		$columns = [
+			'x' => [
+				'label' => @$chart_model['x.label'],
+				'type' => DevblocksSearchCriteria::TYPE_TEXT,
+			]
+		];
+		
+		// Domain
+		
+		$x_domain = [];
+		
+		if(array_key_exists('series', $chart_model) && is_array($chart_model['series']))
+		foreach($chart_model['series'] as $series) {
+			if(!isset($series['data']))
+				continue;
+			
+			// Add a column per series
+			$columns[$series['id']] = [
+				'label' => $series['label'],
+				'type' => @$series['y']['type'] ?: DevblocksSearchCriteria::TYPE_TEXT,
+				'type_options' => @$series['y']['type_options'] ?: [],
+			];
+			
+			// Add the unique x values
+			$x_domain += array_keys($series['data']);
+		}
+		
+		sort($x_domain);
+		
+		// Table
+		
+		$rows = [];
+		
+		foreach($x_domain as $k) {
+			$row = [
+				'x' => $k,
+			];
+			
+			foreach($chart_model['series'] as $series) {
+				$row[$series['id']] = @$series['data'][$k] ?: 0;
+			}
+			
+			$rows[] = $row;
+		}
+		
+		$table = [
+			'columns' => $columns,
+			'rows' => $rows,
+		];
+		
+		return [
+			'data' => $table,
+			'_' => [
+				'type' => 'worklist.series',
+				'format' => 'table',
+			]
+		];
 	}
 	
 	private function _formatDataAsTimeSeries(array $chart_model) {
