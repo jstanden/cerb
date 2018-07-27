@@ -8,18 +8,18 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
-			'metric' => '',
 			'type' => 'worklist.metrics',
 			'values' => [],
+			'format' => 'table',
 		];
 		
 		foreach($chart_fields as $field) {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if($field->key == 'metric') {
+			if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['metric'] = $value;
+				$chart_model['format'] = DevblocksPlatform::strLower($value);
 				
 			} else if(DevblocksPlatform::strStartsWith($field->key, 'values.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
@@ -148,30 +148,10 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 		
 		switch($chart_model['format']) {
 			default:
-			case 'metric':
-				return $this->_formatDataAsMetric($chart_model);
+			case 'table':
+				return $this->_formatDataAsTable($chart_model);
 				break;
 		}
-	}
-	
-	private function _formatDataAsMetric(array $chart_model=[]) {
-		$response = [];
-		
-		if(isset($chart_model['values']))
-			foreach($chart_model['values'] as $value) {
-				if(isset($value['id']) && isset($value['value']))
-					$response[] = [$value['id'],$value['value']];
-			}
-		
-		$response = [
-			'data' => $response,
-			'_' => [
-				'type' => 'worklist.metrics',
-				'format' => 'metric',
-			]
-		];
-		
-		return $response;
 	}
 	
 	private function _formatDataAsTable(array $chart_model=[]) {
