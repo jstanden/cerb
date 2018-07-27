@@ -432,6 +432,10 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				return $this->_formatDataAsPie($chart_model);
 				break;
 				
+			case 'table':
+				return $this->_formatDataAsTable($chart_model);
+				break;
+				
 			default:
 				return $this->_formatDataAsScatterplot($chart_model);
 				break;
@@ -520,6 +524,58 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			'type' => 'worklist.subtotals',
 			'format' => 'scatterplot',
 		]];
+	}
+	
+	function _formatDataAsTable($chart_model) {
+		$series_data = $chart_model['series'];
+		
+		$rows = $columns = [];
+		
+		$table = [
+			'columns' => &$columns,
+			'rows' => &$rows,
+		];
+		
+		$series = $series_data[0];
+		
+		if($series) {
+			$x_field_id = $series['x']['key_query'];
+			$y_field_id = $series['y']['key_query'];
+			
+			$columns['x_label'] = [
+				'label' => DevblocksPlatform::strTitleCase(@$series['x']['label'] ?: $x_field_id),
+				'type' => @$series['x']['type'] ?: DevblocksSearchCriteria::TYPE_TEXT,
+				'type_options' => @$series['x']['type_options'] ?: [],
+			];
+			
+			$columns['y_label'] = [
+				'label' => DevblocksPlatform::strTitleCase(@$series['y']['label'] ?: $y_field_id),
+				'type' => @$series['y']['type'] ?: DevblocksSearchCriteria::TYPE_TEXT,
+				'type_options' => @$series['y']['type_options'] ?: [],
+			];
+			
+			foreach($series['data'] as $x => $y) {
+				@$x_label = $series['labels']['x'][$x] ?: $x;
+				@$y_label = $series['labels']['y'][$y] ?: $y;
+				
+				$row = [
+					'x_label' => $x_label,
+					'x' => $x,
+					'y_label' => $y_label,
+					'y' => $y,
+				];
+				
+				$rows[] = $row;
+			}
+		}
+		
+		return [
+			'data' => $table,
+			'_' => [
+				'type' => 'worklist.xy',
+				'format' => 'table',
+			]
+		];
 	}
 }
 
