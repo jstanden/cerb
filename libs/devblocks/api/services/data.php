@@ -73,19 +73,17 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				if($series_context) {
 					$view_class = $series_context->getViewClass();
 					$view = new $view_class();
-					
+					$search_class = $series_context->getSearchClass();
 					$query_fields = $view->getQuickSearchFields();
 					$search_fields = $view->getFields();
 					
-					// [TODO] The field has to be a date type
 					if(array_key_exists('field', $series_model)) {
-						if(isset($query_fields[$series_model['field']])) {
-							$search_key = $query_fields[$series_model['field']]['options']['param_key'];
-							$search_field = $search_fields[$search_key];
-							$series_model['field'] = $search_field;
-						} else {
+						if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($series_model['field'], $series_model['context'], $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 							unset($series_model['field']);
+							continue;
 						}
+						
+						$series_model['field'] = $subtotal_field;
 					}
 				}
 				
