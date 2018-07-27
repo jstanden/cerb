@@ -302,8 +302,11 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				
 				$series_fields = CerbQuickSearchLexer::getFieldsFromQuery($series_query);
 				
+				$series_id = explode('.', $field->key, 2)[1];
+				
 				$series_model = [
-					'id' => explode('.', $field->key, 2)[1],
+					'id' => $series_id,
+					'label' => $series_id,
 				];
 				
 				$series_context = null;
@@ -315,6 +318,10 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 							continue;
 						
 						$series_model['context'] = $series_context->id;
+						
+					} else if($series_field->key == 'label') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['label'] = $value;
 						
 					} else if($series_field->key == 'x') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
@@ -418,20 +425,22 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		
 		switch($chart_model['format']) {
 			case 'categories':
-				return $this->_formatDataAsCategories($chart_model['series']);
+				return $this->_formatDataAsCategories($chart_model);
 				break;
 				
 			case 'pie':
-				return $this->_formatDataAsPie($chart_model['series']);
+				return $this->_formatDataAsPie($chart_model);
 				break;
 				
 			default:
-				return $this->_formatDataAsScatterplot($chart_model['series']);
+				return $this->_formatDataAsScatterplot($chart_model);
 				break;
 		}
 	}
 	
-	function _formatDataAsCategories($series_data) {
+	function _formatDataAsCategories($chart_model) {
+		$series_data = $chart_model['series'];
+		
 		$response = [
 			['label'],['hits']
 		];
@@ -458,7 +467,9 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _formatDataAsPie($series_data) {
+	function _formatDataAsPie($chart_model) {
+		$series_data = $chart_model['series'];
+		
 		$response = [];
 		
 		foreach($series_data as $series) {
@@ -482,7 +493,9 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _formatDataAsScatterplot($series_data) {
+	function _formatDataAsScatterplot($chart_model) {
+		$series_data = $chart_model['series'];
+		
 		$response = [];
 		
 		foreach($series_data as $series) {
@@ -496,8 +509,8 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				$y_values[] = $y;
 			}
 			
-			array_unshift($x_values, $id . '_x');
-			array_unshift($y_values, $id);
+			array_unshift($x_values, $series['label'] . '_x');
+			array_unshift($y_values, $series['label']);
 			
 			$response[] = $x_values;
 			$response[] = $y_values;
