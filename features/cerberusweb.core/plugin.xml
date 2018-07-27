@@ -1267,6 +1267,7 @@
 					<value>
 						<data key="profile widget" value="singular" />
 						<data key="profile widgets" value="plural" />
+						<data key="profile_widgets" value="plural" />
 					</value>
 				</param>
 				<param key="alias" value="profile_widget" />

@@ -360,7 +360,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		return null;
 	}
-
+	
 	public static function getByViewClass($view_class, $as_instance=false) {
 		$contexts = self::getAll(false);
 
