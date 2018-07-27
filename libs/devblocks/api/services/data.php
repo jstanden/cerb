@@ -1127,8 +1127,6 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
-			'x' => '',
-			'y' => '',
 			'type' => 'worklist.series',
 			'series' => [],
 		];
@@ -1137,13 +1135,9 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if($field->key == 'x') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['x'] = $value;
 				
-			} else if($field->key == 'y') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['y'] = $value;
 				
 			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
@@ -1151,8 +1145,13 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				
 				$series_fields = CerbQuickSearchLexer::getFieldsFromQuery($series_query);
 				
+				$series_id = explode('.', $field->key, 2)[1];
+				
 				$series_model = [
-					'id' => explode('.', $field->key, 2)[1],
+					'id' => $series_id,
+					'x' => '',
+					'y' => 'id',
+					'function' => 'count',
 				];
 				
 				$series_context = null;
@@ -1164,6 +1163,10 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 							continue;
 						
 						$series_model['context'] = $series_context->id;
+						
+					} else if($series_field->key == 'function') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['function'] = $value;
 						
 					} else if($series_field->key == 'x') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
@@ -1180,33 +1183,34 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 					}
 				}
 				
+				// If we aren't given a bin, default to months
+				if(!strpos($series_model['x'],'@'))
+					$series_model['x'] .= '@month';
+				
 				// Convert series x/y to SearchFields_* using context
 				
 				if($series_context) {
 					$view_class = $series_context->getViewClass();
 					$view = new $view_class();
 					
+					$search_class = $series_context->getSearchClass();
 					$query_fields = $view->getQuickSearchFields();
 					$search_fields = $view->getFields();
 					
 					// [TODO] The field has to be a date type
 					if(array_key_exists('x', $series_model)) {
-						if(isset($query_fields[$series_model['x']])) {
-							$search_key = $query_fields[$series_model['x']]['options']['param_key'];
-							$search_field = $search_fields[$search_key];
-							$series_model['x'] = $search_field;
-						} else {
+						if(false == ($x_field = $search_class::getFieldForSubtotalKey($series_model['x'], $series_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 							unset($series_model['x']);
+						} else {
+							$series_model['x'] = $x_field;
 						}
 					}
 					
 					if(array_key_exists('y', $series_model)) {
-						if(isset($query_fields[$series_model['y']])) {
-							$search_key = $query_fields[$series_model['y']]['options']['param_key'];
-							$search_field = $search_fields[$search_key];
-							$series_model['y'] = $search_field;
-						} else {
+						if(false == ($y_field = $search_class::getFieldForSubtotalKey($series_model['y'], $series_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
 							unset($series_model['y']);
+						} else {
+							$series_model['y'] = $y_field;
 						}
 					}
 				}
@@ -1232,85 +1236,36 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			
 			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
 			
-			switch($chart_model['x']) {
-				case 'date.year':
-					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y')",
-						Cerb_ORMHelper::escape($series['x']->db_table),
-						Cerb_ORMHelper::escape($series['x']->db_column)
-					);
-					break;
-					
-				case 'date.month':
-					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m')",
-						Cerb_ORMHelper::escape($series['x']->db_table),
-						Cerb_ORMHelper::escape($series['x']->db_column)
-					);
-					break;
-					
-				case 'date.day':
-					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m-%%d')",
-						Cerb_ORMHelper::escape($series['x']->db_table),
-						Cerb_ORMHelper::escape($series['x']->db_column)
-					);
-					break;
-					
-				case 'date.hour':
-					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m-%%d-%%H')",
-						Cerb_ORMHelper::escape($series['x']->db_table),
-						Cerb_ORMHelper::escape($series['x']->db_column)
-					);
-					break;
-					
-				case 'date.minute':
-					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m-%%d-%%H-%%i')",
-						Cerb_ORMHelper::escape($series['x']->db_table),
-						Cerb_ORMHelper::escape($series['x']->db_column)
-					);
-					break;
-					
-				case 'date.second':
-					$date_field = sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), '%%Y-%%m-%%d-%%H-%%i-%%s')",
-						Cerb_ORMHelper::escape($series['x']->db_table),
-						Cerb_ORMHelper::escape($series['x']->db_column)
-					);
-					break;
-					
-				default:
-					$date_field = null;
-					break;
-			}
+			@$date_field = $series['x']['sql_select'];
+			@$function = $series['function'];
 			
-			switch($chart_model['y']) {
-				case 'number.average':
-					$metric_field = sprintf("AVG(%s.%s)",
-						Cerb_ORMHelper::escape($series['y']->db_table),
-						Cerb_ORMHelper::escape($series['y']->db_column)
+			switch($function) {
+				case 'average':
+					$metric_field = sprintf("AVG(%s)",
+						Cerb_ORMHelper::escape($series['y']['sql_select'])
 					);
 					break;
 					
 				default:
-				case 'number.count':
+				case 'count':
 					$metric_field = "COUNT(*)";
 					break;
 					
-				case 'number.max':
-					$metric_field = sprintf("MAX(%s.%s)",
-						Cerb_ORMHelper::escape($series['y']->db_table),
-						Cerb_ORMHelper::escape($series['y']->db_column)
+				case 'max':
+					$metric_field = sprintf("MAX(%s)",
+						Cerb_ORMHelper::escape($series['y']['sql_select'])
 					);
 					break;
 					
-				case 'number.min':
-					$metric_field = sprintf("MIN(%s.%s)",
-						Cerb_ORMHelper::escape($series['y']->db_table),
-						Cerb_ORMHelper::escape($series['y']->db_column)
+				case 'min':
+					$metric_field = sprintf("MIN(%s)",
+						Cerb_ORMHelper::escape($series['y']['sql_select'])
 					);
 					break;
 					
-				case 'number.sum':
-					$metric_field = sprintf("SUM(%s.%s)",
-						Cerb_ORMHelper::escape($series['y']->db_table),
-						Cerb_ORMHelper::escape($series['y']->db_column)
+				case 'sum':
+					$metric_field = sprintf("SUM(%s)",
+						Cerb_ORMHelper::escape($series['y']['sql_select'])
 					);
 					break;
 			}
@@ -1335,6 +1290,17 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			$chart_model['series'][$series_idx]['data'] = $results;
 		}
 		
+		switch(@$chart_model['format']) {
+			default:
+			case 'timeseries':
+				return $this->_formatDataAsTimeSeries($chart_model);
+				break;
+		}
+	}
+	
+	private function _formatDataAsTimeSeries(array $chart_model) {
+		// [TODO] Verify that 'x' is a date
+		
 		// Domain
 		
 		$x_domain = [];
@@ -1349,8 +1315,6 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		
 		sort($x_domain);
 		
-		// Respond
-		
 		$response = [
 			'ts' => $x_domain,
 		];
@@ -1363,13 +1327,16 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				$values[] = floatval(@$series['data'][$k] ?: 0);
 			}
 			
-			$response[$series['id']] = $values;
+			$response[$series['label']] = $values;
 		}
 		
-		return ['data' => $response, '_' => [
-			'format' => 'timeseries',
-		]];
+		return [
+			'data' => $response,
+			'_' => [
 				'type' => 'worklist.series',
+				'format' => 'timeseries',
+			]
+		];
 	}
 }
 
