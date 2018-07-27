@@ -27,8 +27,11 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				
 				$series_fields = CerbQuickSearchLexer::getFieldsFromQuery($series_query);
 				
+				$series_id = explode('.', $field->key, 2)[1];
+				
 				$series_model = [
-					'id' => explode('.', $field->key, 2)[1],
+					'id' => $series_id,
+					'functions' => ['count'],
 				];
 				
 				$series_context = null;
@@ -40,6 +43,14 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 							continue;
 						
 						$series_model['context'] = $series_context->id;
+						
+					} else if($series_field->key == 'functions') {
+						CerbQuickSearchLexer::getOperArrayFromTokens($series_field->tokens, $oper, $values);
+						$series_model['functions'] = $values;
+					
+					} else if($series_field->key == 'function') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['functions'] = [$value];
 						
 					} else if($series_field->key == 'field') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
@@ -73,7 +84,51 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 					}
 				}
 				
-				$chart_model['values'][] = $series_model;
+				$function_count = count($series_model['functions']);
+				
+				// Synthesize series from functions
+				foreach($series_model['functions'] as $function) {
+					$function = DevblocksPlatform::strLower($function);
+					
+					$series = $series_model;
+					unset($series['functions']);
+					$series['function'] = $function;
+					
+					// Make a unique series name if we expanded it
+					if($function_count > 1) {
+						$series['id'] = $function . '_' . $series['id'];
+						
+						$label = $series['label'];
+						
+						switch($function) {
+							default:
+							case 'avg':
+							case 'average':
+								$label = 'Avg. ' . $label;
+								break;
+								
+							case 'count':
+								$label = '# ' . $label;
+								break;
+								
+							case 'max':
+								$label = 'Max. ' . $label;
+								break;
+								
+							case 'min':
+								$label = 'Min. ' . $label;
+								break;
+								
+							case 'sum':
+								$label = 'Total ' . $label;
+								break;
+						}
+						
+						$series['label'] = $label;
+					}
+					
+					$chart_model['values'][] = $series;
+				}
 			}
 		}
 		
@@ -94,40 +149,33 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			
 			$metric_field = null;
 			
-			switch($chart_model['metric']) {
-				case 'number.average':
-				case 'number.avg':
-					$metric_field = sprintf("AVG(%s.%s)",
-						Cerb_ORMHelper::escape($series['field']->db_table),
-						Cerb_ORMHelper::escape($series['field']->db_column)
+			switch($series['function']) {
+				case 'average':
+				case 'avg':
+					$metric_field = sprintf("AVG(%s)",
+						Cerb_ORMHelper::escape($series['field']['sql_select'])
 					);
 					break;
 					
-				case 'number.count':
-					$metric_field = sprintf("COUNT(*)",
-						Cerb_ORMHelper::escape($series['field']->db_table),
-						Cerb_ORMHelper::escape($series['field']->db_column)
+				case 'count':
+					$metric_field = "COUNT(*)";
+					break;
+					
+				case 'max':
+					$metric_field = sprintf("MAX(%s)",
+						Cerb_ORMHelper::escape($series['field']['sql_select'])
 					);
 					break;
 					
-				case 'number.max':
-					$metric_field = sprintf("MAX(%s.%s)",
-						Cerb_ORMHelper::escape($series['field']->db_table),
-						Cerb_ORMHelper::escape($series['field']->db_column)
+				case 'min':
+					$metric_field = sprintf("MIN(%s)",
+						Cerb_ORMHelper::escape($series['field']['sql_select'])
 					);
 					break;
 					
-				case 'number.min':
-					$metric_field = sprintf("MIN(%s.%s)",
-						Cerb_ORMHelper::escape($series['field']->db_table),
-						Cerb_ORMHelper::escape($series['field']->db_column)
-					);
-					break;
-					
-				case 'number.sum':
-					$metric_field = sprintf("SUM(%s.%s)",
-						Cerb_ORMHelper::escape($series['field']->db_table),
-						Cerb_ORMHelper::escape($series['field']->db_column)
+				case 'sum':
+					$metric_field = sprintf("SUM(%s)",
+						Cerb_ORMHelper::escape($series['field']['sql_select'])
 					);
 					break;
 			}
