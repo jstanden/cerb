@@ -173,6 +173,68 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 		
 		return $response;
 	}
+	
+	private function _formatDataAsTable(array $chart_model=[]) {
+		$response = [];
+		$rows = [];
+		
+		$table = [
+			'columns' => [
+				'name' => [
+					'label' => 'Metric',
+				],
+				'value' => [
+					'label' => 'Value',
+				]
+			],
+			'rows' => &$rows,
+		];
+		
+		foreach($chart_model['values'] as $value) {
+			if(!isset($value['id']) || !isset($value['value']))
+				continue;
+			
+			$type = @$value['field']['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
+			$type_options = @$value['field']['type_options'] ?:[];
+			
+			$row = [
+				'_types' => [
+					'value' => [
+						'type' => $type,
+						'options' => $type_options,
+					]
+				],
+				'id' => $value['id'],
+				'name' => $value['label'],
+				'value' => $value['value'],
+			];
+			
+			// Override types based on function
+			switch($value['function']) {
+				case 'count':
+					$row['_types']['value'] = [
+						'type' => DevblocksSearchCriteria::TYPE_SEARCH,
+						'options' => [
+							'context' => $value['context'],
+							'query' => $value['query'],
+						],
+					];
+					break;
+			}
+			
+			$rows[] = $row;
+		}
+		
+		$response = [
+			'data' => $table,
+			'_' => [
+				'type' => 'worklist.metrics',
+				'format' => 'table',
+			]
+		];
+		
+		return $response;
+	}
 }
 
 class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
