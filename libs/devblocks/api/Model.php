@@ -1031,6 +1031,7 @@ class DevblocksSearchCriteria {
 					return $param;
 				break;
 				
+			case DevblocksSearchCriteria::TYPE_CONTEXT:
 			case DevblocksSearchCriteria::TYPE_NUMBER:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens)))
 					return $param;
