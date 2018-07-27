@@ -652,30 +652,35 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 		}
 		
-		$sql = sprintf("SELECT %s AS hits, %s %s %s %s GROUP BY %s",
-			$func,
-			implode(', ', array_map(function($e) use ($db) {
-				return sprintf("%s AS `%s`",
-					$e['sql_select'],
-					$db->escape($e['key_select'])
-				);
-			}, $by_fields)),
-			$query_parts['join'],
-			implode(' ', array_map(function($e) use ($db) {
-				return @$e['sql_join'];
-			}, $by_fields)),
-			$sql_where,
-			implode(', ', array_map(function($e) use ($db) {
-				return sprintf("`%s`",
-					$db->escape($e['key_select'])
-				);
-			}, $by_fields))
-		);
-		
 		$response = [];
 		
-		if(false == ($rows = $db->GetArraySlave($sql)))
-			return [];
+		if(!empty($by_fields)) {
+			$sql = sprintf("SELECT %s AS hits, %s %s %s %s GROUP BY %s",
+				$func,
+				implode(', ', array_map(function($e) use ($db) {
+					return sprintf("%s AS `%s`",
+						$e['sql_select'],
+						$db->escape($e['key_select'])
+					);
+				}, $by_fields)),
+				$query_parts['join'],
+				implode(' ', array_map(function($e) use ($db) {
+					return @$e['sql_join'];
+				}, $by_fields)),
+				$sql_where,
+				implode(', ', array_map(function($e) use ($db) {
+					return sprintf("`%s`",
+						$db->escape($e['key_select'])
+					);
+				}, $by_fields))
+			);
+			
+			if(false == ($rows = $db->GetArraySlave($sql)))
+				return [];
+			
+		} else {
+			$rows = [];
+		}
 		
 		$labels = [];
 		$by_token_to_field = [];
@@ -691,7 +696,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		$response = ['children' => []];
-		$last_k = array_slice(array_keys($rows[0]), -1, 1)[0];
+		@$last_k = array_slice(array_keys($rows[0]), -1, 1)[0] ?: [];
 		
 		foreach($rows as $row) {
 			$ptr =& $response['children'];
