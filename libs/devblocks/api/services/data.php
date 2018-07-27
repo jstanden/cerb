@@ -31,6 +31,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				
 				$series_model = [
 					'id' => $series_id,
+					'label' => DevblocksPlatform::strTitleCase(str_replace('_',' ',$series_id)),
 					'functions' => ['count'],
 				];
 				
@@ -51,6 +52,10 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 					} else if($series_field->key == 'function') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['functions'] = [$value];
+						
+					} else if($series_field->key == 'label') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['label'] = $value;
 						
 					} else if($series_field->key == 'field') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
