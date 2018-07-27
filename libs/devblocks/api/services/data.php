@@ -1122,14 +1122,14 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 	}
 }
 
-class _DevblocksDataProviderWorklistTimeSeries extends _DevblocksDataProvider {
+class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 	function getData($query, $chart_fields, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
-			'type' => 'worklist.timeseries',
 			'x' => '',
 			'y' => '',
+			'type' => 'worklist.series',
 			'series' => [],
 		];
 		
@@ -1367,9 +1367,9 @@ class _DevblocksDataProviderWorklistTimeSeries extends _DevblocksDataProvider {
 		}
 		
 		return ['data' => $response, '_' => [
-			'type' => 'worklist.timeseries',
 			'format' => 'timeseries',
 		]];
+				'type' => 'worklist.series',
 	}
 }
 
@@ -1918,13 +1918,13 @@ class _DevblocksDataService {
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
-			case 'worklist.subtotals':
-				$provider = new _DevblocksDataProviderWorklistSubtotals();
+			case 'worklist.series':
+				$provider = new _DevblocksDataProviderWorklistSeries();
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
-			case 'worklist.timeseries':
-				$provider = new _DevblocksDataProviderWorklistTimeSeries();
+			case 'worklist.subtotals':
+				$provider = new _DevblocksDataProviderWorklistSubtotals();
 				$results = $provider->getData($query, $chart_fields);
 				break;
 				
