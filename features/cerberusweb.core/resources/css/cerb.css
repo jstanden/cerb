@@ -2026,6 +2026,19 @@ div.cerb-board div.cerb-board-column div.cerb-board-card div.cerb-board-card-typ
   text-transform: uppercase;
 }
 
+TABLE.cerb-widget-data-table tr td {
+  padding: 5px;
+}
+TABLE.cerb-widget-data-table tr:nth-child(odd) th {
+  font-weight: bold;
+  font-size: 1.25em;
+  text-align: left;
+  padding: 5px;
+}
+TABLE.cerb-widget-data-table tr:nth-child(odd) td {
+  background-color: whitesmoke;
+}
+
 /* jQueryUI (Redmond theme) */
 .ui-widget,
 .ui-widget input,

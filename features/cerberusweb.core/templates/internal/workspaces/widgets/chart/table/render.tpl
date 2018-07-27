@@ -1,20 +1,3 @@
-<style type="text/css">
-TABLE.cerb-widget-data-table tr:nth-child(odd) th {
-	font-weight:bold;
-	font-size:1.25em;
-	text-align: left;
-	padding:5px;
-}
-
-TABLE.cerb-widget-data-table tr td {
-	padding:5px;
-}
-
-TABLE.cerb-widget-data-table tr:nth-child(odd) td {
-	background-color: rgb(245,245,245);
-}
-</style>
-
 <div id="widget{$widget->id}">
 	<table cellpadding="0" cellspacing="0" style="width:100%;" class="cerb-widget-data-table">
 		<tr>
@@ -33,22 +16,28 @@ TABLE.cerb-widget-data-table tr:nth-child(odd) td {
 		{foreach from=$results.data.columns key=column_key item=column name=columns}
 			{$value = $row.$column_key}
 			<td>
+				{if $row._types.$column_key}
+					{$type = $row._types.$column_key.type}
+					{$type_options = $row._types.$column_key.options}
+				{else}
+					{$type = $column.type|default:'text'}
+					{$type_options = $column.type_options}
+				{/if}
+				
 				{capture name=value}
-					{if 'context' == $column.type}
+					{if 'context' == $type}
 						{$context = null}
 						{$context_id = null}
 						
-						{if $column.type_options.context_key && $column.type_options.context_id_key}
-							{$context_key = $column.type_options.context_key}
-							{$context_id_key = $column.type_options.context_id_key}
+						{if $type_options.context && $type_options.context_id_key}
+							{$context = $type_options.context}
+							{$context_id_key = $type_options.context_id_key}
+							{$context_id = $row.$context_id_key}
+						{elseif $type_options.context_key && $type_options.context_id_key}
+							{$context_key = $type_options.context_key}
+							{$context_id_key = $type_options.context_id_key}
 							{$context = $row.$context_key}
 							{$context_id = $row.$context_id_key}
-						{elseif $column.type_options.context && $column.type_options.context_id_key}
-							{$context = $column.type_options.context}
-							{$context_id_key = $column.type_options.context_id_key}
-							{$context_id = $row.$context_id_key}
-						{else}
-							{$value}
 						{/if}
 						
 						{if $context_id}
@@ -56,13 +45,13 @@ TABLE.cerb-widget-data-table tr:nth-child(odd) td {
 						{else}
 						{$value}
 						{/if}
-					{elseif 'number_minutes' == $column.type}
+					{elseif 'number_minutes' == $type}
 						{{$value*60}|devblocks_prettysecs:2}
-					{elseif 'number_seconds' == $column.type}
+					{elseif 'number_seconds' == $type}
 						{$value|devblocks_prettysecs:2}
-					{elseif 'worker' == $column.type}
+					{elseif 'worker' == $type}
 						{$context = CerberusContexts::CONTEXT_WORKER}
-						{$context_id_key = $column.type_options.context_id_key}
+						{$context_id_key = $type_options.context_id_key}
 						{$context_id = $row.$context_id_key}
 						{if $context_id}
 						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$context}" data-context-id="{$context_id}">{$value}</a>

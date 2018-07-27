@@ -5932,6 +5932,17 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.chart.table</id>
+			<name>Chart: Table</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_ChartTable</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.chart.time_series</id>
 			<name>Chart: Time Series</name>
 			<class>

@@ -1,0 +1,18 @@
+TABLE.cerb-widget-data-table {
+	tr td {
+		padding:5px;
+	}
+
+	tr:nth-child(odd) {
+		th {
+			font-weight:bold;
+			font-size:1.25em;
+			text-align: left;
+			padding:5px;
+		}
+
+		td {
+			background-color: rgb(245,245,245);
+		}
+	}
+}
