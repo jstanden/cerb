@@ -937,6 +937,7 @@ class DevblocksSearchCriteria {
 	const TYPE_NUMBER_MINUTES = 'number_minutes';
 	const TYPE_NUMBER_MS = 'number_ms';
 	const TYPE_NUMBER_SECONDS = 'number_seconds';
+	const TYPE_SEARCH = 'search';
 	const TYPE_TEXT = 'text';
 	const TYPE_VIRTUAL = 'virtual';
 	const TYPE_WORKER = 'worker';

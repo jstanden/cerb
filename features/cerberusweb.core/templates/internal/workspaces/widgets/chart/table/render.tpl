@@ -45,6 +45,21 @@
 						{else}
 						{$value}
 						{/if}
+					{elseif 'search' == $type}
+						{$context = null}
+						
+						{if $type_options.context}
+							{$context = $type_options.context}
+						{elseif $type_options.context_key}
+							{$context_key = $type_options.context_key}
+							{$context = $row.$context_key}
+						{/if}
+						
+						{if $context}
+						<a href="javascript:;" class="cerb-search-trigger no-underline" data-context="{$context}" data-query="{$type_options.query}"><abbr>{$value}</abbr></a>
+						{else}
+						{$value}
+						{/if}
 					{elseif 'number_minutes' == $type}
 						{{$value*60}|devblocks_prettysecs:2}
 					{elseif 'number_seconds' == $type}
@@ -92,6 +107,10 @@ $(function() {
 	
 	$widget.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
+		;
+	
+	$widget.find('.cerb-search-trigger')
+		.cerbSearchTrigger()
 		;
 });
 </script>
