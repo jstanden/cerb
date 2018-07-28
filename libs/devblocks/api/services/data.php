@@ -913,10 +913,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$output[] = [$subtotal['name'], $subtotal['hits']];
 		}
 		
-		return ['data' => $output, '_' => [
-			'type' => 'worklist.subtotals',
-			'format' => 'pie',
-		]];
+		return [
+			'data' => $output,
+			'_' => [
+				'type' => 'worklist.subtotals',
+				'format' => 'pie',
+			]
+		];
 	}
 	
 	function _formatDataAsTable($response, array $chart_model=[]) {
