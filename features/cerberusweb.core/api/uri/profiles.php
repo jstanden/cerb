@@ -2285,7 +2285,8 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 				],
 				'y' => [
 					'tick' => [
-						'format' => null,
+						'rotate' => 60,
+						'format' => null
 					]
 				]
 			],
@@ -2302,14 +2303,14 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 			$config_json['legend']['show'] = true;
 			
 			if(!$height)
-				$height = (50 * count($results['data'][0]));
+				$height = 100 + (50 * count($results['data'][0]));
 			
 		} else if ($results) {
 			$config_json['data']['type']  = 'bar';
 			$config_json['legend']['show'] = false;
 			
 			if(!$height)
-				$height = (50 * count($results['data'][0]));
+				$height = 100 + (50 * count($results['data'][0]));
 		}
 		
 		if($height)
