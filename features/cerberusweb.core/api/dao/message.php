@@ -2100,7 +2100,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					if(0 == $value) {
 						$value = 'never';
 					} else {
-						$value = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value));
+						$value = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value, 2));
 					}
 				}
 				

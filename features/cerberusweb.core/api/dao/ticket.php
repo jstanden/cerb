@@ -3334,12 +3334,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 			'resolution.first' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER_SECONDS,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST),
 				),
 			'response.first' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER_SECONDS,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST),
 				),
 			'responsibility' =>
@@ -3948,7 +3948,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				$values = is_array($values) ? $values : array($values);
 				
 				foreach($values as &$value) {
-					$value = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value));
+					$value = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value, 2));
 				}
 				
 				switch($param->operator) {
