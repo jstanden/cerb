@@ -2351,6 +2351,8 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'current_worker_id' => $active_worker->id,
+			'record__context' => $context,
+			'record_id' => $context_id,
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 			'widget_id' => $model->id,
 		]);
