@@ -415,8 +415,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			
 			$x_labels = $search_class::getLabelsForKeyValues($series['x']['key_select'], array_column($results, 'x'));
 			$y_labels = $search_class::getLabelsForKeyValues($series['y']['key_select'], array_column($results, 'y'));
-			
-			$results = array_column($results, 'y', 'x');
+
 			$chart_model['series'][$series_idx]['data'] = $results;
 			$chart_model['series'][$series_idx]['labels'] = ['x' => $x_labels, 'y' => $y_labels];
 		}
@@ -453,10 +452,10 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			if(!array_key_exists('data', $series))
 				continue;
 			
-			$x_values = array_keys($series['data']);
+			$x_values = array_column($series['data'], 'x');
 			$x_labels = $series['labels']['x'];
 			
-			$y_values = array_values($series['data']);
+			$y_values = array_column($series['data'], 'y');
 			$y_labels = $series['labels']['y'];
 			
 			foreach($x_values as $idx => $x) {
@@ -480,10 +479,10 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			if(!array_key_exists('data', $series))
 				continue;
 			
-			$x_values = array_keys($series['data']);
+			$x_values = array_column($series['data'], 'x');
 			$x_labels = $series['labels']['x'];
 			
-			$y_values = array_values($series['data']);
+			$y_values = array_column($series['data'], 'y');
 			$y_labels = $series['labels']['y'];
 			
 			foreach($x_values as $idx => $x) {
@@ -508,9 +507,9 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			$x_values = $y_values = [];
 			
 			if(array_key_exists('data', $series))
-			foreach($series['data'] as $x => $y) {
-				$x_values[] = $x;
-				$y_values[] = $y;
+			foreach($series['data'] as $data) {
+				$x_values[] = $data['x'];
+				$y_values[] = $data['y'];
 			}
 			
 			array_unshift($x_values, $series['label'] . '_x');
@@ -554,7 +553,9 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				'type_options' => @$series['y']['type_options'] ?: [],
 			];
 			
-			foreach($series['data'] as $x => $y) {
+			foreach($series['data'] as $data) {
+				$x = $data['x'];
+				$y = $data['y'];
 				@$x_label = $series['labels']['x'][$x] ?: $x;
 				@$y_label = $series['labels']['y'][$y] ?: $y;
 				
