@@ -1641,14 +1641,14 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 			$config_json['legend']['show'] = true;
 			
 			if(!$height)
-				$height = 100 + (50 * count($results['data'][0]));
+				$height = 100 + (50 * @count($results['data'][0]));
 			
 		} else {
 			$config_json['data']['type']  = 'bar';
 			$config_json['legend']['show'] = false;
 			
 			if(!$height)
-				$height = 100 + (50 * count($results['data'][0]));
+				$height = 100 + (50 * @count($results['data'][0]));
 		}
 		
 		if($height)

@@ -30,6 +30,8 @@
 			</select>
 		</div>
 		
+		{$formats = ['number'=>'Number','number.minutes'=>'Time elapsed (minutes)','number.seconds'=>'Time elapsed (seconds)']}
+		
 		<div>
 			<b>Format y-axis</b> values as: (optional)
 		</div>

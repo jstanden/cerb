@@ -436,6 +436,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				break;
 				
 			default:
+			case 'scatterplot':
 				return $this->_formatDataAsScatterplot($chart_model);
 				break;
 		}
@@ -460,14 +461,17 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			
 			foreach($x_values as $idx => $x) {
 				$response[0][] = $x_labels[$x];
-				$response[1][] = $y_labels[$y_values[$idx]];
+				$response[1][] = $y_values[$idx];
 			}
 		}
 		
-		return ['data' => $response, '_' => [
-			'type' => 'worklist.scaterplot',
-			'format' => 'categories',
-		]];
+		return [
+			'data' => $response,
+			'_' => [
+				'type' => 'worklist.scatterplot',
+				'format' => 'categories',
+			]
+		];
 	}
 	
 	function _formatDataAsPie($chart_model) {
@@ -486,14 +490,17 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			$y_labels = $series['labels']['y'];
 			
 			foreach($x_values as $idx => $x) {
-				$response[] = [$x_labels[$x], $y_labels[$y_values[$idx]]];
+				$response[] = [$x_labels[$x], $y_values[$idx]];
 			}
 		}
 		
-		return ['data' => $response, '_' => [
-			'type' => 'worklist.xy',
-			'format' => 'pie',
-		]];
+		return [
+			'data' => $response,
+			'_' => [
+				'type' => 'worklist.xy',
+				'format' => 'pie',
+			]
+		];
 	}
 	
 	function _formatDataAsScatterplot($chart_model) {
