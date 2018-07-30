@@ -1591,6 +1591,9 @@ LABEL.error {
   vertical-align: top;
 }
 
+DIV.emailBodyHtml {
+  overflow-x: scroll;
+}
 DIV.emailBodyHtml A {
   color: initial;
 }

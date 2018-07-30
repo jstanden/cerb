@@ -1617,10 +1617,7 @@ LABEL.error {
 // HTML email container (reset styles)
 
 DIV.emailBodyHtml {
-	// FORM, TD {
-	// 	font-family: initial;
-	// 	font-size: initial;
-	// }
+	overflow-x: scroll;
 
 	A {
 		color: initial;
