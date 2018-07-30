@@ -1225,7 +1225,7 @@ DIV.cerb-fields-container {
 	flex-flow: row wrap;
 
 	.cerb-fields-container-item {
-		flex: 1 1 165px;
+		flex: 1 1 200px;
 		margin: 2px 0px;
 		text-overflow: ellipsis;
 	}
@@ -1233,13 +1233,15 @@ DIV.cerb-fields-container {
 */
 DIV.cerb-fields-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-  grid-gap: 0 2.5px;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  grid-gap: 0 5px;
+  align-items: stretch;
   justify-content: space-between;
 }
 DIV.cerb-fields-container .cerb-fields-container-item {
-  max-width: 200px;
   text-overflow: ellipsis;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 
 DIV.cerb-properties {
