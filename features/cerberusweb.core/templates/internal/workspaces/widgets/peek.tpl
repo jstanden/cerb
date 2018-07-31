@@ -52,13 +52,6 @@
 
 {include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
-{$widget = DAO_WorkspaceWidget::get($dict->id)}
-<fieldset class="peek">
-<div id="widget{$widget->id}">
-	{$widget->render()}
-</div>
-</fieldset>
-
 <script type="text/javascript">
 $(function() {
 	var $div = $('#{$div_id}');

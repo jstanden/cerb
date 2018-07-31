@@ -24,7 +24,7 @@
 	
 	<patches>
 		<patch version="8.0.0" revision="2" file="patches/8.0.0.php" />
-		<patch version="9.0.0" revision="3" file="patches/9.0.0.php" />
+		<patch version="9.0.0" revision="4" file="patches/9.0.0.php" />
 	</patches>
 
 	<!-- Classloader -->
@@ -166,20 +166,6 @@
 			<params>
 				<param key="page_id" value="core.page.profiles" />
 				<param key="uri" value="project_board_column" />
-			</params>
-		</extension>
-		
-		<!-- Workspace Tabs -->
-		
-		<extension point="cerberusweb.ui.workspace.tab">
-			<id>core.workspace.tab.board</id>
-			<name>Project Board</name>
-			<class>
-				<file>api/App.php</file>
-				<name>WorkspaceTab_Board</name>
-			</class>
-			<params>
-				<param key="label" value="Project Board" />
 			</params>
 		</extension>
 		

@@ -23,4 +23,39 @@ if(!$result) {
 	$db->ExecuteMaster("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.core','profile:tabs:cerberusweb.contexts.project.board.column',CONCAT('[',@last_tab_id,']'))");
 }
 
+// ===========================================================================
+// Migrate legacy project board tabs to dashboards
+
+list($columns, $indexes) = $db->metaTable('workspace_tab');
+
+$sql = "SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.board'";
+$results = $db->GetArrayMaster($sql);
+
+if(is_array($results))
+foreach($results as $result) {
+	@$params = json_decode($result['params_json'], true);
+	@$board_id = $params['board_id'];
+	
+	// Switch the tab to a dashboard
+	$sql = sprintf("UPDATE workspace_tab SET extension_id = 'core.workspace.tab.dashboard', params_json = %s WHERE id = %d",
+		$db->qstr('{"layout":""}'),
+		$result['id']
+	);
+	$db->ExecuteMaster($sql);
+	
+	// Add a calendar widget
+	$sql = sprintf("INSERT INTO workspace_widget (workspace_tab_id,extension_id,label,updated_at,params_json,width_units,zone,pos) ".
+		"VALUES (%d,%s,%s,%d,%s,%d,%s,%d)",
+		$result['id'],
+		$db->qstr('cerb.workspace.widget.project_board'),
+		$db->qstr('Project Board'),
+		time(),
+		$db->qstr(sprintf('{"project_board_id":%d}', $board_id)),
+		4,
+		$db->qstr('content'),
+		1
+	);
+	$db->ExecuteMaster($sql);
+}
+
 return TRUE;
