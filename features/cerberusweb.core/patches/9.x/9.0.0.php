@@ -645,6 +645,41 @@ if($logo_url) {
 }
 
 // ===========================================================================
+// Migrate legacy workspace calendar tabs to dashboards
+
+list($columns, $indexes) = $db->metaTable('workspace_tab');
+
+$sql = "SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.calendar'";
+$results = $db->GetArrayMaster($sql);
+
+if(is_array($results))
+foreach($results as $result) {
+	@$params = json_decode($result['params_json'], true);
+	$calendar_id = $params['calendar_id'];
+	
+	// Switch the tab to a dashboard
+	$sql = sprintf("UPDATE workspace_tab SET extension_id = 'core.workspace.tab.dashboard', params_json = %s WHERE id = %d",
+		$db->qstr('{"layout":""}'),
+		$result['id']
+	);
+	$db->ExecuteMaster($sql);
+	
+	// Add a calendar widget
+	$sql = sprintf("INSERT INTO workspace_widget (workspace_tab_id,extension_id,label,updated_at,params_json,width_units,zone,pos) ".
+		"VALUES (%d,%s,%s,%d,%s,%d,%s,%d)",
+		$result['id'],
+		$db->qstr('core.workspace.widget.calendar'),
+		$db->qstr('Calendar'),
+		time(),
+		$db->qstr(sprintf('{"calendar_id":%d}', $calendar_id)),
+		4,
+		$db->qstr('content'),
+		1
+	);
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

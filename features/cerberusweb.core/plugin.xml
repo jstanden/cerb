@@ -67,7 +67,7 @@
 		<patch version="8.3.0" revision="1271" file="patches/8.x/8.3.0.php" />
 		<patch version="8.4.0" revision="1282" file="patches/8.x/8.4.0.php" />
 		
-		<patch version="9.0.0" revision="1306" file="patches/9.x/9.0.0.php" />
+		<patch version="9.0.0" revision="1307" file="patches/9.x/9.0.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -6085,18 +6085,6 @@
 		
 		<!-- Workspace Tabs -->
 		
-		<extension point="cerberusweb.ui.workspace.tab">
-			<id>core.workspace.tab.calendar</id>
-			<name>Calendar</name>
-			<class>
-				<file>api/uri/internal/workspaces/calendar.php</file>
-				<name>WorkspaceTab_Calendar</name>
-			</class>
-			<params>
-				<param key="label" value="common.calendar" />
-			</params>
-		</extension>
-
 		<extension point="cerberusweb.ui.workspace.tab">
 			<id>core.workspace.tab.dashboard</id>
 			<name>Dashboard</name>
