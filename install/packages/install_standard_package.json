@@ -534,9 +534,22 @@
 			"name": "Checklist",
 			"page_id": "{{{uid.workspace_getting_started}}}",
 			"pos": 1,
-			"extension_id": "core.workspace.tab.board",
+			"extension_id": "core.workspace.tab.dashboard",
 			"params": {
-				"board_id": "{{{uid.project_board_checklist}}}"
+				"layout": ""
+			}
+		},
+		{
+			"uid": "workspace_widget_checklist_board",
+			"_context": "workspace_widget",
+			"label": "Checklist",
+			"extension_id": "cerb.workspace.widget.project_board",
+			"tab_id": "{{{uid.workspace_tab_checklist}}}",
+			"pos": 1,
+			"width_units": 4,
+			"zone": "content",
+			"params": {
+				"project_board_id": "{{{uid.project_board_checklist}}}"
 			}
 		}
 	],

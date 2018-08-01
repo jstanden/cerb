@@ -2069,9 +2069,22 @@
 			"name": "Checklist",
 			"page_id": "{{{uid.workspace_tutorial}}}",
 			"pos": 0,
-			"extension_id": "core.workspace.tab.board",
+			"extension_id": "core.workspace.tab.dashboard",
 			"params": {
-				"board_id": "{{{uid.project_board_checklist}}}"
+				"layout": ""
+			}
+		},
+		{
+			"uid": "workspace_widget_checklist_board",
+			"_context": "workspace_widget",
+			"label": "Checklist",
+			"extension_id": "cerb.workspace.widget.project_board",
+			"tab_id": "{{{uid.workspace_tab_eval_checklist}}}",
+			"pos": 1,
+			"width_units": 4,
+			"zone": "content",
+			"params": {
+				"project_board_id": "{{{uid.project_board_checklist}}}"
 			}
 		},
 		{
@@ -2135,7 +2148,20 @@
 			"name": "Calendars",
 			"page_id": "{{{uid.workspace_tutorial}}}",
 			"pos": 6,
-			"extension_id": "core.workspace.tab.calendar",
+			"extension_id": "core.workspace.tab.dashboard",
+			"params": {
+				"layout": ""
+			}
+		},
+		{
+			"uid": "workspace_widget_eval_calendar_officehours",
+			"_context": "workspace_widget",
+			"label": "Office Hours",
+			"extension_id": "core.workspace.widget.calendar",
+			"tab_id": "{{{uid.workspace_tab_eval_calendar_officehours}}}",
+			"pos": 1,
+			"width_units": 4,
+			"zone": "content",
 			"params": {
 				"calendar_id": "{{{uid.calendar_office_hours}}}"
 			}
