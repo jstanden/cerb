@@ -26,7 +26,7 @@
 		<patch version="5.0.0-beta" revision="6" file="patches/5.0.0_beta.php" />
 		<patch version="5.1.0-dev" revision="7" file="patches/5.1.0.php" />
 		<patch version="8.2.0" revision="11" file="patches/8.2.0.php" />
-		<patch version="9.0.0" revision="12" file="patches/9.0.0.php" />
+		<patch version="9.0.0" revision="13" file="patches/9.0.0.php" />
 	</patches>
 	
 	<!-- Exported Classes -->
@@ -228,17 +228,16 @@
 			</params>
 		</extension>
 		
-		<!-- Workspace Tab -->
+		<!-- Workspace Widgets -->
 		
-		<extension point="cerberusweb.ui.workspace.tab">
-			<id>cerberusweb.kb.tab.browse</id>
+		<extension point="cerberusweb.ui.workspace.widget">
+			<id>kb.workspace.widget.kb.browser</id>
 			<name>Knowledgebase Browser</name>
 			<class>
 				<file>api/App.php</file>
-				<name>WorkspaceTab_KbBrowse</name>
+				<name>WorkspaceWidget_KnowledgebaseBrowser</name>
 			</class>
 			<params>
-				<param key="label" value="kb.workspace.tab.browser" />
 			</params>
 		</extension>
 		

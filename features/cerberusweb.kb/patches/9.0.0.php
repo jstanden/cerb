@@ -31,4 +31,39 @@ EOD;
 	}
 }
 
+// ===========================================================================
+// Migrate knowledgebase workspace tabs to workspace widgets
+
+list($columns, $indexes) = $db->metaTable('workspace_tab');
+
+$sql = "SELECT id, params_json FROM workspace_tab WHERE extension_id = 'cerberusweb.kb.tab.browse'";
+$results = $db->GetArrayMaster($sql);
+
+if(is_array($results))
+foreach($results as $result) {
+	@$params = json_decode($result['params_json'], true);
+	@$topic_id = $params['topic_id'] ?: 0;
+	
+	// Switch the tab to a dashboard
+	$sql = sprintf("UPDATE workspace_tab SET extension_id = 'core.workspace.tab.dashboard', params_json = %s WHERE id = %d",
+		$db->qstr('{"layout":""}'),
+		$result['id']
+	);
+	$db->ExecuteMaster($sql);
+	
+	// Add a knowledgebase browser widget
+	$sql = sprintf("INSERT INTO workspace_widget (workspace_tab_id,extension_id,label,updated_at,params_json,width_units,zone,pos) ".
+		"VALUES (%d,%s,%s,%d,%s,%d,%s,%d)",
+		$result['id'],
+		$db->qstr('kb.workspace.widget.kb.browser'),
+		$db->qstr('Knowledgebase'),
+		time(),
+		$db->qstr(sprintf('{"topic_id":%d}', $topic_id)),
+		4,
+		$db->qstr('content'),
+		1
+	);
+	$db->ExecuteMaster($sql);
+}
+
 return TRUE;

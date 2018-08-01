@@ -125,12 +125,17 @@ class ChKbPage extends CerberusPageExtension {
 	
 };
 
-class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
-	public function renderTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
+class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
+	function render(Model_WorkspaceWidget $widget) {
+		@$root_category_id = intval($widget->params['topic_id']);
+		
+		$this->_renderCategory($root_category_id, $widget);
+	}
+	
+	function renderConfig(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		$tpl->assign('workspace_page', $page);
-		$tpl->assign('workspace_tab', $tab);
+		$tpl->assign('widget', $widget);
 		
 		// Categories
 		
@@ -142,41 +147,40 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 		
 		// Render template
 		
-		$tpl->display('devblocks:cerberusweb.kb::kb/tabs/articles/config.tpl');
+		$tpl->display('devblocks:cerberusweb.kb::widgets/browser/articles/config.tpl');
 	}
 	
-	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array');
-
+	function saveConfig(Model_WorkspaceWidget $widget) {
+		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		
 		@$topic_id = intval($params['topic_id']);
 		
 		// Make sure it's a valid topic
 		if(false == ($topic = DAO_KbCategory::get($topic_id)))
-			$topic_id = 0;
+			$params['topic_id'] = 0;
 		
-		DAO_WorkspaceTab::update($tab->id, array(
-			DAO_WorkspaceTab::PARAMS_JSON => json_encode($params),
-		));
-	}	
-	
-	public function renderTab(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		@$root_category_id = intval($tab->params['topic_id']);
-		
-		$this->_renderCategory($root_category_id, $tab->id);
+		DAO_WorkspaceWidget::update($widget->id, [
+			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
+		]);
 	}
 	
 	public function changeCategoryAction() {
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'integer',0);
+		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
 		@$category_id = DevblocksPlatform::importGPC($_REQUEST['category_id'],'integer',0);
+		
+		if(false == ($widget = DAO_WorkspaceWidget::get($widget_id)))
+			return;
 
-		$this->_renderCategory($category_id, $tab_id);
+		$this->_renderCategory($category_id, $widget);
 	}
 	
-	private function _renderCategory($category_id=0, $tab_id) {
+	private function _renderCategory($category_id=0, Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 
+		$tpl->assign('widget', $widget);
+		
 		$root_id = intval($category_id);
 		$tpl->assign('root_id', $root_id);
 
@@ -186,9 +190,12 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 		$categories = DAO_KbCategory::getAll();
 		$tpl->assign('categories', $categories);
 		
+		if($root_id && !array_key_exists($root_id, $categories))
+			return;
+		
 		// Breadcrumb
 		
-		$breadcrumb = array();
+		$breadcrumb = [];
 		
 		$pid = $root_id;
 		while(0 != $pid) {
@@ -205,7 +212,7 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 		$tpl->assign('mid', @intval(ceil(count($tree[$root_id])/2)));
 		
 		// Each view_id should be unique to the tab it's on
-		$view_id = 'kb_browse_' . $tab_id;
+		$view_id = 'kb_browse_' . $widget->id;
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view = new View_KbArticle();
@@ -213,7 +220,7 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 		}
 		
 		// Articles
-		if(empty($root_id)) {
+		if(!$root_id) {
 			$view->addParamsRequired(array(
 				new DevblocksSearchCriteria(SearchFields_KbArticle::CATEGORY_ID,DevblocksSearchCriteria::OPER_IS_NULL,true),
 			), true);
@@ -230,27 +237,7 @@ class WorkspaceTab_KbBrowse extends Extension_WorkspaceTab {
 
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.kb::kb/tabs/articles/index.tpl');
-	}
-	
-	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$json = array(
-			'tab' => array(
-				'uid' => 'workspace_tab_' . $tab->id,
-				'name' => $tab->name,
-				'extension_id' => $tab->extension_id,
-				'params' => $tab->params,
-			),
-		);
-		
-		return json_encode($json);
-	}
-	
-	function importTabConfigJson($json, Model_WorkspaceTab $tab) {
-		if(empty($tab) || empty($tab->id) || !is_array($json))
-			return false;
-		
-		return true;
+		$tpl->display('devblocks:cerberusweb.kb::widgets/browser/articles/index.tpl');
 	}
 }
 
