@@ -37,7 +37,7 @@
 		<table cellpadding="0" cellspacing="0" border="0" style="height:100vh;width:100vw;">
 			<tr>
 				<td style="height:50px;">
-					<div class="block">
+					<div class="block" id="explorerToolbar">
 						<div style="display:flex;flex-flow:row wrap;">
 							<div style="flex:1 1 auto;">
 								<div style="display:flex;flex-flow:row wrap;">
@@ -81,24 +81,34 @@
 
 	<script type="text/javascript">
 	$(function(e) {
+		var $explorerBody = $('body');
 		var $explorerFrame = $('#explorerFrame');
+		
 		var keyPrev = '[';
 		var keyNext = ']';
-	
+		
+		var funcPrev = function(event) {
+			$('#btnExplorerPrev').click();
+			event.stopPropagation();
+		};
+		
+		var funcNext = function(event) {
+			$('#btnExplorerNext').click();
+			event.stopPropagation();
+		};
+		
+		// Toolbar keyboard shortcuts
+		
+		$explorerBody.bind('keypress', keyPrev, funcPrev);
+		$explorerBody.bind('keypress', keyNext, funcNext);
+		
+		// Frame keyboard shortcuts
+		
 		$explorerFrame.load(function() {
 			try {
 				var $explorerBody = $explorerFrame.contents().find('body').parent();
-				
-				$explorerBody.bind('keypress', keyPrev, function(event) {
-					$('#btnExplorerPrev').click();
-					event.stopPropagation();
-				});
-				
-				$explorerBody.bind('keypress', keyNext, function(event) {
-					$('#btnExplorerNext').click();
-					event.stopPropagation();
-				});
-				
+				$explorerBody.bind('keypress', keyPrev, funcPrev);
+				$explorerBody.bind('keypress', keyNext, funcNext);
 				$explorerFrame.focus();
 			} catch(e) {}
 		});
