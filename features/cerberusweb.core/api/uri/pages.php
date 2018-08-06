@@ -194,10 +194,6 @@ class Page_Custom extends CerberusPageExtension {
 				$page = $this->_createWizardMailPage();
 				break;
 				
-			case 'kb':
-				$page = $this->_createWizardKbPage();
-				break;
-				
 			case 'reports':
 				$page = $this->_createWizardReportsPage();
 				break;
@@ -223,30 +219,6 @@ class Page_Custom extends CerberusPageExtension {
 			$menu_json[] = $page['id'];
 			DAO_WorkerPref::set($active_worker->id, 'menu_json', json_encode($menu_json));
 		}
-	}
-	
-	private function _createWizardKbPage() {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!DevblocksPlatform::isPluginEnabled('cerberusweb.kb'))
-			return;
-		
-		// Import as a package
-		
-		if(false == ($package_json = file_get_contents(APP_PATH . '/features/cerberusweb.core/packages/wizard_kb_page_package.json')))
-			return false;
-		
-		$records_created = [];
-		
-		$prompts = [
-			'target_worker_id' => $active_worker->id,
-		];
-		
-		CerberusApplication::packages()->import($package_json, $prompts, $records_created);
-		
-		@$page = $records_created[CerberusContexts::CONTEXT_WORKSPACE_PAGE]['workspace_kb'];
-		
-		return $page;
 	}
 	
 	private function _createWizardReportsPage() {

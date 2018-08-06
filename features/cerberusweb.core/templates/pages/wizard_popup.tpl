@@ -93,25 +93,6 @@
 			</div>
 		</div>
 	</div>
-	
-	{if DevblocksPlatform::isPluginEnabled('cerberusweb.kb')}
-	<div style="margin-bottom:10px;">
-		<label>
-			<input type="radio" name="page_type" value="kb"> 
-			<h2 style="display:inline;">Knowledgebase</h2>
-		</label>
-		<div style="margin-left:20px;">
-			<div class="tabs">
-				<ul>
-					<li><a href="#reports_tab">Knowledgebase</a></li>
-				</ul>
-				
-				<div id="reports_tab"></div>
-			</div>
-		</div>
-	</div>
-	{/if}
-	
 </fieldset>
 
 <div>
