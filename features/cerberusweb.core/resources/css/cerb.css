@@ -421,6 +421,7 @@ PRE.emailbody, DIV.emailbody {
   white-space: -o-pre-wrap;
   word-wrap: break-word;
   _white-space: pre;
+  word-break: break-word;
   font-family: inherit;
   font-size: 12px;
   line-height: 16px;

@@ -46,10 +46,12 @@
 
 {include file="devblocks:cerberusweb.core::internal/notifications/context_profile.tpl" context=$peek_context context_id=$dict->id view_id=$view_id}
 
+<div style="overflow-x:scroll;">
 <fieldset class="peek">
 	<legend>{'common.content'|devblocks_translate|capitalize}</legend>
 	<pre class="emailbody">{$dict->content}</pre>
 </fieldset>
+</div>
 
 {include file="devblocks:cerberusweb.core::internal/peek/card_timeline_pager.tpl"}
 
