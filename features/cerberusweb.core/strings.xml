@@ -1155,6 +1155,11 @@
 				<seg>images</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.impersonate">
+			<tuv xml:lang="en_US">
+				<seg>impersonate</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.import">
 			<tuv xml:lang="en_US">
 				<seg>import</seg>

@@ -680,6 +680,34 @@ foreach($results as $result) {
 }
 
 // ===========================================================================
+// Add an 'Actions' widget to worker profiles
+
+// Find the tab ID for 'Overview' on worker profiles
+$sql = "SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.worker' AND name = 'Overview' LIMIT 1";
+$worker_overview_tab_id = $db->GetOneMaster($sql);
+
+// Add the 'Actions' widget to worker profiles
+if($worker_overview_tab_id) {
+	$sql = sprintf("SELECT id FROM profile_widget WHERE profile_tab_id = %d AND name = 'Actions'", $worker_overview_tab_id);
+	$actions_widget_id = $db->GetOneMaster($sql);
+	
+	if(!$actions_widget_id) {
+		$sql = sprintf("INSERT IGNORE INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone) ".
+			"VALUES (%s, %d, %s, %s, %d, %d, %d, %s)",
+			$db->qstr('Actions'),
+			$worker_overview_tab_id,
+			$db->qstr('cerb.profile.tab.widget.html'),
+			$db->qstr('{"template":"{% set is_editable = cerb_record_writeable(record__context, record_id) %}\r\n{% if is_editable %}\r\n\t<div style=\"padding:0px 5px 5px 5px;\">\r\n\t\t<button type=\"button\" data-shortcut=\"impersonate\">\r\n\t\t\t<span class=\"glyphicons glyphicons-user\"><\/span> {{\'common.impersonate\'|cerb_translate|capitalize}}\r\n\t\t<\/button>\r\n\t<\/div>\r\n{% endif %}\r\n\r\n<script type=\"text\/javascript\">\r\n$(function() {\r\n\tvar $widget = $(\'#profileWidget{{widget_id}}\');\r\n\r\n\t{% if is_editable %}\r\n\t\tvar $button_impersonate = $widget.find(\'button[data-shortcut=\"impersonate\"]\');\r\n\t\r\n\t\t$button_impersonate\r\n\t\t\t.on(\'click\', function(e) {\r\n\t\t\t\tgenericAjaxGet(\'\',\'c=internal&a=su&worker_id={{record_id}}\',function(o) {\r\n\t\t\t\t\twindow.location = window.location;\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t\t;\r\n\t{% else %}\r\n\t\t$widget\r\n\t\t\t.closest(\'.cerb-profile-widget\')\r\n\t\t\t.remove()\r\n\t\t\t;\r\n\t{% endif %}\r\n});\r\n<\/script>"}'),
+			time(),
+			2,
+			4,
+			$db->qstr('sidebar')
+		);
+		$db->ExecuteMaster($sql);
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
