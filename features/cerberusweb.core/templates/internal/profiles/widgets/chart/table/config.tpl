@@ -1,6 +1,9 @@
 <div id="widget{$widget->id}Config" style="margin-top:10px;">
 	<fieldset id="widget{$widget->id}QueryEditor" class="peek">
-		<legend>Run this data query:</legend>
+		<legend>
+			Run this data query: 
+			{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
+		</legend>
 		
 		<textarea name="params[data_query]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->extension_params.data_query}</textarea>
 	</fieldset>
