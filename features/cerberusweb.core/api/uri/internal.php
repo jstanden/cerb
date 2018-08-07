@@ -2942,6 +2942,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewBulkUpdateNextCursorJsonAction() {
 		@$cursor = DevblocksPlatform::importGPC($_REQUEST['cursor'], 'string', '');
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		if(empty($cursor))
@@ -2953,6 +2955,19 @@ class ChInternalController extends DevblocksControllerExtension {
 		if($update) {
 			if(false == ($context_ext = Extension_DevblocksContext::get($update->context)))
 				return false;
+			
+			// Make sure non-admin current workers have access to change these IDs, or remove them
+			if(!$active_worker->is_superuser) {
+				$acl_results = CerberusContexts::isWriteableByActor($update->context, $update->context_ids, $active_worker);
+				
+				if(is_array($acl_results)) {
+					$acl_results = array_filter($acl_results, function($bool) {
+						return $bool;
+					});
+				}
+				
+				$update->context_ids = array_keys($acl_results);
+			}
 			
 			$dao_class = $context_ext->getDaoClass();
 			$dao_class::bulkUpdate($update);
