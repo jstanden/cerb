@@ -2472,6 +2472,30 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'text':
+				if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+					$oper = $value = null;
+					CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
+					
+					@$value = DevblocksPlatform::strLower($value);
+					
+					// [TODO] Implement 'nobody'
+					if($value && in_array($value, ['me'])) {
+						switch($value) {
+							case 'me':
+								return new DevblocksSearchCriteria(
+									SearchFields_Worker::ID,
+									DevblocksSearchCriteria::OPER_EQ,
+									$active_worker->id
+								);
+								break;
+						}
+					}
+				}
+				
+				return DevblocksSearchCriteria::getFulltextParamFromTokens(SearchFields_Worker::FULLTEXT_WORKER, $tokens);
+				break;
+				
 			case 'alias':
 				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_Worker::VIRTUAL_ALIAS, $tokens);
 				break;
