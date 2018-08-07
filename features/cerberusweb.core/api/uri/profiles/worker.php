@@ -459,7 +459,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		// If we have specific IDs, add a filter for those too
 		if(!empty($ids)) {
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_Worker::ID, 'in', $ids));
+			$view->addParams([
+				new DevblocksSearchCriteria(SearchFields_Worker::ID, 'in', $ids)
+			], true);
 		}
 		
 		// Create batches

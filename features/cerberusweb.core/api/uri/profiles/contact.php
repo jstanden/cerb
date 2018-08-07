@@ -458,7 +458,9 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		
 		// If we have specific IDs, add a filter for those too
 		if(!empty($ids)) {
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_Contact::ID, 'in', $ids));
+			$view->addParams([
+				new DevblocksSearchCriteria(SearchFields_Contact::ID, 'in', $ids)
+			], true);
 		}
 		
 		// Create batches

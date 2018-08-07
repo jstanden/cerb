@@ -1217,7 +1217,9 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		
 		// If we have specific IDs, add a filter for those too
 		if(!empty($ids)) {
-			$view->addParam(new DevblocksSearchCriteria(SearchFields_FeedbackEntry::ID, 'in', $ids));
+			$view->addParams([
+				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::ID, 'in', $ids)
+			], true);
 		}
 		
 		// Create batches
