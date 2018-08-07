@@ -637,6 +637,11 @@ abstract class C4_AbstractView {
 			unset($this->_paramsEditable[$key]);
 	}
 	
+	function removeParamRequired($key) {
+		if(isset($this->_paramsRequired[$key]))
+			unset($this->_paramsRequired[$key]);
+	}
+	
 	function removeParamByField($field, &$params=null) {
 		if(is_null($params))
 			$params =& $this->_paramsEditable;

@@ -131,6 +131,9 @@ class Page_Custom extends CerberusPageExtension {
 				));
 				
 				$view->addParamsRequired(['_ownership' => $params[0]], true);
+				
+			} else {
+				$view->removeParamRequired('_ownership');
 			}
 			
 			$tpl->assign('view', $view);
