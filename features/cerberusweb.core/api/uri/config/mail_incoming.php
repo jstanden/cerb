@@ -200,15 +200,15 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->assign('workers', $workers);
 		
 		// Custom Fields: Address
-		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS);
+		$address_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS, true, true);
 		$tpl->assign('address_fields', $address_fields);
 		
 		// Custom Fields: Orgs
-		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG);
+		$org_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG, true, true);
 		$tpl->assign('org_fields', $org_fields);
 
 		// Custom Fields: Ticket
-		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
 		$tpl->assign('ticket_fields', $ticket_fields);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_routing_peek.tpl');
