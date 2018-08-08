@@ -6,7 +6,7 @@
 	{if !$expanded && (0==$v->group_id||$group_id==$v->group_id) && isset($filter->actions.$k)}{assign var=expanded value=true}{/if}
 {/foreach}
 <label><input type="checkbox" onclick="toggleDiv('{$divName}',(this.checked?'block':'none'));if(!this.checked)checkAll('{$divName}',false);" {if $expanded}checked="checked"{/if}> <b>{$label}</b></label><br>
-<table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="{$divName}">
+<table width="100%" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="{$divName}">
 	{foreach from=$fields key=field_id item=field}
 	{if (0==$field->group_id||$group_id==$field->group_id)}
 	<tr>
@@ -22,15 +22,27 @@
 			{elseif Model_CustomField::TYPE_CHECKBOX==$field->type}
 				<label><input type="radio" name="do_cf_{$field_id}" value="1" {if !is_null($action_field) && 1==$action_field.value}checked="checked"{/if} onchange="document.getElementById('chkSetField{$field_id}').checked=((0==this.checked)?false:true);"> {'common.yes'|devblocks_translate}</label>
 				<label><input type="radio" name="do_cf_{$field_id}" value="0" {if !is_null($action_field) && 0==$action_field.value}checked="checked"{/if} onchange="document.getElementById('chkSetField{$field_id}').checked=((0==this.checked)?false:true);"> {'common.no'|devblocks_translate}</label>
+			{elseif Model_CustomField::TYPE_CURRENCY==$field->type}
+				{$currency = DAO_Currency::get($field->params.currency_id)}
+				{$currency->symbol}
+				<input type="text" name="do_cf_{$field_id}" size="24" maxlength="64" value="{$action_field.value}" class="currency">
+				{$currency->code}
 			{elseif Model_CustomField::TYPE_DATE==$field->type}
 				<input type="text" name="do_cf_{$field_id}" size="30" value="{$action_field.value}" onchange="document.getElementById('chkSetField{$field_id}').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 				<i>(+2 hours, now, next Friday, 2pm, tomorrow 5pm)</i>
+			{elseif Model_CustomField::TYPE_DECIMAL==$field->type}
+				{$decimal_at = $field->params.decimal_at}
+				<input type="text" name="do_cf_{$field_id}" size="24" maxlength="64" value="{$action_field.value}" class="decimal">
 			{elseif Model_CustomField::TYPE_DROPDOWN==$field->type}
 				<select name="do_cf_{$field_id}">
 					{foreach from=$field->params.options item=option}
 					<option value="{$option}" {if 0==strcasecmp($option,$action_field.value)}selected="selected"{/if}}> {$option}</option>
 					{/foreach}
 				</select>
+			{elseif Model_CustomField::TYPE_FILE==$field->type}
+				(file-based custom fields are not supported)
+			{elseif Model_CustomField::TYPE_FILES==$field->type}
+				(files-based custom fields are not supported)
 			{elseif Model_CustomField::TYPE_WORKER==$field->type}
 				{if empty($workers)}
 					{$workers = DAO_Worker::getAllActive()}
@@ -46,6 +58,12 @@
 					{assign var=option value='+'|cat:$raw_option}
 					<label><input type="checkbox" name="do_cf_{$field_id}[]" value="{$option}" {if isset($action_field.value.$option)}checked="checked"{/if}> {$raw_option}</label><br>
 				{/foreach}
+			{elseif Model_CustomField::TYPE_LINK==$field->type}
+				(link-based custom fields are not supported)
+			{elseif Model_CustomField::TYPE_LIST==$field->type}
+				(list-based custom fields are not supported)
+			{else}
+				(not supported)
 			{/if}
 			</div>
 		</td>

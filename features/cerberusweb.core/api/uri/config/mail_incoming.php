@@ -357,7 +357,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		// Actions
 		if(is_array($do))
 		foreach($do as $act) {
-			$action = array();
+			$action = [];
 			
 			switch($act) {
 				// Move group/bucket
@@ -375,16 +375,20 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 					if("cf_" == substr($act,0,3)) {
 						$field_id = intval(substr($act,3));
 						
-						if(!isset($custom_fields[$field_id]))
+						@$custom_field = $custom_fields[$field_id];
+						
+						if(!$custom_field)
 							continue;
 
-						$action = array();
+						$action = [];
 						
 						switch($custom_fields[$field_id]->type) {
-							case Model_CustomField::TYPE_SINGLE_LINE:
-							case Model_CustomField::TYPE_MULTI_LINE:
-							case Model_CustomField::TYPE_URL:
+							case Model_CustomField::TYPE_CURRENCY:
+							case Model_CustomField::TYPE_DECIMAL:
 							case Model_CustomField::TYPE_DROPDOWN:
+							case Model_CustomField::TYPE_MULTI_LINE:
+							case Model_CustomField::TYPE_SINGLE_LINE:
+							case Model_CustomField::TYPE_URL:
 							case Model_CustomField::TYPE_WORKER:
 								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
