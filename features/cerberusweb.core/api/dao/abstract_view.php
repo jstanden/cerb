@@ -335,13 +335,14 @@ abstract class C4_AbstractView {
 			foreach($params_required as $key => $param) {
 				$params['req_'.$key] = $param;
 			}
-			
-			// Quick search
-			if($this->_paramsRequiredQuery) {
-				if(false != ($params_required = $this->getParamsFromQuickSearch($this->_paramsRequiredQuery))) {
-					foreach($params_required as $key => $param) {
-						$params['req_'.$key] = $param;
-					}
+		}
+		
+		// Required quick search
+		
+		if($this->_paramsRequiredQuery) {
+			if(false != ($params_required = $this->getParamsFromQuickSearch($this->_paramsRequiredQuery))) {
+				foreach($params_required as $key => $param) {
+					$params['req_'.$key] = $param;
 				}
 			}
 		}
