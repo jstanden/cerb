@@ -1420,7 +1420,12 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		
 		if($comment) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $comment->comment;
+			$label = trim(mb_ereg_replace(' {2,}',' ', str_replace(
+				["\t","\r","\n"],
+				["  ","",""],
+				$comment->comment
+			)));
+			$token_values['_label'] = mb_strlen($label) > 128 ? (mb_substr($label, 0, 128) . '...') : $label;
 			$token_values['id'] = $comment->id;
 			$token_values['created'] = $comment->created;
 			$token_values['author__context'] = $comment->owner_context;
