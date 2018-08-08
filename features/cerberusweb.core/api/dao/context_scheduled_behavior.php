@@ -671,7 +671,7 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 			self::BEHAVIOR_ID => new DevblocksSearchField(self::BEHAVIOR_ID, 'context_scheduled_behavior', 'behavior_id', $translate->_('common.behavior'), null, true),
 			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_scheduled_behavior', 'context', $translate->_('common.context'), null, true),
 			self::CONTEXT_ID => new DevblocksSearchField(self::CONTEXT_ID, 'context_scheduled_behavior', 'context_id', $translate->_('common.context_id'), null, true),
-			self::ID => new DevblocksSearchField(self::ID, 'context_scheduled_behavior', 'id', $translate->_('common.id'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'context_scheduled_behavior', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER, true),
 			self::REPEAT_JSON => new DevblocksSearchField(self::REPEAT_JSON, 'context_scheduled_behavior', 'repeat_json', $translate->_('dao.context_scheduled_behavior.repeat_json'), null, false),
 			self::RUN_DATE => new DevblocksSearchField(self::RUN_DATE, 'context_scheduled_behavior', 'run_date', $translate->_('dao.context_scheduled_behavior.run_date'), Model_CustomField::TYPE_DATE, true),
 			self::RUN_LITERAL => new DevblocksSearchField(self::RUN_LITERAL, 'context_scheduled_behavior', 'run_literal', $translate->_('dao.context_scheduled_behavior.run_literal'), null, false),
@@ -851,7 +851,6 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			SearchFields_ContextScheduledBehavior::BEHAVIOR_ID,
 			SearchFields_ContextScheduledBehavior::CONTEXT,
 			SearchFields_ContextScheduledBehavior::CONTEXT_ID,
-			SearchFields_ContextScheduledBehavior::ID,
 			SearchFields_ContextScheduledBehavior::RUN_LITERAL,
 			SearchFields_ContextScheduledBehavior::RUN_RELATIVE,
 			SearchFields_ContextScheduledBehavior::VARIABLES_JSON,
@@ -998,6 +997,14 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BOT, 'q' => ''],
+					]
+				),
+			'id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED, 'q' => ''],
 					]
 				),
 			'runDate' => 
@@ -1204,6 +1211,12 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 			'params' => [
 				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
 			]
+		];
+		
+		$properties['id'] = [
+			'label' => $translate->_('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
 		];
 		
 		$properties['run_date'] = [
