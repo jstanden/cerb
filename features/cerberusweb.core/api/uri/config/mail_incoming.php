@@ -310,11 +310,17 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 								$criteria['oper'] = $oper;
 								break;
 								
+							case Model_CustomField::TYPE_CURRENCY:
+							case Model_CustomField::TYPE_DECIMAL:
+								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
+								$criteria['oper'] = $oper;
+								break;
+								
 							case Model_CustomField::TYPE_DROPDOWN:
 							case Model_CustomField::TYPE_MULTI_CHECKBOX:
 							case Model_CustomField::TYPE_WORKER:
-								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',array());
-								$out_array = array();
+								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',[]);
+								$out_array = [];
 								
 								// Hash key on the option for quick lookup later
 								if(is_array($in_array))

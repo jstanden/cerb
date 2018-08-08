@@ -25,6 +25,22 @@
 				<br>
 				<input type="text" name="value_cf_{$field_id}" size="45" value="{$crit_field.value}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
 				<i>(use * for wildcards)</i>
+			{elseif Model_CustomField::TYPE_CURRENCY==$field->type}
+				<select name="value_cf_{$field_id}_oper">
+					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>=</option>
+					<option value="!=" {if $crit_field.oper=="!="}selected="selected"{/if}>!=</option>
+					<option value=">" {if $crit_field.oper==">"}selected="selected"{/if}>&gt;</option>
+					<option value="<" {if $crit_field.oper==chr(60)}selected="selected"{/if}>&lt;</option>
+				</select>
+				<input type="text" name="value_cf_{$field_id}" size="12" value="{$crit_field.value}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);">
+			{elseif Model_CustomField::TYPE_DECIMAL==$field->type}
+				<select name="value_cf_{$field_id}_oper">
+					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>=</option>
+					<option value="!=" {if $crit_field.oper=="!="}selected="selected"{/if}>!=</option>
+					<option value=">" {if $crit_field.oper==">"}selected="selected"{/if}>&gt;</option>
+					<option value="<" {if $crit_field.oper==chr(60)}selected="selected"{/if}>&lt;</option>
+				</select>
+				<input type="text" name="value_cf_{$field_id}" size="12" value="{$crit_field.value}" onchange="document.getElementById('chkGetField{$field_id}').checked=((0==this.value.length)?false:true);">
 			{elseif Model_CustomField::TYPE_NUMBER==$field->type}
 				<select name="value_cf_{$field_id}_oper">
 					<option value="=" {if $crit_field.oper=="="}selected="selected"{/if}>=</option>
@@ -55,6 +71,8 @@
 				{foreach from=$workers item=worker key=worker_id}
 					<label><input type="checkbox" name="value_cf_{$field_id}[]" value="{$worker->id}" {if isset($crit_field.value.$worker_id)}checked="checked"{/if}> {$worker->getName()}</label><br>
 				{/foreach}
+			{else}
+				(not implemented)
 			{/if}
 			</div>
 		</td>

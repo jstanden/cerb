@@ -442,6 +442,50 @@ class Model_MailToGroupRule {
 							
 							// Type sensitive value comparisons
 							switch($field->type) {
+								case Model_CustomField::TYPE_CURRENCY:
+									if(!isset($field_values[$field_id]))
+										break;
+
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									$oper = isset($crit['oper']) ? $crit['oper'] : "=";
+									
+									@$currency_id = $field->params['currency_id'];
+									
+									if(false == ($currency = DAO_Currency::get($currency_id)))
+										break;
+									
+									$field_val = $currency->format($field_val, false);
+									
+									if($oper=="=" && intval($field_val)==intval($value))
+										$passed++;
+									elseif($oper=="!=" && intval($field_val)!=intval($value))
+										$passed++;
+									elseif($oper==">" && intval($field_val) > intval($value))
+										$passed++;
+									elseif($oper=="<" && intval($field_val) < intval($value))
+										$passed++;
+									break;
+									
+								case Model_CustomField::TYPE_DECIMAL:
+									if(!isset($field_values[$field_id]))
+										break;
+
+									$field_val = isset($field_values[$field_id]) ? $field_values[$field_id] : 0;
+									$oper = isset($crit['oper']) ? $crit['oper'] : "=";
+									
+									@$decimal_at = $field->params['decimal_at'];
+									$field_val = DevblocksPlatform::strFormatDecimal($field_val, $decimal_at);
+									
+									if($oper=="=" && intval($field_val)==intval($value))
+										$passed++;
+									elseif($oper=="!=" && intval($field_val)!=intval($value))
+										$passed++;
+									elseif($oper==">" && intval($field_val) > intval($value))
+										$passed++;
+									elseif($oper=="<" && intval($field_val) < intval($value))
+										$passed++;
+									break;
+									
 								case Model_CustomField::TYPE_SINGLE_LINE:
 								case Model_CustomField::TYPE_MULTI_LINE:
 								case Model_CustomField::TYPE_URL:
