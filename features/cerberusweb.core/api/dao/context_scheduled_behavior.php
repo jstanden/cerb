@@ -141,6 +141,29 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
 		
+		// Verify the behavior_id and context are in agreement
+		
+		@$behavior_id = $fields['behavior_id'];
+		@$context = $fields['context'];
+		
+		if($behavior_id && $context) {
+			if(false == ($behavior = DAO_TriggerEvent::get($behavior_id))) { /* @var $behavior Model_TriggerEvent */
+				$error = sprintf("The given `behavior_id` (#%d) does not exist.", $behavior_id);
+				return false;
+			}
+			
+			// Verify the behavior is a macro
+			
+			$event = $behavior->getEvent();
+			
+			@$macro_context = $event->manifest->params['macro_context'];
+			
+			if(!$macro_context || 0 != strcasecmp($macro_context, $context)) {
+				$error = sprintf("The given `behavior_id` is not a macro for `%s`.", $context);
+				return false;
+			}
+		}
+		
 		return true;
 	}
 	
