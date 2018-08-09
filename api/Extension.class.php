@@ -640,7 +640,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 			if($mode == 'quick_search' && $q)
 				$view->addParamsWithQuickSearch($q, true);
 			
-			$view->persist();
+			$view->setAutoPersist(false);
 			return $view;
 		}
 		
