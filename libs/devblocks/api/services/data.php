@@ -71,8 +71,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				// Convert series x/y to SearchFields_* using context
 				
 				if($series_context) {
-					$view_class = $series_context->getViewClass();
-					$view = new $view_class();
+					$view = $series_context->getTempView();
 					$search_class = $series_context->getSearchClass();
 					$query_fields = $view->getQuickSearchFields();
 					$search_fields = $view->getFields();
@@ -144,8 +143,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
-			$view = $context_ext->getSearchView(uniqid());
-			$view->setAutoPersist(false);
+			$view = $context_ext->getTempView();
 			$view->addParamsWithQuickSearch($series['query']);
 			
 			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
@@ -341,9 +339,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				// Convert series x/y to SearchFields_* using context
 				
 				if($series_context) {
-					$view_class = $series_context->getViewClass();
-					$view = new $view_class();
-					
+					$view = $series_context->getTempView();
 					$search_class = $series_context->getSearchClass();
 					$query_fields = $view->getQuickSearchFields();
 					$search_fields = $view->getFields();
@@ -381,8 +377,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
 			$search_class = $context_ext->getSearchClass();
-			$view = $context_ext->getSearchView(uniqid());
-			$view->setAutoPersist(false);
+			$view = $context_ext->getTempView();
 			$view->addParamsWithQuickSearch($query);
 			
 			$query_parts = $dao_class::getSearchQueryComponents(
@@ -635,8 +630,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		$dao_class = $subtotals_context->getDaoClass();
 		$search_class = $subtotals_context->getSearchClass();
-		$view = $subtotals_context->getSearchView(uniqid());
-		$view->setAutoPersist(false);
+		$view = $subtotals_context->getTempView();
 		
 		$view->addParamsWithQuickSearch(@$chart_model['query']);
 		
@@ -1212,9 +1206,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				// Convert series x/y to SearchFields_* using context
 				
 				if($series_context) {
-					$view_class = $series_context->getViewClass();
-					$view = new $view_class();
-					
+					$view = $series_context->getTempView();
 					$search_class = $series_context->getSearchClass();
 					$query_fields = $view->getQuickSearchFields();
 					$search_fields = $view->getFields();
@@ -1253,8 +1245,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
-			$view = $context_ext->getSearchView(uniqid());
-			$view->setAutoPersist(false);
+			$view = $context_ext->getTempView();
 			$view->addParamsWithQuickSearch($query);
 			
 			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());

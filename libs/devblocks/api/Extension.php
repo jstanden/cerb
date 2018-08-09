@@ -857,6 +857,25 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @param string $view_id
 	 * @return C4_AbstractView
 	 */
+	public function getTempView($view_id=null) {
+		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		$defaults->id = $view_id ?: uniqid();
+		$defaults->is_ephemeral = true;
+		$defaults->options = [];
+		
+		if(null != ($view = C4_AbstractViewLoader::unserializeAbstractView($defaults, false))) {
+			$view->setAutoPersist(false);
+			return $view;
+		}
+		
+		return NULL;
+	}
+	
+	/**
+	 *
+	 * @param string $view_id
+	 * @return C4_AbstractView
+	 */
 	public function getSearchView($view_id=null) {
 		if(empty($view_id)) {
 			$view_id = sprintf("search_%s",
