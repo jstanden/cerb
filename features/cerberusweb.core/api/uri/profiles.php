@@ -1057,6 +1057,12 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 	}
 	
 	function saveConfig(array $fields, $id=null, &$error=null) {
+		if($id) {
+			// Remove worker view models
+			$view_id = sprintf('profile_widget_%d_', $id);
+			DAO_WorkerViewModel::deleteByViewIdPrefix($view_id);
+		}
+		
 		return true;
 	}
 	

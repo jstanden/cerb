@@ -5046,6 +5046,22 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 		));
 	}
 	
+	static public function deleteByViewId($view_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		return $db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE view_id = %s",
+			$db->qstr($view_id)
+		));
+	}
+	
+	static public function deleteByViewIdPrefix($view_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		return $db->ExecuteMaster(sprintf("DELETE FROM worker_view_model WHERE view_id LIKE %s",
+			$db->qstr($view_id . '%')
+		));
+	}
+	
 	/**
 	 * Prepares for a new session by removing ephemeral views and
 	 * resetting all page cursors to the first page of the list.

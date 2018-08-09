@@ -2717,7 +2717,11 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
-
+		
+		// Remove worker view models
+		$view_id = sprintf('widget_%d_worklist', $widget->id);
+		DAO_WorkerViewModel::deleteByViewId($view_id);
+		
 		// Save
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
