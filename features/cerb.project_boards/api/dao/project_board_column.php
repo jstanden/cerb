@@ -581,20 +581,40 @@ class Model_ProjectBoardColumn {
 	
 	function getCards() {
 		$cards = [];
+		$card_models = [];
 		
 		$links = DAO_ContextLink::getAllContextLinks(Context_ProjectBoardColumn::ID, $this->id);
+		
+		// Find all the distinct models
+		foreach($links as $link) {
+			if(!array_key_exists($link->context, $card_models))
+				$card_models[$link->context] = [];
+				
+			$card_models[$link->context][] = $link->context_id;
+		}
+		
+		foreach($card_models as $model_context => $model_ids) {
+			$models = CerberusContexts::getModels($model_context, $model_ids);
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $model_context);
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, '_label');
+			$card_models[$model_context] = $dicts;
+		}
 		
 		foreach($links as $link) {
 			$row = implode(':', [$link->context, $link->context_id]);
 			$key = sha1($row);
-			$card = new DevblocksDictionaryDelegate([
-				'_context' => $link->context,
-				'id' => $link->context_id,
-				'column__context' => Context_ProjectBoardColumn::ID,
-				'column_id' => $this->id,
-			]);
+			
+			if(false == (@$card = $card_models[$link->context][$link->context_id]))
+				continue;
+			
+			// Add keys for the project board column
+			$card->set('column__context', Context_ProjectBoardColumn::ID);
+			$card->set('column_id', $this->id);
+			
 			$cards[$key] = $card;
 		}
+		
+		unset($card_models);
 		
 		$sort = [];
 		
@@ -615,9 +635,6 @@ class Model_ProjectBoardColumn {
 			
 			return ($a_pos < $b_pos) ? -1 : 1;
 		});
-		
-		// [TODO] Bulk load dictionary fields given the column config
-		// [TODO] Use default context props?
 		
 		return $cards;
 	}
