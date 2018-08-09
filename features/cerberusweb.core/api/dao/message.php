@@ -834,6 +834,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 			case SearchFields_Message::ID:
 				$models = DAO_Message::getIds($values);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_MESSAGE);
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'sender_');
 				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_');
 				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, '_label');
 				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
