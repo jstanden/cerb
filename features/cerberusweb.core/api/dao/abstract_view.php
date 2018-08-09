@@ -4617,8 +4617,8 @@ class C4_AbstractViewLoader {
 			'columns' => $view->view_columns,
 			'params' => json_decode(json_encode($view->getEditableParams()), true),
 			'limit' => intval($view->renderLimit),
-			'sort_by' => $view->renderSortBy,
-			'sort_asc' => $view->renderSortAsc,
+			'sort_by' => is_array($view->renderSortBy) ? $view->renderSortBy : [$view->renderSortBy],
+			'sort_asc' => is_array($view->renderSortAsc) ? $view->renderSortAsc : [$view->renderSortAsc],
 			'subtotals' => $view->renderSubtotals,
 		);
 		
