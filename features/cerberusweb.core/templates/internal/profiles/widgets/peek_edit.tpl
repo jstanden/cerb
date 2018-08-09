@@ -26,11 +26,8 @@
 			<button type="button" class="chooser-abstract" data-field-name="profile_tab_id" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-single="true" data-query-required="type:&quot;cerb.profile.tab.dashboard&quot;"><span class="glyphicons glyphicons-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
-				{if $model->profile_tab_id}
-				{$tab = $model->getProfileTab()}
-				{if $tab}
-					<li><input type="hidden" name="profile_tab_id" value="{$tab->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$tab->id}">{$tab->name}</a></li>
-				{/if}
+				{if $profile_tab}
+					<li><input type="hidden" name="profile_tab_id" value="{$profile_tab->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$profile_tab->id}">{$profile_tab->name}</a></li>
 				{/if}
 			</ul>
 		</td>

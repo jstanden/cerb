@@ -1322,18 +1322,20 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			// Widget extensions
 			
 			if(false != ($profile_tab = $model->getProfileTab())) {
+				$tpl->assign('profile_tab', $profile_tab);
+				
 				$widget_extensions = Extension_ProfileWidget::getByContext($profile_tab->context, false);
 				$tpl->assign('widget_extensions', $widget_extensions);
 			}
 			
 			// Placeholder menu
 			
-			if(isset($model) && $model->profile_tab_id && false != ($tab = $model->getProfileTab())) {
+			if(isset($model) && $profile_tab) {
 				$labels = $values = [];
 				
 				// Record dictionary
 				$merge_labels = $merge_values = [];
-				CerberusContexts::getContext($tab->context, null, $merge_labels, $merge_values, '', true);
+				CerberusContexts::getContext($profile_tab->context, null, $merge_labels, $merge_values, '', true);
 				CerberusContexts::merge('record_', 'Record ', $merge_labels, $merge_values, $labels, $values);
 				
 				// Merge in the widget dictionary
