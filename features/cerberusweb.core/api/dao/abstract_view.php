@@ -375,7 +375,7 @@ abstract class C4_AbstractView {
 	
 	function addParam($param, $key=null) {
 		if(!$key || is_numeric($key))
-			$key = uniqid();
+			$key = substr(sha1(json_encode($param)), 0, 16);
 		
 		$this->_paramsEditable[$key] = $param;
 	}
@@ -4460,10 +4460,12 @@ class C4_AbstractViewLoader {
 		
 		$worker_id = $active_worker->id;
 		
+		$exit_model = self::serializeViewToAbstractJson($view, $view->getContext());
+		
 		// Is the view dirty? (do we need to persist it?)
 		if(false != ($_init_checksum = @$view->_init_checksum)) {
 			unset($view->_init_checksum);
-			$_exit_checksum = sha1(serialize($view));
+			$_exit_checksum = sha1($exit_model);
 			
 			// If the view model is not dirty (we wouldn't end up changing anything in the database)
 			if($_init_checksum == $_exit_checksum) {
@@ -4471,9 +4473,8 @@ class C4_AbstractViewLoader {
 			}
 		}
 		
-		$model = self::serializeAbstractView($view);
-		
-		DAO_WorkerViewModel::setView($worker_id, $view_id, $model);
+		$exit_model = self::serializeAbstractView($view);
+		DAO_WorkerViewModel::setView($worker_id, $view_id, $exit_model);
 	}
 
 	static function deleteView($view_id, $worker_id=null) {
@@ -4599,13 +4600,8 @@ class C4_AbstractViewLoader {
 		unset($parent);
 		
 		if($checksum) {
-			// If the param keys changed during unserialization, then consider everything changed
-			if(array_keys($model->paramsEditable) != array_keys($inst->getParams(false))) {
-				$inst->_init_checksum = sha1(mt_rand());
-				
-			} else {
-				$inst->_init_checksum = sha1(serialize($inst));
-			}
+			$init_model = C4_AbstractViewLoader::serializeViewToAbstractJson($inst, $inst->getContext());
+			$inst->_init_checksum = sha1($init_model);
 		}
 		
 		return $inst;
@@ -4702,14 +4698,8 @@ class C4_AbstractViewLoader {
 			$view->setPlaceholderValues($values);
 		}
 		
-		// If the param keys changed during unserialization, then consider everything changed
-		$view_params = $view->getParams(false);
-		if(isset($view_model['params']) && is_array($view_model['params']) && is_array($view_params) && array_keys($view_model['params']) != array_keys($view_params)) {
-			$view->_init_checksum = sha1(mt_rand());
-			
-		} else {
-			$view->_init_checksum = sha1(serialize($view));
-		}
+		$init_model = C4_AbstractViewLoader::serializeViewToAbstractJson($view, $view->getContext());
+		$view->_init_checksum = sha1($init_model);
 		
 		return $view;
 	}
