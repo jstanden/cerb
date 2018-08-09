@@ -1753,7 +1753,7 @@ class DevblocksEventHelper {
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return false;
 		
-		if(false == ($view = $context_ext->getSearchView()))
+		if(false == ($view = $context_ext->getTempView()))
 			return false;
 		
 		if(false == ($dao_class = $context_ext->getDaoClass()))
