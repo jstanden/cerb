@@ -2952,7 +2952,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $copy;
 	}
 	
-	static function extractArrayValues($array, $key, $only_unique=true) {
+	static function extractArrayValues($array, $key, $only_unique=true, array $ignore=[]) {
 		if(empty($key) || !is_array($array))
 			return array();
 		
@@ -2962,7 +2962,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				$array[$k] = json_decode(json_encode($v), true);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		array_walk_recursive($array, function($v, $k) use ($key, &$results) {
 			if(0 == strcasecmp($key, $k))
@@ -2972,7 +2972,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($only_unique)
 			$results = array_unique($results);
 		
-		return $results;
+		if($ignore)
+			$results = array_diff($results, $ignore);
+		
+		return array_values($results);
 	}
 	
 	/**

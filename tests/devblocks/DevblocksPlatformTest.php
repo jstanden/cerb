@@ -731,6 +731,27 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testExtractArrayValues() {
+		$array = [
+			['color' => 'red', 'material' => 'glass'],
+			['color' => 'gold', 'material' => 'metal'],
+			['color' => 'black', 'material' => 'concrete'],
+			['color' => 'red', 'material' => 'wood'],
+		];
+		
+		// Non-unique
+		$actual = DevblocksPlatform::extractArrayValues($array, 'color', false);
+		$this->assertEquals(['red','gold','black','red'], $actual);
+		
+		// Unique
+		$actual = DevblocksPlatform::extractArrayValues($array, 'color', true);
+		$this->assertEquals(['red','gold','black'], $actual);
+		
+		// Ignore
+		$actual = DevblocksPlatform::extractArrayValues($array, 'color', true, ['red']);
+		$this->assertEquals(['gold','black'], $actual);
+	}
+	
 	public function testSanitizeArray() {
 		// mixed -> int, no options
 		$array = array('1',2,'3');
