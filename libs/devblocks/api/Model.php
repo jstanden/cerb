@@ -352,9 +352,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(false == ($ext = Extension_DevblocksContext::get($context)))
 				return;
 			
-			$view = $ext_attachments->getSearchView(uniqid());
-			$view->is_ephemeral = true;
-			$view->setAutoPersist(false);
+			$view = $ext_attachments->getTempView();
 			$view->addParamsWithQuickSearch($query, true);
 			$view->renderPage = 0;
 			
@@ -393,9 +391,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(false == ($ext = Extension_DevblocksContext::get($context)))
 				return;
 			
-			$view = $ext->getSearchView(uniqid());
-			$view->is_ephemeral = true;
-			$view->setAutoPersist(false);
+			$view = $ext->getTempView();
 			$view->addParamsWithQuickSearch($query, true);
 			$view->renderPage = 0;
 			
@@ -444,9 +440,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(false == ($ext = Extension_DevblocksContext::get($context)))
 				return;
 			
-			$view = $ext->getSearchView(uniqid());
-			$view->is_ephemeral = true;
-			$view->setAutoPersist(false);
+			$view = $ext->getTempView();
 			$view->addParamsWithQuickSearch($query, true);
 			$view->renderPage = 0;
 			
@@ -488,7 +482,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
 				return;
 			
-			if(!method_exists($ext, 'getSearchView') || false == ($view = $ext->getSearchView(uniqid()))) {
+			if(!method_exists($ext, 'getSearchView') || false == ($view = $ext->getTempView())) {
 				// Handle contexts without worklists
 				switch($alias) {
 					case 'app':
@@ -503,8 +497,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				return;
 			}
 				
-			$view->is_ephemeral = true;
-			$view->setAutoPersist(false);
 			$view->addParamsWithQuickSearch($query, true);
 			$view->renderPage = 0;
 			
@@ -590,9 +582,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				$query = mb_substr($query, 1);
 			}
 			
-			$view = $ext->getSearchView(uniqid());
-			$view->is_ephemeral = true;
-			$view->setAutoPersist(false);
+			$view = $ext->getTempView();
 			$view->addParamsWithQuickSearch($query, true);
 			
 			$params = $view->getParams();

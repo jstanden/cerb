@@ -539,9 +539,9 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 					if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
 						return;
 					
-					$view = $ext->getSearchView(uniqid());
-					$view->is_ephemeral = true;
-					$view->setAutoPersist(false);
+					if(false == ($view = $ext->getTempView()))
+						return;
+					
 					$view->renderPage = 0;
 					$view->addParamsWithQuickSearch($query, true);
 					

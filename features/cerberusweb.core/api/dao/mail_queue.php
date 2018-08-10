@@ -428,10 +428,10 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::services()->database();
-
+		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
-
+		
 		$select_sql = $query_parts['select'];
 		$join_sql = $query_parts['join'];
 		$where_sql = $query_parts['where'];
@@ -1032,10 +1032,10 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$label_map_type = array(
+		$label_map_type = [
 			'mail.compose' => 'Compose',
 			'ticket.reply' => 'Reply',
-		);
+		];
 		$tpl->assign('label_map_type', $label_map_type);
 		
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::mail/queue/view.tpl');

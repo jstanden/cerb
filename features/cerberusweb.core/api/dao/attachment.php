@@ -519,11 +519,9 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		if(empty($query))
 			return 0;
 		
-		if(false == ($view = $context_ext->getSearchView(uniqid())))
+		if(false == ($view = $context_ext->getTempView()))
 			return 0;
 		
-		$view->is_ephemeral = true;
-		$view->setAutoPersist(false);
 		$view->addParamsWithQuickSearch($query, true);
 		$view->renderPage = 0;
 		$view->renderTotal = true;
@@ -732,9 +730,9 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 			if(empty($alias) || (false == ($ext = Extension_DevblocksContext::getByAlias(str_replace('.', ' ', $alias), true))))
 				return;
 			
-			$view = $ext->getSearchView(uniqid());
-			$view->is_ephemeral = true;
-			$view->setAutoPersist(false);
+			if(false == ($view = $ext->getTempView()))
+				return;
+			
 			$view->addParamsWithQuickSearch($query, true);
 			$view->renderPage = 0;
 			
