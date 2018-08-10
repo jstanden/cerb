@@ -73,19 +73,16 @@
 	{* Bulk load drafts *}
 	{$ticket_drafts = DAO_MailQueue::getDraftsByTicketIds(array_keys($data))} 
 	
-	{* Bulk lazy load first wrote *}
-	{$object_first_wrotes = []}
-	{if in_array(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, $view->view_columns)}
-		{$first_wrote_ids = DevblocksPlatform::extractArrayValues($results, 't_first_wrote_address_id')}
-		{$object_first_wrotes = DAO_Address::getIds($first_wrote_ids)}
+	{* Bulk lazy email addresses *}
+	{$object_addys = []}
+	{if in_array(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, $view->view_columns) || in_array(SearchFields_Ticket::TICKET_LAST_WROTE_ID, $view->view_columns)}
+		{$addy_ids = DevblocksPlatform::extractArrayValues($results, 't_first_wrote_address_id') + DevblocksPlatform::extractArrayValues($results, 't_last_wrote_address_id')}
+		{$object_addys = DAO_Address::getIds($addy_ids)}
+		{$addy_contact_ids = DevblocksPlatform::extractArrayValues($object_addys, 'contact_id', true, [0])}
+		{$object_contacts = DAO_Contact::getIds($addy_contact_ids)}
 	{/if}
 	
-	{* Bulk lazy load last wrote *}
-	{$object_last_wrotes = []}
-	{if in_array(SearchFields_Ticket::TICKET_LAST_WROTE_ID, $view->view_columns)}
-		{$last_wrote_ids = DevblocksPlatform::extractArrayValues($results, 't_last_wrote_address_id')}
-		{$object_last_wrotes = DAO_Address::getIds($last_wrote_ids)}
-	{/if}
+	{* Bulk lazy load contacts *}
 	
 	{* Bulk lazy load orgs *}
 	{$object_orgs = []}
@@ -162,19 +159,24 @@
 			{else}
 			{/if}
 			</td>
-		{elseif $column=="t_first_wrote_address_id"}
-			{$first_wrote = $object_first_wrotes.{$result.$column}}
+		{elseif in_array($column,["t_first_wrote_address_id","t_last_wrote_address_id"])}
+			{$wrote = $object_addys.{$result.$column}}
+			{$wrote_label = ""}
 			<td data-column="{$column}">
-				{if $first_wrote}
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_first_wrote_address_id}" data-is-local="{if isset($sender_addresses.{$result.t_first_wrote_address_id})}true{/if}" title="{$first_wrote->getNameWithEmail()}">{$first_wrote->getNameWithEmail()|truncate:45:'...':true:true}</a>
+				{if $wrote}
+					{$wrote_label = $wrote->email}
+					{$wrote_contact = $object_contacts.{$wrote->contact_id}}
+					
+					{if $wrote_contact}
+						{$wrote_contact_name = $wrote_contact->getName()}
+						{if $wrote_contact_name}
+							{$wrote_label = $wrote_contact_name|cat:" <"|cat:$wrote->email|cat:">"}
+						{/if}
+					{/if}
 				{/if}
-			</td>
-		{elseif $column=="t_last_wrote_address_id"}
-			{$last_wrote = $object_last_wrotes.{$result.$column}}
-			<td data-column="{$column}">
-				{if $last_wrote}
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.t_last_wrote_address_id}" data-is-local="{if isset($sender_addresses.{$result.t_last_wrote_address_id})}true{/if}" title="{$last_wrote->getNameWithEmail()}">{$last_wrote->getNameWithEmail()|truncate:45:'...':true:true}</a>
-				{/if}
+				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.$column}" data-is-local="{if isset($sender_addresses.{$result.$column})}true{/if}" title="{$wrote_label}">
+					{$wrote_label|truncate:45:'...':true:true}
+				</a>
 			</td>
 		{elseif $column=="t_created_date" || $column=="t_updated_date" || $column=="t_reopen_at" || $column=="t_closed_at"}
 		<td data-column="{$column}" data-timestamp="{$result.$column}"><abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr></td>
