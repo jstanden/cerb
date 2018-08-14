@@ -76,7 +76,7 @@
 	{* Bulk lazy email addresses *}
 	{$object_addys = []}
 	{if in_array(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, $view->view_columns) || in_array(SearchFields_Ticket::TICKET_LAST_WROTE_ID, $view->view_columns)}
-		{$addy_ids = DevblocksPlatform::extractArrayValues($results, 't_first_wrote_address_id') + DevblocksPlatform::extractArrayValues($results, 't_last_wrote_address_id')}
+		{$addy_ids = array_unique(array_merge(DevblocksPlatform::extractArrayValues($results, 't_first_wrote_address_id'), DevblocksPlatform::extractArrayValues($results, 't_last_wrote_address_id')))}
 		{$object_addys = DAO_Address::getIds($addy_ids)}
 		{$addy_contact_ids = DevblocksPlatform::extractArrayValues($object_addys, 'contact_id', true, [0])}
 		{$object_contacts = DAO_Contact::getIds($addy_contact_ids)}
