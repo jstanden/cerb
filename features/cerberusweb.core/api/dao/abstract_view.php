@@ -63,8 +63,19 @@ abstract class C4_AbstractView {
 		$this->persist();
 	}
 	
-	public function persist() {
+	public function persist($force=false) {
+		if($force) {
+			$this->_init_checksum = uniqid();
+		}
+		
 		C4_AbstractViewLoader::setView($this->id, $this);
+	}
+	
+	public function getAutoPersist() {
+		if(isset($this->__auto_persist))
+			return $this->__auto_persist ?: false;
+		
+		return true;
 	}
 	
 	public function setAutoPersist($auto_persist) {

@@ -2477,6 +2477,11 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 		if(empty($widget))
 			return;
 		
+		$view_id = sprintf("widget%d_worklist", $widget->id);
+		
+		if(null == ($view = self::getViewFromParams($widget, $widget->params, $view_id)))
+			return;
+		
 		$tpl = DevblocksPlatform::services()->template();
 		
 		// Widget

@@ -627,24 +627,28 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 
 	public static function getViewFromParams($widget, $params, $view_id) {
-		if(!isset($params['worklist_model']))
-			return false;
-		
-		$view_model = $params['worklist_model'];
-		
-		if(false != ($view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($view_model, $view_id))) {
-			// Check for quick search
-			@$mode = $params['search_mode'];
-			@$q = $params['quick_search'];
+		if(false == ($view = C4_AbstractViewLoader::getView($view_id))) {
+			if(!isset($params['worklist_model']))
+				return false;
 			
-			if($mode == 'quick_search' && $q)
-				$view->addParamsWithQuickSearch($q, true);
+			$view_model = $params['worklist_model'];
 			
-			$view->setAutoPersist(false);
-			return $view;
+			if(false == ($view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($view_model, $view_id)))
+				return false;
+			
+			$view->_init_checksum = uniqid();
 		}
 		
-		return false;
+		$view->setAutoPersist(true);
+		
+		// Check for quick search
+		@$mode = $params['search_mode'];
+		@$q = $params['quick_search'];
+		
+		if($mode == 'quick_search' && $q)
+			$view->addParamsWithQuickSearch($q, true);
+		
+		return $view;
 	}
 };
 
