@@ -1148,6 +1148,8 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_Notification extends Extension_DevblocksContext {
+	const ID = CerberusContexts::CONTEXT_NOTIFICATION;
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

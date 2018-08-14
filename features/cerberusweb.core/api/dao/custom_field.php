@@ -1913,6 +1913,8 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 };
 
 class Context_CustomField extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
+	const ID = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

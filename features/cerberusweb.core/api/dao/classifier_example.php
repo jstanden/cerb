@@ -923,6 +923,8 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 };
 
 class Context_ClassifierExample extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+	const ID = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE;
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE, $models, 'classifier_owner_');
 	}
@@ -956,7 +958,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->id,
 			'params' => [
-				'context' => CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE,
+				'context' => self::ID,
 			],
 		);
 		

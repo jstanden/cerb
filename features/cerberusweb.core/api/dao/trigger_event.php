@@ -1924,6 +1924,8 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 };
 
 class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
+	const ID = CerberusContexts::CONTEXT_BEHAVIOR;
+	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
 	}

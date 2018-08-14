@@ -2028,6 +2028,8 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextBroadcast, IDevblocksContextMerge, IDevblocksContextAutocomplete {
+	const ID = 'cerberusweb.contexts.address';
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);

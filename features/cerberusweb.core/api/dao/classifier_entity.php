@@ -831,7 +831,7 @@ class View_ClassifierEntity extends C4_AbstractView implements IAbstractView_Sub
 };
 
 class Context_ClassifierEntity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
-	const ID = 'cerberusweb.contexts.classifier.entity';
+	const ID = CerberusContexts::CONTEXT_CLASSIFIER_ENTITY;
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read

@@ -883,6 +883,8 @@ class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subt
 };
 
 class Context_ClassifierClass extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
+	const ID = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $models, 'classifier_owner_');
 	}

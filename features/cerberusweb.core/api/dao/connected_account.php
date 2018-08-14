@@ -1035,6 +1035,8 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 };
 
 class Context_ConnectedAccount extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+	const ID = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
+	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $models);
 	}

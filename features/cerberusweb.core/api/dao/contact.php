@@ -1758,6 +1758,8 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextBroadcast, IDevblocksContextMerge, IDevblocksContextAutocomplete {
+	const ID = CerberusContexts::CONTEXT_CONTACT;
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
 		return CerberusContexts::allowEverything($models);
