@@ -2446,6 +2446,13 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 		}
 		
 		$counts = $view->getSubtotalCounts($view->renderSubtotals);
+		
+		if(!$counts) {
+			echo sprintf('(%s)', 
+				DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.data.no'))
+			);
+			return;
+		}
 
 		if(null != (@$limit_to = $widget->params['limit_to'])) {
 			$counts = array_slice($counts, 0, $limit_to, true);
