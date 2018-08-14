@@ -414,8 +414,14 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+		
+		// Clear worker models
+		
+		$view_id = sprintf("widget%d_worklist", $widget->id);
+		DAO_WorkerViewModel::deleteByViewId($view_id);
 
 		// Clear caches
+		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
 	}
@@ -1392,8 +1398,14 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+		
+		// Clear worker models
+		
+		$view_id = sprintf("widget%d_worklist", $widget->id);
+		DAO_WorkerViewModel::deleteByViewId($view_id);
 
 		// Clear caches
+		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
 	}
@@ -2278,6 +2290,11 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+		
+		// Clear worker models
+		
+		$view_id = sprintf("widget%d_worklist", $widget->id);
+		DAO_WorkerViewModel::deleteByViewId($view_id);
 	}
 	
 	// Source: http://www.php.net/manual/en/function.hexdec.php#99478
@@ -2524,6 +2541,11 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 			
 			$params['worklist_model'] = $worklist_model;
 		}
+		
+		// Clear worker models
+		
+		$view_id = sprintf("widget%d_worklist", $widget->id);
+		DAO_WorkerViewModel::deleteByViewId($view_id);
 		
 		// Save the widget
 		
@@ -3100,8 +3122,14 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+		
+		// Clear worker models
+		
+		$view_id = sprintf("widget%d_worklist", $widget->id);
+		DAO_WorkerViewModel::deleteByViewId($view_id);
 
 		// Clear caches
+		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
 	}
@@ -3308,7 +3336,13 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
 
+		// Clear worker models
+		
+		$view_id = sprintf("widget%d_worklist", $widget->id);
+		DAO_WorkerViewModel::deleteByViewId($view_id);
+		
 		// Clear caches
+		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(sprintf("widget%d_datasource", $widget->id));
 	}
