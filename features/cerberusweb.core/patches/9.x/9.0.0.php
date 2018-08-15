@@ -496,13 +496,15 @@ if(!isset($tables['context_to_custom_fieldset'])) {
 // ===========================================================================
 // Remove `context_link` records for custom fieldsets
 
-$db->ExecuteMaster("DELETE FROM context_link WHERE from_context = 'cerberusweb.contexts.custom_fieldset'");
-$db->ExecuteMaster("DELETE FROM context_link WHERE to_context = 'cerberusweb.contexts.custom_fieldset'");
+//$db->ExecuteMaster("DELETE FROM context_link WHERE from_context = 'cerberusweb.contexts.custom_fieldset'");
+//$db->ExecuteMaster("DELETE FROM context_link WHERE to_context = 'cerberusweb.contexts.custom_fieldset'");
 
 // ===========================================================================
 // Clean up custom fieldset link logs
 
-$db->ExecuteMaster("DELETE FROM context_activity_log WHERE target_context = 'cerberusweb.contexts.custom_fieldset'");
+//$db->ExecuteMaster("DELETE FROM context_activity_log WHERE target_context = 'cerberusweb.contexts.custom_fieldset'");
+//$db->ExecuteMaster("DELETE FROM context_activity_log WHERE activity_point IN ('connection.link','connection.unlink') AND entry_json like '%\"link_object\":\"custom fieldset\"%'");
+
 // ===========================================================================
 // Add `created_at` to all custom record tables
 
