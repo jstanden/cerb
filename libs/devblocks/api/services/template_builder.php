@@ -335,6 +335,10 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 	}
 
 	public function __set($name, $value) {
+		// Clear the context cache if we're dynamically adding new contexts
+		if(DevblocksPlatform::strEndsWith($name, '__context'))
+			$this->clearCaches();
+		
 		$this->_dictionary[$name] = $value;
 	}
 	
