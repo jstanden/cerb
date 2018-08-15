@@ -2216,6 +2216,8 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 };
 
 class Context_Message extends Extension_DevblocksContext implements IDevblocksContextPeek {
+	const ID = CerberusContexts::CONTEXT_MESSAGE;
+	
 	static function isReadableByActor($models, $actor) {
 		// Only admins and group members can see, unless public
 		

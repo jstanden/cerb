@@ -1249,6 +1249,8 @@ if (class_exists('Extension_MessageToolbarItem',true)):
 endif;
 
 class Context_Feedback extends Extension_DevblocksContext implements IDevblocksContextPeek {
+	const ID = CerberusContexts::CONTEXT_FEEDBACK;
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);
