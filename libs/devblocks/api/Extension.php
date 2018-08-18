@@ -858,7 +858,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @return C4_AbstractView
 	 */
 	public function getTempView($view_id=null) {
-		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
+		if(false == ($defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass())))
+			return NULL;
+		
 		$defaults->id = $view_id ?: uniqid();
 		$defaults->is_ephemeral = true;
 		$defaults->options = [];
