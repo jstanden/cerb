@@ -230,6 +230,10 @@
 	
 	{if $worker->id}
 	{$worker_groups = $worker->getMemberships()}
+	{else}
+	{$worker_groups = []}
+	{/if}
+	
 	<table style="text-align:center;border-spacing:0;">
 		<thead>
 			<tr>
@@ -259,7 +263,6 @@
 		</tbody>
 		{/foreach}
 	</table>
-	{/if}
 </fieldset>
 
 <fieldset class="peek">
