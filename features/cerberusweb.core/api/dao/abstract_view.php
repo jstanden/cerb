@@ -690,7 +690,7 @@ abstract class C4_AbstractView {
 	
 	function addParamRequired($param, $key=null) {
 		if(!$key || is_numeric($key))
-			$key = uniqid();
+			$key = substr(sha1(json_encode($param)), 0, 16);
 		
 		$this->_paramsRequired[$key] = $param;
 	}
@@ -2547,7 +2547,10 @@ abstract class C4_AbstractView {
 		$columns = $this->view_columns;
 
 		$params = $this->getParams();
-		$params[uniqid()] = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_IS_NOT_NULL, true);
+		
+		$param = new DevblocksSearchCriteria($field_key, DevblocksSearchCriteria::OPER_IS_NOT_NULL, true);
+		$param_key = substr(sha1(json_encode($param)), 0, 16);
+		$params[$param_key] = $param;
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
 			return [];
