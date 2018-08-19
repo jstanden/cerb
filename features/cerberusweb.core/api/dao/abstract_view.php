@@ -4474,20 +4474,18 @@ class C4_AbstractViewLoader {
 		
 		$worker_id = $active_worker->id;
 		
-		$exit_model = self::serializeViewToAbstractJson($view, $view->getContext());
+		$exit_model = self::serializeAbstractView($view);
 		
 		// Is the view dirty? (do we need to persist it?)
 		if(false != ($_init_checksum = @$view->_init_checksum)) {
 			unset($view->_init_checksum);
-			$_exit_checksum = sha1($exit_model);
+			$_exit_checksum = sha1(serialize($exit_model));
 			
 			// If the view model is not dirty (we wouldn't end up changing anything in the database)
-			if($_init_checksum == $_exit_checksum) {
+			if($_init_checksum == $_exit_checksum)
 				return;
-			}
 		}
 		
-		$exit_model = self::serializeAbstractView($view);
 		DAO_WorkerViewModel::setView($worker_id, $view_id, $exit_model);
 	}
 
@@ -4614,8 +4612,8 @@ class C4_AbstractViewLoader {
 		unset($parent);
 		
 		if($checksum) {
-			$init_model = C4_AbstractViewLoader::serializeViewToAbstractJson($inst, $inst->getContext());
-			$inst->_init_checksum = sha1($init_model);
+			$init_model = C4_AbstractViewLoader::serializeAbstractView($inst);
+			$inst->_init_checksum = sha1(serialize($init_model));
 		}
 		
 		return $inst;
@@ -4712,8 +4710,8 @@ class C4_AbstractViewLoader {
 			$view->setPlaceholderValues($values);
 		}
 		
-		$init_model = C4_AbstractViewLoader::serializeViewToAbstractJson($view, $view->getContext());
-		$view->_init_checksum = sha1($init_model);
+		$init_model = C4_AbstractViewLoader::serializeAbstractView($view);
+		$view->_init_checksum = sha1(serialize($init_model));
 		
 		return $view;
 	}
