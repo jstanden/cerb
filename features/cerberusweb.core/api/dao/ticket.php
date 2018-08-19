@@ -854,6 +854,22 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			}
 		}
 		
+		// If we have only a bucket_id and no group_id then figure it out
+		
+		if(isset($fields[self::BUCKET_ID])) {
+			@$group_id = $fields[self::GROUP_ID];
+			@$bucket_id = $fields[self::BUCKET_ID];
+			
+			if(!$bucket_id || false == ($bucket = DAO_Bucket::get($bucket_id))) {
+				$error = "Invalid 'bucket_id' value.";
+				return false;
+			}
+			
+			if(!$group_id) {
+				$fields[self::GROUP_ID] = $bucket->group_id;
+			}
+		}
+		
 		return true;
 	}
 	
