@@ -200,7 +200,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 		parent::_updateWhere('community_tool', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_PORTAL;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

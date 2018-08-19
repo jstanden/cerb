@@ -126,7 +126,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 		parent::_updateWhere('classifier_class', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

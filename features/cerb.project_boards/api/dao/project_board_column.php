@@ -118,7 +118,7 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		parent::_updateWhere('project_board_column', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = Context_ProjectBoardColumn::ID;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

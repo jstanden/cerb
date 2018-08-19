@@ -181,7 +181,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

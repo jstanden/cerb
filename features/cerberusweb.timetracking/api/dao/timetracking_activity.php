@@ -133,7 +133,7 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 		parent::_updateWhere('timetracking_activity', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

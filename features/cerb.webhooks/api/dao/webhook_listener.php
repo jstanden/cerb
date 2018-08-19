@@ -116,7 +116,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		parent::_updateWhere('webhook_listener', $fields, $where);
 	}
 
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

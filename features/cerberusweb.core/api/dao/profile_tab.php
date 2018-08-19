@@ -110,7 +110,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		parent::_updateWhere('profile_tab', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_PROFILE_TAB;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

@@ -174,7 +174,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		parent::_updateWhere('calendar_recurring_profile', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

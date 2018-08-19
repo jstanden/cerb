@@ -82,7 +82,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		parent::_updateWhere('custom_fieldset', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

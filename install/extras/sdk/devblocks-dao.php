@@ -146,7 +146,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		parent::_updateWhere('<?php echo $table_name; ?>', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = '<?php echo $ctx_ext_id; ?>';
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

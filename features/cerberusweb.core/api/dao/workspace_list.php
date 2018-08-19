@@ -176,7 +176,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		parent::_updateWhere('workspace_list', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_WORKSPACE_WORKLIST;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

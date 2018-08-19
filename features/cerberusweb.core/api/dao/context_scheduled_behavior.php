@@ -135,7 +135,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		parent::_updateWhere('context_scheduled_behavior', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

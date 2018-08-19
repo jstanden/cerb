@@ -138,7 +138,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		parent::_updateWhere('context_saved_search', $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_SAVED_SEARCH;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))

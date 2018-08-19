@@ -15,7 +15,7 @@ abstract class DevblocksORMHelper {
 	 * @param string $error
 	 * @return boolean
 	 */
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		return true;
 	}
 	

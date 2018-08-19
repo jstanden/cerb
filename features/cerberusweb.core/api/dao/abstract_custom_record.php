@@ -129,7 +129,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		parent::_updateWhere($table_name, $fields, $where);
 	}
 	
-	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = self::_getContextName();
 		
 		// Check context privs
