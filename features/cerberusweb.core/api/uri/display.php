@@ -1201,6 +1201,33 @@ class ChDisplayPage extends CerberusPageExtension {
 		}
 	}
 	
+	function doMoveAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($ticket_id))
+			return;
+
+		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			return;
+		
+		if(null == ($bucket = DAO_Bucket::get($bucket_id)))
+			return;
+		
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
+			return;
+		
+		if($ticket->owner_id == $active_worker->id) {
+			$fields = [
+				DAO_Ticket::GROUP_ID => $bucket->group_id,
+				DAO_Ticket::BUCKET_ID => $bucket->id,
+			];
+			
+			DAO_Ticket::update($ticket_id, $fields);
+		}
+	}
 	function doSurrenderAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		
