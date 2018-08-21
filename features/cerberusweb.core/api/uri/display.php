@@ -1219,14 +1219,12 @@ class ChDisplayPage extends CerberusPageExtension {
 		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
 			return;
 		
-		if($ticket->owner_id == $active_worker->id) {
-			$fields = [
-				DAO_Ticket::GROUP_ID => $bucket->group_id,
-				DAO_Ticket::BUCKET_ID => $bucket->id,
-			];
-			
-			DAO_Ticket::update($ticket_id, $fields);
-		}
+		$fields = [
+			DAO_Ticket::GROUP_ID => $bucket->group_id,
+			DAO_Ticket::BUCKET_ID => $bucket->id,
+		];
+		
+		DAO_Ticket::update($ticket_id, $fields);
 	}
 	function doSurrenderAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
