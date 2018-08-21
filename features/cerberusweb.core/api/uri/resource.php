@@ -125,7 +125,7 @@ class Controller_Resource extends DevblocksControllerExtension {
 	}
 	
 	private function _handleCommonRequest(array $path) {
-		$file = implode(DIRECTORY_SEPARATOR, $path); // combine path
+		$file = implode('/', $path); // combine path
 		
 		switch($file) {
 			case 'images/logo.png':
@@ -134,7 +134,7 @@ class Controller_Resource extends DevblocksControllerExtension {
 				header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1 day
 				
 				$plugin = DevblocksPlatform::getPlugin('cerberusweb.core');
-				$dir = $plugin->getStoragePath() . '/' . 'resources';
+				$dir = $plugin->getStoragePath() . DIRECTORY_SEPARATOR . 'resources';
 				$resource = $dir . DIRECTORY_SEPARATOR . 'images/wgm/cerb_logo.png';
 				
 				$out = file_get_contents($resource, false);
