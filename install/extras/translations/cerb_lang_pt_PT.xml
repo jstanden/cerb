@@ -48,51 +48,6 @@
 				<seg>[Tickets] Pode reportar tickets como SPAM</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.reports.group.custom_fields">
-			<tuv xml:lang="pt_PT">
-				<seg>[Relatório de Grupo] Pode visualizar o grupo 'Relatórios de Campos Personalizados'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.groups">
-			<tuv xml:lang="pt_PT">
-				<seg>[Relatório de Grupo] Pode visualizar o grupo 'Relatórios de Grupo'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.orgs">
-			<tuv xml:lang="pt_PT">
-				<seg>[Grupo de Relatórios] Pode visualizar o grupo 'Relatórios de Organização'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.snippets">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.spam">
-			<tuv xml:lang="pt_PT">
-				<seg>[Grupo de Relatórios] Pode visualizar o grupo 'Relatórios de Spam'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.tickets">
-			<tuv xml:lang="pt_PT">
-				<seg>[Grupo de Relatórios] Pode visualizar o grupo 'Relatórios dos Tickets'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.bots">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.workers">
-			<tuv xml:lang="pt_PT">
-				<seg>[Relatório de Grupo] Pode ver o grupo de 'Relatórios de Colaboradores'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.report.group.time">
-			<tuv xml:lang="pt_PT">
-				<seg>[Grupo de Relatórios] Pode visualizar o grupo 'Relatórios do Registo de Tempo'</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activities.calendar_event.created">
 			<tuv xml:lang="pt_PT">
 				<seg/>

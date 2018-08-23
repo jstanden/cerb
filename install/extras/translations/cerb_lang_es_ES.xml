@@ -48,51 +48,6 @@
 				<seg>[Tickets] Puede marcar tickets como spam</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.reports.group.custom_fields">
-			<tuv xml:lang="es_ES">
-				<seg>[Grupo de informes] Puede ver el grupo 'Informes de Campos Personalizados' </seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.groups">
-			<tuv xml:lang="es_ES">
-				<seg>[Grupo de Informes] Puede ver el grupo 'Informes de grupos'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.orgs">
-			<tuv xml:lang="es_ES">
-				<seg>[Grupo de Informes] Puede ver el grupo 'Informes de Organizaciones'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.snippets">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.spam">
-			<tuv xml:lang="es_ES">
-				<seg>[Grupo de Informes] Puede ver el grupo 'Informes de Spam'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.tickets">
-			<tuv xml:lang="es_ES">
-				<seg>[Grupo de Informes] Puede ver el grupo 'Informes de Tickets'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.bots">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.workers">
-			<tuv xml:lang="es_ES">
-				<seg>[Grupo de Informes] Puede ver el grupo 'Informes de Usuarios'</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.report.group.time">
-			<tuv xml:lang="es_ES">
-				<seg>[Grupo de Informes] Puede ver el grupo 'Informes de Control de Horas'</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activities.calendar_event.created">
 			<tuv xml:lang="es_ES">
 				<seg/>

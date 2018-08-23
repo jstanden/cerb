@@ -38,51 +38,6 @@
 				<seg>[Tickets] Can report tickets as spam</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.reports.group.bots">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Bot' reports</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.custom_fields">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Custom Field' reports</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.groups">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Group' reports</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.orgs">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Organisation' reports</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.snippets">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Snippets' reports</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.spam">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Spam' reports</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.tickets">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Ticket' reports</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.workers">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Worker' reports</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.report.group.time">
-			<tuv xml:lang="en_GB">
-				<seg>[Report Group] Can view the 'Time Tracking Reports' group</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activities.calendar_event.created">
 			<tuv xml:lang="en_GB">
 				<seg>{{actor}} created event {{event}} on calendar {{target}}</seg>

@@ -48,51 +48,6 @@
 				<seg>[Tickets] Kan tickets als spam rapporteren</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.reports.group.custom_fields">
-			<tuv xml:lang="nl_NL">
-				<seg>[Rapportage Groep] Kan de 'Custom Fields rapportage' groep inzien</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.groups">
-			<tuv xml:lang="nl_NL">
-				<seg>[Rapportage Groep] Kan de 'Groeps-rapportage' groep inzien</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.orgs">
-			<tuv xml:lang="nl_NL">
-				<seg>[Rapportage Groep] Kan de 'Organisatie-rapportage' groep inzien</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.snippets">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.spam">
-			<tuv xml:lang="nl_NL">
-				<seg>[Rapportage Groep] Kan de 'Spam-rapportage' groep inzien</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.tickets">
-			<tuv xml:lang="nl_NL">
-				<seg>[Rapportage Groep] Kan de 'Ticket-rapportage' groep inzien</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.bots">
-			<tuv xml:lang="nl_NL">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.workers">
-			<tuv xml:lang="nl_NL">
-				<seg>[Rapportage Groep] Kan de 'Werknemerrapportage' inzien</seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.report.group.time">
-			<tuv xml:lang="nl_NL">
-				<seg>[Rapportage Groep] Kan de 'Time Tracking rapportage' groep inzien</seg>
-			</tuv>
-		</tu>
 		<tu tuid="activities.calendar_event.created">
 			<tuv xml:lang="nl_NL">
 				<seg/>

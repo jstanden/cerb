@@ -48,51 +48,6 @@
 				<seg>[Заявки] Может помечать заявки как спам</seg>
 			</tuv>
 		</tu>
-		<tu tuid="acl.reports.group.custom_fields">
-			<tuv xml:lang="ru_RU">
-				<seg>[Отчеты] Может просматривать группу 'Отчеты по кастомным полям' </seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.groups">
-			<tuv xml:lang="ru_RU">
-				<seg>[Отчеты] Может просматривать группу 'Отчеты по группе' </seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.orgs">
-			<tuv xml:lang="ru_RU">
-				<seg>[Отчеты] Может просматривать группу 'Отчеты по компаниям' </seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.snippets">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.spam">
-			<tuv xml:lang="ru_RU">
-				<seg>[Отчеты] Может просматривать группу 'Отчеты по спаму' </seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.tickets">
-			<tuv xml:lang="ru_RU">
-				<seg>[Отчеты] Может просматривать группу 'Отчеты по заявкам' </seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.bots">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="acl.reports.group.workers">
-			<tuv xml:lang="ru_RU">
-				<seg>[Отчеты] Может просматривать группу 'Отчеты по исполнителям' </seg>
-			</tuv>
-		</tu>
-		<tu tuid="acl.timetracking.report.group.time">
-			<tuv xml:lang="ru_RU">
-				<seg>[Отчеты] Может просматривать группу 'Отчеты по контролю времени' </seg>
-			</tuv>
-		</tu>
 		<tu tuid="activities.calendar_event.created">
 			<tuv xml:lang="ru_RU">
 				<seg/>

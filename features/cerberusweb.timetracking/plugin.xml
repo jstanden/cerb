@@ -68,10 +68,6 @@
 		</activity>
 	</activity_points>
 	
-	<acl>
-		<priv id="timetracking.report.group.time" label="acl.timetracking.report.group.time" />
-	</acl>
-	
 	<extensions>
 	
 		<!-- Contexts -->
