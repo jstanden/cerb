@@ -1590,6 +1590,11 @@
 				<seg>log</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.logo">
+			<tuv xml:lang="en_US">
+				<seg>logo</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.next">
 			<tuv xml:lang="en_US">
 				<seg>next</seg>

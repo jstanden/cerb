@@ -22,6 +22,17 @@
 		var DevblocksWebPath = '{devblocks_url}{/devblocks_url}';
 	</script>
 	
+	<style type="text/css">
+		#cerb-logo {
+			display: inline-block;
+			max-width: 100vw;
+			background: url({devblocks_url}c=resource&p=cerberusweb.core&f=css/logo{/devblocks_url}?v={$settings->get('cerberusweb.core','ui_user_logo_updated_at',0)}) no-repeat;
+			background-size: contain;
+			width: 281px;
+			height: 80px;
+		}
+	</style>
+	
 	<!-- Mobile -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<meta name="apple-mobile-web-app-title" content="Cerb">
@@ -43,7 +54,7 @@
 	<!-- User-defined styles -->
 	{$user_stylesheet_timestamp = $settings->get('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET_UPDATED_AT,0)}
 	{if $user_stylesheet_timestamp}
-	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=common&f=css/user.css{/devblocks_url}?v={$user_stylesheet_timestamp}">
+	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/user.css{/devblocks_url}?v={$user_stylesheet_timestamp}">
 	{/if}
 </head>
 

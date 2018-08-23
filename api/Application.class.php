@@ -2651,6 +2651,8 @@ class CerberusLicense {
 class CerberusSettings {
 	const HELPDESK_TITLE = 'helpdesk_title';
 	const HELPDESK_FAVICON_URL = 'helpdesk_favicon_url';
+	const UI_USER_LOGO_MIME_TYPE = 'ui_user_logo_mimetype';
+	const UI_USER_LOGO_UPDATED_AT = 'ui_user_logo_updated_at';
 	const UI_USER_STYLESHEET = 'ui_user_stylesheet';
 	const UI_USER_STYLESHEET_UPDATED_AT = 'ui_user_stylesheet_updated_at';
 	const ATTACHMENTS_ENABLED = 'attachments_enabled';
@@ -2675,6 +2677,8 @@ class CerberusSettings {
 
 class CerberusSettingsDefaults {
 	const HELPDESK_TITLE = 'Cerb';
+	const UI_USER_LOGO_MIME_TYPE = 'image/png';
+	const UI_USER_LOGO_UPDATED_AT = 0;
 	const UI_USER_STYLESHEET = '';
 	const UI_USER_STYLESHEET_UPDATED_AT = 0;
 	const ATTACHMENTS_ENABLED = 1;

@@ -21,14 +21,18 @@ class Controller_Resource extends DevblocksControllerExtension {
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {
-		$stack = $request->path; // URLS like: /resource/cerberusweb.core/images/images.png
+		$stack = $request->path; // URLs like: /resource/cerberusweb.core/images/images.png
+		
 		array_shift($stack); // resource
 		$plugin_id = array_shift($stack); // cerberusweb.core
 		$path = $stack; // images/image.png
 		
-		if('common' == $plugin_id) {
-			$this->_handleCommonRequest($path);
-			exit;
+		if('cerberusweb.core' == $plugin_id) {
+			$resource = implode('/', $path);
+			if(in_array($resource, ['css/logo','css/user.css'])) {
+				$this->_handleUserResourceRequest($resource);
+				exit;
+			}
 		}
 		
 		if(null == ($plugin = DevblocksPlatform::getPlugin($plugin_id)))
@@ -124,23 +128,31 @@ class Controller_Resource extends DevblocksControllerExtension {
 		exit;
 	}
 	
-	private function _handleCommonRequest(array $path) {
-		$file = implode('/', $path); // combine path
-		
-		switch($file) {
-			case 'images/logo.png':
-				header('Content-type: image/png');
-				header('Cache-control: max-age=86400', true); // 1 day // , must-revalidate
-				header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1 day
+	private function _handleUserResourceRequest($request_path) {
+		switch($request_path) {
+			case 'css/logo':
+				$logo_path = APP_STORAGE_PATH . '/logo';
 				
-				$plugin = DevblocksPlatform::getPlugin('cerberusweb.core');
-				$dir = $plugin->getStoragePath() . DIRECTORY_SEPARATOR . 'resources';
-				$resource = $dir . DIRECTORY_SEPARATOR . 'images/wgm/cerb_logo.png';
+				if(file_exists($logo_path) && false != ($out = file_get_contents($logo_path))) {
+					$logo_mimetype = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::UI_USER_LOGO_MIME_TYPE, 0);
+					
+				} else {
+					$logo_mimetype = 'image/png';
+					
+					$plugin = DevblocksPlatform::getPlugin('cerberusweb.core');
+					$dir = $plugin->getStoragePath() . DIRECTORY_SEPARATOR . 'resources';
+					$logo_path = $dir . DIRECTORY_SEPARATOR . 'images/wgm/cerb_logo.png';
+					
+					$out = file_get_contents($logo_path, false);
+				}
 				
 				$out = file_get_contents($resource, false);
 		
 				// Pass through
 				if($out) {
+					header('Cache-control: max-age=86400', true); // 1 day // , must-revalidate
+					header('Expires: ' . gmdate('D, d M Y H:i:s',time()+86400) . ' GMT'); // 1 day
+					header('Content-type: ' . $logo_mimetype);
 					header('Content-Length: '. strlen($out));
 					echo $out;
 				}

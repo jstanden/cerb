@@ -36,11 +36,37 @@ class PageSection_SetupBranding extends Extension_PageSection {
 			header('Content-Type: application/json; charset=utf-8');
 			
 			@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+			@$logo_id = DevblocksPlatform::importGPC($_POST['logo_id'],'string','');
 			@$favicon = DevblocksPlatform::importGPC($_POST['favicon'],'string','');
 			@$user_stylesheet = DevblocksPlatform::importGPC($_POST['user_stylesheet'],'string');
 	
 			if(empty($title))
 				$title = CerberusSettingsDefaults::HELPDESK_TITLE;
+			
+			// Logo
+			if($logo_id) {
+				if($logo_id == 'delete') {
+					$settings->set('cerberusweb.core',CerberusSettings::UI_USER_LOGO_MIME_TYPE,'');
+					$settings->set('cerberusweb.core',CerberusSettings::UI_USER_LOGO_UPDATED_AT,0);
+					@unlink(APP_STORAGE_PATH . '/logo');
+					
+				} else {
+					$logo_id = intval($logo_id);
+					
+					if(false != ($logo = DAO_Attachment::get($logo_id))) {
+						if(!in_array($logo->mime_type, ['image/png', 'image/jpeg', 'image/gif'])) {
+							throw new Exception("The logo image must be a PNG, JPEG, or GIF.");
+						}
+						
+						$settings->set('cerberusweb.core',CerberusSettings::UI_USER_LOGO_MIME_TYPE,$logo->mime_type);
+						$settings->set('cerberusweb.core',CerberusSettings::UI_USER_LOGO_UPDATED_AT,time());
+						
+						$fp = fopen(APP_STORAGE_PATH . '/logo', 'wb');
+						$logo->getFileContents($fp);
+						fclose($fp);
+					}
+				}
+			}
 			
 			// Test the favicon
 			if(!empty($favicon) && null == parse_url($favicon, PHP_URL_SCHEME))
