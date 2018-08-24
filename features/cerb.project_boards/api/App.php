@@ -59,6 +59,7 @@ class ProfileWidget_ProjectBoard extends Extension_ProfileWidget {
 			}
 		}
 		
+		$tpl->assign('widget', $model);
 		$tpl->assign('board', $board);
 		
 		$contexts = Extension_DevblocksContext::getAll(false, 'links');
@@ -103,6 +104,7 @@ class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
 			return;
 		
 		$tpl->assign('board', $board);
+		$tpl->assign('widget', $widget);
 		
 		$contexts = Extension_DevblocksContext::getAll(false, 'links');
 		$tpl->assign('contexts', $contexts);

@@ -9,7 +9,7 @@
 {$columns = $board->getColumns()}
 
 <div>
-	<div id="board{$tab->id}" class="cerb-board">
+	<div id="board{$board->id}_{$widget->id}" class="cerb-board">
 		<div style="width:100%;overflow-x:auto;">
 			<div class="cerb-board-columns">
 				{foreach from=$columns item=column}
@@ -35,7 +35,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $board = $('#board{$tab->id}');
+	var $board = $('#board{$board->id}_{$widget->id}');
 	
 	var $menu = $board.siblings('ul.menu')
 		.menu()
