@@ -742,6 +742,31 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			// Open
 			$popup.dialog('open');
 			
+			// Popup min/max functionality
+			var $titlebar = $popup.closest('.ui-dialog')
+				.find('.ui-dialog-titlebar')
+				;
+			
+			var $button_minmax = $("<button class='ui-dialog-titlebar-minmax'></button>")
+				.button({
+					text: false,
+					icons: { primary: 'ui-icon-caret-1-n' }
+				})
+				.on('click', function() {
+					if($popup.is(':hidden')) {
+						$popup.show();
+						$(this).button('option', 'icons', { primary: 'ui-icon-carat-1-n' } );
+					} else {
+						$popup.hide();
+						$(this).button('option', 'icons', { primary: 'ui-icon-carat-1-s' } );
+					}
+				})
+				;
+				
+			$titlebar
+				.append($button_minmax)
+				;
+			
 			// Set the content
 			$popup.html(html);
 			
