@@ -19,31 +19,6 @@ if(class_exists('Extension_PageSection')):
 class PageSection_InternalDashboards extends Extension_PageSection {
 	function render() {}
 	
-	function showWidgetExportDataPopupAction() {
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
-
-		if(null == ($widget = DAO_WorkspaceWidget::get($widget_id)))
-			return;
-		
-		if(null == ($widget_extension = Extension_WorkspaceWidget::get($widget->extension_id)))
-			return;
-		
-		if(!($widget_extension instanceof ICerbWorkspaceWidget_ExportData))
-			return;
-		
-		$tpl = DevblocksPlatform::services()->template();
-
-		$tpl->assign('widget', $widget);
-		$tpl->assign('widget_extension', $widget_extension);
-		
-		$tpl->assign('export_data', array(
-			'csv' => $widget_extension->exportData($widget, 'csv'),
-			'json' => $widget_extension->exportData($widget, 'json'),
-		));
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/export_data.tpl');
-	}
-	
 	function getContextFieldsJsonAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
 		
@@ -1560,22 +1535,43 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 	}
 };
 
-class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
-	function render(Model_WorkspaceWidget $widget) {
-		$tpl = DevblocksPlatform::services()->template();
+class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
+	function getData(Model_WorkspaceWidget $widget, &$error=null) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$data = DevblocksPlatform::services()->data();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
+		
+		if(!$query) {
+			$error = "Invalid data query.";
+			return false;
+		}
+		
+		if(false === ($results = $data->executeQuery($query, $error)))
+			return false;
+		
+		return $results;
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		
 		@$xaxis_key = DevblocksPlatform::importGPC($widget->params['xaxis_key'], 'string', 'label');
 		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
-		if(!$query)
-			return;
-		
-		if(false === ($results = $data->executeQuery($query, $error))) {
+		if(false == ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
@@ -1662,19 +1658,71 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget { // imp
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
 	}
+	
+		// Export
+	
+	function exportData(Model_WorkspaceWidget $widget, $format=null) {
+		switch(DevblocksPlatform::strLower($format)) {
+			case 'csv':
+				return $this->_exportDataAsCsv($widget);
+				break;
+				
+			default:
+			case 'json':
+				return $this->_exportDataAsJson($widget);
+				break;
+		}
+		
+		return false;
+	}
+	
+	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$fp = fopen("php://temp", 'r+');
+		
+		foreach($data['data'] as $d) {
+			fputcsv($fp, $d);
+		}
+		
+		rewind($fp);
+
+		$output = "";
+		
+		while(!feof($fp)) {
+			$output .= fgets($fp);
+		}
+		
+		fclose($fp);
+		
+		return $output;
+	}
+	
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$results = array(
+			'widget' => array(
+				'label' => $widget->label,
+				'type' => 'chart_pie',
+				'version' => 'Cerb ' . APP_VERSION,
+				'results' => $data,
+			),
+		);
+		
+		return DevblocksPlatform::strFormatJson($results);
+	}
 };
 
-class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
-	function render(Model_WorkspaceWidget $widget) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$data = DevblocksPlatform::services()->data();
+class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
+	function getData(Model_WorkspaceWidget $widget, &$error=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
+		$data = DevblocksPlatform::services()->data();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
-		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', null);
-		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
-		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -1685,10 +1733,26 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 		
 		$query = $tpl_builder->build($data_query, $dict);
 		
-		if(!$query)
-			return;
+		if(!$query) {
+			$error = "Invalid data query.";
+			return false;
+		}
 		
-		if(false === ($results = $data->executeQuery($query, $error))) {
+		if(false == ($results = $data->executeQuery($query, $error)))
+			return false;
+		
+		return $results;
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', null);
+		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
+		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
+		
+		if(false == ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
@@ -1749,19 +1813,77 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget { // implements
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
 	}
+	
+	// Export
+	
+	function exportData(Model_WorkspaceWidget $widget, $format=null) {
+		switch(DevblocksPlatform::strLower($format)) {
+			case 'csv':
+				return $this->_exportDataAsCsv($widget);
+				break;
+				
+			default:
+			case 'json':
+				return $this->_exportDataAsJson($widget);
+				break;
+		}
+		
+		return false;
+	}
+	
+	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$fp = fopen("php://temp", 'r+');
+		
+		// Headings
+		fputcsv($fp, [
+			'Label',
+			'Value',
+		]);
+		
+		foreach($data['data'] as $d) {
+			fputcsv($fp, $d);
+		}
+		
+		rewind($fp);
+
+		$output = "";
+		
+		while(!feof($fp)) {
+			$output .= fgets($fp);
+		}
+		
+		fclose($fp);
+		
+		return $output;
+	}
+	
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$results = array(
+			'widget' => array(
+				'label' => $widget->label,
+				'type' => $widget->extension_id,
+				'version' => 'Cerb ' . APP_VERSION,
+				'results' => $data,
+			),
+		);
+		
+		return DevblocksPlatform::strFormatJson($results);
+	}
 };
 
-class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
-	function render(Model_WorkspaceWidget $widget) {
-		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
-		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
-		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
-		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
-		
-		$tpl = DevblocksPlatform::services()->template();
+class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
+	function getData(Model_WorkspaceWidget $widget, &$error=null) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$data = DevblocksPlatform::services()->data();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -1775,7 +1897,20 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 		if(!$query)
 			return;
 		
-		if(false === ($results = $data->executeQuery($query, $error))) {
+		if(false === ($results = $data->executeQuery($query, $error)))
+			return false;
+		
+		return $results;
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
+		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
+		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(false == ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
@@ -1836,20 +1971,115 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget { // im
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
 	}
+	
+		// Export
+	
+	function exportData(Model_WorkspaceWidget $widget, $format=null) {
+		switch(DevblocksPlatform::strLower($format)) {
+			case 'csv':
+				return $this->_exportDataAsCsv($widget);
+				break;
+				
+			default:
+			case 'json':
+				return $this->_exportDataAsJson($widget);
+				break;
+		}
+		
+		return false;
+	}
+	
+	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$fp = fopen("php://temp", 'r+');
+		
+		// Headings
+		fputcsv($fp, [
+			'Label',
+			'X',
+			'Y',
+		]);
+		
+		foreach($data['data'] as $idx => $result) {
+			$label = array_shift($result);
+			$data['data'][$label] = $result;
+			unset($data['data'][$idx]);
+		}
+		
+		$points = [];
+		
+		foreach($data['data'] as $key => $result) {
+			if(DevblocksPlatform::strEndsWith($key, '_x')) {
+				$new_key = mb_substr($key,0,-2);
+				
+				foreach($result as $idx => $x) {
+					$points[] = [
+						$new_key,
+						$x,
+						$data['data'][$new_key][$idx]
+					];
+				}
+			}
+		}
+		
+		foreach($points as $label => $d) {
+			fputcsv($fp, $d);
+		}
+		
+		rewind($fp);
+
+		$output = "";
+		
+		while(!feof($fp)) {
+			$output .= fgets($fp);
+		}
+		
+		fclose($fp);
+		
+		return $output;
+	}
+	
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$results = array(
+			'widget' => array(
+				'label' => $widget->label,
+				'type' => 'chart_pie',
+				'version' => 'Cerb ' . APP_VERSION,
+				'results' => $data,
+			),
+		);
+		
+		return DevblocksPlatform::strFormatJson($results);
+	}
 };
 
-class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
-	function render(Model_WorkspaceWidget $widget) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
+	function getData(Model_WorkspaceWidget $widget, &$error=null) {
 		$data = DevblocksPlatform::services()->data();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
 		
-		if(!$query)
+		if(!$query) {
+			$error = "Invalid data query.";
 			return;
+		}
 		
-		if(false === ($results = $data->executeQuery($query, $error))) {
+		if(false === ($results = $data->executeQuery($query, $error)))
+			return false;
+		
+		return $results;
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(false == ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
@@ -1882,15 +2112,96 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget { // implemen
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
 	}
+	
+	// Export
+	
+	function exportData(Model_WorkspaceWidget $widget, $format=null) {
+		switch(DevblocksPlatform::strLower($format)) {
+			case 'csv':
+				return $this->_exportDataAsCsv($widget);
+				break;
+				
+			default:
+			case 'json':
+				return $this->_exportDataAsJson($widget);
+				break;
+		}
+		
+		return false;
+	}
+	
+	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$fp = fopen("php://temp", 'r+');
+		
+		// Headings
+		fputcsv($fp, array_column($data['data']['columns'], 'label'));
+		
+		// Data
+		foreach($data['data']['rows'] as $r) {
+			$row = [];
+			
+			// [TODO] Format using data types, and include a raw column
+			foreach($data['data']['columns'] as $c_key => $c) {
+				$row[] = $r[$c_key];
+			}
+			
+			fputcsv($fp, $row);
+		}
+		
+		rewind($fp);
+
+		$output = "";
+		
+		while(!feof($fp)) {
+			$output .= fgets($fp);
+		}
+		
+		fclose($fp);
+		
+		return $output;
+	}
+	
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$results = array(
+			'widget' => array(
+				'label' => $widget->label,
+				'type' => $widget->extension_id,
+				'version' => 'Cerb ' . APP_VERSION,
+				'results' => $data,
+			),
+		);
+		
+		return DevblocksPlatform::strFormatJson($results);
+	}
 };
 
-class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // implements ICerbWorkspaceWidget_ExportData
-	function render(Model_WorkspaceWidget $widget) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
+	function getData(Model_WorkspaceWidget $widget, &$error=null) {
 		$data = DevblocksPlatform::services()->data();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		
+		if(!$query) {
+			$error = "Invalid data query.";
+			return;
+		}
+		
+		if(false === ($results = $data->executeQuery($query, $error)))
+			return false;
+		
+		return $results;
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		
 		@$subchart = DevblocksPlatform::importGPC($widget->params['subchart'], 'int', 0);
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', 'line');
 		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
@@ -1900,10 +2211,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 		@$xaxis_tick_format = DevblocksPlatform::importGPC($widget->params['xaxis_tick_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
-		if(!$query)
-			return;
-		
-		if(false === ($results = $data->executeQuery($query, $error))) {
+		if(false === ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}
@@ -2007,6 +2315,85 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget { // imp
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+	}
+	
+	// Export
+	
+	function exportData(Model_WorkspaceWidget $widget, $format=null) {
+		switch(DevblocksPlatform::strLower($format)) {
+			case 'csv':
+				return $this->_exportDataAsCsv($widget);
+				break;
+				
+			default:
+			case 'json':
+				return $this->_exportDataAsJson($widget);
+				break;
+		}
+		
+		return false;
+	}
+	
+	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$fp = fopen("php://temp", 'r+');
+		
+		// Headings
+		fputcsv($fp, [
+			'Date',
+			'Label',
+			'Value',
+		]);
+		
+		if(!isset($data['data']))
+			return;
+		
+		if(!isset($data['data']['ts']))
+			return;
+		
+		$x_dates = $data['data']['ts'];
+		unset($data['data']['ts']);
+		
+		foreach($x_dates as $x_idx => $x_date) {
+			foreach($data['data'] as $series_label => $series_data) {
+				$row = [
+					$x_date,
+					$series_label,
+					$series_data[$x_idx],
+				];
+				fputcsv($fp, $row);
+			}
+		}
+		
+		rewind($fp);
+		
+		$output = "";
+		
+		while(!feof($fp)) {
+			$output .= fgets($fp);
+		}
+		
+		fclose($fp);
+		
+		return $output;
+	}
+	
+	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		if(false == ($data = $this->getData($widget, $error)))
+			return;
+		
+		$results = array(
+			'widget' => array(
+				'label' => $widget->label,
+				'type' => $widget->extension_id,
+				'version' => 'Cerb ' . APP_VERSION,
+				'results' => $data,
+			),
+		);
+		
+		return DevblocksPlatform::strFormatJson($results);
 	}
 };
 
@@ -2382,7 +2769,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 				'label' => $widget->label,
 				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
-				'series' => array(),
+				'series' => [],
 			),
 		);
 		
@@ -2646,14 +3033,12 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	const ID = 'core.workspace.widget.worklist';
 	
-	function render(Model_WorkspaceWidget $widget) {
+	function getView(Model_WorkspaceWidget $widget) {
 		@$view_context = $widget->params['context'];
 		@$query = $widget->params['query'];
 		@$query_required = $widget->params['query_required'];
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		// Unique instance per widget/record combo
@@ -2700,7 +3085,15 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		$view->setParamsQuery($query);
 		$view->addParamsWithQuickSearch($query);
 		
+		return $view;
+	}
+	
+	function render(Model_WorkspaceWidget $widget) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$view = $this->getView($widget);
 		$tpl->assign('view', $view);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	

@@ -296,8 +296,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			if(false == ($tab = $widget->getWorkspaceTab()))
 				return;
 			
-			$tpl->assign('extension', $extension);
-			
+			$tpl->assign('full', true);
 			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl');
 			
 		} else {
@@ -431,6 +430,31 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$tpl->assign('json', DevblocksPlatform::strFormatJson($json));
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/export_widget.tpl');
+	}
+	
+	function exportWidgetDataAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
+			return;
+		
+		if(false == ($extension = $widget->getExtension()))
+			return;
+		
+		if(!($extension instanceof ICerbWorkspaceWidget_ExportData))
+			return;
+		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('widget_extension', $extension);
+		
+		$tpl->assign('export_data', array(
+			'csv' => $extension->exportData($widget, 'csv'),
+			'json' => $extension->exportData($widget, 'json'),
+		));
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/export_widget_data.tpl');
 	}
 	
 	function viewExploreAction() {

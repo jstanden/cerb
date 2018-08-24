@@ -138,6 +138,9 @@ $(function() {
 							// Done
 						});
 						
+					} else if($li.is('.cerb-workspace-widget-menu--export-data')) {
+						genericAjaxPopup('export_data', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=exportWidgetData&id=' + widget_id, null, false);
+						
 					} else if($li.is('.cerb-workspace-widget-menu--export-widget')) {
 						genericAjaxPopup('export_widget', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=exportWidget&id=' + widget_id, null, false);
 						

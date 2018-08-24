@@ -20,6 +20,13 @@
 					<a href="javascript:;">{'common.export.widget'|devblocks_translate|capitalize}</a>
 				</li>
 				{/if}
+				
+				{if $widget_extension && $widget_extension instanceof ICerbWorkspaceWidget_ExportData}
+				<li class="cerb-workspace-widget-menu--export-data">
+					<a href="javascript:;">{'common.export.data'|devblocks_translate|capitalize}</a>
+				</li>
+				{/if}
+				
 				<li class="cerb-workspace-widget-menu--refresh">
 					<a href="javascript:;">{'common.refresh'|devblocks_translate|capitalize}</a>
 				</li>

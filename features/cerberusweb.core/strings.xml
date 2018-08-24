@@ -997,6 +997,11 @@
 				<seg>export</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.export.data">
+			<tuv xml:lang="en_US">
+				<seg>export data</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.export.widget">
 			<tuv xml:lang="en_US">
 				<seg>export widget</seg>
