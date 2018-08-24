@@ -137,7 +137,6 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		}
 	}
 	
-	// [TODO] This should run on newly added cards too
 	function moveCardAction() {
 		@$card_context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$card_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -151,23 +150,6 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		
 		DAO_ContextLink::deleteLink(Context_ProjectBoardColumn::ID, $from_column_id, $card_context, $card_id);
 		DAO_ContextLink::setLink(Context_ProjectBoardColumn::ID, $to_column_id, $card_context, $card_id);
-		
-		// Setting links should trigger configured bot behaviors
-		if(isset($to_column->params['behaviors'])) {
-			@$behavior_params = $to_column->params['behaviors'];
-			$behaviors = DAO_TriggerEvent::getIds(array_keys($behavior_params));
-			
-			if(is_array($behaviors))
-			foreach($behaviors as $behavior) {
-				$event_ext = $behavior->getEvent();
-				
-				// Only run events for this context
-				if(@$event_ext->manifest->params['macro_context'] != $card_context)
-					continue;
-				
-				$runners = call_user_func([$event_ext->manifest->class, 'trigger'], $behavior->id, $card_id, @$behavior_params[$behavior->id] ?: []);
-			}
-		}
 	}
 	
 	function refreshColumnAction() {

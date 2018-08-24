@@ -818,6 +818,10 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				$this->_handleContextMaint($event);
 				break;
 				
+			case 'context_link.set':
+				$this->_handleContextLinkSet($event);
+				break;
+				
 			case 'cron.heartbeat':
 				$this->_handleCronHeartbeat($event);
 				break;
@@ -827,11 +831,40 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 				break;
 		}
 	}
-
+	
+	private function _handleContextLinkSet($event) {
+		@$from_context = $event->params['from_context'];
+		@$from_context_id = $event->params['from_context_id'];
+		@$to_context = $event->params['to_context'];
+		@$to_context_id = $event->params['to_context_id'];
+		
+		if($to_context == Context_ProjectBoardColumn::ID) {
+			if(false == ($to_column = DAO_ProjectBoardColumn::get($to_context_id)))
+				return;
+			
+			// Setting links should trigger configured bot behaviors
+			if(isset($to_column->params['behaviors'])) {
+				@$behavior_params = $to_column->params['behaviors'];
+				$behaviors = DAO_TriggerEvent::getIds(array_keys($behavior_params));
+				
+				if(is_array($behaviors))
+				foreach($behaviors as $behavior) {
+					$event_ext = $behavior->getEvent();
+					
+					// Only run events for this context
+					if(@$event_ext->manifest->params['macro_context'] != $from_context)
+						continue;
+					
+					$runners = call_user_func([$event_ext->manifest->class, 'trigger'], $behavior->id, $from_context_id, @$behavior_params[$behavior->id] ?: []);
+				}
+			}
+		}
+	}
+	
 	private function _handleContextUpdate($event) {
 		@$context = $event->params['context'];
 		@$context_ids = $event->params['context_ids'];
-
+		
 		DAO_ContextScheduledBehavior::updateRelativeSchedules($context, $context_ids);
 	}
 	

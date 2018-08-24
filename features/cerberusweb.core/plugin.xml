@@ -4083,6 +4083,7 @@
 						<data key="context.update" />
 						<data key="context.delete" />
 						<data key="context.maint" />
+						<data key="context_link.set" />
 						<data key="cron.heartbeat" />
 						<data key="cron.maint" />
 					</value>

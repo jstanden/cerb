@@ -65,7 +65,6 @@ $(function() {
 			$popup.one('chooser_save', function(event) {
 				event.stopPropagation();
 				
-				// [TODO] Use a custom action that can run column behaviors before reloading
 				var $data = [ 
 					'c=internal',
 					'a=contextAddLinksJson',
