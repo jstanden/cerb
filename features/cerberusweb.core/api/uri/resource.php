@@ -146,8 +146,6 @@ class Controller_Resource extends DevblocksControllerExtension {
 					$out = file_get_contents($logo_path, false);
 				}
 				
-				$out = file_get_contents($resource, false);
-		
 				// Pass through
 				if($out) {
 					header('Cache-control: max-age=86400', true); // 1 day // , must-revalidate
