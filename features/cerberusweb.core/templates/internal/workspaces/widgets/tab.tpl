@@ -130,12 +130,17 @@ $(function() {
 					var $li = $(ui.item);
 					$li.closest('ul').hide();
 					
+					var $widget = $li.closest('.cerb-workspace-widget');
+					var widget_id = $widget.attr('data-widget-id');
+					
 					if($li.is('.cerb-workspace-widget-menu--refresh')) {
-						var $widget = $li.closest('.cerb-workspace-widget');
-						
-						async.series([ async.apply(loadWidgetFunc, $widget.attr('data-widget-id'), false, {}) ], function(err, json) {
+						async.series([ async.apply(loadWidgetFunc, widget_id, false, {}) ], function(err, json) {
 							// Done
 						});
+						
+					} else if($li.is('.cerb-workspace-widget-menu--export-widget')) {
+						genericAjaxPopup('export_widget', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=exportWidget&id=' + widget_id, null, false);
+						
 					}
 				}
 			})

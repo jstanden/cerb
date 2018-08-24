@@ -625,6 +625,22 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	abstract function render(Model_WorkspaceWidget $widget);
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
+	
+	public function export(Model_WorkspaceWidget $widget) {
+		$widget_json = [
+			'widget' => [
+				'uid' => 'workspace_widget_' . $widget->id,
+				'label' => $widget->label,
+				'extension_id' => $widget->extension_id,
+				'pos' => $widget->pos,
+				'width_units' => $widget->width_units,
+				'zone' => $widget->zone,
+				'params' => $widget->params,
+			]
+		];
+		
+		return json_encode($widget_json);
+	}
 
 	public static function getViewFromParams($widget, $params, $view_id) {
 		if(false == ($view = C4_AbstractViewLoader::getView($view_id))) {

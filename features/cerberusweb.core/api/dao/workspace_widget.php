@@ -644,6 +644,10 @@ class Model_WorkspaceWidget {
 	public $workspace_tab_id = 0;
 	public $zone = '';
 	
+	/**
+	 * 
+	 * @return Extension_WorkspaceWidget|NULL
+	 */
 	function getExtension() {
 		return Extension_WorkspaceWidget::get($this->extension_id);
 	}

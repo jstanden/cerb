@@ -407,6 +407,32 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 	}
 	
+	function exportWidgetAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
+			return;
+		
+		if(false == ($extension = $widget->getExtension()))
+			return;
+		
+		if(false == ($page = $widget->getWorkspacePage()))
+			return;
+		
+		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
+			return;
+		
+		$json = $extension->export($widget);
+		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('json', DevblocksPlatform::strFormatJson($json));
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/export_widget.tpl');
+	}
+	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

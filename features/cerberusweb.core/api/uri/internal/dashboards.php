@@ -19,30 +19,6 @@ if(class_exists('Extension_PageSection')):
 class PageSection_InternalDashboards extends Extension_PageSection {
 	function render() {}
 	
-	function showWidgetExportPopupAction() {
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
-
-		if(null == ($widget = DAO_WorkspaceWidget::get($widget_id)))
-			return;
-		
-		$tpl = DevblocksPlatform::services()->template();
-
-		$tpl->assign('widget', $widget);
-		
-		$widget_json = json_encode(array(
-			'widget' => array(
-				'uid' => 'workspace_widget_' . $widget->id,
-				'label' => $widget->label,
-				'extension_id' => $widget->extension_id,
-				'params' => $widget->params,
-			),
-		));
-		
-		$tpl->assign('widget_json', DevblocksPlatform::strFormatJson($widget_json));
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/export.tpl');
-	}
-	
 	function showWidgetExportDataPopupAction() {
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
 
@@ -476,10 +452,10 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'gauge',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'metric' => array(
-					'value' => $widget->params['metric_value'],
+					'value' => @$widget->params['metric_value'],
 					'type' => $widget->params['metric_type'],
 					'prefix' => $widget->params['metric_prefix'],
 					'suffix' => $widget->params['metric_suffix'],
@@ -1307,7 +1283,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'clock',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'time' => array(
 					'timezone' => $widget->params['timezone'],
@@ -1462,7 +1438,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'counter',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'metric' => array(
 					'value' => $widget->params['metric_value'],
@@ -1571,7 +1547,7 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'countdown',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'countdown' => array(
 					'output' => DevblocksPlatform::strSecsToString($diff, 2),
@@ -2404,7 +2380,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'chart',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'series' => array(),
 			),
@@ -2650,7 +2626,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'subtotals',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'counts' => array(),
 			),
@@ -2827,12 +2803,12 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	private function _exportDataLoadAsContexts(Model_WorkspaceWidget $widget, $view) {
-		$results = array();
+		$results = [];
 		
 		@$context_ext = Extension_DevblocksContext::getByViewClass(get_class($view));
 
 		if(empty($context_ext))
-			return array();
+			return [];
 		
 		$models = $view->getDataAsObjects();
 		
@@ -2890,7 +2866,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		$export_data = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'worklist',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'page' => $view->renderPage,
 				'count' => 0,
@@ -3209,7 +3185,7 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'pie',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'counts' => array(),
 			),
@@ -3427,7 +3403,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 		$results = array(
 			'widget' => array(
 				'label' => $widget->label,
-				'type' => 'scatterplot',
+				'type' => $widget->extension_id,
 				'version' => 'Cerb ' . APP_VERSION,
 				'series' => array(),
 			),
