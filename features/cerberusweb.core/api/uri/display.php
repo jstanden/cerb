@@ -1226,6 +1226,40 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		DAO_Ticket::update($ticket_id, $fields);
 	}
+	
+	function doAssignAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($ticket_id))
+			return;
+
+		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			return;
+		
+		// If we're assigning an owner
+		if($owner_id) {
+			if(null == ($worker = DAO_Worker::get($owner_id)))
+				return;
+			
+			$owner_id = $worker->id;
+		// Or unassigning
+		} else {
+			$owner_id = 0;
+		}
+		
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
+			return;
+		
+		$fields = [
+			DAO_Ticket::OWNER_ID => $owner_id,
+		];
+		
+		DAO_Ticket::update($ticket_id, $fields);
+	}
+	
 	function doSurrenderAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		
