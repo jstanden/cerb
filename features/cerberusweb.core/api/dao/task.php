@@ -1497,7 +1497,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		
 		if($task) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $task->title;
+			$token_values['_label'] = $task->title ?: '(no name)';
 			$token_values['created'] = $task->created_at;
 			$token_values['completed'] = $task->completed_date;
 			$token_values['due'] = $task->due_date;
