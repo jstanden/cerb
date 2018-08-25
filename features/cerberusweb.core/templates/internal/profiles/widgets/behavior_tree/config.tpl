@@ -5,7 +5,7 @@
 		<b><a href="javascript:;" class="cerb-chooser" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-single="true">Behavior ID</a>:</b>
 		
 		<div style="margin-left:10px;">
-			<input type="text" name="params[behavior_id]" value="{$widget->extension_params.behavior}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+			<input type="text" name="params[behavior_id]" value="{$widget->extension_params.behavior_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
 		</div>
 	</fieldset>
 </div>
