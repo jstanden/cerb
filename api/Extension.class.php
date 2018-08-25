@@ -366,6 +366,22 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 	abstract function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]);
 	abstract function renderConfig(Model_ProfileWidget $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }
+	
+	public function export(Model_ProfileWidget $widget) {
+		$widget_json = [
+			'widget' => [
+				'uid' => 'profile_widget_' . $widget->id,
+				'name' => $widget->name,
+				'extension_id' => $widget->extension_id,
+				'pos' => $widget->pos,
+				'width_units' => $widget->width_units,
+				'zone' => $widget->zone,
+				'extension_params' => $widget->extension_params,
+			]
+		];
+		
+		return json_encode($widget_json);
+	}
 };
 
 abstract class Extension_ContextProfileScript extends DevblocksExtension {

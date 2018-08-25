@@ -53,80 +53,148 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
-				@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'integer', 0);
-				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
-				@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
+				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
 				
-				if(empty($id)) { // New
-					$fields = array(
-						DAO_ProfileWidget::EXTENSION_ID => $extension_id,
-						DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($params),
-						DAO_ProfileWidget::NAME => $name,
-						DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
-						DAO_ProfileWidget::UPDATED_AT => time(),
-						DAO_ProfileWidget::WIDTH_UNITS => $width_units,
-					);
-					
-					if(false == ($extension = Extension_ProfileWidget::get($extension_id)))
-						throw new Exception_DevblocksAjaxValidationError("Invalid profile widget type.");
-					
-					if(!$extension->saveConfig($fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_ProfileWidget::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_ProfileWidget::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					$id = DAO_ProfileWidget::create($fields);
-					DAO_ProfileWidget::onUpdateByActor($active_worker, $id, $fields);
-					
-					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_WIDGET, $id);
-					
-				} else { // Edit
-					$fields = array(
-						DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($params),
-						DAO_ProfileWidget::NAME => $name,
-						DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
-						DAO_ProfileWidget::UPDATED_AT => time(),
-						DAO_ProfileWidget::WIDTH_UNITS => $width_units,
-					);
-					
-					if(false == ($widget = DAO_ProfileWidget::get($id)))
-						throw new Exception_DevblocksAjaxValidationError("This profile widget no longer exists.");
-					
-					if(false == ($extension = $widget->getExtension()))
-						throw new Exception_DevblocksAjaxValidationError("Invalid profile widget type.");
-					
-					if(!$extension->saveConfig($fields, $id, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_ProfileWidget::validate($fields, $error, $id))
-						throw new Exception_DevblocksAjaxValidationError($error);
+				@$mode = (!$id && $import_json) ? 'import' : 'build';
+				
+				switch($mode) {
+					case 'import':
+						@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'integer', 0);
+						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
 						
-					if(!DAO_ProfileWidget::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
+						@$json = json_decode($import_json, true);
+						
+						if(
+							empty($import_json)
+							|| false == (@$widget_json = json_decode($import_json, true))
+							)
+							throw new Exception_DevblocksAjaxValidationError("Invalid JSON.");
+						
+						if(empty($profile_tab_id))
+							throw new Exception_DevblocksAjaxValidationError("Invalid profile tab target");
+						
+						if(!isset($widget_json['widget']['extension_id']))
+							throw new Exception_DevblocksAjaxValidationError("JSON doesn't contain widget extension info");
+						
+						if(!isset($widget_json['widget']['extension_params']))
+							throw new Exception_DevblocksAjaxValidationError("JSON doesn't contain widget params");
+						
+						@$name = $widget_json['widget']['name'] ?: 'New widget';
+						@$extension_id = $widget_json['widget']['extension_id'];
+						
+						if(empty($extension_id) || null == ($extension = Extension_ProfileWidget::get($extension_id)))
+							throw new Exception_DevblocksAjaxValidationError("Invalid widget extension");
+						
+						$fields = [
+							DAO_ProfileWidget::NAME => $name,
+							DAO_ProfileWidget::EXTENSION_ID => $extension_id,
+							DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($widget_json['widget']['extension_params']),
+							DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
+							DAO_ProfileWidget::POS => @$widget_json['widget']['pos'] ?: 0,
+							DAO_ProfileWidget::WIDTH_UNITS => @$widget_json['widget']['width_units'] ?: 4,
+							DAO_ProfileWidget::ZONE => @$widget_json['widget']['zone'] ?: '',
+						];
+						
+						if(!DAO_ProfileWidget::validate($fields, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						if(!DAO_ProfileWidget::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						$id = DAO_ProfileWidget::create($fields);
+						DAO_ProfileWidget::onUpdateByActor($active_worker, $id, $fields);
+						
+						if(!empty($view_id) && !empty($id))
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_WIDGET, $id);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $id,
+							'label' => $name,
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
 					
-					DAO_ProfileWidget::update($id, $fields);
-					DAO_ProfileWidget::onUpdateByActor($active_worker, $id, $fields);
+					case 'build':
+						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+						@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'integer', 0);
+						@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+						@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
+						
+						// [TODO] format params
+						
+						if(empty($id)) { // New
+							$fields = array(
+								DAO_ProfileWidget::EXTENSION_ID => $extension_id,
+								DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($params),
+								DAO_ProfileWidget::NAME => $name,
+								DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
+								DAO_ProfileWidget::UPDATED_AT => time(),
+								DAO_ProfileWidget::WIDTH_UNITS => $width_units,
+							);
+							
+							if(false == ($extension = Extension_ProfileWidget::get($extension_id)))
+								throw new Exception_DevblocksAjaxValidationError("Invalid profile widget type.");
+							
+							if(!$extension->saveConfig($fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_ProfileWidget::validate($fields, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_ProfileWidget::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							$id = DAO_ProfileWidget::create($fields);
+							DAO_ProfileWidget::onUpdateByActor($active_worker, $id, $fields);
+							
+							if(!empty($view_id) && !empty($id))
+								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_WIDGET, $id);
+							
+						} else { // Edit
+							$fields = array(
+								DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($params),
+								DAO_ProfileWidget::NAME => $name,
+								DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
+								DAO_ProfileWidget::UPDATED_AT => time(),
+								DAO_ProfileWidget::WIDTH_UNITS => $width_units,
+							);
+							
+							if(false == ($widget = DAO_ProfileWidget::get($id)))
+								throw new Exception_DevblocksAjaxValidationError("This profile widget no longer exists.");
+							
+							if(false == ($extension = $widget->getExtension()))
+								throw new Exception_DevblocksAjaxValidationError("Invalid profile widget type.");
+							
+							if(!$extension->saveConfig($fields, $id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_ProfileWidget::validate($fields, $error, $id))
+								throw new Exception_DevblocksAjaxValidationError($error);
+								
+							if(!DAO_ProfileWidget::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							DAO_ProfileWidget::update($id, $fields);
+							DAO_ProfileWidget::onUpdateByActor($active_worker, $id, $fields);
+						}
+						
+						// Custom field saves
+						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_WIDGET, $id, $field_ids, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						echo json_encode(array(
+							'status' => true,
+							'id' => $id,
+							'label' => $name,
+							'view_id' => $view_id,
+						));
+						return;
+						break;
 				}
-				
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_WIDGET, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'label' => $name,
-					'view_id' => $view_id,
-				));
-				return;
 			}
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
@@ -244,6 +312,29 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		$tpl->assign('success', $success);
 		$tpl->assign('output', $output);
 		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+	}
+	
+	function exportWidgetAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			return;
+		
+		if(false == ($widget = DAO_ProfileWidget::get($id)))
+			return;
+		
+		if(false == ($extension = $widget->getExtension()))
+			return;
+		
+		$json = $extension->export($widget);
+		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('json', DevblocksPlatform::strFormatJson($json));
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/export_widget.tpl');
 	}
 	
 	function viewExploreAction() {

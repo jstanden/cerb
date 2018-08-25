@@ -399,7 +399,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			
 			$tpl->assign('context', $context);
 			$tpl->assign('context_id', $context_id);
-			$tpl->assign('extension', $extension);
+			$tpl->assign('full', true);
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl');
 			
