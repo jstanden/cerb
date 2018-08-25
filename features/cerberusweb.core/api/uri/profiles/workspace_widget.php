@@ -107,45 +107,13 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						if(empty($extension_id) || null == ($extension = Extension_WorkspaceWidget::get($extension_id)))
 							throw new Exception_DevblocksAjaxValidationError("Invalid widget extension");
 						
-						// Allow prompted configuration of the widget import
-						// [TODO] Are there configurable fields in this import file?
-						/*
-						@$configure_fields = $widget_json['widget']['configure'];
-						
-						if(is_array($configure_fields) && !empty($configure_fields)) {
-							// If the worker has provided the configuration, make the changes to JSON array
-							if(!empty($configure)) {
-								foreach($configure_fields as $config_field_idx => $config_field) {
-									if(!isset($config_field['path']))
-										continue;
-									
-									if(!isset($configure[$config_field_idx]))
-										continue;
-									
-									$ptr =& DevblocksPlatform::jsonGetPointerFromPath($widget_json, $config_field['path']);
-									$ptr = $configure[$config_field_idx];
-								}
-								
-							// If the worker hasn't been prompted, do that now
-							} else {
-								$tpl = DevblocksPlatform::services()->template();
-								$tpl->assign('import_json', $import_json);
-								$tpl->assign('import_fields', $configure_fields);
-								$config_html = $tpl->fetch('devblocks:cerberusweb.core::internal/import/prompted/configure_json_import.tpl');
-								
-								echo json_encode(array(
-									'config_html' => $config_html,
-								));
-								return;
-							}
-						}
-						*/
-						
 						$fields = [
 							DAO_WorkspaceWidget::LABEL => $name,
 							DAO_WorkspaceWidget::EXTENSION_ID => $extension_id,
 							DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $workspace_tab_id,
-							DAO_WorkspaceWidget::POS => '0000',
+							DAO_WorkspaceWidget::POS => @$widget_json['widget']['pos'] ?: 0,
+							DAO_WorkspaceWidget::WIDTH_UNITS => @$widget_json['widget']['width_units'] ?: 4,
+							DAO_WorkspaceWidget::ZONE => @$widget_json['widget']['zone'] ?: '',
 							DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget_json['widget']['params'])
 						];
 						
