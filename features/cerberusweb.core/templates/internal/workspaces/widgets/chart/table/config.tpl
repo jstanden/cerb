@@ -6,6 +6,11 @@
 		</legend>
 		
 		<textarea name="params[data_query]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->params.data_query}</textarea>
+		
+		<div>
+			<b>Cache</b> query results for 
+			<input type="text" size="5" maxlength="6" name="params[cache_secs]" placeholder="e.g. 300" value="{$widget->params.cache_secs}"> seconds
+		</div>
 	</fieldset>
 </div>
 

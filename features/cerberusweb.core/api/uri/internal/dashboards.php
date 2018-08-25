@@ -1542,6 +1542,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -1557,7 +1558,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 			return false;
 		}
 		
-		if(false === ($results = $data->executeQuery($query, $error)))
+		if(false === ($results = $data->executeQuery($query, $error, $cache_secs)))
 			return false;
 		
 		return $results;
@@ -1723,6 +1724,7 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -1738,7 +1740,7 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 			return false;
 		}
 		
-		if(false == ($results = $data->executeQuery($query, $error)))
+		if(false == ($results = $data->executeQuery($query, $error, $cache_secs)))
 			return false;
 		
 		return $results;
@@ -1884,6 +1886,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -1894,10 +1897,12 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 		
 		$query = $tpl_builder->build($data_query, $dict);
 		
-		if(!$query)
-			return;
+		if(!$query) {
+			$error = "Invalid data query.";
+			return false;
+		}
 		
-		if(false === ($results = $data->executeQuery($query, $error)))
+		if(false === ($results = $data->executeQuery($query, $error, $cache_secs)))
 			return false;
 		
 		return $results;
@@ -2062,15 +2067,26 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 	function getData(Model_WorkspaceWidget $widget, &$error=null) {
 		$data = DevblocksPlatform::services()->data();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker= CerberusApplication::getActiveWorker();
 		
-		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
 		
 		if(!$query) {
 			$error = "Invalid data query.";
-			return;
+			return false;
 		}
 		
-		if(false === ($results = $data->executeQuery($query, $error)))
+		if(false === ($results = $data->executeQuery($query, $error, $cache_secs)))
 			return false;
 		
 		return $results;
@@ -2185,15 +2201,26 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 	function getData(Model_WorkspaceWidget $widget, &$error=null) {
 		$data = DevblocksPlatform::services()->data();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$data_query = DevblocksPlatform::importGPC($widget->params['data_query'], 'string', null);
+		@$cache_secs = DevblocksPlatform::importGPC($widget->params['cache_secs'], 'integer', 0);
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
 		
 		if(!$query) {
 			$error = "Invalid data query.";
-			return;
+			return false;
 		}
 		
-		if(false === ($results = $data->executeQuery($query, $error)))
+		if(false === ($results = $data->executeQuery($query, $error, $cache_secs)))
 			return false;
 		
 		return $results;

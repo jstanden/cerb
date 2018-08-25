@@ -1928,7 +1928,15 @@ class _DevblocksDataService {
 		return self::$instance;
 	}
 	
-	function executeQuery($query, &$error=null) {
+	function executeQuery($query, &$error=null, $cache_secs=0) {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = 'data_query_' . sha1($query);
+		
+		if($cache_secs) {
+			if(false != ($results = $cache->load($cache_key)))
+				return $results;
+		}
+		
 		$chart_fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
 		
 		@$type_field = array_shift(array_filter($chart_fields, function($field) {
@@ -1990,6 +1998,9 @@ class _DevblocksDataService {
 				return false;
 				break;
 		}
+		
+		if($cache_secs)
+			$cache->save($results, $cache_key, [], $cache_secs);
 		
 		return $results;
 	}

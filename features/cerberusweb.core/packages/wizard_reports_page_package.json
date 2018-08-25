@@ -56,6 +56,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[created@month,group~10]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -78,7 +79,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[group~10]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[group~10]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -127,7 +129,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[org~25]\r\nquery:(created:\"first day of this month -1 year\" org.id:!0)\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[org~25]\r\nquery:(created:\"first day of this month -1 year\" org.id:!0)\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -141,6 +144,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[org~10]\r\nquery:(created:\"first day of this month -1 year\" org.id:!0)\r\nformat:categories",
+				"cache_secs": "300",
 				"xaxis_key": "label",
 				"height": ""
 			}
@@ -156,6 +160,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[org~10]\r\nquery:(created:\"first day of this month -1 year\" org.id:!0)\r\nformat:pie",
+				"cache_secs": "300",
 				"chart_as": "donut",
 				"height": "500",
 				"options": {
@@ -174,6 +179,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[created@month,org~10]\r\nquery:(created:\"first day of this month -1 year\" org.id:!0)\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -231,6 +237,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[closed@month,group~50]\r\nquery:(status:c closed:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -252,7 +259,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[group~50]\r\nquery:(status:c closed:\"first day of this month -1 year\")\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[group~50]\r\nquery:(status:c closed:\"first day of this month -1 year\")\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -302,6 +310,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:message\r\nby:[created@month,worker~20]\r\nquery:(worker.id:!0 isOutgoing:y isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -322,7 +331,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~50]\r\nquery:(worker.id:!0 isOutgoing:y isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~50]\r\nquery:(worker.id:!0 isOutgoing:y isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -369,6 +379,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:message\r\nby:[created@month,group~20]\r\nquery:(worker.id:!0 isOutgoing:y isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -391,7 +402,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:count\r\nby:[group~25]\r\nquery:(worker.id:!0 isOutgoing:y isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:count\r\nby:[group~25]\r\nquery:(worker.id:!0 isOutgoing:y isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -450,6 +462,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:avg\r\nby:[group~25,worker~25,responseTime]\r\nquery:(isOutgoing:y worker.id:!0 isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:categories",
+				"cache_secs": "300",
 				"xaxis_key": "label",
 				"xaxis_format": "text",
 				"yaxis_format": "number.seconds",
@@ -466,7 +479,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:avg\r\nby:[worker~25,responseTime]\r\nquery:(isOutgoing:y worker.id:!0 isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:avg\r\nby:[worker~25,responseTime]\r\nquery:(isOutgoing:y worker.id:!0 isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -480,6 +494,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:avg\r\nby:[created@month,ticket.group~20,responseTime]\r\nquery:(isOutgoing:y worker.id:!0 isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -503,6 +518,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:avg\r\nby:[created@month,worker~20,responseTime]\r\nquery:(isOutgoing:y worker.id:!0 isBroadcast:n created:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -534,7 +550,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[activity,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[activity,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -548,6 +565,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[created@month,activity,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -600,7 +618,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[links.org,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[links.org,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -614,6 +633,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nof:timetracking\r\nfunction:sum\r\nby:[created@month,links.org~10,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -666,7 +686,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[worker,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table"
+				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[worker,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -680,6 +701,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[created@month,worker,timeSpent]\r\nquery:(created:\"first day of this month -1 year\")\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -733,6 +755,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:usage.behaviors\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -755,7 +778,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:usage.behaviors\r\nformat:table"
+				"data_query": "type:usage.behaviors\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
@@ -779,6 +803,7 @@
 			"zone": "content",
 			"params": {
 				"data_query": "type:usage.snippets\r\nby:day\r\nformat:timeseries",
+				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",
 				"xaxis_format": "%Y-%m",
@@ -801,7 +826,8 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:usage.snippets\r\nformat:table"
+				"data_query": "type:usage.snippets\r\nformat:table",
+				"cache_secs": "300"
 			}
 		},
 		{
