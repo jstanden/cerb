@@ -117,6 +117,41 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			} else {
 				$bin = DevblocksPlatform::strLower($bin);
 				switch($bin) {
+					case 'week':
+					case 'week-mon':
+					case 'week-monday':
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'label' => $search_field->db_label,
+							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), WEEKDAY(FROM_UNIXTIME(%s.%s))), %s)", // Monday
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::qstr('%Y-%m-%d')
+							),
+						];
+						break;
+						
+					case 'week-sun':
+					case 'week-sunday':
+						return [
+							'key_query' => $key,
+							'key_select' => $search_key,
+							'label' => $search_field->db_label,
+							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), DAYOFWEEK(FROM_UNIXTIME(%s.%s))-1), %s)", // Sunday
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::escape($search_field->db_table),
+								Cerb_ORMHelper::escape($search_field->db_column),
+								Cerb_ORMHelper::qstr('%Y-%m-%d')
+							),
+						];
+						break;
+						
 					case 'day':
 					case 'month':
 					case 'year':
