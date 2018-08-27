@@ -2154,8 +2154,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				if(empty($participant_ids_string))
 					$participant_ids_string = '-1';
 				
-				return sprintf("(t.first_wrote_address_id IN (%s) OR t.id IN (SELECT DISTINCT r.ticket_id FROM requester r WHERE r.address_id IN (%s)))",
-					$participant_ids_string,
+				return sprintf("t.id IN (SELECT r.ticket_id FROM requester r WHERE r.address_id IN (%s))",
 					$participant_ids_string
 				);
 				break;
