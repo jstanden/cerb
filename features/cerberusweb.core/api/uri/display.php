@@ -1180,27 +1180,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	
 	// Display actions
 	
-	function doTakeAction() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer',0);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(empty($ticket_id))
-			return;
-
-		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
-			return;
-		
-		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
-			return;
-		
-		if(empty($ticket->owner_id)) {
-			DAO_Ticket::update($ticket_id, array(
-				DAO_Ticket::OWNER_ID => $active_worker->id,
-			));
-		}
-	}
-	
 	function doMoveAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer');
@@ -1222,6 +1201,60 @@ class ChDisplayPage extends CerberusPageExtension {
 		$fields = [
 			DAO_Ticket::GROUP_ID => $bucket->group_id,
 			DAO_Ticket::BUCKET_ID => $bucket->id,
+		];
+		
+		DAO_Ticket::update($ticket_id, $fields);
+	}
+	
+	function doStatusAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'string','');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($ticket_id))
+			return;
+
+		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			return;
+		
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
+			return;
+		
+		$status_id = null;
+		
+		// Sanitize
+		switch(DevblocksPlatform::strLower($status)) {
+			case 'o':
+			case 'open':
+			case '0':
+				$status_id = Model_Ticket::STATUS_OPEN;
+				break;
+				
+			case 'w':
+			case 'waiting':
+			case '1':
+				$status_id = Model_Ticket::STATUS_WAITING;
+				break;
+				
+			case 'c':
+			case 'closed':
+			case '2':
+				$status_id = Model_Ticket::STATUS_CLOSED;
+				break;
+				
+			case 'd':
+			case 'deleted':
+			case '3':
+				$status_id = Model_Ticket::STATUS_DELETED;
+				break;
+		}
+		
+		if(is_null($status_id))
+			return;
+		
+		$fields = [
+			DAO_Ticket::STATUS_ID => $status_id,
 		];
 		
 		DAO_Ticket::update($ticket_id, $fields);
@@ -1280,6 +1313,33 @@ class ChDisplayPage extends CerberusPageExtension {
 			);
 			
 			DAO_Ticket::update($ticket_id, $fields);
+		}
+	}
+	
+	function doReportSpamAction() {
+		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
+		@$is_spam = DevblocksPlatform::importGPC($_REQUEST['is_spam'],'integer', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(empty($ticket_id))
+			return;
+
+		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			return;
+		
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
+			return;
+		
+		if($is_spam) {
+			CerberusBayes::markTicketAsSpam($ticket->id);
+			
+			DAO_Ticket::update($ticket->id, [
+				DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,
+			]);
+			
+		} else {
+			CerberusBayes::markTicketAsNotSpam($ticket->id);
 		}
 	}
 	
