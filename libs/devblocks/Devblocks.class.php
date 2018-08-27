@@ -1532,7 +1532,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$config->set('Attr.EnableID', true);
 			//$config->set('HTML.TidyLevel', 'light');
 			
-			if(!$untrusted) {
+			if($untrusted) {
 				$config->set('HTML.TargetBlank', true);
 				//$config->set('HTML.TargetNoreferrer', true);
 				//$config->set('HTML.TargetNoopener', true);
