@@ -664,6 +664,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				
 			case 'mail':
 				$prefs = [];
+				$prefs['mail_always_read_all'] = DAO_WorkerPref::get($worker->id,'mail_always_read_all',0);
 				$prefs['mail_disable_html_display'] = DAO_WorkerPref::get($worker->id,'mail_disable_html_display',0);
 				$prefs['mail_reply_html'] = DAO_WorkerPref::get($worker->id,'mail_reply_html',0);
 				$prefs['mail_reply_textbox_size_auto'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_auto',0);
@@ -876,6 +877,9 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				case 'mail':
 					@$mail_disable_html_display = DevblocksPlatform::importGPC($_REQUEST['mail_disable_html_display'],'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_disable_html_display', $mail_disable_html_display);
+					
+					@$mail_always_read_all = DevblocksPlatform::importGPC($_REQUEST['mail_always_read_all'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'mail_always_read_all', $mail_always_read_all);
 					
 					@$mail_reply_html = DevblocksPlatform::importGPC($_REQUEST['mail_reply_html'],'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_reply_html', $mail_reply_html);
@@ -2054,6 +2058,11 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 
 		@$active_worker = CerberusApplication::getActiveWorker();
+		
+		$prefs_mail_always_read_all = DAO_WorkerPref::get($active_worker->id, 'mail_always_read_all', 0);
+		
+		if($expand_all || $prefs_mail_always_read_all)
+			$expand_all = 1;
 		
 		$tpl->assign('expand_all', $expand_all);
 		
