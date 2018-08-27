@@ -1545,9 +1545,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($to_context_extension = Extension_DevblocksContext::get($to_context))
 			|| null == ($from_context_extension = Extension_DevblocksContext::get($context)))
 				return;
-		
-		$view_id = 'links_' . DevblocksPlatform::strAlphaNum($to_context_extension->id, '_', '_');
 			
+		$view_id = 'links_' . DevblocksPlatform::strAlphaNum($to_context_extension->id, '_', '_');
+		
 		if(false != ($view = $to_context_extension->getView($context, $context_id, null, $view_id))) {
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('from_context_extension', $from_context_extension);
