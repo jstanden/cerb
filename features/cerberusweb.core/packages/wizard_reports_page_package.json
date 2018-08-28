@@ -802,7 +802,7 @@
 			"width_units": 4,
 			"zone": "content",
 			"params": {
-				"data_query": "type:usage.snippets\r\nby:day\r\nformat:timeseries",
+				"data_query": "type:usage.snippets\r\nformat:timeseries",
 				"cache_secs": "300",
 				"chart_as": "bar_stacked",
 				"xaxis_key": "ts",

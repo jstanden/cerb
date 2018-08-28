@@ -7,14 +7,11 @@
 <input type="hidden" name="action" value="runQuery">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-{*
-<p>
-	View the <a href="https://cerb.ai/resources/packages/" target="_blank" rel="noopener">library of pre-built workflow packages</a>.
-</p>
-*}
-
 <fieldset>
-	<legend>Run this data query:</legend>
+	<legend>
+		Run this data query:
+		{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
+	</legend>
 	
 	<textarea name="data_query" data-editor-mode="ace/mode/text" rows="5" cols="45"></textarea>
 	<br>

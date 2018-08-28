@@ -465,6 +465,9 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			'_' => [
 				'type' => 'worklist.scatterplot',
 				'format' => 'categories',
+				'format_params' => [
+					'xaxis_key' => 'label',
+				]
 			]
 		];
 	}
@@ -902,6 +905,9 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			'type' => 'worklist.subtotals',
 			'stacked' => $nested,
 			'format' => 'categories',
+			'format_params' => [
+				'xaxis_key' => 'label',
+			]
 		]];
 	}
 	
@@ -1123,6 +1129,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		return ['data' => $output, '_' => [
 			'type' => 'worklist.subtotals',
 			'format' => 'timeseries',
+			'format_params' => [
+				'xaxis_key' => 'ts',
+				'xaxis_format' => @$chart_model['by'][0]['timestamp_format'],
+			],
 		]];
 	}
 }
@@ -1344,6 +1354,9 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			$x_domain += array_keys($series['data']);
 		}
 		
+		// Make sure timestamps are strings (for c3.js)
+		$x_domain = array_map(function($v) { return strval($v); }, $x_domain);
+		
 		sort($x_domain);
 		
 		// Table
@@ -1381,6 +1394,8 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		
 		// Domain
 		
+		$xaxis_format = @$chart_model['series'][0]['x']['timestamp_format'] ?: '';
+		
 		$x_domain = [];
 		
 		if(isset($chart_model['series']))
@@ -1390,6 +1405,9 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				
 			$x_domain += array_keys($series['data']);
 		}
+		
+		// Make sure timestamps are strings (for c3.js)
+		$x_domain = array_map(function($v) { return strval($v); }, $x_domain);
 		
 		sort($x_domain);
 		
@@ -1413,6 +1431,10 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			'_' => [
 				'type' => 'worklist.series',
 				'format' => 'timeseries',
+				'format_params' => [
+					'xaxis_key' => 'ts',
+					'xaxis_format' => $xaxis_format, // [TODO] Multi-series?
+				],
 			]
 		];
 	}
@@ -1697,7 +1719,11 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 			],
 			'_' => [
 				'type' => 'usage.behaviors',
-				'format' => 'timeseries'
+				'format' => 'timeseries',
+				'format_params' => [
+					'xaxis_key' => 'ts',
+					'xaxis_format' => '%Y-%m',
+				]
 			]
 		];
 		
@@ -1882,7 +1908,11 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 			],
 			'_' => [
 				'type' => 'usage.snippets',
-				'format' => 'timeseries'
+				'format' => 'timeseries',
+				'format_params' => [
+					'xaxis_key' => 'ts',
+					'xaxis_format' => '%Y-%m',
+				]
 			]
 		];
 		

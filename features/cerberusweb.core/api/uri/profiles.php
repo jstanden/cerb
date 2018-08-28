@@ -2234,7 +2234,6 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 	
 	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
-		@$xaxis_key = DevblocksPlatform::importGPC($model->extension_params['xaxis_key'], 'string', 'label');
 		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', 'label');
 		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', 'label');
 		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
@@ -2267,6 +2266,8 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 			echo "(no data)";
 			return;
 		}
+		
+		@$xaxis_key = $results['_']['format_params']['xaxis_key'] ?: '';
 		
 		if(!array_key_exists('data', $results))
 			return;
@@ -2580,10 +2581,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		@$subchart = DevblocksPlatform::importGPC($model->extension_params['subchart'], 'int', 0);
 		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', 'line');
 		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
-		@$xaxis_key = DevblocksPlatform::importGPC($model->extension_params['xaxis_key'], 'string', 'ts');
-		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', '%Y-%m-%d');
 		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', '');
-		@$xaxis_tick_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_tick_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -2618,6 +2616,10 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 			echo DevblocksPlatform::strEscapeHtml("The data should be in 'timeseries' format.");
 			return;
 		}
+		
+		// Error
+		$xaxis_key = @$results['_']['format_params']['xaxis_key'];
+		$xaxis_format = @$results['_']['format_params']['xaxis_format'];
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $model->id),
@@ -2656,8 +2658,8 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		
 		$config_json['data']['xFormat']  = $xaxis_format;
 		
-		if($xaxis_tick_format)
-			$config_json['axis']['x']['tick']['format']  = $xaxis_tick_format;
+		if($xaxis_format)
+			$config_json['axis']['x']['tick']['format']  = $xaxis_format;
 		
 		$config_json['subchart']['show']  = @$options['subchart'] ? true : false;
 		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;

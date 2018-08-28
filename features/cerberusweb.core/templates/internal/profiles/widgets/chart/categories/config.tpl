@@ -11,14 +11,6 @@
 	<fieldset class="peek">
 		<legend>Chart options:</legend>
 		
-		<div>
-			The <b>x-axis labels</b> are in the key:
-		</div>
-		
-		<div style="margin:0 0 5px 10px;">
-			<textarea name="params[xaxis_key]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->extension_params.xaxis_key|default:'label'}</textarea>
-		</div>
-		
 		{$formats = ['text'=>'Text','number'=>'Number','number.minutes'=>'Time elapsed (minutes)','number.seconds'=>'Time elapsed (seconds)']}
 		
 		<div>

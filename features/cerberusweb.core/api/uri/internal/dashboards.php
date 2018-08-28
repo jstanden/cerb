@@ -1567,7 +1567,6 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$xaxis_key = DevblocksPlatform::importGPC($widget->params['xaxis_key'], 'string', 'label');
 		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
@@ -1581,6 +1580,8 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 			echo "(no data)";
 			return;
 		}
+		
+		@$xaxis_key = $results['_']['format_params']['xaxis_key'] ?: '';
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
@@ -2232,10 +2233,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		@$subchart = DevblocksPlatform::importGPC($widget->params['subchart'], 'int', 0);
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', 'line');
 		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
-		@$xaxis_key = DevblocksPlatform::importGPC($widget->params['xaxis_key'], 'string', 'ts');
-		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '%Y-%m-%d');
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
-		@$xaxis_tick_format = DevblocksPlatform::importGPC($widget->params['xaxis_tick_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		if(false === ($results = $this->getData($widget, $error))) {
@@ -2252,6 +2250,10 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 			echo DevblocksPlatform::strEscapeHtml("The data should be in 'timeseries' format.");
 			return;
 		}
+		
+		// Error
+		$xaxis_key = @$results['_']['format_params']['xaxis_key'];
+		$xaxis_format = @$results['_']['format_params']['xaxis_format'];
 		
 		$config_json = [
 			'bindto' => sprintf("#widget%d", $widget->id),
@@ -2290,8 +2292,8 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		
 		$config_json['data']['xFormat']  = $xaxis_format;
 		
-		if($xaxis_tick_format)
-			$config_json['axis']['x']['tick']['format']  = $xaxis_tick_format;
+		if($xaxis_format)
+			$config_json['axis']['x']['tick']['format']  = $xaxis_format;
 		
 		$config_json['subchart']['show']  = @$options['subchart'] ? true : false;
 		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;

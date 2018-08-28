@@ -120,34 +120,38 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					case 'week':
 					case 'week-mon':
 					case 'week-monday':
+						$ts_format = '%Y-%m-%d'; 
 						return [
 							'key_query' => $key,
 							'key_select' => $search_key,
 							'label' => $search_field->db_label,
 							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_format' => $ts_format,
 							'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), WEEKDAY(FROM_UNIXTIME(%s.%s))), %s)", // Monday
 								Cerb_ORMHelper::escape($search_field->db_table),
 								Cerb_ORMHelper::escape($search_field->db_column),
 								Cerb_ORMHelper::escape($search_field->db_table),
 								Cerb_ORMHelper::escape($search_field->db_column),
-								Cerb_ORMHelper::qstr('%Y-%m-%d')
+								Cerb_ORMHelper::qstr($ts_format)
 							),
 						];
 						break;
 						
 					case 'week-sun':
 					case 'week-sunday':
+						$ts_format = '%Y-%m-%d'; 
 						return [
 							'key_query' => $key,
 							'key_select' => $search_key,
 							'label' => $search_field->db_label,
 							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_format' => $ts_format,
 							'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), DAYOFWEEK(FROM_UNIXTIME(%s.%s))-1), %s)", // Sunday
 								Cerb_ORMHelper::escape($search_field->db_table),
 								Cerb_ORMHelper::escape($search_field->db_column),
 								Cerb_ORMHelper::escape($search_field->db_table),
 								Cerb_ORMHelper::escape($search_field->db_column),
-								Cerb_ORMHelper::qstr('%Y-%m-%d')
+								Cerb_ORMHelper::qstr($ts_format)
 							),
 						];
 						break;
@@ -161,15 +165,18 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							'year' => '%Y',
 						];
 						
+						$ts_format = $date_format[$bin];
+						
 						return [
 							'key_query' => $key,
 							'key_select' => $search_key,
 							'label' => $search_field->db_label,
 							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_format' => $ts_format,
 							'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), %s)",
 								Cerb_ORMHelper::escape($search_field->db_table),
 								Cerb_ORMHelper::escape($search_field->db_column),
-								Cerb_ORMHelper::qstr($date_format[$bin])
+								Cerb_ORMHelper::qstr($ts_format)
 							),
 						];
 						break;
