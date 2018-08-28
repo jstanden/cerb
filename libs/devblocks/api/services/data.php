@@ -203,7 +203,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				break;
 				
 			default:
-				$error = sprintf("`format:%s` is not a valid for `type:%s`",
+				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be: table",
 					$format,
 					$chart_model['type']
 				);
@@ -445,7 +445,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				break;
 				
 			default:
-				$error = sprintf("`format:%s` is not a valid for `type:%s`",
+				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: categories, pie, scatterplot, table",
 					$format,
 					$chart_model['type']
 				);
@@ -871,7 +871,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				break;
 				
 			default:
-				$error = sprintf("'format:%s' is not valid for `type:%s`",
+				$error = sprintf("'format:%s' is not valid for `type:%s`. Must be one of: categories, pie, table, timeseries, tree",
 					$format,
 					$chart_model['type']
 				);
@@ -1362,7 +1362,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				break;
 				
 			default:
-				$error = sprintf("`format:%s` is not a valid for `type:%s`",
+				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: table, tree",
 					$format,
 					$chart_model['type']
 				);
