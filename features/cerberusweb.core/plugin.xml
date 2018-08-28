@@ -4934,6 +4934,19 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.developers.data_queries</id>
+				<name>Data Queries</name>
+				<class>
+					<file>api/uri/config/data_queries.php</file>
+					<name>PageSection_SetupDevelopersDataQueries</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="data_queries" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.import_package</id>
 				<name>Import Package Section</name>
 				<class>

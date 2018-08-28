@@ -802,6 +802,16 @@
 				<seg>Description</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.developer">
+			<tuv xml:lang="en_US">
+				<seg>developer</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.developers">
+			<tuv xml:lang="en_US">
+				<seg>developers</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.disabled">
 			<tuv xml:lang="en_US">
 				<seg>Disabled</seg>

@@ -108,6 +108,20 @@
 		</li>
 		<li>
 			<div>
+				<a href="javascript:;" class="menu">{'common.developers'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
+				<ul class="cerb-popupmenu cerb-float">
+					<li><a href="{devblocks_url}c=config&a=data_queries{/devblocks_url}">Data Query Tester</a></li>
+					
+					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.developers')}
+					{if !empty($exts)}<li><hr></li>{/if}
+					{foreach from=$exts item=menu_item}
+						{if method_exists($menu_item,'render')}<li>{$menu_item->render()}</li>{/if}
+					{/foreach}
+				</ul>
+			</div>
+		</li>
+		<li>
+			<div>
 				<a href="javascript:;" class="menu">{'common.plugins'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=plugins&tab=installed{/devblocks_url}">Installed Plugins</a></li>
