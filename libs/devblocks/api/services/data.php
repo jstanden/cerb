@@ -1,10 +1,10 @@
 <?php
 abstract class _DevblocksDataProvider {
-	abstract function getData($query, $chart_fields, array $options=[]);
+	abstract function getData($query, $chart_fields, &$error=null, array $options=[]);
 }
 
 class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
-	function getData($query, $chart_fields, array $options=[]) {
+	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
@@ -267,7 +267,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 }
 
 class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
-	function getData($query, $chart_fields, array $options=[]) {
+	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
@@ -586,7 +586,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 }
 
 class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
-	function getData($query, $chart_fields, array $options=[]) {
+	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
@@ -626,8 +626,17 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 		}
 		
-		if(!$subtotals_context)
-			return [];
+		// Sanitize
+		
+		if(!isset($chart_model['by'])) {
+			$error = "The `by:` field is required.";
+			return false;
+		}
+		
+		if(!$subtotals_context) {
+			$error = "The `of:` field is not a valid context type.";
+			return false;
+		}
 		
 		// Convert 'by:' keys to fields
 		
@@ -663,8 +672,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 		}
 		
-		if(!isset($chart_model['by']) || !$chart_model['by'])
-			return [];
+		if(!isset($chart_model['by']) || !$chart_model['by']) {
+			$error = "The `by:` field is not a valid context type.";
+			return false;
+		}
 		
 		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
 		
@@ -1138,7 +1149,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 }
 
 class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
-	function getData($query, $chart_fields, array $options=[]) {
+	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
@@ -1441,7 +1452,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 }
 
 class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
-	function getData($query, $chart_fields, array $options=[]) {
+	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		@$behavior_alias = $options['behavior_alias'];
@@ -1518,7 +1529,7 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 }
 
 class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
-	function getData($query, $chart_fields, array $options=[]) {
+	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$format = 'table';
 		
 		foreach($chart_fields as $field) {
@@ -1755,7 +1766,7 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 }
 
 class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
-	function getData($query, $chart_fields, array $options=[]) {
+	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$format = 'table';
 		
 		foreach($chart_fields as $field) {
@@ -1988,39 +1999,60 @@ class _DevblocksDataService {
 		switch($chart_type) {
 			case 'usage.behaviors':
 				$provider = new _DevblocksDataProviderUsageBotBehaviors();
-				$results = $provider->getData($query, $chart_fields);
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
 				break;
 				
 			case 'usage.snippets':
 				$provider = new _DevblocksDataProviderUsageSnippets();
-				$results = $provider->getData($query, $chart_fields);
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
 				break;
 				
 			case 'worklist.metrics':
 				$provider = new _DevblocksDataProviderWorklistMetrics();
-				$results = $provider->getData($query, $chart_fields);
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
 				break;
 				
 			case 'worklist.series':
 				$provider = new _DevblocksDataProviderWorklistSeries();
-				$results = $provider->getData($query, $chart_fields);
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
 				break;
 				
 			case 'worklist.subtotals':
 				$provider = new _DevblocksDataProviderWorklistSubtotals();
-				$results = $provider->getData($query, $chart_fields);
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
 				break;
 				
 			case 'worklist.xy':
 				$provider = new _DevblocksDataProviderWorklistXy();
-				$results = $provider->getData($query, $chart_fields);
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
 				break;
 				
 			default:
 				if(DevblocksPlatform::strStartsWith($chart_type, 'behavior.')) {
 					$behavior_alias = substr($chart_type, 9);
 					$provider = new _DevblocksDataProviderBotBehavior();
-					$results = $provider->getData($query, $chart_fields, ['behavior_alias' => $behavior_alias]);
+					
+					if(false === ($results = $provider->getData($query, $chart_fields, $error, ['behavior_alias' => $behavior_alias])))
+						return false;
+					
 					break;
 				}
 				
