@@ -195,11 +195,19 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			$chart_model['values'][$series_idx]['value'] = $value;
 		}
 		
-		switch($chart_model['format']) {
-			default:
+		@$format = $chart_model['format'] ?: 'table';
+		
+		switch($format) {
 			case 'table':
 				return $this->_formatDataAsTable($chart_model);
 				break;
+				
+			default:
+				$error = sprintf("`format:%s` is not a valid for `type:%s`",
+					$format,
+					$chart_model['type']
+				);
+				return false;
 		}
 	}
 	
@@ -417,7 +425,9 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		
 		// Respond
 		
-		switch($chart_model['format']) {
+		@$format = $chart_model['format'] ?: 'scatterplot';
+		
+		switch($format) {
 			case 'categories':
 				return $this->_formatDataAsCategories($chart_model);
 				break;
@@ -430,10 +440,16 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				return $this->_formatDataAsTable($chart_model);
 				break;
 				
-			default:
 			case 'scatterplot':
 				return $this->_formatDataAsScatterplot($chart_model);
 				break;
+				
+			default:
+				$error = sprintf("`format:%s` is not a valid for `type:%s`",
+					$format,
+					$chart_model['type']
+				);
+				return false;
 		}
 	}
 	
@@ -831,7 +847,9 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		$sort_children($response['children']);
 		
-		switch(@$chart_model['format']) {
+		@$format = $chart_model['format'] ?: 'tree';
+		
+		switch($format) {
 			case 'categories':
 				return $this->_formatDataAsCategories($response, $chart_model);
 				break;
@@ -849,8 +867,15 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				break;
 				
 			case 'tree':
-			default:
 				return $this->_formatDataAsTree($response, $chart_model);
+				break;
+				
+			default:
+				$error = sprintf("'format:%s' is not valid for `type:%s`",
+					$format,
+					$chart_model['type']
+				);
+				return false;
 				break;
 		}
 	}
@@ -1325,15 +1350,23 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			$chart_model['series'][$series_idx]['data'] = $results;
 		}
 		
-		switch(@$chart_model['format']) {
+		@$format = $chart_model['format'] ?: 'timeseries';
+		
+		switch($format) {
 			case 'table':
 				return $this->_formatDataAsTable($chart_model);
 				break;
 				
-			default:
 			case 'timeseries':
 				return $this->_formatDataAsTimeSeries($chart_model);
 				break;
+				
+			default:
+				$error = sprintf("`format:%s` is not a valid for `type:%s`",
+					$format,
+					$chart_model['type']
+				);
+				return false;
 		}
 	}
 	

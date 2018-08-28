@@ -1950,7 +1950,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 		];
 		
 		foreach($results['data'] as $result) {
-			if(DevblocksPlatform::strEndsWith($result[0], '_x'))
+			if(@DevblocksPlatform::strEndsWith($result[0], '_x'))
 				$config_json['data']['xs'][mb_substr($result[0],0,-2)] = $result[0];
 		}
 		
