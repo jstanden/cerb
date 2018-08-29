@@ -724,6 +724,40 @@ if(in_array($checksum, ['35967c4eda4357c74aa13add87711fe7f868d69a','77d1fe2740a8
 }
 
 // ===========================================================================
+// Fix privs on the 'Actions' widget
+
+if(false != ($row = $db->GetRowMaster("SELECT id, extension_params_json FROM profile_widget WHERE name = 'Actions' ".
+	"AND extension_params_json LIKE '%core.ticket%' ".
+	"AND profile_tab_id IN (SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.ticket' AND name = 'Overview') "
+	))) {
+	
+	$json = $row['extension_params_json'];
+	
+	$new_json = str_replace(
+		[
+			'core.ticket.actions.close',
+			'core.ticket.actions.spam',
+			'core.ticket.actions.merge',
+			'cerberusweb.contexts.ticket.delete',
+		],
+		[
+			'contexts.cerberusweb.contexts.ticket.update',
+			'contexts.cerberusweb.contexts.ticket.update',
+			'contexts.cerberusweb.contexts.ticket.merge',
+			'contexts.cerberusweb.contexts.ticket.delete',
+		],
+		$json
+	);
+	
+	if($new_json != $json) {
+		$db->ExecuteMaster(sprintf("UPDATE profile_widget SET extension_params_json = %s WHERE id= %d",
+			$db->qstr($new_json),
+			$row['id']
+		));
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
