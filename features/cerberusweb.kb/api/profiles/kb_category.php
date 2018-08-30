@@ -64,6 +64,11 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 					// Verify the parent_id doesn't create an infinite closed branch
 					if($id && $id == $parent_id)
 						throw new Exception_DevblocksAjaxValidationError("A category can't be its own parent.");
+					
+					$ancestors = DAO_KbCategory::getAncestors($parent_id);
+					
+					if(array_key_exists($id, $ancestors))
+						throw new Exception_DevblocksAjaxValidationError("The selected parent is a subcategory of this category.");
 				}
 				
 				if(empty($id)) { // New

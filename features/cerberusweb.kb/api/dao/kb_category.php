@@ -149,11 +149,19 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 			if(!isset($categories[$count_cat]))
 				continue;
 			
+			$visited = [];
 			$pid = $count_cat;
 			while($pid) {
 				@$parent_id = $categories[$pid]->parent_id;
+				
+				// Break infinite loops
+				if(array_key_exists($parent_id, $visited))
+					break;
+				
 				$tree[$parent_id][$pid] += $count_hits;
 				$pid = $parent_id;
+				
+				$visited[$pid] = true;
 			}
 		}
 		
