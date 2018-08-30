@@ -14,11 +14,12 @@ $(function() {
 	
 	$popup.one('popup_open',function(event,ui) {
 		$popup.dialog('option','title', 'Links from {$from_context_extension->manifest->name} to {$to_context_extension->manifest->name}');
-
+		$popup.css('overflow', 'inherit');
+		
 		var on_refresh = function() {
 			var $worklist = $popup.find('TABLE.worklist');
 			var $worklist_actions = $popup.find('#{$view->id}_actions');
-
+			
 			$worklist.css('background','none');
 			$worklist.css('background-color','rgb(100,100,100)');
 			
