@@ -1411,7 +1411,7 @@ $(function() {
 <textarea style="width:98%;height:200px;">
 {$peek_context = '<?php echo $ctx_ext_id; ?>'}
 {$form_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="<?php echo $table_name; ?>">

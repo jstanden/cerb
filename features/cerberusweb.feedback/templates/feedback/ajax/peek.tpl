@@ -1,5 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_FEEDBACK}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmFeedbackEntry">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmFeedbackEntry" onsubmit="return false;">
 <input type="hidden" name="c" value="feedback">
 <input type="hidden" name="a" value="saveEntry">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}

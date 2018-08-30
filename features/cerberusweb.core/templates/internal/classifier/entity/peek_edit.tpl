@@ -1,6 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_CLASSIFIER_ENTITY}
 {$form_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" class="cerb-form">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" class="cerb-form" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="classifier_entity">

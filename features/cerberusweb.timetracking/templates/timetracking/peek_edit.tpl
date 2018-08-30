@@ -3,7 +3,7 @@
 {if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
 
 {* [TODO] Move action to profile *}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="time_tracking">

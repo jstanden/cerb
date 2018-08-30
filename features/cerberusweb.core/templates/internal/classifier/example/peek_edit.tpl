@@ -4,7 +4,7 @@
 <script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-highlighter.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 
 {$frm_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="classifier_example">

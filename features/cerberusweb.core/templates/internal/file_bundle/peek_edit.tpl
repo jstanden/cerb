@@ -1,6 +1,6 @@
 {$frm_id = "form{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_FILE_BUNDLE}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="file_bundle">

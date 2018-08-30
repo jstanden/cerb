@@ -1,4 +1,4 @@
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSkillsChooser">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSkillsChooser" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="skills">

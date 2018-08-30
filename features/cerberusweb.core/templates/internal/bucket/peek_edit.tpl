@@ -1,7 +1,7 @@
 {$peek_context = CerberusContexts::CONTEXT_BUCKET}
 {$form_id = "frmBucketPeek{uniqid()}"}
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="bucket">

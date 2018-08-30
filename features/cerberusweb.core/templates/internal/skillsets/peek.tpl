@@ -1,5 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_SKILLSET}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSkillsetPeek">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSkillsetPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="skillset">

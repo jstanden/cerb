@@ -1,6 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_WORKSPACE_PAGE}
 {$form_id = uniqid()}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="pages">
 <input type="hidden" name="a" value="saveWorkspacePagePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
