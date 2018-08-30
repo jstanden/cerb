@@ -175,6 +175,10 @@ $(function() {
 		if($anchor.length > 0) {
 			var offset = $anchor.offset();
 			window.scrollTo(offset.left, offset.top);
+			
+			// If it's not expanded yet, expand it
+			$anchor.find('button[id^="btnMsgMax"]').click();
+			
 			$anchor.find('> div.block').effect('highlight', { }, 1000);
 		}
 	}
