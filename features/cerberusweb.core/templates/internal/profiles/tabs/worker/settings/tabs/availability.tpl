@@ -36,6 +36,10 @@ $(function() {
 		.cerbChooserTrigger()
 		;
 	
+	$frm.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+		;
+	
 	$frm.find('button.submit').on('click', function(e) {
 		genericAjaxPost($frm, '', null, function(json) {
 			if(json && typeof json == 'object') {
