@@ -55,6 +55,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$parser_message->headers['bcc'] = 'secret@example.com';
 		$parser_message->headers['subject'] = 'This is the subject';
 		$parser_message->body = "This is the message body\r\nOn more than one line.\r\n";
+		$parser_message->htmlbody = "This is the message body\r\n<i>with</i> <b>some</b> <span style='color:red;'>formatting</span>.\r\n";
 		$parser_message->build();
 		
 		if(empty($parser_model) || !($parser_model instanceof CerberusParserModel)) {
@@ -104,6 +105,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$labels['body'] = $prefix.'body';
 		$values['body'] = '';
 		
+		$labels['body_html'] = $prefix.'body (HTML)';
+		$values['body_html'] = '';
+		
 		$labels['subject'] = $prefix.'subject';
 		$values['subject'] = '';
 		
@@ -113,6 +117,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		if(!empty($parser_model)) {
 			$values['_parser_model'] = $parser_model;
 			$values['body'] =& $parser_model->getMessage()->body;
+			$values['body_html'] =& $parser_model->getMessage()->htmlbody;
 			$values['encoding'] =& $parser_model->getMessage()->encoding;
 			$values['headers'] =& $parser_model->getHeaders();
 			$values['subject'] =& $parser_model->getSubject();
@@ -219,6 +224,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		
 		$types['subject'] = Model_CustomField::TYPE_SINGLE_LINE;
 		$types['body'] = Model_CustomField::TYPE_MULTI_LINE;
+		$types['body_html'] = Model_CustomField::TYPE_MULTI_LINE;
 		$types['encoding'] = Model_CustomField::TYPE_SINGLE_LINE;
 		
 		$types['attachment_mimetype'] = null; // Leave this null
