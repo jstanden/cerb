@@ -1170,13 +1170,29 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			if(empty($context_id)) {
 				$model = new Model_ProfileTab();
 				
-				// Check view for defaults by filter
-				if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
-					$filters = $view->findParam(SearchFields_ProfileTab::CONTEXT, $view->getParams());
+				if(!empty($edit)) {
+					$tokens = explode(' ', trim($edit));
 					
-					if(false != ($filter = array_shift($filters))) {
-						$filter_context = is_array($filter->value) ? array_shift($filter->value) : $filter->value;
-						$model->context = $filter_context;
+					foreach($tokens as $token) {
+						@list($k,$v) = explode(':', $token);
+						
+						if($v)
+						switch($k) {
+							case 'context':
+								$model->context = $v;
+								break;
+						}
+					}
+					
+				} else {
+					// Check view for defaults by filter
+					if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
+						$filters = $view->findParam(SearchFields_ProfileTab::CONTEXT, $view->getParams());
+						
+						if(false != ($filter = array_shift($filters))) {
+							$filter_context = is_array($filter->value) ? array_shift($filter->value) : $filter->value;
+							$model->context = $filter_context;
+						}
 					}
 				}
 			}

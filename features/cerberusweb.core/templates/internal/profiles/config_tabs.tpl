@@ -7,7 +7,7 @@
 	<b>Display these tabs on this record type:</b>
 	
 	<div style="margin:5px 0 10px 0;">
-		<button type="button" class="chooser-profile-tabs" data-field-name="profile_tabs[]" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-query="" data-query-required="record:&quot;{$context}&quot;"><span class="glyphicons glyphicons-search"></span></button>
+		<button type="button" class="chooser-profile-tabs" data-field-name="profile_tabs[]" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-query="" data-query-required="record:&quot;{$context}&quot;" data-create="true" data-create-defaults="context:{$context}"><span class="glyphicons glyphicons-search"></span></button>
 		
 		<ul class="bubbles chooser-container">
 			{foreach from=$profile_tabs_enabled item=profile_tab_id}
