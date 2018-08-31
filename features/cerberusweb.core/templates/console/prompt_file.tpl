@@ -23,6 +23,9 @@
 			$chooser.one('chooser_save', function(event) {
 				event.stopPropagation();
 				
+				if(!event.values || 0 == event.values.length)
+					return;
+				
 				for(var idx in event.values) {
 					$chat_input.val(event.values[idx]);
 					
