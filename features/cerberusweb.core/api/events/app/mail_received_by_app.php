@@ -556,27 +556,38 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$replace = $tpl_builder->build($params['replace'], $dict);
-				$with = $tpl_builder->build($params['with'], $dict);
 				
-				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
-					@$value = preg_replace($replace, $with, $dict->body);
-				} else {
-					$value = str_replace($replace, $with, $dict->body);
+				@$replace = $tpl_builder->build($params['replace'], $dict);
+				@$replace_mode = $params['replace_mode'];
+				@$with = $tpl_builder->build($params['with'], $dict);
+				
+				$out = '';
+				
+				$before_text = $dict->body;
+				$before_html = $dict->body_html;
+				
+				$this->runActionExtension($token, $trigger, $params, $dict);
+				
+				if(!$replace_mode || $replace_mode == 'text') {
+					$out .= sprintf(">>> Replacing plaintext content\n".
+						"Before:\n%s\n\n".
+						"After:\n%s\n".
+						"\r\n",
+						trim($before_text,"\r\n"),
+						$dict->body
+					);
 				}
-				
-				$before = $dict->body;
-				
-				if(!empty($value)) {
-					$dict->body = trim($value,"\r\n");
+					
+				if(!$replace_mode || $replace_mode == 'html') {
+					$out .= sprintf(">>> Replacing HTML content\n".
+						"Before:\n%s\n\n".
+						"After:\n%s\n".
+						"\r\n",
+						trim($before_html,"\r\n"),
+						$dict->body_html
+					);
+					
 				}
-				
-				$out = sprintf(">>> Replacing content\n".
-					"Before:\n%s\n\n".
-					"After:\n%s\n",
-					trim($before,"\r\n"),
-					$dict->body
-				);
 				
 				return $out;
 				break;
@@ -782,17 +793,33 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
 				$replace = $tpl_builder->build($params['replace'], $dict);
+				$replace_mode = $tpl_builder->build($params['replace_mode'], $dict);
 				$with = $tpl_builder->build($params['with'], $dict);
 				
-				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
-					@$value = preg_replace($replace, $with, $dict->body);
-				} else {
-					$value = str_replace($replace, $with, $dict->body);
+				if(!$replace_mode || $replace_mode == 'text') {
+					if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
+						@$value = preg_replace($replace, $with, $dict->body);
+					} else {
+						$value = str_replace($replace, $with, $dict->body);
+					}
+					
+					if($value) {
+						$dict->body = trim($value,"\r\n");
+					}
 				}
 				
-				if(!empty($value)) {
-					$dict->body = trim($value,"\r\n");
+				if(!$replace_mode || $replace_mode == 'html') {
+					if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
+						@$value = preg_replace($replace, $with, $dict->body_html);
+					} else {
+						$value = str_replace($replace, $with, $dict->body_html);
+					}
+					
+					if($value) {
+						$dict->body_html = trim($value,"\r\n");
+					}
 				}
 				break;
 				
