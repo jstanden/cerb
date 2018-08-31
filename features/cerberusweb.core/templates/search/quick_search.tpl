@@ -60,7 +60,7 @@ $(function() {
 	var $menu_trigger = $frm.find('a.cerb-quick-search-menu-trigger').click(function() {
 		$menu
 			.toggle()
-			.position({ my: "right top", at: "right bottom", of: $menu_trigger, collision: "fit" })
+			.position({ my: "right top", at: "left bottom", of: $menu_trigger, collision: "fit" })
 			;
 	});
 	
