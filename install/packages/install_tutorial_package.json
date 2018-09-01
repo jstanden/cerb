@@ -1860,7 +1860,7 @@
 			}
 		},
 		{
-			"uid": "card_task_001",
+			"uid": "card_task_welcome",
 			"_context": "task",
 			"title": "Welcome to Cerb!",
 			"importance": "50",
@@ -1868,7 +1868,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<p>This project board provides a quick checklist for getting Cerb up and running.</p>\n\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\n\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\n\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.project.board\" data-context-id=\"{{{uid.project_board_checklist}}}\">edit the project board</button>, <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.bot\" data-context-id=\"{{{uid.bot_tutorial}}}\">bot</button>, and <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.custom_fieldset\" data-context-id=\"{{{uid.fieldset_getting_started}}}\">custom fieldset</button> to see how it works (or even make changes).</p>\n\n<p>Drag this card to <b>Completed!</b> <span class=\"glyphicons glyphicons-right-arrow\" style=\"margin-left:5px;\"></span></p>"
 		},
 		{
-			"uid": "card_task_002",
+			"uid": "card_task_branding",
 			"_context": "task",
 			"title": "Configure branding",
 			"importance": "50",
@@ -1876,7 +1876,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Branding</b>.</li>\n<li>Upload your logo.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_003",
+			"uid": "card_task_sender_addys",
 			"_context": "task",
 			"title": "Configure sender addresses",
 			"importance": "50",
@@ -1884,7 +1884,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\">List sender addresses</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new email addresses.</li>\n<li>Add a <button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\">mail transport</button> to an address to enable it as a outgoing sender.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_004",
+			"uid": "card_task_email_signatures",
 			"_context": "task",
 			"title": "Configure email signatures",
 			"importance": "50",
@@ -1892,7 +1892,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.email.signature\" data-query=\"\">List email signatures</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new signatures.</li>\n<li>Modify signatures to meet your needs.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_005",
+			"uid": "card_task_mailboxes",
 			"_context": "task",
 			"title": "Configure mailboxes",
 			"importance": "50",
@@ -1900,7 +1900,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mailbox\" data-query=\"\">List mailboxes</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new mailboxes.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_006",
+			"uid": "card_task_groups",
 			"_context": "task",
 			"title": "Review groups",
 			"importance": "50",
@@ -1908,7 +1908,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.group\" data-query=\"\">List groups</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new groups.</li>\n<li>Review the mail settings for each group.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_007",
+			"uid": "card_task_team_members",
 			"_context": "task",
 			"title": "Invite other team members",
 			"importance": "50",
@@ -1916,7 +1916,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.worker\" data-query=\"\">List workers</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to create new workers.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_008",
+			"uid": "card_task_roles",
 			"_context": "task",
 			"title": "Configure roles",
 			"importance": "50",
@@ -1924,7 +1924,15 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.role\" data-query=\"\">List roles</button></li>\n<li>Determine the permissions for each role.</li>\n<li>Assign the roles to workers and groups.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_009",
+			"uid": "card_task_workspace_home",
+			"_context": "task",
+			"title": "Create a home workspace",
+			"importance": "50",
+			"status": "open",
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"glyphicons glyphicons-chevron-down\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon in the top navigation bar.</li>\n<li>Click <b>Help me create a page!</b> at the top.</li>\n<li>Click <b>Home</b>.</li>\n<li>Click <b>Save Changes</b>.</li>\n</ol>"
+		},
+		{
+			"uid": "card_task_workspace_mail",
 			"_context": "task",
 			"title": "Create a mail workspace",
 			"importance": "50",
@@ -1932,7 +1940,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"glyphicons glyphicons-chevron-down\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon in the top navigation bar.</li>\n<li>Click <b>Help me create a page!</b> at the top.</li>\n<li>Click <b>Mail</b>.</li>\n<li>Click <b>Save Changes</b>.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_010",
+			"uid": "card_task_license",
 			"_context": "task",
 			"title": "Add your license",
 			"importance": "50",
@@ -1940,7 +1948,7 @@
 			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"https://cerb.ai/pricing/#bot/license.free\" target=\"_blank\" rel=\"noopener\"><b>Request a free 3-seat license</b></a> if you haven't already.</li>\n<li>Install your license in <b>Setup &raquo; Configure &raquo; License</b>.</li>\n</ol>"
 		},
 		{
-			"uid": "card_task_011",
+			"uid": "card_task_scheduler",
 			"_context": "task",
 			"title": "Enable the scheduler",
 			"importance": "50",
@@ -1978,16 +1986,17 @@
 			"params": {
 			},
 			"cards": [
-				"task:{{{uid.card_task_002}}}",
-				"task:{{{uid.card_task_003}}}",
-				"task:{{{uid.card_task_004}}}",
-				"task:{{{uid.card_task_005}}}",
-				"task:{{{uid.card_task_006}}}",
-				"task:{{{uid.card_task_007}}}",
-				"task:{{{uid.card_task_008}}}",
-				"task:{{{uid.card_task_009}}}",
-				"task:{{{uid.card_task_010}}}",
-				"task:{{{uid.card_task_011}}}"
+				"task:{{{uid.card_task_branding}}}",
+				"task:{{{uid.card_task_sender_addys}}}",
+				"task:{{{uid.card_task_email_signatures}}}",
+				"task:{{{uid.card_task_mailboxes}}}",
+				"task:{{{uid.card_task_groups}}}",
+				"task:{{{uid.card_task_team_members}}}",
+				"task:{{{uid.card_task_roles}}}",
+				"task:{{{uid.card_task_workspace_home}}}",
+				"task:{{{uid.card_task_workspace_mail}}}",
+				"task:{{{uid.card_task_license}}}",
+				"task:{{{uid.card_task_scheduler}}}"
 			]
 		},
 		{
@@ -1998,7 +2007,7 @@
 			"params": {
 			},
 			"cards": [
-				"task:{{{uid.card_task_001}}}"
+				"task:{{{uid.card_task_welcome}}}"
 			]
 		},
 		{
@@ -2412,11 +2421,43 @@
 			}
 		},
 		{
+			"uid": "workspace_list_eval_transports",
+			"_context": "workspace_list",
+			"context": "mail_transport",
+			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
+			"pos": 3,
+			"view": {
+				"title": "Mail Transports",
+				"model": {
+					"options": {
+						"header_color": "#6a87db"
+					},
+					"columns": [
+						"m_name",
+						"m_extension_id",
+						"m_created_at",
+						"m_updated_at"
+					],
+					"params": [
+
+					],
+					"params_required": [
+
+					],
+					"limit": 5,
+					"sort_by": "m_updated_at",
+					"sort_asc": false,
+					"subtotals": "",
+					"context": "cerberusweb.contexts.mail.transport"
+				}
+			}
+		},
+		{
 			"uid": "workspace_list_eval_senders",
 			"_context": "workspace_list",
 			"context": "address",
 			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
-			"pos": 3,
+			"pos": 4,
 			"view": {
 				"title": "Sender Addresses",
 				"model": {
@@ -2442,38 +2483,6 @@
 					"sort_asc": true,
 					"subtotals": "",
 					"context": "cerberusweb.contexts.address"
-				}
-			}
-		},
-		{
-			"uid": "workspace_list_eval_transports",
-			"_context": "workspace_list",
-			"context": "mail_transport",
-			"tab_id": "{{{uid.workspace_tab_eval_mail_setup}}}",
-			"pos": 4,
-			"view": {
-				"title": "Mail Transports",
-				"model": {
-					"options": {
-						"header_color": "#6a87db"
-					},
-					"columns": [
-						"m_name",
-						"m_extension_id",
-						"m_created_at",
-						"m_updated_at"
-					],
-					"params": [
-
-					],
-					"params_required": [
-
-					],
-					"limit": 5,
-					"sort_by": "m_updated_at",
-					"sort_asc": false,
-					"subtotals": "",
-					"context": "cerberusweb.contexts.mail.transport"
 				}
 			}
 		},
