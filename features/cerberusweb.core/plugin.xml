@@ -687,6 +687,10 @@
 			<class name="AbstractEvent_Worker" />
 		</file>
 		
+		<file path="api/events/ajax/abstract_event_ajax_request.php">
+			<class name="AbstractEvent_AjaxHttpRequest" />
+		</file>
+		
 		<file path="api/events/api/api_request.php">
 			<class name="Event_ApiRequest" />
 		</file>
@@ -3241,6 +3245,24 @@
 		<!-- Event Triggers -->
 		
 		<extension point="devblocks.event">
+			<id>event.ajax.request</id>
+			<name>[UI] Respond to Ajax HTTP request</name>
+			<class>
+				<file>api/events/ajax/ajax_request.php</file>
+				<name>Event_AjaxHttpRequest</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+					</value>
+				</param>
+				<param key="options"/>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
 			<id>event.behavior.recurrent</id>
 			<name>Recurrent behavior</name>
 			<class>
@@ -4388,6 +4410,18 @@
 		<!-- Controllers -->
 		
 		<extension point="devblocks.controller">
+			<id>core.controller.ui</id>
+			<name>UI Controller</name>
+			<class>
+				<file>api/uri/ui.php</file>
+				<name>Controller_UI</name>
+			</class>
+			<params>
+				<param key="uri" value="ui" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.controller">
 			<id>core.controller.internal</id>
 			<name>Internal Controller</name>
 			<class>
@@ -4758,7 +4792,7 @@
 		</extension>
 	
 		<!-- Pages -->
-
+		
 		<extension point="cerberusweb.page">
 			<id>core.page.welcome</id>
 			<name>Welcome Page</name>
@@ -4943,6 +4977,19 @@
 				<params>
 					<param key="page_id" value="core.page.configuration" />
 					<param key="uri" value="data_query_tester" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.developers.data_query_builder</id>
+				<name>Data Query Builder</name>
+				<class>
+					<file>api/uri/config/data_query_builder.php</file>
+					<name>PageSection_SetupDevelopersDataQueryBuilder</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="data_query_builder" />
 				</params>
 			</extension>
 			
