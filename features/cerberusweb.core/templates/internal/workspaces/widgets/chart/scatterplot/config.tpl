@@ -19,6 +19,14 @@
 		{$formats = ['number'=>'Number','number.minutes'=>'Time elapsed (minutes)','number.seconds'=>'Time elapsed (seconds)']}
 		
 		<div>
+			<b>Label x-axis</b>: (optional)
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<input type="text" name="params[xaxis_label]" value="{$widget->params.xaxis_label}" style="width:100%;">
+		</div>
+		
+		<div>
 			<b>Format x-axis</b> values as: (optional)
 		</div>
 		
@@ -28,6 +36,14 @@
 				<option value="{$k}" {if $k == $widget->params.xaxis_format}selected="selected"{/if}>{$label}</option>
 				{/foreach}
 			</select>
+		</div>
+		
+		<div>
+			<b>Label y-axis</b>: (optional)
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<input type="text" name="params[yaxis_label]" value="{$widget->params.yaxis_label}" style="width:100%;">
 		</div>
 		
 		<div>

@@ -2441,7 +2441,9 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 	
 	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
+		@$xaxis_label = DevblocksPlatform::importGPC($model->extension_params['xaxis_label'], 'string', '');
 		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', '');
+		@$yaxis_label = DevblocksPlatform::importGPC($model->extension_params['yaxis_label'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
@@ -2502,6 +2504,12 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 			if(@DevblocksPlatform::strEndsWith($result[0], '_x'))
 				$config_json['data']['xs'][mb_substr($result[0],0,-2)] = $result[0];
 		}
+		
+		if($xaxis_label)
+			$config_json['axis']['x']['label'] = $xaxis_label;
+		
+		if($yaxis_label)
+			$config_json['axis']['y']['label'] = $yaxis_label;
 		
 		if($height)
 			$config_json['size'] = ['height' => $height];
@@ -2582,6 +2590,8 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		@$subchart = DevblocksPlatform::importGPC($model->extension_params['subchart'], 'int', 0);
 		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', 'line');
 		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
+		@$xaxis_label = DevblocksPlatform::importGPC($model->extension_params['xaxis_label'], 'string', '');
+		@$yaxis_label = DevblocksPlatform::importGPC($model->extension_params['yaxis_label'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($model->extension_params['height'], 'integer', 0);
 		
@@ -2696,6 +2706,12 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
 		}
+		
+		if($xaxis_label)
+			$config_json['axis']['x']['label'] = $xaxis_label;
+		
+		if($yaxis_label)
+			$config_json['axis']['y']['label'] = $yaxis_label;
 		
 		if($height)
 			$config_json['size'] = ['height' => $height];

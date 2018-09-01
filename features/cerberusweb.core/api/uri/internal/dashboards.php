@@ -1911,7 +1911,9 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 	
 	function render(Model_WorkspaceWidget $widget) {
 		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
+		@$xaxis_label = DevblocksPlatform::importGPC($widget->params['xaxis_label'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
+		@$yaxis_label = DevblocksPlatform::importGPC($widget->params['yaxis_label'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -1957,6 +1959,12 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 		
 		if($height)
 			$config_json['size'] = ['height' => $height];
+		
+		if($xaxis_label)
+			$config_json['axis']['x']['label'] = $xaxis_label;
+		
+		if($yaxis_label)
+			$config_json['axis']['y']['label'] = $yaxis_label;
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('xaxis_format', $xaxis_format);
@@ -2234,6 +2242,8 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		@$subchart = DevblocksPlatform::importGPC($widget->params['subchart'], 'int', 0);
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', 'line');
 		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
+		@$xaxis_label = DevblocksPlatform::importGPC($widget->params['xaxis_label'], 'string', '');
+		@$yaxis_label = DevblocksPlatform::importGPC($widget->params['yaxis_label'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
@@ -2330,6 +2340,12 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
 		}
+		
+		if($xaxis_label)
+			$config_json['axis']['x']['label'] = $xaxis_label;
+		
+		if($yaxis_label)
+			$config_json['axis']['y']['label'] = $yaxis_label;
 		
 		if($height)
 			$config_json['size'] = ['height' => $height];

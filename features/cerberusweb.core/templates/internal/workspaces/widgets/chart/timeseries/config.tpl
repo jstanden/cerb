@@ -30,6 +30,22 @@
 			</select>
 		</div>
 		
+		<div>
+			<b>Label x-axis</b>: (optional)
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<input type="text" name="params[xaxis_label]" value="{$widget->params.xaxis_label}" style="width:100%;">
+		</div>
+		
+		<div>
+			<b>Label y-axis</b>: (optional)
+		</div>
+		
+		<div style="margin:0 0 5px 10px;">
+			<input type="text" name="params[yaxis_label]" value="{$widget->params.yaxis_label}" style="width:100%;">
+		</div>
+		
 		{$formats = ['number'=>'Number','number.minutes'=>'Time elapsed (minutes)','number.seconds'=>'Time elapsed (seconds)']}
 		
 		<div>
