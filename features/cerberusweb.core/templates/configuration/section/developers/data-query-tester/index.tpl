@@ -1,9 +1,9 @@
 <h2>Data Query Tester</h2>
 
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupDataQueries" onsubmit="return false;">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupDataQueryTester" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="data_queries">
+<input type="hidden" name="section" value="data_query_tester">
 <input type="hidden" name="action" value="runQuery">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -24,7 +24,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $frm = $('#frmSetupDataQueries');
+	var $frm = $('#frmSetupDataQueryTester');
 	var $status = $frm.find('div.status');
 	var $button = $frm.find('BUTTON.submit');
 	var $spinner = $('<span class="cerb-ajax-spinner"/>');
@@ -39,7 +39,7 @@ $(function() {
 			$spinner.detach();
 			$status.html('').append($spinner);
 			
-			genericAjaxPost('frmSetupDataQueries','',null,function(json) {
+			genericAjaxPost('frmSetupDataQueryTester','',null,function(json) {
 				$button.fadeIn();
 				
 				if(null == json || false == json.status) {

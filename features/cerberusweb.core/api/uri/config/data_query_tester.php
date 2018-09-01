@@ -15,7 +15,7 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-class PageSection_SetupDevelopersDataQueries extends Extension_PageSection {
+class PageSection_SetupDevelopersDataQueryTester extends Extension_PageSection {
 	function render() {
 		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::services()->template();
@@ -26,9 +26,9 @@ class PageSection_SetupDevelopersDataQueries extends Extension_PageSection {
 		@array_shift($stack); // config
 		@array_shift($stack); // data_queries
 		
-		$visit->set(ChConfigurationPage::ID, 'data_queries');
+		$visit->set(ChConfigurationPage::ID, 'data_query_tester');
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/data-queries/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/data-query-tester/index.tpl');
 	}
 	
 	function runQueryAction() {
@@ -47,7 +47,7 @@ class PageSection_SetupDevelopersDataQueries extends Extension_PageSection {
 			
 		} else {
 			$tpl->assign('results_json', DevblocksPlatform::strFormatJson(json_encode($results)));
-			$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/developers/data-queries/results.tpl');
+			$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/developers/data-query-tester/results.tpl');
 			
 			echo json_encode([
 				'status' => true,
