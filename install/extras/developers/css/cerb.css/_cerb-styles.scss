@@ -945,6 +945,8 @@ DIV.bubble {
 	color:rgb(0,0,0);
 	background-color:rgb(220,220,220);
 	border:1px solid rgb(200,200,200);
+	white-space:normal;
+	word-break:break-all;
 
 	@include border-radius(5px);
 	@include linear-gradient($white, rgb(220,220,220));
@@ -986,6 +988,8 @@ UL.bubbles {
 		margin:0;
 		color:rgb(0,0,0);
 		border:1px solid rgb(200,200,200);
+		white-space:normal;
+		word-break:break-all;
 
 		@include border-radius(5px);
 

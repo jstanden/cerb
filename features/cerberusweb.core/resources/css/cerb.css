@@ -976,6 +976,8 @@ DIV.bubble {
   color: black;
   background-color: gainsboro;
   border: 1px solid #c8c8c8;
+  white-space: normal;
+  word-break: break-all;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
@@ -1025,6 +1027,8 @@ UL.bubbles LI {
   margin: 0;
   color: black;
   border: 1px solid #c8c8c8;
+  white-space: normal;
+  word-break: break-all;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
