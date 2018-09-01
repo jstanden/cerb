@@ -1066,7 +1066,7 @@ var ajax = new cAjaxCalls();
 		return this.each(function() {
 			var $trigger = $(this);
 			
-			if(!($trigger.is('input[type=text]')))
+			if(!($trigger.is('input[type=text]')) && !($trigger.is('textarea')))
 				return;
 			
 			$trigger
