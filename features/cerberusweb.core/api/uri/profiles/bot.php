@@ -231,6 +231,43 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
+	function showExportBotPopupAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(false == ($bot = DAO_Bot::get($id)))
+			return;
+		
+		if(!Context_Bot::isWriteableByActor($bot, $active_worker))
+			return;
+		
+		$bot_json = $bot->exportToJson();
+		
+		$package_json = [
+			'package' => [
+				'name' => $bot->name,
+				'revision' => 1,
+				'requires' => [
+					'cerb_version' => APP_VERSION,
+					'plugins' => [],
+				],
+				'configure' => [
+					'placeholders' => [],
+					'prompts' => [],
+				]
+			],
+			'bots' => [
+				json_decode($bot_json, true)
+			]
+		];
+		
+		$tpl->assign('package_json', DevblocksPlatform::strFormatJson(json_encode($package_json)));
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/bot/export.tpl');
+	}
+	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
