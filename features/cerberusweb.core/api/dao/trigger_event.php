@@ -2054,6 +2054,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	function getDefaultProperties() {
 		return array(
 			'bot__label',
+			'id',
 			'priority',
 			'updated_at',
 			'is_disabled',

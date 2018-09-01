@@ -2026,6 +2026,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 	function getDefaultProperties() {
 		return array(
 			'custom_fieldset__label',
+			'id',
 			'context',
 			'type',
 			'pos',
