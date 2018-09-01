@@ -417,12 +417,18 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 				case 'prompt.buttons':
 					@$options = $params['options'];
+					@$color_from = $params['color_from'];
+					@$color_to = $params['color_to'];
+					@$color_mid = $params['color_mid'];
 					@$style = $params['style'];
 					
 					if(!is_array($options))
 						break;
 					
 					$tpl->assign('options', $options);
+					$tpl->assign('color_from', $color_from);
+					$tpl->assign('color_to', $color_to);
+					$tpl->assign('color_mid', $color_mid);
 					$tpl->assign('style', $style);
 					$tpl->assign('delay_ms', 0);
 					$tpl->display('devblocks:cerberusweb.core::console/prompt_buttons.tpl');

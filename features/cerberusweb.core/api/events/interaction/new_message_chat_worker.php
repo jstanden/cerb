@@ -547,6 +547,22 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				@$var_format = $params['var_format'];
 				@$var_validate = $params['var_validate'];
 				
+				@$color_from = $params['color_from'];
+				@$color_to = $params['color_to'];
+				@$color_mid = $params['color_mid'];
+				
+				if($color_from == '#FFFFFF') {
+					$color_from = '';
+					$color_mid = '';
+					$color_to = '';
+				}
+				
+				if($color_mid == '#FFFFFF')
+					$color_mid = '';
+				
+				if($color_to == '#FFFFFF')
+					$color_to = '';
+				
 				$actions[] = array(
 					'_action' => 'prompt.buttons',
 					'_trigger_id' => $trigger->id,
@@ -558,6 +574,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					],
 					'options' => DevblocksPlatform::parseCrlfString($options),
 					'style' => $style,
+					'color_from' => $color_from,
+					'color_to' => $color_to,
+					'color_mid' => $color_mid,
 				);
 
 				$dict->__exit = 'suspend';
