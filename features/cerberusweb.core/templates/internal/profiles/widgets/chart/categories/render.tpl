@@ -21,7 +21,7 @@ $(function() {
 			var config_json = {$config_json nofilter};
 			
 			{if $is_date_formatted}
-				shortEnglishHumanizer = humanizeDuration.humanizer({
+				var shortEnglishHumanizer = humanizeDuration.humanizer({
 					language: 'shortEn',
 					spacer: '',
 					languages: {
