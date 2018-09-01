@@ -1609,7 +1609,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 				],
 				'y' => [
 					'tick' => [
-						'rotate' => 60,
+						'rotate' => -90,
 						'format' => null
 					]
 				]
@@ -1938,6 +1938,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 					'tick' => [
 						'format' => null,
 						'fit' => false,
+						'rotate' => -90,
 					]
 				],
 				'y' => [
@@ -2267,12 +2268,13 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 				'x' => [
 					'type' => 'timeseries',
 					'tick' => [
-						'fit' => true,
+						'rotate' => -90,
+						'fit' => false,
 					]
 				],
 				'y' => [
 					'tick' => [
-						'fit' => true,
+						'fit' => false,
 					]
 				]
 			],
@@ -2309,16 +2311,22 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 				break;
 				
 			case 'area':
-				$config_json['data']['type']  = 'area';
+				$config_json['data']['type']  = 'area-step';
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
 				
 			case 'bar':
-				$config_json['data']['type']  = 'bar';
+				$config_json['data']['type'] = 'bar';
+				$config_json['bar']['width'] = [
+					'ratio' => 0.6,
+				];
 				break;
 				
 			case 'bar_stacked':
 				$config_json['data']['type']  = 'bar';
+				$config_json['bar']['width'] = [
+					'ratio' => 0.6,
+				];
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
 		}

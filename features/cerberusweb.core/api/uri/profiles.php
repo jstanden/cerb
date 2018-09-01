@@ -2054,9 +2054,9 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 	
 	private function _showConversationAction($id, $display_options=[]) {
 		@$expand_all = DevblocksPlatform::importVar($display_options['expand_all'], 'bit', 0);
-
+		
 		$tpl = DevblocksPlatform::services()->template();
-
+		
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
 		$prefs_mail_always_read_all = DAO_WorkerPref::get($active_worker->id, 'mail_always_read_all', 0);
@@ -2169,7 +2169,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 			}
 		}
 		
-		// sort the timeline
+		// Sort the timeline
 		if(!$expand_all) {
 			krsort($convo_timeline);
 		} else {
@@ -2301,7 +2301,7 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 						'format' => null,
 						'multiline' => true,
 						'multilineMax' => 2,
-						'rotate' => 60,
+						'rotate' => -90,
 					]
 				]
 			],
@@ -2486,6 +2486,7 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 					'tick' => [
 						'format' => null,
 						'fit' => false,
+						'rotate' => -90,
 					]
 				],
 				'y' => [
@@ -2633,12 +2634,13 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 				'x' => [
 					'type' => 'timeseries',
 					'tick' => [
-						'fit' => true,
+						'rotate' => -90,
+						'fit' => false,
 					]
 				],
 				'y' => [
 					'tick' => [
-						'fit' => true,
+						'fit' => false,
 					]
 				]
 			],
@@ -2649,10 +2651,10 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 				]
 			],
 			'legend' => [
-				'show' => true
+				'show' => true,
 			],
 			'point' => [
-				'show' => true
+				'show' => true,
 			]
 		];
 		
@@ -2675,16 +2677,22 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 				break;
 				
 			case 'area':
-				$config_json['data']['type']  = 'area';
+				$config_json['data']['type']  = 'area-step';
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
 				
 			case 'bar':
-				$config_json['data']['type']  = 'bar';
+				$config_json['data']['type'] = 'bar';
+				$config_json['bar']['width'] = [
+					'ratio' => 0.6,
+				];
 				break;
 				
 			case 'bar_stacked':
 				$config_json['data']['type']  = 'bar';
+				$config_json['bar']['width'] = [
+					'ratio' => 0.6,
+				];
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
 		}
