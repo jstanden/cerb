@@ -5809,17 +5809,6 @@
 		<!-- Profile Tabs -->
 
 		<extension point="cerb.profile.tab">
-			<id>cerb.profile.tab.bot</id>
-			<name>Custom</name>
-			<class>
-				<file>api/uri/profiles.php</file>
-				<name>ProfileTab_BotBehavior</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-
-		<extension point="cerb.profile.tab">
 			<id>cerb.profile.tab.dashboard</id>
 			<name>Dashboard</name>
 			<class>
