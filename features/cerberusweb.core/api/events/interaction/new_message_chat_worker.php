@@ -31,7 +31,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger) {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$actions = array();
+		$actions = [];
 
 		return new Model_DevblocksEvent(
 			self::ID,
@@ -56,15 +56,15 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 	}
 
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 
 		/**
 		 * Behavior
 		 */
 
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -91,8 +91,8 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -239,7 +239,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		return $conditions;
 	}
 
-	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $as_token, $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
@@ -293,7 +293,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		return $actions;
 	}
 
-	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 

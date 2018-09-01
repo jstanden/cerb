@@ -28,7 +28,7 @@ class _DevblocksTwigSecurityPolicy extends Twig_Sandbox_SecurityPolicy {
 
 class _DevblocksTemplateBuilder {
 	private $_twig = null;
-	private $_errors = array();
+	private $_errors = [];
 	
 	private function __construct() {
 		$this->_twig = new Twig_Environment(new Twig_Loader_String(), array(
@@ -202,7 +202,7 @@ class _DevblocksTemplateBuilder {
 	}
 	
 	private function _setUp() {
-		$this->_errors = array();
+		$this->_errors = [];
 	}
 	
 	private function _tearDown() {
@@ -217,7 +217,7 @@ class _DevblocksTemplateBuilder {
 	}
 	
 	function tokenize($templates) {
-		$tokens = array();
+		$tokens = [];
 		
 		if(!is_array($templates))
 			$templates = array($templates);
@@ -499,7 +499,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		if(empty($with_prefix))
 			return $dict;
 
-		$new_dict = array();
+		$new_dict = [];
 		
 		foreach($dict as $k => $v) {
 			$len = strlen($with_prefix);
@@ -625,7 +625,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 			if($first_dict->exists($loaded_key))
 				continue;
 			
-			$id_counts = array();
+			$id_counts = [];
 			
 			foreach($dicts as $dict) {
 				$id_key = $context_prefix . '_id';
@@ -674,7 +674,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 };
 
 class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {
-	protected $_tokens = array();
+	protected $_tokens = [];
 	
 	public function enterNode(Twig_NodeInterface $node, Twig_Environment $env) {
 		if($node instanceof Twig_Node_Expression_Name) {
@@ -868,7 +868,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function function_jsonpath_set($var, $path, $val) {
 		if(empty($var))
-			$var = array();
+			$var = [];
 		
 		$parts = explode('.', $path);
 		$ptr =& $var;
@@ -883,7 +883,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			}
 		
 			if(!isset($ptr[$part]))
-				$ptr[$part] = array();
+				$ptr[$part] = [];
 			
 			if($is_array_set) {
 				$ptr =& $ptr[$part][];
@@ -932,7 +932,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			}
 		}
 		
-		return array();
+		return [];
 	}
 	
 	function function_xml_encode($xml) {
@@ -1151,7 +1151,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		if(!is_string($string))
 			return '';
 		
-		$matches = array();
+		$matches = [];
 		@preg_match($pattern, $string, $matches);
 		
 		$string = '';
