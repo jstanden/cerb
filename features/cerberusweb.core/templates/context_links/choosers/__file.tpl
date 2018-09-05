@@ -42,7 +42,7 @@ $(function() {
 		
 		if(xhr.upload) {
 			xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileAjaxUpload', true);
-			xhr.setRequestHeader('X-File-Name', f.name);
+			xhr.setRequestHeader('X-File-Name', encodeURIComponent(f.name));
 			xhr.setRequestHeader('X-File-Type', f.type);
 			xhr.setRequestHeader('X-File-Size', f.size);
 			xhr.setRequestHeader('X-CSRF-Token', '{$session.csrf_token}');

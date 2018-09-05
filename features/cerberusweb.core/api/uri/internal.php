@@ -1739,7 +1739,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	function chooserOpenFileAjaxUploadAction() {
-		@$file_name = $_SERVER['HTTP_X_FILE_NAME'];
+		@$file_name = rawurldecode($_SERVER['HTTP_X_FILE_NAME']);
 		@$file_type = $_SERVER['HTTP_X_FILE_TYPE'];
 		@$file_size = $_SERVER['HTTP_X_FILE_SIZE'];
 		
