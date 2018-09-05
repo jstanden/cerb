@@ -820,7 +820,6 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 
 class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
-		$tpl = DevblocksPlatform::services()->template();
 		
 		@$behavior_id = $widget->params['behavior_id'];
 		@$behavior_vars = DevblocksPlatform::importVar(@$widget->params['behavior_vars'], 'array', []);
@@ -870,7 +869,7 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 		
 		// Run tree
 		
-		$result = $widget_behavior->runDecisionTree($dict, false, $event);
+		$widget_behavior->runDecisionTree($dict, false, $event);
 		
 		$value = null;
 		
@@ -2239,7 +2238,6 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$subchart = DevblocksPlatform::importGPC($widget->params['subchart'], 'int', 0);
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', 'line');
 		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
 		@$xaxis_label = DevblocksPlatform::importGPC($widget->params['xaxis_label'], 'string', '');

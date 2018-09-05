@@ -19,7 +19,7 @@ data using
 	<label>Then filter using quick search:</label>
 	
 	<div>
-		<input type="text" name="{$namePrefix}[quick_search]" value="{$params.quick_search}" class="quicksearch placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+		<input type="text" name="{$namePrefix}[quick_search]" value="{$params.quick_search}" class="quicksearch placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">
 	</div>
 </div>
 

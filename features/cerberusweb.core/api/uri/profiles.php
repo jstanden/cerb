@@ -2587,7 +2587,6 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 	
 	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
-		@$subchart = DevblocksPlatform::importGPC($model->extension_params['subchart'], 'int', 0);
 		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', 'line');
 		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
 		@$xaxis_label = DevblocksPlatform::importGPC($model->extension_params['xaxis_label'], 'string', '');
@@ -2613,6 +2612,8 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		
 		if(!$query)
 			return;
+		
+		$error = null;
 		
 		if(false === ($results = $data->executeQuery($query, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);

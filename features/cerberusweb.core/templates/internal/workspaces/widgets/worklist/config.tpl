@@ -28,7 +28,7 @@
 		<b>Records per page:</b>
 		
 		<div style="margin-left:10px;">
-			<input type="text" name="params[render_limit]" value="{$widget->params.render_limit|default:5}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+			<input type="text" name="params[render_limit]" value="{$widget->params.render_limit|default:5}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">
 		</div>
 		
 		<b>{'common.color'|devblocks_translate|capitalize}:</b>

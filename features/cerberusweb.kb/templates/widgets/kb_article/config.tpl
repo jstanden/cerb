@@ -6,7 +6,7 @@
 			<b><a href="javascript:;" class="cerb-chooser" data-context="{CerberusContexts::CONTEXT_KB_ARTICLE}" data-single="true">ID</a>:</b>
 			
 			<div style="margin-left:10px;">
-				<input type="text" name="params[context_id]" value="{$widget->extension_params.context_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+				<input type="text" name="params[context_id]" value="{$widget->extension_params.context_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">
 			</div>
 		</div>
 		
@@ -14,7 +14,7 @@
 			<b>Max. Height: <small>(pixels)</small></b>
 			
 			<div style="margin-left:10px;">
-				<input type="text" name="params[height]" value="{$widget->extension_params.height}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+				<input type="text" name="params[height]" value="{$widget->extension_params.height}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">
 			</div>
 		</div>
 	</fieldset>

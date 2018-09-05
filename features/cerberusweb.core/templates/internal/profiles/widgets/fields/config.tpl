@@ -16,7 +16,7 @@
 		<b><a href="javascript:;" class="cerb-chooser" data-context="{$widget->extension_params.context}" data-single="true">ID</a>:</b>
 		
 		<div style="margin-left:10px;">
-			<input type="text" name="params[context_id]" value="{$widget->extension_params.context_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+			<input type="text" name="params[context_id]" value="{$widget->extension_params.context_id}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">
 		</div>
 	</fieldset>
 	

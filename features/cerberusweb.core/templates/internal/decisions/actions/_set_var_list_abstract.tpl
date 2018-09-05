@@ -17,7 +17,7 @@
 <b>And filter using this quick search:</b>
 <div style="margin:0px 0px 5px 10px;">
 	<input type="hidden" name="{$namePrefix}[search_mode]" value="quick_search">
-	<textarea name="{$namePrefix}[quick_search]" class="quicksearch placeholders" style="width:95%;border-radius:5px;" autocomplete="off" spellcheck="off">{$params.quick_search}</textarea>
+	<textarea name="{$namePrefix}[quick_search]" class="quicksearch placeholders" style="width:95%;border-radius:5px;" autocomplete="off" spellcheck="false">{$params.quick_search}</textarea>
 </div>
 
 <b>Limit to:</b>

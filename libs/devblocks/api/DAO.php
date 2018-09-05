@@ -337,8 +337,6 @@ abstract class DevblocksORMHelper {
 	}
 	
 	static public function buildSort($sortBy, $sortAsc, $fields, $search_class=null) {
-		$sort_sql = null;
-		
 		if(!is_array($sortBy))
 			$sortBy = [$sortBy];
 		
@@ -423,7 +421,7 @@ abstract class DevblocksORMHelper {
 		
 		// Sorting
 		if(is_array($sortBy)) {
-			$sortPairs = array();
+			$sortPairs = [];
 			foreach($sortBy as $k => $v) {
 				$sortPairs[] = sprintf("%s %s",
 					$v,
@@ -460,7 +458,7 @@ abstract class DevblocksORMHelper {
 		if(!is_array($fields) || empty($fields))
 			return;
 		
-		foreach($fields as $k => &$v) {
+		foreach($fields as &$v) {
 			if(is_null($v))
 				$v = 'NULL';
 			else
@@ -481,12 +479,12 @@ abstract class DevblocksORMHelper {
 	 * @param integer $id
 	 * @param array $fields
 	 */
-	static protected function _update($ids=array(), $table, $fields, $idcol='id', $option_bits = 0) {
+	static protected function _update($ids=[], $table, $fields, $idcol='id', $option_bits = 0) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
 		$db = DevblocksPlatform::services()->database();
-		$sets = array();
+		$sets = [];
 		
 		if(!is_array($fields) || empty($fields) || empty($ids))
 			return;
@@ -516,7 +514,7 @@ abstract class DevblocksORMHelper {
 	
 	static protected function _updateWhere($table, $fields, $where) {
 		$db = DevblocksPlatform::services()->database();
-		$sets = array();
+		$sets = [];
 		
 		if(!is_array($fields) || empty($fields) || empty($where))
 			return;
@@ -746,9 +744,7 @@ abstract class DevblocksORMHelper {
 		return true;
 	}
 	
-	static protected function _parseSearchParams($params, $columns=array(), $search_class, $sortBy='') {
-		$db = DevblocksPlatform::services()->database();
-		
+	static protected function _parseSearchParams($params, $columns=[], $search_class, $sortBy='') {
 		if(!class_exists($search_class) || !class_implements($search_class, 'DevblocksSearchFields'))
 			return false;
 		
@@ -822,8 +818,8 @@ abstract class DevblocksORMHelper {
 		$pkey = $search_class::getPrimaryKey();
 		$fields = $search_class::getFields();
 		
-		$outer_wheres = array();
-		$group_wheres = array();
+		$outer_wheres = [];
+		$group_wheres = [];
 		@$group_oper = DevblocksPlatform::strUpper(array_shift($param));
 		$sql = '';
 		$where = '';
@@ -918,7 +914,7 @@ class DAO_Platform extends DevblocksORMHelper {
 	static function updatePlugin($id, $fields) {
 		$db = DevblocksPlatform::services()->database();
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-		$sets = array();
+		$sets = [];
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
 			return;
@@ -1090,7 +1086,7 @@ class DAO_DevblocksSetting extends DevblocksORMHelper {
 		if(false == ($db = DevblocksPlatform::services()->database()))
 			return;
 		
-		$settings = array();
+		$settings = [];
 		
 		if(!isset($tables['devblocks_setting']))
 			return $settings;
@@ -1163,7 +1159,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		if(null == ($params = $cache->load(self::_CACHE_ALL))) {
 			$db = DevblocksPlatform::services()->database();
 			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-			$params = array();
+			$params = [];
 			
 			// Add manifest params as our initial params
 
@@ -1198,7 +1194,7 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		if(null === ($params = $cache->load($cache_key))) {
 			$db = DevblocksPlatform::services()->database();
 			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-			$params = array();
+			$params = [];
 			
 			if(false != ($extension = DevblocksPlatform::getExtension($extension_id, false, true))) {
 				$params = $extension->params;
@@ -1348,8 +1344,6 @@ class DAO_Translation extends DevblocksORMHelper {
 	}
 	
 	static function importTmxFile($filename) {
-		$db = DevblocksPlatform::services()->database();
-		
 		if(!file_exists($filename))
 			return;
 		
@@ -1361,8 +1355,8 @@ class DAO_Translation extends DevblocksORMHelper {
 		 * called.
 		 */
 		
-		$hash = array();
-		foreach(DAO_Translation::getWhere() as $s) { /* @var $s Model_TranslationDefault */
+		$hash = [];
+		foreach(DAO_Translation::getWhere() as $s) { /* @var $s Model_Translation */
 			$hash[$s->lang_code.'_'.$s->string_id] = $s;
 		}
 		
@@ -1415,7 +1409,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		
 		if(is_array($plugins))
-		foreach($plugins as $plugin_id => $plugin) { /* @var $plugin DevblocksPluginManifest */
+		foreach($plugins as $plugin) { /* @var $plugin DevblocksPluginManifest */
 			if($plugin->enabled) {
 				$strings_xml = $plugin->getStoragePath() . '/strings.xml';
 				if(file_exists($strings_xml)) {
@@ -1429,7 +1423,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$lang_codes = array();
+		$lang_codes = [];
 		
 		// Look up distinct land codes from existing translations
 		$sql = sprintf("SELECT DISTINCT lang_code FROM translation ORDER BY lang_code ASC");
@@ -1466,7 +1460,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	
 	static function getMapByLang($lang='en_US') {
 		$strings = self::getByLang($lang);
-		$map = array();
+		$map = [];
 		
 		if(is_array($strings))
 		foreach($strings as $string) { /* @var $string Model_Translation */
@@ -1499,7 +1493,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	 * @return Model_Translation[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return $objects;
@@ -1545,7 +1539,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Translation::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(), 'SearchFields_Translation', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, [], 'SearchFields_Translation', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"tl.id as %s, ".
@@ -1612,7 +1606,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		if(!($rs instanceof mysqli_result))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$id = intval($row[SearchFields_Translation::ID]);
@@ -1905,7 +1899,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	 * @return Model_DevblocksStorageProfile[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -1920,7 +1914,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 			if(false !== ($params = json_decode($object->params_json, true))) {
 				$object->params = $params;
 			} else {
-				$object->params = array();
+				$object->params = [];
 			}
 			
 			$objects[$object->id] = $object;
@@ -1950,7 +1944,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksStorageProfile::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksStorageProfile', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksStorageProfile', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"devblocks_storage_profile.id as %s, ".
@@ -2020,7 +2014,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;

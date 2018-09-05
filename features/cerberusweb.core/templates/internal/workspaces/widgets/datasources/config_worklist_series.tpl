@@ -31,7 +31,7 @@
 	<label><input type="checkbox" name="params{$params_prefix}[search_mode]" value="quick_search" class="mode" {if $params.search_mode == "quick_search"}checked="checked"{/if}> Filter using quick search:</label>
 	
 	<div>
-		<input type="text" name="params{$params_prefix}[quick_search]" value="{$params.quick_search}" class="quicksearch" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+		<input type="text" name="params{$params_prefix}[quick_search]" value="{$params.quick_search}" class="quicksearch" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">
 	</div>
 </div>
 

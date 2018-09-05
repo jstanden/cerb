@@ -67,7 +67,7 @@ class CerberusParserMessage {
 	// Thread a bounce to the message it references based on the message/rfc822 attachment
 	private function _buildThreadBounces() {
 		if(is_array($this->files))
-		foreach ($this->files as $filename => $file) { /* @var $file ParserFile */
+		foreach ($this->files as $file) { /* @var $file ParserFile */
 			switch($file->mime_type) {
 				case 'message/rfc822':
 					if(false == ($mime = new MimeMessage('file',  $file->tmpname)))
@@ -241,7 +241,7 @@ class CerberusParserModel {
 		@$sMessageId = trim($this->_message->headers['message-id']);
 		@$sInReplyTo = trim($this->_message->headers['in-reply-to']);
 		@$sReferences = trim($this->_message->headers['references']);
-		@$sThreadTopic = trim($this->_message->headers['thread-topic']);
+		//@$sThreadTopic = trim($this->_message->headers['thread-topic']);
 
 		@$senderWorker = $this->getSenderWorkerModel();
 		
@@ -249,6 +249,7 @@ class CerberusParserModel {
 		
 		// Add all References
 		if(!empty($sReferences)) {
+			$matches = [];
 			if(preg_match("/(\<.*?\@.*?\>)/", $sReferences, $matches)) {
 				unset($matches[0]); // who cares about the pattern
 				foreach($matches as $ref) {
@@ -257,12 +258,12 @@ class CerberusParserModel {
 						$aReferences[$ref] = 1;
 				}
 			}
+			unset($matches);
 		}
-
-		unset($matches);
 		
 		// Append first <*> from In-Reply-To
 		if(!empty($sInReplyTo)) {
+			$matches = [];
 			if(preg_match("/(\<.*?\@.*?\>)/", $sInReplyTo, $matches)) {
 				if(isset($matches[1])) { // only use the first In-Reply-To
 					$ref = trim($matches[1]);
@@ -270,6 +271,7 @@ class CerberusParserModel {
 						$aReferences[$ref] = 1;
 				}
 			}
+			unset($matches);
 		}
 		
 		// Try matching our references or in-reply-to
@@ -279,6 +281,7 @@ class CerberusParserModel {
 					continue;
 				
 				// Only consider the watcher auth header to be a reply if it validates
+				$hits = [];
 				
 				if($senderWorker instanceof Model_Worker
 						&& @preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $ref, $hits)
@@ -382,6 +385,8 @@ class CerberusParserModel {
 		if(empty($worker) || !($worker instanceof Model_Worker))
 			return false;
 		
+		$hits = [];
+		
 		// See if we can trust the given message_id
 		if(@preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $in_reply_to, $hits)) {
 			@$hash = $hits[1];
@@ -392,7 +397,8 @@ class CerberusParserModel {
 			
 			$is_authenticated = ($signed_compare == $signed);
 			
-			return $message_id;
+			if($is_authenticated)
+				return $message_id;
 		}
 		
 		return false;
@@ -581,6 +587,8 @@ class CerberusParser {
 		$file = null;
 		
 		try {
+			$matches = [];
+			
 			if(preg_match('/^file:\/\/(.*?)$/', $message_source, $matches)) {
 				$file = $matches[1];
 				
@@ -605,6 +613,8 @@ class CerberusParser {
 			
 			if(is_numeric($ticket_id)) {
 				$values = [];
+				$null = null;
+				
 				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $null, $values);
 				$dict = new DevblocksDictionaryDelegate($values);
 				return $dict;
@@ -934,7 +944,7 @@ class CerberusParser {
 	}
 
 	static private function _handleMimepartTextPlain($section, CerberusParserMessage $message) {
-		@$transfer_encoding = $section->data['transfer-encoding'];
+		//@$transfer_encoding = $section->data['transfer-encoding'];
 		$text = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
 		
 		if(isset($section->data['charset']) && !empty($section->data['charset'])) {
@@ -970,7 +980,7 @@ class CerberusParser {
 	}
 	
 	static private function _handleMimepartTextHtml($section, CerberusParserMessage $message) {
-		@$transfer_encoding = $section->data['transfer-encoding'];
+		//@$transfer_encoding = $section->data['transfer-encoding'];
 		$text = $section->extract_body(MAILPARSE_EXTRACT_RETURN);
 		
 		if(isset($section->data['charset']) && !empty($section->data['charset'])) {
@@ -1097,9 +1107,6 @@ class CerberusParser {
 		if(false == ($validated = $model->validate()))
 			return $validated; // false or null
 		
-		// Overloadable
-		$enumSpamTraining = '';
-
 		// Is it a worker reply from an external client?  If so, proxy
 		
 		$relay_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE, CerberusSettingsDefaults::RELAY_DISABLE);
@@ -1183,6 +1190,7 @@ class CerberusParser {
 					$state = '';
 					$comments = [];
 					$comment_ptr = null;
+					$matches = [];
 					
 					if(is_array($lines))
 					foreach($lines as $line) {
