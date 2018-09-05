@@ -2,7 +2,7 @@
 {$num_watchers = $object_watchers.{$context_id}|default:[]|count}
 {$is_current_worker = isset($object_watchers.{$context_id}.{$active_worker->id})}
 <button type="button" id="{$watchers_btn_domid}" class="{if $is_current_worker}green{/if}" data-group-id="{$watchers_group_id}" data-bucket-id="{$watchers_bucket_id}">
-	{if $full}
+	{if $full_label}
 		<div class="badge-count">{$num_watchers}</div>
 		{'common.watching'|devblocks_translate|capitalize}
 	{else}

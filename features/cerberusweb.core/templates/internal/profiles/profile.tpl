@@ -44,7 +44,7 @@
 			{if $context_ext->hasOption('watchers')}
 				<span id="spanProfileWatchers" title="{'common.watchers'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (W){/if}">
 				{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full=true}
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full_label=true}
 				</span>
 			{/if}
 			
