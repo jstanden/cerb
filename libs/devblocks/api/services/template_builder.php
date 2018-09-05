@@ -389,8 +389,16 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		});
 	}
 	
-	public function get($name) {
-		return $this->$name;
+	public function get($name, $default=null) {
+		$value = $this->$name;
+		
+		if(!is_null($value))
+			return $value;
+		
+		if($default)
+			return $default;
+		
+		return null;
 	}
 	
 	public function set($name, $value) {
