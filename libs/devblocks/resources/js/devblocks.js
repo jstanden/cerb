@@ -753,12 +753,20 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 					icons: { primary: 'ui-icon-caret-1-n' }
 				})
 				.on('click', function() {
+					var $this = $(this);
+					var $dialog = $popup.closest('.ui-dialog');
+					
 					if($popup.is(':hidden')) {
+						$dialog.css('position', $dialog.attr('data-position'));
+						$this.button('option', 'icons', { primary: 'ui-icon-carat-1-n' } );
+						$popup.dialog( "option", "position", { my: "center top", at: "center top", of: window } );
 						$popup.show();
-						$(this).button('option', 'icons', { primary: 'ui-icon-carat-1-n' } );
 					} else {
 						$popup.hide();
-						$(this).button('option', 'icons', { primary: 'ui-icon-carat-1-s' } );
+						$dialog.attr('data-position', $dialog.css('position'));
+						$dialog.css('position', 'fixed');
+						$popup.dialog( "option", "position", { my: "center top", at: "center top", of: window } );
+						$this.button('option', 'icons', { primary: 'ui-icon-carat-1-s' } );
 					}
 				})
 				;
@@ -771,7 +779,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$popup.html(html);
 			
 			if(null == options.position)
-				$popup.dialog('option', 'position', { my: 'top', at: 'top+20px' } ); // { my: 'top center', at: 'center' }
+				$popup.dialog('option', 'position', { my: 'center top', at: 'center top+20px', of: window } );
 			
 			$popup.trigger('popup_open');
 			
