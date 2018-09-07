@@ -778,6 +778,11 @@ if(!isset($tables['worker_dashboard_pref'])) {
 }
 
 // ===========================================================================
+// Fix selectors on the customer satisfaction behaviors (if exist)
+
+$db->ExecuteMaster("UPDATE decision_node SET params_json=replace(params_json,'#widget{{','#workspaceWidget{{') WHERE node_type = 'action' AND title = 'Render' AND trigger_id IN (SELECT id FROM trigger_event WHERE title IN ('NPS: Render recent ratings on dashboard','CSAT: Render recent ratings on dashboard','CES: Render recent ratings on dashboard'))");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
