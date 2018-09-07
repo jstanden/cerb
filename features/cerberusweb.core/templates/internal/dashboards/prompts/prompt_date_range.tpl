@@ -1,0 +1,41 @@
+{$uniqid = uniqid()}
+{$prompt_value = $tab_prefs.{$prompt.placeholder}|default:$prompt.default}
+
+<div style="display:inline-block;vertical-align:middle;">
+	<div id="{$uniqid}" class="bubble cerb-filter-editor" style="padding:5px;display:block;">
+		<div>
+			<b>{$prompt.label}</b>
+			<a href="javascript:;" data-preset="today to now">1d</a>
+			| 
+			<a href="javascript:;" data-preset="today -1 week">1wk</a>
+			| 
+			<a href="javascript:;" data-preset="first day of this month -1 month">1mo</a>
+			| 
+			<a href="javascript:;" data-preset="first day of this month -3 months">3mo</a>
+			| 
+			<a href="javascript:;" data-preset="first day of this month -6 months">6mo</a>
+			| 
+			<a href="javascript:;" data-preset="first day of this month -1 year">1yr</a>
+			| 
+			<a href="javascript:;" data-preset="Jan 1 to now">ytd</a>
+		</div>
+		<div>
+			<input type="text" name="prompts[{$prompt.placeholder}]" value="{$prompt_value}" size="32" style="width:95%;">
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function() {
+	var $filter = $('#{$uniqid}');
+	
+	$filter.find('[data-preset]')
+		.on('click', function(e) {
+			var $this = $(this);
+			var preset = $this.attr('data-preset');
+			var $editor = $this.closest('.cerb-filter-editor');
+			$editor.find('input:text').val(preset);
+		})
+	;
+});
+</script>

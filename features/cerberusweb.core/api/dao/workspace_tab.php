@@ -622,6 +622,40 @@ class Model_WorkspaceTab {
 		return DevblocksPlatform::translateCapitalized($extension->manifest->params['label']);
 	}
 	
+	function getPlaceholderPrompts() {
+		if(false == (@$placeholder_prompts_json = $this->params['placeholder_prompts']))
+			return [];
+		
+		if(false == (@$placeholder_prompts = json_decode($placeholder_prompts_json, true)))
+			return [];
+		
+		return $placeholder_prompts;
+	}
+	
+	function getDashboardPrefsAsWorker(Model_Worker $worker) {
+		$prefs = [];
+		
+		if(false != ($placeholder_prompts = $this->getPlaceholderPrompts()) 
+			&& is_array($placeholder_prompts)) {
+				
+			foreach($placeholder_prompts as $prompt) {
+				$prefs[$prompt['placeholder']] = $prompt['default'];
+			}
+		}
+		
+		$results = DAO_WorkerDashboardPref::get($this->id, $worker);
+		
+		foreach($results as $result) {
+			$prefs[$result['pref_key']] = $result['pref_value'];
+		}
+		
+		return $prefs;
+	}
+	
+	function setDashboardPrefsAsWorker(array $prefs, Model_Worker $worker) {
+		DAO_WorkerDashboardPref::set($this->id, $prefs, $worker);
+	}
+	
 	/**
 	 * @return Model_WorkspaceList[]
 	 */

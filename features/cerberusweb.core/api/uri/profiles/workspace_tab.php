@@ -245,7 +245,22 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 			return;
 			
 		}
+	}
 	
+	function saveDashboardTabPrefsAction() {
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'int', 0);
+		@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'],'array', []);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(!$tab_id || false == ($tab = DAO_WorkspaceTab::get($tab_id)))
+			return;
+		
+		$tab->setDashboardPrefsAsWorker($prompts, $active_worker);
+		
+		echo json_encode(true);
 	}
 	
 	function viewExploreAction() {

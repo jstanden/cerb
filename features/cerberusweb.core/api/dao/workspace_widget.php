@@ -663,6 +663,18 @@ class Model_WorkspaceWidget {
 		return $tab->getWorkspacePage();
 	}
 	
+	function _loadDashboardPrefsForWorker(Model_Worker $worker, DevblocksDictionaryDelegate $dict) {
+		if(false == ($tab = $this->getWorkspaceTab()))
+			return false;
+		
+		$prefs = $tab->getDashboardPrefsAsWorker($worker);
+		
+		foreach($prefs as $k => $v)
+			$dict->set($k, $v);
+		
+		return true;
+	}
+	
 	function render() {
 		if(false == ($extension = $this->getExtension()))
 			return;

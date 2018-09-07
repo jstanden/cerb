@@ -67,7 +67,7 @@
 		<patch version="8.3.0" revision="1271" file="patches/8.x/8.3.0.php" />
 		<patch version="8.4.0" revision="1282" file="patches/8.x/8.4.0.php" />
 		
-		<patch version="9.0.0" revision="1310" file="patches/9.x/9.0.0.php" />
+		<patch version="9.0.0" revision="1311" file="patches/9.x/9.0.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -566,6 +566,10 @@
 			<class name="SearchFields_Worker" />
 			<class name="View_Worker" />
 			<class name="WorkerPrefs" />
+		</file>
+		
+		<file path="api/dao/worker_dashboard_pref.php">
+			<class name="DAO_WorkerDashboardPref" />
 		</file>
 		
 		<file path="api/dao/worker_role.php">

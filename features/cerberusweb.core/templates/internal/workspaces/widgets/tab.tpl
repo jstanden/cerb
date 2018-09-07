@@ -1,8 +1,13 @@
-{if $active_worker->is_superuser}
 <div style="margin-bottom:5px;">
-	<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/render.tpl" prompts=$prompts}
+	{if $active_worker->is_superuser}
+	
+	<div style="display:inline-block;">
+		<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>
+		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$model->id}" data-edit="true" data-width="75%"><span class="glyphicons glyphicons-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
+	</div>
+	{/if}
 </div>
-{/if}
 
 {if 'sidebar_left' == $layout}
 	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--sidebar-left" style="vertical-align:top;display:flex;flex-flow:row wrap;">
@@ -56,6 +61,7 @@
 $(function() {
 	var $container = $('#workspaceTab{$model->id}');
 	var $add_button = $('#btnWorkspaceTabAddWidget{$model->id}');
+	var $edit_button = $('#btnWorkspaceTabEditDashboard{$model->id}');
 	
 	// Drag
 	{if $active_worker->is_superuser}
@@ -120,6 +126,26 @@ $(function() {
 		});
 	});
 	
+	$container
+		.on('cerb-dashboard-refresh', function(e) {
+			var jobs = [];
+			
+			e.stopPropagation();
+			
+			{foreach from=$zones item=zone}
+			{foreach from=$zone item=widget}
+			jobs.push(
+				async.apply(loadWidgetFunc, {$widget->id|default:0}, true, {})
+			);
+			{/foreach}
+			{/foreach}
+			
+			async.parallelLimit(jobs, 2, function(err, json) {
+				
+			});
+		})
+		;
+	
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-workspace-widget--menu');
 		var $menu_link = $target.find('.cerb-workspace-widget--link');
@@ -173,8 +199,6 @@ $(function() {
 	
 	addEvents($container);
 	
-	var jobs = [];
-	
 	{if $active_worker->is_superuser}
 	$add_button
 		.cerbPeekTrigger()
@@ -186,6 +210,13 @@ $(function() {
 			async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
 				$container.trigger('cerb-reorder');
 			});
+		})
+		;
+	
+	$edit_button
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
+			document.location.reload();
 		})
 		;
 	{/if}
@@ -226,16 +257,6 @@ $(function() {
 		});
 	};
 	
-	{foreach from=$zones item=zone}
-	{foreach from=$zone item=widget}
-	jobs.push(
-		async.apply(loadWidgetFunc, {$widget->id|default:0}, false, {})
-	);
-	{/foreach}
-	{/foreach}
-	
-	async.parallelLimit(jobs, 2, function(err, json) {
-		
-	});
+	$container.triggerHandler('cerb-dashboard-refresh');
 });
 </script>

@@ -752,6 +752,11 @@
 				<seg>customize</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.dashboard.edit">
+			<tuv xml:lang="en_US">
+				<seg>edit dashboard</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.data">
 			<tuv xml:lang="en_US">
 				<seg>data</seg>
@@ -2549,6 +2554,11 @@
 		<tu tuid="common.widget">
 			<tuv xml:lang="en_US">
 				<seg>widget</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.widget.add">
+			<tuv xml:lang="en_US">
+				<seg>add widget</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.widgets">
