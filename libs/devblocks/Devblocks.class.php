@@ -469,6 +469,47 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	/**
+	 * Zero fill and interpolate the series
+	 * 
+	 * @param array $array
+	 * @param string $step
+	 * @param string $format
+	 * @return array
+	 */
+	static function dateLerpArray(array $array, $step, $format=null) {
+		if(!$format) {
+			$formats = [
+				'day' => '%Y-%m-%d',
+				'week' => '%Y-%m-%d',
+				'month' => '%Y-%m',
+				'year' => '%Y',
+			];
+			
+			$format = $formats[$step];
+		}
+		
+		$ts = strtotime(min($array));
+		$ts_end = strtotime(max($array));
+		
+		$values = array_fill_keys($array, 0);
+		
+		while($ts <= $ts_end) {
+			$tick = strftime($format, $ts);
+			
+			if(!array_key_exists($tick, $values))
+				$values[$tick] = 0;
+			
+			$ts = strtotime(sprintf('+1 %s', $step), $ts);
+		}
+		
+		$values = array_keys($values);
+		
+		sort($values);
+		
+		return $values;
+	}
+	
+	/**
 	 * 
 	 * See: http://stackoverflow.com/questions/20903106/interpolating-colors-in-php
 	 * 
