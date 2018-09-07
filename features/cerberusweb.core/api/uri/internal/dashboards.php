@@ -198,6 +198,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		$json = array(
 			'tab' => array(
 				'uid' => 'workspace_tab_' . $tab->id,
+				'_context' => CerberusContexts::CONTEXT_WORKSPACE_TAB,
 				'name' => $tab->name,
 				'extension_id' => $tab->extension_id,
 				'params' => $tab->params,
@@ -210,6 +211,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		foreach($widgets as $widget) {
 			$widget_json = array(
 				'uid' => 'workspace_widget_' . $widget->id,
+				'_context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 				'label' => $widget->label,
 				'extension_id' => $widget->extension_id,
 				'pos' => $widget->pos,

@@ -371,6 +371,7 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 		$widget_json = [
 			'widget' => [
 				'uid' => 'profile_widget_' . $widget->id,
+				'_context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
 				'name' => $widget->name,
 				'extension_id' => $widget->extension_id,
 				'pos' => $widget->pos,
@@ -496,6 +497,7 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 		$json_array = array(
 			'page' => array(
 				'uid' => 'workspace_page_' . $page->id,
+				'_context' => CerberusContexts::CONTEXT_WORKSPACE_PAGE,
 				'name' => $page->name,
 				'extension_id' => $page->extension_id,
 			),
@@ -646,6 +648,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		$widget_json = [
 			'widget' => [
 				'uid' => 'workspace_widget_' . $widget->id,
+				'_context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 				'label' => $widget->label,
 				'extension_id' => $widget->extension_id,
 				'pos' => $widget->pos,

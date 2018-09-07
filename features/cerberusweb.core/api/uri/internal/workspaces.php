@@ -40,6 +40,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 		$json_array = array(
 			'page' => array(
 				'uid' => 'workspace_page_' . $page->id,
+				'_context' => CerberusContexts::CONTEXT_WORKSPACE_PAGE,
 				'name' => $page->name,
 				'extension_id' => $page->extension_id,
 				'tabs' => [],
@@ -197,6 +198,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 		$json = array(
 			'tab' => array(
 				'uid' => 'workspace_tab_' . $tab->id,
+				'_context' => CerberusContexts::CONTEXT_WORKSPACE_TAB,
 				'name' => $tab->name,
 				'extension_id' => $tab->extension_id,
 				'params' => $tab->params,
