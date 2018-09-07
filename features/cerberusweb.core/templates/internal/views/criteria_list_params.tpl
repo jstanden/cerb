@@ -10,6 +10,23 @@
 	{elseif is_array($param)}
 		{foreach from=$param item=p name=p}
 			{if $smarty.foreach.p.first}
+				{if $p == DevblocksSearchCriteria::GROUP_AND}
+					{$group_oper = 'AND'}
+					{$group_not = false}
+				{elseif $p == DevblocksSearchCriteria::GROUP_AND_NOT}
+					{$group_oper = 'AND'}
+					{$group_not = true}
+				{elseif $p == DevblocksSearchCriteria::GROUP_OR}
+					{$group_oper = 'OR'}
+					{$group_not = false}
+				{elseif $p == DevblocksSearchCriteria::GROUP_OR_NOT}
+					{$group_oper = 'OR'}
+					{$group_not = true}
+				{/if}
+				
+				{if $group_not}
+					<tt style="color:black;font-weight:bold;padding:0px 5px;">NOT (</tt>
+				{/if}
 			{else}
 				{if is_array($p)}
 					{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$p nested=true}
@@ -68,7 +85,13 @@
 					{/if}
 				{/if}
 				
-				{if !$smarty.foreach.p.last} <tt style="color:black;font-weight:bold;padding:0px 5px;">{$param.0}</tt> {/if}
+				{if !$smarty.foreach.p.last} 
+					<tt style="color:black;font-weight:bold;padding:0px 5px;">{$group_oper}</tt>
+				{else}
+					{if $group_not}
+					<tt style="color:black;font-weight:bold;padding:0px 5px;">)</tt>
+					{/if}
+				{/if}
 			{/if}
 		{/foreach}
 	{else}

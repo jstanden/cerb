@@ -794,7 +794,7 @@ abstract class DevblocksORMHelper {
 			if(!is_array($param) && !is_object($param)) {
 				$where = "-1";
 				
-			// Is this a criteria group (OR, AND)?
+			// Is this a criteria group (OR, AND, OR NOT, AND NOT)?
 			} elseif(is_array($param)) {
 				$where = self::_parseNestedSearchParams($param, $tables, $search_class, $pkey);
 				
@@ -823,6 +823,7 @@ abstract class DevblocksORMHelper {
 		@$group_oper = DevblocksPlatform::strUpper(array_shift($param));
 		$sql = '';
 		$where = '';
+		$not = in_array($group_oper, [DevblocksSearchCriteria::GROUP_AND_NOT, DevblocksSearchCriteria::GROUP_OR_NOT]);
 		
 		if(empty($param))
 			return null;
@@ -830,6 +831,15 @@ abstract class DevblocksORMHelper {
 		switch($group_oper) {
 			case DevblocksSearchCriteria::GROUP_OR:
 			case DevblocksSearchCriteria::GROUP_AND:
+			case DevblocksSearchCriteria::GROUP_AND_NOT:
+			case DevblocksSearchCriteria::GROUP_OR_NOT:
+				$inner_opers = [
+					DevblocksSearchCriteria::GROUP_AND => DevblocksSearchCriteria::GROUP_AND,
+					DevblocksSearchCriteria::GROUP_AND_NOT => DevblocksSearchCriteria::GROUP_AND,
+					DevblocksSearchCriteria::GROUP_OR => DevblocksSearchCriteria::GROUP_OR, 
+					DevblocksSearchCriteria::GROUP_OR_NOT => DevblocksSearchCriteria::GROUP_OR
+				];
+				
 				foreach($param as $p) { /* @var $p DevblocksSearchCriteria */
 					if(is_array($p)) {
 						$outer_wheres[] = self::_parseNestedSearchParams($p, $tables, $search_class, $pkey);
@@ -847,7 +857,7 @@ abstract class DevblocksORMHelper {
 						}
 						
 						$where = sprintf("%s",
-							implode(" $group_oper ", $group_wheres)
+							implode(sprintf(" %s ", $inner_opers[$group_oper]), $group_wheres)
 						);
 					}
 				}
@@ -858,8 +868,9 @@ abstract class DevblocksORMHelper {
 			$outer_wheres[] = $where;
 		
 		if($group_oper && $outer_wheres) {
-			$sql = sprintf("(%s)",
-				implode(" $group_oper ", $outer_wheres)
+			$sql = sprintf("%s(%s)",
+				$not ? 'NOT ' : '',
+				implode(sprintf(" %s ", $group_oper), $outer_wheres)
 			);
 		}
 		
