@@ -22,12 +22,29 @@ $(function() {
 			var config_json = {$config_json nofilter};
 			
 			{if $is_date_formatted}
+				var shortEnglishHumanizer = humanizeDuration.humanizer({
+					language: 'shortEn',
+					spacer: '',
+					languages: {
+						shortEn: {
+							y: () => 'y',
+							mo: () => 'mo',
+							w: () => 'w',
+							d: () => 'd',
+							h: () => 'h',
+							m: () => 'm',
+							s: () => 's',
+							ms: () => 'ms',
+						}
+					}
+				});
+			
 				var format_seconds = function(secs) {
-					return humanizeDuration(secs * 1000, { largest:2 });
+					return shortEnglishHumanizer(secs * 1000, { largest:2 });
 				};
 				
 				var format_minutes = function(minutes) {
-					return humanizeDuration(minutes * 60 * 1000, { largest:2 });
+					return shortEnglishHumanizer(minutes * 60 * 1000, { largest:2 });
 				};
 			{/if}
 			
