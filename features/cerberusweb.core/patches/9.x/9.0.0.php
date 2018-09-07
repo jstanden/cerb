@@ -763,11 +763,11 @@ if(false != ($row = $db->GetRowMaster("SELECT id, extension_params_json FROM pro
 if(!isset($tables['worker_dashboard_pref'])) {
 	$sql = sprintf("
 	CREATE TABLE `worker_dashboard_pref` (
-		tab_context varchar(255) NOT NULL,
+		tab_context varchar(128) NOT NULL,
 		tab_context_id int(10) unsigned NOT NULL,
 		worker_id int(10) unsigned NOT NULL DEFAULT '0',
 		widget_id int(10) unsigned NOT NULL DEFAULT '0',
-		pref_key varchar(255) NOT NULL,
+		pref_key varchar(128) NOT NULL,
 		pref_value varchar(255) DEFAULT NULL,
 		PRIMARY KEY (`tab_context`,`tab_context_id`,`worker_id`,`widget_id`,`pref_key`)
 	) ENGINE=%s;
