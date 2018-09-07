@@ -16,13 +16,13 @@
 		<b>Filter using required query:</b>
 		
 		<div style="margin-left:10px;">
-			<input type="text" name="params[query_required]" value="{$widget->extension_params.query_required}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+			<textarea name="params[query_required]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">{$widget->extension_params.query_required}</textarea>
 		</div>
 		
 		<b>Default query:</b>
 		
 		<div style="margin-left:10px;">
-			<input type="text" name="params[query]" value="{$widget->extension_params.query}" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="off">
+			<textarea name="params[query]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">{$widget->extension_params.query}</textarea>
 		</div>
 		
 		<b>Records per page:</b>
@@ -68,6 +68,10 @@ $(function() {
 	$config.find('input:text.color-picker').minicolors({
 		swatches: ['#6a87db','#9a9a9a','#CF2C1D','#FEAF03','#57970A','#9669DB','#626c70']
 	});
+	
+	$config.find('textarea[data-editor-mode]')
+		.cerbCodeEditor()
+		;
 	
 	$select.on('change', function(e) {
 		var ctx = $select.val();
