@@ -2646,12 +2646,12 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 					'type' => 'timeseries',
 					'tick' => [
 						'rotate' => -90,
-						'fit' => false,
+						'fit' => true,
 					]
 				],
 				'y' => [
 					'tick' => [
-						'fit' => false,
+						'fit' => true,
 					]
 				]
 			],
@@ -2695,14 +2695,14 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 			case 'bar':
 				$config_json['data']['type'] = 'bar';
 				$config_json['bar']['width'] = [
-					'ratio' => 0.6,
+					'ratio' => 0.75,
 				];
 				break;
 				
 			case 'bar_stacked':
 				$config_json['data']['type']  = 'bar';
 				$config_json['bar']['width'] = [
-					'ratio' => 0.6,
+					'ratio' => 0.75,
 				];
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;

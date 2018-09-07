@@ -126,6 +126,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							'key_select' => $search_key,
 							'label' => $search_field->db_label,
 							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_step' => 'week',
 							'timestamp_format' => $ts_format,
 							'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), WEEKDAY(FROM_UNIXTIME(%s.%s))), %s)", // Monday
 								Cerb_ORMHelper::escape($search_field->db_table),
@@ -145,6 +146,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							'key_select' => $search_key,
 							'label' => $search_field->db_label,
 							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_step' => 'week',
 							'timestamp_format' => $ts_format,
 							'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), DAYOFWEEK(FROM_UNIXTIME(%s.%s))-1), %s)", // Sunday
 								Cerb_ORMHelper::escape($search_field->db_table),
@@ -172,6 +174,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							'key_select' => $search_key,
 							'label' => $search_field->db_label,
 							'type' => DevblocksSearchCriteria::TYPE_TEXT,
+							'timestamp_step' => $bin,
 							'timestamp_format' => $ts_format,
 							'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), %s)",
 								Cerb_ORMHelper::escape($search_field->db_table),

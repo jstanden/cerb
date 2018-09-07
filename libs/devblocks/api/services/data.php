@@ -1143,7 +1143,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		if(!isset($response['children']))
 			return [];
 		
-		$x_series = array_fill_keys(array_column($response['children'], 'name'), 0);
+		@$xaxis_format = @$chart_model['by'][0]['timestamp_format'];
+		@$xaxis_step = @$chart_model['by'][0]['timestamp_step'];
+		
+		$x_series = array_column($response['children'], 'name');
+		$x_series = DevblocksPlatform::dateLerpArray($x_series, $xaxis_step, $xaxis_format);
+		$x_series = array_fill_keys($x_series, 0);
+		
 		$output = [ 'ts' => array_map(function($d) { return strval($d); }, array_keys($x_series)) ];
 		
 		foreach($response['children'] as $date) {
@@ -1167,7 +1173,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			'format' => 'timeseries',
 			'format_params' => [
 				'xaxis_key' => 'ts',
-				'xaxis_format' => @$chart_model['by'][0]['timestamp_format'],
+				'xaxis_step' => $xaxis_step,
+				'xaxis_format' => $xaxis_format,
 			],
 		]];
 	}
@@ -1439,6 +1446,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		// Domain
 		
 		$xaxis_format = @$chart_model['series'][0]['x']['timestamp_format'] ?: '';
+		$xaxis_step = @$chart_model['series'][0]['x']['timestamp_step'] ?: '';
 		
 		$x_domain = [];
 		
@@ -1477,6 +1485,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				'format' => 'timeseries',
 				'format_params' => [
 					'xaxis_key' => 'ts',
+					'xaxis_step' => $xaxis_step,
 					'xaxis_format' => $xaxis_format, // [TODO] Multi-series?
 				],
 			]
@@ -1955,6 +1964,7 @@ class _DevblocksDataProviderUsageSnippets extends _DevblocksDataProvider {
 				'format' => 'timeseries',
 				'format_params' => [
 					'xaxis_key' => 'ts',
+					'xaxis_step' => 'month',
 					'xaxis_format' => '%Y-%m',
 				]
 			]

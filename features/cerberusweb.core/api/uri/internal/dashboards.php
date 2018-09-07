@@ -2275,6 +2275,8 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
+		$error = null;
+		
 		if(false === ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
@@ -2307,12 +2309,12 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 					'type' => 'timeseries',
 					'tick' => [
 						'rotate' => -90,
-						'fit' => false,
+						'fit' => true,
 					]
 				],
 				'y' => [
 					'tick' => [
-						'fit' => false,
+						'fit' => true,
 					]
 				]
 			],
@@ -2356,14 +2358,14 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 			case 'bar':
 				$config_json['data']['type'] = 'bar';
 				$config_json['bar']['width'] = [
-					'ratio' => 0.6,
+					'ratio' => 0.75,
 				];
 				break;
 				
 			case 'bar_stacked':
 				$config_json['data']['type']  = 'bar';
 				$config_json['bar']['width'] = [
-					'ratio' => 0.6,
+					'ratio' => 0.75,
 				];
 				$config_json['data']['groups'] = [array_values(array_diff(array_keys($results['data']), [$xaxis_key]))];
 				break;
