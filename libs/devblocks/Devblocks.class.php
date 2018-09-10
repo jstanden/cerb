@@ -2826,13 +2826,18 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @static
 	 * @return DevblocksPluginManifest[]
 	 */
-	static function readPlugins($is_update=true, $scan_dirs = array('features', 'plugins')) {
-		$plugins = array();
-
+	static function readPlugins($is_update=true, array $only_scan_dirs = []) {
+		$plugins = [];
+		
+		$scan_dirs = ['features','plugins','storage/plugins'];
+		
+		if($only_scan_dirs)
+			$scan_dirs = array_values(array_intersect($scan_dirs, $only_scan_dirs));
+		
 		// Devblocks
 		if(null !== ($manifest = self::_readPluginManifest(DEVBLOCKS_PATH, $is_update)))
-			$plugin[] = $manifest;
-			
+			$plugins[] = $manifest;
+		
 		// Application
 		if(is_array($scan_dirs))
 		foreach($scan_dirs as $scan_dir) {
@@ -2842,6 +2847,10 @@ class DevblocksPlatform extends DevblocksEngine {
 					break;
 					
 				case 'plugins':
+					$scan_path = APP_PATH . '/plugins';
+					break;
+					
+				case 'storage/plugins':
 					$scan_path = APP_STORAGE_PATH . '/plugins';
 					break;
 					
@@ -2849,8 +2858,8 @@ class DevblocksPlatform extends DevblocksEngine {
 					continue;
 			}
 			
-			if (is_dir($scan_path)) {
-				if ($dh = opendir($scan_path)) {
+			if(is_dir($scan_path)) {
+				if($dh = opendir($scan_path)) {
 					while (($file = readdir($dh)) !== false) {
 						if($file=="." || $file == "..")
 							continue;
@@ -2859,7 +2868,7 @@ class DevblocksPlatform extends DevblocksEngine {
 						
 						if(is_dir($plugin_path) && file_exists($plugin_path . '/plugin.xml')) {
 							$manifest = self::_readPluginManifest($plugin_path, $is_update); /* @var $manifest DevblocksPluginManifest */
-	
+							
 							if(null != $manifest) {
 								$plugins[$manifest->id] = $manifest;
 							}

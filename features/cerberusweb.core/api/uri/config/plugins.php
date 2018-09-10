@@ -19,7 +19,6 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 	const VIEW_PLUGINS = 'plugins_installed';
 	
 	function render() {
-		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
 		
@@ -38,10 +37,8 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 			DAO_Platform::cleanupPluginTables();
 			
 		} else {
-			DevblocksPlatform::readPlugins(false, array('plugins'));
+			DevblocksPlatform::readPlugins(false, ['plugins','storage/plugins']);
 		}
-		
-		$visit->set(ChConfigurationPage::ID, 'plugins');
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/index.tpl');
 	}

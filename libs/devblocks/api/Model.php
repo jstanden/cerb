@@ -2165,10 +2165,13 @@ class DevblocksPluginManifest {
 		if($this->dir == 'libs/devblocks') {
 			return rtrim(DEVBLOCKS_PATH, DIRECTORY_SEPARATOR);
 			
-		} elseif(substr($this->dir, 0, 9) == 'features/') {
+		} elseif(DevblocksPlatform::strStartsWith($this->dir, 'features/')) {
 			return APP_PATH . '/features/' . $this->id;
 			
-		} else {
+		} elseif(DevblocksPlatform::strStartsWith($this->dir, 'plugins/')) {
+			return APP_PATH . '/plugins/' . $this->id;
+			
+		} elseif(DevblocksPlatform::strStartsWith($this->dir, 'storage/plugins/')) {
 			return APP_STORAGE_PATH . '/plugins/' . $this->id;
 		}
 		

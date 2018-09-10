@@ -64,18 +64,26 @@ abstract class DevblocksEngine {
 			return NULL;
 		
 		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-
-		$rel_dir = trim(substr($plugin_path, strlen(APP_PATH)), '/');
+		
+		// Make the plugin path relative
+		if(DevblocksPlatform::strStartsWith($plugin_path, APP_STORAGE_PATH)) {
+			$rel_dir = 'storage/' . trim(substr($plugin_path, strlen(APP_STORAGE_PATH)), '/');
+		} else {
+			$rel_dir = trim(substr($plugin_path, strlen(APP_PATH)), '/');
+		}
 		
 		if($rel_dir == 'libs/devblocks') {
 			// It's what we want
-		} elseif(substr($rel_dir, 0, 9) == 'features/') {
+		} else if(DevblocksPlatform::strStartsWith($rel_dir, 'features/')) {
+			// It's what we want
+		} else if(DevblocksPlatform::strStartsWith($rel_dir, 'plugins/')) {
+			// It's what we want
+		} else if(DevblocksPlatform::strStartsWith($rel_dir, 'storage/plugins/')) {
 			// It's what we want
 		} else {
-			// Get rid of the storage prefix in the dir
-			$rel_dir = 'plugins/' . $plugin->id;
+			return NULL;
 		}
-
+		
 		$manifest = new DevblocksPluginManifest();
 		$manifest->id = (string) $plugin->id;
 		$manifest->dir = $rel_dir;
@@ -84,13 +92,15 @@ abstract class DevblocksEngine {
 		$manifest->version = (integer) DevblocksPlatform::strVersionToInt($plugin->version);
 		$manifest->link = (string) $plugin->link;
 		$manifest->name = (string) $plugin->name;
-
-		// Only re-persist the plugins when the version changes
-		if(!$is_update && null != ($current_plugin = DevblocksPlatform::getPlugin($manifest->id))
-				&& ($current_plugin->version == $manifest->version)) {
+		
+		// Only re-persist a plugin when the version or path changes
+		if(!$is_update 
+			&& null != ($current_plugin = DevblocksPlatform::getPlugin($manifest->id)) 
+			&& $current_plugin->version == $manifest->version
+			&& $current_plugin->dir == $manifest->dir
+			)
 			$persist = false;
-		}
-
+		
 		// Requirements
 		if(isset($plugin->requires)) {
 			if(isset($plugin->requires->app_version)) {
@@ -172,7 +182,7 @@ abstract class DevblocksEngine {
 				'params' => $params,
 			);
 		}
-
+		
 		// If we're not persisting, return
 		if(!$persist)
 			return $manifest;
@@ -181,7 +191,7 @@ abstract class DevblocksEngine {
 		if(null == ($db = DevblocksPlatform::services()->database()) || DevblocksPlatform::isDatabaseEmpty())
 			return $manifest;
 
-		list($columns, $indexes) = $db->metaTable($prefix . 'plugin');
+		list($columns,) = $db->metaTable($prefix . 'plugin');
 
 		// If this is a 4.x upgrade
 		if(!isset($columns['version']))
@@ -428,7 +438,7 @@ abstract class DevblocksEngine {
 				$db->qstr(serialize($event->params))
 			));
 		}
-
+		
 		return $manifest;
 	}
 
