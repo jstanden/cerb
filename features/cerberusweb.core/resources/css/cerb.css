@@ -5590,7 +5590,7 @@ iframe.markItUpPreviewFrame {
   animation-name: tada;
 }
 
-@media all and (max-width: 1050px) {
+@media screen and (max-width: 1050px) {
   .cerb-profile-layout--sidebar-right .cerb-profile-layout-zone--content {
     order: 2;
   }
@@ -5603,5 +5603,32 @@ iframe.markItUpPreviewFrame {
   }
   .cerb-workspace-layout--sidebar-right .cerb-workspace-layout-zone--sidebar {
     order: 1;
+  }
+}
+@media print {
+  .cerb-profile-layout--sidebar-right .cerb-profile-layout-zone--content {
+    order: 2;
+  }
+  .cerb-profile-layout--sidebar-right .cerb-profile-layout-zone--sidebar {
+    order: 1;
+  }
+
+  .cerb-workspace-layout--sidebar-right .cerb-workspace-layout-zone--content {
+    order: 2;
+  }
+  .cerb-workspace-layout--sidebar-right .cerb-workspace-layout-zone--sidebar {
+    order: 1;
+  }
+
+  .cerb-profile-widget {
+    min-width: 300px !important;
+  }
+
+  .cerb-profile-widget--header .ui-sortable-handle {
+    display: none;
+  }
+
+  .cerb-no-print {
+    display: none !important;
   }
 }

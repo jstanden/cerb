@@ -101,7 +101,7 @@
 		</div>
 
 		{if $expanded}
-		<div style="margin:2px;margin-left:10px;" id="{$message->id}skip">
+		<div style="margin:2px;margin-left:10px;" id="{$message->id}skip" class="cerb-no-print">
 			<button type="button" onclick="document.location='#{$message->id}act';">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</button>
 		</div>
 		{/if}
@@ -127,7 +127,7 @@
 				{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id attachments=$attachments}
 			{/if}
 				
-				<table width="100%" cellpadding="0" cellspacing="0" border="0">
+				<table width="100%" cellpadding="0" cellspacing="0" border="0" class="cerb-no-print">
 					<tr>
 						<td align="left" id="{$message->id}act">
 						{* If not requester *}

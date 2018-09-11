@@ -19,7 +19,7 @@
 <div style="float:left;">
 	<h1 style="font-size:2em;">{$dict->_label}</h1>
 	
-	<div class="cerb-profile-toolbar">
+	<div class="cerb-profile-toolbar cerb-no-print">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
@@ -77,7 +77,7 @@
 		{/foreach}
 		
 		{if $active_worker->is_superuser}
-		<li><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
+		<li class="cerb-no-print"><a href="{devblocks_url}ajax.php?c=profiles&a=configTabs&context={$page_context}{/devblocks_url}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
 		{/if}
 	</ul>
 </div> 

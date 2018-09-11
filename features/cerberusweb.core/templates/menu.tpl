@@ -1,7 +1,7 @@
 {if !empty($visit)}
 <div id="tourHeaderMenu"></div>
 
-<ul class="navmenu">
+<ul class="navmenu cerb-no-print">
 	{$workspace_pages = DAO_WorkspacePage::getAll()}
 
 	{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json','')}
@@ -43,7 +43,7 @@
 		</ul>
 	</li>
 </ul>
-<div style="clear:both;background-color:rgb(100,135,225);height:5px;"></div>
+<div style="clear:both;background-color:rgb(100,135,225);height:5px;" class="cerb-no-print"></div>
 
 <script type="text/javascript">
 $(function() {

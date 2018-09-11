@@ -1,6 +1,6 @@
 <br>
 
-<table align="center" border="0" cellpadding="2" cellspacing="0" width="100%" id="footer">
+<table align="center" border="0" cellpadding="2" cellspacing="0" width="100%" id="footer" class="cerb-no-print">
 	<tr>
 		<td valign="top">
 			{$fair_pay=CerberusLicense::getInstance()}

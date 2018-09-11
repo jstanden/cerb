@@ -1,4 +1,4 @@
-<div id="bot-chat-button">
+<div id="bot-chat-button" class="cerb-no-print">
 	<div class="bot-chat-icon-badge" {if !$proactive_interactions_count}style="display:none;"{/if}><span class="glyphicons glyphicons-chat"></span></div>
 	<div class="bot-chat-icon"></div>
 	<div class="bot-chat-menu"></div>

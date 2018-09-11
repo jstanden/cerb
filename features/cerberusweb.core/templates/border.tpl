@@ -7,7 +7,7 @@
 {/if}
 
 {if !empty($tour_enabled)}{include file="devblocks:cerberusweb.core::internal/tour/banner.tpl"}{/if}
-<div style="display:flex;flex-flow:row wrap;">
+<div class="cerb-no-print" style="display:flex;flex-flow:row wrap;">
 	<div style="flex:2 2;">
 		<a href="{devblocks_url}{/devblocks_url}"><div id="cerb-logo"></div></a>
 	</div>
