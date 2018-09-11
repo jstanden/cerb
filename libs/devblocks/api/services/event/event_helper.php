@@ -4537,7 +4537,7 @@ class DevblocksEventHelper {
 			return "[ERROR] The 'from' address is invalid.";
 		}
 		
-		if(false === ($send_as = $tpl_builder->build($params['send_as'], $dict))) {
+		if(false === (@$send_as = $tpl_builder->build($params['send_as'], $dict))) {
 			return "[ERROR] The 'send_as' field has invalid placeholders.";
 		}
 		

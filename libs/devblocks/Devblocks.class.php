@@ -89,7 +89,7 @@ class _DevblocksServices {
 	 * @return _DevblocksGPGService
 	 */
 	function gpg() {
-		return _DevblocksGPGService::getInstance();;
+		return _DevblocksGPGService::getInstance();
 	}
 	
 	/**
