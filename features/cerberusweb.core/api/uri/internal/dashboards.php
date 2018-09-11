@@ -975,7 +975,13 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		
 		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
+		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
+		
+		// Occlusion
+		
+		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
+		$availability->occludeCalendarEvents($calendar_events);
 		
 		// Template scope
 		
@@ -1018,24 +1024,21 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function showCalendarTabAction(Model_WorkspaceWidget $model) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
-
+		
 		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
 			return;
 		
 		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
-		
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
-
+		
 		// Occlusion
 		
 		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);

@@ -1710,8 +1710,6 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 	}
 	
 	function showCalendarTabAction(Model_ProfileWidget $model) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
@@ -1723,7 +1721,6 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 			return;
 		
 		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
-		
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
 		
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
