@@ -10,14 +10,14 @@
 	 &nbsp;
 	 
 	<b>{'common.status'|devblocks_translate}:</b>
-	{if $ticket->status_id == Model_Ticket::STATUS_WAITING}
+	{if $ticket->status_id == Model_Ticket::STATUS_OPEN}
 		{'status.open'|devblocks_translate|lower}
 	{elseif $ticket->status_id == Model_Ticket::STATUS_CLOSED}
 		{'status.closed'|devblocks_translate|lower}
 	{elseif $ticket->status_id == Model_Ticket::STATUS_DELETED}
 		{'status.deleted'|devblocks_translate|lower}
 	{else}
-		{'status.waiting'|devblocks_translate|lower}
+		{'status.waiting.client'|devblocks_translate|lower}
 	{/if}
 	 
 	 &nbsp;
