@@ -58,13 +58,29 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
-		
-		// Widget
+			
+		/**
+		 * Widget
+		 */
+			
 		@$widget = $event_model->params['widget'];
-		$labels['widget_id'] = 'Widget ID';
-		$values['widget_id'] = @$widget->id ?: 0;
 		
+		$merge_labels = [];
+		$merge_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, @$widget->id ?: 0, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'widget_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+			
 		// Actions
+		
 		$values['_actions'] =& $event_model->params['actions'];
 		
 		/**
