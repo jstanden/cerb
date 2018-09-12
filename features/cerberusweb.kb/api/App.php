@@ -126,7 +126,7 @@ class ChKbPage extends CerberusPageExtension {
 };
 
 class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
-	function render(Model_WorkspaceWidget $widget) {
+	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
 		@$root_category_id = intval($widget->params['topic_id']);
 		
 		$this->_renderCategory($root_category_id, $widget);

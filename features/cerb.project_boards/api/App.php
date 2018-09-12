@@ -83,7 +83,7 @@ class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_WorkspaceWidget $widget) {
+	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		

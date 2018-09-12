@@ -640,7 +640,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		return null;
 	}
 	
-	abstract function render(Model_WorkspaceWidget $widget);
+	abstract function render(Model_WorkspaceWidget $widget, $refresh_options=[]);
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 	
