@@ -21,13 +21,41 @@ class UmScHistoryController extends Extension_UmScController {
 		$stack = $response->path;
 		array_shift($stack); // history
 		$mask = array_shift($stack);
-
+		
 		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
 		if(empty($shared_address_ids))
 			$shared_address_ids = array(-1);
 		
 		if(empty($mask)) {
 			// Ticket history
+			
+			// Prompts
+			@$prompts = DevblocksPlatform::importGPC($_POST['prompts'],'array',[]);
+			$prompts['status'] = array_intersect($prompts['status'] ?: ['o','w','c'], ['o','w','c']);
+			$tpl->assign('prompts', $prompts);
+			
+			// Query
+			$query = '';
+			
+			if(@$prompts['created']) {
+				$query .= sprintf('created:"%s" ',
+					str_replace('"', '', $prompts['created'])
+				);
+			}
+			
+			if(@$prompts['status']) {
+				$query .= sprintf('status:[%s] ',
+					implode(',', $prompts['status'])
+				);
+			}
+			
+			if(@$prompts['keywords']) {
+				$query .= sprintf('%s ',
+					str_replace(':', '', $prompts['keywords'])
+				);
+			}
+			
+			// View
 			if(null == ($history_view = UmScAbstractViewLoader::getView('', 'sc_history_list'))) {
 				$history_view = new UmSc_TicketHistoryView();
 				$history_view->id = 'sc_history_list';
@@ -35,11 +63,10 @@ class UmScHistoryController extends Extension_UmScController {
 				$history_view->renderSortBy = SearchFields_Ticket::TICKET_UPDATED_DATE;
 				$history_view->renderSortAsc = false;
 				$history_view->renderLimit = 10;
-				
-				$history_view->addParams(array(
-					new DevblocksSearchCriteria(SearchFields_Ticket::VIRTUAL_STATUS,'in',array('open','waiting')),
-				), true);
+				$history_view->addParams([], true);
 			}
+			
+			$history_view->addParamsWithQuickSearch($query, true);
 			
 			@$params_columns = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), self::PARAM_WORKLIST_COLUMNS_JSON, '[]', true);
 			
@@ -59,7 +86,7 @@ class UmScHistoryController extends Extension_UmScController {
 			
 			UmScAbstractViewLoader::setView($history_view->id, $history_view);
 			$tpl->assign('view', $history_view);
-
+			
 			$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/history/index.tpl");
 			
 		} else {
@@ -284,7 +311,7 @@ class UmScHistoryController extends Extension_UmScController {
 	}
 };
 
-class UmSc_TicketHistoryView extends C4_AbstractView {
+class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'sc_history';
 	
 	function __construct() {
@@ -381,7 +408,7 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 	function getSearchFields() {
 		$fields = SearchFields_Ticket::getFields();
 
-		foreach($fields as $key => $field) {
+		foreach(array_keys($fields) as $key) {
 			switch($key) {
 				case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
 				case SearchFields_Ticket::REQUESTER_ID:
@@ -534,5 +561,137 @@ class UmSc_TicketHistoryView extends C4_AbstractView {
 			$this->addParam($criteria, $param_key);
 			$this->renderPage = 0;
 		}
+	}
+	
+	function getQuickSearchFields() {
+		$search_fields = SearchFields_Ticket::getFields();
+		
+		$fields = array(
+			'text' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
+					'options' => array('param_key' => SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT),
+				),
+			'created' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_CREATED_DATE),
+				),
+			'mask' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_MASK, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'examples' => array(
+						'ABC',
+						'("XYZ-12345-678")',
+					),
+				),
+			'participant' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Ticket::REQUESTER_ADDRESS),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
+				),
+			'participant.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
+					]
+				),
+			'status' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_STATUS),
+					'examples' => array(
+						'open',
+						'waiting',
+						'closed',
+						'deleted',
+						'[o,w]',
+						'![d]',
+					),
+				),
+			'updated' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_UPDATED_DATE),
+				),
+		);
+		
+		// Engine/schema examples: Fulltext
+		
+		$ft_examples = [];
+		
+		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID))) {
+			if(false != ($engine = $schema->getEngine())) {
+				$ft_examples = $engine->getQuickSearchExamples($schema);
+			}
+		}
+		
+		if(!empty($ft_examples)) {
+			$fields['text']['examples'] = $ft_examples;
+		}
+		
+		// Add is_sortable
+		
+		$fields = self::_setSortableQuickSearchFields($fields, $search_fields);
+		
+		// Sort by keys
+		
+		ksort($fields);
+		
+		return $fields;
+	}
+	
+	function getParamFromQuickSearchFieldTokens($field, $tokens) {
+		switch($field) {
+			case 'participant':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH);
+				break;
+				
+			case 'status':
+				$field_key = SearchFields_Ticket::VIRTUAL_STATUS;
+				$oper = null;
+				$value = null;
+				
+				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
+				
+				$values = array();
+				
+				// Normalize status labels
+				foreach($value as $status) {
+					switch(substr(DevblocksPlatform::strLower($status), 0, 1)) {
+						case 'o':
+							$values['open'] = true;
+							break;
+						case 'w':
+							$values['waiting'] = true;
+							break;
+						case 'c':
+							$values['closed'] = true;
+							break;
+						case 'd':
+							$values['deleted'] = true;
+							break;
+					}
+				}
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					array_keys($values)
+				);
+				break;
+			
+			default:
+				break;
+		}
+		
+		$search_fields = $this->getQuickSearchFields();
+		return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 	}
 };

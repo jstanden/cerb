@@ -12,7 +12,6 @@
 <input type="hidden" name="a" value="">
 <input type="hidden" name="_csrf_token" value="{$session->csrf_token}">
 
-{if !empty($total)}
 <table cellpadding="3" cellspacing="0" border="0" width="100%" class="worklistBody">
 	{* Column Headers *}
 	<thead>
@@ -151,7 +150,6 @@
 	</tbody>
 	{/foreach}
 </table>
-{/if}
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
 	<tr>
