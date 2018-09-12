@@ -224,7 +224,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	static function getByAccessKey($access_key) {
 		$credentials = self::getAll();
 		
-		foreach($credentials as $credential) { /* @var $credential Model_WebApiCredential */
+		foreach($credentials as $credential) { /* @var $credential Model_WebApiCredentials */
 			if($credential->access_key == $access_key)
 				return $credential;
 		}

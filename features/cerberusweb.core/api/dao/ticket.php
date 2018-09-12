@@ -3098,7 +3098,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Ticket::getFields();
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$fields = array(
 			'text' => 

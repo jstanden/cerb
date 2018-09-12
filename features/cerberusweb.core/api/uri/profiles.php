@@ -20,7 +20,7 @@ class Page_Profiles extends CerberusPageExtension {
 	
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		
 		return true;
@@ -28,8 +28,6 @@ class Page_Profiles extends CerberusPageExtension {
 	
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		$stack = $response->path;
@@ -48,7 +46,6 @@ class Page_Profiles extends CerberusPageExtension {
 	
 	static function renderProfile($context, $context_id, $path=[]) {
 		$tpl = DevblocksPlatform::services()->template();
-		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Context

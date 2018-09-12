@@ -11,6 +11,7 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\Chrome\ChromeOptions;
@@ -240,7 +241,7 @@ class CerbTestHelper {
 			WebDriverExpectedCondition::presenceOfElementLocated($by)
 		);
 		
-		$button = $driver->findElement($by)
+		$driver->findElement($by)
 			->click();
 		
 		$popups = [];

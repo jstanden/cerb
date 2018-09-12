@@ -11,13 +11,13 @@
 			| 
 			<a href="javascript:;" data-preset="first day of this month -1 month">1mo</a>
 			| 
-			<a href="javascript:;" data-preset="first day of this month -3 months">3mo</a>
-			| 
 			<a href="javascript:;" data-preset="first day of this month -6 months">6mo</a>
 			| 
 			<a href="javascript:;" data-preset="first day of this month -1 year">1yr</a>
 			| 
 			<a href="javascript:;" data-preset="Jan 1 to now">ytd</a>
+			| 
+			<a href="javascript:;" data-preset="big bang to now">all</a>
 		</div>
 		<div>
 			<input type="text" name="prompts[{$prompt.placeholder}]" value="{$prompt_value}" size="32" style="width:95%;">

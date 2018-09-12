@@ -97,7 +97,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		// Build a hash of all existing strings so we can quickly INSERT/UPDATE check
 		$hash = array();
 		$all_strings = DAO_Translation::getWhere();
-		foreach($all_strings as $s) { /* @var $s Model_TranslationDefault */
+		foreach($all_strings as $s) { /* @var $s Model_Translation */
 			$hash[$s->lang_code.'_'.$s->string_id] = $s;
 		}
 		unset($all_strings); // free()
@@ -267,7 +267,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		$view = C4_AbstractViewLoader::getView(View_Translation::DEFAULT_ID, $defaults);
 
 		// Extract every result from the view
-		list($results, $null) = DAO_Translation::search(
+		list($results,) = DAO_Translation::search(
 			$view->view_columns,
 			$view->getParams(),
 			-1,
@@ -560,7 +560,6 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Translation::getFields();
 		
-		$translate = DevblocksPlatform::getTranslationService();
 		$languages = DAO_Translation::getDefinedLangCodes();
 		
 		$fields = array(

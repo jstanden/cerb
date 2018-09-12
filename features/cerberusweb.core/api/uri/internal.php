@@ -103,8 +103,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$interaction_params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string', null);
 		
-		$session = DevblocksPlatform::services()->session();
-		
 		if(
 			!$interaction_behavior_id
 			|| false == ($interaction_behavior = DAO_TriggerEvent::get($interaction_behavior_id))
@@ -154,7 +152,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		
-		$result = $interaction_behavior->runDecisionTree($dict, false, $event);
+		$interaction_behavior->runDecisionTree($dict, false, $event);
 		
 		$behavior_id = null;
 		$bot_name = null;
