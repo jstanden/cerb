@@ -129,6 +129,15 @@
 <br>
 <br>
 
+<b>PHP Extension (YAML)... </b> 
+{if !$results.ext_yaml}
+	<span class="bad">Error! PHP must have the 'yaml' extension enabled.</span>
+{else}
+	<span class="good">Passed!</span>
+{/if}
+<br>
+<br>
+
 <b>PHP Extension (OpenSSL)... </b> 
 {if !$results.ext_openssl}
 	<span class="bad">Error! PHP must have the 'openssl' extension enabled.</span>

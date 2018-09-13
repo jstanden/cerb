@@ -458,6 +458,12 @@ class CerberusApplication extends DevblocksApplication {
 		} else {
 			$errors[] = "The 'openssl' PHP extension is required.  Please enable it.";
 		}
+		
+		// Extension: YAML
+		if(extension_loaded("yaml")) {
+		} else {
+			$errors[] = "The 'yaml' PHP extension is required.  Please enable it.";
+		}
 
 		return $errors;
 	}

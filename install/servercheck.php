@@ -172,6 +172,14 @@ if(extension_loaded("json")) {
 	$fails++;
 }
 
+// Extension: YAML
+if(extension_loaded("yaml")) {
+	$results['ext_yaml'] = true;
+} else {
+	$results['ext_yaml'] = false;
+	$fails++;
+}
+
 // Extension: OpenSSL
 if(extension_loaded("openssl")) {
 	$results['ext_openssl'] = true;
@@ -260,6 +268,9 @@ if($fails) {
 
 	if(!$results['ext_json'])
 		echo "<li>The 'JSON' PHP extension is required.  Please enable it.</li>";
+	
+	if(!$results['ext_yaml'])
+		echo "<li>The 'yaml' PHP extension is required.  Please enable it.</li>";
 	
 	if(!$results['ext_openssl'])
 		echo "<li>The 'openssl' PHP extension is required.  Please enable it.</li>";
