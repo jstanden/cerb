@@ -53,6 +53,11 @@
 		<div>
 			<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$message_headers.to}
 		</div>
+		{if $message_headers.cc}
+		<div>
+			<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$message_headers.cc}
+		</div>
+		{/if}
 		<div>
 			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$message->created_date|devblocks_date} ({$message->created_date|devblocks_prettytime})
 		</div>
