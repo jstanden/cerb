@@ -75,7 +75,7 @@ define('URL_REWRITE', file_exists('.htaccess'));
 define('LOCAL_SSL', null);
 define('LOCAL_HOST', $_SERVER['HTTP_HOST']);
 define('LOCAL_BASE', DevblocksRouter::getLocalBase()); // NO trailing slash!
-define('SCRIPT_LAST_MODIFY', 20180208); // last change
+define('SCRIPT_LAST_MODIFY', 20180921); // last change
 
 class DevblocksProxy {
 	function proxy($local_path) {
@@ -197,29 +197,33 @@ class DevblocksProxy {
 		$content = null;
 		
 		// Handle post variables
-		foreach($_POST as $k => $v) {
-			if(is_array($v)) {
-				foreach($v as $vk => $vv) {
-					$content .= sprintf("--%s\r\n".
-						"content-disposition: form-data; name=\"%s\"\r\n".
-						"\r\n".
-						"%s\r\n",
-						$boundary,
-						$k.'[]',
-						$vv
-					);
+		
+		$recursePostParams = function($param, $parents=[]) use (&$recursePostParams, &$content, $boundary) {
+			if(is_array($param)) {
+				foreach($param as $k => $v) {
+					$parents[] = $k;
+					$recursePostParams($v, $parents);
+					array_pop($parents);
 				}
 			} else {
+				$parent_path = $parents;
+				
+				$key = array_shift($parent_path) . implode('', array_map(function($k) {
+					return '[' . $k . ']';
+				}, $parent_path));
+				
 				$content .= sprintf("--%s\r\n".
 					"content-disposition: form-data; name=\"%s\"\r\n".
 					"\r\n".
 					"%s\r\n",
 					$boundary,
-					$k,
-					$v
+					$key,
+					$param
 				);
 			}
-		}
+		};
+		
+		$recursePostParams($_POST);
 		
 		// Handle files
 		if(is_array($_FILES) && !empty($_FILES))
