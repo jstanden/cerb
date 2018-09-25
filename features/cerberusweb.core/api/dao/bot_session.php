@@ -42,6 +42,22 @@ class DAO_BotSession extends Cerb_ORMHelper {
 		return $session_id;
 	}
 	
+	static function upsert($fields, $session_id=null) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(is_null($session_id))
+			$session_id = sha1(json_encode($fields) . time() . uniqid(null, true));
+		
+		$sql = sprintf("REPLACE INTO bot_session (session_id) VALUES (%s)",
+			$db->qstr($session_id)
+		);
+		$db->ExecuteMaster($sql);
+		
+		self::update($session_id, $fields);
+		
+		return $session_id;
+	}
+	
 	static function update($ids, $fields, $check_deltas=true) {
 		$db = DevblocksPlatform::services()->database();
 		
