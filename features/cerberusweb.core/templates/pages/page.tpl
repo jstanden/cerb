@@ -109,9 +109,9 @@
 							var selected_idx = $tabs.tabs('option','active');
 							$tabs.tabs('load', selected_idx);
 							
-							if(null != json.name) {
+							if(null != e.label) {
 								var $selected_tab = $tabs.find('> ul > li.ui-tabs-active');
-								$selected_tab.find('a').text(json.name);
+								$selected_tab.find('a').text(e.label);
 							}
 						}
 						
