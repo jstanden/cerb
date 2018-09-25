@@ -76,6 +76,9 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				
 				$dob_ts = null;
 				
+				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
+					$dob_ts = null;
+				
 				// Insert/Update
 				
 				if(empty($id)) { // New

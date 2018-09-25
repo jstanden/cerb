@@ -107,6 +107,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				
 				$dob_ts = null;
 				
+				if(!empty($dob) && false == ($dob_ts = strtotime($dob . ' 00:00 GMT')))
+					$dob_ts = null;
+				
 				$is_superuser = ($active_worker->is_superuser && $is_superuser) ? 1 : 0;
 				
 				// ============================================
