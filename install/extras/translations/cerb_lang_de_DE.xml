@@ -1978,52 +1978,52 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license.is_voided">
+		<tu tuid="dao.wgm_cerb_license.is_voided">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license.seats">
+		<tu tuid="dao.wgm_cerb_license.seats">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license.serial_number">
+		<tu tuid="dao.wgm_cerb_license.serial_number">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license.total_paid">
+		<tu tuid="dao.wgm_cerb_license.total_paid">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license.upgrades">
+		<tu tuid="dao.wgm_cerb_license.upgrades">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license_log.charge">
+		<tu tuid="dao.wgm_cerb_license_log.charge">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license_log.delta_seats">
+		<tu tuid="dao.wgm_cerb_license_log.delta_seats">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license_log.delta_upgrades">
+		<tu tuid="dao.wgm_cerb_license_log.delta_upgrades">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license_log.license_id">
+		<tu tuid="dao.wgm_cerb_license_log.license_id">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.wgm_cerb5_license_log.updated_by">
+		<tu tuid="dao.wgm_cerb_license_log.updated_by">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
@@ -4634,17 +4634,17 @@ login</seg>
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="wgm.cerb5licenses.peek">
+		<tu tuid="wgm.cerblicenses.peek">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="wgm.cerb5licenses.tab">
+		<tu tuid="wgm.cerblicenses.tab">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="wgm.cerb5licenses.tab.create">
+		<tu tuid="wgm.cerblicenses.tab.create">
 			<tuv xml:lang="de_DE">
 				<seg/>
 			</tuv>

@@ -2,7 +2,7 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
- * @version 2017-09-26
+ * @version 2018-09-18
  */
 
 $plugin_id = 'example.plugin';
@@ -340,14 +340,6 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_<?php echo $class_name; ?>');
-	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 	
 		return array(
 			'primary_table' => '<?php echo $table_name; ?>',

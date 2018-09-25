@@ -122,7 +122,7 @@
 			<params>
 				<param key="uri" value="feedback" />
 			</params>
-		</extension>		
+		</extension>
 		
 	</extensions>
 </plugin>
