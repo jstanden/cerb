@@ -359,14 +359,14 @@ class Model_CerbPlugin {
 };
 
 class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
-	const DEFAULT_ID = 'cerb5_plugins';
+	const DEFAULT_ID = 'cerb_plugins';
 
 	function __construct() {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
 
-		$this->name = $translate->_('Cerb6 Plugins');
+		$this->name = $translate->_('Cerb Plugins');
 		$this->renderLimit = 10;
 		$this->renderSortBy = SearchFields_CerbPlugin::ID;
 		$this->renderSortAsc = true;

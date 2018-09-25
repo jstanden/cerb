@@ -256,7 +256,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 				
 				$has_public_vars = false;
 				if(is_array($result->variables))
-				foreach($result->variables as $var_name => $var_data) {
+				foreach($result->variables as $var_data) {
 					if(empty($var_data['is_private']))
 						$has_public_vars = true;
 				}
@@ -1820,8 +1820,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH:
