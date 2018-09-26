@@ -1,29 +1,30 @@
 {$headers = $message->getHeaders()}
-<div class="reply_frame" style="width:98%;margin:10px;">
+<div class="reply_frame {if "inline" == $reply_format}block{/if}" style="width:98%;margin:10px;">
+
+{if $recent_activity}
+	<div class="cerb-collision">
+		<h1>There is recent activity on this ticket:</h1>
+		<table style="margin-left:20px;">
+			{foreach from=$recent_activity item=activity}
+			<tr>
+				<td align="right" style="padding-right:15px;vertical-align:middle;"><b>{$activity.timestamp|devblocks_prettytime}</b></td>
+				<td style="vertical-align:middle;">{$activity.message}</td>
+			</tr>
+			{/foreach}
+		</table>
+		
+		<div style="margin-top:10px;">
+			<button type="button" class="cerb-collision--continue"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cerb-collision--cancel"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(180,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		</div>
+	</div>
+{/if}
+
 <form id="reply{$message->id}_part1" onsubmit="return false;">
 
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 	<tr>
 		<td width="100%">
-			{if $recent_activity}
-				<div class="cerb-collision help-box">
-					<h1>There is recent activity on this ticket:</h1>
-					<table style="margin-left:20px;">
-						{foreach from=$recent_activity item=activity}
-						<tr>
-							<td align="right" style="padding-right:15px;vertical-align:middle;"><b>{$activity.timestamp|devblocks_prettytime}</b></td>
-							<td style="vertical-align:middle;">{$activity.message}</td>
-						</tr>
-						{/foreach}
-					</table>
-					
-					<div style="margin-top:10px;">
-						<button type="button" class="cerb-collision--continue"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.continue'|devblocks_translate|capitalize}</button>
-						<button type="button" class="cerb-collision--cancel"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(180,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
-					</div>
-				</div>
-			{/if}
-			
 			{if !$reply_transport}
 				<div class="help-box">
 					<h1>Your message will not be delivered.</h1>
@@ -368,7 +369,7 @@
 				{if $active_worker->hasPriv('core.mail.save_without_sending')}<li><a href="javascript:;" class="save">{'display.ui.save_nosend'|devblocks_translate}</a></li>{/if}
 				<li><a href="javascript:;" class="draft">{'display.ui.continue_later'|devblocks_translate}</a></li>
 			</ul>
-			<button type="button" class="discard" onclick="window.onbeforeunload=null;if(confirm('Are you sure you want to discard this reply?')) { if(null != draftAutoSaveInterval) { clearTimeout(draftAutoSaveInterval); draftAutoSaveInterval = null; } $frm = $(this).closest('form'); genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id='+escape($frm.find('input:hidden[name=draft_id]').val()), function(o) { $frm = $('#reply{$message->id}_part2'); $('#draft'+escape($frm.find('input:hidden[name=draft_id]').val())).remove(); genericAjaxPopupClose($popup);  } ); }"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'display.ui.discard'|devblocks_translate|capitalize}</button>
+			<button type="button" class="discard"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'display.ui.discard'|devblocks_translate|capitalize}</button>
 		</td>
 	</tr>
 </table>
@@ -377,31 +378,64 @@
 </div>
 
 <script type="text/javascript">
+$(function() {
 	if(draftAutoSaveInterval == undefined)
 		var draftAutoSaveInterval = null;
 	
-	var $popup = genericAjaxPopupFind('#reply{$message->id}_part2');
+	var $frm = $('#reply{$message->id}_part1');
+	var $frm2 = $('#reply{$message->id}_part2');
+	var $reply = $frm2.closest('div.reply_frame');
 	
-	$popup.one('popup_open',function(event,ui) {
-		$popup.dialog('option','title','{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'common.reply'|devblocks_translate|capitalize}{/if}');
-		$popup.css('overflow', 'inherit');
+	{if $recent_activity}
+	$frm.hide();
+	$frm2.hide();
+	{/if}
+	
+	$reply.on('cerb-reply--close', function(e) {
+		e.stopPropagation();
 		
-		// Close confirmation
+		{if 'inline' == $reply_format}
+		$reply.parent().empty();
+		{else}
+		genericAjaxPopupClose($popup);
+		{/if}
+	});
+	
+	$reply.find('button.discard').on('click', function(e) {
+		e.stopPropagation();
 		
-		$popup.on('dialogbeforeclose', function(e, ui) {
-			var keycode = e.keyCode || e.which;
-			if(keycode == 27)
-				return confirm('{'warning.core.editor.close'|devblocks_translate}');
-		});
+		window.onbeforeunload = null;
 		
-		var $frm = $('#reply{$message->id}_part1');
-		var $frm2 = $('#reply{$message->id}_part2');
-		var $collisions = $popup.find('.cerb-collision');
+		if(confirm('Are you sure you want to discard this reply?')) {
+			if(null != draftAutoSaveInterval) { 
+				clearTimeout(draftAutoSaveInterval);
+				draftAutoSaveInterval = null; 
+			}
+			
+			var draft_id = $frm2.find('input:hidden[name=draft_id]').val();
+			
+			genericAjaxGet(
+				'',
+				'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id=' + escape(draft_id),
+				function(o) { 
+					$('#draft'+escape(draft_id)).remove();
+					
+					$reply.triggerHandler('cerb-reply--close');
+				}
+			);
+		}
+	});
+	
+	var onReplyFormInit = function() {
+		var $collisions = $reply.find('.cerb-collision');
 		
 		// Collision detection
 		
 		$collisions.find('.cerb-collision--continue').on('click', function(e) {
 			$collisions.remove();
+			
+			$frm.fadeIn();
+			$frm2.fadeIn();
 			
 			// Save a draft now
 			$frm.find('button[name=saveDraft]').click();
@@ -421,7 +455,7 @@
 		});
 		
 		$collisions.find('.cerb-collision--cancel').on('click', function(e) {
-			genericAjaxPopupClose($popup);
+			$reply.triggerHandler('cerb-reply--close');
 		});
 		
 		// Disable ENTER submission on the FORM text input
@@ -849,9 +883,9 @@
 						hideLoadingPanel();
 						
 						var event = new $.Event('cerb-reply-sent');
-						$popup.trigger(event);
+						$reply.trigger(event);
 						
-						genericAjaxPopupClose($popup);
+						$reply.triggerHandler('cerb-reply--close');
 					});
 					
 				} else {
@@ -878,9 +912,9 @@
 				hideLoadingPanel();
 				
 				var event = new $.Event('cerb-reply-saved');
-				$popup.trigger(event);
+				$reply.trigger(event);
 				
-				genericAjaxPopupClose($popup);
+				$reply.triggerHandler('cerb-reply--close');
 			});
 		});
 		
@@ -900,9 +934,9 @@
 				hideLoadingPanel();
 				
 				var event = new $.Event('cerb-reply-draft');
-				$popup.trigger(event);
+				$reply.trigger(event);
 				
-				genericAjaxPopupClose($popup);
+				$reply.triggerHandler('cerb-reply--close');
 			});
 		});
 		
@@ -1156,5 +1190,25 @@
 			{/foreach}
 		});
 		{/if}
-	});
+	}
+	
+	{if !$reply_format}
+		var $popup = genericAjaxPopupFind($reply);
+		
+		$popup.one('popup_open',function(event,ui) {
+			$popup.dialog('option','title','{if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'common.reply'|devblocks_translate|capitalize}{/if}');
+			$popup.css('overflow', 'inherit');
+			
+			// Close confirmation
+			
+			$popup.on('dialogbeforeclose', function(e, ui) {
+				var keycode = e.keyCode || e.which;
+				if(keycode == 27)
+					return confirm('{'warning.core.editor.close'|devblocks_translate}');
+			});
+		});
+	{/if}
+	
+	onReplyFormInit();
+});
 </script>

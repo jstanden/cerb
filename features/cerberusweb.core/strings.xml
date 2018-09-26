@@ -4647,6 +4647,21 @@ For example: *receipt*</seg>
 				<seg>When I click the reply button:</seg>
 			</tuv>
 		</tu>
+		<tu tuid="preferences.account.mail.reply_format">
+			<tuv xml:lang="en_US">
+				<seg>Show the reply form:</seg>
+			</tuv>
+		</tu>
+		<tu tuid="preferences.account.mail.reply_format.inline">
+			<tuv xml:lang="en_US">
+				<seg>Below the message (legacy)</seg>
+			</tuv>
+		</tu>
+		<tu tuid="preferences.account.mail.reply_format.popup">
+			<tuv xml:lang="en_US">
+				<seg>In a popup window (recommended)</seg>
+			</tuv>
+		</tu>
 		<tu tuid="preferences.account.mail.reply.html">
 			<tuv xml:lang="en_US">
 				<seg>Always switch to HTML mode</seg>

@@ -667,6 +667,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				$prefs['mail_reply_textbox_size_auto'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_auto',0);
 				$prefs['mail_reply_textbox_size_px'] = DAO_WorkerPref::get($worker->id,'mail_reply_textbox_size_px',300);
 				$prefs['mail_reply_button'] = DAO_WorkerPref::get($worker->id,'mail_reply_button',0);
+				$prefs['mail_reply_format'] = DAO_WorkerPref::get($worker->id,'mail_reply_format','');
 				$prefs['mail_status_compose'] = DAO_WorkerPref::get($worker->id,'compose.status','waiting');
 				$prefs['mail_status_reply'] = DAO_WorkerPref::get($worker->id,'mail_status_reply','waiting');
 				$prefs['mail_signature_pos'] = DAO_WorkerPref::get($worker->id,'mail_signature_pos',2);
@@ -889,6 +890,9 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					@$mail_reply_button = DevblocksPlatform::importGPC($_REQUEST['mail_reply_button'],'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_reply_button', $mail_reply_button);
+					
+					@$mail_reply_format = DevblocksPlatform::importGPC($_REQUEST['mail_reply_format'],'string','');
+					DAO_WorkerPref::set($worker->id, 'mail_reply_format', $mail_reply_format);
 					
 					@$mail_signature_pos = DevblocksPlatform::importGPC($_REQUEST['mail_signature_pos'],'integer',0);
 					DAO_WorkerPref::set($worker->id, 'mail_signature_pos', $mail_signature_pos);
@@ -2201,7 +2205,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$messageToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.message.toolbaritem', true);
 		if(!empty($messageToolbarItems))
 			$tpl->assign('message_toolbaritems', $messageToolbarItems);
-
+		
 		// Workers
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -2209,6 +2213,9 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		// Prefs
 		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
 		$tpl->assign('mail_reply_button', $mail_reply_button);
+		
+		$mail_reply_format = DAO_WorkerPref::get($active_worker->id, 'mail_reply_format', '');
+		$tpl->assign('mail_reply_format', $mail_reply_format);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/conversation.tpl');
 	}

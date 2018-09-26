@@ -21,6 +21,12 @@
 	<label><input type="radio" name="mail_reply_button" value="1" {if 1==$prefs.mail_reply_button}checked="checked"{/if}> {'display.reply.no_quote'|devblocks_translate}</label><br>
 </div>
 
+<b>{'preferences.account.mail.reply_format'|devblocks_translate}</b>
+<div style="margin:0px 0px 10px 10px;">
+	<label><input type="radio" name="mail_reply_format" value="" {if empty($prefs.mail_reply_format)}checked="checked"{/if}> {'preferences.account.mail.reply_format.popup'|devblocks_translate}</label><br>
+	<label><input type="radio" name="mail_reply_format" value="inline" {if 'inline'==$prefs.mail_reply_format}checked="checked"{/if}> {'preferences.account.mail.reply_format.inline'|devblocks_translate}</label><br>
+</div>
+
 <b>{'preferences.account.mail.reply_textbox_size'|devblocks_translate}</b>
 <div style="margin:0px 0px 10px 10px;">
 	<label><input type="checkbox" name="mail_reply_html" value="1" {if $prefs.mail_reply_html}checked{/if}> {'preferences.account.mail.reply.html'|devblocks_translate}</label><br>

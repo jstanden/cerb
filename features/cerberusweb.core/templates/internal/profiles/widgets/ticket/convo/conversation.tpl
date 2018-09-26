@@ -148,23 +148,70 @@ $(function() {
 		var reply_mode = (null == e.reply_mode) ? 0 : parseInt(e.reply_mode);
 		var is_confirmed = (null == e.is_confirmed || 0 == e.is_confirmed) ? 0 : 1;
 		
-		var $popup = genericAjaxPopupFind('#popupreply' + msgid);
+		{* Inline reply form *}
+		{if $mail_reply_format == 'inline'}
+			var params = {
+				'c': 'display',
+				'a': 'reply',
+				'forward': is_forward,
+				'draft_id': draft_id,
+				'reply_mode': reply_mode,
+				'reply_format': 'inline',
+				'is_confirmed': is_confirmed,
+				'timestamp': {time()},
+				'id': msgid
+			};
+			var url = $.param(params);
+			
+			var $reply = $('#reply' + msgid);
+			
+			// Prevent the reply form from rendering twice
+			if(0 == $reply.children().length) {
+				genericAjaxGet(null, url, function(html) {
+					$reply.html(html);
+					$reply[0].scrollIntoView();
+					
+					$reply.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
+						// Profile reload
+						document.location.reload();
+					});
+				});
+				
+			} else {
+				$reply[0].scrollIntoView();
+				$reply.find('textarea').focus();
+			}
 		
-		// If this popup isn't already open
-		if(null == $popup) {
-			var url = 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&reply_mode='+reply_mode+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid;
+		{* Popup reply form *}
+		{else}
+			var $popup = genericAjaxPopupFind('#popupreply' + msgid);
 			
-			var $popup = genericAjaxPopup('reply' + msgid, url, null, false, '70%');
-			
-			$popup.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
-				// Profile reload
-				document.location.reload();
-			});
-			
-		// If the reply window is already open, just focus it
-		} else {
-			$popup.show().find('textarea').focus();
-		}
+			// If this popup isn't already open
+			if(null == $popup) {
+				var params = {
+					'c': 'display',
+					'a': 'reply',
+					'forward': is_forward,
+					'draft_id': draft_id,
+					'reply_mode': reply_mode,
+					'is_confirmed': is_confirmed,
+					'timestamp': {time()},
+					'id': msgid
+				};
+				var url = $.param(params);
+				
+				var $popup = genericAjaxPopup('reply' + msgid, url, null, false, '70%');
+				
+				$popup.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
+					// Profile reload
+					document.location.reload();
+				});
+				
+			// If the reply window is already open, just focus it
+			} else {
+				$popup.show().find('textarea').focus();
+			}
+		{/if}
 	});
 	
 	var anchor = window.location.hash.substr(1);

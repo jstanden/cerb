@@ -97,7 +97,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Prefs
 		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
 		$tpl->assign('mail_reply_button', $mail_reply_button);
-			
+		
 		$tpl->assign('expanded', (empty($hide) ? true : false));
 		$tpl->assign('is_refreshed', true);
 
@@ -362,14 +362,15 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$is_confirmed = DevblocksPlatform::importGPC($_REQUEST['is_confirmed'],'integer',0);
 		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'integer',0);
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
-
-		$settings = DevblocksPlatform::services()->pluginSettings();
-		$active_worker = CerberusApplication::getActiveWorker();  /* @var $active_worker Model_Worker */
+		@$reply_format = DevblocksPlatform::importGPC($_REQUEST['reply_format'],'string','');
 		
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();  /* @var $active_worker Model_Worker */
+		
 		$tpl->assign('id',$id);
-		$tpl->assign('is_forward',$is_forward);
-		$tpl->assign('reply_mode',$reply_mode);
+		$tpl->assign('is_forward', $is_forward);
+		$tpl->assign('reply_mode', $reply_mode);
+		$tpl->assign('reply_format', $reply_format);
 		
 		$message = DAO_Message::get($id);
 		$tpl->assign('message',$message);
