@@ -547,7 +547,6 @@ class CerberusApplication extends DevblocksApplication {
 	static function sendEmailTemplate($email, $template_id, $values) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$sender_addresses = DAO_Address::getLocalAddresses();
-		$default_sender = DAO_Address::getDefaultLocalAddress();
 		
 		$templates = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_AUTOMATED_TEMPLATES, '', true);
 		$default_templates = json_decode(CerberusSettingsDefaults::MAIL_AUTOMATED_TEMPLATES, true);
@@ -1754,6 +1753,7 @@ class CerberusContexts {
 		@$vars = $entry['variables'];
 
 		// Do we need to translate any token variables/urls?
+		$matches = null;
 		if(preg_match_all('#\{\{\'(.*?)\'.*?\}\}#', $entry['message'], $matches)) {
 			foreach(array_keys($matches[0]) as $idx) {
 				$new_key = uniqid('var_');
@@ -2083,21 +2083,18 @@ class CerberusContexts {
 	}
 
 	static public function logActivity($activity_point, $target_context, $target_context_id, &$entry_array, $actor_context=null, $actor_context_id=null, $also_notify_worker_ids=[], $also_notify_ignore_self=false) {
-		// Target meta
-		if(!isset($target_meta)) {
-			if(null != ($target_ctx = Extension_DevblocksContext::get($target_context))
-				&& $target_ctx instanceof Extension_DevblocksContext) {
-					$target_meta = $target_ctx->getMeta($target_context_id);
-			}
+		if(null != ($target_ctx = Extension_DevblocksContext::get($target_context))
+			&& $target_ctx instanceof Extension_DevblocksContext) {
+				$target_meta = $target_ctx->getMeta($target_context_id);
 		}
-
+		
 		$actor = self::getCurrentActor($actor_context, $actor_context_id);
-
+		
 		$entry_array['variables']['actor'] = $actor['name'];
-
+		
 		if(isset($actor['url']) && !empty($actor['url']))
 			$entry_array['urls']['actor'] = $actor['url'];
-
+		
 		// Activity Log
 		$activity_entry_id = DAO_ContextActivityLog::create(array(
 			DAO_ContextActivityLog::ACTIVITY_POINT => $activity_point,
@@ -2417,7 +2414,7 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 	}
 
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::services()->url();
+		//$url_writer = DevblocksPlatform::services()->url();
 
 		return array(
 			'id' => 0,
@@ -2785,7 +2782,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			$db->qstr($user_agent),
 			$db->qstr($id)
 		);
-		$result = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
+		$db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 
 		if(0==$db->Affected_Rows()) {
 			// Insert
@@ -3006,8 +3003,6 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
-
-		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
