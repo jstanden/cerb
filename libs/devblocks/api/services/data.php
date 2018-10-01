@@ -422,7 +422,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				case 'average':
 				case 'avg':
 					$metric_field = sprintf("AVG(%s)",
-						Cerb_ORMHelper::escape($series['field']['sql_select'])
+						$series['field']['sql_select']
 					);
 					break;
 					
@@ -432,19 +432,19 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 					
 				case 'max':
 					$metric_field = sprintf("MAX(%s)",
-						Cerb_ORMHelper::escape($series['field']['sql_select'])
+						$series['field']['sql_select']
 					);
 					break;
 					
 				case 'min':
 					$metric_field = sprintf("MIN(%s)",
-						Cerb_ORMHelper::escape($series['field']['sql_select'])
+						$series['field']['sql_select']
 					);
 					break;
 					
 				case 'sum':
 					$metric_field = sprintf("SUM(%s)",
-						Cerb_ORMHelper::escape($series['field']['sql_select'])
+						$series['field']['sql_select']
 					);
 					break;
 			}
@@ -1577,7 +1577,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			switch($function) {
 				case 'average':
 					$metric_field = sprintf("AVG(%s)",
-						Cerb_ORMHelper::escape($series['y']['sql_select'])
+						$series['y']['sql_select']
 					);
 					break;
 					
@@ -1588,19 +1588,19 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 					
 				case 'max':
 					$metric_field = sprintf("MAX(%s)",
-						Cerb_ORMHelper::escape($series['y']['sql_select'])
+						$series['y']['sql_select']
 					);
 					break;
 					
 				case 'min':
 					$metric_field = sprintf("MIN(%s)",
-						Cerb_ORMHelper::escape($series['y']['sql_select'])
+						$series['y']['sql_select']
 					);
 					break;
 					
 				case 'sum':
 					$metric_field = sprintf("SUM(%s)",
-						Cerb_ORMHelper::escape($series['y']['sql_select'])
+						$series['y']['sql_select']
 					);
 					break;
 			}
