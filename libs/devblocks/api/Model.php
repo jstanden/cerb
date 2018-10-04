@@ -967,6 +967,7 @@ class DevblocksSearchCriteria {
 	const TYPE_BOOL = 'bool';
 	const TYPE_CONTEXT = 'context';
 	const TYPE_DATE = 'date';
+	const TYPE_DECIMAL = 'decimal';
 	const TYPE_FULLTEXT = 'fulltext';
 	const TYPE_NUMBER = 'number';
 	const TYPE_NUMBER_MINUTES = 'number_minutes';
@@ -1060,6 +1061,11 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::TYPE_DATE:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getDateParamFromTokens($param_key, $tokens)))
 					return $param;
+				break;
+				
+			case DevblocksSearchCriteria::TYPE_DECIMAL:
+				$tokens = CerbQuickSearchLexer::getDecimalTokensAsNumbers($tokens);
+				return DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens);
 				break;
 				
 			case DevblocksSearchCriteria::TYPE_FULLTEXT:

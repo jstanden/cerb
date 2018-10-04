@@ -1854,8 +1854,23 @@ abstract class C4_AbstractView {
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_BOOL;
 					break;
 					
+				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = $cfield->params['currency_id'];
+					
+					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
+						break;
+					
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_DECIMAL;
+					$search_field_meta['options']['decimal_at'] = $currency->decimal_at;
+					break;
+					
 				case Model_CustomField::TYPE_DATE:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_DATE;
+					break;
+					
+				case Model_CustomField::TYPE_DECIMAL:
+					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_DECIMAL;
+					$search_field_meta['options']['decimal_at'] = @intval($cfield->params['decimal_at']);
 					break;
 					
 				case Model_CustomField::TYPE_DROPDOWN:
@@ -2081,6 +2096,26 @@ abstract class C4_AbstractView {
 					
 				case Model_CustomField::TYPE_DATE:
 					$implode_token = ' to ';
+					break;
+					
+				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = $custom_fields[$field_id]->params['currency_id'];
+					
+					if(false == ($currency = DAO_Currency::get($currency_id)))
+						break;
+					
+					foreach($vals as $idx => $val) {
+						$vals[$idx] = $currency->format($val, true);
+					}
+					
+					break;
+					
+				case Model_CustomField::TYPE_DECIMAL:
+					@$decimal_at = $custom_fields[$field_id]->params['decimal_at'];
+					
+					foreach($vals as $idx => $val) {
+						$vals[$idx] = DevblocksPlatform::strFormatDecimal($val, $decimal_at);
+					}
 					break;
 					
 				case Model_CustomField::TYPE_LINK:
@@ -4317,6 +4352,48 @@ class CerbQuickSearchLexer {
 			self::_recurse($tokens[0], null, $node_callback, $after_children_callback);
 		
 		return $string;
+	}
+	
+	static function getDecimalTokensAsNumbers($tokens, $decimal_at=2) {
+		if(!is_array($tokens))
+			return false;
+		
+		$new_tokens = $tokens;
+			
+		foreach($new_tokens as &$token) {
+			switch($token->type) {
+				case 'T_QUOTED_TEXT':
+				case 'T_TEXT':
+					$v = $token->value;
+					$matches = [];
+					
+					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
+						$oper_hint = trim($matches[1]);
+						$v = trim($matches[2]);
+						
+						$v = DevblocksPlatform::strParseDecimal($v, $decimal_at);
+						
+						$v = $oper_hint . $v;
+						
+					} else if(preg_match('#^(.*)?\.\.\.(.*)#', $v, $matches)) {
+						$from = trim($matches[1]);
+						$to = trim($matches[2]);
+						
+						$from = DevblocksPlatform::strParseDecimal($from, $decimal_at);
+						$to = DevblocksPlatform::strParseDecimal($to, $decimal_at);
+						
+						$v = sprintf("%s...%s", $from, $to);
+						
+					} else {
+						$v = DevblocksPlatform::strParseDecimal($v, $decimal_at);
+					}
+					
+					$token->value = $v;
+					break;
+			}
+		}
+		
+		return $new_tokens;
 	}
 	
 	static function getHumanTimeTokensAsNumbers($tokens, $interval=1) {
