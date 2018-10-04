@@ -50,7 +50,7 @@
 	
 	<fieldset class="peek">
 		<legend>Prompted placeholders: <small>(optional)</small></legend>
-		<textarea name="params[placeholder_prompts]" data-editor-mode="ace/mode/json" class="placeholders" style="width:95%;height:50px;">{$tab->params.placeholder_prompts}</textarea>
+		<textarea name="params[placeholder_prompts]" data-editor-mode="ace/mode/yaml" class="placeholders" style="width:95%;height:50px;">{$tab->params.placeholder_prompts}</textarea>
 	</fieldset>
 </div>
 
