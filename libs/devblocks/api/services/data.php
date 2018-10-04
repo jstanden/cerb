@@ -306,6 +306,9 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				$series_context = null;
 				
 				foreach($series_fields as $series_field) {
+					$oper = $value = null;
+					$values = [];
+					
 					if($series_field->key == 'of') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						if(false == ($series_context = Extension_DevblocksContext::getByAlias($value, true)))
