@@ -32,7 +32,7 @@ class Twig_Node_SetTemp extends Twig_Node
             //->raw("_ = null; }\n")
             ->raw("_ = \$this->env->getUndefinedVariable('")
             ->raw($name)
-            ->raw("'); }\n")
+            ->raw("', \$context); }\n")
         ;
     }
 }

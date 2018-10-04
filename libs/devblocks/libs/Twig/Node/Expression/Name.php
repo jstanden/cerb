@@ -56,7 +56,7 @@ class Twig_Node_Expression_Name extends Twig_Node_Expression
                         //->raw('null)')
                         ->raw('$this->env->getUndefinedVariable(')
                         ->string($name)
-                        ->raw('))')
+                        ->raw(', $context))')
                     ;
                 } else {
                     $compiler->raw('$this->getContext($context, ')->string($name)->raw('))');
@@ -76,7 +76,7 @@ class Twig_Node_Expression_Name extends Twig_Node_Expression
                         //->raw('null)')
                         ->raw('$this->env->getUndefinedVariable(')
                         ->string($name)
-                        ->raw('))')
+                        ->raw(', $context))')
                     ;
                 } else {
                     $compiler->raw('$this->getContext($context, ')->string($name)->raw('))');

@@ -497,8 +497,12 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		return isset($this->_dictionary[$name]);
 	}
 	
-	public function delegateUndefinedVariable($name) {
-		return $this->$name;
+	public function delegateUndefinedVariable($name, &$context) {
+		$this->$name;
+		
+		$context = array_merge($context, $this->_dictionary);
+		
+		return $this->get($name);
 	}
 	
 	public function getDictionary($with_prefix=null, $with_meta=true) {
