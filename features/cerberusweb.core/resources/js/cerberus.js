@@ -911,6 +911,7 @@ var ajax = new cAjaxCalls();
 					{ value: "cerb_avatar_url(context,id,updated)", meta: "function" },
 					{ value: "cerb_file_url(file_id,full,proxy)", meta: "function" },
 					{ value: "cerb_has_priv(priv,actor_context,actor_id)", meta: "function" },
+					{ value: "cerb_placeholders_list()", meta: "function" },
 					{ value: "cerb_record_readable(record_context,record_id,actor_context,actor_id)", meta: "function" },
 					{ value: "cerb_record_writeable(record_context,record_id,actor_context,actor_id)", meta: "function" },
 					{ value: "cerb_url('c=controller&a=action&p=param')", meta: "function" },
