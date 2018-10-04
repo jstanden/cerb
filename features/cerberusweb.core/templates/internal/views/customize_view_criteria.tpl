@@ -10,6 +10,12 @@
 {/if}
 {$parent_div = "viewCustom{if $is_custom}Req{/if}Filters{$view->id}"}
 
+{if $is_custom}
+<div class="cerb-filters-list">
+{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$view_params readonly=false}
+</div>
+{/if}
+
 {if !$is_custom}
 <table cellpadding="2" cellspacing="0" border="0" width="100%">
 <tbody class="summary">
