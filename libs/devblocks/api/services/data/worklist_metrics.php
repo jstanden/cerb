@@ -1,0 +1,313 @@
+<?php
+class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
+	function getData($query, $chart_fields, &$error=null, array $options=[]) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$chart_model = [
+			'type' => 'worklist.metrics',
+			'values' => [],
+			'format' => 'table',
+		];
+		
+		foreach($chart_fields as $field) {
+			if(!($field instanceof DevblocksSearchCriteria))
+				continue;
+			
+			if($field->key == 'format') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['format'] = DevblocksPlatform::strLower($value);
+				
+			} else if(DevblocksPlatform::strStartsWith($field->key, 'values.')) {
+				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
+				$series_query = substr($series_query, 1, -1);
+				
+				$series_fields = CerbQuickSearchLexer::getFieldsFromQuery($series_query);
+				
+				$series_id = explode('.', $field->key, 2)[1];
+				
+				$series_model = [
+					'id' => $series_id,
+					'label' => DevblocksPlatform::strTitleCase(str_replace('_',' ',$series_id)),
+					'functions' => ['count'],
+				];
+				
+				$series_context = null;
+				
+				foreach($series_fields as $series_field) {
+					$oper = $value = null;
+					$values = [];
+					
+					if($series_field->key == 'of') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						if(false == ($series_context = Extension_DevblocksContext::getByAlias($value, true)))
+							continue;
+						
+						$series_model['context'] = $series_context->id;
+						
+					} else if($series_field->key == 'functions') {
+						CerbQuickSearchLexer::getOperArrayFromTokens($series_field->tokens, $oper, $values);
+						$series_model['functions'] = $values;
+					
+					} else if($series_field->key == 'function') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['functions'] = [$value];
+						
+					} else if($series_field->key == 'label') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['label'] = $value;
+						
+					} else if($series_field->key == 'field') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['field'] = $value;
+						
+					} else if($series_field->key == 'query') {
+						$data_query = CerbQuickSearchLexer::getTokensAsQuery($series_field->tokens);
+						$data_query = substr($data_query, 1, -1);
+						$series_model['query'] = $data_query;
+					}
+				}
+				
+				// Convert series x/y to SearchFields_* using context
+				
+				if($series_context) {
+					$view = $series_context->getTempView();
+					$search_class = $series_context->getSearchClass();
+					$query_fields = $view->getQuickSearchFields();
+					$search_fields = $view->getFields();
+					
+					if(array_key_exists('field', $series_model)) {
+						if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($series_model['field'], $series_model['context'], $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
+							unset($series_model['field']);
+							continue;
+						}
+						
+						$series_model['field'] = $subtotal_field;
+					}
+				}
+				
+				$function_count = count($series_model['functions']);
+				
+				// Synthesize series from functions
+				foreach($series_model['functions'] as $function) {
+					$function = DevblocksPlatform::strLower($function);
+					
+					$series = $series_model;
+					unset($series['functions']);
+					$series['function'] = $function;
+					
+					// Make a unique series name if we expanded it
+					if($function_count > 1) {
+						$series['id'] = $function . '_' . $series['id'];
+						
+						$label = $series['label'];
+						
+						switch($function) {
+							default:
+							case 'avg':
+							case 'average':
+								$label = 'Avg. ' . $label;
+								break;
+								
+							case 'count':
+								$label = '# ' . $label;
+								break;
+								
+							case 'max':
+								$label = 'Max. ' . $label;
+								break;
+								
+							case 'min':
+								$label = 'Min. ' . $label;
+								break;
+								
+							case 'sum':
+								$label = 'Total ' . $label;
+								break;
+						}
+						
+						$series['label'] = $label;
+					}
+					
+					$chart_model['values'][] = $series;
+				}
+			}
+		}
+		
+		// Fetch data for each series
+		
+		if(isset($chart_model['values']))
+		foreach($chart_model['values'] as $series_idx => $series) {
+			if(!isset($series['context']))
+				continue;
+			
+			$context_ext = Extension_DevblocksContext::get($series['context'], true);
+			$dao_class = $context_ext->getDaoClass();
+			$view = $context_ext->getTempView();
+			$view->addParamsWithQuickSearch($series['query']);
+			
+			$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
+			
+			$metric_field = null;
+			
+			switch($series['function']) {
+				case 'average':
+				case 'avg':
+					$metric_field = sprintf("AVG(%s)",
+						$series['field']['sql_select']
+					);
+					break;
+					
+				case 'count':
+					$metric_field = "COUNT(*)";
+					break;
+					
+				case 'max':
+					$metric_field = sprintf("MAX(%s)",
+						$series['field']['sql_select']
+					);
+					break;
+					
+				case 'min':
+					$metric_field = sprintf("MIN(%s)",
+						$series['field']['sql_select']
+					);
+					break;
+					
+				case 'sum':
+					$metric_field = sprintf("SUM(%s)",
+						$series['field']['sql_select']
+					);
+					break;
+			}
+			
+			if(!$metric_field)
+				continue;
+			
+			$sql = sprintf("SELECT %s AS value %s %s",
+				$metric_field,
+				$query_parts['join'],
+				$query_parts['where']
+			);
+			
+			$value = $db->GetOneSlave($sql);
+			
+			switch($series['field']['type']) {
+				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = $series['field']['type_options']['currency_id'];
+					
+					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
+						break;
+					
+					switch($series['function']) {
+						case 'average':
+						case 'avg':
+						case 'max':
+						case 'min':
+						case 'sum':
+							$value = $currency->format(intval($value), false, '.', '');
+							break;
+							
+						case 'count':
+							break;
+					}
+					break;
+					
+				case Model_CustomField::TYPE_DECIMAL:
+					@$decimal_at = $series['field']['type_options']['decimal_at'];
+					
+					switch($series['function']) {
+						case 'average':
+						case 'avg':
+						case 'max':
+						case 'min':
+						case 'sum':
+							$value = DevblocksPlatform::strFormatDecimal(intval($value), $decimal_at, '.', '');
+							break;
+							
+						case 'count':
+							break;
+					}
+					break;
+			}
+			
+			$chart_model['values'][$series_idx]['value'] = $value;
+		}
+		
+		@$format = $chart_model['format'] ?: 'table';
+		
+		switch($format) {
+			case 'table':
+				return $this->_formatDataAsTable($chart_model);
+				break;
+				
+			default:
+				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be: table",
+					$format,
+					$chart_model['type']
+				);
+				return false;
+		}
+	}
+	
+	private function _formatDataAsTable(array $chart_model=[]) {
+		$response = [];
+		$rows = [];
+		
+		$table = [
+			'columns' => [
+				'name' => [
+					'label' => 'Metric',
+				],
+				'value' => [
+					'label' => 'Value',
+				]
+			],
+			'rows' => &$rows,
+		];
+		
+		foreach($chart_model['values'] as $value) {
+			if(!isset($value['id']) || !isset($value['value']))
+				continue;
+			
+			$type = @$value['field']['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
+			$type_options = @$value['field']['type_options'] ?:[];
+			
+			$row = [
+				'_types' => [
+					'value' => [
+						'type' => $type,
+						'options' => $type_options,
+					]
+				],
+				'id' => $value['id'],
+				'name' => $value['label'],
+				'value' => $value['value'],
+			];
+			
+			// Override types based on function
+			switch($value['function']) {
+				case 'count':
+					$row['_types']['value'] = [
+						'type' => DevblocksSearchCriteria::TYPE_SEARCH,
+						'options' => [
+							'context' => $value['context'],
+							'query' => $value['query'],
+						],
+					];
+					break;
+			}
+			
+			$rows[] = $row;
+		}
+		
+		$response = [
+			'data' => $table,
+			'_' => [
+				'type' => 'worklist.metrics',
+				'format' => 'table',
+			]
+		];
+		
+		return $response;
+	}
+};

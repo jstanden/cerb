@@ -39,6 +39,33 @@
 			<class name="DevblocksCacheEngine_Memcache" />
 			<class name="DevblocksCacheEngine_Redis" />
 		</file>
+		<file path="api/services/data/bot_behavior.php">
+			<class name="_DevblocksDataProviderBotBehavior" />
+		</file>
+		<file path="api/services/data/sample_time_series.php">
+			<class name="_DevblocksDataProviderSampleTimeSeries" />
+		</file>
+		<file path="api/services/data/sample_xy.php">
+			<class name="_DevblocksDataProviderSampleXy" />
+		</file>
+		<file path="api/services/data/usage_bot_behaviors.php">
+			<class name="_DevblocksDataProviderUsageBotBehaviors" />
+		</file>
+		<file path="api/services/data/usage_snippets.php">
+			<class name="_DevblocksDataProviderUsageSnippets" />
+		</file>
+		<file path="api/services/data/worklist_metrics.php">
+			<class name="_DevblocksDataProviderWorklistMetrics" />
+		</file>
+		<file path="api/services/data/worklist_series.php">
+			<class name="_DevblocksDataProviderWorklistSeries" />
+		</file>
+		<file path="api/services/data/worklist_subtotals.php">
+			<class name="_DevblocksDataProviderWorklistSubtotals" />
+		</file>
+		<file path="api/services/data/worklist_xy.php">
+			<class name="_DevblocksDataProviderWorklistXy" />
+		</file>
 		<file path="api/services/search.php">
 			<class name="DevblocksSearchEngineElasticSearch" />
 			<class name="DevblocksSearchEngineMysqlFulltext" />
