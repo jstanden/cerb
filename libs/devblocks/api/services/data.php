@@ -463,6 +463,45 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			
 			$value = $db->GetOneSlave($sql);
 			
+			switch($series['field']['type']) {
+				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = $series['field']['type_options']['currency_id'];
+					
+					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
+						break;
+					
+					switch($series['function']) {
+						case 'average':
+						case 'avg':
+						case 'max':
+						case 'min':
+						case 'sum':
+							$value = $currency->format(intval($value), false, '.', '');
+							break;
+							
+						case 'count':
+							break;
+					}
+					break;
+					
+				case Model_CustomField::TYPE_DECIMAL:
+					@$decimal_at = $series['field']['type_options']['decimal_at'];
+					
+					switch($series['function']) {
+						case 'average':
+						case 'avg':
+						case 'max':
+						case 'min':
+						case 'sum':
+							$value = DevblocksPlatform::strFormatDecimal(intval($value), $decimal_at, '.', '');
+							break;
+							
+						case 'count':
+							break;
+					}
+					break;
+			}
+			
 			$chart_model['values'][$series_idx]['value'] = $value;
 		}
 		

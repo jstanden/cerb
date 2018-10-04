@@ -561,10 +561,10 @@ class Model_Currency {
 	public $is_default;
 	public $updated_at;
 	
-	function format($number, $with_symbols=true) {
+	function format($number, $with_symbols=true, $decimal_separator='.', $thousands_separator=',') {
 		return sprintf("%s%s%s",
 			($with_symbols && $this->symbol ? ($this->symbol . ' ') : ''),
-			DevblocksPlatform::strFormatDecimal($number, $this->decimal_at),
+			DevblocksPlatform::strFormatDecimal($number, $this->decimal_at, $decimal_separator, $thousands_separator),
 			($with_symbols && $this->code ? (' ' . $this->code) : '')
 		);
 	}
