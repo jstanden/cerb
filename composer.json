@@ -5,7 +5,7 @@
 	"license" : "Devblocks Public License <https://cerb.ai/license/>",
 	"authors" : [{
 			"name" : "Webgroup Media LLC",
-			"email" : "support@webgroupmedia.com",
+			"email" : "team@cerb.ai",
 			"homepage" : "https://cerb.ai/",
 			"role" : "Developer / Publisher"
 		}, {
@@ -26,8 +26,8 @@
 		"giggsey/libphonenumber-for-php": "^8.8"
 	},
 	"support" : {
-		"email" : "support@webgroupmedia.com",
+		"email" : "team@cerb.ai",
 		"issues" : "https://github.com/jstanden/cerb/issues/",
-		"source" : "https://github.com/wgm/cerb/"
+		"source" : "https://github.com/cerb/cerb-release/"
 	}
 }
