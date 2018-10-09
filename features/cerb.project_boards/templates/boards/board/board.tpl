@@ -1,7 +1,7 @@
 {capture name="link_contexts"}
 {foreach from=$contexts item=context}
 {if empty($board->params.contexts) || (is_array($board->params.contexts) && in_array($context->id, $board->params.contexts))}
-<li data-context="{$context->id}" data-query="{$board->params.card_queries[{$context->id}]|escape}"><b>{$context->name}</b></li>
+<li data-context="{$context->id}" data-query="{$board->params.card_queries[{$context->id}]}"><b>{$context->name}</b></li>
 {/if}
 {/foreach}
 {/capture}
