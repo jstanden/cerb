@@ -783,6 +783,15 @@ if(!isset($tables['worker_dashboard_pref'])) {
 $db->ExecuteMaster("UPDATE decision_node SET params_json=replace(params_json,'#widget{{','#workspaceWidget{{') WHERE node_type = 'action' AND title = 'Render' AND trigger_id IN (SELECT id FROM trigger_event WHERE title IN ('NPS: Render recent ratings on dashboard','CSAT: Render recent ratings on dashboard','CES: Render recent ratings on dashboard'))");
 
 // ===========================================================================
+// Change `mail_queue.body` from longtext to blob
+
+list($columns,) = $db->metaTable('mail_queue');
+
+if($columns['body'] && 0 == strcasecmp('longtext', $columns['body']['type'])) {
+	$db->ExecuteMaster("ALTER TABLE mail_queue MODIFY COLUMN body BLOB");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
