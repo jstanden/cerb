@@ -3572,21 +3572,30 @@ abstract class C4_AbstractView {
 					}
 					
 					if(empty($label)) {
-						$label = '(nobody)';
-						$oper = DevblocksSearchCriteria::OPER_IN_OR_NULL;
-						$values = array('worker_id[]' => 0);
+						$counts[$result[$field_key]] = array(
+							'hits' => $result['hits'],
+							'label' => '(nobody)',
+							'filter' =>
+								[
+									//'query' => sprintf('%s:null', $field_key),
+									'field' => $field_key,
+									'oper' => DevblocksSearchCriteria::OPER_IS_NULL,
+									'values' => true,
+								],
+						);
+						
+					} else {
+						$counts[$result[$field_key]] = array(
+							'hits' => $result['hits'],
+							'label' => $label,
+							'filter' =>
+								[
+									'field' => $field_key,
+									'oper' => $oper,
+									'values' => $values,
+								],
+						);
 					}
-					
-					$counts[$result[$field_key]] = array(
-						'hits' => $result['hits'],
-						'label' => $label,
-						'filter' =>
-							array(
-								'field' => $field_key,
-								'oper' => $oper,
-								'values' => $values,
-							),
-					);
 				}
 				break;
 				
