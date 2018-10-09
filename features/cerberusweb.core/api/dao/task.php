@@ -1708,6 +1708,12 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		}
 
 		if(empty($context_id) || $edit) {
+			if(!isset($task)) {
+				$task = new Model_Task();
+				$task->importance = 50;
+				$tpl->assign('task', $task);
+			}
+			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
@@ -1726,8 +1732,7 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			
 		} else {
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = $values = [];
 			CerberusContexts::getContext($context, $task, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);
