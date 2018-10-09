@@ -30,6 +30,8 @@
 	{$dict->$k|number_format}
 {elseif $types.$k == Model_CustomField::TYPE_DROPDOWN}
 	{$dict->$k}
+{elseif $types.$k == Model_CustomField::TYPE_MULTI_CHECKBOX}
+	{$dict->$k}
 {elseif $types.$k == Model_CustomField::TYPE_WORKER}
 	{$worker_id = $dict->$k}
 	{$worker = DAO_Worker::get($worker_id)}
