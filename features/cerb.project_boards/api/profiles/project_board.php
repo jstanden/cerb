@@ -70,7 +70,10 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 					return !empty($value);
 				});
 				
+				$error = null;
+				
 				if(empty($id)) { // New
+					
 					$fields = array(
 						DAO_ProjectBoard::UPDATED_AT => time(),
 						DAO_ProjectBoard::NAME => $name,
@@ -145,7 +148,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		
 		// [TODO] Validate everything (context/id/privs)
 		
-		if(false == ($to_column = DAO_ProjectBoardColumn::get($to_column_id)))
+		if(false == (DAO_ProjectBoardColumn::get($to_column_id)))
 			return;
 		
 		DAO_ContextLink::deleteLink(Context_ProjectBoardColumn::ID, $from_column_id, $card_context, $card_id);
@@ -191,13 +194,16 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		$links = DAO_ContextLink::getContextLinks($context, [$id], Context_ProjectBoardColumn::ID);
 		@$column = array_shift(array_intersect_key($columns, $links[$id]));
 		
-		if(isset($column)) {
-			$dict['column__context'] = Context_ProjectBoardColumn::ID;
-			$dict['column_id'] = $column->id;
-		}
-		
 		$card = new DevblocksDictionaryDelegate($dict);
 		$tpl->assign('card', $card);
+		
+		if($column) {
+			$dict['column__context'] = Context_ProjectBoardColumn::ID;
+			$dict['column_id'] = $column->id;
+			
+		} else { // Not on this board anymore
+			$tpl->assign('card_is_removed', true);
+		}
 		
 		$tpl->display('devblocks:cerb.project_boards::boards/board/card.tpl');
 	}
