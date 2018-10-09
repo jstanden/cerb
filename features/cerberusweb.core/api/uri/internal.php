@@ -772,7 +772,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$custom_fields = DAO_CustomField::getByContext($context);
 			
 			// Add custom fields
-			foreach($field_labels as $label_key => $label) {
+			foreach(array_keys($field_labels) as $label_key) {
 				if(preg_match('#^custom_\d+$#', $label_key))
 					$properties[] = $label_key;
 			}
@@ -790,6 +790,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				];
 				
 				$cfield_id = 0;
+				$matches = [];
+				
 				if(preg_match('#^custom_(\d+)$#', $k, $matches)) {
 					$cfield_id = $matches[1];
 					
@@ -1630,7 +1632,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
 		@$q = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
 		
 		// [TODO] This should be able to take a simplified JSON view model
@@ -1680,7 +1681,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('key_prefix', $key_prefix);
 		
 		$labels = $placeholders;
-		$values = [];
+		$values = $merge_labels = $merge_values = [];
 		
 		if($context && false != ($context_ext = Extension_DevblocksContext::get($context))) {
 			$tpl->assign('context_ext', $context_ext);
@@ -2193,13 +2194,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->renderLimit = 250;
 		$pos = 0;
 		$keys = [];
-		$contexts = [];
 		
 		$view->renderTotal = false;
 		
 		do {
 			$models = array();
-			list($results, $total) = $view->getData();
+			list($results,) = $view->getData();
 
 			if(is_array($results))
 			foreach($results as $event_id => $row) {
@@ -2854,7 +2854,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewShowCopyAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 
-		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))

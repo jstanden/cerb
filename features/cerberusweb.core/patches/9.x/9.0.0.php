@@ -453,7 +453,7 @@ if(!isset($tables['worker_view_model'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('worker_view_model');
+list($columns,) = $db->metaTable('worker_view_model');
 
 if(!isset($columns['params_query'])) {
 	$sql = 'ALTER TABLE worker_view_model ADD COLUMN params_query TEXT AFTER columns_hidden_json';
@@ -512,7 +512,7 @@ foreach(array_keys($tables) as $table_name) {
 	if(!DevblocksPlatform::strStartsWith($table_name, 'custom_record_'))
 		continue;
 	
-	list($columns, $indexes) = $db->metaTable($table_name);
+	list($columns,) = $db->metaTable($table_name);
 	
 	if(!isset($columns['created_at'])) {
 		$sql = sprintf("ALTER TABLE %s ADD COLUMN created_at INT UNSIGNED NOT NULL DEFAULT 0",
@@ -529,7 +529,7 @@ foreach(array_keys($tables) as $table_name) {
 // ===========================================================================
 // Add `width_units` and `zone` to all `workspace_widget`
 
-list($columns, $indexes) = $db->metaTable('workspace_widget');
+list($columns,) = $db->metaTable('workspace_widget');
 
 if($columns['pos'] && 0 == strcasecmp('char(4)', $columns['pos']['type'])) {
 	$sql = "ALTER TABLE workspace_widget CHANGE COLUMN pos pos_legacy char(4)";
@@ -582,7 +582,7 @@ $db->ExecuteMaster($sql);
 // ===========================================================================
 // Migrate legacy workspace worklist widgets to the new config format
 
-list($columns, $indexes) = $db->metaTable('workspace_widget');
+list($columns,) = $db->metaTable('workspace_widget');
 
 $sql = "SELECT id, params_json FROM workspace_widget WHERE extension_id = 'core.workspace.widget.worklist' AND params_json like '%\"worklist_model\"%'";
 $results = $db->ExecuteMaster($sql);
@@ -649,7 +649,7 @@ if($logo_url) {
 // ===========================================================================
 // Migrate legacy workspace calendar tabs to dashboards
 
-list($columns, $indexes) = $db->metaTable('workspace_tab');
+list($columns,) = $db->metaTable('workspace_tab');
 
 $sql = "SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.calendar'";
 $results = $db->GetArrayMaster($sql);
@@ -758,7 +758,7 @@ if(false != ($row = $db->GetRowMaster("SELECT id, extension_params_json FROM pro
 }
 
 // ===========================================================================
-// Add `worker_dashboard_pref` 
+// Add `worker_dashboard_pref`
 
 if(!isset($tables['worker_dashboard_pref'])) {
 	$sql = sprintf("

@@ -211,8 +211,6 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = array();
@@ -304,7 +302,7 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ProjectBoard::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ProjectBoard', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ProjectBoard', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"project_board.id as %s, ".
@@ -326,21 +324,13 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ProjectBoard');
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-	
-		return array(
+		return [
 			'primary_table' => 'project_board',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
 			'sort' => $sort_sql,
-		);
+		];
 	}
 	
 	/**
@@ -789,7 +779,6 @@ class View_ProjectBoard extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -800,8 +789,6 @@ class View_ProjectBoard extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_ProjectBoard::VIRTUAL_CONTEXT_LINK:
@@ -883,10 +870,9 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 	const ID = 'cerberusweb.contexts.project.board';
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::services()->url();
-		$list = array();
+		$list = [];
 		
-		list($results, $null) = DAO_ProjectBoard::search(
+		list($results,) = DAO_ProjectBoard::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_ProjectBoard::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),
@@ -958,7 +944,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 	
 	function getMeta($context_id) {
 		$project_board = DAO_ProjectBoard::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($project_board->name);
@@ -970,7 +955,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			'id' => $project_board->id,
 			'name' => $project_board->name,
 			'permalink' => $url,
-			//'updated' => $project_board->updated_at, // [TODO]
+			'updated' => $project_board->updated_at,
 		);
 	}
 	
@@ -1148,8 +1133,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

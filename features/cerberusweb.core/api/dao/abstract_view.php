@@ -3263,7 +3263,6 @@ abstract class C4_AbstractView {
 	protected function _getSubtotalDataForHasFieldsetColumn($dao_class, $context) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$fields = $this->getFields();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 
@@ -3286,9 +3285,6 @@ abstract class C4_AbstractView {
 			)
 		);
 		
-		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];
-		
 		$sql = sprintf("SELECT custom_fieldset_id, COUNT(*) AS hits FROM context_to_custom_fieldset WHERE context = %s AND context_id IN (%s) GROUP BY custom_fieldset_id ORDER BY hits DESC",
 			$db->qstr($context),
 			(
@@ -3307,7 +3303,6 @@ abstract class C4_AbstractView {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$counts = [];
-		$fields = $this->getFields();
 		$custom_fields = DAO_CustomField::getAll();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
