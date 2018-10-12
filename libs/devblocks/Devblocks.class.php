@@ -1387,13 +1387,15 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		foreach($lists as $list) { /* @var $list DOMElement */
 			$items = $xpath->query('./li', $list);
-			
+
+            $liCount = $items->length;
 			$counter = 1;
 			foreach($items as $item) { /* @var $item DOMElement */
 				if(false == (@$inner_html = $dom->saveXML($item)))
 					continue;
-				
-				$value = DevblocksPlatform::stripHTML($inner_html);
+
+                $value = rtrim(DevblocksPlatform::stripHTML($inner_html), "\n") .
+                    (($liCount != $counter) ? "\n" : '');
 				
 				$txt = $dom->createTextNode($counter++ . '. ' . str_replace("\n", "{{BR}}", $value));
 				$item->parentNode->insertBefore($txt, $item);
@@ -1407,16 +1409,20 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		foreach($lists as $list) { /* @var $list DOMElement */
 			$items = $xpath->query('./li', $list);
-			
+
+            $liCount = $items->length;
+            $counter = 1;
 			foreach($items as $item) { /* @var $item DOMElement */
 				if(false == (@$inner_html = $dom->saveXML($item)))
 					continue;
-				
-				$value = DevblocksPlatform::stripHTML($inner_html);
+
+                $value = rtrim(DevblocksPlatform::stripHTML($inner_html), "\n") .
+                    (($liCount != $counter) ? "\n" : '');
 				
 				$txt = $dom->createTextNode('- ' . str_replace("\n", "{{BR}}", $value));
 				$item->parentNode->insertBefore($txt, $item);
 				$item->parentNode->removeChild($item);
+                $counter++;
 			}
 		}
 		
