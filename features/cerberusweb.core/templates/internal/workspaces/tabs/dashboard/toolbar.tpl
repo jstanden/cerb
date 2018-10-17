@@ -95,16 +95,19 @@ $(function() {
 			var $field = $field.prev('textarea, :text');
 		}
 		
-		var regexpName = /^(.*?)\[(.*?)\]$/;
-		var hits = regexpName.exec($field.attr('name'));
+		var field_key = $field.attr('name');
+		var $widget_params = $field.closest('.cerb-widget-params');
 		
-		if(null == hits || hits.length < 3)
-			return;
-		
-		var strNamespace = hits[1];
-		var strName = hits[2];
-		
-		genericAjaxPost($div.closest('form'), divTester, 'c=profiles&a=handleSectionAction&section=workspace_widget&action=testWidgetTemplate&template_key=' + encodeURIComponent(strName));
+		// Disambiguate
+		$widget_params.find('[name="' + field_key + '"]')
+			.each(function(index) { 
+				var $this = $(this);
+				
+				if($this.is($field)) {
+					genericAjaxPost($div.closest('form'), divTester, 'c=profiles&a=handleSectionAction&section=workspace_widget&action=testWidgetTemplate&template_key=' + encodeURIComponent(field_key) + '&index=' + index);
+				}
+			}
+		);
 	});
 	
 	$placeholder_menu_trigger

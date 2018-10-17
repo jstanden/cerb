@@ -340,13 +340,27 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 		@$template_key = DevblocksPlatform::importGPC($_REQUEST['template_key'], 'string', '');
+		@$index = DevblocksPlatform::importGPC($_REQUEST['index'], 'integer', 0);
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
-		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$template = $params[$template_key];
+		$template = null;
+
+		if(DevblocksPlatform::strStartsWith($template_key, 'params[')) {
+			$template_key = trim(substr($template_key, 6),'[]');
+			$json_key = str_replace([']['],['.'],$template_key);
+			$json_var = DevblocksPlatform::jsonGetPointerFromPath($params, $json_key);
+			
+			if(is_string($json_var)) {
+				@$template = $json_var;
+			} elseif (is_array($json_var)) {
+				if(array_key_exists($index, $json_var)) {
+					@$template = $json_var[$index];
+				}
+			}
+		}
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker_id' => $active_worker->id,
