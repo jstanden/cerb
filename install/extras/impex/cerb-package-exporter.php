@@ -18,7 +18,7 @@ namespace Cerb\Impex\Exporters {
 		abstract function export();
 	}
 	
-	class Cerb8 extends Exporter {
+	class Cerb9 extends Exporter {
 		private $_db = null;
 		
 		function __construct($config) {
@@ -106,7 +106,7 @@ namespace Cerb\Impex\Exporters {
 							'name' => sprintf('Org #%d', $id),
 							'revision' => 1,
 							'requires' => [
-								'cerb_version' => '8.3.1',
+								'cerb_version' => '9.0.6',
 								'plugins' => [],
 							],
 							'configure' => [
@@ -140,7 +140,7 @@ namespace Cerb\Impex\Exporters {
 				die(sprintf("The 'storage_path' (%s) doesn't exist.\n", $storage_path));
 			
 			$sql = <<< SQL
-SELECT t.id, t.mask, t.subject, t.status_id, t.importance, t.created_date, t.updated_date, g.name, b.name, 
+SELECT t.id, t.mask, t.subject, t.status_id, t.importance, t.created_date, t.updated_date, t.group_id, t.bucket_id, g.name, b.name, 
 (SELECT name FROM contact_org WHERE id = t.org_id) AS org_name, 
 (SELECT group_concat(address.email) FROM requester INNER JOIN address ON (address.id=requester.address_id) where requester.ticket_id=t.id) AS participants, 
 (SELECT group_concat(comment.id) FROM comment WHERE context = 'cerberusweb.contexts.ticket' AND context_id = t.id) AS comment_ids
@@ -165,7 +165,7 @@ SQL;
 			];
 			
 			if($stmt->execute()) {
-				$stmt->bind_result($ticket_id, $mask, $subject, $status_id, $importance, $created_date, $updated_date, $group_name, $bucket_name, $org_name, $participants, $comment_ids);
+				$stmt->bind_result($ticket_id, $mask, $subject, $status_id, $importance, $created_date, $updated_date, $group_id, $bucket_id, $group_name, $bucket_name, $org_name, $participants, $comment_ids);
 				
 				while($stmt->fetch()) {
 					if(0 == $count++ % 2000) {
@@ -182,8 +182,12 @@ SQL;
 						'uid' => $ticket_uid,
 						'_context' => 'ticket',
 						'mask' => $mask_prefix . $mask,
-						'group_id' => '{{{default.group_id}}}',
-						'bucket_id' => '{{{default.bucket_id}}}',
+						'group_id' => $group_id,
+						'group__label' => $group_name,
+						'bucket_id' => $bucket_id,
+						'bucket__label' => $bucket_name,
+						//'group_id' => '{{{default.group_id}}}',
+						//'bucket_id' => '{{{default.bucket_id}}}',
 						'subject' => $subject,
 						'importance' => $importance,
 						'status' => $statuses[$status_id],
@@ -319,7 +323,7 @@ SQL;
 							'name' => sprintf('Ticket #%d', $ticket_id),
 							'revision' => 1,
 							'requires' => [
-								'cerb_version' => '8.3.1',
+								'cerb_version' => '9.0.6',
 								'plugins' => [],
 							],
 							'configure' => [
