@@ -229,13 +229,9 @@ $(function() {
 			distance: 10
 		});
 		
-		$popup.find('.cerb-query-trigger')
-			.cerbQueryTrigger()
-			.on('cerb-query-saved', function(e) {
-				//var $trigger = $(this);
-				//$trigger.val(e.worklist_quicksearch);
-			})
-		;
+		$popup.find('.cerb-template-trigger')
+			.cerbTemplateTrigger()
+			;
 		
 		// Sortable
 		
