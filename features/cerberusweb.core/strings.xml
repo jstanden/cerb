@@ -777,6 +777,76 @@
 				<seg>days</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.day.monday">
+			<tuv xml:lang="en_US">
+				<seg>monday</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.monday.abbr">
+			<tuv xml:lang="en_US">
+				<seg>mon</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.tuesday">
+			<tuv xml:lang="en_US">
+				<seg>tuesday</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.tuesday.abbr">
+			<tuv xml:lang="en_US">
+				<seg>tue</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.wednesday">
+			<tuv xml:lang="en_US">
+				<seg>wednesday</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.wednesday.abbr">
+			<tuv xml:lang="en_US">
+				<seg>wed</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.thursday">
+			<tuv xml:lang="en_US">
+				<seg>thursday</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.thursday.abbr">
+			<tuv xml:lang="en_US">
+				<seg>thu</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.friday">
+			<tuv xml:lang="en_US">
+				<seg>friday</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.friday.abbr">
+			<tuv xml:lang="en_US">
+				<seg>fri</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.saturday">
+			<tuv xml:lang="en_US">
+				<seg>saturday</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.saturday.abbr">
+			<tuv xml:lang="en_US">
+				<seg>sat</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.sunday">
+			<tuv xml:lang="en_US">
+				<seg>sunday</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.day.sunday.abbr">
+			<tuv xml:lang="en_US">
+				<seg>sun</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.default">
 			<tuv xml:lang="en_US">
 				<seg>Default</seg>
