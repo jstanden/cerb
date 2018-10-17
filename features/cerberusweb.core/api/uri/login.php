@@ -150,7 +150,7 @@ class ChSignInPage extends CerberusPageExtension {
 						$cache_key = sprintf('recover:worker:%d', $unauthenticated_worker->id);
 						
 						if(false == $cache->load($cache_key)) {
-							$labels = $values = [];
+							$labels = $values = $worker_labels = $worker_values = [];
 							CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $unauthenticated_worker, $worker_labels, $worker_values, '', true, true);
 							CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
 							

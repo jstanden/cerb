@@ -91,7 +91,11 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 		$tpl->assign('worker', $worker);
 		
 		@$error = DevblocksPlatform::importGPC($_REQUEST['error']);
-		$tpl->assign('error', $error);
+		
+		if($error) {
+			$error_msg = ChSignInPage::getErrorMessage($error);
+			$tpl->assign('error', $error_msg);
+		}
 		
 		$tpl->display('devblocks:wgm.login.password.google_auth::login/login.tpl');
 	}
@@ -106,14 +110,18 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 		$tpl->assign('code', $code);
 		
 		@$error = DevblocksPlatform::importGPC($_REQUEST['error']);
-		$tpl->assign('error', $error);
+		
+		if($error) {
+			$error_msg = ChSignInPage::getErrorMessage($error);
+			$tpl->assign('error', $error_msg);
+		}
 		
 		if(!isset($_SESSION['recovery_code'])) {
 			$recovery_code = CerberusApplication::generatePassword(8);
 			
 			$_SESSION['recovery_code'] = $worker->getEmailString() . ':' . $recovery_code;
 			
-			$labels = $values = [];
+			$labels = $values = $worker_labels = $worker_values = [];
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
 			CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
 			
