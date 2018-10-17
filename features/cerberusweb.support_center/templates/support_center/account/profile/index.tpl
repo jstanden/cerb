@@ -176,8 +176,8 @@
 				<div style="float:left;">
 					<fieldset class="peek">
 						<legend>Upload new image:</legend>
-				  	<input type="file" class="cerb-avatar-img-upload" />
-			  	</fieldset>
+					<input type="file" class="cerb-avatar-img-upload" />
+				</fieldset>
 				</div>
 				
 				<div style="clear:both;"></div>
@@ -210,7 +210,9 @@
 $(function() {
 	var $form = $('#profileForm');
 	
+	{if 2 == $show_fields.contact_photo}
 	var $canvas = $form.find('canvas.canvas-avatar');
+	
 	var canvas = $canvas.get(0);
 	var context = canvas.getContext('2d');
 	var $imagedata = $form.find('input.canvas-avatar-imagedata');
@@ -324,17 +326,6 @@ $(function() {
 		}
 	});
 	
-	$form.find('button.submit').click(function() {
-		if(!img || !$(img).attr('src') || 0 == $(img).attr('src').length) {
-			$imagedata.val('data:null');
-		} else {
-			$imagedata.val(canvas.toDataURL());
-		}
-		
-		// [TODO] JSON validation
-		$form.submit();
-	});
-	
 	var img = new Image();
 	{if $imagedata}
 		img.src = "{$imagedata}";
@@ -342,5 +333,20 @@ $(function() {
 	{else}
 		img.src = "";
 	{/if}
+	{/if}
+	
+	$form.find('button.submit').click(function() {
+		{if 2 == $show_fields.contact_photo}
+		if(!img || !$(img).attr('src') || 0 == $(img).attr('src').length) {
+			$imagedata.val('data:null');
+		} else {
+			$imagedata.val(canvas.toDataURL());
+		}
+		{/if}
+		
+		// [TODO] JSON validation
+		$form.submit();
+	});
+	
 });
 </script>
