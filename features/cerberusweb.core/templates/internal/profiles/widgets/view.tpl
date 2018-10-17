@@ -91,7 +91,7 @@
 			<td>
 				{$profile_tab = $profile_tabs.{$result.$column}}
 				{if $profile_tab}
-					{$profile_tab->name}
+					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROFILE_TAB}" data-context-id="{$profile_tab->id}">{$profile_tab->name}</a>
 				{else}
 					{$result.$column}
 				{/if}
