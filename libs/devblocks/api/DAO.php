@@ -905,7 +905,7 @@ class DAO_Platform extends DevblocksORMHelper {
 				$plugin->purge();
 			}
 		}
-				
+		
 		DevblocksPlatform::clearCache();
 	}
 	

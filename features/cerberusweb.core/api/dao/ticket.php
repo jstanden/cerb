@@ -4430,7 +4430,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$prefix = 'Ticket:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$workers = DAO_Worker::getAll();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		
 		// Polymorph
@@ -4798,8 +4797,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				break;
 				
 			case 'signature':
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				
 				if(false == ($active_worker = CerberusApplication::getActiveWorker()))
 					break;
 				

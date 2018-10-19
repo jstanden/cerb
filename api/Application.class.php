@@ -1098,7 +1098,6 @@ class CerberusContexts {
 							$loaded_labels = [];
 							$loaded_values = [];
 							$ctx->getContext(null, $loaded_labels, $loaded_values, $prefix);
-
 							$cache->save(array('labels' => $loaded_labels, 'values' => $loaded_values), $cache_key, [], 0, $cache_local);
 						}
 
@@ -1183,11 +1182,10 @@ class CerberusContexts {
 				}
 			}
 		}
-
+		
 		// Rename labels
-		// [TODO] mb_*
 		// [TODO] Phase out $labels
-
+		
 		if($skip_labels) {
 			unset($values['_labels']);
 
@@ -1208,7 +1206,6 @@ class CerberusContexts {
 				$values['_labels'] = $labels;
 			}
 		}
-
 
 		// Pop the stack
 		array_pop(self::$_stack);

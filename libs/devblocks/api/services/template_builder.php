@@ -366,6 +366,8 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		
 		// Find the embedded contexts for each token
 		foreach(array_keys($this->_dictionary) as $key) {
+			$matches = [];
+			
 			if(preg_match('#(.*)__context#', $key, $matches)) {
 				$contexts[$matches[1]] = array(
 					'key' => $key,
@@ -658,7 +660,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 				
 				// These context loads will be cached
 				if(is_array($models))
-				foreach($models as $model_id => $model) {
+				foreach($models as $model) {
 					$labels = $values = []; 
 					CerberusContexts::getContext($context_data['context'], $model, $labels, $values, null, true);
 				}

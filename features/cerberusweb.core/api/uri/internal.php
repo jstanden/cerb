@@ -3277,13 +3277,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$view->setAutoPersist(false);
 		
-		$global_labels = array();
-		$global_values = array();
 		CerberusContexts::getContext($context_mft->id, null, $global_labels, $global_values, null, true);
+		$global_labels = $global_values = [];
 		$global_types = $global_values['_types'];
 		
 		// Override display
-		$view->view_columns = array();
+		$view->view_columns = [];
 		$view->renderPage = $cursor['page'];
 		$view->renderLimit = 200;
 		
@@ -3293,7 +3292,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// If the first page
 		if(0 == $cursor['page']) {
 			// Headings
-			$csv_labels = array();
+			$csv_labels = [];
 			
 			if(is_array($cursor['tokens']))
 			foreach($cursor['tokens'] as $token) {
@@ -3309,7 +3308,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$results = $view->getDataAsObjects();
 		
 		$count = count($results);
-		$dicts = array();
+		$dicts = [];
 		
 		if(is_array($results))
 		foreach($results as $row_id => $result) {
@@ -3448,8 +3447,10 @@ class ChInternalController extends DevblocksControllerExtension {
 			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
 		}
 		
+		$objects = [];
+		
 		foreach($dicts as $dict) {
-			$object = array();
+			$object = [];
 			
 			if(is_array($cursor['tokens']))
 			foreach($cursor['tokens'] as $token) {
