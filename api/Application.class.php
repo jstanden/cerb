@@ -1045,12 +1045,15 @@ class CerberusContexts {
 	const CONTEXT_WORKSPACE_WORKLIST = 'cerberusweb.contexts.workspace.list';
 
 	public static function setCacheLoads($state) {
+		$was_caching_loads = self::$_is_caching_loads;
 		self::$_is_caching_loads = ($state ? true : false);
 
 		// Clear the cache when disabled
 		if(!self::$_is_caching_loads) {
 			self::$_cache_loads = [];
 		}
+		
+		return $was_caching_loads;
 	}
 
 	public static function getStack() {

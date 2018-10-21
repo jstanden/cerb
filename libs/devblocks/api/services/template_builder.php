@@ -656,7 +656,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 				// Load model objects from the context
 				$models = $context_ext->getModelObjects(array_keys($id_counts));
 				
-				CerberusContexts::setCacheLoads(true);
+				$was_caching_loads = CerberusContexts::setCacheLoads(true);
 				
 				// These context loads will be cached
 				if(is_array($models))
@@ -673,7 +673,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 				}
 				
 				// Flush the temporary cache
-				CerberusContexts::setCacheLoads(false);
+				CerberusContexts::setCacheLoads($was_caching_loads);
 			}
 		}
 		
