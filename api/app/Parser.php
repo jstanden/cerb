@@ -373,22 +373,57 @@ class CerberusParserModel {
 	}
 	
 	public function isWorkerRelayReply() {
+		@$message_id = trim($this->_message->headers['message-id']);
 		@$in_reply_to = trim($this->_message->headers['in-reply-to']);
+		@$references = trim($this->_message->headers['references']);
 		
-		if(!empty($in_reply_to) && @preg_match('#\<[a-f0-9]+\@cerb\d{0,1}\>#', $in_reply_to))
-			return true;
+		$target_message_ids = [];
+		
+		// Add all References
+		if(!empty($references)) {
+			$matches = [];
+			if(preg_match("/(\<.*?\@.*?\>)/", $references, $matches)) {
+				unset($matches[0]); // who cares about the pattern
+				foreach($matches as $ref) {
+					$ref = trim($ref);
+					if(!empty($ref) && 0 != strcasecmp($ref, $message_id))
+						$target_message_ids[$ref] = true;
+				}
+			}
+			unset($matches);
+		}
+		
+		// Append first <*> from In-Reply-To
+		if(!empty($in_reply_to)) {
+			$matches = [];
+			if(preg_match("/(\<.*?\@.*?\>)/", $in_reply_to, $matches)) {
+				if(isset($matches[1])) { // only use the first In-Reply-To
+					$ref = trim($matches[1]);
+					if(!empty($ref) && 0 != strcasecmp($ref, $message_id))
+						$target_message_ids[$ref] = true;
+				}
+			}
+			unset($matches);
+		}
+		
+		// Try matching references
+		foreach(array_keys($target_message_ids) as $ref) {
+			if($ref && @preg_match('#\<[a-f0-9]+\@cerb\d{0,1}\>#', $ref)) {
+				return $ref;
+			}
+		}
 		
 		return false;
 	}
 	
-	public function isValidAuthHeader($in_reply_to, $worker) {
+	public function isValidAuthHeader($auth_header, $worker) {
 		if(empty($worker) || !($worker instanceof Model_Worker))
 			return false;
 		
 		$hits = [];
 		
 		// See if we can trust the given message_id
-		if(@preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $in_reply_to, $hits)) {
+		if(@preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $auth_header, $hits)) {
 			@$hash = $hits[1];
 			@$signed = substr($hash, 4, 40);
 			@$message_id = hexdec(substr($hash, 44));
@@ -1112,8 +1147,8 @@ class CerberusParser {
 		$relay_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE, CerberusSettingsDefaults::RELAY_DISABLE);
 		
 		if(!$relay_disabled
-			&& $model->isWorkerRelayReply()
 			&& $model->isSenderWorker()
+			&& false !== ($relay_auth_header = $model->isWorkerRelayReply())
 			&& null != ($proxy_ticket = $model->getTicketModel())
 			&& null != ($proxy_worker = $model->getSenderWorkerModel())
 			&& !$proxy_worker->is_disabled) { /* @var $proxy_worker Model_Worker */
@@ -1129,8 +1164,8 @@ class CerberusParser {
 				$is_authenticated = true;
 				
 			} else {
-				if(isset($message->headers['in-reply-to']) && $proxy_worker instanceof Model_Worker)
-					$is_authenticated = $model->isValidAuthHeader($message->headers['in-reply-to'], $proxy_worker);
+				if($relay_auth_header && $proxy_worker instanceof Model_Worker)
+					$is_authenticated = $model->isValidAuthHeader($relay_auth_header, $proxy_worker);
 			}
 
 			// Compare worker signature, then auth
