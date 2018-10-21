@@ -1099,6 +1099,12 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		];
 	}
 	
+	// [TODO]
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1107,6 +1113,11 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

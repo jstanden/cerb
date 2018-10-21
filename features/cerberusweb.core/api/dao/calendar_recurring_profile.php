@@ -1397,6 +1397,22 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['calendar_id']['notes'] = "The parent [calendar](/docs/records/types/calendar/) of this event";
+		$keys['event_end']['notes'] = "The end date/time of the event";
+		$keys['event_start']['notes'] = "The start date/time of the event";
+		$keys['is_available']['notes'] = "`true` for available; `false` for busy";
+		$keys['name']['notes'] = "The name of the event";
+		$keys['patterns']['notes'] = "One pattern per line";
+		$keys['recur_end']['notes'] = "The end date/time of the recurring range";
+		$keys['recur_start']['notes'] = "The start date/time of the recurring range";
+		$keys['tz']['notes'] = "The timezone of the recurring event (e.g. `America/Los_Angeles`)";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1405,6 +1421,11 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

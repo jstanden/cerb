@@ -1174,6 +1174,23 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		$keys['page_id']['notes'] = "The ID of the [workspace page](/docs/records/types/workspace_page/) containing this tab";
+		$keys['pos']['notes'] = "The position of this tab on the workspace page; `0` is first";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -1197,6 +1214,27 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['widgets'] = [
+			'label' => 'Widgets',
+			'type' => 'Records',
+		];
+		
+		$lazy_keys['widgets_data'] = [
+			'label' => 'Widgets Data',
+			'type' => 'HashMap',
+		];
+		
+		$lazy_keys['worklists'] = [
+			'label' => 'Worklists',
+			'type' => 'Records',
+		];
+		
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

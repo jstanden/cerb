@@ -1500,6 +1500,19 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -1523,6 +1536,42 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['scope'] = [
+			'label' => 'Scope',
+			'type' => '',
+		];
+		
+		$lazy_keys['weeks'] = [
+			'label' => 'Weeks',
+			'type' => '',
+		];
+		
+		$lazy_keys['events'] = [
+			'label' => 'Events',
+			'type' => '',
+		];
+		
+		$lazy_keys['events_occluded'] = [
+			'label' => 'Events (Occluded)',
+			'type' => '',
+		];
+		
+		$lazy_keys['weeks_events'] = [
+			'label' => 'Weeks Events',
+			'type' => '',
+		];
+		
+		$lazy_keys['weeks_events_occluded'] = [
+			'label' => 'Weeks Events (Occluded)',
+			'type' => '',
+		];
+		
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

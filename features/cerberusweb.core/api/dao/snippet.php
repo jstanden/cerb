@@ -1576,6 +1576,24 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['placeholders'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['content']['notes'] = "The [template](/docs/bots/scripting/) of the snippet";
+		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) to add the profile tab to";
+		$keys['title']['notes'] = "The name of the snippet";
+		$keys['total_uses']['notes'] = "The total number of times this snippet has been used by all workers";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -1599,6 +1617,11 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

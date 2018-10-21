@@ -1454,6 +1454,18 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['author__context']['notes'] = "The [record type](/docs/records/#record-type) of the comment's author";
+		$keys['author_id']['notes'] = "The ID of the comment's author";
+		$keys['comment']['notes'] = "The text of the comment";
+		$keys['target__context']['notes'] = "The [record type](/docs/records/#record-type) of the target record";
+		$keys['target_id']['notes'] = "The ID of the target record";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1462,6 +1474,17 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['attachments'] = [
+			'label' => 'Attachments',
+			'type' => 'HashMap',
+		];
+		
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

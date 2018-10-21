@@ -1360,6 +1360,29 @@ class Context_Notification extends Extension_DevblocksContext {
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['activity_point']['notes'] = "The event that triggered the notification";
+		$keys['event_json']['type'] = "object";
+		$keys['event_json']['notes'] = "A key/value object of notification properties";
+		$keys['is_read']['notes'] = "Has this been read by the worker?";
+		$keys['target__context']['notes'] = "The [record type](/docs/records/#record-types) of the target record";
+		$keys['target_id']['notes'] = "The ID of the target record";
+		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who received the notification";
+		
+		unset($keys['assignee_id']);
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -1383,6 +1406,11 @@ class Context_Notification extends Extension_DevblocksContext {
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

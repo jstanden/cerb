@@ -3265,6 +3265,59 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['at_mention_name']['notes'] = "The nickname used for `@mention` notifications in comments";
+		$keys['auth_extension_id']['notes'] = "The [plugin](/docs/plugins/) extension used for login authentication; default is `login.password`";
+		$keys['calendar_id']['notes'] = "The ID of the [calendar](/docs/records/types/calendar/) used to compute worker availability";
+		$keys['dob']['notes'] = "Date of birth in `YYYY-MM-DD` format";
+		$keys['email_id']['notes'] = "The ID of the primary [email address](/docs/records/types/address/); alternative to `email`";
+		$keys['first_name']['notes'] = "Given name";
+		$keys['gender']['notes'] = "`F` (female), `M` (male), or blank or unknown";
+		$keys['is_disabled']['notes'] = "Is this worker deactivated and prevented from logging in?";
+		$keys['is_superuser']['notes'] = "Is this worker an administrator with full privileges?";
+		$keys['language']['notes'] = "ISO-639 language code and ISO-3166 country code; e.g. `en_US`";
+		$keys['last_name']['notes'] = "Surname";
+		$keys['location']['notes'] = "Location description; `Los Angeles, CA, USA`";
+		$keys['mobile']['notes'] = "Mobile number";
+		$keys['time_format']['notes'] = "Preference for displaying timestamps, `strftime()` syntax";
+		$keys['timezone']['notes'] = "IANA tz/zoneinfo timezone; `America/Los_Angeles`";
+		$keys['title']['notes'] = "Job title / Position";
+		
+		$keys['email'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'The primary email address of the worker; alternative to `email_id`',
+			'type' => 'string',
+		];
+		
+		$keys['email_ids'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'A comma-separated list of IDs for alternative [email addresses](/docs/records/types/address/)',
+			'type' => 'string',
+		];
+		
+		$keys['image'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => "The worker's profile picture in PNG format",
+			'type' => 'image',
+		];
+		
+		$keys['password'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => "The worker's password, if applicable; stored security; will be automatically generated if blank",
+			'type' => 'string',
+		];
+		
+		unset($keys['address_id']);
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -3295,6 +3348,11 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

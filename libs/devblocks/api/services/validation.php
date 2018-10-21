@@ -16,7 +16,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function bit() {
-		$this->_type = new _DevblocksValidationTypeNumber();
+		$this->_type = new _DevblocksValidationTypeNumber('bit');
 		
 		// Defaults for bit type
 		return $this->_type
@@ -30,7 +30,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeContext
 	 */
 	function context() {
-		$this->_type = new _DevblocksValidationTypeContext();
+		$this->_type = new _DevblocksValidationTypeContext('context');
 		$validation = DevblocksPlatform::services()->validation();
 		return $this->_type
 			->addFormatter($validation->formatters()->context())
@@ -42,7 +42,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeFloat
 	 */
 	function float() {
-		$this->_type = new _DevblocksValidationTypeFloat();
+		$this->_type = new _DevblocksValidationTypeFloat('float');
 		return $this->_type;
 	}
 	
@@ -51,7 +51,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function id() {
-		$this->_type = new _DevblocksValidationTypeNumber();
+		$this->_type = new _DevblocksValidationTypeNumber('id');
 		
 		// Defaults for id type
 		return $this->_type
@@ -65,7 +65,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function idArray() {
-		$this->_type = new _DevblocksValidationTypeIdArray();
+		$this->_type = new _DevblocksValidationTypeIdArray('idArray');
 		return $this->_type;
 	}
 	
@@ -75,7 +75,7 @@ class _DevblocksValidationField {
 	 */
 	function image($type='image/png', $min_width=1, $min_height=1, $max_width=1000, $max_height=1000, $max_size=512000) {
 		$validation = DevblocksPlatform::services()->validation();
-		$this->_type = new _DevblocksValidationTypeString();
+		$this->_type = new _DevblocksValidationTypeString('image');
 		return $this->_type
 			->setMaxLength(512000)
 			->addValidator($validation->validators()->image($type, $min_width, $min_height, $max_width, $max_height, $max_size))
@@ -87,7 +87,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function number() {
-		$this->_type = new _DevblocksValidationTypeNumber();
+		$this->_type = new _DevblocksValidationTypeNumber('number');
 		return $this->_type;
 	}
 	
@@ -96,7 +96,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeString
 	 */
 	function string() {
-		$this->_type = new _DevblocksValidationTypeString();
+		$this->_type = new _DevblocksValidationTypeString('string');
 		return $this->_type
 			->setMaxLength(255)
 			;
@@ -107,7 +107,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeStringOrArray
 	 */
 	function stringOrArray() {
-		$this->_type = new _DevblocksValidationTypeStringOrArray();
+		$this->_type = new _DevblocksValidationTypeStringOrArray('stringOrArray');
 		return $this->_type
 			->setMaxLength(255)
 			;
@@ -118,7 +118,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function timestamp() {
-		$this->_type = new _DevblocksValidationTypeNumber();
+		$this->_type = new _DevblocksValidationTypeNumber('timestamp');
 		return $this->_type
 			->setMin(0)
 			->setMax('32 bits') // 4 unsigned bytes
@@ -130,7 +130,7 @@ class _DevblocksValidationField {
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function uint($bytes=4) {
-		$this->_type = new _DevblocksValidationTypeNumber();
+		$this->_type = new _DevblocksValidationTypeNumber('uint');
 		return $this->_type
 			->setMin(0)
 			->setMax('32 bits')
@@ -143,7 +143,7 @@ class _DevblocksValidationField {
 	 */
 	function url() {
 		$validation = DevblocksPlatform::services()->validation();
-		$this->_type = new _DevblocksValidationTypeString();
+		$this->_type = new _DevblocksValidationTypeString('url');
 		
 		return $this->_type
 			->setMaxLength(255)
@@ -444,13 +444,24 @@ class _DevblocksValidators {
 }
 
 class _DevblocksValidationType {
+	public $_type_name = null;
+	
 	public $_data = [
 		'editable' => true,
 		'required' => false,
 	];
 	
-	function __construct() {
+	function __construct($type_name=null) {
+		$this->_type_name = $type_name;
 		return $this;
+	}
+	
+	function getName() {
+		return $this->_type_name;
+	}
+	
+	function isEditable() {
+		return @$this->_data['editable'] ? true : false;
 	}
 	
 	function setEditable($bool) {
@@ -509,12 +520,15 @@ class _DevblocksValidationType {
 }
 
 class _DevblocksValidationTypeContext extends _DevblocksValidationType {
-	
+	function __construct($type_name='context') {
+		parent::__construct($type_name);
+		return $this;
+	}
 }
 
 class _DevblocksValidationTypeFloat extends _DevblocksValidationType {
-	function __construct() {
-		parent::__construct();
+	function __construct($type_name='float') {
+		parent::__construct($type_name);
 		return $this;
 	}
 	
@@ -536,15 +550,15 @@ class _DevblocksValidationTypeFloat extends _DevblocksValidationType {
 }
 
 class _DevblocksValidationTypeIdArray extends _DevblocksValidationType {
-	function __construct() {
-		parent::__construct();
+	function __construct($type_name='idArray') {
+		parent::__construct($type_name);
 		return $this;
 	}
 }
 
 class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
-	function __construct() {
-		parent::__construct();
+	function __construct($type_name='number') {
+		parent::__construct($type_name);
 		return $this;
 	}
 	
@@ -574,6 +588,11 @@ class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 }
 
 class _DevblocksValidationTypeString extends _DevblocksValidationType {
+	function __construct($type_name='string') {
+		parent::__construct($type_name);
+		return $this;
+	}
+	
 	function setMaxLength($length) {
 		if(is_string($length)) {
 			$length = DevblocksPlatform::strBitsToInt($length);
@@ -593,6 +612,11 @@ class _DevblocksValidationTypeString extends _DevblocksValidationType {
 }
 
 class _DevblocksValidationTypeStringOrArray extends _DevblocksValidationType {
+	function __construct($type_name='stringOrArray') {
+		parent::__construct($type_name);
+		return $this;
+	}
+	
 	function setMaxLength($length) {
 		if(is_string($length)) {
 			$length = DevblocksPlatform::strBitsToInt($length);

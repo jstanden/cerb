@@ -939,6 +939,14 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who owns these API credentials";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -947,6 +955,11 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

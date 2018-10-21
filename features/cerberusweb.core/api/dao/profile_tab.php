@@ -1051,6 +1051,22 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['extension_params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) to add the profile tab to";
+		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'extension_params':
@@ -1073,6 +1089,11 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -2175,6 +2175,19 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['bot_id']['notes'] = "[Bot](/docs/records/types/bot/)";
+		$keys['event_point']['notes'] = 'The event of the behavior';
+		$keys['is_disabled']['notes'] = 'Is this behavior disabled?';
+		$keys['is_private']['notes'] = 'Is this behavior only visible to the parent bot?';
+		$keys['name']['notes'] = "The behavior's name";
+		$keys['priority']['notes'] = "Any positive number; `0` is highest priority";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -2183,6 +2196,11 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

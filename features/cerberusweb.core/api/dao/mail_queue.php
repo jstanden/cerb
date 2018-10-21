@@ -1367,6 +1367,18 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['content']['notes'] = "The body content of the draft message";
+		$keys['subject']['notes'] = "The subject line of the draft message";
+		$keys['to']['notes'] = "The `To:` line of the draft message";
+		$keys['type']['notes'] = "The type of draft: `mail.compose` or `ticket.reply`";
+		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who owns the draft";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1375,6 +1387,11 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

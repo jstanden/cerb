@@ -1078,6 +1078,14 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['skillset_id']['notes'] = "The ID of the [skillset](/docs/records/types/skillset/) containing this skill";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1086,6 +1094,11 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

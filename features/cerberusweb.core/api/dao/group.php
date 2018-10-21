@@ -2086,6 +2086,35 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['image'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'Base64-encoded PNG image',
+			'type' => 'image',
+		];
+		
+		$keys['members'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded array of [worker](/docs/records/types/worker/) IDs; `[1,2,3]`',
+			'type' => 'string',
+		];
+		
+		$keys['is_default']['notes'] = "[Tickets](/docs/tickets/) are assigned to the default group when no other routing rules match";
+		$keys['is_private']['notes'] = "The content in public (`0`) groups is visible to everyone; in private (`1`) groups content is only visible to members";
+		$keys['reply_address_id']['notes'] = "The ID of the [email address](/docs/records/types/address/) used when sending replies from this group";
+		$keys['reply_html_template_id']['notes'] = "The ID of the default [mail template](/docs/records/types/html_template/) used when sending HTML mail from this group";
+		$keys['reply_personal']['notes'] = "The default personal name in the `From:` of replies";
+		$keys['reply_signature_id']['notes'] = "The ID of the default [signature](/docs/records/types/email_signature/) used when sending replies from this group";
+		
+		unset($keys['replyto_id']);
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -2103,6 +2132,22 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['buckets'] = [
+			'label' => 'Buckets',
+			'type' => 'Records',
+		];
+		
+		$lazy_keys['members'] = [
+			'label' => 'Members',
+			'type' => 'Records',
+		];
+		
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

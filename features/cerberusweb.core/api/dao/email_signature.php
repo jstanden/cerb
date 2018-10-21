@@ -1096,6 +1096,15 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['is_default']['notes'] = "Is this the default signature?";
+		$keys['signature']['notes'] = "The [template](/docs/bots/scripting/) of the signature";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1104,6 +1113,11 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

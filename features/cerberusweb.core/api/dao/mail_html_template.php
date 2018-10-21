@@ -1106,6 +1106,15 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['content']['notes'] = "The content of the template";
+		$keys['signature']['notes'] = "A template-specific email signature [template](/docs/bots/scripting/)";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1114,6 +1123,11 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

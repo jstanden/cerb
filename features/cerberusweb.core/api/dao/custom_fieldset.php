@@ -1126,6 +1126,14 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) of the fieldset";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1134,6 +1142,17 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['custom_fields'] = [
+			'label' => 'Custom Fields',
+			'type' => 'Records',
+		];
+		
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

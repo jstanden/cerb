@@ -1829,6 +1829,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -1900,6 +1901,18 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['attach']['type'] = 'links';
+		$keys['attach']['notes'] = 'An array of `type:id` tuples to attach this file to';
+		$keys['content']['notes'] = 'The content of this file';
+		$keys['mime_type']['notes'] = 'The MIME type of this file (e.g. `image/png`); defaults to `application/octet-stream`';
+		$keys['name']['notes'] = 'The filename';
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'attach':
@@ -1950,6 +1963,11 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		$out_fields['_attach'] = $json;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

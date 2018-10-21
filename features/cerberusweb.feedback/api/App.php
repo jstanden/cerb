@@ -1458,6 +1458,18 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['author_id']['notes'] = "The ID of the [email address](/docs/records/types/address/) of the feedback author";
+		$keys['quote_mood_id']['notes'] = "`0` (neutral), `1` (praise), `2` (criticism)";
+		$keys['quote_text']['notes'] = "The feedback content";
+		$keys['url']['notes'] = "(optional) The URL where the feedback was received";
+		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who captured the feedback";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1466,6 +1478,11 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

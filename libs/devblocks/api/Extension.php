@@ -622,6 +622,103 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
 	abstract function getKeyToDaoFieldMap();
 	
+	function getKeyMeta() {
+		$field_map = $this->getKeyToDaoFieldMap();
+		$dao_class = $this->getDaoClass();
+		$dao_fields = $dao_class::getFields();
+		
+		$keys = [];
+		
+		foreach($field_map as $record_key => $dao_key) {
+			if(false == (@$dao_field = $dao_fields[$dao_key]))
+				continue;
+			
+			// Only editable fields
+			if(!$dao_field->_type->isEditable())
+				continue;
+			
+			$type = $dao_field->_type->getName();
+			$notes = [];
+				
+			switch($type) {
+				case 'context':
+					//$type = 'record type';
+					break;
+					
+				case 'number':
+				case 'uint':
+					if(
+						array_key_exists('min', $dao_field->_type->_data)
+						&& array_key_exists('max', $dao_field->_type->_data)
+					) {
+						$notes[] = sprintf("(%d-%d)",
+							$dao_field->_type->_data['min'],
+							$dao_field->_type->_data['max']
+						);
+					}
+					break;
+					
+				case 'string':
+					if(
+						array_key_exists('possible_values', $dao_field->_type->_data)
+					) {
+						$notes[] = sprintf("[%s]",
+							implode(', ', array_map(function($v) {
+								if(empty($v))
+									return '""';
+								
+								return $v;
+							}, $dao_field->_type->_data['possible_values']))
+						);
+					}
+					break;
+			}
+			
+			$keys[$record_key] = [
+				'dao_field' => $dao_field,
+				'is_immutable' => !$dao_field->_type->isEditable(),
+				'is_required' => $dao_field->_type->isRequired(),
+				'notes' => implode('; ', $notes),
+				'type' => $type,
+			];
+		}
+		
+		if(array_key_exists('name', $keys)) {
+			$aliases = Extension_DevblocksContext::getAliasesForContext($this->manifest);
+			$keys['name']['notes'] = "The name of this " . $aliases['singular'];
+		}
+		
+		if(array_key_exists('created', $keys)) {
+			$keys['created']['notes'] = "The date/time when this record was created";
+		}
+		if(array_key_exists('created_at', $keys)) {
+			$keys['created_at']['notes'] = "The date/time when this record was created";
+		}
+		
+		if(array_key_exists('owner__context', $keys)) {
+			$aliases = Extension_DevblocksContext::getAliasesForContext($this->manifest);
+			$keys['owner__context']['notes'] = "The [record type](/docs/records/#record-types) of this " . $aliases['singular'] . "'s owner: `app`, `role`, `group`, or `worker`";
+		}
+		if(array_key_exists('owner_id', $keys)) {
+			$aliases = Extension_DevblocksContext::getAliasesForContext($this->manifest);
+			$keys['owner_id']['notes'] = "The ID of this " . $aliases['singular'] . "'s owner";
+		}
+		
+		if(array_key_exists('updated', $keys)) {
+			$keys['updated']['notes'] = "The date/time when this record was last modified";
+		}
+		if(array_key_exists('updated_at', $keys)) {
+			$keys['updated_at']['notes'] = "The date/time when this record was last modified";
+		}
+		
+		if(array_key_exists('links', $keys)) {
+			$keys['links']['type'] = 'links';
+			$keys['links']['notes'] = 'An array of record `type:id` tuples to link to';
+		}
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		return true;
 	}
@@ -904,7 +1001,36 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	abstract function getChooserView($view_id=null);
 	abstract function getView($context=null, $context_id=null, $options=array(), $view_id=null);
 
-	function lazyLoadContextValues($token, $dictionary) { return array(); }
+	function lazyLoadGetKeys() {
+		$context_mft = Extension_DevblocksContext::get(static::ID, false);
+		
+		$lazy_keys = [];
+		
+		if($context_mft->hasOption('custom_fields')) {
+			$lazy_keys['custom_<id>'] = [
+				'label' => 'Custom Fields',
+				'type' => 'Mixed',
+			];
+		}
+		
+		if($context_mft->hasOption('links')) {
+			$lazy_keys['links'] = [
+				'label' => 'Links',
+				'type' => 'Links',
+			];
+		}
+		
+		if($context_mft->hasOption('watchers')) {
+			$lazy_keys['watchers'] = [
+				'label' => 'Watchers',
+				'type' => 'Watchers',
+			];
+		}
+		
+		return $lazy_keys;
+	}
+	
+	function lazyLoadContextValues($token, $dictionary) { return []; }
 
 	protected function _broadcastRecipientFieldsGet($context, $context_label, array $use=[]) {
 		$token_labels = $token_values = [];

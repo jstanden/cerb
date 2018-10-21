@@ -1160,6 +1160,28 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['cards'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'An array of record `type:id` tuples to add to this column',
+			'type' => 'links',
+		];
+		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['board_id']['notes'] = "The [project board](/docs/records/types/project_board/) containing this column";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -1218,6 +1240,11 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

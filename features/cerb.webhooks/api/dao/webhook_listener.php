@@ -1062,6 +1062,23 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['extension_params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['extension_id']['type'] = "extension";
+		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension of the webhook";
+		$keys['guid']['notes'] = "The random unique alias of the webhook used in its URL; automatically generated if blank";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -1085,6 +1102,11 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

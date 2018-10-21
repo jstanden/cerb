@@ -977,6 +977,15 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['expires_at']['notes'] = "The expiration date of the public key";
+		$keys['fingerprint']['notes'] = "The fingerprint of the public key";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -985,6 +994,11 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

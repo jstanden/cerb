@@ -1229,6 +1229,21 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['group_id']['notes'] = "The ID of the parent [group](/docs/records/types/group/) containing this bucket";
+		$keys['is_default']['notes'] = "Is this the default (inbox) bucket of the group?";
+		$keys['reply_address_id']['notes'] = "The ID of the [email address](/docs/records/types/address/) used when sending replies from this bucket";
+		$keys['reply_html_template_id']['notes'] = "The ID of the default [mail template](/docs/records/types/html_template/) used when sending HTML mail from this bucket";
+		$keys['reply_personal']['notes'] = "The default personal name in the `From:` of replies";
+		$keys['reply_signature_id']['notes'] = "The ID of the default [signature](/docs/records/types/email_signature/) used when sending replies from this bucket";
+		
+		unset($keys['replyto_id']);
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1237,6 +1252,11 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

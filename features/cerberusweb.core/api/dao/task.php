@@ -1573,6 +1573,27 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['status'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => '`o` (open), `w` (waiting), `c` (closed); alternative to `status_id`',
+			'type' => 'string',
+		];
+		
+		$keys['completed']['notes'] = "The date/time this task was completed";
+		$keys['due']['notes'] = "The date/time of this task's deadline";
+		$keys['importance']['notes'] = "A number from `0` (least) to `100` (most)";
+		$keys['owner_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) responsible for this task";
+		$keys['reopen']['notes'] = "If the status is `waiting`, the date/time to automatically change the status back to `open`";
+		$keys['status_id']['notes'] = "`0` (open), `1` (closed), `2` (waiting); alternative to `status`";
+		$keys['title']['notes'] = "The name of this task";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1602,6 +1623,11 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

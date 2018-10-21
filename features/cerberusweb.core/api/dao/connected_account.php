@@ -1251,6 +1251,17 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['service']['type'] = "extension";
+		$keys['service']['notes'] = "The service provider's [plugin](/docs/plugins/) extension";
+		
+		unset($keys['extension_id']);
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1259,6 +1270,11 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

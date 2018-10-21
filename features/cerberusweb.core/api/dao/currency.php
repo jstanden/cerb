@@ -1095,6 +1095,19 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['code']['notes'] = "Currency code; e.g. `USD`";
+		$keys['decimal_at']['notes'] = "The number of significant decimal places (0-16); e.g. `2` for `0.00`";
+		$keys['is_default']['notes'] = "Is this the default currency?";
+		$keys['name']['notes'] = "The singular name of this currency; `Dollar`";
+		$keys['name_plural']['notes'] = "The plural name of this currency; `Dollars`";
+		$keys['symbol']['notes'] = "Symbol; `$`, `£`, `€`";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1103,6 +1116,11 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

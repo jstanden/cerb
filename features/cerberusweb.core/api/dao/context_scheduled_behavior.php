@@ -1314,6 +1314,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'run_date' => Model_CustomField::TYPE_DATE,
 			'target__label' => 'context_url',
@@ -1379,6 +1380,24 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['variables'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['behavior_id']['notes'] = "The ID of the [behavior](/docs/records/types/behavior/) to be scheduled";
+		$keys['run_date']['notes'] = "The date/time to run the scheduled behavior";
+		$keys['target__context']['notes'] = "The [record type](/docs/records/#record-types) of the target record to run the behavior against";
+		$keys['target_id']['notes'] = "The ID of the target record";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1401,6 +1420,11 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

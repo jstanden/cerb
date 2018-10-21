@@ -1166,6 +1166,25 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['extension_params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		$keys['pos']['notes'] = "The order of the widget on the profile; `0` is first (top-left) proceeding in rows then columns";
+		$keys['profile_tab_id']['notes'] = "The ID of the [profile tab](/docs/records/types/profile_tab/) dashboard containing this widget";
+		$keys['width_units']['notes'] = "`1` (25%), `2` (50%), `3` (75%), `4` (100%)";
+		$keys['zone']['notes'] = "The name of the dashboard zone containing the widget; this varies by layout; generally `sidebar` and `content`";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'extension_params':
@@ -1188,6 +1207,11 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

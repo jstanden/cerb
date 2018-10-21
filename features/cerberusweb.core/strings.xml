@@ -587,6 +587,16 @@
 				<seg>color</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.column">
+			<tuv xml:lang="en_US">
+				<seg>column</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.columns">
+			<tuv xml:lang="en_US">
+				<seg>columns</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.comment">
 			<tuv xml:lang="en_US">
 				<seg>comment</seg>
@@ -2304,6 +2314,11 @@
 		<tu tuid="common.snippets">
 			<tuv xml:lang="en_US">
 				<seg>snippets</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.sort">
+			<tuv xml:lang="en_US">
+				<seg>sort</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.spam">

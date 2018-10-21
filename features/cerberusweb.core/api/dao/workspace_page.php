@@ -1147,6 +1147,14 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1155,6 +1163,27 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['tabs'] = [
+			'label' => 'Tabs',
+			'type' => 'Records',
+		];
+		
+		$lazy_keys['widgets'] = [
+			'label' => 'Widgets',
+			'type' => 'Records',
+		];
+		
+		$lazy_keys['worklists'] = [
+			'label' => 'Worklists',
+			'type' => 'Records',
+		];
+		
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

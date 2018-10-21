@@ -1447,6 +1447,25 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['status'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => '`open`, `closed_won`, `closed_lost`; alternative to `status_id`',
+			'type' => 'string',
+		];
+		
+		$keys['amount']['type'] = "float";
+		$keys['amount']['notes'] = "The amount of the opportunity in the given currency";
+		$keys['amount_currency_id']['notes'] = "The ID of the [currency](/docs/records/types/currency/)";
+		$keys['status_id']['notes'] = "`0` (open), `1` (closed/won), `2` (closed/lost); alternaitve to `status`";
+		$keys['title']['notes'] = "The name of the opportunity";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1476,6 +1495,11 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

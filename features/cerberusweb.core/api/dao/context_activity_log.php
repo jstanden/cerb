@@ -1275,6 +1275,25 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['activity_point']['notes'] = "The event that occurred";
+		$keys['actor__context']['notes'] = "The actor's record type";
+		$keys['actor_id']['notes'] = "The actor's record ID";
+		$keys['target__context']['notes'] = "The target's record type";
+		$keys['target_id']['notes'] = "The target's record ID";
+		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -1298,6 +1317,11 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

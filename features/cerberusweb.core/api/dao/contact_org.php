@@ -1768,6 +1768,21 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['city']['notes'] = "City";
+		$keys['country']['notes'] = "Country";
+		$keys['email_id']['notes'] = "Primary [email address](/docs/records/types/address/)";
+		$keys['phone']['notes'] = "Phone";
+		$keys['postal']['notes'] = "Postal code / ZIP";
+		$keys['province']['notes'] = "State / Province";
+		$keys['street']['notes'] = "Street address";
+		$keys['website']['notes'] = "Website";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1776,6 +1791,11 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

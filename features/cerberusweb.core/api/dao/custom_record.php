@@ -1150,6 +1150,16 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['name']['notes'] = "The singular name of the record; `Issue`";
+		$keys['name_plural']['notes'] = "The plural name of the record; `Issues`";
+		$keys['uri']['notes'] = "The alias of the record (e.g. `issue`); used in URLs, API, etc.";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1158,6 +1168,11 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

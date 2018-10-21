@@ -2442,6 +2442,21 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['contact_id']['notes'] = "The [contact](/docs/records/types/contact/) linked to this email";
+		$keys['email']['notes'] = "An email address";
+		$keys['host']['notes'] = "The hostname of the email address";
+		$keys['is_banned']['notes'] = "Is incoming email blocked?";
+		$keys['is_defunct']['notes'] = "Is this address non-deliverable?";
+		$keys['mail_transport_id']['notes'] = "If this address is used for outgoing mail, the [mail transport](/docs/records/types/mail_transport/) to use; otherwise empty";
+		$keys['org_id']['notes'] = "The [organization](/docs/records/types/org/) linked to this email";
+		$keys['worker_id']['notes'] = "Is this address owned by a [worker](/docs/records/types/worker/)?";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -2450,6 +2465,11 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

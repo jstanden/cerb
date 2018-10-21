@@ -1319,6 +1319,25 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['auth_disable_plain']['notes'] = "Used to bypass Microsoft Exchange authentication issues";
+		$keys['checked_at']['notes'] = "The date/time this mailbox was last checked for new messages";
+		$keys['host']['notes'] = "The mail server hostname";
+		$keys['is_enabled']['notes'] = "Is this mailbox enabled? `1` for true and `0` for false";
+		$keys['max_msg_size_kb']['notes'] = "The maximum message size to download (in kilobytes); `0` to disable limits";
+		$keys['num_fails']['notes'] = "The number of consecutive failures";
+		$keys['password']['notes'] = "The mailbox password";
+		$keys['port']['notes'] = "The port to connect to; e.g. `587`";
+		$keys['protocol']['notes'] = "The protocol to use: `pop3`, `pop3-ssl`, `imap`, `imap-ssl`";
+		$keys['ssl_ignore_validation']['notes'] = "Disabled (`0`) by default; enable (`1`) to allow self-signed certificates";
+		$keys['timeout_secs']['notes'] = "The socket timeout in seconds when downloading mail";
+		$keys['username']['notes'] = "The mailbox username";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1327,6 +1346,11 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

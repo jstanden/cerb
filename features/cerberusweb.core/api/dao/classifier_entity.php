@@ -993,6 +993,22 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['description']['notes'] = "A description of this entity";
+		$keys['type']['notes'] = "The type of this entity: `list`, `regexp`, or `text`";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1015,6 +1031,11 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

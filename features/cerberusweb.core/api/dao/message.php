@@ -2513,6 +2513,46 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['content'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'Message content',
+			'type' => 'string',
+		];
+		
+		$keys['headers'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'Message headers',
+			'type' => 'string',
+		];
+		
+		$keys['sender'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'The [email address](/docs/records/types/address/) of the sender; alternative to `sender_id`',
+			'type' => 'string',
+		];
+		
+		$keys['hash_header_message_id']['notes'] = "A SHA-1 hash of the `Message-Id:` header; used for message threading";
+		$keys['html_attachment_id']['notes'] = "The [attachment](/docs/records/types/attachment/) ID containing the HTML message content";
+		$keys['is_broadcast']['notes'] = "Was this message sent using the broadcast feature?";
+		$keys['is_not_sent']['notes'] = "Was this message saved without sending?";
+		$keys['is_outgoing']['notes'] = "Was this an outgoing reply from a worker?";
+		$keys['response_time']['notes'] = "Response time in seconds";
+		$keys['sender_id']['notes'] = "The ID of the sender's [email address](/docs/records/types/address/) record";
+		$keys['storage_size']['notes'] = "Size of the message in bytes";
+		$keys['ticket_id']['notes'] = "The ID of the message's [ticket](/docs/records/types/ticket/) record";
+		$keys['was_encrypted']['notes'] = "Was the message sent encrypted?";
+		$keys['was_signed']['notes'] = "Was the message cryptographically signed?";
+		$keys['worker_id']['notes'] = "If outgoing, the ID of the [worker](/docs/records/types/worker/) who sent the message";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -2539,6 +2579,42 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['attachments'] = [
+			'label' => 'Attachments',
+			'type' => 'Records',
+		];
+		
+		$lazy_keys['content'] = [
+			'label' => 'Content',
+			'type' => 'Text',
+		];
+		
+		$lazy_keys['content_html'] = [
+			'label' => 'Content (HTML)',
+			'type' => 'Text',
+		];
+		
+		$lazy_keys['headers'] = [
+			'label' => 'Headers',
+			'type' => 'HashMap',
+		];
+		
+		$lazy_keys['reply_cc'] = [
+			'label' => '`Cc:` recipients (comma-separated)',
+			'type' => 'Text',
+		];
+		
+		$lazy_keys['reply_to'] = [
+			'label' => '`To:` recipients (comma-separated)',
+			'type' => 'Text',
+		];
+		
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

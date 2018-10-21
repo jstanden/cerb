@@ -1142,6 +1142,24 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['format'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => '`text`, `markdown`, or `html`',
+			'type' => 'string',
+		];
+		
+		$keys['categories']['notes'] = "A comma-separated list of IDs of [categories](/docs/records/types/kb_category/) to assign this article to";
+		$keys['content']['notes'] = "The content of the article";
+		$keys['title']['notes'] = "The title of the article";
+		$keys['views']['notes'] = "The number of times the article has been viewed in a [community portal](/docs/portals/)";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'format':
@@ -1169,6 +1187,17 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['categories'] = [
+			'label' => 'Categories',
+			'type' => 'HashMap',
+		];
+		
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1542,7 +1571,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				),
 			'watchers' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => 'WS',
 					'options' => array('param_key' => SearchFields_KbArticle::VIRTUAL_WATCHERS),
 				),
 		);

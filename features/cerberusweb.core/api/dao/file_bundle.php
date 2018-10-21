@@ -1153,6 +1153,14 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['tag']['notes'] = "A human-friendly nickname for the bundle; e.g. `tax_forms`";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1161,6 +1169,11 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

@@ -1125,6 +1125,16 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) of this search query; e.g. `ticket`";
+		$keys['query']['notes'] = "The [search query](/docs/search/); e.g. `status:o`";
+		$keys['tag']['notes'] = "A human-friendly nickname for this search (e.g. `open_tickets`)";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1133,6 +1143,11 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {

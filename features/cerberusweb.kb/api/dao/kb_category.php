@@ -829,6 +829,14 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['parent_id']['notes'] = "The ID of the parent [category](/docs/records/types/kb_category/); if `0` this is a top-level topic";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -837,6 +845,11 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -1202,7 +1215,7 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 				),
 			'watchers' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'type' => 'WS',
 					'options' => array('param_key' => SearchFields_KbCategory::VIRTUAL_WATCHERS),
 				),
 		);

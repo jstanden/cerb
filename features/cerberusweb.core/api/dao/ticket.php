@@ -4699,6 +4699,48 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['org'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'The exact name of the [organization](/docs/records/types/org/) linked to this ticket; alternative to `org_id`',
+			'type' => 'string',
+		];
+		
+		$keys['participants'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'A comma-separated list of email addresses to add as participants',
+			'type' => 'string',
+		];
+		
+		$keys['status'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => '`o` (open), `w` (waiting), `c` (closed), `d` (deleted); alternative to `status_id`',
+			'type' => 'string',
+		];
+		
+		$keys['bucket_id']['notes'] = "The ID of the [bucket](/docs/records/types/bucket/) containing this ticket";
+		$keys['closed']['notes'] = "The date/time this ticket was first set to status `closed`";
+		$keys['elapsed_response_first']['notes'] = "The number of seconds between the creation of this ticket and its first worker response";
+		$keys['elapsed_resolution_first']['notes'] = "The number of seconds between the creation of this ticket and its first resolution";
+		$keys['group_id']['notes'] = "The ID of the [group](/docs/records/types/group/) containing this ticket";
+		$keys['importance']['notes'] = "A number from `0` (least) to `100` (most)";
+		$keys['mask']['notes'] = "The randomized reference number for this ticket; auto-generated if blank";
+		$keys['org_id']['notes'] = "The ID of the [organization](/docs/records/types/org/) linked to this ticket; alternative to `org`";
+		$keys['owner_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) responsible for this ticket";
+		$keys['reopen_date']['notes'] = "If status `waiting`, the date/time to automatically change the status back to `open`";
+		$keys['spam_score']['notes'] = "`0.0001` (not spam) to `0.9999` (spam); automatically generated";
+		$keys['spam_training']['notes'] = "`S` (spam), `N` (not spam); blank for non-trained";
+		$keys['status_id']['notes'] = "`0` (open), `1` (waiting), `2` (closed), `3` (deleted); alternative to `status`";
+		$keys['subject']['notes'] = "The subject of the ticket";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -4740,6 +4782,42 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['_messages'] = [
+			'label' => 'Messages',
+			'type' => 'Records',
+		];
+		
+		$lazy_keys['requester_emails'] = [
+			'label' => 'Requester emails (comma-separated)',
+			'type' => 'Text',
+		];
+		
+		$lazy_keys['requesters'] = [
+			'label' => 'Requesters',
+			'type' => 'HashMap',
+		];
+		
+		$lazy_keys['signature'] = [
+			'label' => 'Signature',
+			'type' => 'Text',
+		];
+		
+		$lazy_keys['latest_incoming_activity'] = [
+			'label' => 'Latest Incoming Activity',
+			'type' => 'Date',
+		];
+		
+		$lazy_keys['latest_outgoing_activity'] = [
+			'label' => 'Latest Outgoing Activity',
+			'type' => 'Date',
+		];
+		
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

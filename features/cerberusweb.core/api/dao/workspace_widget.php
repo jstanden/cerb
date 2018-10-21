@@ -1216,6 +1216,26 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		$keys['label']['notes'] = "The human-friendly name of the widget";
+		$keys['pos']['notes'] = "The position of the widget on the dashboard; `0` is first (top-right); rows before columns";
+		$keys['tab_id']['notes'] = "The ID of the [workspace tab](/docs/records/types/workspace_tab/) containing this widget";
+		$keys['width_units']['notes'] = "`1` (25%), `2` (50%), `3` (75%), `4` (100%)";
+		$keys['zone']['notes'] = "The name of the dashboard zone containing the widget; this varies by layout; generally `sidebar` and `content`";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
@@ -1239,6 +1259,17 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['data'] = [
+			'label' => 'Data',
+			'type' => 'HashMap',
+		];
+		
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

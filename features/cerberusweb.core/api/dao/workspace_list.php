@@ -1242,6 +1242,37 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) of the worklist";
+		$keys['params_required_query']['notes'] = "The [search query](/docs/search/) for required filters";
+		$keys['pos']['notes'] = "The order of the worklist on the workspace tab; `0` is first";
+		$keys['render_limit']['notes'] = "The number of records per page";
+		$keys['tab_id']['notes'] = "The ID of the [workspace tab](/docs/records/types/workspace_tab/) containing this worklist";
+		
+		$keys['columns'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value array of column names',
+			'type' => 'object',
+		];
+		
+		$keys['options'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
+		unset($keys['params']);
+		unset($keys['params_required']);
+		unset($keys['render_sort']);
+		unset($keys['render_subtotals']);
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		
@@ -1334,6 +1365,11 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		return true;
+	}
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
 	}
 	
 	function lazyLoadContextValues($token, $dictionary) {

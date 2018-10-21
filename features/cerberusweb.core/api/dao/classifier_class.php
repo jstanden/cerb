@@ -1103,6 +1103,14 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		];
 	}
 	
+	function getKeyMeta() {
+		$keys = parent::getKeyMeta();
+		
+		$keys['classifier_id']['notes'] = "The ID of the parent [classifier](/docs/records/types/classifier/)";
+		
+		return $keys;
+	}
+	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
@@ -1112,7 +1120,12 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		
 		return true;
 	}
-
+	
+	function lazyLoadGetKeys() {
+		$lazy_keys = parent::lazyLoadGetKeys();
+		return $lazy_keys;
+	}
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
