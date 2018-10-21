@@ -194,8 +194,6 @@ class DAO_Notification extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
 		$do = $update->actions;
 		$ids = $update->context_ids;
 
@@ -283,11 +281,11 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$count = self::getUnreadCountByWorker($worker_id);
 		
 		if(empty($count))
-			return array();
+			return [];
 		
 		$db = DevblocksPlatform::services()->database();
 		
-		$contexts = array();
+		$contexts = [];
 		
 		if(is_array($context_tuples))
 		foreach($context_tuples as $context_tuple) {
@@ -322,7 +320,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		}
 		
 		if(empty($contexts))
-			return array();
+			return [];
 		
 		$notifications = self::getWhere(
 			sprintf("(%s) AND %s = %d %s",
@@ -381,7 +379,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	 * @return Model_Notification[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -460,7 +458,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	static function deleteByContextActivityAndWorker($context, $context_ids, $activity_point=null, $worker_ids=array()) {
+	static function deleteByContextActivityAndWorker($context, $context_ids, $activity_point=null, $worker_ids=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($context_ids))
@@ -479,7 +477,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 
 		// Build where clause
 		
-		$wheres = array();
+		$wheres = [];
 		
 		if(!empty($activity_point)) {
 			$wheres[] = sprintf("AND activity_point = %s",
@@ -535,7 +533,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	static function clearCountCache($worker_id=null) {
 		$cache = DevblocksPlatform::services()->cache();
 		
-		$workers = array();
+		$workers = [];
 		
 		// If we weren't given a worker, use all active workers
 		if(is_null($worker_id)) {
@@ -559,7 +557,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Notification::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(), 'SearchFields_Notification', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, [], 'SearchFields_Notification', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"we.id as %s, ".
@@ -635,7 +633,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -894,7 +892,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -1121,7 +1119,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_Notification::WORKER_ID:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -1135,7 +1133,7 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_Notification::ACTIVITY_POINT:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 		}
@@ -1294,7 +1292,7 @@ class Context_Notification extends Extension_DevblocksContext {
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_NOTIFICATION;
 		$token_values['_types'] = $token_types;
@@ -1329,8 +1327,8 @@ class Context_Notification extends Extension_DevblocksContext {
 		}
 
 		// Assignee
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
@@ -1421,10 +1419,10 @@ class Context_Notification extends Extension_DevblocksContext {
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1476,7 +1474,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		
 		$view->addParams($params, true);
 		$view->addParamsDefault($params, true);
-		$view->addParamsRequired(array(), true);
+		$view->addParamsRequired([], true);
 		
 		$view->renderSortBy = SearchFields_Notification::CREATED_DATE;
 		$view->renderSortAsc = false;
@@ -1485,7 +1483,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1494,7 +1492,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Notifications';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(

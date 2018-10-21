@@ -2003,8 +2003,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
@@ -2057,7 +2055,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_ATTACHMENT;
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($context_id)) {
 			if(false != ($model = DAO_Attachment::get($context_id))) {

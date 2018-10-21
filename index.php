@@ -77,7 +77,7 @@ DevblocksPlatform::setStateless(in_array(@$request->path[0], ['cron','portal','r
 if(DevblocksPlatform::isStateless()) {
 	$_SESSION = [];
 } else {
-	$session = DevblocksPlatform::services()->session();
+	DevblocksPlatform::services()->session();
 }
 
 // Do we need an update first?

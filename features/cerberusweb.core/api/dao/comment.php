@@ -367,7 +367,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Comment::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Comment', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Comment', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"comment.id as %s, ".
@@ -392,14 +392,6 @@ class DAO_Comment extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Comment');
-		
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 		
 		$result = array(
 			'primary_table' => 'comment',
@@ -830,7 +822,6 @@ class Model_Comment {
 	}
 	
 	public function getAuthorDictionary() {
-		$values = $labels = [];
 		$models = CerberusContexts::getModels($this->owner_context, [$this->owner_context_id]);
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $this->owner_context);
 		
@@ -841,7 +832,6 @@ class Model_Comment {
 	}
 	
 	public function getTargetDictionary() {
-		$values = $labels = [];
 		$models = CerberusContexts::getModels($this->context, [$this->context_id]);
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $this->context);
 		
@@ -1158,7 +1148,6 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -1315,7 +1304,6 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function profileGetFields($model=null) {
-		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
 		
 		if(is_null($model))
@@ -1350,7 +1338,6 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function getMeta($context_id) {
 		$comment = DAO_Comment::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		
@@ -1374,7 +1361,6 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		if(is_null($prefix))
 			$prefix = 'Comment:';
 		
-		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_COMMENT);
 
 		// Polymorph
@@ -1532,8 +1518,6 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	
@@ -1579,8 +1563,6 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$context = CerberusContexts::CONTEXT_COMMENT;
 		
 		if(!empty($context_id)) {

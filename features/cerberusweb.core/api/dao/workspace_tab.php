@@ -234,7 +234,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	
 	static function getByPage($page_id) {
 		$all_tabs = self::getAll();
-		$tabs = array();
+		$tabs = [];
 		
 		foreach($all_tabs as $tab_id => $tab) { /* @var $tab Model_WorkspaceTab */
 			if($tab->workspace_page_id == $page_id)
@@ -277,7 +277,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	 * @return Model_WorkspaceTab[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -353,7 +353,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspaceTab::getFields();
 		
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkspaceTab', $sortBy);
+		list(, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkspaceTab', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"workspace_tab.id as %s, ".
@@ -425,7 +425,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -916,8 +916,6 @@ class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtota
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_WorkspaceTab::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -1047,10 +1045,8 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::services()->url();
-
 		if(null == ($workspace_tab = DAO_WorkspaceTab::get($context_id)))
-			return array();
+			return [];
 		
 		return array(
 			'id' => $workspace_tab->id,
@@ -1245,10 +1241,10 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1262,14 +1258,14 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 				$values = $dictionary;
 
 				if(!isset($values['widgets']))
-					$values['widgets'] = array();
+					$values['widgets'] = [];
 				
 				$widgets = DAO_WorkspaceWidget::getByTab($context_id);
 
 				if(is_array($widgets))
 				foreach($widgets as $widget) { /* @var $widget Model_WorkspaceWidget */
-					$widget_labels = array();
-					$widget_values = array();
+					$widget_labels = [];
+					$widget_values = [];
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $widget, $widget_labels, $widget_values, null, true);
 					$values['widgets'][] = $widget_values;
 				}
@@ -1317,7 +1313,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 				$values = $dictionary;
 
 				if(!isset($values['worklists']))
-					$values['worklists'] = array();
+					$values['worklists'] = [];
 				
 				$worklists = DAO_WorkspaceList::getByTab($context_id);
 
@@ -1344,8 +1340,6 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

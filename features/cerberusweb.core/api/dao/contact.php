@@ -588,14 +588,6 @@ class DAO_Contact extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Contact');
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-	
 		return array(
 			'primary_table' => 'contact',
 			'select' => $select_sql,
@@ -2222,8 +2214,6 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

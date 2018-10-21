@@ -260,12 +260,12 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		return null;
 	}
 	
-	static function getDraftsByTicketIds($ids, $max_age=600, $ignore_worker_ids=array()) {
+	static function getDraftsByTicketIds($ids, $max_age=600, $ignore_worker_ids=[]) {
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int', array('unique','nonzero'));
 		$ignore_worker_ids = DevblocksPlatform::sanitizeArray($ignore_worker_ids, 'int', array('unique','nonzero'));
 		
 		if(empty($ids))
-			return array();
+			return [];
 
 		$results = self::getWhere(sprintf("%s != %d AND %s = %d AND %s in (%s) AND %s >= %d %s",
 			DAO_MailQueue::TICKET_ID,
@@ -282,12 +282,12 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			)
 		));
 		
-		$out = array();
+		$out = [];
 		
 		if(is_array($results))
 		foreach($results as $draft) {
 			if(!isset($out[$draft->ticket_id]))
-				$out[$draft->ticket_id] = array();
+				$out[$draft->ticket_id] = [];
 			
 			// Only use the newest draft per ticket
 			if(isset($out[$draft->ticket_id]) && $out[$draft->ticket_id]->updated > $draft->updated)
@@ -307,7 +307,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	 * @return Model_MailQueue[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -453,7 +453,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -875,7 +875,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -903,12 +903,12 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_DRAFT;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_MailQueue::TYPE:
@@ -920,7 +920,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 				break;
 
 			case SearchFields_MailQueue::WORKER_ID:
-				$label_map = array();
+				$label_map = [];
 				$workers = DAO_Worker::getAll();
 				foreach($workers as $worker_id => $worker)
 					$label_map[$worker_id] = $worker->getName();
@@ -1112,7 +1112,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 				break;
 				
 			case SearchFields_MailQueue::WORKER_ID:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 		}
@@ -1338,8 +1338,8 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		}
 		
 		// Worker
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
@@ -1402,10 +1402,10 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1458,7 +1458,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		// [TODO]
 		return NULL;
 		
@@ -1470,7 +1470,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Drafts';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(

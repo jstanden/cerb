@@ -180,7 +180,7 @@ class _DevblocksValidators {
 			if(empty($value) & $allow_empty)
 				return true;
 			
-			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($value, false))) {
+			if(false == (Extension_DevblocksContext::getByAlias($value, false))) {
 				$error = sprintf("is not a valid context (%s)", $value);
 				return false;
 			}
@@ -290,7 +290,7 @@ class _DevblocksValidators {
 	
 	function extension($extension_class) {
 		return function($value, &$error=null) use ($extension_class) {
-			if(false == ($ext = $extension_class::get($value))) {
+			if(false == ($extension_class::get($value))) {
 				$error = sprintf("(%s) is not a valid extension ID on (%s).",
 					$value,
 					$extension_class::POINT
@@ -671,6 +671,8 @@ class _DevblocksValidationService {
 		$field_name = $field->_name;
 		$field_label = $field->_label;
 		
+		$error = null;
+		
 		if(false == ($class_name = get_class($field->_type)))
 			throw new Exception_DevblocksValidationError("'%s' has an invalid type.", $field_label);
 		
@@ -727,7 +729,7 @@ class _DevblocksValidationService {
 		
 		switch($class_name) {
 			case '_DevblocksValidationTypeContext':
-				if(!is_string($value) || false == ($context_ext = Extension_DevblocksContext::getByAlias($value, false))) {
+				if(!is_string($value) || false == (Extension_DevblocksContext::getByAlias($value, false))) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' is not a valid context (%s).", $field_label, $value));
 				}
 				// [TODO] Filter to specific contexts for certain fields

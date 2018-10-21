@@ -233,8 +233,6 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -326,7 +324,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ProfileTab::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ProfileTab', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ProfileTab', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"profile_tab.id as %s, ".
@@ -347,14 +345,6 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ProfileTab');
-	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 	
 		return array(
 			'primary_table' => 'profile_tab',
@@ -812,8 +802,6 @@ class View_ProfileTab extends C4_AbstractView implements IAbstractView_Subtotals
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_ProfileTab::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -942,7 +930,6 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 	
 	function getMeta($context_id) {
 		$profile_tab = DAO_ProfileTab::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($profile_tab->name);
@@ -1129,8 +1116,6 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

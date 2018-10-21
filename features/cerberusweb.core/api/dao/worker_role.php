@@ -147,7 +147,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			$worker = DAO_Worker::get($worker_id);
 			$memberships = $worker->getMemberships();
 			$all_roles = DAO_WorkerRole::getAll();
-			$roles = array();
+			$roles = [];
 
 			foreach($all_roles as $role_id => $role) {
 				if(
@@ -185,7 +185,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			if(false === ($worker = DAO_Worker::get($worker_id)))
 				return false;
 			
-			if(false === ($memberships = $worker->getMemberships()))
+			if(false === ($worker->getMemberships()))
 				return false;
 			
 			if(false === ($roles = DAO_WorkerRole::getRolesByWorker($worker_id)))
@@ -193,7 +193,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			
 			$privs = [];
 			
-			foreach($roles as $role_id => $role) {
+			foreach($roles as $role) {
 				switch($role->params['what']) {
 					case 'all':
 						$privs = ['*' => []];
@@ -285,16 +285,14 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			$ids = array($ids);
 
 		if(empty($ids))
-			return array();
+			return [];
 
 		if(!method_exists(get_called_class(), 'getWhere'))
-			return array();
-
-		$db = DevblocksPlatform::services()->database();
+			return [];
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
-		$models = array();
+		$models = [];
 
 		$results = static::getWhere(sprintf("id IN (%s)",
 			implode(',', $ids)
@@ -316,7 +314,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	 * @return Model_WorkerRole[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -386,7 +384,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			$cache->remove(self::_CACHE_WORKER_ROLES_PREFIX.$worker_id);
 		} else {
 			$workers = DAO_Worker::getAll();
-			foreach($workers as $worker_id => $worker) {
+			foreach(array_keys($workers) as $worker_id) {
 				$cache->remove(self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
 				$cache->remove(self::_CACHE_WORKER_ROLES_PREFIX.$worker_id);
 			}
@@ -396,7 +394,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkerRole::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkerRole', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkerRole', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"worker_role.id as %s, ".
@@ -415,14 +413,6 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_WorkerRole');
-	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 	
 		return array(
 			'primary_table' => 'worker_role',
@@ -473,7 +463,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		if(!($rs instanceof mysqli_result))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_WorkerRole::ID]);
@@ -690,7 +680,7 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -718,12 +708,12 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_ROLE;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
@@ -831,7 +821,6 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -842,8 +831,6 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
@@ -873,12 +860,12 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -1022,7 +1009,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_ROLE;
 		$token_values['_types'] = $token_types;
@@ -1105,10 +1092,10 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1148,7 +1135,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1157,7 +1144,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = DevblocksPlatform::translateCapitalized('common.roles');
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
@@ -1188,7 +1175,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		if(is_array($acls))
-		foreach($acls as $acl_key => $acl) {
+		foreach($acls as $acl) {
 			$plugin_id = $acl->plugin_id;
 			
 			if(empty($plugin_id) || !isset($plugins_acl[$plugin_id]))
@@ -1223,6 +1210,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		
 		if(isset($core_acl['privs']) && is_array($core_acl['privs']))
 		foreach($core_acl['privs'] as $priv => $label) {
+			$matches = [];
 			if(mb_ereg('^\[(.*?)\] (.*?)$', $label, $matches)) {
 				$section = $matches[1];
 				$label = $matches[2];
@@ -1334,8 +1322,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 				return;
 			
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);

@@ -297,7 +297,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 	 * @return Model_Snippet[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -409,7 +409,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				break;
 		}
 		
-		list($tables, $wheres, $null) = parent::_parseSearchParams($params, $columns, 'SearchFields_Snippet', $sortBy);
+		list($tables, $wheres,) = parent::_parseSearchParams($params, $columns, 'SearchFields_Snippet', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"snippet.id as %s, ".
@@ -442,12 +442,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 		
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Snippet');
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 		
 		$result = array(
 			'primary_table' => 'snippet',
@@ -498,7 +492,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -741,7 +735,7 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function getAttributes() {
-		return array();
+		return [];
 	}
 	
 	public function getFields() {
@@ -750,7 +744,7 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 		);
 	}
 	
-	public function query($query, $attributes=array(), $limit=null) {
+	public function query($query, $attributes=[], $limit=null) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		
@@ -938,7 +932,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -970,12 +964,12 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_SNIPPET;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
@@ -1089,7 +1083,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		
 		// Engine/schema examples: Fulltext
 		
-		$ft_examples = array();
+		$ft_examples = [];
 		
 		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_Snippet::ID))) {
 			if(false != ($engine = $schema->getEngine())) {
@@ -1120,12 +1114,12 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case 'type':
 				$field_key = SearchFields_Snippet::CONTEXT;
 				$oper = null;
-				$patterns = array();
+				$patterns = [];
 				
 				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $patterns);
 				
 				$contexts = Extension_DevblocksContext::getAll(false);
-				$values = array();
+				$values = [];
 				
 				if(is_array($patterns))
 				foreach($patterns as $pattern) {
@@ -1207,8 +1201,6 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -1283,7 +1275,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Snippet::CONTEXT:
-				@$in_contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',array());
+				@$in_contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$in_contexts);
 				break;
 				
@@ -1293,17 +1285,17 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Snippet::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',array());
+				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				
@@ -1396,7 +1388,6 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function getMeta($context_id) {
 		$snippet = DAO_Snippet::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		return array(
 			'id' => $context_id,
@@ -1440,8 +1431,6 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	function autocomplete($term, $query=null) {
 		$as_worker = CerberusApplication::getActiveWorker();
 		
-		$contexts = DevblocksPlatform::getExtensions('devblocks.context', false);
-
 		$defaults = new C4_AbstractViewModel();
 		$defaults->id = 'autocomplete_snippets';
 		$defaults->class_name = 'View_Snippet';
@@ -1468,7 +1457,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$view->renderTotal = false;
 		$view->setAutoPersist(false);
 		
-		list($results, $null) = $view->getData();
+		list($results,) = $view->getData();
 		
 		$list = [];
 
@@ -1538,7 +1527,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_SNIPPET;
 		$token_values['_types'] = $token_types;
@@ -1632,10 +1621,10 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1681,7 +1670,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1690,7 +1679,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Snippets';
 
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
@@ -1708,7 +1697,6 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_SNIPPET;
 
 		if(empty($context_id) || null == ($model = DAO_Snippet::get($context_id))) {
@@ -1772,8 +1760,8 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 				return;
 			
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);

@@ -567,14 +567,6 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Bucket');
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-	
 		return array(
 			'primary_table' => 'bucket',
 			'select' => $select_sql,

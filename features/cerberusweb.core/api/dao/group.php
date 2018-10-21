@@ -192,7 +192,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	
 	static function getNames(Model_Worker $for_worker=null) {
 		$groups = DAO_Group::getAll();
-		$names = array();
+		$names = [];
 		
 		foreach($groups as $group) {
 			if(is_null($for_worker) || $for_worker->isGroupMember($group->id))
@@ -229,7 +229,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	
 	static function getResponsibilities($group_id) {
 		$db = DevblocksPlatform::services()->database();
-		$responsibilities = array();
+		$responsibilities = [];
 		
 		$results = $db->GetArraySlave(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
 			$group_id
@@ -237,7 +237,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		foreach($results as $row) {
 			if(!isset($responsibilities[$row['bucket_id']]))
-				$responsibilities[$row['bucket_id']] = array();
+				$responsibilities[$row['bucket_id']] = [];
 			
 			$responsibilities[$row['bucket_id']][$row['worker_id']] = $row['responsibility_level'];
 		}
@@ -251,7 +251,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(!is_array($responsibilities))
 			return false;
 		
-		$values = array();
+		$values = [];
 		
 		foreach($responsibilities as $bucket_id => $workers) {
 			if(!is_array($workers))
@@ -281,7 +281,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @return Model_Notification[]
 	 */
 	static private function _getObjectsFromResultSet($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -675,7 +675,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			return FALSE;
 		
 		$buckets = $group->getBuckets();
-		$responsibilities = array();
+		$responsibilities = [];
 		
 		if(is_array($buckets))
 		foreach($buckets as $bucket_id => $bucket) {
@@ -691,7 +691,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::services()->database();
 		
-		$values = array();
+		$values = [];
 		
 		foreach($responsibilities as $bucket_id => $level) {
 			$values[] = sprintf("(%d,%d,%d)",
@@ -713,7 +713,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	}
 	
 	static function setBucketDefaultResponsibilities($bucket_id) {
-		$responsibilities = array();
+		$responsibilities = [];
 		
 		if(false == ($bucket = DAO_Bucket::get($bucket_id)))
 			return false;
@@ -738,7 +738,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::services()->database();
 		
-		$values = array();
+		$values = [];
 		
 		foreach($responsibilities as $worker_id => $level) {
 			$values[] = sprintf("(%d,%d,%d)",
@@ -805,7 +805,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			if(false == ($rs = $db->ExecuteSlave($sql)))
 				return false;
 			
-			$objects = array();
+			$objects = [];
 			
 			if(!($rs instanceof mysqli_result))
 				return false;
@@ -820,7 +820,7 @@ class DAO_Group extends Cerb_ORMHelper {
 					continue;
 				
 				if(!isset($objects[$group_id]))
-					$objects[$group_id] = array();
+					$objects[$group_id] = [];
 				
 				$member = new Model_GroupMember();
 				$member->id = $worker_id;
@@ -891,12 +891,6 @@ class DAO_Group extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Group');
 
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-		
 		$result = array(
 			'primary_table' => 'g',
 			'select' => $select_sql,
@@ -934,7 +928,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -1293,7 +1287,7 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 		if(null === ($groups = $cache->load(self::CACHE_ALL))) {
 			$db = DevblocksPlatform::services()->database();
 	
-			$groups = array();
+			$groups = [];
 			
 			$sql = "SELECT group_id, setting, value FROM group_setting";
 			
@@ -1307,7 +1301,7 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 				$gid = intval($row['group_id']);
 				
 				if(!isset($groups[$gid]))
-					$groups[$gid] = array();
+					$groups[$gid] = [];
 				
 				$groups[$gid][$row['setting']] = $row['value'];
 			}
@@ -1392,7 +1386,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -1421,12 +1415,12 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_GROUP;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_Group::IS_DEFAULT;
@@ -1686,12 +1680,12 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				break;
 				
 			case SearchFields_Group::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -1903,7 +1897,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::services()->url();
-		$list = array();
+		$list = [];
 		
 		list($results, $null) = DAO_Group::search(
 			[],
@@ -2158,10 +2152,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -2173,18 +2167,18 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				if(!isset($values['buckets']))
 					$values['buckets'] = array(
 						'results_meta' => array(
-							'labels' => array(),
-							'types' => array(),
+							'labels' => [],
+							'types' => [],
 						),
-						'results' => array(),
+						'results' => [],
 					);
 					
 				$buckets = DAO_Bucket::getByGroup($context_id);
 				
 				if(is_array($buckets))
 				foreach($buckets as $bucket) { /* @var $bucket Model_Bucket */
-					$bucket_labels = array();
-					$bucket_values = array();
+					$bucket_labels = [];
+					$bucket_values = [];
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, $bucket, $bucket_labels, $bucket_values, null, true);
 					
 					// Results meta
@@ -2238,8 +2232,8 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				
 				if(is_array($roster))
 				foreach($roster as $member) { /* @var $member Model_GroupMember */
-					$member_labels = array();
-					$member_values = array();
+					$member_labels = [];
+					$member_values = [];
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $member->id, $member_labels, $member_values, null, true);
 					
 					if(empty($member_values))
@@ -2323,7 +2317,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -2332,7 +2326,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Groups';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(

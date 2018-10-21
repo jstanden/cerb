@@ -56,7 +56,7 @@ foreach($tables as $table_name => $field_strs) {
 <textarea style="width: 98%; height: 200px;">
 class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 <?php
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\tconst %s = '%s';\n", strtoupper ( $field_name ), $field_name );
 	}
 	?>
@@ -271,7 +271,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_<?php echo $class_name; ?>();
 <?php
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\t\t\t\$object->%s = \$row['%s'];\n", $field_name, $field_name );
 	}
 	?>
@@ -321,13 +321,13 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 <?php
 	$num_fields = 0;
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		$num_fields ++;
 		printf ( "\t\t\t\"%s.%s as %%s%s", $table_name, $field_name, (($num_fields == count ( $fields )) ? " \",\n" : ", \".\n") ) // ending
 ;
 	}
 	$num_fields = 0;
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		$num_fields ++;
 		printf ( "\t\t\t\tSearchFields_%s::%s%s", $class_name, strtoupper ( $field_name ), ($num_fields == count ( $fields )) ? "\n" : ",\n" );
 	}
@@ -421,7 +421,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 <textarea style="width: 98%; height: 200px;">
 class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 <?php
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\tconst %s = '%s_%s';\n", strtoupper ( $field_name ), substr ( $table_name, 0, 1 ), $field_name );
 	}
 	?>
@@ -505,7 +505,7 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 		
 		$columns = array(
 <?php
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\t\t\tself::%s => new DevblocksSearchField(self::%s, '%s', '%s', \$translate->_('dao.%s.%s'), null, true),\n", strtoupper ( $field_name ), strtoupper ( $field_name ), $table_name, $field_name, $table_name, $field_name );
 	}
 	?>
@@ -532,7 +532,7 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 <textarea style="width: 98%; height: 200px;">
 class Model_<?php echo $class_name; ?> {
 <?php
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\tpublic \$%s;\n", $field_name );
 	}
 	;
@@ -554,7 +554,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 
 		$this->view_columns = array(
 <?php
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\t\t\tSearchFields_%s::%s,\n", $class_name, strtoupper ( $field_name ) );
 	}
 	?>
@@ -813,7 +813,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		// [TODO] Move fields into the right data type
 		switch($field) {
 <?php
-	foreach ( $fields as $field_name => $field_type ) {
+	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\t\t\tcase SearchFields_%s::%s:\n", $class_name, strtoupper ( $field_name ) );
 	}
 	?>
@@ -882,7 +882,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 <textarea style="width: 98%; height: 200px;">
 <!-- <?php echo $class_name; ?> -->
 
-<?php foreach($fields as $field_name => $field_type) { ?>
+<?php foreach(array_keys($fields) as $field_name) { ?>
 <tu tuid='dao.<?php echo $table_name; ?>.<?php echo $field_name; ?>'>
 	<tuv xml:lang="en_US">
 	<seg><?php echo ucwords(str_replace('_',' ',$field_name)); ?></seg></tuv>

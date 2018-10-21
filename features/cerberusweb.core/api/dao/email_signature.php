@@ -218,16 +218,16 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 			$ids = array($ids);
 
 		if(empty($ids))
-			return array();
+			return [];
 
 		if(!method_exists(get_called_class(), 'getWhere'))
-			return array();
+			return [];
 
 		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
-		$models = array();
+		$models = [];
 
 		$results = static::getWhere(sprintf("id IN (%s)",
 			implode(',', $ids)
@@ -249,7 +249,7 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 	 * @return Model_EmailSignature[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -337,14 +337,6 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_EmailSignature');
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-		
 		return array(
 			'primary_table' => 'email_signature',
 			'select' => $select_sql,
@@ -394,7 +386,7 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 		if(!($rs instanceof mysqli_result))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_EmailSignature::ID]);
@@ -623,7 +615,7 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -656,12 +648,12 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_EmailSignature::IS_DEFAULT:
@@ -864,17 +856,17 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 				break;
 				
 			case SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_EmailSignature::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_EmailSignature::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',array());
+				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				
@@ -1056,7 +1048,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
 		$token_values['_types'] = $token_types;
@@ -1128,10 +1120,10 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1153,8 +1145,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	
@@ -1178,7 +1168,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1187,7 +1177,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Email Signature';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(

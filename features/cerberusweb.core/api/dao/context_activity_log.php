@@ -81,8 +81,6 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	}
 	
 	static function create($fields) {
-		$db = DevblocksPlatform::services()->database();
-
 		@$target_context = $fields[DAO_ContextActivityLog::TARGET_CONTEXT];
 		@$target_context_id = $fields[DAO_ContextActivityLog::TARGET_CONTEXT_ID];
 		
@@ -382,7 +380,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextActivityLog::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextActivityLog', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextActivityLog', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"context_activity_log.id as %s, ".
@@ -410,14 +408,6 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ContextActivityLog');
 	
-		// Translate virtual fields
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-		
 		return array(
 			'primary_table' => 'context_activity_log',
 			'select' => $select_sql,
@@ -977,8 +967,6 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
 				$this->_renderVirtualContextLinks($param, 'Actor', 'Actors', 'Actor is');
@@ -1151,8 +1139,6 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::services()->url();
-		
 		$entry = DAO_ContextActivityLog::get($context_id);
 		
 		return array(
@@ -1335,7 +1321,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		$values = array();
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		

@@ -230,7 +230,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 			$context_id
 		));
 		
-		$skill_levels = array();
+		$skill_levels = [];
 		
 		foreach($results as $result) {
 			$skill_levels[intval($result['skill_id'])] = intval($result['skill_level']);
@@ -244,7 +244,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	 * @return Model_Skill[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -306,7 +306,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Skill::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Skill', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Skill', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"skill.id as %s, ".
@@ -327,14 +327,6 @@ class DAO_Skill extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Skill');
-	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 	
 		return array(
 			'primary_table' => 'skill',
@@ -382,7 +374,7 @@ class DAO_Skill extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -600,7 +592,7 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -634,12 +626,12 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_SKILL;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_Skill::SKILLSET_ID:
@@ -809,8 +801,6 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_Skill::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -860,22 +850,22 @@ class View_Skill extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				break;
 				
 			case SearchFields_Skill::SKILLSET_ID:
-				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $options);
 				break;
 				
 			case SearchFields_Skill::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Skill::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Skill::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -962,7 +952,6 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function getMeta($context_id) {
 		$skill = DAO_Skill::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($skill->name);
@@ -1030,7 +1019,7 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_SKILL;
 		$token_values['_types'] = $token_types;
@@ -1109,10 +1098,10 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1141,8 +1130,6 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	
@@ -1166,7 +1153,7 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1175,7 +1162,7 @@ class Context_Skill extends Extension_DevblocksContext implements IDevblocksCont
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Skills';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(

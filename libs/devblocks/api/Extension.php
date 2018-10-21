@@ -119,7 +119,7 @@ class DevblocksMenuItemPlaceholder {
 	var $label = null;
 	var $key = null;
 	var $l = null;
-	var $children = array();
+	var $children = [];
 }
 
 interface IDevblocksContextExtension {
@@ -130,14 +130,14 @@ interface IDevblocksContextExtension {
 abstract class Extension_DevblocksContext extends DevblocksExtension implements IDevblocksContextExtension {
 	const ID = 'devblocks.context';
 	
-	static $_changed_contexts = array();
+	static $_changed_contexts = [];
 	
 	static function markContextChanged($context, $context_ids) {
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
 
 		if(!isset(self::$_changed_contexts[$context]))
-			self::$_changed_contexts[$context] = array();
+			self::$_changed_contexts[$context] = [];
 
 		self::$_changed_contexts[$context] = array_merge(self::$_changed_contexts[$context], $context_ids);
 	}
@@ -158,7 +158,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			);
 		}
 
-		self::$_changed_contexts = array();
+		self::$_changed_contexts = [];
 	}
 
 	/**
@@ -271,7 +271,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			return $results;
 		
 		$contexts = self::getAll(false);
-		$results = array();
+		$results = [];
 		
 		if(is_array($contexts))
 		foreach($contexts as $ctx_id => $ctx) { /* @var $ctx DevblocksExtensionManifest */
@@ -281,7 +281,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			$results[$uri] = $ctx_id;
 			
 			if(isset($ctx_aliases['aliases']) && is_array($ctx_aliases['aliases']))
-			foreach($ctx_aliases['aliases'] as $alias => $meta) {
+			foreach(array_keys($ctx_aliases['aliases']) as $alias) {
 				// If this alias is already defined and it's not the priority URI for this context, skip
 				if(isset($results[$alias]) && $alias != $uri)
 					continue;
@@ -304,7 +304,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			'singular_short' => '',
 			'plural_short' => '',
 			'uri' => $uri,
-			'aliases' => array(),
+			'aliases' => [],
 		);
 		
 		if(!empty($uri))
@@ -313,7 +313,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if(is_array($names) && !empty($names))
 		foreach($names as $name => $meta) {
 			$name = mb_convert_case($name, MB_CASE_LOWER);
-			@$meta = explode(' ', $meta) ?: array();
+			@$meta = explode(' ', $meta) ?: [];
 			
 			$is_plural = in_array('plural', $meta);
 			$is_short = in_array('short', $meta);
@@ -365,7 +365,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$contexts = self::getAll(false);
 
 		if(is_array($contexts))
-		foreach($contexts as $ctx_id => $ctx) { /* @var $ctx DevblocksExtensionManifest */
+		foreach($contexts as $ctx) { /* @var $ctx DevblocksExtensionManifest */
 			if(isset($ctx->params['view_class']) && 0 == strcasecmp($ctx->params['view_class'], $view_class)) {
 				if($as_instance) {
 					return $ctx->createInstance();
@@ -534,7 +534,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$keys = new DevblocksMenuItemPlaceholder();
 		
 		// Tokenize the placeholders
-		foreach($labels as $k => &$label) {
+		foreach($labels as &$label) {
 			$label = trim($label);
 			
 			$parts = explode($label_separator, $label);
@@ -551,9 +551,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		}
 		
 		// Convert the flat tokens into a tree
+		$forward_recurse = null;
 		$forward_recurse = function(&$node, $node_key, &$stack=null) use (&$keys, &$forward_recurse, &$labels, $label_separator) {
 			if(is_null($stack))
-				$stack = array();
+				$stack = [];
 			
 			if(!empty($node_key))
 				array_push($stack, ''.$node_key);
@@ -576,6 +577,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		$forward_recurse($keys, '');
 		
+		$condense = null;
 		$condense = function(&$node, $key=null, &$parent=null) use (&$condense, $label_separator, $key_separator) {
 			// If this node has exactly one child
 			if(is_array($node->children) && 1 == count($node->children) && $parent && is_null($node->label)) {
@@ -852,7 +854,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 	function getModelObjects(array $ids) {
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-		$models = array();
+		$models = [];
 
 		if(null == ($dao_class = $this->getDaoClass()))
 			return $models;
@@ -999,7 +1001,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @return C4_AbstractView
 	 */
 	abstract function getChooserView($view_id=null);
-	abstract function getView($context=null, $context_id=null, $options=array(), $view_id=null);
+	abstract function getView($context=null, $context_id=null, $options=[], $view_id=null);
 
 	function lazyLoadGetKeys() {
 		$context_mft = Extension_DevblocksContext::get(static::ID, false);
@@ -1054,6 +1056,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				$results[$k] = $labels[$k];
 		
 		array_walk($labels, function($label, $key) use ($custom_fields, $labels, &$results) {
+			$matches = [];
 			if(preg_match('#^(.*?)\_*custom\_(\d+)$#', $key, $matches)) {
 				$field_id = $matches[2];
 				
@@ -1109,7 +1112,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			switch($field) {
 				case 'links.address':
 					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_ADDRESS));
-					$results = [];
 					
 					if(is_array($links) && !empty($links)) {
 						$addresses = DAO_Address::getIds(array_keys($links));
@@ -1120,7 +1122,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					
 				case 'links.contacts':
 					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_CONTACT));
-					$results = [];
 					
 					if(is_array($links) && !empty($links)) {
 						$contacts = DAO_Contact::getIds(array_keys($links));
@@ -1133,7 +1134,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					
 				case 'links.orgs':
 					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_ORG));
-					$results = [];
 					
 					if(is_array($links) && !empty($links)) {
 						$orgs = DAO_ContactOrg::getIds(array_keys($links));
@@ -1146,7 +1146,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					
 				case 'links.worker':
 					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_WORKER));
-					$results = [];
 					
 					if(is_array($links) && !empty($links)) {
 						$workers = DAO_Worker::getIds(array_keys($links));
@@ -1158,6 +1157,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 					
 				default:
+					$matches = [];
 					if(preg_match('#^(.*?)\_*custom\_(\d+)$#', $field, $matches)) {
 						$field_id = $matches[2];
 						
@@ -1297,12 +1297,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	
 	protected function _lazyLoadLinks($context, $context_id) {
 		$results = DAO_ContextLink::getAllContextLinks($context, $context_id);
-		$links = array();
-		$token_values['links'] = array();
+		$token_values = [];
+		$token_values['links'] = [];
 		
 		foreach($results as $result) {
 			if(!isset($token_values['links'][$result->context]))
-				$token_values['links'][$result->context] = array();
+				$token_values['links'][$result->context] = [];
 			
 			$token_values['links'][$result->context][] = intval($result->context_id);
 		}
@@ -1312,6 +1312,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 
 	protected function _lazyLoadCustomFields($token, $context, $context_id, $field_values=null) {
 		$fields = DAO_CustomField::getByContext($context);
+		$token_values = [];
 		$token_values['custom'] = [];
 		
 		// If (0 == $context_id), we need to null out all the fields and return w/o queries
@@ -1408,6 +1409,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						$labels['custom_'.$cf_id] = $field_prefix;
 						
 					} else {
+						$merge_labels = $merge_values = [];
 						CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, $field_prefix, true);
 	
 						// Unset redundant id
@@ -1457,6 +1459,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					if(count($context_stack) > 2 && $field->type == Model_CustomField::TYPE_LINK) {
 						
 					} else {
+						$merge_labels = $merge_values = [];
 						CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true, true);
 						
 						if(isset($merge_values['_types']) && is_array($merge_values['_types']))
@@ -1495,7 +1498,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	static function getTimelineComments($context, $context_id, $is_ascending=true) {
-		$timeline = array();
+		$timeline = [];
 		
 		if(false != ($comments = DAO_Comment::getByContext($context, $context_id)))
 			$timeline = array_merge($timeline, $comments);
@@ -1723,20 +1726,18 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 
 	function getValuesContexts($trigger) {
-		$contexts_to_macros = DevblocksEventHelper::getContextToMacroMap();
-		$macros_to_contexts = array_flip($contexts_to_macros);
-
 		// Custom fields
 
 		$cfields = [];
 		$custom_fields = DAO_CustomField::getAll();
-		$vars = array();
+		$vars = [];
 
 		// cfields
 		$labels = $this->getLabels($trigger);
 
 		if(is_array($labels))
 		foreach($labels as $token => $label) {
+			$matches = [];
 			if(preg_match('#.*?_{0,1}custom_(\d+)$#', $token, $matches)) {
 				@$cfield_id = $matches[1];
 
@@ -1759,9 +1760,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						);
 
 						// Include deep context links from this custom field link
+						$link_labels = $link_values = [];
 						CerberusContexts::getContext($link_context, null, $link_labels, $link_values, null, true);
 
 						foreach($labels as $link_token => $link_label) {
+							$link_matches = [];
 							if(preg_match('#^'.$token.'_(.*?)__label$#', $link_token, $link_matches)) {
 								@$link_key = $link_matches[1];
 
@@ -1859,10 +1862,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 	
 	abstract function getConditionExtensions(Model_TriggerEvent $trigger);
-	abstract function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null);
+	abstract function renderConditionExtension($token, $as_token, $trigger, $params=[], $seq=null);
 	abstract function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 
-	function renderCondition($token, $trigger, $params=array(), $seq=null) {
+	function renderCondition($token, $trigger, $params=[], $seq=null) {
 		$conditions = $this->getConditions($trigger, false);
 		$condition_extensions = $this->getConditionExtensions($trigger);
 
@@ -1971,7 +1974,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$this->_conditions_extensions_cache[$trigger->id] = $this->getConditionExtensions($trigger);
 		}
 		
-		$extensions = @$this->_conditions_extensions_cache[$trigger->id] ?: array();
+		$extensions = @$this->_conditions_extensions_cache[$trigger->id] ?: [];
 		
 		$not = false;
 		$pass = true;
@@ -2055,7 +2058,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 
-				@$months = DevblocksPlatform::importVar($params['month'],'array',array());
+				@$months = DevblocksPlatform::importVar($params['month'],'array',[]);
 
 				switch($oper) {
 					case 'is':
@@ -2087,7 +2090,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				$not = (substr($params['oper'],0,1) == '!');
 				$oper = ltrim($params['oper'],'!');
 
-				@$days = DevblocksPlatform::importVar($params['day'],'array',array());
+				@$days = DevblocksPlatform::importVar($params['day'],'array',[]);
 
 				switch($oper) {
 					case 'is':
@@ -2286,6 +2289,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							$not = (substr($params['oper'],0,1) == '!');
 							$oper = ltrim($params['oper'],'!');
 
+							$matches = [];
 							if(preg_match("#(.*?_custom)_(\d+)#", $token, $matches) && 3 == count($matches)) {
 								$value_token = $matches[1];
 								$value_field = $dict->$value_token;
@@ -2325,10 +2329,10 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							$oper = ltrim($params['oper'],'!');
 
 							if(!is_array($value))
-								$value = empty($value) ? array() : array($value);
+								$value = empty($value) ? [] : array($value);
 
 							if(is_null($worker_ids))
-								$worker_ids = array();
+								$worker_ids = [];
 
 							if(empty($worker_ids) && empty($value)) {
 								$pass = true;
@@ -2453,12 +2457,12 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 
 	abstract function getActionExtensions(Model_TriggerEvent $trigger);
-	abstract function renderActionExtension($token, $trigger, $params=array(), $seq=null);
+	abstract function renderActionExtension($token, $trigger, $params=[], $seq=null);
 	abstract function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 	protected function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {}
 	function renderSimulatorTarget($trigger, $event_model) {}
 
-	function renderAction($token, $trigger, $params=array(), $seq=null) {
+	function renderAction($token, $trigger, $params=[], $seq=null) {
 		$actions = $this->getActionExtensions($trigger);
 
 		$tpl = DevblocksPlatform::services()->template();
@@ -2469,7 +2473,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$tpl->assign('namePrefix','action'.$seq);
 
 		// Is this an event-provided action?
-		if(null != (@$action = $actions[$token])) {
+		if(null != (@$actions[$token])) {
 			$this->renderActionExtension($token, $trigger, $params, $seq);
 
 		// Nope, it's a global action
@@ -2512,7 +2516,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 
 				case '_schedule_behavior':
-					$dates = array();
+					$dates = [];
 					$conditions = $this->getConditions($trigger, false);
 					foreach($conditions as $key => $data) {
 						if(isset($data['type']) && $data['type'] == Model_CustomField::TYPE_DATE)
@@ -2591,7 +2595,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	function simulateAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$actions = $this->getActionExtensions($trigger);
 		
-		if(null != (@$action = $actions[$token])) {
+		if(null != (@$actions[$token])) {
 			if(method_exists($this, 'simulateActionExtension'))
 				return $this->simulateActionExtension($token, $trigger, $params, $dict);
 
@@ -2701,7 +2705,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		$out = '';
 
-		if(null != (@$action = $actions[$token])) {
+		if(null != (@$actions[$token])) {
 			// Is this a dry run?  If so, don't actually change anything
 			if($dry_run) {
 				$out = $this->simulateAction($token, $trigger, $params, $dict);
@@ -2790,7 +2794,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						if(false == ($snippet = DAO_Snippet::get($snippet_id)))
 							return;
 
-						$cache->save($snippet, $cache_key, array(), 0, true);
+						$cache->save($snippet, $cache_key, [], 0, true);
 					}
 
 					if(empty($var))
@@ -2803,8 +2807,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					if(empty($on) || !is_array($on_context))
 						return;
 
-					$snippet_labels = array();
-					$snippet_values = array();
+					$snippet_labels = [];
+					$snippet_values = [];
 
 					// Load snippet target dictionary
 					if(!empty($snippet->context) && $snippet->context == $on_context['context']) {
@@ -2942,7 +2946,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
 	public static function getAll($as_instances=false, $for_event=null) {
 		$extensions = DevblocksPlatform::getExtensions('devblocks.event.condition', false);
-		$results = array();
+		$results = [];
 
 		foreach($extensions as $ext_id => $ext) {
 			// If the condition doesn't specify event filters, add to everything
@@ -2968,14 +2972,14 @@ abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
 		return $results;
 	}
 
-	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);
+	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null);
 	abstract function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict);
 };
 
 abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 	public static function getAll($as_instances=false, $for_event=null) {
 		$extensions = DevblocksPlatform::getExtensions('devblocks.event.action', false);
-		$results = array();
+		$results = [];
 
 		foreach($extensions as $ext_id => $ext) {
 			// If the action doesn't specify event filters, add to everything
@@ -3001,7 +3005,7 @@ abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 		return $results;
 	}
 
-	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null);
+	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null);
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {}
 	abstract function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict);
 }
@@ -3012,7 +3016,7 @@ abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension
 };
 
 abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
-	protected $_config = array();
+	protected $_config = [];
 
 	public static function getAll($as_instances=false) {
 		$engines = DevblocksPlatform::getExtensions('devblocks.cache.engine', $as_instances);
@@ -3055,7 +3059,7 @@ abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
 	abstract function renderStatus();
 
 	abstract function isVolatile();
-	abstract function save($data, $key, $tags=array(), $lifetime=0);
+	abstract function save($data, $key, $tags=[], $lifetime=0);
 	abstract function load($key);
 	abstract function remove($key);
 	abstract function clean();
@@ -3069,8 +3073,8 @@ interface IDevblocksSearchEngine {
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema);
 	public function getIndexMeta(Extension_DevblocksSearchSchema $schema);
 
-	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=250);
-	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=array());
+	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=[], $limit=250);
+	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=[]);
 	public function delete(Extension_DevblocksSearchSchema $schema, $ids);
 };
 
@@ -3111,7 +3115,7 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	}
 
 	public function _getTextFromDoc(array $doc) {
-		$output = array();
+		$output = [];
 
 		// Find all text content and append it together
 		array_walk_recursive($doc, function($e) use (&$output) {
@@ -3123,7 +3127,7 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	}
 
 	public function getQueryFromParam($param) {
-		$values = array();
+		$values = [];
 
 		if(!is_array($param->value) && !is_string($param->value))
 			return false;
@@ -3234,7 +3238,7 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 
 	public function saveConfig(array $params) {
 		if(!is_array($params))
-			$params = array();
+			$params = [];
 
 		// Detect if the engine changed
 		$previous_engine_params = $this->getEngineParams();
@@ -3263,7 +3267,7 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	abstract function getNamespace();
 	abstract function getAttributes();
 	//abstract function getFields();
-	abstract function query($query, $attributes=array(), $limit=1000);
+	abstract function query($query, $attributes=[], $limit=1000);
 	abstract function index($stop_time=null);
 	abstract function reindex();
 	abstract function delete($ids);
@@ -3300,7 +3304,7 @@ abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 			$this->delete($namespace, $key);
 	}
 
-	public function setOptions($options=array()) {
+	public function setOptions($options=[]) {
 		if(is_array($options))
 			$this->_options = $options;
 	}
@@ -3326,7 +3330,7 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 	protected function _stats($table_name) {
 		$db = DevblocksPlatform::services()->database();
 
-		$stats = array();
+		$stats = [];
 
 		$results = $db->GetArraySlave(sprintf("SELECT storage_extension, storage_profile_id, count(id) as hits, sum(storage_size) as bytes FROM %s GROUP BY storage_extension, storage_profile_id ORDER BY storage_extension",
 			$table_name
@@ -3372,7 +3376,7 @@ class DevblocksHttpRequest extends DevblocksHttpIO {
 	/**
 	 * @param array $path
 	 */
-	function __construct($path=array(), $query=array(), $method=null) {
+	function __construct($path=[], $query=[], $method=null) {
 		parent::__construct($path, $query);
 		$this->method = $method;
 	}
@@ -3382,20 +3386,20 @@ class DevblocksHttpResponse extends DevblocksHttpIO {
 	/**
 	 * @param array $path
 	 */
-	function __construct($path, $query=array()) {
+	function __construct($path, $query=[]) {
 		parent::__construct($path, $query);
 	}
 };
 
 abstract class DevblocksHttpIO {
-	public $path = array();
-	public $query = array();
+	public $path = [];
+	public $query = [];
 
 	/**
 	 *
 	 * @param array $path
 	 */
-	function __construct($path,$query=array()) {
+	function __construct($path,$query=[]) {
 		$this->path = $path;
 		$this->query = $query;
 	}

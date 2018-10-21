@@ -219,7 +219,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	}
 
 	static function getByOwner($context, $context_id, $sortBy=null, $sortAsc=true, $limit=null) {
-		$pages = array();
+		$pages = [];
 		
 		$all_pages = self::getAll();
 		foreach($all_pages as $page_id => $page) { /* @var $page Model_WorkspacePage */
@@ -239,13 +239,13 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		} elseif(is_numeric($worker)) {
 			$worker = DAO_Worker::get($worker);
 		} else {
-			return array();
+			return [];
 		}
 
 		$memberships = $worker->getMemberships();
 		$roles = $worker->getRoles();
 		
-		$pages = array();
+		$pages = [];
 		$all_pages = self::getAll();
 		
 		foreach($all_pages as $page_id => $page) { /* @var $page Model_WorkspacePage */
@@ -271,10 +271,10 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	}
 	
 	static function getUsers($page_id) {
-		$results = array();
+		$results = [];
 		
 		if(false == ($instances = DAO_WorkerPref::getByKey('menu_json')) || !is_array($instances) || empty($instances))
-			return array();
+			return [];
 		
 		foreach($instances as $worker_id => $instance) {
 			if(false == ($menu = json_decode($instance)))
@@ -334,7 +334,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	 * @return Model_WorkspacePage[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -392,7 +392,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspacePage::getFields();
 
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkspacePage', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkspacePage', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"workspace_page.id as %s, ".
@@ -447,14 +447,6 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-		
 		$sql =
 			$select_sql.
 			$join_sql.
@@ -470,7 +462,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -657,7 +649,7 @@ class Model_WorkspacePage {
 		// Order by given worker prefs
 		if(!empty($as_worker)) {
 			$available_tabs = $tabs;
-			$tabs = array();
+			$tabs = [];
 			
 			// Do we have prefs?
 			@$json = DAO_WorkerPref::get($as_worker->id, 'page_tabs_' . $this->id . '_json', null);
@@ -738,7 +730,7 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -770,12 +762,12 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_WorkspacePage::EXTENSION_ID:
@@ -943,12 +935,12 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 				break;
 				
 			case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',array());
+				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 		}
@@ -1025,8 +1017,6 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::services()->url();
-
 		if(null == ($workspace_page = DAO_WorkspacePage::get($context_id)))
 			return [];
 		
@@ -1103,7 +1093,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
 		$token_values['_types'] = $token_types;
@@ -1194,10 +1184,10 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1209,11 +1199,11 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 			
 			case 'tabs':
 				$tabs = DAO_WorkspaceTab::getByPage($context_id);
-				$values['tabs'] = array();
+				$values['tabs'] = [];
 				
 				foreach(array_keys($tabs) as $tab_id) {
-					$tab_labels = array();
-					$tab_values = array();
+					$tab_labels = [];
+					$tab_values = [];
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKSPACE_TAB, $tab_id, $tab_labels, $tab_values, null, true);
 					$values['tabs'][] = $tab_values;
 				}
@@ -1231,7 +1221,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 				$context_tab = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKSPACE_TAB); /* @var $context_widget Context_WorkspaceTab */
 				
 				// Send the lazy load request to the tab itself
-				foreach($values['tabs'] as $idx => $tab) {
+				foreach(array_keys($values['tabs']) as $idx) {
 					$values['tabs'][$idx] = $context_tab->lazyLoadContextValues('widgets', $values['tabs'][$idx]);
 				}
 				break;
@@ -1248,7 +1238,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 				$context_tab = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKSPACE_TAB); /* @var $context_widget Context_WorkspaceTab */
 				
 				// Send the lazy load request to the tab itself
-				foreach($values['tabs'] as $idx => $tab) {
+				foreach(array_keys($values['tabs']) as $idx) {
 					$values['tabs'][$idx] = $context_tab->lazyLoadContextValues('worklists', $values['tabs'][$idx]);
 				}
 				break;
@@ -1278,7 +1268,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Pages';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if($active_worker && !$active_worker->is_superuser) {
 			$worker_group_ids = array_keys($active_worker->getMemberships());
@@ -1305,7 +1295,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1350,7 +1340,6 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($context_id)) {
 			$model = DAO_WorkspacePage::get($context_id);

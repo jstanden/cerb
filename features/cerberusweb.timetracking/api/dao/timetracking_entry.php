@@ -358,7 +358,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	 * @return Model_TimeTrackingEntry[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -433,7 +433,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 			$fields = SearchFields_TimeTrackingEntry::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TimeTrackingEntry', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TimeTrackingEntry', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"tt.id as %s, ".
@@ -457,14 +457,6 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_TimeTrackingEntry');
-		
-		// Translate virtual fields
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 		
 		$result = array(
 			'primary_table' => 'tt',
@@ -507,7 +499,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -797,7 +789,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -833,12 +825,12 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_TIMETRACKING;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
@@ -854,7 +846,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
 				$workers = DAO_Worker::getAll();
-				$label_map = array();
+				$label_map = [];
 				foreach($workers as $worker_id => $worker)
 					$label_map[$worker_id] = $worker->getName();
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map, 'in', 'worker_id[]');
@@ -984,7 +976,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		
 		// Engine/schema examples: Comments
 		
-		$ft_examples = array();
+		$ft_examples = [];
 		
 		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
 			if(false != ($engine = $schema->getEngine())) {
@@ -1108,7 +1100,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
-				$strings = array();
+				$strings = [];
 				$sep = ' or ';
 				
 				if($param->operator == DevblocksSearchCriteria::OPER_BETWEEN)
@@ -1160,27 +1152,27 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 			case SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 			case SearchFields_TimeTrackingEntry::ACTIVITY_ID:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 			case SearchFields_TimeTrackingEntry::FULLTEXT_COMMENT_CONTENT:
@@ -1386,8 +1378,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
-		$blank = array();
+		$token_values = [];
+		$blank = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_TIMETRACKING;
 		$token_values['_types'] = $token_types;
@@ -1415,8 +1407,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		// Worker
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, null, true);
 
 			// Clear dupe labels
@@ -1489,10 +1481,10 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1521,8 +1513,6 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
@@ -1547,7 +1537,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1556,7 +1546,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Time Tracking';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
@@ -1632,8 +1622,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			
 		} else {
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);

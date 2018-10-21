@@ -419,14 +419,6 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_CustomFieldset');
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-	
 		return array(
 			'primary_table' => 'custom_fieldset',
 			'select' => $select_sql,
@@ -1163,10 +1155,10 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1174,11 +1166,12 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			case 'custom_fields':
 				$custom_fieldset = DAO_CustomFieldset::get($context_id);
 				$custom_fields = $custom_fieldset->getCustomFields();
-				$cfield_values = array(
-					'custom_fields' => array(),
-				);
+				$cfield_values = [
+					'custom_fields' => [],
+				];
 				
 				foreach($custom_fields as $cfield) {
+					$merge_labels = $merge_values = [];
 					CerberusContexts::getContext(CerberusContexts::CONTEXT_CUSTOM_FIELD, $cfield, $merge_labels, $merge_values, null, true, true);
 					$cfield_values['custom_fields'][] = $merge_values;
 				}
@@ -1193,12 +1186,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 				break;
 				
 			default:
-				/*
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
-					$values = array_merge($values, $fields);
-				}
-				*/
 				break;
 		}
 		
@@ -1206,8 +1193,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		

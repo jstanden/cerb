@@ -726,7 +726,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	 * @param resource $rs
 	 */
 	static private function _createObjectsFromResultSet($rs=null) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -891,7 +891,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$change_fields = [];
 		$custom_fields = [];
-		$worker_dict = null;
 		
 		// Actions
 		if(is_array($do))
@@ -1017,7 +1016,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					if(!empty($params_json))
 						$fields[DAO_MailQueue::PARAMS_JSON] = json_encode($params_json);
 					
-					$draft_id = DAO_MailQueue::create($fields);
+					DAO_MailQueue::create($fields);
 				}
 			} catch (Exception $e) {
 				
@@ -1251,7 +1250,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	static function getRequestersByTicket($ticket_id) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$ids = array();
+		$ids = [];
 		
 		$sql = sprintf("SELECT a.id ".
 			"FROM address a ".
@@ -1269,9 +1268,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		return DAO_Address::getIds($ids);
 	}
 	
-	static function findMissingRequestersInHeaders($headers, $current_requesters=array()) {
-		$results = array();
-		$addys = array();
+	static function findMissingRequestersInHeaders($headers, $current_requesters=[]) {
+		$results = [];
+		$addys = [];
 
 		@$from = CerberusMail::parseRfcAddresses($headers['from']);
 		if(!empty($from))
@@ -1384,7 +1383,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	
 	static function addParticipantIds($ticket_id, $address_ids) {
 		$db = DevblocksPlatform::services()->database();
-		$logger = DevblocksPlatform::services()->log();
 		
 		$replyto_addresses = DAO_Address::getLocalAddresses();
 		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
@@ -1411,7 +1409,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// Don't add a requester if the sender is a helpdesk address
 		$requesters_add = array_diff(array_keys($addresses), array_keys($replyto_addresses));
 
-		$values = array();
+		$values = [];
 		
 		if(is_array($requesters_add))
 		foreach($requesters_add as $requester_id) {
@@ -1620,7 +1618,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	
 	static function autocomplete($term, $as='models') {
 		$db = DevblocksPlatform::services()->database();
-		$objects = array();
+		$objects = [];
 		
 		$results = $db->GetArraySlave(sprintf("SELECT id ".
 			"FROM ticket ".
@@ -1855,7 +1853,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$fulltext_params = array();
+		$fulltext_params = [];
 		
 		foreach($params as $param_key => $param) {
 			if(!($param instanceof DevblocksSearchCriteria))
@@ -1907,7 +1905,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -2015,7 +2013,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 		);
 	}
 	
-	static function getWhereSQL(DevblocksSearchCriteria $param, $options=array()) {
+	static function getWhereSQL(DevblocksSearchCriteria $param, $options=[]) {
 		if(!is_array($options))
 			$options = [];
 		
@@ -2035,7 +2033,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					return null;
 				
 				$query = $search->getQueryFromParam($param);
-				$attribs = array();
+				$attribs = [];
 				
 				if(isset($options['prefetch_sql'])) {
 					$attribs['id'] = array(
@@ -2186,8 +2184,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				if(!is_array($values))
 					$values = array($values);
 				
-				$oper_sql = array();
-				$statuses = array();
+				$statuses = [];
 				
 				switch($param->operator) {
 					default:
@@ -2587,11 +2584,11 @@ class Model_Ticket {
 	
 	function getParticipants() {
 		$results = DAO_Ticket::getParticipants($this->id);
-		$participants = array();
+		$participants = [];
 		
 		foreach($results as $row) {
 			if(!isset($participants[$row['context']]))
-				$participants[$row['context']] = array();
+				$participants[$row['context']] = [];
 
 			$participants[$row['context']][$row['context_id']] = $row['hits'];
 		}
@@ -2734,7 +2731,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -2779,12 +2776,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_TICKET;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_Ticket::TICKET_SUBJECT:
@@ -2860,7 +2857,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	private function _getSubtotalDataForBuckets() {
 		$db = DevblocksPlatform::services()->database();
 		
-		$fields = $this->getFields();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 		
@@ -2875,7 +2871,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		}
 		
 		if(!method_exists('DAO_Ticket','getSearchQueryComponents'))
-			return array();
+			return [];
 		
 		$query_parts = call_user_func_array(
 			array('DAO_Ticket','getSearchQueryComponents'),
@@ -2905,9 +2901,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	private function _getSubtotalCountForBuckets() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$counts = array();
+		$counts = [];
 		$results = $this->_getSubtotalDataForBuckets();
 		
 		$groups = DAO_Group::getAll();
@@ -2931,7 +2925,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							'oper' => DevblocksSearchCriteria::OPER_IN,
 							'values' => array('options[]' => $result['bucket_id']),
 						),
-					'children' => array()
+					'children' => []
 				);
 			}
 		}
@@ -2940,9 +2934,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	private function _getSubtotalCountForBucketsByGroup() {
-		$translate = DevblocksPlatform::getTranslationService();
-		
-		$counts = array();
+		$counts = [];
 		$results = $this->_getSubtotalDataForBuckets();
 		
 		$groups = DAO_Group::getAll();
@@ -2966,7 +2958,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							'oper' => DevblocksSearchCriteria::OPER_IN,
 							'values' => array('options[]' => $result['group_id']),
 						),
-					'children' => array()
+					'children' => []
 				);
 			}
 				
@@ -2991,7 +2983,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		uasort($counts, array($this, '_sortByLabel'));
 		
 		// Sort buckets by group preference
-		foreach($counts as $group_id => $data) {
+		foreach(array_keys($counts) as $group_id) {
 			uksort($counts[$group_id]['children'], array($this, '_sortByBucketOrder'));
 		}
 		
@@ -3001,7 +2993,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	protected function _getSubtotalDataForStatus($dao_class, $field_key) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$fields = $this->getFields();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 
@@ -3017,7 +3008,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$this->removeParamByField($param->field, $params);
 		
 		if(!method_exists($dao_class,'getSearchQueryComponents'))
-			return array();
+			return [];
 		
 		$query_parts = call_user_func_array(
 			array($dao_class,'getSearchQueryComponents'),
@@ -3044,10 +3035,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	protected function _getSubtotalCountForStatus() {
-		$workers = DAO_Worker::getAll();
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$counts = array();
+		$counts = [];
 		$results = $this->_getSubtotalDataForStatus('DAO_Ticket', SearchFields_Ticket::VIRTUAL_STATUS);
 
 		$oper = DevblocksSearchCriteria::OPER_IN;
@@ -3089,7 +3079,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 							'oper' => $oper,
 							'values' => $values,
 						),
-					'children' => array()
+					'children' => []
 				);
 		}
 		
@@ -3196,7 +3186,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'messages' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
+					'options' => [],
 					'examples' => array(
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_MESSAGE],
 					)
@@ -3209,7 +3199,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'messages.first' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
+					'options' => [],
 					'examples' => array(
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_MESSAGE],
 					)
@@ -3217,7 +3207,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			'messages.last' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array(),
+					'options' => [],
 					'examples' => array(
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_MESSAGE],
 					)
@@ -3483,14 +3473,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case 'spam.training':
 				$field_key = SearchFields_Ticket::TICKET_SPAM_TRAINING;
 				$oper = null;
-				$states = array();
+				$states = [];
 				
 				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $states);
 				
-				$values = array();
+				$values = [];
 				
 				// Normalize status labels
-				foreach($states as $idx => $status) {
+				foreach($states as $status) {
 					switch(substr(DevblocksPlatform::strLower($status), 0, 1)) {
 						case 's':
 							$values['S'] = true;
@@ -3518,10 +3508,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
 				
-				$values = array();
+				$values = [];
 				
 				// Normalize status labels
-				foreach($value as $idx => $status) {
+				foreach($value as $status) {
 					switch(substr(DevblocksPlatform::strLower($status), 0, 1)) {
 						case 'o':
 							$values['open'] = true;
@@ -3593,14 +3583,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$visit = CerberusApplication::getVisit();
-
 		$results = self::getData();
 		$tpl->assign('results', $results);
 		
 		$this->_checkFulltextMarquee();
-		
-		@$ids = array_keys($results[0]);
 		
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
@@ -3732,7 +3718,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED:
-				$strings_or = array();
+				$strings_or = [];
 				$workers = DAO_Worker::getAll();
 				
 				if(is_array($param->value)) {
@@ -3755,7 +3741,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
-				$strings_or = array();
+				$strings_or = [];
 				$workers = DAO_Worker::getAll();
 				
 				if(is_array($param->value)) {
@@ -3803,7 +3789,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$strings[] = '<b>' . DevblocksPlatform::strEscapeHtml($address->getNameWithEmail()) . '</b>';
 				}
 				
-				$list_of_strings = implode(' or ', $strings);
+				$list_of_strings = implode($sep, $strings);
 				
 				if(count($strings) > 2) {
 					$list_of_strings = sprintf("any of <abbr style='font-weight:bold;' title='%s'>(%d people)</abbr>",
@@ -3819,7 +3805,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				if(!is_array($param->value))
 					$param->value = array($param->value);
 					
-				$strings = array();
+				$strings = [];
 				
 				foreach($param->value as $value) {
 					switch($value) {
@@ -3858,8 +3844,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 	
 	function renderCriteriaParam($param) {
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		$field = $param->field;
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
@@ -3973,7 +3957,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 			
@@ -4016,7 +4000,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
@@ -4026,14 +4010,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 			case SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED:
 			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_ids);
 				break;
 				
@@ -4053,7 +4037,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 	static public function setLastAction($view_id, Model_TicketViewLastAction $last_action=null) {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+		$view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,[]);
 		
 		if(!is_null($last_action) && !empty($last_action->ticket_ids)) {
 			$view_last_actions[$view_id] = $last_action;
@@ -4072,13 +4056,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	 */
 	static public function getLastAction($view_id) {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+		$view_last_actions = $visit->get(CerberusVisit::KEY_VIEW_LAST_ACTION,[]);
 		return (isset($view_last_actions[$view_id]) ? $view_last_actions[$view_id] : null);
 	}
 
 	static public function clearLastActions() {
 		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-		$visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,array());
+		$visit->set(CerberusVisit::KEY_VIEW_LAST_ACTION,[]);
 	}
 };
 
@@ -4410,7 +4394,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function autocomplete($term, $query=null) {
 		$results = DAO_Ticket::autocomplete($term);
-		$list = array();
+		$list = [];
 
 		// [TODO] Include more meta? (group/bucket/sender/org)
 		
@@ -4567,8 +4551,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		// Group
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
@@ -4581,8 +4565,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		);
 		
 		// Bucket
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BUCKET, null, $merge_token_labels, $merge_token_values, '', true);
 
 		CerberusContexts::merge(
@@ -4595,8 +4579,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		);
 		
 		// First message
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, '', true);
 		
 		CerberusContexts::merge(
@@ -4609,8 +4593,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		);
 		
 		// First response
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, '', true);
 		
 		CerberusContexts::merge(
@@ -4623,8 +4607,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		);
 		
 		// Last message
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, null, $merge_token_labels, $merge_token_values, '', true);
 		
 		CerberusContexts::merge(
@@ -4637,8 +4621,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		);
 		
 		// Owner
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
 
 			// Clear dupe content
@@ -4660,8 +4644,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			);
 		
 		// Org
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ORG, null, $merge_token_labels, $merge_token_values, '', true);
 		
 			CerberusContexts::merge(
@@ -4828,10 +4812,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -4844,7 +4828,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			case 'requester_emails':
 				if(!isset($dictionary['requesters'])) {
 					$result = $this->lazyLoadContextValues('requesters', $dictionary);
-					$emails = array();
+					$emails = [];
 					
 					if(isset($result['requesters'])) {
 						$values['requesters'] = $result['requesters'];
@@ -4861,7 +4845,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				break;
 				
 			case 'requesters':
-				$values['requesters'] = array();
+				$values['requesters'] = [];
 				$reqs = DAO_Ticket::getRequestersByTicket($context_id);
 				if(is_array($reqs))
 				foreach($reqs as $req) { /* @var $req Model_Address */
@@ -5027,7 +5011,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -5036,7 +5020,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Tickets';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
@@ -5233,7 +5217,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function _renderPeekTicketPopup($context_id, $view_id) {
-		@$msgid = DevblocksPlatform::importGPC($_REQUEST['msgid'],'integer',0);
 		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'string',null);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -5524,8 +5507,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$workers = DAO_Worker::getAllActive();
 		$patterns = DevblocksPlatform::parseCsvString($string);
 		
-		$add_watchers = array();
-		$remove_watchers = array();
+		$add_watchers = [];
+		$remove_watchers = [];
 		
 		foreach($patterns as $pattern) {
 			$is_add = true;
@@ -5565,9 +5548,9 @@ class Model_TicketViewLastAction {
 	const ACTION_WAITING = 'waiting';
 	const ACTION_NOT_WAITING = 'not_waiting';
 
-	public $ticket_ids = array(); // key = ticket id, value=old value
+	public $ticket_ids = []; // key = ticket id, value=old value
 	public $action = ''; // spam/closed/move, etc.
-	public $action_params = array(); // DAO Actions Taken
+	public $action_params = []; // DAO Actions Taken
 };
 
 class CerberusTicketSpamTraining { // [TODO] Append 'Enum' to class name?

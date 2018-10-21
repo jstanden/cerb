@@ -175,8 +175,6 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
 		$do = $update->actions;
 		$ids = $update->context_ids;
 
@@ -309,7 +307,7 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_FeedbackEntry::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_FeedbackEntry', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_FeedbackEntry', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"f.id as %s, ".
@@ -341,14 +339,6 @@ class DAO_FeedbackEntry extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_FeedbackEntry');
 
-		// Translate virtual fields
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-		
 		$result = array(
 			'primary_table' => 'f',
 			'select' => $select_sql,
@@ -1010,7 +1000,7 @@ class View_FeedbackEntry extends C4_AbstractView implements IAbstractView_Subtot
 class ChFeedbackController extends DevblocksControllerExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		return true;
 	}
@@ -1038,6 +1028,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 		}
 	}
 	
+	// [TODO] Convert to JSON/cards
 	function saveEntryAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1066,7 +1057,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 			
 			// Delete entries
 			if(!empty($id) && !empty($do_delete)) {
-				if(null != ($entry = DAO_FeedbackEntry::get($id))) {
+				if(null != (DAO_FeedbackEntry::get($id))) {
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_FEEDBACK)))
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 					
@@ -1089,6 +1080,7 @@ class ChFeedbackController extends DevblocksControllerExtension {
 				$fields[DAO_FeedbackEntry::WORKER_ID] = $active_worker->id;
 			}
 			
+			$error = null;
 			
 			if(empty($id)) { // create
 				if(!DAO_FeedbackEntry::validate($fields, $error))
@@ -1273,31 +1265,12 @@ class Context_Feedback extends Extension_DevblocksContext implements IDevblocksC
 		return 'View_FeedbackEntry';
 	}
 	
-	static function searchInboundLinks($from_context, $from_context_id) {
-		list($results, $null) = DAO_FeedbackEntry::search(
-			array(
-				SearchFields_FeedbackEntry::ID,
-			),
-			array(
-				new DevblocksSearchCriteria(SearchFields_FeedbackEntry::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			),
-			-1,
-			0,
-			SearchFields_FeedbackEntry::LOG_DATE,
-			true,
-			false
-		);
-		
-		return $results;
-	}
-	
 	function getRandom() {
 		return DAO_FeedbackEntry::random();
 	}
 	
 	function getMeta($context_id) {
 		$feedback = DAO_FeedbackEntry::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		return array(
 			'id' => $feedback->id,

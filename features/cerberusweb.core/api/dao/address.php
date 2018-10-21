@@ -244,8 +244,6 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
 		$do = $update->actions;
 		$ids = $update->context_ids;
 
@@ -703,7 +701,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	
 	static function isLocalAddressId($id) {
 		$sender_addresses = self::getLocalAddresses();
-		foreach($sender_addresses as $from_id => $from) {
+		foreach(array_keys($sender_addresses) as $from_id) {
 			if(intval($from_id)==intval($id))
 				return true;
 		}
@@ -718,8 +716,6 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @return Model_Address
 	 */
 	static function lookupAddress($email, $create_if_null=false) {
-		$db = DevblocksPlatform::services()->database();
-		
 		$address = null;
 		
 		$email = trim(mb_convert_case($email, MB_CASE_LOWER));
@@ -797,7 +793,7 @@ class DAO_Address extends Cerb_ORMHelper {
 				break;
 		}
 		
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Address', $sortBy);
+		list(, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Address', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
@@ -833,14 +829,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Address');
 		
-		// Translate virtual fields
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-		
 		$result = array(
 			'primary_table' => 'a',
 			'select' => $select_sql,
@@ -859,8 +847,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		$view->is_ephemeral = true;
 		$view->renderPage = 0;
 		$view->addParamsWithQuickSearch($query, true);
-		
-		$query_parts = DAO_Worker::getSearchQueryComponents([], $view->getParams(), $view->renderSortBy, $view->renderSortAsc);
 		
 		// If we have a special email character then switch to literal email matching
 		if(preg_match('/[\.\@\_]/', $term)) {
@@ -896,7 +882,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$view->renderSortAsc = false;
 		$view->renderTotal = false;
 		
-		list($results, $null) = $view->getData();
+		list($results,) = $view->getData();
 		
 		switch($as) {
 			case 'ids':
@@ -1291,7 +1277,6 @@ class Search_Address extends Extension_DevblocksSearchSchema {
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		
-		$ns = self::getNamespace();
 		$id = $this->getParam('last_indexed_id', 0);
 		$ptr_time = $this->getParam('last_indexed_time', 0);
 		$ptr_id = $id;
@@ -2045,24 +2030,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		return false;
 	}
 	
-	static function searchInboundLinks($from_context, $from_context_id) {
-		list($results, $null) = DAO_Address::search(
-			array(
-				SearchFields_Address::ID,
-			),
-			array(
-				new DevblocksSearchCriteria(SearchFields_Address::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			),
-			-1,
-			0,
-			SearchFields_Address::EMAIL,
-			true,
-			false
-		);
-		
-		return $results;
-	}
-	
 	function getRandom() {
 		return DAO_Address::random();
 	}
@@ -2147,8 +2114,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::services()->url();
-
 		if(null == ($address = DAO_Address::get($context_id)))
 			return array();
 		

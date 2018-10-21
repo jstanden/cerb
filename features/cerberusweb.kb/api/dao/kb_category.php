@@ -217,7 +217,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	}
 	
 	static function getTree($root=0) {
-		$levels = array();
+		$levels = [];
 		$map = self::getTreeMap();
 		
 		self::_recurseTree($levels,$map,$root);
@@ -233,7 +233,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$level++; // we're dropping down a node
 
 		// recurse through children
-		foreach($map[$node] as $pid => $children) {
+		foreach(array_keys($map[$node]) as $pid) {
 			$levels[$pid] = $level;
 			self::_recurseTree($levels,$map,$pid,$level);
 		}
@@ -330,8 +330,6 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -356,7 +354,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	 * @return Model_KbCategory[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -445,7 +443,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 	
 	static function autocomplete($term, $as='models') {
 		$db = DevblocksPlatform::services()->database();
-		$ids = array();
+		$ids = [];
 		
 		$results = $db->GetArraySlave(sprintf("SELECT id ".
 			"FROM kb_category ".
@@ -508,7 +506,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -797,7 +795,7 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_KB_CATEGORY;
 		$token_values['_types'] = $token_types;
@@ -860,10 +858,10 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -892,8 +890,6 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
@@ -903,7 +899,7 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->addParams(array(), true);
+		$view->addParams([], true);
 		$view->renderSortBy = SearchFields_KbCategory::NAME;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
@@ -912,7 +908,7 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -921,7 +917,7 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		//$view->name = 'Calls';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
@@ -1290,8 +1286,6 @@ class View_KbCategory extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_KbCategory::VIRTUAL_CONTEXT_LINK:

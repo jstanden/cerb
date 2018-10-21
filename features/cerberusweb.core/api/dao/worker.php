@@ -72,7 +72,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::DOB)
 			->string()
 			->addValidator(function($value, &$error) {
-				if($value && false == ($ts = strtotime($value . ' 00:00 GMT'))) {
+				if($value && false == (strtotime($value . ' 00:00 GMT'))) {
 					$error = sprintf("(%s) is not formatted properly (YYYY-MM-DD).",
 						$value
 					);
@@ -216,8 +216,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("INSERT INTO worker () ".
 			"VALUES ()"
 		);
-		if(false == ($rs = $db->ExecuteMaster($sql)))
+		if(false == ($db->ExecuteMaster($sql)))
 			return false;
+		
 		$id = $db->LastInsertId();
 
 		self::update($id, $fields);
@@ -275,7 +276,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$workers = DAO_Worker::getAll();
 		
 		if(!is_array($sessions) || empty($sessions))
-			return array();
+			return [];
 		
 		$sessions = array_filter($sessions, function($object) {
 			// Only worker-based sessions (no anonymous)
@@ -286,12 +287,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 		});
 		
 		if(empty($sessions))
-			return array();
+			return [];
 
 		// Least idle sessions first
 		DevblocksPlatform::sortObjects($sessions, '[updated]', false);
 
-		$workers_by_last_activity = array();
+		$workers_by_last_activity = [];
 		
 		foreach($sessions as $object) {
 			// If we've already seen this worker, their first session was the least idle
@@ -429,7 +430,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$all_workers = DAO_Worker::getAllActive();
 		$mentions_to_worker_id = DAO_Worker::getMentions();
 		
-		foreach($at_mentions as $idx => $at_mention) {
+		foreach($at_mentions as $at_mention) {
 			$at_mention = DevblocksPlatform::strLower(ltrim($at_mention, '@'));
 			
 			// Check workers first
@@ -460,7 +461,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	static function getResponsibilities($worker_id) {
 		$db = DevblocksPlatform::services()->database();
-		$responsibilities = array();
+		$responsibilities = [];
 		
 		$results = $db->GetArraySlave(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE worker_id = %d",
 			$worker_id
@@ -468,7 +469,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		foreach($results as $row) {
 			if(!isset($responsibilities[$row['bucket_id']]))
-				$responsibilities[$row['bucket_id']] = array();
+				$responsibilities[$row['bucket_id']] = [];
 			
 			$responsibilities[$row['bucket_id']] = $row['responsibility_level'];
 		}
@@ -479,7 +480,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function setResponsibilities($worker_id, $responsibilities) {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(!$worker_id || false == ($worker = DAO_Worker::get($worker_id)))
+		if(!$worker_id || false == (DAO_Worker::get($worker_id)))
 			return false;
 		
 		if(!is_array($responsibilities))
@@ -492,7 +493,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		}
 		
 		// Wipe current bucket responsibilities
-		$results = $db->ExecuteMaster(sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d",
+		$db->ExecuteMaster(sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d",
 			$worker_id
 		));
 		
@@ -510,7 +511,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @param resource $rs
 	 */
 	static private function _createObjectsFromResultSet($rs=null) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -609,7 +610,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 */
 	static function getNames($as_mentions=true) {
 		$workers = DAO_Worker::getAllActive();
-		$names = array();
+		$names = [];
 		
 		foreach($workers as $worker) {
 			$names[$worker->id] = ($as_mentions && !empty($worker->at_mention_name)) ? $worker->at_mention_name : $worker->getName();
@@ -627,7 +628,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$workers = DAO_Worker::getAllActive();
 		$patterns = DevblocksPlatform::parseCsvString($string);
 		
-		$results = array();
+		$results = [];
 		
 		if(is_array($patterns))
 		foreach($patterns as $pattern) {
@@ -656,7 +657,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	static function getWorkloads() {
 		$db = DevblocksPlatform::services()->database();
-		$workloads = array();
+		$workloads = [];
 		
 		$sql = "SELECT 'cerberusweb.contexts.ticket' AS context, owner_id AS worker_id, COUNT(id) AS hits FROM ticket WHERE status_id = 0 GROUP BY owner_id ".
 			"UNION ALL ".
@@ -673,7 +674,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			if(!isset($workloads[$worker_id]))
 				$workloads[$worker_id] = array(
 					'total' => 0,
-					'records' => array(),
+					'records' => [],
 				);
 				
 			$workloads[$worker_id]['records'][$context] = $hits;
@@ -793,8 +794,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
 		$do = $update->actions;
 		$ids = $update->context_ids;
 
@@ -1178,12 +1177,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Worker');
 		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-		
 		$result = array(
 			'primary_table' => 'w',
 			'select' => $select_sql,
@@ -1196,7 +1189,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function autocomplete($term, $as='models', $query=null) {
-		$url_writer = DevblocksPlatform::services()->url();
 		$db = DevblocksPlatform::services()->database();
 		$workers = DAO_Worker::getAll();
 		$objects = [];
@@ -1209,7 +1201,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$view->addParamsWithQuickSearch($query, true);
 		$view->addParam(new DevblocksSearchCriteria(SearchFields_Worker::IS_DISABLED, DevblocksSearchCriteria::OPER_EQ, 0));
 		
-		$query_parts = DAO_Worker::getSearchQueryComponents(array(), $view->getParams(), $view->renderSortBy, $view->renderSortAsc);
+		$query_parts = DAO_Worker::getSearchQueryComponents([], $view->getParams(), $view->renderSortBy, $view->renderSortAsc);
 		
 		$sql = "SELECT w.id ".
 			$query_parts['join'] .
@@ -1284,7 +1276,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -1415,7 +1407,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				// [TODO] Load all worker availability calendars
 				
 				$workers = DAO_Worker::getAllActive();
-				$results = array();
+				$results = [];
 				
 				foreach($workers as $worker_id => $worker) {
 					@$calendar_id = $worker->calendar_id;
@@ -1601,7 +1593,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function getAttributes() {
-		return array();
+		return [];
 	}
 	
 	public function getFields() {
@@ -1610,7 +1602,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 		);
 	}
 	
-	public function query($query, $attributes=array(), $limit=null) {
+	public function query($query, $attributes=[], $limit=null) {
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		
@@ -1675,7 +1667,7 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 		return true;
 	}
 	
-	public function indexIds(array $ids=array()) {
+	public function indexIds(array $ids=[]) {
 		if(empty($ids))
 			return;
 		
@@ -1696,12 +1688,9 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::services()->log();
-		
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		
-		$ns = self::getNamespace();
 		$id = $this->getParam('last_indexed_id', 0);
 		$ptr_time = $this->getParam('last_indexed_time', 0);
 		$ptr_id = $id;
@@ -1873,17 +1862,18 @@ class Model_Worker {
 	}
 	
 	function getPlaceholderLabelsValues(&$labels, &$values, $label_prefix='Current worker ', $values_prefix='current_worker_') {
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
-		$placeholder_labels = array();
+		$placeholder_labels = [];
+		$worker_labels = $worker_values = [];
 			
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $this, $worker_labels, $worker_values, $label_prefix, true, false);
 		CerberusContexts::merge($values_prefix, null, $worker_labels, $worker_values, $labels, $values);
 		
 		@$types = $values['_types'];
 		
-		foreach($labels as $k => $v) {
+		foreach(array_keys($labels) as $k) {
 			@$label = $labels[$k];
 			@$type = $types[$k];
 			$placeholder_labels[$k] = array('label' => $label, 'type' => $type);
@@ -1901,7 +1891,7 @@ class Model_Worker {
 		
 		if(false == ($calendar = DAO_Calendar::get($this->calendar_id))) {
 			$calendar = new Model_Calendar();
-			$calendar_events = array();
+			$calendar_events = [];
 			
 		} else {
 			$calendar_events = $calendar->getEvents($day_from, $day_to);
@@ -1916,7 +1906,7 @@ class Model_Worker {
 		$date_from = time() - (time() % 60);
 		$date_to = strtotime('+24 hours', $date_from);
 		
-		$blocks = array();
+		$blocks = [];
 		
 		$availability = $this->getAvailability($date_from, $date_to);
 		$mins = $availability->getMinutes();
@@ -2049,7 +2039,7 @@ class WorkerPrefs {
 	static function getDontNotifyOnActivities($worker_id) {
 		$dont_notify_on_activities = DAO_WorkerPref::get($worker_id, 'dont_notify_on_activities_json', null);
 		if(empty($dont_notify_on_activities) || false == ($dont_notify_on_activities = @json_decode($dont_notify_on_activities, true))) {
-			$dont_notify_on_activities = array();
+			$dont_notify_on_activities = [];
 		}
 		return $dont_notify_on_activities;
 	}
@@ -2216,7 +2206,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	private function _getSubtotalCountForGroup($field_key, $label_map=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$fields = $this->getFields();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 		
@@ -2229,9 +2218,6 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$this->renderSortBy,
 			$this->renderSortAsc
 		);
-		
-		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];
 		
 		$sql = sprintf("SELECT wtg.group_id AS label, count(*) AS hits ".
 			"%s ". // from
@@ -2280,11 +2266,9 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Worker::getFields();
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$date = DevblocksPlatform::services()->date();
 		$timezones = $date->getTimezones();
-		$group_names = DAO_Group::getNames();
 		
 		$fields = array(
 			'text' => 
@@ -2448,7 +2432,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		// Engine/schema examples: Fulltext
 		
-		$ft_examples = array();
+		$ft_examples = [];
 		
 		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_Worker::ID))) {
 			if(false != ($engine = $schema->getEngine())) {
@@ -2729,17 +2713,17 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_GROUPS:
-				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',array());
+				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,'in', $group_ids);
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -2845,7 +2829,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 
 	static function getByKey($key) {
 		$db = DevblocksPlatform::services()->database();
-		$response = array();
+		$response = [];
 		
 		$results = $db->GetArrayMaster(sprintf("SELECT worker_id, value FROM worker_pref WHERE setting = %s",
 			$db->qstr($key)
@@ -2869,7 +2853,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 			if(false === ($rs = $db->ExecuteSlave($sql)))
 				return false;
 			
-			$objects = array();
+			$objects = [];
 			
 			if(!($rs instanceof mysqli_result))
 				return false;
@@ -3062,7 +3046,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::services()->url();
 		$results = DAO_Worker::autocomplete($term, 'models', $query);
-		$list = array();
+		$list = [];
 
 		if(stristr('unassigned',$term) || stristr('nobody',$term) || stristr('empty',$term) || stristr('no worker',$term)) {
 			$empty = new stdClass();
@@ -3079,7 +3063,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$entry->value = sprintf("%d", $worker_id);
 			$entry->icon = $url_writer->write('c=avatars&type=worker&id=' . $worker->id, true) . '?v=' . $worker->updated;
 			
-			$meta = array();
+			$meta = [];
 			
 			if($worker->title)
 				$meta['title'] = $worker->title;
@@ -3166,7 +3150,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		// Context for lazy-loading
 		$token_values['_context'] = CerberusContexts::CONTEXT_WORKER;
@@ -3208,8 +3192,8 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		
 		// Worker email
 		
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, null, true);
 
 		CerberusContexts::merge(
@@ -3223,8 +3207,8 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		
 		// Worker availability calendar
 		
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, null, $merge_token_labels, $merge_token_values, null, true);
 
 		CerberusContexts::merge(
@@ -3407,7 +3391,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -3416,7 +3400,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = 'Workers';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(

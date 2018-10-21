@@ -400,7 +400,7 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CommunityTool::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CommunityTool', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CommunityTool', $sortBy);
 					
 		$select_sql = sprintf("SELECT ".
 			"ct.id as %s, ".
@@ -1123,7 +1123,6 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$translate = DevblocksPlatform::getTranslationService();
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
@@ -1263,7 +1262,6 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 	
 	function getMeta($context_id) {
 		$community_tool = DAO_CommunityTool::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($community_tool->name);
@@ -1456,8 +1454,6 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

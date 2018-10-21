@@ -192,7 +192,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$node_id = DAO_DecisionNode::create($fields);
 			
 			if(isset($node['nodes']) && is_array($node['nodes']) && !empty($node['nodes']))
-				if(false == ($result = self::recursiveImportDecisionNodes($node['nodes'], $behavior_id, $node_id)))
+				if(false == (self::recursiveImportDecisionNodes($node['nodes'], $behavior_id, $node_id)))
 					return false;
 		}
 		
@@ -286,13 +286,13 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		
 		// If we didn't resolve to a VA model
 		if(!($va instanceof Model_Bot))
-			return array();
+			return [];
 		
 		if(!$with_disabled && $va->is_disabled)
-			return array();
+			return [];
 		
 		$behaviors = self::getAll();
-		$results = array();
+		$results = [];
 
 		if(is_array($behaviors))
 		foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
@@ -416,7 +416,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	 * @return Model_TriggerEvent[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return $objects;
@@ -511,7 +511,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_TriggerEvent::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TriggerEvent', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TriggerEvent', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"trigger_event.id as %s, ".
@@ -585,7 +585,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -806,10 +806,10 @@ class Model_TriggerEvent {
 	public $event_point;
 	public $bot_id;
 	public $updated_at;
-	public $event_params = array();
-	public $variables = array();
+	public $event_params = [];
+	public $variables = [];
 	
-	private $_nodes = array();
+	private $_nodes = [];
 	
 	public function isDisabled() {
 		if($this->is_disabled)
@@ -826,7 +826,7 @@ class Model_TriggerEvent {
 	
 	public function hasPublicVariables() {
 		if(is_array($this->variables))
-		foreach($this->variables as $k => $v) {
+		foreach($this->variables as $v) {
 			if(isset($v['is_private']) && !$v['is_private'])
 				return true;
 		}
@@ -898,7 +898,7 @@ class Model_TriggerEvent {
 				
 				settype($value, 'integer');
 				
-				if(false == ($worker = DAO_Worker::get($value)))
+				if(false == (DAO_Worker::get($value)))
 					throw new Exception(sprintf("The worker variable '%s' can not be set to invalid worker #%d.",
 						$var['key'],
 						$value
@@ -948,8 +948,8 @@ class Model_TriggerEvent {
 					$context = substr($var['type'], 4);
 					
 					foreach($json as $context_id) {
-						$labels = array();
-						$values = array();
+						$labels = [];
+						$values = [];
 						
 						CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 						
@@ -992,7 +992,7 @@ class Model_TriggerEvent {
 	public function getDecisionTreeData($root_id = 0) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
-		$depths = array();
+		$depths = [];
 		$this->_recurseBuildTreeDepths($tree, $root_id, $depths);
 		
 		return array('nodes' => $nodes, 'tree' => $tree, 'depths' => $depths);
@@ -1000,15 +1000,15 @@ class Model_TriggerEvent {
 	
 	private function _getTree() {
 		$nodes = $this->_getNodes();
-		$tree = array(0 => array()); // root
+		$tree = array(0 => []); // root
 		
-		foreach($nodes as $node_id => $node) {
+		foreach($nodes as $node) {
 			if(!isset($tree[$node->id]))
-				$tree[$node->id] = array();
+				$tree[$node->id] = [];
 				
 			// Parent chain
 			if(!isset($tree[$node->parent_id]))
-				$tree[$node->parent_id] = array();
+				$tree[$node->parent_id] = [];
 			
 			$tree[$node->parent_id][$node->id] = $node->id;
 		}
@@ -1031,7 +1031,7 @@ class Model_TriggerEvent {
 		return $this->_runDecisionTree($dict, $dry_run, $event, $replay);
 	}
 	
-	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event, array $replay=array()) {
+	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event, array $replay=[]) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
 		$path = [];
@@ -1438,7 +1438,7 @@ class Model_TriggerEvent {
 			2 => 'simulator',
 		];
 		
-		foreach($depths as $node_id => $depth) {
+		foreach(array_keys($depths) as $node_id) {
 			$node = $nodes[$node_id]; /* @var $node Model_DecisionNode */
 			
 			$ptrs[$node->id] = array(
@@ -1551,7 +1551,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -1588,12 +1588,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_BEHAVIOR;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_TriggerEvent::BOT_ID:
@@ -1792,7 +1792,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			case SearchFields_TriggerEvent::EVENT_POINT:
@@ -1902,7 +1901,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				break;
 				
 			case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',array());
+				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
@@ -1933,8 +1932,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::services()->url();
-		$list = array();
+		$list = [];
 		
 		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BEHAVIOR);
 		
@@ -1948,7 +1946,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$view->addParamsWithQuickSearch($query, true);
 		$view->addParam(new DevblocksSearchCriteria(SearchFields_TriggerEvent::TITLE,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'));
 		
-		list($results, $null) = $view->getData();
+		list($results,) = $view->getData();
 		
 		foreach($results AS $row){
 			$entry = new stdClass();
@@ -2033,7 +2031,6 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	
 	function getMeta($context_id) {
 		$trigger_event = DAO_TriggerEvent::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($trigger_event->title);
@@ -2114,7 +2111,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_BEHAVIOR;
 		$token_values['_types'] = $token_types;
@@ -2145,8 +2142,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		}
 		
 		// Bot
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BOT, null, $merge_token_labels, $merge_token_values, '', true);
 
 			CerberusContexts::merge(
@@ -2211,10 +2208,10 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -2243,8 +2240,6 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	
@@ -2268,7 +2263,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -2297,7 +2292,6 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_BEHAVIOR;
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($context_id)) {
 			$model = DAO_TriggerEvent::get($context_id);
@@ -2390,8 +2384,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 				return;
 			
 			// Dictionary
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $model, $labels, $values, '', true, false);
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			$tpl->assign('dict', $dict);

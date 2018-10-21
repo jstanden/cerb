@@ -223,8 +223,6 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -300,7 +298,7 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_TimeTrackingActivity::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TimeTrackingActivity', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_TimeTrackingActivity', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"timetracking_activity.id as %s, ".
@@ -317,14 +315,6 @@ class DAO_TimeTrackingActivity extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_TimeTrackingActivity');
-	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 	
 		return array(
 			'primary_table' => 'timetracking_activity',
@@ -698,7 +688,6 @@ class View_TimeTrackingActivity extends C4_AbstractView implements IAbstractView
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -709,8 +698,6 @@ class View_TimeTrackingActivity extends C4_AbstractView implements IAbstractView
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_TimeTrackingActivity::VIRTUAL_CONTEXT_LINK:
@@ -826,7 +813,6 @@ class Context_TimeTrackingActivity extends Extension_DevblocksContext implements
 	
 	function getMeta($context_id) {
 		$timetracking_activity = DAO_TimeTrackingActivity::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($timetracking_activity->name);
@@ -978,8 +964,6 @@ class Context_TimeTrackingActivity extends Extension_DevblocksContext implements
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

@@ -163,7 +163,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			return;
 		
 		$db = DevblocksPlatform::services()->database();
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$values = [];
 		
@@ -298,8 +297,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 		
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -324,7 +321,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	 * @return Model_WorkspaceWidget[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -405,7 +402,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WorkspaceWidget::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkspaceWidget', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WorkspaceWidget', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"workspace_widget.id as %s, ".
@@ -482,7 +479,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -942,8 +939,6 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_WorkspaceWidget::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -1091,8 +1086,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 	}
 	
 	function getMeta($context_id) {
-		$url_writer = DevblocksPlatform::services()->url();
-
 		if(null == ($workspace_widget = DAO_WorkspaceWidget::get($context_id)))
 			return [];
 		
@@ -1280,10 +1273,10 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, false);
 		}
 		
@@ -1350,7 +1343,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());

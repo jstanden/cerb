@@ -338,14 +338,6 @@ class DAO_ClassifierEntity extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ClassifierEntity');
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-	
 		return array(
 			'primary_table' => 'classifier_entity',
 			'select' => $select_sql,
@@ -1071,8 +1063,6 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

@@ -272,8 +272,6 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -358,7 +356,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ProfileWidget::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ProfileWidget', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ProfileWidget', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"profile_widget.id as %s, ".
@@ -890,8 +888,6 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_ProfileWidget::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -1034,7 +1030,6 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 	
 	function getMeta($context_id) {
 		$profile_widget = DAO_ProfileWidget::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($profile_widget->name);
@@ -1247,8 +1242,6 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

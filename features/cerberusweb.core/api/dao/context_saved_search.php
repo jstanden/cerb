@@ -423,14 +423,6 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ContextSavedSearch');
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-	
 		return array(
 			'primary_table' => 'context_saved_search',
 			'select' => $select_sql,
@@ -1154,14 +1146,14 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = 'cerberusweb.contexts.context.saved.search';
+		$context = Context_ContextSavedSearch::ID;
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1172,8 +1164,6 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

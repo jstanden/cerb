@@ -225,8 +225,6 @@ class DAO_Reminder extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -309,7 +307,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Reminder::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Reminder', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Reminder', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"reminder.id as %s, ".
@@ -334,14 +332,6 @@ class DAO_Reminder extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Reminder');
-	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 	
 		return array(
 			'primary_table' => 'reminder',
@@ -597,8 +587,7 @@ class Model_Reminder {
 			}
 			
 			$dict = DevblocksDictionaryDelegate::instance($values);
-			
-			$result = $behavior->runDecisionTree($dict, false, $event);
+			$behavior->runDecisionTree($dict, false, $event);
 		}
 		
 		// Close the reminder
@@ -875,8 +864,6 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_Reminder::VIRTUAL_WORKER_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
@@ -1024,7 +1011,6 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 	
 	function getMeta($context_id) {
 		$reminder = DAO_Reminder::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($reminder->name);
@@ -1230,8 +1216,6 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

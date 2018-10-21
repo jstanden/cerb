@@ -349,7 +349,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Calendar::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Calendar', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Calendar', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"calendar.id as %s, ".
@@ -372,14 +372,6 @@ class DAO_Calendar extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Calendar');
-	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 	
 		return array(
 			'primary_table' => 'calendar',
@@ -774,7 +766,7 @@ class Model_Calendar {
 		$mins_bits = str_pad('', $mins_len, '*', STR_PAD_LEFT);
 
 		if(is_array($events))
-		foreach($events as $ts => $schedule) {
+		foreach($events as $schedule) {
 			if(is_array($schedule))
 			foreach($schedule as $event) {
 				$start = $event['ts'];
@@ -873,8 +865,8 @@ class Model_CalendarAvailability {
 		$calendar_events = array();
 		
 		if(isset($calendar_properties['calendar_weeks']))
-		foreach($calendar_properties['calendar_weeks'] as $week_idx => $days) {
-			foreach($days as $ts => $day) {
+		foreach($calendar_properties['calendar_weeks'] as $days) {
+			foreach(array_keys($days) as $ts) {
 				$at = ceil(($ts - $this->_start)/60);
 				$for = ceil((strtotime('11:59:59pm', $ts) - $ts)/60);
 				$mins = substr($this->_mins, $at, $for);
@@ -1188,7 +1180,6 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -1199,8 +1190,6 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_Calendar::VIRTUAL_CONTEXT_LINK:
@@ -1293,7 +1282,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::services()->url();
 		$list = array();
 		
 		$models = DAO_Calendar::autocomplete($term);
@@ -1371,7 +1359,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	
 	function getMeta($context_id) {
 		$calendar = DAO_Calendar::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($calendar->name);
@@ -1582,10 +1569,10 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1596,9 +1583,9 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				break;
 			
 			case 'watchers':
-				$watchers = array(
+				$watchers = [
 					$token => CerberusContexts::getWatchers($context, $context_id, true),
-				);
+				];
 				$values = array_merge($values, $watchers);
 				break;
 			
@@ -1702,7 +1689,7 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				}
 				
 				foreach($values['weeks'] as $week_idx => $week) {
-					foreach($week as $day_ts => $day) {
+					foreach(array_keys($week) as $day_ts) {
 						$values['weeks'][$week_idx][$day_ts]['events'] = array();
 						
 						if(isset($calendar_events[$day_ts])) {
@@ -1737,8 +1724,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

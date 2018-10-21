@@ -250,16 +250,16 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			$ids = array($ids);
 
 		if(empty($ids))
-			return array();
+			return [];
 
 		if(!method_exists(get_called_class(), 'getWhere'))
-			return array();
+			return [];
 
 		$db = DevblocksPlatform::services()->database();
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
-		$models = array();
+		$models = [];
 
 		$results = static::getWhere(sprintf("id IN (%s)",
 			implode(',', $ids)
@@ -281,7 +281,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	 * @return Model_MailHtmlTemplate[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -372,14 +372,6 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_MailHtmlTemplate');
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-	
 		return array(
 			'primary_table' => 'mail_html_template',
 			'select' => $select_sql,
@@ -426,7 +418,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -593,8 +585,8 @@ class Model_MailHtmlTemplate {
 		if(!empty($worker)) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
-			$labels = array();
-			$values = array();
+			$labels = [];
+			$values = [];
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $labels, $values, null, true, true);
 			$dict = new DevblocksDictionaryDelegate($values);
 			
@@ -688,12 +680,12 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
 		$context = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
 			case SearchFields_MailHtmlTemplate::VIRTUAL_CONTEXT_LINK:
@@ -778,7 +770,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		
 		// Engine/schema examples: Comments
 		
-		$ft_examples = array();
+		$ft_examples = [];
 		
 		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID))) {
 			if(false != ($engine = $schema->getEngine())) {
@@ -895,12 +887,12 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 				break;
 				
 			case SearchFields_MailHtmlTemplate::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_MailHtmlTemplate::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
@@ -1068,7 +1060,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE;
 		$token_values['_types'] = $token_types;
@@ -1138,10 +1130,10 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1163,8 +1155,6 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	
@@ -1183,7 +1173,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
@@ -1192,7 +1182,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$view->name = DevblocksPlatform::translateCapitalized('common.email_templates');
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
@@ -1233,8 +1223,8 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			
 			// Tokens
 			
-			$worker_token_labels = array();
-			$worker_token_values = array();
+			$worker_token_labels = [];
+			$worker_token_values = [];
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
 			
 			$placeholders = Extension_DevblocksContext::getPlaceholderTree($worker_token_labels);

@@ -1262,7 +1262,6 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 	
 	function getMeta($context_id) {
 		$context_scheduled_behavior = DAO_ContextScheduledBehavior::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		
@@ -1460,8 +1459,6 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

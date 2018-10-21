@@ -247,8 +247,6 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -273,7 +271,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	 * @return Model_WebApiCredentials[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -288,7 +286,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 			$object->updated_at = intval($row['updated_at']);
 			
 			@$params = json_decode($row['params_json'], true);
-			$object->params = !empty($params) ? $params : array();
+			$object->params = !empty($params) ? $params : [];
 			
 			$objects[$object->id] = $object;
 		}
@@ -321,7 +319,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WebApiCredentials::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WebApiCredentials', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WebApiCredentials', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"webapi_credentials.id as %s, ".
@@ -389,7 +387,7 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 			$total = mysqli_num_rows($rs);
 		}
 		
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -686,7 +684,6 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -697,8 +694,6 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_WebApiCredentials::VIRTUAL_HAS_FIELDSET:
@@ -747,7 +742,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 				break;
 				
 			case SearchFields_WebApiCredentials::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 		}
@@ -816,7 +811,6 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 	
 	function getMeta($context_id) {
 		$webapi_credentials = DAO_WebApiCredentials::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($webapi_credentials->name);
@@ -913,8 +907,8 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		}
 		
 		// Owner
-		$merge_token_labels = array();
-		$merge_token_values = array();
+		$merge_token_labels = [];
+		$merge_token_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $merge_token_labels, $merge_token_values, '', true);
 
 			CerberusContexts::merge(

@@ -16,6 +16,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		$validation
 			->addField(self::EXTENSION_ID)
 			->string()
+			->setRequired(true)
 			->setMaxLength(255)
 			;
 		// text
@@ -40,6 +41,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		$validation
 			->addField(self::NAME)
 			->string()
+			->setRequired(true)
 			->setMaxLength(255)
 			;
 		// int(10) unsigned
@@ -225,8 +227,6 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -311,7 +311,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_WebhookListener::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WebhookListener', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_WebhookListener', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"webhook_listener.id as %s, ".
@@ -334,14 +334,6 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_WebhookListener');
-	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
 	
 		return array(
 			'primary_table' => 'webhook_listener',
@@ -805,8 +797,6 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_WebhookListener::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -951,7 +941,6 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 	
 	function getMeta($context_id) {
 		$webhook_listener = DAO_WebhookListener::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($webhook_listener->name);
@@ -1149,8 +1138,6 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	

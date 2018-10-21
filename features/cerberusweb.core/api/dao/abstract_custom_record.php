@@ -509,14 +509,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			
 		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, $search_class);
 	
-		// Virtuals
-		
-		$args = array(
-			'join_sql' => &$join_sql,
-			'where_sql' => &$where_sql,
-			'tables' => &$tables,
-		);
-	
 		return array(
 			'primary_table' => $table_name,
 			'select' => $select_sql,
@@ -1419,8 +1411,6 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
 			return;
 		
