@@ -917,7 +917,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		foreach($prefixes as $prefix)
 			if(substr($string, 0, strlen($prefix)) == $prefix)
-				return true;
+				return $prefix; // true
 		
 		return false;
 	}
@@ -928,7 +928,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		foreach($suffixes as $suffix)
 			if(substr($string, -strlen($suffix)) == $suffix)
-				return true;
+				return $suffix; // true
 		
 		return false;
 	}
