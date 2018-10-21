@@ -1351,24 +1351,23 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($calendar_recurring_profile, $token_values);
 			
-			// Calendar
-			$merge_token_labels = array();
-			$merge_token_values = array();
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, null, $merge_token_labels, $merge_token_values, '', true);
-	
-			CerberusContexts::merge(
-				'calendar_',
-				$prefix.'Calendar:',
-				$merge_token_labels,
-				$merge_token_values,
-				$token_labels,
-				$token_values
-			);
-			
 			// URL
 			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=calendar_recurring_event&id=%d-%s",$calendar_recurring_profile->id, DevblocksPlatform::strToPermalink($calendar_recurring_profile->event_name)), true);
 		}
+		
+		// Calendar
+		$merge_token_labels = $merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CALENDAR, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'calendar_',
+			$prefix.'Calendar:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
 		
 		return true;
 	}
