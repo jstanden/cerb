@@ -4,7 +4,7 @@
 	<name>Cerb Core</name>
 	<description>The core functionality of Cerb.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.0.6</version>
+	<version>9.0.7</version>
 	<link>https://cerb.ai</link>
 	
 	<!-- Plugin Dependencies -->
@@ -67,7 +67,7 @@
 		<patch version="8.3.0" revision="1271" file="patches/8.x/8.3.0.php" />
 		<patch version="8.4.0" revision="1282" file="patches/8.x/8.4.0.php" />
 		
-		<patch version="9.0.0" revision="1312" file="patches/9.x/9.0.0.php" />
+		<patch version="9.0.0" revision="1313" file="patches/9.x/9.0.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
