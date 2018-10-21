@@ -632,7 +632,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		return $dicts;
 	}
 	
-	public static function bulkLazyLoad(array $dicts, $token) {
+	public static function bulkLazyLoad(array $dicts, $token, $skip_meta=false) {
 		if(empty($dicts))
 			return;
 		
@@ -680,7 +680,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 				if(is_array($models))
 				foreach($models as $model) {
 					$labels = $values = []; 
-					CerberusContexts::getContext($context_data['context'], $model, $labels, $values, null, true);
+					CerberusContexts::getContext($context_data['context'], $model, $labels, $values, null, true, $skip_meta);
 				}
 				
 				$prefix_key = $context_prefix . '_';

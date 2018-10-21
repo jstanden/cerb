@@ -3272,13 +3272,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
 		
-		if(null == ($context_mft = Extension_DevblocksContext::getByViewClass(get_class($view))))
+		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return;
 		
 		$view->setAutoPersist(false);
 		
-		CerberusContexts::getContext($context_mft->id, null, $global_labels, $global_values, null, true);
 		$global_labels = $global_values = [];
+		CerberusContexts::getContext($context_ext->id, null, $global_labels, $global_values, null, true);
 		$global_types = $global_values['_types'];
 		
 		// Override display
@@ -3304,32 +3304,32 @@ class ChInternalController extends DevblocksControllerExtension {
 			unset($csv_labels);
 		}
 		
+		$global_labels = null;
+		unset($global_labels);
+		
 		// Rows
 		$results = $view->getDataAsObjects();
 		
 		$count = count($results);
 		$dicts = [];
 		
-		if(is_array($results))
-		foreach($results as $row_id => $result) {
-			// Secure the exported rows
-			if(!CerberusContexts::isReadableByActor($context_mft->id, $result, $active_worker))
-				continue;
-			
-			$labels = array(); // ignore
-			$values = array();
-			CerberusContexts::getContext($context_mft->id, $result, $labels, $values, null, true, true);
-			
-			$dicts[$row_id] = DevblocksDictionaryDelegate::instance($values);
-			unset($labels);
-			unset($values);
-		}
+		$models = CerberusContexts::getModels($context_ext->id, array_keys($results));
 		
 		unset($results);
 		
+		// ACL
+		$models = CerberusContexts::filterModelsByActorReadable(get_class($context_ext), $models, $active_worker);
+		
+		// Models->Dictionaries
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id);
+		unset($models);
+		
+		foreach($dicts as $dict)
+			$dict->scrubKeys('_types');
+		
 		// Bulk lazy load the tokens across all the dictionaries with a temporary cache
 		foreach($cursor['tokens'] as $token) {
-			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token);
+			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $token, true);
 		}
 		
 		foreach($dicts as $dict) {
