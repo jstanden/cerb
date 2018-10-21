@@ -450,6 +450,16 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 					$is_cache_invalid = true;
 				}
 				
+				if($k == '_types') {
+					// If the parent has a `_types` key, append these values to it
+					if(array_key_exists('_types', $this->_dictionary)) {
+						foreach($v as $type_k => $type_v) {
+							$this->_dictionary['_types'][$context_data['prefix'] . $type_k] = $type_v;
+						}
+					}
+					continue;
+				}
+				
 				// The getDictionary() call above already filters out _labels and _types
 				$this->_dictionary[$new_key] = $v;
 			}
@@ -526,6 +536,14 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		if(is_array($this->_dictionary))
 		foreach(array_keys($this->_dictionary) as $key) {
 			if(DevblocksPlatform::strStartsWith($key, $prefix))
+				unset($this->_dictionary[$key]);
+		}
+	}
+	
+	public function scrubKeySuffix($suffix) {
+		if(is_array($this->_dictionary))
+		foreach(array_keys($this->_dictionary) as $key) {
+			if(DevblocksPlatform::strEndsWith($key, $suffix))
 				unset($this->_dictionary[$key]);
 		}
 	}
