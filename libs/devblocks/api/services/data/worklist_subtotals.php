@@ -35,6 +35,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
 				$chart_model['by'] = $value;
 				
+			} else if($field->key == 'metric') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['metric'] = $value;
+				
 			} else if($field->key == 'query') {
 				$data_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$data_query = substr($data_query, 1, -1);
@@ -241,6 +245,30 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					$ptr =& $ptr['children'];
 				}
 			}
+		}
+		
+		if(array_key_exists('metric', $chart_model)) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			$metric_template = sprintf('{{%s}}',
+				$chart_model['metric']
+			);
+			
+			array_walk_recursive($response['children'], function(&$v, $k) use ($tpl_builder, $metric_template) {
+				if($k != 'hits')
+					return;
+				
+				$out = $tpl_builder->build($metric_template, [
+					'x' => $v,
+				]);
+				
+				if(false === $out || !is_numeric($out)) {
+					$v = 0;
+					return;
+				}
+				
+				$v = floatval($out);
+			});
 		}
 		
 		// [TODO] Sort by label/metric?
