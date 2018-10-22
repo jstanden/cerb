@@ -31,6 +31,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 				$chart_model['context'] = $subtotals_context->id;
 				
+			} else if(DevblocksPlatform::strStartsWith($field->key, 'by.')) {
+				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+				$chart_model['by'] = $value;
+				
+				list(,$func) = explode('.', $field->key, 2);
+				$chart_model['function'] = DevblocksPlatform::strLower($func);
+				
 			} else if($field->key == 'by') {
 				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
 				$chart_model['by'] = $value;
