@@ -42,6 +42,19 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
 				$chart_model['by'] = $value;
 				
+			} else if(DevblocksPlatform::strStartsWith($field->key, 'group.')) {
+				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+				$chart_model['group'] = $value;
+				
+				list(,$func) = explode('.', $field->key, 2);
+				$chart_model['group_function'] = DevblocksPlatform::strLower($func);
+				
+			} else if($field->key == 'group') {
+				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+				$chart_model['group'] = $value;
+				$chart_model['group_function'] = 'sum';
+				
+				
 			} else if($field->key == 'metric') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['metric'] = $value;
@@ -82,6 +95,12 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			if(!is_array($subtotal_by))
 				$subtotal_by = [$subtotal_by];
+			
+			$group_by = @$chart_model['group'] ?: [];
+			unset($chart_model['group']);
+			
+			if(!is_array($group_by))
+				$group_by = [$group_by];
 				
 			foreach($subtotal_by as $idx => $by) {
 				// Handle limits and orders
@@ -96,6 +115,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$subtotal_field['limit_desc'] = $limit_desc;
 				
 				$chart_model['by'][] = $subtotal_field;
+				
+				if(in_array($by, $group_by)) {
+					$chart_model['group'][] = $subtotal_field;
+				}
 			}
 		}
 		
@@ -105,8 +128,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
-		
-		$custom_fields = DAO_CustomField::getAll();
 		
 		// Aggregate function
 		// [TODO] Are limits and sort orders included in agg functions?
@@ -190,6 +211,37 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				}, $by_fields))
 			);
 			
+			if(array_key_exists('group', $chart_model) && is_array($chart_model['group']) && !empty($chart_model['group'])) {
+				$group_func = @$chart_model['group_function'] ?: 'sum';
+				$group_func_select = sprintf('%s(_stats.hits)', $func_map[$group_func]);
+				
+				$outer_sql = sprintf("SELECT %s AS hits, %s FROM (%s) AS _stats GROUP BY %s",
+					$group_func_select,
+					implode(', ', array_map(function($e) use ($db) {
+						return sprintf("_stats.`%s`",
+							$db->escape($e['key_select'])
+						);
+					}, $chart_model['group'])),
+					$sql,
+					implode(', ', array_map(function($e) use ($db) {
+						return sprintf("_stats.`%s`",
+							$db->escape($e['key_select'])
+						);
+					}, $chart_model['group']))
+				);
+				
+				$by_fields = $chart_model['group'];
+				
+				if($func == 'COUNT(*)') {
+					$chart_model['by'] = $by_fields;
+					
+				} else {
+					$chart_model['by'] = array_merge($by_fields, array_slice($chart_model['by'],-1,1)); 
+				}
+				
+				$sql = $outer_sql;
+			}
+			
 			if(false == ($rows = $db->GetArraySlave($sql)))
 				return [];
 			
@@ -198,11 +250,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		$labels = [];
-		$by_token_to_field = [];
 		
 		foreach($chart_model['by'] as $by) {
-			$values = array_column($rows, $by['key_select']);
-			$by_token_to_field[$by['key_select']] = $by['key_query'];
+			$key_select = $by['key_select'];
+			$values = array_column($rows, $key_select);
 			
 			// [TODO] Field type
 			switch($by['type']) {
@@ -213,8 +264,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					break;
 			}
 			
-			if(false !== ($by_labels = $search_class::getLabelsForKeyValues($by['key_select'], $values))) {
-				$labels[$by['key_select']] = $by_labels;
+			if(false !== ($by_labels = $search_class::getLabelsForKeyValues($key_select, $values))) {
+				$labels[$key_select] = $by_labels;
 				continue;
 			}
 		}
@@ -518,11 +569,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		$rows = [];
+		$recurse = null;
 		
 		// Build a table recursively from the tree
 		$recurse = function($node, $depth=0, $parents=[]) use (&$recurse, $chart_model, &$rows) {
-			@$by = $chart_model['by'][$depth];
-			
 			if(array_key_exists('name', $node))
 				$parents[] = &$node;
 			
