@@ -40,6 +40,10 @@ abstract class DevblocksEngine {
 	protected static $response = null;
 	protected static $is_stateless = false;
 
+	static function readPluginManifest($plugin_path, $is_update=true) {
+		return self::_readPluginManifest($plugin_path, $is_update);
+	}
+	
 	/**
 	 * Reads and caches a single manifest from a given plugin directory.
 	 *

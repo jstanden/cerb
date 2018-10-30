@@ -1228,17 +1228,15 @@ class ChFeedbackController extends DevblocksControllerExtension {
 	
 };
 
-if (class_exists('Extension_MessageToolbarItem',true)):
-	class ChFeedbackMessageToolbarFeedback extends Extension_MessageToolbarItem {
-		function render(Model_Message $message) {
-			$tpl = DevblocksPlatform::services()->template();
-			
-			$tpl->assign('message', $message); /* @var $message Model_Message */
-			
-			$tpl->display('devblocks:cerberusweb.feedback::feedback/renderers/message_toolbar_feedback.tpl');
-		}
-	};
-endif;
+class ChFeedbackMessageToolbarFeedback extends Extension_MessageToolbarItem {
+	function render(Model_Message $message) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('message', $message); /* @var $message Model_Message */
+		
+		$tpl->display('devblocks:cerberusweb.feedback::feedback/renderers/message_toolbar_feedback.tpl');
+	}
+};
 
 class Context_Feedback extends Extension_DevblocksContext implements IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_FEEDBACK;

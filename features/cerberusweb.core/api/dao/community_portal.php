@@ -1387,7 +1387,7 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		];
 		
 		$keys['code']['notes'] = 'Randomized internal ID for the portal';
-		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		$keys['extension_id']['notes'] = "[Community Portal Type](/docs/plugins/extensions/points/cerb.portal/)";
 		$keys['uri']['notes'] = 'Human-friendly nickname for the portal. Must be unique.';
 		
 		return $keys;

@@ -29,6 +29,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		$validation
 			->addField(self::GUID)
 			->string()
+			->setRequired(true)
 			->setMaxLength(40)
 			;
 		// int(10) unsigned
@@ -1062,7 +1063,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		];
 		
 		$keys['extension_id']['type'] = "extension";
-		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension of the webhook";
+		$keys['extension_id']['notes'] = "[Webhook Listener Type](/docs/plugins/extensions/points/cerb.webhooks.listener.engine/)";
 		$keys['guid']['notes'] = "The random unique alias of the webhook used in its URL; automatically generated if blank";
 		
 		return $keys;

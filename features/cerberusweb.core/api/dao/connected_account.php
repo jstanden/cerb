@@ -1247,7 +1247,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$keys = parent::getKeyMeta();
 		
 		$keys['service']['type'] = "extension";
-		$keys['service']['notes'] = "The service provider's [plugin](/docs/plugins/) extension";
+		$keys['service']['notes'] = "[Service Provider](/docs/plugins/extensions/points/cerb.service.provider/)";
 		
 		unset($keys['extension_id']);
 		

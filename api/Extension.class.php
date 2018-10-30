@@ -41,14 +41,20 @@
  */
 
 abstract class Extension_AppPreBodyRenderer extends DevblocksExtension {
+	const POINT = 'cerberusweb.renderer.prebody';
+	
 	function render() { }
 };
 
 abstract class Extension_AppPostBodyRenderer extends DevblocksExtension {
+	const POINT = 'cerberusweb.renderer.postbody';
+	
 	function render() { }
 };
 
 abstract class CerberusPageExtension extends DevblocksExtension {
+	const POINT = 'cerberusweb.page';
+	
 	function isVisible() { return true; }
 	function render() { }
 };
@@ -77,6 +83,8 @@ abstract class Extension_PageSection extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.page.section';
 	
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_PageSection[]
 	 */
 	static function getExtensions($as_instances=true, $page_id=null) {
@@ -95,7 +103,8 @@ abstract class Extension_PageSection extends DevblocksExtension {
 	}
 	
 	/**
-	 *
+	 * @internal
+	 * 
 	 * @param string $uri
 	 * @return DevblocksExtensionManifest|Extension_PageSection
 	 */
@@ -204,15 +213,15 @@ abstract class Extension_PageMenuItem extends DevblocksExtension {
 	abstract function render();
 };
 
-abstract class Extension_SendMailToolbarItem extends DevblocksExtension {
-	function render() { }
-};
-
 abstract class Extension_MessageToolbarItem extends DevblocksExtension {
+	const POINT = 'cerberusweb.message.toolbaritem';
+	
 	function render(Model_Message $message) { }
 };
 
 abstract class Extension_ReplyToolbarItem extends DevblocksExtension {
+	const POINT = 'cerberusweb.reply.toolbaritem';
+	
 	function render(Model_Message $message) { }
 };
 
@@ -222,6 +231,8 @@ abstract class Extension_MailTransport extends DevblocksExtension {
 	static $_registry = [];
 	
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_MailTransport[]
 	 */
 	static function getAll($as_instances=true) {
@@ -236,6 +247,9 @@ abstract class Extension_MailTransport extends DevblocksExtension {
 		return $exts;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
@@ -262,6 +276,8 @@ abstract class Extension_ProfileTab extends DevblocksExtension {
 	static $_registry = [];
 
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_ProfileTab[]
 	 */
 	static function getAll($as_instances=true) {
@@ -276,6 +292,9 @@ abstract class Extension_ProfileTab extends DevblocksExtension {
 		return $exts;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function getByContext($context, $as_instances=true) {
 		$extensions = self::getAll($as_instances);
 		
@@ -293,6 +312,9 @@ abstract class Extension_ProfileTab extends DevblocksExtension {
 		return $extensions;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
@@ -318,6 +340,8 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 	static $_registry = [];
 
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_ProfileWidget[]
 	 */
 	static function getAll($as_instances=true) {
@@ -332,6 +356,9 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 		return $exts;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
@@ -346,6 +373,9 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 		return null;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function getByContext($context, $as_instances=true) {
 		$extensions = self::getAll($as_instances);
 		
@@ -367,6 +397,9 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 	abstract function renderConfig(Model_ProfileWidget $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }
 	
+	/**
+	 * @internal
+	 */
 	public function export(Model_ProfileWidget $widget) {
 		$widget_json = [
 			'widget' => [
@@ -389,6 +422,8 @@ abstract class Extension_ContextProfileScript extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.context.profile.script';
 	
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_ContextProfileScript[]
 	 */
 	static function getExtensions($as_instances=true, $context=null) {
@@ -427,6 +462,8 @@ abstract class Extension_CalendarDatasource extends DevblocksExtension {
 	static $_registry = [];
 	
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_WorkspacePage[]
 	 */
 	static function getAll($as_instances=true) {
@@ -441,6 +478,9 @@ abstract class Extension_CalendarDatasource extends DevblocksExtension {
 		return $exts;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
@@ -465,6 +505,8 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 	static $_registry = [];
 	
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_WorkspacePage[]
 	 */
 	static function getAll($as_instances=true) {
@@ -479,6 +521,9 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 		return $exts;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
@@ -493,6 +538,9 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 		return null;
 	}
 	
+	/**
+	 * @internal
+	 */
 	function exportPageConfigJson(Model_WorkspacePage $page) {
 		$json_array = array(
 			'page' => array(
@@ -506,6 +554,9 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 		return json_encode($json_array);
 	}
 	
+	/**
+	 * @internal
+	 */
 	function importPageConfigJson($import_json, Model_WorkspacePage $page) {
 		if(!is_array($import_json) || !isset($import_json['page']))
 			return false;
@@ -522,6 +573,8 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 	static $_registry = [];
 	
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_WorkspaceTab[]
 	 */
 	static function getAll($as_instances=true) {
@@ -536,6 +589,9 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 		return $exts;
 	}
 
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
@@ -558,8 +614,13 @@ abstract class Extension_WorkspaceTab extends DevblocksExtension {
 };
 
 abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
+	const POINT = 'cerberusweb.ui.workspace.widget.datasource';
+	
 	static $_registry = [];
 	
+	/**
+	 * @internal
+	 */
 	static function getAll($as_instances=false, $only_for_widget=null) {
 		$extensions = DevblocksPlatform::getExtensions('cerberusweb.ui.workspace.widget.datasource', false);
 		
@@ -583,6 +644,9 @@ abstract class Extension_WorkspaceWidgetDatasource extends DevblocksExtension {
 		return $extensions;
 	}
 
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
@@ -610,6 +674,9 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	
 	static $_registry = [];
 	
+	/**
+	 * @internal
+	 */
 	static function getAll($as_instances=false) {
 		$extensions = DevblocksPlatform::getExtensions('cerberusweb.ui.workspace.widget', $as_instances);
 		
@@ -622,6 +689,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	}
 
 	/**
+	 * @internal
 	 * 
 	 * @param string $extension_id
 	 * @return Extension_WorkspaceWidget|NULL
@@ -644,6 +712,9 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 	
+	/**
+	 * @internal
+	 */
 	public function export(Model_WorkspaceWidget $widget) {
 		$widget_json = [
 			'widget' => [
@@ -661,6 +732,9 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		return json_encode($widget_json);
 	}
 
+	/**
+	 * @internal
+	 */
 	public static function getViewFromParams($widget, $params, $view_id) {
 		if(false == ($view = C4_AbstractViewLoader::getView($view_id))) {
 			if(!isset($params['worklist_model']))
@@ -690,6 +764,9 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 	const POINT = 'cerberusweb.login';
 
+	/**
+	 * @internal
+	 */
 	static function getAll($as_instances=false) {
 		$extensions = DevblocksPlatform::getExtensions('cerberusweb.login', $as_instances);
 		
@@ -698,6 +775,9 @@ abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 		return $extensions;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function get($extension_id, $as_instance=false) {
 		$extensions = self::getAll(false);
 		
@@ -715,6 +795,9 @@ abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 		}
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function getByUri($uri, $as_instance=false) {
 		$extensions = self::getAll(false);
 		
@@ -759,6 +842,8 @@ abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 };
 
 abstract class CerberusCronPageExtension extends DevblocksExtension {
+	const POINT = 'cerberusweb.cron';
+	
 	const PARAM_ENABLED = 'enabled';
 	const PARAM_LOCKED = 'locked';
 	const PARAM_DURATION = 'duration';
@@ -767,10 +852,14 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	
 	/**
 	 * runs scheduled task
-	 *
+	 * 
+	 * @internal
 	 */
 	abstract function run();
 	
+	/**
+	 * @internal
+	 */
 	function _run() {
 		$duration = $this->getParam(self::PARAM_DURATION, 5);
 		$term = $this->getParam(self::PARAM_TERM, 'm');
@@ -796,6 +885,8 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	}
 	
 	/**
+	 * @internal
+	 * 
 	 * @param boolean $is_ignoring_wait Ignore the wait time when deciding to run
 	 * @return boolean
 	 */
@@ -821,6 +912,9 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 		return (!$locked && $enabled && time() >= $checkpoint) ? true : false;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static public function getIntervalAsSeconds($duration, $term) {
 		$seconds = 0;
 		
@@ -847,6 +941,9 @@ abstract class Extension_CommunityPortal extends DevblocksExtension implements D
 	
 	static $_registry = [];
 	
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];
@@ -909,6 +1006,8 @@ abstract class Extension_ServiceProvider extends DevblocksExtension {
 	static $_registry = [];
 	
 	/**
+	 * @internal
+	 * 
 	 * @return DevblocksExtensionManifest[]|Extension_ServiceProvider[]
 	 */
 	static function getAll($as_instances=true) {
@@ -923,6 +1022,9 @@ abstract class Extension_ServiceProvider extends DevblocksExtension {
 		return $exts;
 	}
 
+	/**
+	 * @internal
+	 */
 	static function get($extension_id) {
 		if(isset(self::$_registry[$extension_id]))
 			return self::$_registry[$extension_id];

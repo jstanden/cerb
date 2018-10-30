@@ -1171,7 +1171,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			'type' => 'object',
 		];
 		
-		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		$keys['extension_id']['notes'] = "[Profile Widget Type](/docs/plugins/extensions/points/cerb.profile.widget/)";
 		$keys['pos']['notes'] = "The order of the widget on the profile; `0` is first (top-left) proceeding in rows then columns";
 		$keys['profile_tab_id']['notes'] = "The ID of the [profile tab](/docs/records/types/profile_tab/) dashboard containing this widget";
 		$keys['width_units']['notes'] = "`1` (25%), `2` (50%), `3` (75%), `4` (100%)";

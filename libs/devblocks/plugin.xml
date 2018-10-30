@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>devblocks.core</id>
-	<name>[Devblocks] Core</name>
-	<description>Devblocks: PHP Application Framework</description>
+	<name>Devblocks Framework</name>
+	<description>Devblocks is a PHP7 application development framework.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>2.3.4</version>
 	<link>http://wiki.devblocks.com/</link>

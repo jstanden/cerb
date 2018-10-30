@@ -4,6 +4,9 @@ abstract class Extension_WebhookListenerEngine extends DevblocksExtension {
 	
 	protected $_config = null;
 	
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false) {
 		$engines = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
 		if($as_instances)
@@ -14,6 +17,8 @@ abstract class Extension_WebhookListenerEngine extends DevblocksExtension {
 	}
 	
 	/**
+	 * @internal
+	 * 
 	 * @param string $id
 	 * @return Extension_WebhookListenerEngine
 	 */

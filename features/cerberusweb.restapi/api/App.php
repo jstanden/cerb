@@ -276,6 +276,8 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 };
 
 abstract class Extension_RestController extends DevblocksExtension {
+	const POINT = 'cerberusweb.rest.controller';
+	
 	const ERRNO_CUSTOM = 'ERROR';
 	const ERRNO_ACL = 'ERROR_PERMISSIONS';
 	const ERRNO_NOT_IMPLEMENTED = 'ERROR_NOT_IMPLEMENTED';
@@ -289,7 +291,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 	private $_payload = '';
 
 	/**
-	 *
+	 * @internal
+	 * 
 	 * @param string $message
 	 */
 	protected function error($code, $message='') {
@@ -347,6 +350,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return Plugin_RestAPI::render($out, $this->_format);
 	}
 
+	/**
+	 * @internal
+	 */
 	private function _expandResults($array, $expand) {
 		$dict = new DevblocksDictionaryDelegate($array);
 
@@ -365,7 +371,8 @@ abstract class Extension_RestController extends DevblocksExtension {
 	}
 
 	/**
-	 *
+	 * @internal
+	 * 
 	 * @param array $array
 	 */
 	protected function success($array=array()) {
@@ -459,14 +466,23 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return Plugin_RestAPI::render($out, $this->_format);
 	}
 
+	/**
+	 * @internal
+	 */
 	public function getPayload() {
 		return $this->_payload;
 	}
 
+	/**
+	 * @internal
+	 */
 	public function setPayload($payload) {
 		$this->_payload = $payload;
 	}
 
+	/**
+	 * @internal
+	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
 
@@ -523,6 +539,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _handleSearchBuildParamsCustomFields(&$filters, $context) {
 		$params = array();
 		// Handle custom fields
@@ -550,6 +569,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return $params;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _handleSearchBuildParams($filters) {
 		// Criteria
 		$params = [];
@@ -596,6 +618,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return $params;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _handlePostSearch($context=null) {
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string',null);
 
@@ -641,6 +666,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return $results;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _handleRequiredFields($required, $fields) {
 		// Check required fields
 		if(is_array($required))
@@ -649,6 +677,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 				$this->error(self::ERRNO_PARAM_REQUIRED, sprintf("'%s' is a required field.", $reqfield));
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _handleCustomFields($scope_array) {
 		$fields = array();
 
@@ -663,6 +694,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return $fields;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _handleSearchTokensCustomFields($context) {
 		$tokens = array();
 		$cfields = DAO_CustomField::getByContext($context, true);
@@ -688,6 +722,9 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return $tokens;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _handleSearchSubtotals($view, $subtotals) {
 		$subtotal_data = array();
 
@@ -734,9 +771,10 @@ abstract class Extension_RestController extends DevblocksExtension {
 		return $subtotal_data;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _getSearchView($context, $params=array(), $limit=10, $page=0, $sort_by=null, $sort_asc=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		$context_ext = Extension_DevblocksContext::get($context);
 		$view_id = DevblocksPlatform::strAlphaNum('api_search_'.$context, '_', '_');
 

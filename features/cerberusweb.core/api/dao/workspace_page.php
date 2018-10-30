@@ -1140,7 +1140,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
-		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		$keys['extension_id']['notes'] = "[Workspace Page Type](/docs/plugins/extensions/points/cerberusweb.ui.workspace.page/)";
 		
 		return $keys;
 	}

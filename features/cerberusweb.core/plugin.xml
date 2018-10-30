@@ -6432,7 +6432,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.widget.datasource">
 			<id>core.workspace.widget.datasource.worklist.metric</id>
-			<name>Worklist</name>
+			<name>Worklist (Metric)</name>
 			<class>
 				<file>api/uri/internal/dashboards/widget_datasources.php</file>
 				<name>WorkspaceWidgetDatasource_WorklistMetric</name>
@@ -6449,7 +6449,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.widget.datasource">
 			<id>core.workspace.widget.datasource.worklist.series</id>
-			<name>Worklist</name>
+			<name>Worklist (Series)</name>
 			<class>
 				<file>api/uri/internal/dashboards/widget_datasources.php</file>
 				<name>WorkspaceWidgetDatasource_WorklistSeries</name>

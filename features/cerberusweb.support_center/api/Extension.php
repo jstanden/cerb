@@ -41,6 +41,8 @@
  */
 
 abstract class Extension_UmScRssController extends DevblocksExtension {
+	const POINT = 'usermeet.sc.rss.controller';
+	
 	function handleRequest(DevblocksHttpRequest $request) {
 		//$path = $request->path;
 	}
@@ -51,6 +53,9 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 	
 	private $portal = '';
 	
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false, $with_options=null) {
 		$controllers = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
 		
@@ -79,6 +84,9 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 		return $controllers;
 	}
 
+	/**
+	 * @internal
+	 */
 	public static function get($id, $as_instance=true) {
 		$controllers = self::getAll(false);
 		
@@ -96,6 +104,9 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 		return null;
 	}
 	
+	/**
+	 * @internal
+	 */
 	public static function getByUri($uri, $as_instance=true) {
 		$controllers = self::getAll(false);
 		
@@ -169,6 +180,8 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 };
 
 abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
+	const POINT = 'usermeet.login.authenticator';
+	
 	/**
 	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db
 	 */

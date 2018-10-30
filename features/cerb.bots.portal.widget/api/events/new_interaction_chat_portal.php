@@ -39,15 +39,15 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		$labels = array();
-		$values = array();
+		$labels = [];
+		$values = [];
 		
 		/**
 		 * Behavior
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = [];
+		$merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -157,7 +157,7 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 		return $conditions;
 	}
 	
-	function renderConditionExtension($token, $as_token, $trigger, $params=array(), $seq=null) {
+	function renderConditionExtension($token, $as_token, $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
@@ -193,7 +193,7 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 		return $actions;
 	}
 	
-	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
+	function renderActionExtension($token, $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 
@@ -230,7 +230,7 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 				
 				// Variables as parameters
 				/*
-				$vars = array();
+				$vars = [];
 				
 				if(is_array($params))
 				foreach($params as $k => $v) {
@@ -256,7 +256,7 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 					foreach($vars as $k => $v) {
 						
 						if(is_array($v)) {
-							$vals = array();
+							$vals = [];
 							foreach($v as $kk => $vv)
 								if(isset($vv->_label))
 									$vals[] = $vv->_label;

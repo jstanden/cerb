@@ -132,6 +132,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	
 	static $_changed_contexts = [];
 	
+	/**
+	 * @internal
+	 */
 	static function markContextChanged($context, $context_ids) {
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
@@ -142,6 +145,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		self::$_changed_contexts[$context] = array_merge(self::$_changed_contexts[$context], $context_ids);
 	}
 
+	/**
+	 * @internal
+	 */
 	static function flushTriggerChangedContextsEvents() {
 		$eventMgr = DevblocksPlatform::services()->event();
 
@@ -162,6 +168,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	/**
+	 * @internal
+	 * 
 	 * @param boolean $as_instances
 	 * @param array $with_options
 	 * @return Extension_DevblocksContext[]
@@ -264,6 +272,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $contexts;
 	}
 	
+	/**
+	 * @internal
+	 */
 	public static function getAliasesForAllContexts() {
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -294,6 +305,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $results;
 	}
 
+	/**
+	 * @internal
+	 */
 	public static function getAliasesForContext(DevblocksExtensionManifest $ctx_manifest) {
 		@$names = $ctx_manifest->params['names'][0];
 		@$uri = $ctx_manifest->params['alias'];
@@ -337,6 +351,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	/**
+	 * @internal
 	 * 
 	 * @param string $alias
 	 * @param bool $as_instance
@@ -361,6 +376,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return null;
 	}
 	
+	/**
+	 * @internal
+	 */
 	public static function getByViewClass($view_class, $as_instance=false) {
 		$contexts = self::getAll(false);
 
@@ -378,6 +396,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return null;
 	}
 	
+	/**
+	 * @internal
+	 */
 	public static function getByMacros($as_instances=false) {
 		$contexts = Extension_DevblocksContext::getAll(false);
 		$macro_contexts = Extension_DevblocksEvent::getWithMacroContexts();
@@ -399,6 +420,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	/**
+	 * @internal
 	 * 
 	 * @param string $context
 	 * @return Extension_DevblocksContext
@@ -426,6 +448,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return false;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function getOwnerTree(array $contexts=[CerberusContexts::CONTEXT_APPLICATION, CerberusContexts::CONTEXT_ROLE, CerberusContexts::CONTEXT_GROUP, CerberusContexts::CONTEXT_BOT, CerberusContexts::CONTEXT_WORKER]) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -528,6 +553,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $owners;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ') {
 		natcasesort($labels);
 		
@@ -769,6 +797,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	/**
+	 * @internal
+	 * 
 	 * @return array
 	 */
 	function getCardProperties() {
@@ -781,6 +811,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $properties;
 	}
 
+	/**
+	 * @internal
+	 */
 	function getCardSearchButtons(DevblocksDictionaryDelegate $dict, array $search_buttons=[]) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -852,6 +885,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $class;
 	}
 
+	/**
+	 * @internal
+	 */
 	function getModelObjects(array $ids) {
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 		$models = [];
@@ -874,6 +910,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $models;
 	}
 
+	/**
+	 * @internal
+	 */
 	public function formatDictionaryValue($key, DevblocksDictionaryDelegate $dict) {
 		$translate = DevblocksPlatform::getTranslationService();
 
@@ -952,7 +991,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 
 	/**
-	 *
+	 * @internal
+	 * 
 	 * @param string $view_id
 	 * @return C4_AbstractView
 	 */
@@ -973,7 +1013,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	/**
-	 *
+	 * @internal
+	 * 
 	 * @param string $view_id
 	 * @return C4_AbstractView
 	 */
@@ -1034,6 +1075,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	
 	function lazyLoadContextValues($token, $dictionary) { return []; }
 
+	/**
+	 * @internal
+	 */
 	protected function _broadcastRecipientFieldsGet($context, $context_label, array $use=[]) {
 		$token_labels = $token_values = [];
 		CerberusContexts::getContext($context, $context_label, $token_labels, $token_values, null, true);
@@ -1085,6 +1129,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $results;
 	}
 	
+	/**
+	 * @internal
+	 */
 	protected function _broadcastPlaceholdersGet($context) {
 		$token_labels = $token_values = [];
 		CerberusContexts::getContext($context, null, $token_labels, $token_values, null, true);
@@ -1104,6 +1151,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $token_values;
 	}
 	
+	/**
+	 * @internal
+	 */
 	protected function _broadcastRecipientFieldsToEmails(array $fields, DevblocksDictionaryDelegate $dict) {
 		$emails = [];
 		$custom_fields = DAO_CustomField::getAll();
@@ -1220,6 +1270,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $emails;
 	}
 	
+	/**
+	 * @internal
+	 */
 	protected function _getDaoCustomFieldsFromKeysAndValues($context, array &$data, &$out_custom_fields, &$error=null) {
 		$error = null;
 		$custom_fields = null;
@@ -1245,6 +1298,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return true;
 	}
 	
+	/**
+	 * @internal
+	 */
 	protected function _getDaoFieldsLinks($value, &$out_fields, &$error) {
 		if(!is_array($value)) {
 			$error = 'must be an array of context:id pairs.';
@@ -1279,6 +1335,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		$out_fields['_links'] = $json;
 	}
 	
+	/**
+	 * @internal
+	 */
 	protected function _importModelCustomFieldsAsValues($model, $token_values) {
 		@$custom_fields = $model->custom_fields;
 		
@@ -1295,6 +1354,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $token_values;
 	}
 	
+	/**
+	 * @internal
+	 */
 	protected function _lazyLoadLinks($context, $context_id) {
 		$results = DAO_ContextLink::getAllContextLinks($context, $context_id);
 		$token_values = [];
@@ -1310,6 +1372,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $token_values;
 	}
 
+	// [TODO] This is setting the wrong type on all linked fields
+	/**
+	 * @internal
+	 */
 	protected function _lazyLoadCustomFields($token, $context, $context_id, $field_values=null) {
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values = [];
@@ -1385,6 +1451,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $token_values;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _getTokenLabelsFromCustomFields($fields, $prefix) {
 		$context_stack = CerberusContexts::getStack();
 
@@ -1441,6 +1510,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $labels;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _getTokenTypesFromCustomFields($fields, $prefix) {
 		$context_stack = CerberusContexts::getStack();
 		$types = [];
@@ -1479,6 +1551,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $types;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _getImportCustomFields($fields, &$keys) {
 		if(is_array($fields))
 		foreach($fields as $token => $cfield) {
@@ -1497,6 +1572,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return true;
 	}
 	
+	/**
+	 * @internal
+	 */
 	static function getTimelineComments($context, $context_id, $is_ascending=true) {
 		$timeline = [];
 		
@@ -1539,6 +1617,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	private $_conditions_cache = [];
 	private $_conditions_extensions_cache = [];
 
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false) {
 		$events = DevblocksPlatform::getExtensions('devblocks.event', $as_instances);
 		
@@ -1589,6 +1670,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $events;
 	}
 
+	/**
+	 * @internal
+	 */
 	public static function get($id, $as_instance=true) {
 		$events = self::getAll(false);
 		
@@ -1606,6 +1690,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return null;
 	}
 
+	/**
+	 * @internal
+	 */
 	public static function getByContext($context, $as_instances=false) {
 		$events = self::getAll(false);
 
@@ -1625,6 +1712,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $events;
 	}
 	
+	/**
+	 * @internal
+	 */
 	public static function getWithMacroContexts() {
 		$macros = Extension_DevblocksEvent::getAll();
 		
@@ -1635,6 +1725,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $macros;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function _importLabelsTypesAsConditions($labels, $types) {
 		$conditions = [];
 		$custom_fields = DAO_CustomField::getAll();
@@ -1681,11 +1774,17 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 	abstract function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null);
 
+	/**
+	 * @internal
+	 */
 	function setLabels($labels) {
 		natcasesort($labels);
 		$this->_labels = $labels;
 	}
 
+	/**
+	 * @internal
+	 */
 	function setValues($values) {
 		$this->_values = $values;
 
@@ -1693,10 +1792,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$this->_setTypes($values['_types']);
 	}
 
+	/**
+	 * @internal
+	 */
 	function getValues() {
 		return $this->_values;
 	}
 
+	/**
+	 * @internal
+	 */
 	function getLabels(Model_TriggerEvent $trigger = null) {
 		// Lazy load
 		if(empty($this->_labels))
@@ -1714,10 +1819,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $this->_labels;
 	}
 
+	/**
+	 * @internal
+	 */
 	private function _setTypes($types) {
 		$this->_types = $types;
 	}
 
+	/**
+	 * @internal
+	 */
 	function getTypes() {
 		if(!isset($this->_values['_types']))
 			return [];
@@ -1725,6 +1836,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $this->_values['_types'];
 	}
 
+	/**
+	 * @internal
+	 */
 	function getValuesContexts($trigger) {
 		// Custom fields
 
@@ -1804,6 +1918,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 	function renderEventParams(Model_TriggerEvent $trigger=null) {}
 
+	/**
+	 * @internal
+	 */
 	function getConditions($trigger, $sorted=true) {
 		if(isset($this->_conditions_cache[$trigger->id])) {
 			return $this->_conditions_cache[$trigger->id];
@@ -1850,8 +1967,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 
 	/**
-	 * Override 
-	 * 
 	 * @param array $event_params
 	 * @param string $error
 	 * @return boolean
@@ -1865,6 +1980,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	abstract function renderConditionExtension($token, $as_token, $trigger, $params=[], $seq=null);
 	abstract function runConditionExtension($token, $as_token, $trigger, $params, DevblocksDictionaryDelegate $dict);
 
+	/**
+	 * @internal
+	 */
 	function renderCondition($token, $trigger, $params=[], $seq=null) {
 		$conditions = $this->getConditions($trigger, false);
 		$condition_extensions = $this->getConditionExtensions($trigger);
@@ -1965,6 +2083,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
 	function runCondition($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$logger = DevblocksPlatform::services()->log('Bot');
 		$conditions = $this->getConditions($trigger, false);
@@ -2407,6 +2528,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		return $pass;
 	}
 
+	/**
+	 * @internal
+	 */
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
 		$actions = array(
 			'_create_calendar_event' => array('label' => 'Create calendar event'),
@@ -2462,6 +2586,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	protected function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {}
 	function renderSimulatorTarget($trigger, $event_model) {}
 
+	/**
+	 * @internal
+	 */
 	function renderAction($token, $trigger, $params=[], $seq=null) {
 		$actions = $this->getActionExtensions($trigger);
 
@@ -2591,7 +2718,11 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 	}
 
-	// Are we doing a dry run?
+	/**
+	 * Are we doing a dry run?
+	 * 
+	 * @internal
+	 */
 	function simulateAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$actions = $this->getActionExtensions($trigger);
 		
@@ -2700,6 +2831,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
 	function runAction($token, $trigger, $params, DevblocksDictionaryDelegate $dict, $dry_run=false) {
 		$actions = $this->getActionExtensions($trigger);
 
@@ -2944,6 +3078,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 };
 
 abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false, $for_event=null) {
 		$extensions = DevblocksPlatform::getExtensions('devblocks.event.condition', false);
 		$results = [];
@@ -2977,6 +3114,11 @@ abstract class Extension_DevblocksEventCondition extends DevblocksExtension {
 };
 
 abstract class Extension_DevblocksEventAction extends DevblocksExtension {
+	const POINT = 'devblocks.event.action';
+	
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false, $for_event=null) {
 		$extensions = DevblocksPlatform::getExtensions('devblocks.event.action', false);
 		$results = [];
@@ -3005,19 +3147,37 @@ abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 		return $results;
 	}
 
+	/**
+	 * Render the behavior action's configuration template.
+	 */
 	abstract function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null);
+	
+	/**
+	 * Simulate the behavior action.
+	 */
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {}
+	
+	/**
+	 * Run the behavior action.
+	 */
 	abstract function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict);
 }
 
 abstract class DevblocksHttpResponseListenerExtension extends DevblocksExtension {
+	const POINT = 'devblocks.listener.http';
+	
 	function run(DevblocksHttpResponse $request, Smarty $tpl) {
 	}
 };
 
 abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
+	const POINT ='devblocks.cache.engine';
+	
 	protected $_config = [];
 
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false) {
 		$engines = DevblocksPlatform::getExtensions('devblocks.cache.engine', $as_instances);
 		if($as_instances)
@@ -3028,6 +3188,8 @@ abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
 	}
 
 	/**
+	 * @internal
+	 * 
 	 * @param string $id
 	 * @return Extension_DevblocksCacheEngine
 	 */
@@ -3049,6 +3211,9 @@ abstract class Extension_DevblocksCacheEngine extends DevblocksExtension {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
 	function getConfig() {
 		return $this->_config;
 	}
@@ -3079,6 +3244,11 @@ interface IDevblocksSearchEngine {
 };
 
 abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implements IDevblocksSearchEngine {
+	const POINT ='devblocks.search.engine';
+	
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false) {
 		$engines = DevblocksPlatform::getExtensions('devblocks.search.engine', $as_instances);
 		if($as_instances)
@@ -3089,6 +3259,8 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 	}
 
 	/**
+	 * @internal
+	 * 
 	 * @param string $id
 	 * @return Extension_DevblocksSearchEngine
 	 */
@@ -3110,10 +3282,16 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 		}
 	}
 	
+	/**
+	 * @internal
+	 */
 	protected function escapeNamespace($namespace) {
 		return DevblocksPlatform::strLower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
 	}
 
+	/**
+	 * @internal
+	 */
 	public function _getTextFromDoc(array $doc) {
 		$output = [];
 
@@ -3126,6 +3304,9 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 		return implode(' ', $output);
 	}
 
+	/**
+	 * @internal
+	 */
 	public function getQueryFromParam($param) {
 		$values = [];
 
@@ -3153,6 +3334,9 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 		return $value;
 	}
 	
+	/**
+	 * @internal
+	 */
 	public function truncateOnWhitespace($content, $length) {
 		$start = 0;
 		$len = mb_strlen($content);
@@ -3174,9 +3358,14 @@ abstract class Extension_DevblocksSearchEngine extends DevblocksExtension implem
 };
 
 abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
+	const POINT = 'devblocks.search.schema';
+	
 	const INDEX_POINTER_RESET = 'reset';
 	const INDEX_POINTER_CURRENT = 'current';
 
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false) {
 		$schemas = DevblocksPlatform::getExtensions('devblocks.search.schema', $as_instances);
 		if($as_instances)
@@ -3187,6 +3376,8 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	}
 
 	/**
+	 * @internal
+	 * 
 	 * @param string $id
 	 * @return Extension_DevblocksSearchSchema
 	 */
@@ -3208,6 +3399,9 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
 	public function getEngineParams() {
 		if(false == ($engine_json = $this->getParam('engine_params_json', false))) {
 			$engine_json = '{"engine_extension_id":"devblocks.search.engine.mysql_fulltext", "config":{}}';
@@ -3221,7 +3415,8 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 	}
 
 	/**
-	 *
+	 * @internal
+	 * 
 	 * @return Extension_DevblocksSearchEngine
 	 */
 	public function getEngine() {
@@ -3236,6 +3431,9 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		return $_engine;
 	}
 
+	/**
+	 * @internal
+	 */
 	public function saveConfig(array $params) {
 		if(!is_array($params))
 			$params = [];
@@ -3252,6 +3450,9 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 			$this->reindex();
 	}
 
+	/**
+	 * @internal
+	 */
 	public function getQueryFromParam($param) {
 		if(false !== ($engine = $this->getEngine()))
 			return $engine->getQueryFromParam($param);
@@ -3259,6 +3460,9 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 		return null;
 	}
 
+	/**
+	 * @internal
+	 */
 	public function getIndexMeta() {
 		$engine = $this->getEngine();
 		return $engine->getIndexMeta($this);
@@ -3274,12 +3478,15 @@ abstract class Extension_DevblocksSearchSchema extends DevblocksExtension {
 };
 
 abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
-	const ID = 'devblocks.storage.engine';
+	const POINT = 'devblocks.storage.engine';
 	
 	protected $_options = [];
 	
+	/**
+	 * @internal
+	 */
 	public static function getAll($as_instances=false) {
-		$extensions = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
+		$extensions = DevblocksPlatform::getExtensions(self::POINT, false);
 
 		if($as_instances)
 			DevblocksPlatform::sortObjects($extensions, 'manifest->params->[label]');
@@ -3304,17 +3511,25 @@ abstract class Extension_DevblocksStorageEngine extends DevblocksExtension {
 			$this->delete($namespace, $key);
 	}
 
+	/**
+	 * @internal
+	 */
 	public function setOptions($options=[]) {
 		if(is_array($options))
 			$this->_options = $options;
 	}
 
+	/**
+	 * @internal
+	 */
 	protected function escapeNamespace($namespace) {
 		return DevblocksPlatform::strLower(DevblocksPlatform::strAlphaNum($namespace, '\_'));
 	}
 };
 
 abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
+	const POINT = 'devblocks.storage.schema';
+	
 	abstract function render();
 	abstract function renderConfig();
 	abstract function saveConfig();
@@ -3327,6 +3542,9 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 	public static function archive($stop_time=null) {}
 	public static function unarchive($stop_time=null) {}
 
+	/**
+	 * @internal
+	 */
 	protected function _stats($table_name) {
 		$db = DevblocksPlatform::services()->database();
 
@@ -3349,11 +3567,15 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 };
 
 abstract class DevblocksControllerExtension extends DevblocksExtension implements DevblocksHttpRequestHandler {
+	const POINT = 'devblocks.controller';
+	
 	public function handleRequest(DevblocksHttpRequest $request) {}
 	public function writeResponse(DevblocksHttpResponse $response) {}
 };
 
 abstract class DevblocksEventListenerExtension extends DevblocksExtension {
+	const POINT = 'devblocks.listener.event';
+	
 	/**
 	 * @param Model_DevblocksEvent $event
 	 */

@@ -1180,7 +1180,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			'type' => 'object',
 		];
 		
-		$keys['extension_id']['notes'] = "The [plugin](/docs/plugins/) extension";
+		$keys['extension_id']['notes'] = "[Workspace Tab Type](/docs/plugins/extensions/points/cerberusweb.ui.workspace.tab/)";
 		$keys['page_id']['notes'] = "The ID of the [workspace page](/docs/records/types/workspace_page/) containing this tab";
 		$keys['pos']['notes'] = "The position of this tab on the workspace page; `0` is first";
 		

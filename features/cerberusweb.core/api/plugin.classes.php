@@ -518,7 +518,6 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		@$http_headers = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['http_headers'], $dict));
 		@$http_body = $tpl_builder->build($params['http_body'], $dict);
 		@$auth = $params['auth'];
-		@$options = $params['options'] ?: array();
 		@$run_in_simulator = $params['run_in_simulator'];
 		@$response_placeholder = $params['response_placeholder'];
 		

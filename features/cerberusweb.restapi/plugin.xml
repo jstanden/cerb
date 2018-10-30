@@ -32,6 +32,7 @@
 	
 	<class_loader>
 		<file path="api/App.php">
+			<class name="Extension_RestController" />
 			<class name="IExtensionRestController" />
 			<class name="Plugin_RestAPI" />
 		</file>
