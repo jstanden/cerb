@@ -7,7 +7,7 @@
 {if $prompt.type == 'text'}
 <input type="text" name="prompts[{$prompt.key}]" value="{$prompt.params.default}" style="width:100%;" placeholder="{$prompt.params.placeholder}">
 {elseif $prompt.type == 'chooser'}
-<button type="button" class="cerb-chooser-trigger" data-field-name="prompts[{$prompt.key}]" data-context="{$prompt.params.context}" {if $prompt.params.single}data-single="true"{/if} data-query="{$prompt.params.query}"><span class="glyphicons glyphicons-search"></span></button>
+<button type="button" class="cerb-chooser-trigger" data-field-name="prompts[{$prompt.key}]{if !$prompt.params.single}[]{/if}" data-context="{$prompt.params.context}" {if $prompt.params.single}data-single="true"{/if} data-query="{$prompt.params.query}"><span class="glyphicons glyphicons-search"></span></button>
 <ul class="bubbles chooser-container"></ul>
 {/if}
 </div>
