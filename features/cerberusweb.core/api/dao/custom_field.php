@@ -67,7 +67,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$validation
 			->addField(self::TYPE)
 			->string()
-			->setMaxLength(1)
+			->setMaxLength(255)
 			->setRequired(true)
 			->setPossibleValues(array_keys(Model_CustomField::getTypes()))
 			;
@@ -605,6 +605,10 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				break;
 			default:
 				$table = null;
+				
+				if(false !== ($field_ext = Extension_CustomField::get($field->type))) {
+					$table = $field_ext->getValueTableName();
+				}
 				break;
 		}
 		
@@ -971,6 +975,13 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$value = intval($value);
 					self::setFieldValue($context, $context_id, $field_id, $value);
 					break;
+					
+				default:
+					if(false != ($field_ext = Extension_CustomField::get($field->type))) {
+						$value = $field_ext->formatFieldValue($value);
+						self::setFieldValue($context, $context_id, $field_id, $value);
+					}
+					break;
 			}
 		}
 	}
@@ -978,73 +989,76 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	public static function setFieldValue($context, $context_id, $field_id, $value, $delta=false) {
 		CerberusContexts::checkpointChanges($context, array($context_id));
 		
-		$db = DevblocksPlatform::services()->database();
-		
 		if(null == ($field = DAO_CustomField::get($field_id)))
 			return FALSE;
 		
-		if(null == ($table_name = self::getValueTableName($field_id)))
-			return FALSE;
-
-		// Data formating
-		switch($field->type) {
-			case Model_CustomField::TYPE_DATE: // date
-				if(is_numeric($value))
-					$value = intval($value);
-				else
-					$value = @strtotime($value);
-				break;
-			case Model_CustomField::TYPE_DROPDOWN:
-				$possible_values = array_map('mb_strtolower', $field->params['options']);
-				
-				if(false !== ($value_idx = array_search(DevblocksPlatform::strLower($value), $possible_values))) {
-					$value = $field->params['options'][$value_idx];
-				} else {
-					return FALSE;
-				}
-				break;
-			case Model_CustomField::TYPE_SINGLE_LINE:
-			case Model_CustomField::TYPE_URL:
-				if(255 < strlen($value))
-					$value = substr($value,0,255);
-				break;
-			case Model_CustomField::TYPE_CURRENCY:
-			case Model_CustomField::TYPE_DECIMAL:
-			case Model_CustomField::TYPE_FILE:
-			case Model_CustomField::TYPE_LINK:
-			case Model_CustomField::TYPE_NUMBER:
-			case Model_CustomField::TYPE_WORKER:
-				$value = intval($value);
-				break;
-		}
-		
-		// Clear existing values (beats replace logic)
-		self::unsetFieldValue($context, $context_id, $field_id, ($delta?$value:null));
-		
-		// Set values consistently
-		if(!is_array($value))
-			$value = array($value);
+		if(false != ($field_ext = $field->getTypeExtension())) {
+			$field_ext->setFieldValue($field, $context, $context_id, $value);
 			
-		foreach($value as $v) {
-			$sql = sprintf("INSERT INTO %s (field_id, context, context_id, field_value) ".
-				"VALUES (%d, %s, %d, %s)",
-				$table_name,
-				$field_id,
-				$db->qstr($context),
-				$context_id,
-				$db->qstr($v)
-			);
-			$db->ExecuteMaster($sql);
-		}
-		
-		DevblocksPlatform::markContextChanged($context, $context_id);
-		
-		// Special handling
-		switch($field->type) {
-			case Model_CustomField::TYPE_FILE:
-			case Model_CustomField::TYPE_FILES:
-				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
-				break;
+		} else {
+			$db = DevblocksPlatform::services()->database();
+			
+			if(null == ($table_name = self::getValueTableName($field_id)))
+				return FALSE;
+	
+			// Data formating
+			switch($field->type) {
+				case Model_CustomField::TYPE_DATE: // date
+					if(is_numeric($value))
+						$value = intval($value);
+					else
+						$value = @strtotime($value);
+					break;
+				case Model_CustomField::TYPE_DROPDOWN:
+					$possible_values = array_map('mb_strtolower', $field->params['options']);
+					
+					if(false !== ($value_idx = array_search(DevblocksPlatform::strLower($value), $possible_values))) {
+						$value = $field->params['options'][$value_idx];
+					} else {
+						return FALSE;
+					}
+					break;
+				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_URL:
+					if(255 < strlen($value))
+						$value = substr($value,0,255);
+					break;
+				case Model_CustomField::TYPE_CURRENCY:
+				case Model_CustomField::TYPE_DECIMAL:
+				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_LINK:
+				case Model_CustomField::TYPE_NUMBER:
+				case Model_CustomField::TYPE_WORKER:
+					$value = intval($value);
+					break;
+			}
+			
+			// Clear existing values (beats replace logic)
+			self::unsetFieldValue($context, $context_id, $field_id, ($delta?$value:null));
+			
+			// Set values consistently
+			if(!is_array($value))
+				$value = array($value);
+				
+			foreach($value as $v) {
+				$sql = sprintf("INSERT INTO %s (field_id, context, context_id, field_value) ".
+					"VALUES (%d, %s, %d, %s)",
+					$table_name,
+					$field_id,
+					$db->qstr($context),
+					$context_id,
+					$db->qstr($v)
+				);
+				$db->ExecuteMaster($sql);
+			}
+			
+			// Special handling
+			switch($field->type) {
+				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_FILES:
+					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
+					break;
+			}
 		}
 		
 		DevblocksPlatform::markContextChanged($context, $context_id);
@@ -1055,42 +1069,47 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	public static function unsetFieldValue($context, $context_id, $field_id, $value=null) {
 		CerberusContexts::checkpointChanges($context, array($context_id));
 		
-		$db = DevblocksPlatform::services()->database();
-		
 		if(null == ($field = DAO_CustomField::get($field_id)))
 			return FALSE;
 		
-		if(null == ($table_name = self::getValueTableName($field_id)))
-			return FALSE;
+		if(false != ($field_ext = $field->getTypeExtension())) {
+			$field_ext->unsetFieldValue($field, $context, $context_id, $value);
 		
-		if(!is_array($value))
-			$value = array($value);
-		
-		foreach($value as $v) {
-			// Delete all values or optionally a specific given value
-			$sql = sprintf("DELETE FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d %s",
-				$table_name,
-				$context,
-				$context_id,
-				$field_id,
-				(!is_null($v) ? sprintf("AND field_value = %s ",$db->qstr($v)) : "")
-			);
-			$db->ExecuteMaster($sql);
-		}
-		
-		// We need to remove context links on file attachments
-		// [TODO] Optimize
-		switch($field->type) {
-			case Model_CustomField::TYPE_FILE:
-			case Model_CustomField::TYPE_FILES:
-				$sql = sprintf("DELETE FROM context_link WHERE from_context = %s and from_context_id = %d AND to_context = %s AND to_context_id NOT IN (SELECT field_value FROM custom_field_numbervalue WHERE field_id = %d)",
-					$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELD),
+		} else {
+			$db = DevblocksPlatform::services()->database();
+			
+			if(null == ($table_name = self::getValueTableName($field_id)))
+				return FALSE;
+			
+			if(!is_array($value))
+				$value = array($value);
+			
+			foreach($value as $v) {
+				// Delete all values or optionally a specific given value
+				$sql = sprintf("DELETE FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d %s",
+					$table_name,
+					$context,
+					$context_id,
 					$field_id,
-					$db->qstr(CerberusContexts::CONTEXT_ATTACHMENT),
-					$field_id
+					(!is_null($v) ? sprintf("AND field_value = %s ",$db->qstr($v)) : "")
 				);
 				$db->ExecuteMaster($sql);
-				break;
+			}
+			
+			// We need to remove context links on file attachments
+			// [TODO] Optimize
+			switch($field->type) {
+				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_FILES:
+					$sql = sprintf("DELETE FROM context_link WHERE from_context = %s and from_context_id = %d AND to_context = %s AND to_context_id NOT IN (SELECT field_value FROM custom_field_numbervalue WHERE field_id = %d)",
+						$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELD),
+						$field_id,
+						$db->qstr(CerberusContexts::CONTEXT_ATTACHMENT),
+						$field_id
+					);
+					$db->ExecuteMaster($sql);
+					break;
+			}
 		}
 		
 		DevblocksPlatform::markContextChanged($context, $context_id);
@@ -1161,6 +1180,12 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
+				default:
+					if(false !== ($field_ext = $fields[$field_id]->getTypeExtension())) {
+						@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+						$do['cf_'.$field_id] = array('value' => $field_value);
+					}
+					break;
 			}
 		}
 		
@@ -1197,8 +1222,16 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_URL:
 				case Model_CustomField::TYPE_WORKER:
-				default:
 					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
+					break;
+					
+				default:
+					if(false != ($field_ext = Extension_CustomField::get($fields[$field_id]->type))) {
+						@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
+						
+					} else {
+						@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
+					}
 					break;
 			}
 			
@@ -1211,7 +1244,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	public static function handleFormPost($context, $context_id, $field_ids, &$error) {
 		$field_values = self::parseFormPost($context, $field_ids);
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context, true)))
+		if(false == (Extension_DevblocksContext::get($context, true)))
 			return false;
 		
 		// This will have to change when we require fields
@@ -1251,7 +1284,6 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			return in_array($item->id, $only_field_ids);
 		});
 		
-		$tables = [];
 		$sqls = [];
 		
 		if(empty($fields) || !is_array($fields))
@@ -1269,27 +1301,24 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 
 		if(is_array($fields))
 		foreach($fields as $cfield_id => $cfield) { /* @var $cfield Model_CustomField */
-			$tables[] = DAO_CustomFieldValue::getValueTableName($cfield_id);
+			if(false != ($field_ext = $cfield->getTypeExtension())) {
+				if(false != ($sql = $field_ext->getValueTableSql($context, $context_ids)))
+					$sqls[] = $sql;
+				
+			} else {
+				$table = DAO_CustomFieldValue::getValueTableName($cfield_id);
+				
+				$sqls[] = sprintf("SELECT context_id, field_id, field_value ".
+					"FROM %s ".
+					"WHERE context = '%s' AND context_id IN (%s)",
+					$table,
+					$context,
+					implode(',', $context_ids)
+				);
+			}
 		}
 		
-		if(empty($tables))
-			return [];
-		
-		$tables = array_unique($tables);
-
-		if(is_array($tables))
-		foreach($tables as $table) {
-			if(empty($table))
-				continue;
-		
-			$sqls[] = sprintf("SELECT context_id, field_id, field_value ".
-				"FROM %s ".
-				"WHERE context = '%s' AND context_id IN (%s)",
-				$table,
-				$context,
-				implode(',', $context_ids)
-			);
-		}
+		$sqls = array_unique($sqls);
 		
 		if(empty($sqls))
 			return [];
@@ -1339,9 +1368,8 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($context_ids)) $context_ids = array($context_ids);
-		$ids_list = implode(',', $context_ids);
 
-		$tables = array('custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue');
+		$tables = ['custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue','custom_field_geovalue'];
 		
 		if(!empty($context_ids))
 		foreach($tables as $table) {
@@ -1358,7 +1386,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	public static function deleteByFieldId($field_id) {
 		$db = DevblocksPlatform::services()->database();
 
-		$tables = array('custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue');
+		$tables = ['custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue','custom_field_geovalue'];
 
 		foreach($tables as $table) {
 			$sql = sprintf("DELETE FROM %s WHERE field_id = %d",
@@ -1400,7 +1428,7 @@ class Model_CustomField {
 	static function getTypes() {
 		// [TODO] Extension provided custom field types
 		
-		$fields = array(
+		$fields = [
 			self::TYPE_CHECKBOX => 'Checkbox',
 			self::TYPE_CURRENCY => 'Currency',
 			self::TYPE_DATE => 'Date',
@@ -1416,11 +1444,21 @@ class Model_CustomField {
 			self::TYPE_SINGLE_LINE => 'Text: Single Line',
 			self::TYPE_URL => 'URL',
 			self::TYPE_WORKER => 'Worker',
-		);
+		];
+		
+		$custom_field_mfts = DevblocksPlatform::getExtensions(Extension_CustomField::POINT, false);
+		
+		foreach($custom_field_mfts as $mft) {
+			$fields[$mft->id] = $mft->name;
+		}
 		
 		asort($fields);
 		
 		return $fields;
+	}
+	
+	function getTypeExtension() {
+		return Extension_CustomField::get($this->type);
 	}
 	
 	static function hasMultipleValues($type) {

@@ -2002,6 +2002,12 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_WORKER:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_WORKER;
 					break;
+					
+				default:
+					if(false != ($field_ext = $cfield->getTypeExtension())) {
+						$field_ext->populateQuickSearchMeta($search_field_meta);
+					}
+					break;
 			}
 			
 			// Skip custom field types we can't quick search easily
@@ -2180,6 +2186,13 @@ abstract class C4_AbstractView {
 				case Model_CustomField::TYPE_WORKER:
 					$this->_renderCriteriaParamWorker($param);
 					return;
+					break;
+					
+				default:
+					$cfield = $custom_fields[$field_id];
+					if(false != ($field_ext = $cfield->getTypeExtension())) {
+						$field_ext->prepareCriteriaParam($cfield, $param, $vals, $implode_token);
+					}
 					break;
 			}
 		}

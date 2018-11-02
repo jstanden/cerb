@@ -1544,6 +1544,14 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						$token_values = $dict->getDictionary();
 					}
 					break;
+					
+				default:
+					if(false != ($field_ext = $fields[$cf_id]->getTypeExtension())) {
+						$value = $field_ext->getValue($field_values[$cf_id]);
+						$token_values['custom'][$cf_id] = $value;
+						$token_values['custom_' . $cf_id] = $value;
+					}
+					break;
 			}
 		}
 		
@@ -1872,6 +1880,21 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	}
 
 	abstract function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null);
+	
+	/**
+	 *
+	 * @param Model_TriggerEvent $trigger
+	 * @return Model_DevblocksEvent
+	 */
+	function generateSampleEventModel(Model_TriggerEvent $trigger) {
+		return new Model_DevblocksEvent(
+			static::ID,
+			[
+				'key' => 'value',
+				'actions' => &$actions,
+			]
+		);
+	}
 
 	/**
 	 * @internal

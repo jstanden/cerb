@@ -247,6 +247,11 @@ abstract class DevblocksORMHelper {
 						->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER, true))
 					;
 					break;
+				default:
+					if(false != ($field_ext = Extension_CustomField::get($custom_field->type))) {
+						$field_ext->validationRegister($custom_field, $validation);
+					}
+					break;
 			}
 		}
 		

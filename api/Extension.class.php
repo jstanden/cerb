@@ -40,6 +40,61 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 
+abstract class Extension_CustomField extends DevblocksExtension {
+	const POINT = 'cerb.custom_field';
+	
+	static $_registry = [];
+	
+	/**
+	 * @internal
+	 * @return DevblocksExtensionManifest[]|Extension_CustomField[]
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+	
+		return $exts;
+	}
+	
+	/**
+	 * @internal
+	 * @param string $extension_id
+	 * @return mixed|Extension_CustomField|NULL
+	 */
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_CustomField) {
+
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	abstract function getValueTableSql($context, array $context_ids);
+	abstract function getValueTableName();
+	abstract function populateQuickSearchMeta(array &$search_field_meta);
+	abstract function renderEditable(Model_CustomField $field, $form_key, $form_value);
+	abstract function prepareCriteriaParam(Model_CustomField $field, $param, &$vals, &$implode_token);
+	abstract function renderValue($value);
+	abstract function setFieldValue(Model_CustomField $field, $context, $context_id, $value);
+	abstract function unsetFieldValue(Model_CustomField $field, $context, $context_id, $value=null);
+	abstract function validationRegister(Model_CustomField $field, _DevblocksValidationService &$validation);
+	
+	function formatFieldValue($value) {
+		return $value;
+	}
+}
+
 abstract class Extension_AppPreBodyRenderer extends DevblocksExtension {
 	const POINT = 'cerberusweb.renderer.prebody';
 	

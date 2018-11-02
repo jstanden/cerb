@@ -135,6 +135,11 @@
 {elseif $v.type == 'timezone'}
 	{$v.value}
 {else}
-	{$v.value}
+	{$field_ext = Extension_CustomField::get($v.type)}
+	{if $field_ext}
+		{$field_ext->renderValue($v.value)}
+	{else}
+		{$v.value}
+	{/if}
 {/if}
 </div>

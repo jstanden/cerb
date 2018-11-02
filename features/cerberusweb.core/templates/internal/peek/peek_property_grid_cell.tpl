@@ -112,6 +112,11 @@
 {elseif $types.$k == 'time_secs'}
 	{$dict->$k|devblocks_prettysecs:2}
 {else}
-	{$dict->$k} ({$types.$k})
+	{$field_ext = Extension_CustomField::get($types.$k)}
+	{if $field_ext}
+		{$field_ext->renderValue($dict->$k)}
+	{else}
+		{$dict->$k} ({$types.$k})
+	{/if}
 {/if}
 {*<i>{$k}</i>*}

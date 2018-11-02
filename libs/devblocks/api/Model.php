@@ -100,14 +100,19 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				@$custom_field_id = intval(substr($search_key, 3));
 				@$custom_field = DAO_CustomField::get($custom_field_id);
 				
+				$field_key = 'field_value';
+				
+				$table = DAO_CustomFieldValue::getValueTableName($custom_field->id);
+				
 				return [
 					'key_query' => $key,
 					'key_select' => $search_key,
 					'label' => $custom_field->name,
 					'type' => $custom_field->type,
 					'type_options' => $custom_field->params,
-					'sql_select' => sprintf("(SELECT field_value FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
-						DAO_CustomFieldValue::getValueTableName($custom_field->id),
+					'sql_select' => sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
+						$field_key,
+						$table,
 						Cerb_ORMHelper::qstr($custom_field->context),
 						$primary_key,
 						$custom_field->id
@@ -394,7 +399,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			if(false == ($ext_attachments = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_ATTACHMENT)))
 				return;
 			
-			if(false == ($ext = Extension_DevblocksContext::get($context)))
+			if(false == (Extension_DevblocksContext::get($context)))
 				return;
 			
 			$view = $ext_attachments->getTempView();
@@ -846,7 +851,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 
 		$field_table = sprintf("cf_%d", $field_id);
 		$value_table = DAO_CustomFieldValue::getValueTableName($field_id);
-		$field_key = $param->field;
 		$cfield_key = null;
 		
 		$cfield_key = static::getCustomFieldContextWhereKey($field->context);
