@@ -479,6 +479,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return array
 	 */
 	static function dateLerpArray(array $array, $step, $format=null) {
+		// [TODO] Unit test
+		
 		if(!$format) {
 			$formats = [
 				'day' => '%Y-%m-%d',
@@ -749,6 +751,71 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * 
+	 * @param string $string
+	 * @return array|false
+	 */
+	static function parseGeoPointString($string, &$error=null) {
+		$error = null;
+		$is_latlong = true;
+		
+		if(!is_string($string)) {
+			$error = 'Must be a string.';
+			return false;
+		}
+		
+		// Parse out POINT() wrapper
+		if(DevblocksPlatform::strStartsWith($string, 'POINT(')) {
+			$is_latlong = false;
+			$string = trim(substr($string,5),'()');
+		}
+		
+		$replacements = [
+			' N' => '' ,
+			' S' => '' ,
+			' W' => '' ,
+			' E' => '' ,
+			'"' => '' ,
+			', ' => ',' ,
+			' ' => ',' ,
+		];
+		
+		// Handle formatting
+		$string = str_replace(array_keys($replacements), array_values($replacements), $string);
+		
+		if(false == (@$coords = DevblocksPlatform::parseCsvString($string))) {
+			$error = 'Must be a set of (latitude,longitude) coordinates separated with a comma.';
+			return false;
+		}
+		
+		if(2 != count($coords)) {
+			$error = 'Must be a set of (latitude,longitude) coordinates separated with a comma.';
+			return false;
+		}
+		
+		if($is_latlong) {
+			@list($latitude, $longitude) = $coords;
+		} else {
+			@list($longitude, $latitude) = $coords;
+		}
+		
+		if(!is_numeric($latitude) || $latitude < -90 || $latitude > 90) {
+			$error = 'Latitude must be -90 to 90.';
+			return false;
+		}
+		
+		if(!is_numeric($longitude) || $longitude < -180 || $longitude > 180) {
+			$error = 'Longitude must be -180 to 180.';
+			return false;
+		}
+		
+		return [
+			'latitude' => floatval($latitude),
+			'longitude' => floatval($longitude),
+		];
 	}
 	
 	/**

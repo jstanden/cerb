@@ -641,6 +641,77 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 	}
 	
+	public function testParseGeoPointString() {
+		$error = null;
+		
+		// Invalid string
+		$str = "arbitrary text";
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals(false, $actual);
+		
+		// Not floats
+		$str = "a,b";
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals(false, $actual);
+		
+		// Too many commas
+		$str = "1,2,3";
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals(false, $actual);
+		
+		// Invalid latitude
+		$str = "95.12, 79.92";
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals(false, $actual);
+		
+		// Invalid longitude
+		$str = "1.23,185.92";
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals(false, $actual);
+		
+		// Valid
+		$str = "37.733795,-122.446747";
+		$expected = ['latitude' => 37.733795, 'longitude' => -122.446747];
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals($expected, $actual);
+		
+		// Valid w/ spaces
+		$str = "37.733795 -122.446747";
+		$expected = ['latitude' => 37.733795, 'longitude' => -122.446747];
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals($expected, $actual);
+		
+		// Valid w/ spaces and commas
+		$str = "37.733795, -122.446747";
+		$expected = ['latitude' => 37.733795, 'longitude' => -122.446747];
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals($expected, $actual);
+		
+		// N/W syntax (with quotes)
+		$str = '37.733795" N, -122.446747" W';
+		$expected = ['latitude' => 37.733795, 'longitude' => -122.446747];
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals($expected, $actual);
+		
+		// N/W syntax (without quotes)
+		$str = '37.733795 N, -122.446747 W';
+		$expected = ['latitude' => 37.733795, 'longitude' => -122.446747];
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals($expected, $actual);
+		
+		// S/E syntax
+		$str = '33.868" S, 151.21" E';
+		$expected = ['latitude' => 33.868, 'longitude' => 151.21];
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals($expected, $actual);
+		
+		// Valid POINT(long,lat) with spaces
+		$str = "POINT(-122.446747 37.733795)";
+		$expected = ['latitude' => 37.733795, 'longitude' => -122.446747];
+		$actual = DevblocksPlatform::parseGeoPointString($str, $error);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	public function testParseHttpHeaderAttributes() {
 		// Lowercase attribute names
 		$expected = ['charset' => 'utf-8'];
