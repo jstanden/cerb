@@ -104,6 +104,9 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				
 				$table = DAO_CustomFieldValue::getValueTableName($custom_field->id);
 				
+				if($table == 'custom_field_geovalue')
+					$field_key = 'ST_ASTEXT(field_value) AS field_value';
+				
 				return [
 					'key_query' => $key,
 					'key_select' => $search_key,
@@ -237,6 +240,12 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							$map[$id] = $dict->_label;
 						
 						return $map;
+						break;
+						
+					default:
+						if(null != ($field_ext = $custom_field->getTypeExtension())) {
+							return $field_ext->getLabelsForValues($values);
+						}
 						break;
 				}
 		}
@@ -999,6 +1008,8 @@ class DevblocksSearchCriteria {
 	const OPER_NIN = 'not in';
 	const OPER_NIN_OR_NULL = 'not in or null';
 	const OPER_FULLTEXT = 'fulltext';
+	const OPER_GEO_POINT_EQ = 'geo eq';
+	const OPER_GEO_POINT_NEQ = 'geo neq';
 	const OPER_LIKE = 'like';
 	const OPER_NOT_LIKE = 'not like';
 	const OPER_GT = '>';
@@ -1021,6 +1032,7 @@ class DevblocksSearchCriteria {
 	const TYPE_DATE = 'date';
 	const TYPE_DECIMAL = 'decimal';
 	const TYPE_FULLTEXT = 'fulltext';
+	const TYPE_GEO_POINT = 'geo_point';
 	const TYPE_NUMBER = 'number';
 	const TYPE_NUMBER_MINUTES = 'number_minutes';
 	const TYPE_NUMBER_MS = 'number_ms';
@@ -1122,6 +1134,11 @@ class DevblocksSearchCriteria {
 				
 			case DevblocksSearchCriteria::TYPE_FULLTEXT:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getFulltextParamFromTokens($param_key, $tokens)))
+					return $param;
+				break;
+				
+			case DevblocksSearchCriteria::TYPE_GEO_POINT:
+				if($param_key && false != ($param = DevblocksSearchCriteria::getGeoPointParamFromTokens($param_key, $tokens, $search_field)))
 					return $param;
 				break;
 				
@@ -1294,6 +1311,33 @@ class DevblocksSearchCriteria {
 						
 						$value = intval($value);
 					}
+					break;
+			}
+		}
+		
+		return new DevblocksSearchCriteria(
+			$field_key,
+			$oper,
+			$value
+		);
+	}
+	
+	public static function getGeoPointParamFromTokens($field_key, $tokens) {
+		$oper = DevblocksSearchCriteria::OPER_GEO_POINT_EQ;
+		$value = null;
+		$not = false;
+		
+		if(is_array($tokens))
+		foreach($tokens as $token) {
+			switch($token->type) {
+				case 'T_NOT':
+					$not = true;
+					break;
+				
+				case 'T_TEXT':
+				case 'T_QUOTED_TEXT':
+					$oper = $not ? DevblocksSearchCriteria::OPER_GEO_POINT_NEQ : DevblocksSearchCriteria::OPER_GEO_POINT_EQ;
+					$value = DevblocksPlatform::parseGeoPointString($token->value);
 					break;
 			}
 		}
@@ -2084,6 +2128,19 @@ class DevblocksSearchCriteria {
 				);
 				break;
 				
+			case DevblocksSearchCriteria::OPER_GEO_POINT_EQ:
+			case DevblocksSearchCriteria::OPER_GEO_POINT_NEQ:
+				if(!is_array($this->value))
+					return 0;
+				
+				$where = sprintf("%s %s POINT(%f,%f)",
+					$db_field_name,
+					$this->operator == DevblocksSearchCriteria::OPER_GEO_POINT_NEQ ? '!=' : '=',
+					$this->value['longitude'],
+					$this->value['latitude']
+				);
+				break;
+			
 			default:
 				break;
 		}

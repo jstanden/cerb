@@ -80,6 +80,7 @@ abstract class Extension_CustomField extends DevblocksExtension {
 		return null;
 	}
 	
+	abstract function getLabelsForValues($values);
 	abstract function getValueTableSql($context, array $context_ids);
 	abstract function getValueTableName();
 	abstract function populateQuickSearchMeta(array &$search_field_meta);

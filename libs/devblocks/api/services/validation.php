@@ -48,6 +48,15 @@ class _DevblocksValidationField {
 	
 	/**
 	 * 
+	 * @return _DevblocksValidationTypeGeoPoint
+	 */
+	function geopoint() {
+		$this->_type = new _DevblocksValidationTypeGeoPoint('geopoint');
+		return $this->_type;
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function id() {
@@ -549,6 +558,13 @@ class _DevblocksValidationTypeFloat extends _DevblocksValidationType {
 	}
 }
 
+class _DevblocksValidationTypeGeoPoint extends _DevblocksValidationType {
+	function __construct($type_name='geopoint') {
+		parent::__construct($type_name);
+		return $this;
+	}
+}
+
 class _DevblocksValidationTypeIdArray extends _DevblocksValidationType {
 	function __construct($type_name='idArray') {
 		parent::__construct($type_name);
@@ -733,6 +749,19 @@ class _DevblocksValidationService {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' is not a valid context (%s).", $field_label, $value));
 				}
 				// [TODO] Filter to specific contexts for certain fields
+				break;
+				
+			case '_DevblocksValidationTypeGeoPoint':
+				if(!is_string($value)) {
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be text.", $field_label));
+				}
+				
+				$error = null;
+				$coords = DevblocksPlatform::parseGeoPointString($value, $error);
+				
+				if(false === $coords)
+					throw new Exception_DevblocksValidationError(sprintf("'%s': %s", $field_label, $error));
+				
 				break;
 				
 			case '_DevblocksValidationTypeId':

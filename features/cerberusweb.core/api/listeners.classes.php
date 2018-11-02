@@ -978,6 +978,14 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		if(null != ($deletes = $db->Affected_Rows()))
 			$logger->info(sprintf("Purged %d %s custom field clobs.", $deletes, $context));
 		
+		$db->ExecuteMaster(sprintf("DELETE FROM custom_field_geovalue WHERE context = %s AND context_id NOT IN (SELECT %s FROM %s)",
+			$db->qstr($context),
+			$db->escape($context_index),
+			$db->escape($context_table)
+		));
+		if(null != ($deletes = $db->Affected_Rows()))
+			$logger->info(sprintf("Purged %d %s custom field geo points.", $deletes, $context));
+		
 		// ===========================================================================
 		// Notifications
 		

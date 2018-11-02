@@ -1141,6 +1141,19 @@
 	<!-- Extensions -->
 
 	<extensions>
+	
+		<!-- Custom Field Types -->
+		
+		<extension point = "cerb.custom_field">
+			<id>cerb.custom_field.geo.point</id>
+			<name>Latitude/Longitude</name>
+			<class>
+				<file>api/customfield.classes.php</file>
+				<name>CustomField_GeoPoint</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 
 		<!-- Contexts -->
 		
