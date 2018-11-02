@@ -276,15 +276,13 @@ class Page_Profiles extends CerberusPageExtension {
 			'context_id' => 0,
 		);
 		
-		foreach($models as $idx => $model) {
+		foreach($models as $model) {
 			if($model instanceof Model_Comment) {
 				$context = CerberusContexts::CONTEXT_COMMENT;
-				$context_id = $model->id;
 				$object = array('context' => $context, 'context_id' => $model->id);
 				$json['objects'][] = $object;
 			} elseif($model instanceof Model_Message) {
 				$context = CerberusContexts::CONTEXT_MESSAGE;
-				$context_id = $model->id;
 				$object = array('context' => $context, 'context_id' => $model->id);
 				$json['objects'][] = $object;
 			}
@@ -391,7 +389,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('widget', $widget);
 			
-			if(false == ($tab = $widget->getProfileTab()))
+			if(false == ($widget->getProfileTab()))
 				return;
 			
 			$tpl->assign('context', $context);
@@ -520,8 +518,6 @@ class ProfileTab_PortalDeploy extends Extension_ProfileTab {
 		
 		// Pure PHP reverse proxy
 		
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'],'integer',0);
-		
 		// Install
 		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=portal&a='.$portal->code,true);
@@ -565,7 +561,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 
 	function showTab(Model_ProfileTab $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		if($context != CerberusContexts::CONTEXT_WORKER)
 			return;
@@ -775,6 +770,8 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					if(in_array($gender, array('M','F','')))
 						$worker_fields[DAO_Worker::GENDER] = $gender;
+					
+					$error = null;
 					
 					// Validate
 					if(!DAO_Worker::validate($worker_fields, $error, $worker->id))
@@ -1235,7 +1232,7 @@ class ProfileWidget_TicketSpamAnalysis extends Extension_ProfileWidget {
 		$words = DAO_Bayes::lookupWordIds($words);
 
 		// Calculate word probabilities
-		foreach($words as $idx => $word) { /* @var $word Model_BayesWord */
+		foreach($words as $word) { /* @var $word Model_BayesWord */
 			$word->probability = CerberusBayes::calculateWordProbability($word);
 		}
 		$tpl->assign('words', $words);
@@ -2384,6 +2381,8 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		if(!$query)
 			return;
 		
+		$error = null;
+		
 		if(false === ($results = $data->executeQuery($query, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
@@ -2473,6 +2472,8 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 		if(!$query)
 			return;
 		
+		$error = null;
+		
 		if(false === ($results = $data->executeQuery($query, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
@@ -2557,6 +2558,8 @@ class ProfileWidget_ChartTable extends Extension_ProfileWidget {
 		
 		if(!$query)
 			return;
+		
+		$error = null;
 		
 		if(false === ($results = $data->executeQuery($query, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
@@ -2774,6 +2777,8 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 				$model->id,
 				$cache_by_worker ? sprintf(":%d", $active_worker->id) : ''
 			);
+			
+			$error = null;
 			
 			if(!$cache_ttl || false == ($results = $cache->load($cache_key))) {
 				if(false === ($results = $data_service->executeQuery($query, $error))) {

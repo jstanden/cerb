@@ -64,6 +64,8 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 				@$email_id = DevblocksPlatform::importGPC($_REQUEST['email_id'],'integer',0);
 				
+				$error = null;
+				
 				// Privs
 				$fields = array(
 					DAO_ContactOrg::NAME => $org_name,
@@ -131,7 +133,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 							DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 						);
-						$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+						DAO_Comment::create($fields, $also_notify_worker_ids);
 					}
 					
 					// Index immediately

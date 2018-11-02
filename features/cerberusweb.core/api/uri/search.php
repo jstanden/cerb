@@ -18,7 +18,7 @@
 class Page_Search extends CerberusPageExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		
 		return true;
@@ -39,7 +39,6 @@ class Page_Search extends CerberusPageExtension {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Allow quick search queries to be sent in the URL
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'], 'string', '');

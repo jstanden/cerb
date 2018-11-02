@@ -272,7 +272,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Unzip (Devblocks ZipArchive or pclzip)
 		if(extension_loaded('zip')) {
 			$zip = new ZipArchive();
-			$result = $zip->open($zip_filename);
+			
+			if(true !== $zip->open($zip_filename))
+				return false;
 			
 			// Read the plugin.xml file
 			for($i=0;$i<$zip->numFiles;$i++) {
@@ -298,7 +300,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$xml = simplexml_load_string($manifest_data);
 			$plugin_id = (string) $xml->id;
 
-			$list = $zip->extract(PCLZIP_OPT_PATH, $plugin_path, PCLZIP_OPT_REPLACE_NEWER);
+			$zip->extract(PCLZIP_OPT_PATH, $plugin_path, PCLZIP_OPT_REPLACE_NEWER);
 		}
 		
 		if(empty($plugin_id))
@@ -637,6 +639,8 @@ class DevblocksPlatform extends DevblocksEngine {
 			return intval($string);
 			
 		} else {
+			$matches = [];
+			
 			if(!preg_match('#(\d+)(.*)#', $string, $matches))
 				return false;
 			
@@ -735,6 +739,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function parseAtMentionString($string) {
+		$matches = [];
+		
 		//$string = "@Hildy Do you have time for this today?  If not, ask @Jeff, or @Darren.";
 		preg_match_all('#(\@[A-Za-z0-9_\-]+)([^A-Za-z0-9_\-]|$)#', $string, $matches);
 		
@@ -1122,7 +1128,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(0 == strlen($string))
 			return '';
 		
-		$len = strlen($string);
 		$out = '';
 			
 		$string = (is_null($from_encoding))
@@ -1135,7 +1140,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			$unpack = unpack("N*", $part);
 			
-			foreach($unpack as $k => $v) {
+			foreach($unpack as $v) {
 				$out .= self::_strUnidecodeLookup($v);
 			}
 			
@@ -1205,7 +1210,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$pads = 0;
 		
 		// Iterate each letter of base32
-		foreach(str_split(DevblocksPlatform::strUpper($str), 1) as $idx => $letter) {
+		foreach(str_split(DevblocksPlatform::strUpper($str), 1) as $letter) {
 			// If padding, skip
 			if($letter == '=') {
 				$pads++;
@@ -1217,7 +1222,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 	
 		// Split the new binary string into 8-bit octets
-		foreach(str_split($binary, 8) as $idx => $byte) {
+		foreach(str_split($binary, 8) as $byte) {
 			// Skip empty octets
 			if($byte == '00000000') {
 				$output .= "\0";
@@ -1299,7 +1304,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			$dom->loadHTML(sprintf('<?xml version="1.0" encoding="%s">', LANG_CHARSET_CODE) . $str);
 			
-			$errors = libxml_get_errors();
+			libxml_get_errors();
 			libxml_clear_errors();
 			
 			$xpath = new DOMXPath($dom);
@@ -1417,7 +1422,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$dom->loadHTML(sprintf('<?xml version="1.0" encoding="%s">', LANG_CHARSET_CODE) . $str);
 		
-		$errors = libxml_get_errors();
+		libxml_get_errors();
 		libxml_clear_errors();
 		
 		$xpath = new DOMXPath($dom);
@@ -1723,7 +1728,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$feed = array(
 				'title' => (string) $xml->title,
 				'url' => $url,
-				'items' => array(),
+				'items' => [],
 			);
 			
 			if(!count($xml))
@@ -1741,6 +1746,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					$date = (string) $entry->updated;
 
 				$date_timestamp = strtotime($date);
+				$matches = [];
 					
 				// Link as the <id> element
 				if(preg_match("/^(.*)\:\/\/(.*$)/i", $id, $matches)) {
@@ -2253,7 +2259,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(!is_array($keys) || empty($keys))
 			return $ptr;
 		
-		foreach($keys as $idx => $k) {
+		foreach($keys as $k) {
+			$matches = [];
+			
 			if(preg_match('/(.*)\[(\d+)\]/', $k, $matches)) {
 				$array_keys[] = $matches[1];
 				$array_keys[] = $matches[2];
@@ -2314,7 +2322,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			// Clear all locale caches
 			$langs = DAO_Translation::getDefinedLangCodes();
 			if(is_array($langs) && !empty($langs))
-			foreach($langs as $lang_code => $lang_name) {
+			foreach(array_keys($langs) as $lang_code) {
 				$cache->remove(self::CACHE_TAG_TRANSLATIONS . '_' . $lang_code);
 			}
 		}
@@ -2382,7 +2390,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return boolean
 	 */
 	static function isDatabaseEmpty() {
-		if(false == ($db = DevblocksPlatform::services()->database()))
+		if(false == (DevblocksPlatform::services()->database()))
 			return true;
 		
 		$tables = self::getDatabaseTables();
@@ -3437,7 +3445,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			mb_regex_encoding(LANG_CHARSET_CODE);
 		
 		// [JAS] [MDF]: Automatically determine the relative webpath to Devblocks files
-		@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
+		//@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
 		@$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'];
 	
 		// App path (always backend)

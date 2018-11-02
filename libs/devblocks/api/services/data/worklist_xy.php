@@ -197,7 +197,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			$x_labels = $series['labels']['x'];
 			
 			$y_values = array_column($series['data'], 'y');
-			$y_labels = $series['labels']['y'];
+			//$y_labels = $series['labels']['y'];
 			
 			foreach($x_values as $idx => $x) {
 				$response[0][] = $x_labels[$x];
@@ -230,7 +230,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			$x_labels = $series['labels']['x'];
 			
 			$y_values = array_column($series['data'], 'y');
-			$y_labels = $series['labels']['y'];
+			//$y_labels = $series['labels']['y'];
 			
 			foreach($x_values as $idx => $x) {
 				$response[] = [$x_labels[$x], $y_values[$idx]];
@@ -252,8 +252,6 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		$response = [];
 		
 		foreach($series_data as $series) {
-			$id = $series['id'];
-			
 			$x_values = $y_values = [];
 			
 			if(array_key_exists('data', $series))

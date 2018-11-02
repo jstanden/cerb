@@ -1347,7 +1347,6 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 	
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:

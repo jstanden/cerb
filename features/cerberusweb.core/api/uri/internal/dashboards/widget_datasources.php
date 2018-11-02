@@ -54,8 +54,6 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 		if(false == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return false;
 		
-		$view_context = $context_ext->id;
-		
 		if(false == ($dao_class = $context_ext->getDaoClass()))
 			return false;
 		

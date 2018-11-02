@@ -1253,6 +1253,7 @@ class DevblocksSearchCriteria {
 				case 'T_QUOTED_TEXT':
 					$oper = $not ? DevblocksSearchCriteria::OPER_NEQ : DevblocksSearchCriteria::OPER_EQ;
 					$value = $token->value;
+					$matches = [];
 					
 					if(preg_match('#(.*?)\.{3}(.*)#', $value, $matches) || preg_match('#(.*?)\s+to\s+(.*)#', $value, $matches)) {
 						$from = intval(DevblocksPlatform::parseBytesString($matches[1]));
@@ -1325,6 +1326,7 @@ class DevblocksSearchCriteria {
 				case 'T_QUOTED_TEXT':
 					$oper = $not ? DevblocksSearchCriteria::OPER_NEQ : DevblocksSearchCriteria::OPER_EQ;
 					$value = $token->value;
+					$matches = [];
 					
 					if(preg_match('#(\d+)\.{3}(\d+)#', $value, $matches) || preg_match('#(\d+)\s+to\s+(\d+)#', $value, $matches)) {
 						$from = intval($matches[1]);
@@ -1442,7 +1444,7 @@ class DevblocksSearchCriteria {
 				}
 				
 				foreach($workers as $worker_id => $worker) {
-					if(isset($workers_ids[$worker_id]))
+					if(isset($worker_ids[$worker_id]))
 						continue;
 					
 					if(false !== stristr($worker->getName(), $term)) {
@@ -1476,7 +1478,7 @@ class DevblocksSearchCriteria {
 	public static function getVirtualContextParamFromTokens($field_key, $tokens, $prefix, $search_field_key) {
 		// Is this a nested subquery?
 		if(DevblocksPlatform::strStartsWith($field_key, $prefix.'.')) {
-			@list($null, $alias) = explode('.', $field_key);
+			@list(, $alias) = explode('.', $field_key);
 			
 			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 			
@@ -1521,7 +1523,7 @@ class DevblocksSearchCriteria {
 	public static function getContextLinksParamFromTokens($field_key, $tokens) {
 		// Is this a nested subquery?
 		if(substr($field_key,0,6) == 'links.') {
-			@list($null, $alias) = explode('.', $field_key);
+			@list(, $alias) = explode('.', $field_key);
 			
 			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 			
@@ -1605,7 +1607,7 @@ class DevblocksSearchCriteria {
 				}
 				
 				foreach($workers as $worker_id => $worker) {
-					if(isset($workers_ids[$worker_id]))
+					if(isset($worker_ids[$worker_id]))
 						continue;
 					
 					if(false !== stristr($worker->getName(), $term)) {
@@ -2295,7 +2297,7 @@ class DevblocksPluginManifest {
 		
 		// Check PHP extensions
 		if(isset($this->manifest_cache['requires']['php_extensions']))
-		foreach($this->manifest_cache['requires']['php_extensions'] as $php_extension => $data) {
+		foreach(array_keys($this->manifest_cache['requires']['php_extensions']) as $php_extension) {
 			if(!extension_loaded($php_extension))
 				$this->_requirements_errors[] = sprintf("The '%s' PHP extension is required", $php_extension);
 		}
@@ -2517,7 +2519,7 @@ class DevblocksPatch {
 		if(empty($this->filename) || !file_exists($this->filename))
 			return FALSE;
 
-		if(false === ($result = require_once($this->filename)))
+		if(false === (require_once($this->filename)))
 			return FALSE;
 		
 		DAO_Platform::setPatchRan($this->plugin_id, $this->revision);

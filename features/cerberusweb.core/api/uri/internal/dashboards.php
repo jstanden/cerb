@@ -15,7 +15,6 @@
 |	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
-if(class_exists('Extension_PageSection')):
 class PageSection_InternalDashboards extends Extension_PageSection {
 	function render() {}
 	
@@ -129,7 +128,6 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 		}
 	}
 }
-endif;
 
 class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	const ID = 'core.workspace.tab.dashboard';
