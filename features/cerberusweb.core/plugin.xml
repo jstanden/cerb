@@ -6237,6 +6237,17 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>cerb.workspace.widget.map.geopoints</id>
+			<name>Map: Geo Points</name>
+			<class>
+				<file>api/uri/internal/dashboards.php</file>
+				<name>WorkspaceWidget_MapGeoPoints</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>cerb.workspace.widget.chart.pie</id>
 			<name>Chart: Pie</name>
 			<class>

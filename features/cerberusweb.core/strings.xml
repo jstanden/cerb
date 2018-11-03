@@ -1415,6 +1415,11 @@
 				<seg>Managers</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.map">
+			<tuv xml:lang="en_US">
+				<seg>map</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.maximize">
 			<tuv xml:lang="en_US">
 				<seg>maximize</seg>
