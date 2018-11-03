@@ -54,6 +54,9 @@
 		<file path="api/services/data/usage_snippets.php">
 			<class name="_DevblocksDataProviderUsageSnippets" />
 		</file>
+		<file path="api/services/data/worklist_geopoints.php">
+			<class name="_DevblocksDataProviderWorklistGeoPoints" />
+		</file>
 		<file path="api/services/data/worklist_metrics.php">
 			<class name="_DevblocksDataProviderWorklistMetrics" />
 		</file>

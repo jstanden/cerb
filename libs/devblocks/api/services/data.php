@@ -80,6 +80,14 @@ class _DevblocksDataService {
 				
 				break;
 				
+			case 'worklist.geo.points':
+				$provider = new _DevblocksDataProviderWorklistGeoPoints();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
 			case 'worklist.metrics':
 				$provider = new _DevblocksDataProviderWorklistMetrics();
 				
