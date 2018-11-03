@@ -2740,6 +2740,90 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 	}
 }
 
+class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
+	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$data = DevblocksPlatform::services()->data();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$projection = DevblocksPlatform::importGPC($model->extension_params['projection'], 'string', 'world');
+		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
+		
+		$points = [
+			'type' => 'Topology',
+			'objects' => [
+				'places' => [
+					'type' => 'GeometryCollection',
+					'geometries' => [],
+				],
+			],
+		];
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'record__context' => $context,
+			'record_id' => $context_id,
+			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+			'widget_id' => $model->id,
+		]);
+		
+		$query = $tpl_builder->build($data_query, $dict);
+		
+		if(!$query)
+			return;
+		
+		$error = null;
+		
+		if(false === ($results = $data->executeQuery($query, $error))) {
+			echo DevblocksPlatform::strEscapeHtml($error);
+			return;
+		}
+		
+		if(empty($results)) {
+			return;
+		}
+		
+		if(0 != strcasecmp('geopoints', @$results['_']['format'])) {
+			echo DevblocksPlatform::strEscapeHtml("The data should be in 'geopoints' format.");
+			return;
+		}
+		
+		foreach($results['data'] as $result) {
+			$points['objects']['places']['geometries'][] = [
+				'type' => 'Point',
+				'coordinates' => [
+					$result['point']['longitude'], // long
+					$result['point']['latitude'], // lat
+				],
+				'properties' => [
+					'NAME' => $result['id'],
+				],
+			];
+		};
+		
+		$tpl->assign('points', $points);
+		$tpl->assign('widget', $model);
+		
+		switch($projection) {
+			case 'usa':
+				$tpl->display('devblocks:cerberusweb.core::internal/widgets/map/geopoints/render_usa.tpl');
+				break;
+				
+			default:
+				$tpl->display('devblocks:cerberusweb.core::internal/widgets/map/geopoints/render_world.tpl');
+				break;
+		}
+	}
+	
+	function renderConfig(Model_ProfileWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('widget', $model);
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/map/geopoints/config.tpl');
+	}
+};
+
 class ProfileWidget_Visualization extends Extension_ProfileWidget {
 	const ID = 'cerb.profile.tab.widget.visualization';
 

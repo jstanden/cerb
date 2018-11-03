@@ -6058,6 +6058,17 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.map.geopoints</id>
+			<name>Map: Geo Points</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileWidget_MapGeoPoints</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.fields</id>
 			<name>Record Fields</name>
 			<class>
