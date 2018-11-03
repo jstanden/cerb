@@ -1700,6 +1700,11 @@
 				<seg>log</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.login">
+			<tuv xml:lang="en_US">
+				<seg>login</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.logo">
 			<tuv xml:lang="en_US">
 				<seg>logo</seg>
