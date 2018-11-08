@@ -1457,6 +1457,10 @@ class Model_CustomField {
 		return $fields;
 	}
 	
+	/**
+	 * 
+	 * @return Extension_CustomField|NULL
+	 */
 	function getTypeExtension() {
 		return Extension_CustomField::get($this->type);
 	}

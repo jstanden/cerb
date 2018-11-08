@@ -177,8 +177,6 @@ $(function() {
 		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
-		
-		$('#{$tabs_id}').tabs();
 	});
 });
 </script>

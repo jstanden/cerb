@@ -282,10 +282,15 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 			}
 			
+			$label = [$first_name];
+			if($last_name)
+				$label[] = $last_name;
+			$label = implode(' ', $label);
+			
 			echo json_encode(array(
 				'status' => true,
 				'id' => $id,
-				'label' => $first_name . ($first_name && $last_name ? ' ' : '') . $last_name,
+				'label' => $label,
 				'view_id' => $view_id,
 			));
 			return;

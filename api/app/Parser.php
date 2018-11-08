@@ -122,16 +122,16 @@ class CerberusParserModel {
 		// Is valid sender?
 		if(null == $this->_sender_address_model) {
 			$logger->error("From address could not be created.");
-			return FALSE;
+			return false;
 		}
 		
 		// Is banned?
 		if($this->_sender_address_model->is_banned) {
 			$logger->warn("Ignoring ticket from banned address: " . $this->_sender_address_model->email);
-			return NULL;
+			return null;
 		}
 		
-		return TRUE;
+		return true;
 	}
 	
 	/**
@@ -281,8 +281,6 @@ class CerberusParserModel {
 					continue;
 				
 				// Only consider the watcher auth header to be a reply if it validates
-				$hits = [];
-				
 				if($senderWorker instanceof Model_Worker
 						&& @preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $ref, $hits)
 						&& false != ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
@@ -1113,7 +1111,7 @@ class CerberusParser {
 		// Reject?
 		if(isset($pre_actions['reject'])) {
 			$logger->warn('Rejecting based on bot filtering.');
-			return NULL;
+			return null;
 		}
 		
 		if(isset($pre_actions['headers_dirty'])) {
@@ -1256,6 +1254,8 @@ class CerberusParser {
 					$state = '';
 					$comments = [];
 					$comment_ptr = null;
+					assert(is_null($comment_ptr)); // for validation
+					
 					$matches = [];
 					
 					if(is_array($lines))
@@ -1431,7 +1431,7 @@ class CerberusParser {
 			// Bounce if we can't set the group id
 			if(null == $model->getGroupId()) {
 				$logger->error("[Parser] Can't determine a default group to deliver to.");
-				return FALSE;
+				return false;
 			}
 
 		} // endif ($model->getIsNew())

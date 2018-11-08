@@ -608,7 +608,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function suRevertAction() {
-		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
 		if($visit->isImposter()) {
@@ -655,8 +654,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!($context_ext instanceof IDevblocksContextPeek))
 			return;
 		
-		$tpl = DevblocksPlatform::services()->template();
-
 		// Template
 		
 		$context_ext->renderPeekPopup($context_id, $view_id, $edit);
@@ -1051,6 +1048,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			$dao_class = $context_ext->getDaoClass();
 			$dao_fields = $custom_fields = [];
+			$error = null;
 			
 			if(!method_exists($dao_class, 'update'))
 				throw new Exception_DevblocksValidationError("Not implemented.");
@@ -1228,14 +1226,14 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	private function _filterImportCustomFields(&$keys) {
-		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+		if(false == (CerberusApplication::getActiveWorker()))
 			return;
 		
 		$custom_fields = DAO_CustomField::getAll();
 		$custom_fieldsets = DAO_CustomFieldset::getAll();
 
 		if(is_array($keys))
-		foreach($keys as $key => $field) {
+		foreach(array_keys($keys) as $key) {
 			if(!DevblocksPlatform::strStartsWith($key, 'cf_'))
 				continue;
 			
@@ -1264,7 +1262,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function doImportAction() {
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'],'string');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$is_preview = DevblocksPlatform::importGPC($_REQUEST['is_preview'],'integer',0);
@@ -1277,7 +1274,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$sync_dupes = DevblocksPlatform::importGPC($_REQUEST['sync_dupes'],'array',array());
 		
 		$visit = CerberusApplication::getVisit();
-		$db = DevblocksPlatform::services()->database();
 
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -1442,7 +1438,6 @@ class ChInternalController extends DevblocksControllerExtension {
 					case 'ctx_' . CerberusContexts::CONTEXT_WORKER:
 						$workers = DAO_Worker::getAllActive();
 
-						$worker_names = array();
 						$val_worker_id = 0;
 						
 						if(0 == strcasecmp($val, 'me')) {
@@ -2278,7 +2273,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','target');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string');
 		
 		$tpl = DevblocksPlatform::services()->template();
 
@@ -2355,9 +2349,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		header('Content-Type: application/json');
 
-		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::services()->url();
-		
 		$list = [];
 		
 		// [TODO] Abstractly handle '(no record)' blank functionality?
@@ -2516,7 +2507,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
 
-		$token_labels = $token_value = [];
+		$token_labels = $token_values = $merge_labels = $merge_values = [];
 
 		$ctx = Extension_DevblocksContext::get($snippet_context);
 
@@ -2545,7 +2536,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 		if(!empty($token_values)) {
 			// Tokenize
-			$tokens = $tpl_builder->tokenize($content);
+			//$tokens = $tpl_builder->tokenize($content);
 			$unknown_tokens = array();
 			
 			//$valid_tokens = $tpl_builder->stripModifiers(array_keys($token_labels));
@@ -2919,7 +2910,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
 			DAO_WorkspaceList::WORKSPACE_TAB_POS => 99,
 		];
-		$list_id = DAO_WorkspaceList::create($fields);
+		DAO_WorkspaceList::create($fields);
 
 		$view->render();
 	}
@@ -2991,7 +2982,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewBroadcastTestAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
-		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		if(false == ($view = C4_AbstractViewLoader::getView($view_id)))
@@ -3012,8 +3002,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$dao_class = $context_ext->getDaoClass();
 		$search_class = $context_ext->getSearchClass();
-		
-		$tpl = DevblocksPlatform::services()->template();
 		
 		@$broadcast_to = DevblocksPlatform::importGPC($_REQUEST['broadcast_to'],'array',[]);
 		@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
@@ -3038,6 +3026,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 		} else {
 			@$model = $dao_class::get(current($results));
+			
+			$token_labels = $token_values = [];
 			
 			// Try to build the template
 			CerberusContexts::getContext($context_ext->id, $model, $token_labels, $token_values);
@@ -3147,9 +3137,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('tokens', $tokens);
 		
-		$labels = array();
-		$values = array();
-		CerberusContexts::getContext($context_ext->id, null, $labels, $null, '', true, false);
+		$labels = $values = [];
+		CerberusContexts::getContext($context_ext->id, null, $labels, $values, '', true, false);
 		$tpl->assign('labels', $labels);
 		
 		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
@@ -3160,8 +3149,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function doViewExportAction() {
 		@$cursor_key = DevblocksPlatform::importGPC($_REQUEST['cursor_key'], 'string', '');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header("Content-Type: application/json; charset=" . LANG_CHARSET_CODE);
 		
@@ -3799,7 +3786,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		));
 		
 		// Renumber children
-		foreach($nodes as $node_id => $node) {
+		foreach(array_keys($nodes) as $node_id) {
 			DAO_DecisionNode::update($node_id, array(
 				DAO_DecisionNode::PARENT_ID => $parent_id,
 				DAO_DecisionNode::POS => $pos++,
@@ -3820,9 +3807,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$data = $trigger->getDecisionTreeData();
 		$tree =& $data['tree'];
-		$nodes =& $data['nodes'];
+		$recursive_duplicate = null;
 		
-		$recursive_duplicate = function($node_id, $new_parent_id) use ($tree, $nodes, &$recursive_duplicate) {
+		$recursive_duplicate = function($node_id, $new_parent_id) use ($tree, &$recursive_duplicate) {
 			$new_node_id = DAO_DecisionNode::duplicate($node_id, $new_parent_id);
 			
 			// Recurse into children
@@ -4073,7 +4060,6 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function showBehaviorSimulatorPopupAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -4097,7 +4083,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('ext_event', $ext_event);
 		$tpl->assign('event_model', $event_model);
 		
-		$labels = $ext_event->getLabels($trigger);
+		$ext_event->getLabels($trigger);
 		$values = $ext_event->getValues();
 		$dict = new DevblocksDictionaryDelegate($values);
 
@@ -4311,8 +4297,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	function showBehaviorParamsAsJsonAction() {
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
 
-		$tpl = DevblocksPlatform::services()->template();
-		
 		header('Content-Type: text/plain; charset=utf-8');
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id))) {
@@ -4438,8 +4422,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer', 0);
 
 		@$active_worker = CerberusApplication::getActiveWorker();
-		
-		$fields = array();
 		
 		// DAO
 		
@@ -4706,11 +4688,6 @@ class ChInternalController extends DevblocksControllerExtension {
 								@$html_template_id = DevblocksPlatform::importGPC($_REQUEST[$prefix]['html_template_id'],'integer',0);
 								$html_template = null;
 								
-								// Field mapping
-								
-								@$_replyto_field = DevblocksPlatform::importGPC($_REQUEST['_replyto_field'],'string','');
-								@$_replyto_id = DevblocksPlatform::importGPC($_REQUEST[$prefix][$_replyto_field],'integer',0);
-
 								// Key mapping
 								
 								@$_group_key = DevblocksPlatform::importGPC($_REQUEST['_group_key'],'string','');
@@ -4797,7 +4774,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			$tpl->assign('template', $template);
 		
 		if(DevblocksPlatform::strStartsWith($template->tag, 'portal_')) {
-			list($ignore, $portal_code) = explode('_', $template->tag, 2);
+			list(, $portal_code) = explode('_', $template->tag, 2);
 			
 			if(false == ($portal = DAO_CommunityTool::getByCode($portal_code)))
 				return;
@@ -4822,7 +4799,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			return false;
 		
 		if(DevblocksPlatform::strStartsWith($template->tag, 'portal_')) {
-			list($ignore, $portal_code) = explode('_', $template->tag, 2);
+			list(, $portal_code) = explode('_', $template->tag, 2);
 			
 			if(false == ($portal = DAO_CommunityTool::getByCode($portal_code)))
 				return;
@@ -4868,7 +4845,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function saveImportTemplatesPeekAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'],'integer',0);
 		@$file_id = DevblocksPlatform::importGPC($_REQUEST['file_id'],'integer',0);
 		
@@ -4925,7 +4901,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			exit;
 		
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$portal = DevblocksPlatform::importGPC($_REQUEST['portal'],'string','');
 		@$filename = DevblocksPlatform::importGPC($_REQUEST['filename'],'string','');
 		@$author = DevblocksPlatform::importGPC($_REQUEST['author'],'string','');
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
@@ -4952,7 +4927,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$view->renderLimit = -1;
 		$view->renderPage = 0;
 		$view->setAutoPersist(false);
-		list($results, $null) = $view->getData();
+		list($results,) = $view->getData();
 		
 		// Add template
 		if(is_array($results))
@@ -4988,7 +4963,6 @@ class ChInternalController extends DevblocksControllerExtension {
 	function showTabContextCommentsAction() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 
 		$tpl = DevblocksPlatform::services()->template();
 

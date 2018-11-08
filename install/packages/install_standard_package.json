@@ -204,7 +204,18 @@
 			"org": "Webgroup Media, LLC.",
 			"spam_score": 0.0001,
 			"spam_training": "N",
-			"participants": "support@webgroupmedia.com"
+			"participants": "team@cerb.ai"
+		},
+		{
+			"uid": "message_001_001",
+			"_context": "message",
+			"ticket_id": "{{{uid.ticket_001}}}",
+			"sender": "team@cerb.ai",
+			"response_time": 0,
+			"is_outgoing": 0,
+			"hash_header_message_id": "{{{'<welcome@cerb.example>'|sha1}}}",
+			"headers": "To: {{{default.replyto_email}}}\nFrom: Cerb Team <team@cerb.ai>\nSubject: Welcome to Cerb!\nX-Mailer: Cerb\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <welcome@cerb.example>\n",
+			"content": "Welcome to Cerb!"
 		},
 		{
 			"uid": "calendar_usholidays",
@@ -332,17 +343,6 @@
 			"recur_start": 0,
 			"recur_end": 0,
 			"patterns": "weekdays"
-		},
-		{
-			"uid": "message_001_001",
-			"_context": "message",
-			"ticket_id": "{{{uid.ticket_001}}}",
-			"sender": "support@webgroupmedia.com",
-			"response_time": 0,
-			"is_outgoing": 0,
-			"hash_header_message_id": "{{{'<welcome@cerb.example>'|sha1}}}",
-			"headers": "To: {{{default.replyto_email}}}\nFrom: Webgroup Media <support@webgroupmedia.com>\nSubject: Welcome to Cerb!\nX-Mailer: Cerb\nContent-Type: text/plain; charset=utf-8\nMessage-Id: <welcome@cerb.example>\n",
-			"content": "Welcome to Cerb!"
 		},
 		{
 			"uid": "fieldset_getting_started",

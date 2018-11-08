@@ -19,7 +19,6 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
-		$settings = DevblocksPlatform::services()->pluginSettings();
 		$response = DevblocksPlatform::getHttpResponse();
 
 		$visit->set(ChConfigurationPage::ID, 'mail_incoming');
@@ -35,7 +34,6 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	
 	function saveSettingsJsonAction() {
 		try {
-			$translate = DevblocksPlatform::getTranslationService();
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
@@ -324,7 +322,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 								
 								// Hash key on the option for quick lookup later
 								if(is_array($in_array))
-								foreach($in_array as $k => $v) {
+								foreach($in_array as $v) {
 									$out_array[$v] = $v;
 								}
 								
@@ -406,7 +404,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 								
 								// Hash key on the option for quick lookup later
 								if(is_array($in_array))
-								foreach($in_array as $k => $v) {
+								foreach($in_array as $v) {
 									$out_array[$v] = $v;
 								}
 								
@@ -483,8 +481,6 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	
 	function renderTabMailImportAction() {
 		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
-
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_import.tpl');
 	}
 	
@@ -504,7 +500,6 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			@$message_source = DevblocksPlatform::importGPC($_REQUEST['message_source'],'string','');
 	
 			$dict = CerberusParser::parseMessageSource($message_source, true, true);
-			$message = '';
 			
 			if(is_object($dict) && !empty($dict->id)) {
 				$json = json_encode(array(
@@ -748,7 +743,6 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	
 	function saveMailRelayJsonAction() {
 		try {
-			$translate = DevblocksPlatform::getTranslationService();
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)

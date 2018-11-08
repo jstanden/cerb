@@ -201,8 +201,6 @@ $(function() {
 			}
 		});
 		
-		$('#vaPeekTabs').tabs();
-		
 		$popup.find('input:radio[name=allowed_events]').change(function() {
 			var $this = $(this);
 			var $frm = $this.closest('form');

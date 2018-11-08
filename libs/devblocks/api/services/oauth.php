@@ -136,7 +136,7 @@ class _DevblocksOAuthService {
 		$content_type = $this->_response_info['content_type'];
 		
 		if(false !== strpos($content_type, ';'))
-			@list($content_type, $content_type_opts) = explode(';', $content_type);
+			@list($content_type,) = explode(';', $content_type);
 		
 		$results = array();
 		
@@ -239,7 +239,7 @@ class _DevblocksOAuthService {
 		$content_type = $this->_response_info['content_type'];
 		
 		if(false !== strpos($content_type, ';'))
-			@list($content_type, $content_type_opts) = explode(';', $content_type);
+			@list($content_type,) = explode(';', $content_type);
 		
 		$results = array();
 		
@@ -296,7 +296,7 @@ class _DevblocksOAuthService {
 		$content_type = $this->_response_info['content_type'];
 		
 		if(false !== strpos($content_type, ';'))
-			@list($content_type, $content_type_opts) = explode(';', $content_type);
+			@list($content_type,) = explode(';', $content_type);
 		
 		$results = array();
 		
@@ -339,7 +339,7 @@ class _DevblocksOAuthService {
 			list($k, $v) = explode(':', $header, 2);
 			
 			if(0 == strcasecmp($k, 'Content-Type')) {
-				@list($content_type, $encoding) = explode(';', $v);
+				@list($content_type,) = explode(';', $v);
 				return trim(DevblocksPlatform::strLower($content_type));
 			}
 		}
@@ -352,7 +352,6 @@ class _DevblocksOAuthService {
 		if(!$this->_consumer_key || !$this->_consumer_secret || !$this->_token)
 			return false;
 
-		$payload = null;
 		$postdata = $body;
 
 		if(!is_array($postdata)) {
@@ -364,8 +363,7 @@ class _DevblocksOAuthService {
 				
 				// Otherwise, keep the plaintext as a payload
 				default:
-					$payload = $postdata;
-					$postdata = array();
+					$postdata = [];
 					break;
 			}
 		}
@@ -435,7 +433,7 @@ class _DevblocksOAuthService {
 		
 		if(!is_array($postdata)) {
 			$payload = $postdata;
-			$postdata = array();
+			$postdata = [];
 		}
 		
 		$method = DevblocksPlatform::strUpper($method);

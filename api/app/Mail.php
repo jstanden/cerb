@@ -123,8 +123,6 @@ class CerberusMail {
 			$mail_service = DevblocksPlatform::services()->mail();
 			$mail = $mail_service->createMessage();
 			
-			$settings = DevblocksPlatform::services()->pluginSettings();
-			
 			if(empty($from_addy) || empty($from_personal)) {
 				if(false == ($replyto_default = DAO_Address::getDefaultLocalAddress()))
 					throw new Exception("There is no default sender address.");
@@ -552,7 +550,7 @@ class CerberusMail {
 		Storage_MessageContent::put($message_id, $content_saved);
 
 		// Set recipients to requesters
-		foreach($toList as $to_addy => $to_data) {
+		foreach(array_keys($toList) as $to_addy) {
 			DAO_Ticket::createRequester($to_addy, $ticket_id);
 		}
 		
@@ -650,8 +648,6 @@ class CerberusMail {
 	}
 	
 	static function sendTicketMessage($properties=[]) {
-		$settings = DevblocksPlatform::services()->pluginSettings();
-		
 		/*
 		'draft_id'
 		'message_id'
@@ -879,21 +875,21 @@ class CerberusMail {
 					switch(strtolower(trim($header_key))) {
 						case 'to':
 							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								foreach($addresses as $address => $address_data)
+								foreach(array_keys($addresses) as $address)
 									$mail->addTo($address);
 							unset($properties['headers'][$header_key]);
 							break;
 						
 						case 'cc':
 							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								foreach($addresses as $address => $address_data)
+								foreach(array_keys($addresses) as $address)
 									$mail->addCc($address);
 							unset($properties['headers'][$header_key]);
 							break;
 						
 						case 'bcc':
 							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								foreach($addresses as $address => $address_data)
+								foreach(array_keys($addresses) as $address)
 									$mail->addBcc($address);
 							unset($properties['headers'][$header_key]);
 							break;
@@ -992,7 +988,7 @@ class CerberusMail {
 				if(!empty($is_autoreply))
 					$params['is_autoreply'] = true;
 				
-				if(empty($to)) {
+				if(!$mail->getTo()) {
 					$hint_to = '(requesters)';
 				} else {
 					$hint_to = implode(', ', array_keys($mail->getTo()));
@@ -1237,7 +1233,7 @@ class CerberusMail {
 		}
 		
 		// Events
-		if(!empty($message_id) && empty($no_events)) {
+		if(!empty($message_id)) {
 			// After message sent (global)
 			Event_MailAfterSent::trigger($message_id, $group->id);
 			
@@ -1288,7 +1284,6 @@ class CerberusMail {
 		$mail_service = DevblocksPlatform::services()->mail();
 		$settings = DevblocksPlatform::services()->pluginSettings();
 
-		$workers = DAO_Worker::getAll();
 		$relay_spoof_from = $settings->get('cerberusweb.core', CerberusSettings::RELAY_SPOOF_FROM, CerberusSettingsDefaults::RELAY_SPOOF_FROM);
 		
 		if(false == ($message = DAO_Message::get($message_id)))
@@ -1376,7 +1371,7 @@ class CerberusMail {
 				
 				// Files
 				if(!empty($attachments) && is_array($attachments))
-				foreach($attachments as $file_id => $file) { /* @var $file Model_Attachment */
+				foreach($attachments as $file) { /* @var $file Model_Attachment */
 					//if('original_message.html' == $file->name)
 					//	continue;
 					
@@ -1485,7 +1480,7 @@ class CerberusMail {
 			// Attachments
 			
 			if(is_array($attachments))
-			foreach($attachments as $file_id => $file) { /* @var $file Model_Attachment */
+			foreach($attachments as $file) { /* @var $file Model_Attachment */
 				
 				// If HTML, include as a text/html part
 				if($file->name == 'original_message.html') {
@@ -1697,7 +1692,6 @@ class CerberusMail {
 					sprintf('|(\"%s(.*?)\")|', preg_quote($base_url)),
 					function($matches) use ($base_url, $mail, &$embedded_files, $exclude_files) {
 						if(3 == count($matches)) {
-							$file_parts = explode('/', $matches[2]);
 							@list($file_id, $file_name) = explode('/', $matches[2], 2);
 							if($file_id && $file_name) {
 								if($file = DAO_Attachment::get($file_id)) {

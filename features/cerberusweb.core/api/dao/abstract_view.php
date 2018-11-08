@@ -317,9 +317,9 @@ abstract class C4_AbstractView {
 			}
 			
 			if(!empty($fieldset_ids)) {
-				foreach($params as $k => $param) {
+				foreach(array_keys($params) as $k) {
 					if('cf_' == substr($k,0,3)) {
-						list($prefix, $field_id) = explode('_', $k, 2);
+						list(, $field_id) = explode('_', $k, 2);
 						$cfield = DAO_CustomField::get($field_id);
 						
 						if(empty($cfield->custom_fieldset_id))
@@ -941,7 +941,6 @@ abstract class C4_AbstractView {
 	static function getHistogram($view_context, $query, $params=[]) {
 		$date = DevblocksPlatform::services()->date();
 		$db = DevblocksPlatform::services()->database();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		if(empty($view_context))
 			return;
@@ -1169,7 +1168,7 @@ abstract class C4_AbstractView {
 					
 					$array = [];
 					
-					foreach($results as $k => $v) {
+					foreach($results as $v) {
 						$array[$v['histo']] = $v['hits'];
 					}
 					
@@ -1382,8 +1381,6 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _renderCriteriaParamString($param, $label_map) {
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		$strings = [];
 		
 		$values = is_array($param->value) ? $param->value : array($param->value);
@@ -2021,7 +2018,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _setSortableQuickSearchFields($fields, $search_fields) {
-		foreach($fields as $k => &$field) {
+		foreach($fields as &$field) {
 			@$param_key = $field['options']['param_key'];
 			$field['is_sortable'] = ($param_key && isset($search_fields[$param_key]) && $search_fields[$param_key]->is_sortable);
 		}
@@ -2042,7 +2039,7 @@ abstract class C4_AbstractView {
 		
 		// Parameter sanity check
 		if(is_array($params))
-		foreach($params as $pidx => $null) {
+		foreach(array_keys($params) as $pidx) {
 			if(substr($pidx,0,3)!="cf_")
 				continue;
 				
@@ -2396,8 +2393,6 @@ abstract class C4_AbstractView {
 		
 		// Fields
 		
-		$fields_menu = new DevblocksMenuItemPlaceholder();
-		
 		if(!empty($search_fields)) {
 			$labels = array_keys($search_fields);
 			$keys = array_map(function($field) {
@@ -2406,6 +2401,7 @@ abstract class C4_AbstractView {
 			
 			$tree = Extension_DevblocksContext::getPlaceholderTree(array_combine($keys, $labels), '.', '.');
 			
+			$recurseAddOptions = null;
 			$recurseAddOptions = function(DevblocksMenuItemPlaceholder &$node) use (&$recurseAddOptions, $search_fields) {
 				$key = substr($node->key, 0, -1);
 				
@@ -2881,7 +2877,6 @@ abstract class C4_AbstractView {
 	protected function _getSubtotalDataForWatcherColumn($context, $field_key) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$fields = $this->getFields();
 		$columns = $this->view_columns;
 		$params = $this->getParams();
 
@@ -2977,7 +2972,6 @@ abstract class C4_AbstractView {
 	protected function _getSubtotalDataForContextLinkColumn($context, $field_key) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$fields = $this->getFields();
 		$columns = $this->view_columns;
 
 		$params = $this->getParams();
@@ -3039,9 +3033,6 @@ abstract class C4_AbstractView {
 			)
 		);
 		
-		$join_sql = $query_parts['join'];
-		$where_sql = $query_parts['where'];
-
 		if(empty($has_context_already)) {
 			// This intentionally isn't constrained with a LIMIT
 			$sql = sprintf("SELECT from_context AS link_from_context, count(*) AS hits FROM context_link WHERE to_context = %s AND to_context_id IN (%s) GROUP BY from_context ORDER BY hits DESC ",
@@ -3136,7 +3127,6 @@ abstract class C4_AbstractView {
 	protected function _getSubtotalDataForContextAndIdColumns($context, $field_key, $context_field, $context_id_field) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$fields = $this->getFields();
 		$columns = $this->view_columns;
 
 		$params = $this->getParams();
@@ -3836,7 +3826,7 @@ abstract class C4_AbstractView {
 							$fields[DAO_MailQueue::IS_QUEUED] = 1;
 						}
 						
-						$draft_id = DAO_MailQueue::create($fields);
+						DAO_MailQueue::create($fields);
 					}
 					
 				} catch (Exception $e) {
@@ -3927,7 +3917,6 @@ class CerbQuickSearchLexer {
 	}
 	
 	static function getFieldsFromQuery($query) {
-		$original_query = $query;
 		$tokens = [];
 		
 		// Extract double-quoted literals text
@@ -3982,6 +3971,7 @@ class CerbQuickSearchLexer {
 		$regexp = '((' . implode(')|(', array_keys($token_map)) . '))Ax';
 		
 		$offset = 0;
+		$matches = [];
 		
 		while(isset($query[$offset])) {
 			if(!preg_match($regexp, $query, $matches, null, $offset))
@@ -4015,7 +4005,7 @@ class CerbQuickSearchLexer {
 					if($match == '!') {
 						$token_type = 'T_NOT';
 						
-					} elseif (substr($match,0,4) == '<$Q:') {
+					} elseif (DevblocksPlatform::strStartsWith($match, '<$Q:')) {
 						$idx = intval(substr($match,4));
 						$token_type = 'T_QUOTED_TEXT';
 						$token_value = $quotes[$idx];
@@ -4095,7 +4085,6 @@ class CerbQuickSearchLexer {
 		// Group parentheticals
 		
 		reset($tokens);
-		$start_idx = $end_idx = null;
 		$opens = [];
 		
 		while($token = current($tokens)) {
@@ -4217,8 +4206,6 @@ class CerbQuickSearchLexer {
 		
 		// Sort out the boolean mode of each group
 		self::_recurse($tokens, 'T_GROUP', function($token) {
-			$field = null;
-			
 			// [TODO] Operator precedence AND -> OR
 			// [TODO] Handle 'a OR b AND c'
 			
@@ -4425,7 +4412,8 @@ class CerbQuickSearchLexer {
 			return false;
 		
 		$new_tokens = $tokens;
-			
+		$matches = [];
+		
 		foreach($new_tokens as &$token) {
 			switch($token->type) {
 				case 'T_QUOTED_TEXT':
@@ -4780,6 +4768,8 @@ class C4_AbstractViewLoader {
 	}
 	
 	static function convertParamsJsonToObject($params_json) {
+		$func = null;
+		
 		// Convert JSON params back to objects
 		$func = function(&$e) use (&$func) {
 			if(is_array($e) && isset($e['field']) && isset($e['operator'])) {

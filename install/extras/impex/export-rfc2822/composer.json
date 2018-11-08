@@ -5,7 +5,7 @@
 	"license" : "Devblocks Public License <https://cerb.ai/license/>",
 	"authors" : [{
 			"name" : "Webgroup Media LLC",
-			"email" : "support@webgroupmedia.com",
+			"email" : "team@cerb.ai",
 			"homepage" : "https://cerb.ai/",
 			"role" : "Developer / Publisher"
 		}, {
@@ -17,8 +17,6 @@
 	],
 	"require" : {
 		"swiftmailer/swiftmailer" : "5.4.9"
-	},
-	"require-dev" : {
 	},
 	"support" : {
 		"email" : "team@cerb.ai",

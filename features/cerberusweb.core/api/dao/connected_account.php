@@ -23,7 +23,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			->string()
 			->setRequired(true)
 			->addValidator(function($value, &$error) {
-				if(false == ($extension = Extension_ServiceProvider::get($value))) {
+				if(false == (Extension_ServiceProvider::get($value))) {
 					$error = sprintf("(%s) is not a valid service provider (%s) extension ID.",
 						$value,
 						Extension_ServiceProvider::POINT
@@ -208,7 +208,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			SearchFields_ConnectedAccount::NAME => new DevblocksSearchCriteria(SearchFields_ConnectedAccount::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
 		);
 		
-		list($results, $null) = DAO_ConnectedAccount::search(
+		list($results,) = DAO_ConnectedAccount::search(
 			array(),
 			$params,
 			25,
@@ -311,8 +311,6 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = array();
@@ -402,7 +400,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ConnectedAccount::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ConnectedAccount', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ConnectedAccount', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"connected_account.id as %s, ".
@@ -952,8 +950,6 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -1046,8 +1042,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::services()->url();
-		$list = array();
+		$list = [];
 		
 		$models = DAO_ConnectedAccount::autocomplete($term);
 		
@@ -1130,7 +1125,6 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	
 	function getMeta($context_id) {
 		$connected_account = DAO_ConnectedAccount::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($connected_account->name);
@@ -1356,7 +1350,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		
 		if($active_worker && !$active_worker->is_superuser) {
 			$worker_group_ids = array_keys($active_worker->getManagerships());
-			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+			//$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
 			
 			// Restrict owners
 			

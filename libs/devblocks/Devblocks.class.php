@@ -2152,7 +2152,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 */
 	static function parseCsvString($string, $keep_blanks=false, $typecast=null, $limit=null) {
 		if(0 == strlen($string))
-			return array();
+			return [];
 		
 		if(!$keep_blanks)
 			$string = rtrim($string, ', ');
@@ -2164,7 +2164,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 
 		if(!is_array($tokens))
-			return array();
+			return [];
 		
 		foreach($tokens as $k => $v) {
 			if(!$keep_blanks && 0==strlen($tokens[$k])) {

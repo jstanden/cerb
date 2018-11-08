@@ -113,7 +113,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		// **** BEGIN AUTH
 		@$verb = $_SERVER['REQUEST_METHOD'];
 		@$header_date = $_SERVER['HTTP_X_DATE'];
-
+		
 		// If the custom X-Date: header isn't provided, fall back to Date:
 		if(empty($header_date))
 			@$header_date = $_SERVER['HTTP_DATE'];
@@ -209,7 +209,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			// Set worker time format
 			$default_time_format = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::TIME_FORMAT, CerberusSettingsDefaults::TIME_FORMAT);
 			DevblocksPlatform::setDateTimeFormat(!empty($worker->time_format) ? $worker->time_format : $default_time_format);
-
+			
 			// Handle the request
 			$controller->setPayload($this->_payload);
 			array_unshift($stack, $verb);
@@ -251,7 +251,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		
 		$results = [];
 		
-		foreach($args as $k => $values)
+		foreach($args as $values)
 			foreach($values as $value)
 				$results[] = $value;
 		
@@ -387,7 +387,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		// Do we need to lazy load some fields to be helpful?
 		if(is_array($expand) && !empty($expand)) {
 			if(isset($array['results'])) {
-				foreach($array['results'] as $k => $v) {
+				foreach(array_leys($array['results']) as $k) {
 					if(!isset($array['results'][$k]['_context']))
 						continue;
 
@@ -418,7 +418,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 
 				$scrubs = array('_loaded', '__labels', '__types');
 
-				foreach($result as $k => $v) {
+				foreach(array_keys($result) as $k) {
 					foreach($scrubs as $scrub)
 						if(substr($k, -strlen($scrub)) == $scrub)
 							unset($result[$k]);
@@ -447,7 +447,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 				array_push($scrubs, '_labels', '_types');
 			}
 
-			foreach($array as $k => $v) {
+			foreach(array_keys($array) as $k) {
 				foreach($scrubs as $scrub)
 					if(substr($k, -strlen($scrub)) == $scrub)
 						unset($array[$k]);

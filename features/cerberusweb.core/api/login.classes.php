@@ -16,6 +16,8 @@
 ***********************************************************************/
 
 class DefaultLoginModule extends Extension_LoginAuthenticator {
+	const ID = 'login.password';
+	
 	function render() {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
 		
@@ -127,7 +129,7 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 			$recovery_code = CerberusApplication::generatePassword(8);
 			$_SESSION['recovery_code'] = $worker->getEmailString() . ':' . $recovery_code;
 			
-			$labels = $values = [];
+			$labels = $values = $worker_labels = $worker_values = [];
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
 			CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
 			

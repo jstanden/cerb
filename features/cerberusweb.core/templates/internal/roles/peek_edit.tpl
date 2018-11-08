@@ -73,7 +73,7 @@
 			{if empty($section.privs)}
 			{else}
 			{$container_id = uniqid()}
-			<fieldset class="peek black">
+			<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
 				<legend onclick="checkAll('privs{$container_id}');">
 					<label>
 					{$section.label}
@@ -119,7 +119,7 @@
 		{$available_privs = $context->params.acl[0]}
 		
 		{if $available_privs}
-		<fieldset class="peek black">
+		<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
 			<legend>
 				<label onclick="checkAll('contexts{$context_id}');">
 				{$aliases = Extension_DevblocksContext::getAliasesForContext($contexts[$context_id])}
@@ -146,7 +146,7 @@
 	{foreach from=$plugins_acl item=plugin key=plugin_id}
 		{if empty($plugin.privs)}
 		{else}
-		<fieldset class="peek black">
+		<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
 			<legend>
 				<label onclick="checkAll('privs{$plugin_id}');">
 				{$plugin.label}

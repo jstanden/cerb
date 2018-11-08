@@ -393,7 +393,7 @@ class WgmCerb_API {
 		$info = curl_getinfo($ch);
 		
 		// Content-type handling
-		@list($content_type, $content_type_opts) = explode(';', DevblocksPlatform::strLower($info['content_type']));
+		@list($content_type,) = explode(';', DevblocksPlatform::strLower($info['content_type']));
 		
 		curl_close($ch);
 		
@@ -426,8 +426,6 @@ class ServiceProvider_Cerb extends Extension_ServiceProvider implements IService
 	function saveConfigForm(Model_ConnectedAccount $account, array &$params) {
 		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 	
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		if(!isset($edit_params['base_url']) || empty($edit_params['base_url']))
 			return "The 'Base URL' is required.";
 		
@@ -742,7 +740,6 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		}
 		
 		$content_type = null;
-		$content_charset = null;
 		$error = null;
 		
 		if(curl_errno($ch)) {
@@ -815,8 +812,6 @@ class BotAction_EmailParser extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
@@ -1046,8 +1041,6 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 		@$calendar_id = $params['calendar_id'];
 		@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
 		
-		$event = $trigger->getEvent();
-		
 		if(empty($date_from) || (!is_numeric($date_from) && false == (@$date_from = strtotime($date_from))))
 			$date_from = 0;
 		
@@ -1084,8 +1077,6 @@ class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 		@$date_to = $tpl_builder->build($params['date_to'], $dict);
 		@$calendar_id = $params['calendar_id'];
 		@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
-		
-		$event = $trigger->getEvent();
 		
 		if(empty($date_from) || (!is_numeric($date_from) && false == (@$date_from = strtotime($date_from))))
 			$date_from = 0;
@@ -1136,7 +1127,6 @@ class VaAction_CreateAttachment extends Extension_DevblocksEventAction {
 		@$file_name = $tpl_builder->build($params['file_name'], $dict);
 		@$file_type = $tpl_builder->build($params['file_type'], $dict);
 		@$content = $tpl_builder->build($params['content'], $dict);
-		@$content_encoding = $params['content_encoding'];
 		@$object_placeholder = $params['object_placeholder'] ?: '_attachment_meta';
 		
 		if(empty($file_name))
@@ -1270,7 +1260,6 @@ class BotAction_CreateReminder extends Extension_DevblocksEventAction {
 		
 		@$worker_ids = DevblocksPlatform::importVar($params['worker_id'],'string','');
 		$worker_ids = DevblocksEventHelper::mergeWorkerVars($worker_ids, $dict);
-		$worker_id = array_shift($worker_ids) ?: 0;
 		
 		if(empty($name))
 			return "[ERROR] 'Name' is required.";
@@ -1385,10 +1374,10 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 		$actor = $trigger->getBot();
 
 		$out = null;
+		$error = null;
 		
 		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
 		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
-		@$object_placeholder = $params['object_placeholder'];
 		
 		if(false == (@$changeset = json_decode($changeset_json, true)))
 			return "Invalid changeset JSON.";
@@ -1462,6 +1451,8 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 		$dao_class = $context_ext->getDaoClass();
 		$dao_fields = $custom_fields = [];
 		
+		$error = null;
+		
 		// Fail if there's no DAO::create() method
 		if(!method_exists($dao_class, 'create'))
 			return false;
@@ -1523,7 +1514,6 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
 		@$id = $tpl_builder->build(DevblocksPlatform::importVar($params['id'],'string',''), $dict);
 		@$changeset_json = $tpl_builder->build(DevblocksPlatform::importVar($params['changeset_json'],'string',''), $dict);
-		@$object_placeholder = $params['object_placeholder'];
 		
 		if(false == (@$changeset = json_decode($changeset_json, true)))
 			return "Invalid changeset JSON.";
@@ -1542,6 +1532,8 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 		
 		$dao_class = $context_ext->getDaoClass();
 		$dao_fields = $custom_fields = [];
+		
+		$error = null;
 		
 		// Fail if there's no DAO::update() method
 		if(!method_exists($dao_class, 'update'))
@@ -1606,6 +1598,8 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 		
 		$dao_class = $context_ext->getDaoClass();
 		$dao_fields = $custom_fields = [];
+		
+		$error = null;
 		
 		// Fail if there's no DAO::update() method
 		if(!method_exists($dao_class, 'update'))
@@ -1802,7 +1796,7 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(false == ($model = $dao_class::get($id)))
+		if(false == ($dao_class::get($id)))
 			return sprintf("%s #%d was not found.", $context_ext->manifest->name, $id);
 		
 		// Fail if there's no DAO::delete() method
@@ -1844,7 +1838,7 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(false == ($model = $dao_class::get($id)))
+		if(false == ($dao_class::get($id)))
 			return false;
 		
 		// Fail if there's no DAO::delete() method
@@ -1895,7 +1889,7 @@ class BotAction_RecordRetrieve extends Extension_DevblocksEventAction {
 		
 		$dao_class = $context_ext->getDaoClass();
 		
-		if(false == ($model = $dao_class::get($id)))
+		if(false == ($dao_class::get($id)))
 			return sprintf("%s #%d was not found.", $context_ext->manifest->name, $id);
 		
 		// Fail if there's no DAO::get() method
@@ -2016,7 +2010,7 @@ class BotAction_RecordSearch extends Extension_DevblocksEventAction {
 		if(empty($ids))
 			return "No results.";
 		
-		if(false == ($models = $dao_class::getIds($ids)))
+		if(false == ($dao_class::getIds($ids)))
 			return sprintf("Unable to load %s records.", $context_ext->manifest->name);
 		
 		// Always run in simulator mode
@@ -2046,7 +2040,6 @@ class BotAction_RecordSearch extends Extension_DevblocksEventAction {
 	
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$actor = $trigger->getBot();
 		
 		@$context = $tpl_builder->build(DevblocksPlatform::importVar($params['context'],'string',''), $dict);
 		@$query = $tpl_builder->build(DevblocksPlatform::importVar($params['query'],'string',''), $dict);
@@ -2131,7 +2124,6 @@ class BotAction_PackageImport extends Extension_DevblocksEventAction {
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$actor = $trigger->getBot();
 
 		$out = null;
 		
@@ -2143,8 +2135,6 @@ class BotAction_PackageImport extends Extension_DevblocksEventAction {
 		@$package_json = DevblocksPlatform::importVar($params['package_json'],'string','');
 		@$prompts_json = $tpl_builder->build(DevblocksPlatform::importVar($params['prompts_json'],'string',''), $dict);
 		@$object_placeholder = DevblocksPlatform::importVar($params['object_placeholder'],'string','');
-		
-		$records_created = [];
 		
 		if(!$package_json || false == @json_decode($package_json, true))
 			return "Invalid package JSON: " . json_last_error_msg();
@@ -2236,7 +2226,7 @@ class VaAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 		@$content = $tpl_builder->build($params['content'], $dict);
 		@$object_placeholder = $params['object_placeholder'] ?: '_prediction';
 
-		if(false == ($classifier = DAO_Classifier::get($classifier_id)))
+		if(false == (DAO_Classifier::get($classifier_id)))
 			return "[ERROR] The configured classifier does not exist.";
 		
 		if(empty($content))
@@ -2340,6 +2330,8 @@ class BotAction_DataQuery extends Extension_DevblocksEventAction {
 		if(!$query)
 			return;
 		
+		$error = null;
+		
 		if(false === ($json = $data->executeQuery($query, $error)))
 			return;
 		
@@ -2386,8 +2378,6 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 		
 		$email = key($from);
 		
-		$fingerprints = [];
-		
 		if(false != ($keys = $gpg->keyinfo(sprintf("<%s>", $email))) && is_array($keys)) {
 			foreach($keys as $key) {
 				if($this->isValidKey($key, 'sign'))
@@ -2414,7 +2404,7 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 		
 		$fingerprints = [];
 		
-		foreach($recipients as $email => $name) {
+		foreach(array_keys($recipients) as $email) {
 			$gpg = DevblocksPlatform::services()->gpg();
 			$found = false;
 
@@ -2644,16 +2634,17 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		
 		// Try connecting
 		
-		$mail_service = DevblocksPlatform::services()->mail();
-		
 		$options = array(
 			'host' => $host,
 			'port' => $port,
 			'enc' => $encryption,
-			'auth_user' => $auth_user,
-			'auth_pass' => $auth_pass,
 			'timeout' => $timeout,
 		);
+		
+		if($auth_enabled) {
+			$options['auth_user'] = $auth_user;
+			$options['auth_pass'] = $auth_pass;
+		}
 		
 		try {
 			$mailer = $this->_getMailer($options);
