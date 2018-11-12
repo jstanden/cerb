@@ -3411,10 +3411,15 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						if(false != ($active_worker = CerberusApplication::getActiveWorker()))
 							$worker_id = $active_worker->id;
 						break;
-					
+						
 					default:
-						if(false != ($matches = DAO_Worker::getByString($v)) && !empty($matches))
-							$worker_id = key($matches);
+						if(is_numeric($v)) {
+							$worker_id = intval($v);
+							
+						} else {
+							if(false != ($matches = DAO_Worker::getByString($v)) && !empty($matches))
+								$worker_id = key($matches);
+						}
 						break;
 				}
 				
