@@ -69,6 +69,7 @@ class _DevblocksTemplateBuilder {
 			
 			$filters = [
 				'alphanum',
+				'base_convert',
 				'base64_encode',
 				'base64_decode',
 				'bytes_pretty',
@@ -1051,6 +1052,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	public function getFilters() {
 		return array(
 			new Twig_SimpleFilter('alphanum', [$this, 'filter_alphanum']),
+			new Twig_SimpleFilter('base_convert', [$this, 'filter_base_convert']),
 			new Twig_SimpleFilter('base64_encode', [$this, 'filter_base64_encode']),
 			new Twig_SimpleFilter('base64_decode', [$this, 'filter_base64_decode']),
 			new Twig_SimpleFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
@@ -1078,6 +1080,16 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return '';
 		
 		return DevblocksPlatform::strAlphaNum($string, $also, $replace);
+	}
+	
+	function filter_base_convert($string, $base_from, $base_to) {
+		if(!is_string($string) && !is_numeric($string))
+			return '';
+		
+		if(!is_numeric($base_from) || !is_numeric($base_to))
+			return '';
+		
+		return base_convert($string, $base_from, $base_to);
 	}
 	
 	function filter_base64_encode($string) {
