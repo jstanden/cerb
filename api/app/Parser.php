@@ -282,8 +282,8 @@ class CerberusParserModel {
 				
 				// Only consider the watcher auth header to be a reply if it validates
 				if($senderWorker instanceof Model_Worker
-						&& @preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $ref, $hits)
-						&& false != ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
+					&& @preg_match('#\<(.*?)\@cerb\d{0,1}\>#', $ref)
+					&& false != ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
 					
 					if(null != ($ticket = DAO_Ticket::getTicketByMessageId($relay_message_id))) {
 						$this->_is_new = false;
@@ -406,7 +406,7 @@ class CerberusParserModel {
 		
 		// Try matching references
 		foreach(array_keys($target_message_ids) as $ref) {
-			if($ref && @preg_match('#\<[a-f0-9]+\@cerb\d{0,1}\>#', $ref)) {
+			if($ref && @preg_match('#\<(.*?)\@cerb\d{0,1}\>#', $ref)) {
 				return $ref;
 			}
 		}
@@ -418,23 +418,7 @@ class CerberusParserModel {
 		if(empty($worker) || !($worker instanceof Model_Worker))
 			return false;
 		
-		$hits = [];
-		
-		// See if we can trust the given message_id
-		if(@preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $auth_header, $hits)) {
-			@$hash = $hits[1];
-			@$signed = substr($hash, 4, 40);
-			@$message_id = hexdec(substr($hash, 44));
-			
-			$signed_compare = sha1($message_id . $worker->id . APP_DB_PASS);
-			
-			$is_authenticated = ($signed_compare == $signed);
-			
-			if($is_authenticated)
-				return $message_id;
-		}
-		
-		return false;
+		return CerberusMail::relayVerify($auth_header, $worker->id);
 	}
 	
 	// Getters/Setters

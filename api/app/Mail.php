@@ -1356,15 +1356,14 @@ class CerberusMail {
 				// Subject
 				$subject = sprintf("[relay #%s] %s", $ticket->mask, $ticket->subject);
 				$mail->setSubject($subject);
-	
+				
 				$headers->removeAll('message-id');
-
-				// Sign the message so we can verify that a future relay reply is genuine
-				$sign = sha1($message->id . $worker->id . APP_DB_PASS);
-				$headers->addTextHeader('Message-Id', sprintf("<%s%s%s@cerb>", mt_rand(1000,9999), $sign, dechex($message->id)));
+				
+				$signed_message_id = CerberusMail::relaySign($message->id, $worker->id);
+				$headers->addTextHeader('Message-Id', $signed_message_id);
 				
 				$headers->addTextHeader('X-CerberusRedirect','1');
-	
+				
 				// [TODO] HTML body?
 				
 				$mail->setBody($content);
@@ -1416,6 +1415,73 @@ class CerberusMail {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Sign the message so we can verify that a future relay reply is genuine
+	 * 
+	 * @param integer $message_id
+	 * @param integer $worker_id
+	 * @param integer $time
+	 * @return string
+	 */
+	static function relaySign($message_id, $worker_id) {
+		$encrypt = DevblocksPlatform::services()->encryption();
+		
+		$string_to_encrypt = sprintf('%s:%s',
+			base_convert($message_id, 10, 16),
+			base_convert($worker_id, 10, 16)
+		);
+		
+		$encrypted_header = $encrypt->encrypt($string_to_encrypt);
+		
+		$header_value = sprintf("<%s.%s@cerb>",
+			rtrim($encrypted_header,'='),
+			base_convert(time(), 10, 16)
+		);
+		
+		return $header_value;
+	}
+	
+	static function relayVerify($auth_header, $worker_id) {
+		$encrypt = DevblocksPlatform::services()->encryption();
+		$hits = [];
+		
+		// Procedural signing format
+		if(@preg_match('#\<(.*?)\.([a-f0-9]+)\@cerb\>#', $auth_header, $hits)) {
+			@$encrypted_message = $hits[1];
+			
+			if(!$encrypted_message)
+				return false;
+			
+			$decrypted_message = $encrypt->decrypt($encrypted_message);
+			
+			$ids = explode(':', $decrypted_message, 2);
+			
+			$in_message_id = base_convert($ids[0], 16, 10);
+			$in_worker_id = base_convert($ids[1], 16, 10);
+			
+			if($in_worker_id != $worker_id)
+				return false;
+			
+			return $in_message_id;
+			
+		// Traditional signing format
+		// @deprecated (Remove in 9.2)
+		} else if(@preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $auth_header, $hits)) {
+			@$hash = $hits[1];
+			@$signed = substr($hash, 4, 40);
+			@$message_id = hexdec(substr($hash, 44));
+			
+			$signed_compare = sha1($message_id . $worker_id . APP_DB_PASS);
+			
+			$is_authenticated = ($signed_compare == $signed);
+			
+			if($is_authenticated)
+				return $message_id;
+		}
+		
+		return false;
 	}
 	
 	// [TODO] Encryption?

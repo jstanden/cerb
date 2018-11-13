@@ -4957,8 +4957,8 @@ class DevblocksEventHelper {
 				$headers->removeAll('message-id');
 				
 				// Sign the message so we can verify a future relay response
-				$sign = sha1($message_id . $worker->id . APP_DB_PASS);
-				$headers->addTextHeader('Message-Id', sprintf("<%s%s%s@cerb>", mt_rand(1000,9999), $sign, dechex($message_id)));
+				$auth_header = CerberusMail::relaySign($message_id, $worker->id);
+				$headers->addTextHeader('Message-Id', $auth_header);
 				
 				$headers->addTextHeader('X-CerberusRedirect','1');
 	
