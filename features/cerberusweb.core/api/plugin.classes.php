@@ -1970,7 +1970,6 @@ class BotAction_RecordSearch extends Extension_DevblocksEventAction {
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$actor = $trigger->getBot();
 
 		$out = null;
 		
@@ -2016,8 +2015,12 @@ class BotAction_RecordSearch extends Extension_DevblocksEventAction {
 		// Always run in simulator mode
 		$this->run($token, $trigger, $params, $dict);
 		
-		if($object_placeholder && is_array($dict->$object_placeholder)) {
-			$first = current($dict->$object_placeholder);
+		if($object_placeholder) {
+			if(is_array($dict->$object_placeholder)) {
+				$first = current($dict->$object_placeholder);
+			} else {
+				$first = $dict->$object_placeholder;
+			}
 			
 			$out .= sprintf("\n%s:\n%s", $object_placeholder,  $first);
 			
@@ -2094,6 +2097,10 @@ class BotAction_RecordSearch extends Extension_DevblocksEventAction {
 			if(is_array($expands))
 			foreach($expands as $expand)
 				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $expand);
+			
+			// If we only requested one object, don't make it an array
+			if(1 == $view->renderLimit)
+				$dicts = array_shift($dicts);
 			
 			// Set the preferred placeholder
 			$dict->$object_placeholder = $dicts;
