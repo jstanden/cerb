@@ -16,7 +16,7 @@ class _DevblocksEncryptionService {
 	
 	public function encrypt($data, $key_ascii=null) {
 		if(!$key_ascii)
-			$key_ascii = $this->_getSystemKey();
+			$key_ascii = $this->getSystemKey();
 		
 		try {
 			$key = Defuse\Crypto\Key::loadFromAsciiSafeString($key_ascii);
@@ -32,7 +32,7 @@ class _DevblocksEncryptionService {
 	
 	public function decrypt($ciphertext, $key_ascii=null) {
 		if(!$key_ascii)
-			$key_ascii = $this->_getSystemKey();
+			$key_ascii = $this->getSystemKey();
 		
 		try {
 			$key = Defuse\Crypto\Key::loadFromAsciiSafeString($key_ascii);
@@ -51,7 +51,7 @@ class _DevblocksEncryptionService {
 		return $text_key;
 	}
 	
-	private function _getSystemKey() {
+	public function getSystemKey() {
 		$key_path = APP_STORAGE_PATH . '/_master.key';
 		
 		if(false == ($system_key = @file_get_contents($key_path))) {
