@@ -183,11 +183,16 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			->addValidator($validation->validators()->emails(true))
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)
 			;
-			
+		
 		return $validation->getFields();
 	}
 	
@@ -4685,7 +4690,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function getKeyToDaoFieldMap() {
-		return [
+		$map = parent::getKeyToDaoFieldMap();
+		
+		$map = array_merge($map, [
 			'bucket_id' => DAO_Ticket::BUCKET_ID,
 			'closed' => DAO_Ticket::CLOSED_AT,
 			'created' => DAO_Ticket::CREATED_DATE,
@@ -4694,7 +4701,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'group_id' => DAO_Ticket::GROUP_ID,
 			'id' => DAO_Ticket::ID,
 			'importance' => DAO_Ticket::IMPORTANCE,
-			'links' => '_links',
 			'mask' => DAO_Ticket::MASK,
 			'org_id' => DAO_Ticket::ORG_ID,
 			'owner_id' => DAO_Ticket::OWNER_ID,
@@ -4704,7 +4710,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'status_id' => DAO_Ticket::STATUS_ID,
 			'subject' => DAO_Ticket::SUBJECT,
 			'updated' => DAO_Ticket::UPDATED_DATE,
-		];
+		]);
+		
+		return $map;
 	}
 	
 	function getKeyMeta() {
@@ -4752,10 +4760,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
-			
 			case 'org':
 				if(false == ($org_id = DAO_ContactOrg::lookup($value, true))) {
 					$error = sprintf("Failed to lookup org: %s", $value);

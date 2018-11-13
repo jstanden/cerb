@@ -650,7 +650,20 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	abstract function getRandom();
 	abstract function getMeta($context_id);
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
-	abstract function getKeyToDaoFieldMap();
+	
+	function getKeyToDaoFieldMap() {
+		$map = [];
+		
+		if($this->hasOption('custom_fields')) {
+			$map['fieldsets'] = '_fieldsets';
+		}
+		
+		if($this->hasOption('links')) {
+			$map['links'] = '_links';
+		}
+		
+		return $map;
+	}
 	
 	function getKeyMeta() {
 		$field_map = $this->getKeyToDaoFieldMap();
@@ -741,6 +754,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			$keys['updated_at']['notes'] = "The date/time when this record was last modified";
 		}
 		
+		if(array_key_exists('fieldsets', $keys)) {
+			$keys['links']['type'] = 'fieldsets';
+			$keys['links']['notes'] = 'An array or comma-separated list of [custom fieldset](/docs/records/types/custom_fieldset/) IDs';
+		}
+		
 		if(array_key_exists('links', $keys)) {
 			$keys['links']['type'] = 'links';
 			$keys['links']['notes'] = 'An array of record `type:id` tuples to link to';
@@ -788,6 +806,16 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			
 			$out_fields[$map[$key]] = $value;
 		}
+		
+		// Links
+		
+		if(!$this->_getDaoLinksForContext($context, $data, $out_fields, $error))
+			return false;
+		
+		// Custom fieldsets
+		
+		if(!$this->_getDaoCustomFieldsetsForContext($context, $data, $out_fields, $error))
+			return false;
 		
 		return true;
 	}
@@ -1273,6 +1301,44 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	/**
 	 * @internal
 	 */
+	protected function _getDaoCustomFieldsetsForContext($context, array &$data, &$out_fields, &$error=null) {
+		$error = null;
+		
+		if(!array_key_exists('fieldsets', $data))
+			return true;
+		
+		@$value = $data['fieldsets'];
+		
+		if($this->hasOption('custom_fields')) {
+			if(false == ($this->_getDaoFieldsets($value, $out_fields, $error)))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * @internal
+	 */
+	protected function _getDaoLinksForContext($context, array &$data, &$out_fields, &$error=null) {
+		$error = null;
+		
+		if(!array_key_exists('links', $data))
+			return true;
+		
+		@$value = $data['links'];
+		
+		if($this->hasOption('links')) {
+			if(false == ($this->_getDaoFieldsLinks($value, $out_fields, $error)))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * @internal
+	 */
 	protected function _getDaoCustomFieldsFromKeysAndValues($context, array &$data, &$out_custom_fields, &$error=null) {
 		$error = null;
 		$custom_fields = null;
@@ -1294,6 +1360,37 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				$out_custom_fields[$custom_field_id] = $value;
 			}
 		}
+		
+		return true;
+	}
+	
+	/**
+	 * @internal
+	 */
+	protected function _getDaoFieldsets($value, &$out_fields, &$error) {
+		$fieldset_ids = [];
+		
+		if(!is_string($value) && !is_array($value)) {
+			$error = 'must be an array or comma-separated list of fieldset IDs.';
+			return false;
+		}
+		
+		if(is_array($value)) {
+			$fieldset_ids = $value;
+		} else if(is_string($value)) {
+			$fieldset_ids = DevblocksPlatform::parseCsvString($value);
+		}
+		
+		$custom_fieldsets = DAO_CustomFieldset::getIds($fieldset_ids);
+		
+		$fieldset_ids = array_keys($custom_fieldsets);
+		
+		if(false == ($json = json_encode($fieldset_ids))) {
+			$error = 'could not be JSON encoded.';
+			return false;
+		}
+		
+		$out_fields['_fieldsets'] = $json;
 		
 		return true;
 	}
@@ -1333,6 +1430,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		}
 		
 		$out_fields['_links'] = $json;
+		
+		return true;
 	}
 	
 	/**
