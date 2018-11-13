@@ -3362,6 +3362,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $headers;
 	}
 	
+	static function getHttpMethod() {
+		return $_SERVER['REQUEST_METHOD'];
+	}
+	
 	static function getHttpParams() {
 		$params = [];
 		
