@@ -2750,16 +2750,6 @@ class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
 		@$projection = DevblocksPlatform::importGPC($model->extension_params['projection'], 'string', 'world');
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		
-		$points = [
-			'type' => 'Topology',
-			'objects' => [
-				'places' => [
-					'type' => 'GeometryCollection',
-					'geometries' => [],
-				],
-			],
-		];
-		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'current_worker_id' => $active_worker->id,
@@ -2785,23 +2775,12 @@ class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
 			return;
 		}
 		
-		if(0 != strcasecmp('geopoints', @$results['_']['format'])) {
-			echo DevblocksPlatform::strEscapeHtml("The data should be in 'geopoints' format.");
+		if(0 != strcasecmp('geojson', @$results['_']['format'])) {
+			echo DevblocksPlatform::strEscapeHtml("The data should be in 'geojson' format.");
 			return;
 		}
 		
-		foreach($results['data'] as $result) {
-			$points['objects']['places']['geometries'][] = [
-				'type' => 'Point',
-				'coordinates' => [
-					$result['point']['longitude'], // long
-					$result['point']['latitude'], // lat
-				],
-				'properties' => [
-					'NAME' => $result['id'],
-				],
-			];
-		};
+		$points = $results['data'];
 		
 		$tpl->assign('points', $points);
 		$tpl->assign('widget', $model);

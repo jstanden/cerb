@@ -728,9 +728,9 @@ $(function() {
 				//.translate([width/2-150, height/2+450])
 				;
 				
-			var cityPath = d3.geoPath()
+			var pointPath = d3.geoPath()
 				.projection(projection)
-				.pointRadius(2)
+				.pointRadius(5)
 				;
 			
 			var path = d3.geoPath()
@@ -746,7 +746,7 @@ $(function() {
 				.attr('width', '100%')
 				.attr('height', '100%')
 				.style('.pointer-events', 'all')
-				.on('click', clicked)
+				.on('click', clickedCountry)
 				;
 				
 			var g = svg.append('g');
@@ -773,7 +773,7 @@ $(function() {
 						return '#aaa';
 					})
 					*/
-					.on('click.zoom', clicked)
+					.on('click.zoom', clickedCountry)
 				;
 				
 				g.append('path')
@@ -791,23 +791,52 @@ $(function() {
 				
 				var points = {json_encode($points) nofilter};
 				
-				g.append('g')
-					.selectAll('.city')
-						.data(topojson.feature(points, points.objects.places).features)
-					.enter().append('path')
-						.attr('fill', 'red')
-						.attr('stroke', 'black')
-						.attr('stroke-width', '.5px')
-						.attr('class', 'city')
-						.style('pointer-events', 'none')
-						.attr('data-name', function(d) {
-							return d.properties.NAME;
-						})
-						.attr('d', cityPath)
-					;
+				for(series_key in points.objects) {
+					g.append('g')
+						.selectAll('.point')
+							.data(topojson.feature(points, points.objects[series_key]).features)
+						.enter().append('path')
+							.attr('fill', 'red')
+							.attr('stroke', 'black')
+							.attr('stroke-width', '.5px')
+							.attr('class', 'point')
+							//.style('pointer-events', 'none')
+							.attr('d', pointPath)
+							.on('click.zoom', clickedPOI)
+						;
+				}
 			});
-
-			function clicked(d, i) {
+			
+			function clickedPOI(d, i) {
+				var x, y, k;
+				
+				if(d && centered !== d) {
+					var centroid = path.centroid(d);
+					x = centroid[0];
+					y = centroid[1];
+					k = 2;
+					centered = d;
+					
+					label.text(JSON.stringify(d.properties));
+					
+				} else {
+					x = width / 2;
+					y = height / 2;
+					k = 1;
+					centered = null;
+					label.text('');
+				}
+				
+				var selected_index = i;
+				
+				g.transition()
+					.duration(750)
+					.attr('transform', 'translate(' + width/2 + ',' + height/2 + ')scale(' + k + ')translate(' + -x + ',' + -y + ')')
+					.style('stroke-width', 1.5/k + 'px')
+					;
+			}
+			
+			function clickedCountry(d, i) {
 				var x, y, k;
 				
 				if(d && centered !== d) {

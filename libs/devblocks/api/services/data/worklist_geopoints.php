@@ -5,10 +5,8 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 		
 		$chart_model = [
 			'type' => 'worklist.geo.points',
-			'of' => '',
-			'point' => '',
-			'query' => '',
-			'format' => 'geopoints',
+			'series' => [],
+			'format' => 'geojson',
 		];
 		
 		foreach($chart_fields as $field) {
@@ -17,52 +15,95 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if($field->key == 'of') {
-				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				
-				if(false == ($chart_context = Extension_DevblocksContext::getByAlias($value, true)))
-					continue;
-				
-				$chart_model['context'] = $chart_context->id;
-				
-			} else if($field->key == 'point') {
-				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['point'] = $value;
-				
-			} else if($field->key == 'format') {
+			if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = $value;
 				
-			} else if($field->key == 'query') {
-				$data_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
-				$data_query = substr($data_query, 1, -1);
-				$chart_model['query'] = $data_query;
-			}
-		}
-
-		// Convert field to SearchFields_* using context
-		if(false != ($chart_context = Extension_DevblocksContext::get($chart_model['context']))) {
-			$view = $chart_context->getTempView();
-			$search_class = $chart_context->getSearchClass();
-			$query_fields = $view->getQuickSearchFields();
-			$search_fields = $view->getFields();
-			
-			// [TODO] This must be a geopoint type
-			if(array_key_exists('point', $chart_model)) {
-				if(false == ($field = $search_class::getFieldForSubtotalKey($chart_model['point'], $chart_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
-					unset($chart_model['point']);
-				} else {
-					$chart_model['point'] = $field;
+			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
+				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
+				$series_query = substr($series_query, 1, -1);
+				
+				$series_fields = CerbQuickSearchLexer::getFieldsFromQuery($series_query);
+				
+				$series_id = explode('.', $field->key, 2)[1];
+				
+				$series_model = [
+					'id' => $series_id,
+					'label' => $series_id,
+					'context' => '',
+					'point' => '',
+					'fields' => [],
+					'query' => '',
+					'data' => [],
+				];
+				
+				$series_context = null;
+				
+				foreach($series_fields as $series_field) {
+					if($series_field->key == 'of') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						if(false == ($series_context = Extension_DevblocksContext::getByAlias($value, true)))
+							continue;
+						
+						$series_model['context'] = $series_context->id;
+						
+					} else if($series_field->key == 'fields') {
+						CerbQuickSearchLexer::getOperArrayFromTokens($series_field->tokens, $oper, $value);
+						$series_model['fields'] = $value;
+						
+					} else if($series_field->key == 'query') {
+						$data_query = CerbQuickSearchLexer::getTokensAsQuery($series_field->tokens);
+						$data_query = substr($data_query, 1, -1);
+						$series_model['query'] = $data_query;
+					}
 				}
+				
+				// Convert series to SearchFields_* using context
+				
+				$has_geopoint_field = false;
+				
+				if($series_context) {
+					$view = $series_context->getTempView();
+					$search_class = $series_context->getSearchClass();
+					$query_fields = $view->getQuickSearchFields();
+					$search_fields = $view->getFields();
+					
+					if(array_key_exists('fields', $series_model)) {
+						$fields = $series_model['fields'];
+						unset($series_model['fields']);
+						
+						foreach($fields as $field_key) {
+							if(false != ($field = $search_class::getFieldForSubtotalKey($field_key, $series_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey()))) {
+								if(!$has_geopoint_field && $field['type'] == CustomField_GeoPoint::ID) {
+									$has_geopoint_field = true;
+									$series_model['point'] = $field;
+								}
+								
+								$series_model['fields'][] = $field;
+							}
+						}
+					}
+					
+					if(!$has_geopoint_field) {
+						$error = 'The series `fields:` list must contain at least one geopoint field.';
+						return false;
+					}
+				}
+				
+				$chart_model['series'][] = $series_model;
 			}
 		}
 		
 		// Fetch data
 		
-		if(isset($chart_model['point'])) {
-			@$query = $chart_model['query'];
+		if(isset($chart_model['series']))
+		foreach($chart_model['series'] as $series_idx => $series) {
+			if(!isset($series['context']))
+				continue;
 			
-			$context_ext = Extension_DevblocksContext::get($chart_model['context'], true);
+			@$query = $series['query'];
+			
+			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
 			$search_class = $context_ext->getSearchClass();
 			$view = $context_ext->getTempView();
@@ -73,33 +114,42 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 				$view->getParams()
 			);
 			
-			$sort_data = Cerb_ORMHelper::buildSort($view->renderSortBy, $view->renderSortAsc, $view->getFields(), $search_class);
-			
-			$field = $chart_model['point']['sql_select'];
-			
-			$sql = sprintf("SELECT %s AS id, %s AS point%s %s %s %s LIMIT %d",
-				$search_class::getPrimaryKey(),
-				$field,
-				$sort_data['sql_select'] ? sprintf(", %s", $sort_data['sql_select']) : '',
+			$sql = sprintf("SELECT %s %s %s LIMIT %d",
+				implode(', ', array_map(function($e) use ($db) {
+					return sprintf("%s AS `%s`",
+						$e['sql_select'],
+						$db->escape($e['key_select'])
+					);
+				}, $series['fields'])),
 				$query_parts['join'],
 				$query_parts['where'],
-				$sort_data['sql_sort'],
 				$view->renderLimit
 			);
 			
 			if(false == ($results = $db->GetArraySlave($sql)))
 				$results = [];
 			
-			$chart_model['data'] = $results;
+			
+			$key_map = [];
+			$data = [];
+			
+			foreach($series['fields'] as $field)
+				$key_map[$field['key_select']] = $field['key_query'];
+			
+			foreach($results as $result) {
+				$data[] = array_combine($key_map, $result);
+			}
+			
+			$chart_model['series'][$series_idx]['data'] = $data;
 		}
 		
 		// Respond
 		
-		@$format = $chart_model['format'] ?: 'geopoints';
+		@$format = $chart_model['format'] ?: 'geojson';
 		
 		switch($format) {
-			case 'geopoints':
-				return $this->_formatDataAsGeoPoints($chart_model);
+			case 'geojson':
+				return $this->_formatDataAsGeoJson($chart_model);
 				break;
 				
 			case 'table':
@@ -107,7 +157,7 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 				break;
 				
 			default:
-				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: geopoints, table",
+				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: geojson, table",
 					$format,
 					$chart_model['type']
 				);
@@ -115,23 +165,42 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 		}
 	}
 	
-	function _formatDataAsGeoPoints($chart_model) {
-		$results = $chart_model['data'];
+	function _formatDataAsGeoJson($chart_model) {
+		$points = [
+			'type' => 'Topology',
+			'objects' => [],
+		];
 		
-		$results = array_map(function($row) {
-			if($row['point'])
-				$row['point'] = @DevblocksPlatform::parseGeoPointString($row['point']);
+		if(array_key_exists('series', $chart_model))
+		foreach($chart_model['series'] as $series) {
+			$series_label = $series['label'];
 			
-			$row['data'] = [];
+			$points['objects'][$series_label] = [
+				'type' => 'GeometryCollection',
+				'geometries' => [],
+			];
 			
-			return $row;
-		}, $results);
+			foreach($series['data'] as $row) {
+				$point = @DevblocksPlatform::parseGeoPointString($row[$series['point']['key_query']]);
+				
+				$properties = $row;
+				
+				$points['objects'][$series_label]['geometries'][] = [
+					'type' => 'Point',
+					'coordinates' => [
+						$point['longitude'], // long
+						$point['latitude'], // lat
+					],
+					'properties' => $properties,
+				];
+			}
+		}
 		
 		return [
-			'data' => $results,
+			'data' => $points,
 			'_' => [
 				'type' => 'worklist.geo.points',
-				'format' => 'geopoints',
+				'format' => 'geojson',
 			]
 		];
 	}
@@ -143,39 +212,30 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 			'columns' => &$columns,
 			'rows' => &$rows,
 		];
+
+		$series_models = $chart_model['series'];
 		
-		$point_field_id = $chart_model['point']['key_query'];
-		
-		$columns['id'] = [
-			'label' => 'ID',
-			'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-			'type_options' => [],
-		];
-		
-		$columns['point'] = [
-			'label' => DevblocksPlatform::strTitleCase(@$chart_model['point']['label'] ?: $point_field_id),
-			'type' => @$chart_model['point']['type'] ?: DevblocksSearchCriteria::TYPE_GEO_POINT,
-			'type_options' => @$chart_model['point']['type_options'] ?: [],
-		];
-		
-		foreach($chart_model['data'] as $data) {
-			$id = $data['id'];
-			$point = $data['point'];
+		foreach($series_models as $series_idx => $series) {
+			if(0 == $series_idx) {
+				foreach($series['fields'] as $field) {
+					$columns[$field['key_query']] = [
+						'label' => DevblocksPlatform::strTitleCase($field['label']),
+						'type' => $field['type'],
+						'type_options' => @$field['type_options'] ?: [],
+					];
+				}
+			}
 			
-			if(false === ($point = @DevblocksPlatform::parseGeoPointString($point)))
-				continue;
-			
-			$point_label = sprintf('%f, %f', $point['latitude'], $point['longitude']);
-			
-			$row = [
-				'name_label' => 'Name',
-				'name' => $id,
-				'id' => $id,
-				'point_label' => $point_label,
-				'point' => $point_label,
-			];
-			
-			$rows[] = $row;
+			foreach($series['data'] as $row) {
+				$point_key = $series['point']['key_query'];
+				$point = $row[$point_key];
+				
+				if(false === ($point = @DevblocksPlatform::parseGeoPointString($point)))
+					continue;
+				
+				$row[$point_key] = sprintf('%f, %f', $point['latitude'], $point['longitude']);
+				$rows[] = $row;
+			}
 		}
 		
 		return [
