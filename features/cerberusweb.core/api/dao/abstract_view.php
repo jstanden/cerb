@@ -3813,19 +3813,26 @@ interface IAbstractView_Subtotals {
 };
 
 class CerbQuickSearchLexer {
-	private static function _recurse($token, $key, $node_callback, $after_children_callback=null) {
+	private static function _recurse($token, $keys, $node_callback, $after_children_callback=null) {
 		if(!is_object($token))
 			return;
 		
 		if(!is_callable($node_callback))
 			return;
 		
-		if(empty($key) || $token->type == $key)
+		if(empty($keys)) {
 			$node_callback($token);
-		
+		} else {
+			if(!is_array($keys))
+				$keys = [$keys];
+			
+			if(in_array($token->type, $keys))
+				$node_callback($token);
+		}
+
 		if(isset($token->children) && is_array($token->children))
 		foreach($token->children as $child)
-			self::_recurse($child, $key, $node_callback, $after_children_callback);
+			self::_recurse($child, $keys, $node_callback, $after_children_callback);
 		
 		if(is_callable($after_children_callback))
 			$after_children_callback($token);
@@ -4078,8 +4085,14 @@ class CerbQuickSearchLexer {
 		self::_recurse($tokens, 'T_ARRAY', function($token) {
 			$elements = [];
 			
-			self::_recurse($token, 'T_TEXT', function($token) use (&$elements) {
-				$elements = array_merge($elements, DevblocksPlatform::parseCsvString($token->value));
+			self::_recurse($token, ['T_TEXT','T_QUOTED_TEXT'], function($token) use (&$elements) {
+				// If quoted, preserve commas and everything
+				if($token->type == 'T_QUOTED_TEXT') {
+					$elements = array_merge($elements, [$token->value]);
+					
+				} else {
+					$elements = array_merge($elements, DevblocksPlatform::parseCsvString($token->value));
+				}
 			});
 			
 			$token->value = $elements;
