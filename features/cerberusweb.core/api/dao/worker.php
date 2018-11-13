@@ -1795,6 +1795,14 @@ class Model_Worker {
 	
 	/**
 	 * 
+	 * @return Extension_LoginAuthenticator|NULL
+	 */
+	function getAuthExtension($as_instance=true) {
+		return Extension_LoginAuthenticator::get($this->auth_extension_id, $as_instance);
+	}
+	
+	/**
+	 * 
 	 * @return Model_Address
 	 */
 	function getEmailModel() {
@@ -3445,6 +3453,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		if(false == ($worker = DAO_Worker::get($context_id))) {
 			$worker = new Model_Worker();
 			$worker->id = 0;
+			$worker->auth_extension_id = DefaultLoginModule::ID;
 			$worker->timezone = $active_worker->timezone;
 			$worker->time_format = $active_worker->time_format;
 			$worker->language = $active_worker->language;

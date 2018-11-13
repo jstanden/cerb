@@ -337,6 +337,11 @@
 				<seg>attributes</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.authenticate">
+			<tuv xml:lang="en_US">
+				<seg>authenticate</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.author">
 			<tuv xml:lang="en_US">
 				<seg>Author</seg>
@@ -1525,6 +1530,11 @@
 				<seg>Never</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.new">
+			<tuv xml:lang="en_US">
+				<seg>new</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.no">
 			<tuv xml:lang="en_US">
 				<seg>no</seg>
@@ -1658,6 +1668,11 @@
 		<tu tuid="common.layout">
 			<tuv xml:lang="en_US">
 				<seg>layout</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.limit">
+			<tuv xml:lang="en_US">
+				<seg>limit</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.link">

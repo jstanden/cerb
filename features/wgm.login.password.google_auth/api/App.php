@@ -56,6 +56,23 @@ class Login_PasswordAndGoogleAuth extends Extension_LoginAuthenticator {
 		}
 	}
 	
+	function renderWorkerConfig(Model_Worker $worker=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('worker', $worker);
+		
+		$tpl->display('devblocks:cerberusweb.core::login/auth/worker_config.tpl');
+	}
+	
+	function saveWorkerConfig($worker_id, array $params, &$error=null) {
+		$login_ext = Extension_LoginAuthenticator::get(DefaultLoginModule::ID, true);
+		
+		// Set the password
+		if(false === ($login_ext->saveWorkerConfig($worker_id, $params, $error)))
+			return false;
+		
+		return true;
+	}
+	
 	function renderWorkerPrefs($worker) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('worker', $worker);

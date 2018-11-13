@@ -872,6 +872,13 @@ abstract class Extension_LoginAuthenticator extends DevblocksExtension {
 	function render() {
 	}
 	
+	function renderWorkerConfig(Model_Worker $worker=null) {
+	}
+	
+	function saveWorkerConfig($worker_id, array $params, &$error=null) {
+		return true;
+	}
+	
 	function renderWorkerPrefs($worker) {
 	}
 	

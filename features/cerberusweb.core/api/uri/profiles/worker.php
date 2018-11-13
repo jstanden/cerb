@@ -83,13 +83,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string', '');
 				@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string', '');
 				@$auth_extension_id = DevblocksPlatform::importGPC($_POST['auth_extension_id'],'string');
+				@$auth_params = DevblocksPlatform::importGPC($_POST['auth_params'],'array',[]);
 				@$at_mention_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::importGPC($_POST['at_mention_name'],'string'));
 				@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
 				@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
 				@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string');
 				@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'],'string');
-				@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string');
-				@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string');
 				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'bit', 0);
 				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'bit',0);
 				@$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'],'array');
@@ -114,10 +113,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				
 				// ============================================
 				// Validation
-				
-				// Verify passwords if not blank
-				if($password_new && ($password_new != $password_verify))
-					throw new Exception_DevblocksAjaxValidationError("The given passwords do not match.", 'password_new');
 				
 				if(empty($id)) {
 					$fields = [
@@ -152,20 +147,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						return false;
 					
 					DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
-					
-					// Creating new worker.  If no password, email them an invite
-					if(empty($password_new)) {
-						$url = DevblocksPlatform::services()->url();
-						$worker = DAO_Worker::get($id);
-						
-						$labels = $values = $worker_labels = $worker_values = [];
-						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
-						CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
-						
-						$values['url'] = $url->write('c=login', true) . '?email=' . rawurlencode($worker->getEmailString());
-						
-						CerberusApplication::sendEmailTemplate($worker->getEmailString(), 'worker_invite', $values);
-					}
 					
 					// View marquee
 					if(!empty($id) && !empty($view_id)) {
@@ -242,8 +223,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
 				
 				// Auth
-				if(!empty($password_new) && $password_new == $password_verify) {
-					DAO_Worker::setAuth($id, $password_new);
+				if(!$auth_extension_id || false == ($auth_ext = Extension_LoginAuthenticator::get($auth_extension_id, true)))
+					throw new Exception_DevblocksAjaxValidationError("Invalid authentication method.");
+				
+				/* @var $auth_ext Extension_LoginAuthenticator */
+				if(false === ($auth_ext->saveWorkerConfig($id, $auth_params, $error))) {
+					throw new Exception_DevblocksAjaxValidationError($error);
 				}
 				
 				// Update group memberships
@@ -588,5 +573,25 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+	
+	function getAuthExtensionParamsAction() {
+		$extension_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'], 'string', '');
+		$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		// Admins only
+		if(!$active_worker->is_superuser)
+			return;
+		
+		if(false == ($auth_ext = Extension_LoginAuthenticator::get($extension_id, true)))
+			return;
+		
+		/* @var $auth_ext Extension_LoginAuthenticator */
+			
+		$worker = DAO_Worker::get($worker_id);
+		
+		$auth_ext->renderWorkerConfig($worker);
 	}
 };

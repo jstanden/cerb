@@ -63,6 +63,50 @@ class DefaultLoginModule extends Extension_LoginAuthenticator {
 		}
 	}
 	
+	function renderWorkerConfig(Model_Worker $worker=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('worker', $worker);
+		
+		$tpl->display('devblocks:cerberusweb.core::login/auth/worker_config.tpl');
+	}
+	
+	function saveWorkerConfig($worker_id, array $params, &$error=null) {
+		@$password_new = DevblocksPlatform::importVar($params['password_new'],'string');
+		@$password_verify = DevblocksPlatform::importVar($params['password_verify'],'string');
+		
+		$worker = DAO_Worker::get($worker_id);
+		
+		// Creating new worker? If no password, email them an invite
+		if(!$password_new && !DAO_Worker::hasAuth($worker_id)) {
+			$url = DevblocksPlatform::services()->url();
+			
+			$labels = $values = $worker_labels = $worker_values = [];
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $worker_labels, $worker_values, '', true, true);
+			CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
+			
+			$values['url'] = $url->write('c=login', true) . '?email=' . rawurlencode($worker->getEmailString());
+			
+			CerberusApplication::sendEmailTemplate($worker->getEmailString(), 'worker_invite', $values);
+			
+		// Otherwise setting a password
+		} else {
+			// Verify passwords if not blank
+			if($password_new && ($password_new != $password_verify)) {
+				$error = "The given passwords do not match.";
+				return false;
+			}
+			
+			// Auth
+			if($password_new && $password_new == $password_verify) {
+				DAO_Worker::setAuth($worker_id, $password_new);
+			}
+			
+			// If password is blank, leave it alone
+		}
+		
+		return true;
+	}
+	
 	function renderWorkerPrefs($worker) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('worker', $worker);

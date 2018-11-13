@@ -50,6 +50,18 @@
 				</td>
 			</tr>
 			<tr>
+				<td width="0%" nowrap="nowrap">{'common.privileges'|devblocks_translate|capitalize}: </td>
+				<td width="100%">
+					{if $active_worker->id == $worker->id}
+						<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
+						{if !$worker->is_superuser}{'common.worker'|devblocks_translate|capitalize}{else}{'worker.is_superuser'|devblocks_translate|capitalize}{/if}
+					{else}
+						<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}> {'common.worker'|devblocks_translate|capitalize}</label>
+						<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}> {'worker.is_superuser'|devblocks_translate|capitalize}</label>
+					{/if}
+				</td>
+			</tr>
+			<tr>
 				<td width="1%" nowrap="nowrap" valign="top">{'common.photo'|devblocks_translate|capitalize}:</td>
 				<td width="99%" valign="top">
 					<div style="float:left;margin-right:5px;">
@@ -150,18 +162,6 @@
 				<td width="0%" nowrap="nowrap" valign="middle">{'worker.at_mention_name'|devblocks_translate}: </td>
 				<td width="100%"><input type="text" name="at_mention_name" value="{$worker->at_mention_name}" style="width:98%;" placeholder="UserNickname"></td>
 			</tr>
-			<tr>
-				<td width="0%" nowrap="nowrap">{'common.privileges'|devblocks_translate|capitalize}: </td>
-				<td width="100%">
-					{if $active_worker->id == $worker->id}
-						<input type="hidden" name="is_superuser" value="{$worker->is_superuser}">
-						{if !$worker->is_superuser}{'common.worker'|devblocks_translate|capitalize}{else}{'worker.is_superuser'|devblocks_translate|capitalize}{/if}
-					{else}
-						<label><input type="radio" name="is_superuser" value="0" {if !$worker->is_superuser}checked="checked"{/if}> {'common.worker'|devblocks_translate|capitalize}</label>
-						<label><input type="radio" name="is_superuser" value="1" {if $worker->is_superuser}checked="checked"{/if}> {'worker.is_superuser'|devblocks_translate|capitalize}</label>
-					{/if}
-				</td>
-			</tr>
 			
 			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}
 		</table>
@@ -206,30 +206,18 @@
 	</div>
 	
 	<div id="{$form_id}Login">
-		<table cellpadding="0" cellspacing="2" border="0" width="98%">
-			<tr>
-				<td width="0%" nowrap="nowrap" valign="top"><b>Authentication</b>: </td>
-				<td width="100%">
-					<select name="auth_extension_id">
-						{foreach from=$auth_extensions item=auth_ext_mft key=auth_ext_id}
-						<option value="{$auth_ext_id}" {if $worker->auth_extension_id==$auth_ext_id}selected="selected"{/if}>{$auth_ext_mft->name}</option>
-						{/foreach}
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td width="0%" nowrap="nowrap" valign="top">New Password: </td>
-				<td width="100%">
-					<input type="password" name="password_new" value=""  style="width:90%;" placeholder="{if $worker->id}(leave blank for unchanged){else}(leave blank to send a random password by email){/if}">
-				</td>
-			</tr>
-			<tr>
-				<td width="0%" nowrap="nowrap" valign="top">Verify Password: </td>
-				<td width="100%">
-					<input type="password" name="password_verify" value="" style="width:90%;">
-				</td>
-			</tr>
-		</table>
+		<select name="auth_extension_id">
+			{foreach from=$auth_extensions item=auth_ext_mft key=auth_ext_id}
+			<option value="{$auth_ext_id}" {if $worker->auth_extension_id==$auth_ext_id}selected="selected"{/if}>{$auth_ext_mft->name}</option>
+			{/foreach}
+		</select>
+		
+		<div class="cerb-auth-extension-params" style="margin:5px 0px 0px 10px;">
+			{if $worker->auth_extension_id}
+				{$login_ext = $worker->getAuthExtension()}
+				{$login_ext->renderWorkerConfig($worker)}
+			{/if}
+		</div>
 	</div>
 	
 	<div id="{$form_id}Groups">
@@ -319,7 +307,12 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title',"{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.worker'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+		{if $worker->id}
+			{$popup_title = "{'common.edit'|devblocks_translate|capitalize}: {$worker->getName()}"}
+		{else}
+			{$popup_title = "{'common.create'|devblocks_translate|capitalize}: {'common.worker'|devblocks_translate|capitalize}"}
+		{/if}
+		$popup.dialog('option','title',"{$popup_title|escape:'javascript' nofilter}");
 		
 		// Tabs
 		
@@ -374,6 +367,18 @@ $(function() {
 			var $table = $a.closest('table');
 			
 			$table.find('input:radio[value=' + value + ']').click();
+		});
+		
+		// Login extension
+		
+		var $auth_extension = $popup.find('select[name=auth_extension_id]');
+		var $auth_extension_params = $popup.find('div.cerb-auth-extension-params');
+		
+		$auth_extension.on('change', function(e) {
+			var auth_ext_id = $auth_extension.val();
+			
+			// Load the worker auth ext form
+			genericAjaxGet($auth_extension_params,'c=profiles&a=handleSectionAction&section=worker&action=getAuthExtensionParams&worker_id={$worker->id}&ext_id=' + encodeURIComponent(auth_ext_id));
 		});
 	});
 });
