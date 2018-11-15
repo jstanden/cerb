@@ -810,14 +810,27 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					if(!is_array($value))
 						$value = [$value];
 					
-					// Clear before inserting
-					self::unsetFieldValue($context, $context_id, $field_id);
+					// Clear before inserting if not delta
+					if(!$delta)
+						DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
 					
 					foreach($value as $v) {
 						if(empty($v))
 							continue;
 						
-						self::setFieldValue($context, $context_id, $field_id, $v, true);
+						if($delta) {
+							// Remove
+							if(DevblocksPlatform::strStartsWith($v, '-')) {
+								$v = ltrim($v, '-');
+								DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id, $v);
+							
+							// Delta add
+							} else {
+								DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $v, true);
+							}
+						} else {
+							DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $v, true);
+						}
 					}
 					break;
 

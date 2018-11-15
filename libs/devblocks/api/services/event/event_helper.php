@@ -665,8 +665,9 @@ class DevblocksEventHelper {
 				$builder = DevblocksPlatform::services()->templateBuilder();
 				$value = $builder->build($value, $dict);
 				
-				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
-
+				if(false === (DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $value])))
+					break;
+				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
 					$dict->$key_to_set = $value;
@@ -683,11 +684,9 @@ class DevblocksEventHelper {
 				$builder = DevblocksPlatform::services()->templateBuilder();
 				$value = $builder->build($value, $dict);
 				
-				$possible_values = array_map('mb_strtolower', $custom_field->params['options']);
-				
-				if(false === (DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value)))
+				if(false === (DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $value])))
 					break;
-
+				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
 					$dict->$key_to_set = $value;
@@ -721,11 +720,8 @@ class DevblocksEventHelper {
 
 				$value = is_numeric($value) ? $value : @strtotime($value);
 				
-				if(empty($value)) {
-					DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id);
-				} else {
-					DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $value);
-				}
+				if(false === (DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $value])))
+					break;
 				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
@@ -748,7 +744,7 @@ class DevblocksEventHelper {
 				$opts = DevblocksPlatform::parseCrlfString($values) ?: [];
 				
 				if(!$is_delta) {
-					DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $opts);
+					DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $opts]);
 					
 					if(!empty($value_key)) {
 						$key_to_set = $value_key.'_'.$field_id;
@@ -760,6 +756,8 @@ class DevblocksEventHelper {
 							$array[$field_id] = $opts;
 					}
 				} else {
+					DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $opts], true, true);
+					
 					$value_key_prefix = $value_key . '_';
 					
 					if(!empty($value_key)) {
@@ -773,21 +771,17 @@ class DevblocksEventHelper {
 						if(!is_array($array[$field_id]))
 							$array[$field_id] = [];
 						
+						
 						if(is_array($opts))
 						foreach($opts as $opt) {
-							
 							// Remove
 							if(DevblocksPlatform::strStartsWith($opt, '-')) {
 								$opt = ltrim($opt, '-');
-								
-								DAO_CustomFieldValue::unsetFieldValue($context, $context_id, $field_id, $opt);
 								unset($array[$field_id][$opt]);
 								
 							} else {
-								DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $opt, true);
 								$array[$field_id][$opt] = $opt;
 							}
-							
 						}
 					}
 				}
@@ -796,7 +790,7 @@ class DevblocksEventHelper {
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				@$opts = $params['values'];
 				
-				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $opts, true);
+				DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $opts], true, true);
 
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
@@ -822,7 +816,7 @@ class DevblocksEventHelper {
 					}
 				}
 				
-				DAO_CustomFieldValue::setFieldValue($context, $context_id, $field_id, $worker_id);
+				DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $worker_id]);
 				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
