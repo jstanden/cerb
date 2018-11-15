@@ -60,6 +60,27 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			&& intval($src_context_id) == intval($dst_context_id))
 				return false;
 		
+		// If someone is linking a custom fieldset, do that instead
+		if($src_context == Context_CustomFieldset::ID) {
+			$sql = sprintf("INSERT IGNORE INTO context_to_custom_fieldset (context, context_id, custom_fieldset_id) ".
+				"VALUES (%s, %d, %d)",
+				$db->qstr($dst_context),
+				$dst_context_id,
+				$src_context_id
+			);
+			$db->ExecuteMaster($sql);
+			return true;
+			
+		} elseif($dst_context == Context_CustomFieldset::ID) {
+			$sql = sprintf("INSERT IGNORE INTO context_to_custom_fieldset (context, context_id, custom_fieldset_id) ".
+				"VALUES (%s, %d, %d)",
+				$db->qstr($src_context),
+				$src_context_id,
+				$dst_context_id
+			);
+			$db->ExecuteMaster($sql);
+			return true;
+		}
 		$ext_src_context = Extension_DevblocksContext::get($src_context);
 		$ext_dst_context = Extension_DevblocksContext::get($dst_context);
 		
