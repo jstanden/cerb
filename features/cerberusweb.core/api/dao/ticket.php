@@ -1993,6 +1993,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const VIRTUAL_PARTICIPANT_SEARCH = '*_participant_search';
 	const VIRTUAL_STATUS = '*_status';
 	const VIRTUAL_WATCHERS = '*_workers';
+	const VIRTUAL_WATCHERS_COUNT = '*_workers_count';
 	const VIRTUAL_WORKER_COMMENTED = '*_worker_commented';
 	const VIRTUAL_WORKER_REPLIED = '*_worker_replied';
 	
@@ -2241,6 +2242,9 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
+				
+			case self::VIRTUAL_WATCHERS_COUNT:
+				return self::_getWhereSQLFromWatchersCountField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
 			
 			case self::VIRTUAL_WORKER_COMMENTED:
 				$ids = is_array($param->value) ? $param->value : array($param->value);
@@ -2441,9 +2445,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH, '*', 'participant_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status'), null, false),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
+			SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT, '*', 'workers_count', null, null, false),
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, '*', 'worker_commented', null, null, false),
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, '*', 'worker_replied', null, null, false),
-				
+			
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT', false),
 			SearchFields_Ticket::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT', false),
@@ -2696,6 +2701,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
 			SearchFields_Ticket::TICKET_STATUS_ID,
 			SearchFields_Ticket::VIRTUAL_WATCHERS,
+			SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT,
 			SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED,
 			SearchFields_Ticket::VIRTUAL_WORKER_REPLIED,
 		));
@@ -3326,6 +3332,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_WATCHERS),
 				),
+			'watchers.count' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT),
+				),
 			'worker.commented' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -3544,6 +3555,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Ticket::VIRTUAL_WATCHERS, $tokens);
 				break;
 				
+			case 'watchers.count':
+				return DevblocksSearchCriteria::getNumberParamFromTokens(SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT, $tokens);
+				break;
+				
 			case 'worker.commented':
 				$search_fields = SearchFields_Ticket::getFields();
 				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, $tokens, $search_fields[SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED]);
@@ -3720,6 +3735,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT:
+				$this->_renderVirtualWatchersCount($param);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED:
