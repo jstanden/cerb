@@ -787,6 +787,54 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		return null;
 	}
 	
+	static function _getWhereSQLFromWatchersCountField(DevblocksSearchCriteria $param, $from_context, $pkey) {
+		$where_sql = null;
+		
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_EQ:
+			case DevblocksSearchCriteria::OPER_NEQ:
+			case DevblocksSearchCriteria::OPER_GT:
+			case DevblocksSearchCriteria::OPER_GTE:
+			case DevblocksSearchCriteria::OPER_LT:
+			case DevblocksSearchCriteria::OPER_LTE:
+				$where_sql = sprintf("%s %d",
+					Cerb_ORMHelper::escape($param->operator),
+					$param->value
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IN:
+			case DevblocksSearchCriteria::OPER_NIN:
+				$values = DevblocksPlatform::sanitizeArray($param->value, 'int');
+				
+				$where_sql = sprintf("%s (%s)",
+					Cerb_ORMHelper::escape($param->operator),
+					implode(',', $values)
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_BETWEEN:
+				$values = DevblocksPlatform::sanitizeArray($param->value, 'int');
+				
+				$where_sql = sprintf("BETWEEN %d AND %d",
+					@$values[0] ?: 0,
+					@$values[1] ?: 0
+				);
+				break;
+		}
+		
+		if(!$where_sql)
+			return null;
+		
+		$sql = sprintf("(SELECT COUNT(*) FROM context_link WHERE from_context = %s AND from_context_id=%s AND to_context = %s) %s",
+			Cerb_ORMHelper::qstr($from_context),
+			Cerb_ORMHelper::escape($pkey),
+			Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER),
+			$where_sql
+		);
+		return $sql;
+	}
+	
 	static function _getWhereSQLFromCustomFields($param) {
 		if(0 == ($field_id = intval(substr($param->field,3))))
 			return 0;

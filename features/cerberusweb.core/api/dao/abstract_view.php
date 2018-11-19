@@ -1556,6 +1556,42 @@ abstract class C4_AbstractView {
 		return $this->_renderVirtualWorkers($param, 'Watcher', 'Watchers');
 	}
 	
+	protected function _renderVirtualWatchersCount($param) {
+		switch($param->operator) {
+			case DevblocksSearchCriteria::OPER_EQ:
+			case DevblocksSearchCriteria::OPER_NEQ:
+			case DevblocksSearchCriteria::OPER_GT:
+			case DevblocksSearchCriteria::OPER_GTE:
+			case DevblocksSearchCriteria::OPER_LT:
+			case DevblocksSearchCriteria::OPER_LTE:
+				echo sprintf("%s %s <b>%d</b>",
+					DevblocksPlatform::strEscapeHtml('Watcher count'),
+					$param->operator,
+					$param->value
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_IN:
+			case DevblocksSearchCriteria::OPER_NIN:
+				echo sprintf("%s %s <b>[%s]</b>",
+					DevblocksPlatform::strEscapeHtml('Watcher count'),
+					$param->operator,
+					implode(',', $param->value)
+				);
+				break;
+				
+			case DevblocksSearchCriteria::OPER_BETWEEN:
+			case DevblocksSearchCriteria::OPER_NOT_BETWEEN:
+				echo sprintf("%s %s <b>%d and %d</b>",
+					DevblocksPlatform::strEscapeHtml('Watcher count'),
+					$param->operator,
+					@$param->value[0] ?: 0,
+					@$param->value[1] ?: 0
+				);
+				break;
+		}
+	}
+	
 	protected function _renderVirtualWorkers($param, $label_singular='Worker', $label_plural='Workers') {
 		$workers = DAO_Worker::getAll();
 		$strings = [];
