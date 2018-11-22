@@ -497,8 +497,6 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
 		
@@ -552,17 +550,29 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 					$out .= sprintf(">>> Authenticating with %s\n\n", $connected_account->name);
 				}
 				break;
+				
+			case 'placeholder':
+				@$placeholder = $params['auth_placeholder'];
+				@$connected_account_id = $tpl_builder->build($placeholder, $dict);
+				
+				if(!$connected_account_id || false != ($connected_account = DAO_ConnectedAccount::get($connected_account_id))) {
+					if(!Context_ConnectedAccount::isUsableByActor($connected_account, $trigger->getBot()))
+						return "[ERROR] This behavior is attempting to use an unauthorized connected account.";
+					
+					$out .= sprintf(">>> Authenticating with %s\n\n", $connected_account->name);
+				}
+				break;
 		}
 		
 		$out .= sprintf(">>> Saving response to {{%1\$s}}\n".
-				" * {{%1\$s.body}}\n".
-				" * {{%1\$s.content_type}}\n".
-				" * {{%1\$s.error}}\n".
-				" * {{%1\$s.headers}}\n".
-				" * {{%1\$s.info}}\n".
-				" * {{%1\$s.info.http_code}}\n".
-				"\n",
-				$response_placeholder
+			" * {{%1\$s.body}}\n".
+			" * {{%1\$s.content_type}}\n".
+			" * {{%1\$s.error}}\n".
+			" * {{%1\$s.headers}}\n".
+			" * {{%1\$s.info}}\n".
+			" * {{%1\$s.info.http_code}}\n".
+			"\n",
+			$response_placeholder
 		);
 		
 		// If set to run in simulator as well
@@ -610,14 +620,21 @@ class VaAction_HttpRequest extends Extension_DevblocksEventAction {
 		if(empty($response_placeholder))
 			return false;
 		
-		$connected_account_id = 0;
-		
-		if($auth == 'connected_account') {
-			$options['connected_account_id'] = @intval($params['auth_connected_account_id']);
-			$options['trigger'] = $trigger;
+		switch($auth) {
+			case 'connected_account':
+				$options['connected_account_id'] = @intval($params['auth_connected_account_id']);
+				$options['trigger'] = $trigger;
+				break;
+				
+			case 'placeholder':
+				@$placeholder = $params['auth_placeholder'];
+				@$connected_account_id = $tpl_builder->build($placeholder, $dict);
+				$options['connected_account_id'] = @intval($connected_account_id);
+				$options['trigger'] = $trigger;
+				break;
 		}
 		
-		$response = $this->_execute($http_verb, $http_url, array(), $http_body, $http_headers, $options);
+		$response = $this->_execute($http_verb, $http_url, [], $http_body, $http_headers, $options);
 		$dict->$response_placeholder = $response;
 	}
 	

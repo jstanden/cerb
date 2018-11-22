@@ -29,6 +29,7 @@
 <div style="margin-left:10px;margin-bottom:10px;">
 	<label><input type="radio" name="{$namePrefix}[auth]" value="" {if !$params.auth}checked="checked"{/if}> {'common.none'|devblocks_translate|capitalize}</label>
 	<label><input type="radio" name="{$namePrefix}[auth]" value="connected_account" {if 'connected_account' == $params.auth}checked="checked"{/if}> {'common.connected_account'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="{$namePrefix}[auth]" value="placeholder" {if 'placeholder' == $params.auth}checked="checked"{/if}> {'common.placeholder'|devblocks_translate|capitalize}</label>
 </div>
 
 <div class="cerb-httprequest-connected-account" style="margin-left:20px;{if 'connected_account' != $params.auth}display:none;{/if}">
@@ -44,6 +45,13 @@
 				{/if}
 			{/if}
 		</ul>
+	</div>
+</div>
+
+<div class="cerb-httprequest-placeholder" style="margin-left:20px;{if 'placeholder' != $params.auth}display:none;{/if}">
+	<a href="javascript:;" class="chooser-account" data-field-name="{$namePrefix}[auth_placeholder]" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query=""><b>{'common.connected_account'|devblocks_translate|capitalize} {'common.id'|devblocks_translate}:</b></a>
+	<div style="margin-left:10px;margin-bottom:10px;">
+		<textarea name="{$namePrefix}[auth_placeholder]" class="placeholders" spellcheck="false" cols="45" rows="5" style="width:100%;" placeholder="e.g. {literal}{{connected_account_id}}{/literal}">{$params.auth_placeholder}</textarea>
 	</div>
 </div>
 
@@ -73,8 +81,22 @@
 $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 	
+	var $div_account = $action.find('div.cerb-httprequest-connected-account');
+	var $div_placeholder = $action.find('div.cerb-httprequest-placeholder');
+	
 	$action.find('.chooser-abstract')
 		.cerbChooserTrigger()
+		;
+	
+	$action.find('.chooser-account')
+		.cerbChooserTrigger()
+		.on('cerb-chooser-selected', function(e) {
+			var $editor = $div_placeholder.find('pre.ace_editor');
+			
+			var evt = new jQuery.Event('cerb.insertAtCursor');
+			{literal}evt.content = e.values[0] + '{# ' + e.labels[0] + ' #}';{/literal}
+			$editor.trigger(evt);
+		})
 		;
 	
 	$action.find('select.cerb-httprequest-verb').change(function() {
@@ -90,13 +112,18 @@ $(function() {
 	
 	$action.find('input[name="{$namePrefix}[auth]"]').change(function() {
 		var $container = $(this).closest('fieldset');
-		var $div_account = $container.find('div.cerb-httprequest-connected-account');
 		var val = $(this).val();
 		
-		if(val == 'connected_account')
+		if(val == 'connected_account') {
 			$div_account.show();
-		else
+			$div_placeholder.hide();
+		} else if(val == 'placeholder') {
+			$div_account.hide();
+			$div_placeholder.show();
+		} else {
 			$div_account.fadeOut();
+			$div_placeholder.fadeOut();
+		}
 	});
 });
 </script>
