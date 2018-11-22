@@ -281,7 +281,6 @@ class _DevblocksDatabaseManager {
 		}
 		
 		$this->_last_used_db = $db;
-		$fail_count = 0;
 
 		if(false === ($rs = mysqli_query($db, $sql))) {
 			// If the DB is down, try to reconnect

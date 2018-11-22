@@ -237,8 +237,6 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -316,7 +314,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_<?php echo $class_name; ?>::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_<?php echo $class_name; ?>', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_<?php echo $class_name; ?>', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 <?php
@@ -674,7 +672,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		// [TODO] Implement quick search fields
 		$search_fields = SearchFields_<?php echo $class_name; ?>::getFields();
 	
-		/*
 		$fields = array(
 			'text' => 
 				array(
@@ -718,7 +715,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 					'options' => array('param_key' => SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS),
 				),
 		);
-		*/
 		
 		// Add quick search links
 		
@@ -774,7 +770,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -785,8 +780,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK:
@@ -999,7 +992,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	
 	function getMeta($context_id) {
 		$<?php echo $ctx_var_model; ?> = DAO_<?php echo $class_name; ?>::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($<?php echo $ctx_var_model; ?>->name);
@@ -1160,8 +1152,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 	
@@ -1756,8 +1746,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
 				
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
+				$error = null;
 				
 				if(empty($id)) { // New
 					$fields = array(
@@ -1806,7 +1795,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 					);
-					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+					DAO_Comment::create($fields, $also_notify_worker_ids);
 				}
 				
 				// Custom field saves

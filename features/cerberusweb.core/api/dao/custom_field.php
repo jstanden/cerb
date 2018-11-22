@@ -867,7 +867,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					}
 					
 					// Protect from injection in cases where it's not desireable (controlled above)
-					foreach($value as $idx => $v) {
+					foreach($value as $v) {
 						$is_unset = ('-'==substr($v,0,1)) ? true : false;
 						$v = ltrim($v,'+-');
 							
@@ -919,7 +919,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					}
 					
 					// Protect from injection in cases where it's not desireable (controlled above)
-					foreach($value as $idx => $v) {
+					foreach($value as $v) {
 						if(empty($v))
 							continue;
 						
@@ -1038,7 +1038,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			
 			// Set values consistently
 			if(!is_array($value))
-				$value = array($value);
+				$value = [$value];
 				
 			foreach($value as $v) {
 				$sql = sprintf("INSERT INTO %s (field_id, context, context_id, field_value) ".

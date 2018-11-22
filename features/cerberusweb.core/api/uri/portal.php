@@ -26,7 +26,6 @@ class Controller_Portal extends DevblocksControllerExtension {
 		$stack = $request->path;
 		
 		$tpl = DevblocksPlatform::services()->template();
-		$umsession = ChPortalHelper::getSession();
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Globals for Community Tool template scope

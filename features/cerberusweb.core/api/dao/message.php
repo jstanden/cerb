@@ -371,7 +371,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		
 		// Remap first/last on ticket
-		foreach($messages as $message_id => $message) {
+		foreach($messages as $message) {
 			DAO_Ticket::rebuild($message->ticket_id);
 		}
 		
@@ -467,7 +467,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Message::getFields();
 		
-		list($tables,$wheres,$selects) = parent::_parseSearchParams($params, [], 'SearchFields_Message', $sortBy);
+		list($tables,$wheres,) = parent::_parseSearchParams($params, [], 'SearchFields_Message', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"m.id as %s, ".
@@ -1213,12 +1213,9 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::services()->log();
-		
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		
-		$ns = self::getNamespace();
 		$id = DAO_DevblocksExtensionPropertyStore::get(self::ID, 'last_indexed_id', 0);
 		$done = false;
 		
@@ -1767,12 +1764,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	function getQuickSearchFields() {
 		$search_fields = SearchFields_Message::getFields();
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		$group_names = DAO_Group::getNames($active_worker);
-		$worker_names = array_map(function(&$name) {
-			return '"'.$name.'"';
-		}, DAO_Worker::getNames());
-		
 		$fields = array(
 			'text' => 
 				array(
@@ -2020,7 +2011,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_Message::VIRTUAL_ATTACHMENTS_SEARCH:
@@ -2341,8 +2331,6 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function getContext($message, &$token_labels, &$token_values, $prefix=null) {
-		$is_nested = $prefix ? true : false;
-		
 		if(is_null($prefix))
 			$prefix = 'Message:';
 		

@@ -1853,11 +1853,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.jira_project.is_sync">
-			<tuv xml:lang="es_ES">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.jira_project.jira_id">
 			<tuv xml:lang="es_ES">
 				<seg/>
