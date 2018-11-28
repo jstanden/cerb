@@ -70,11 +70,9 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', null);
-				@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', null);
 				
 				$account = new Model_ConnectedAccount();
 				$account->id = 0;
-				$account->extension_id = $extension_id;
 				
 				// Edit
 				if($id) {
@@ -83,7 +81,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 						)
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 						
-					if(false == ($extension = $account->getExtension()))
+					if(false == ($service_extension = $account->getServiceExtension()))
 						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 					
 					$fields = array(
@@ -118,13 +116,17 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				
 				// Create
 				} else {
-					if(false == ($extension = Extension_ServiceProvider::get($extension_id)))
+					@$service_id = DevblocksPlatform::importGPC($_REQUEST['service_id'], 'integer', 0);
+					
+					$account->service_id = $service_id;
+					
+					if(false == ($service_extension = $account->getServiceExtension()))
 						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
 					
 					$fields = array(
 						DAO_ConnectedAccount::NAME => $name,
 						DAO_ConnectedAccount::UPDATED_AT => time(),
-						DAO_ConnectedAccount::EXTENSION_ID => $extension_id,
+						DAO_ConnectedAccount::SERVICE_ID => $service_id,
 					);
 					
 					// Owner (only admins)
@@ -154,10 +156,12 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 				
 				// Custom params
 				
+				$service = $account->getService();
 				$params = $account->decryptParams($active_worker) ?: [];
+				$error = null;
 				
-				if(true !== ($result = $extension->saveConfigForm($account, $params)))
-					throw new Exception_DevblocksAjaxValidationError($result);
+				if(true !== $service_extension->saveAccountConfigForm($service, $account, $params, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				if(empty($id)) {
 					if(!DAO_ConnectedAccount::validate($fields, $error))
@@ -293,15 +297,35 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 	}
 	
 	function authAction() {
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+		$edit_params = [
+			'id' => DevblocksPlatform::importGPC(@$_REQUEST['id'], 'integer', 0), 
+			'service_id' => DevblocksPlatform::importGPC(@$_REQUEST['service_id'], 'integer', 0), 
+		];
 		
-		// Load the extension
-		if(false == ($ext = Extension_ServiceProvider::get($extension_id)))
-			DevblocksPlatform::dieWithHttpError("Invalid extension.");
+		$validation = DevblocksPlatform::services()->validation();
+		$error = null;
 		
-		if(!$ext instanceof IServiceProvider_OAuth)
-			return;
-			
+		$validation
+			->addField('id', 'Account ID')
+			->id()
+			->setRequired(true)
+			->setNotEmpty(false)
+			;
+		$validation
+			->addField('service_id', 'Service ID')
+			->id()
+			->setRequired(true)
+			;
+		
+		if(false === $validation->validateAll($edit_params, $error))
+			DevblocksPlatform::dieWithHttpError($error);
+		
+		if(false == ($service = DAO_ConnectedService::get($edit_params['service_id'])))
+			DevblocksPlatform::dieWithHttpError("Invalid service provider.");
+		
+		if(false == ($ext = $service->getExtension()))
+			DevblocksPlatform::dieWithHttpError("Invalid service provider extension.");
+		
 		$ext->oauthRender();
 	}
 };

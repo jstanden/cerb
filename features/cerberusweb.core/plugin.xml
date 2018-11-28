@@ -68,7 +68,7 @@
 		<patch version="8.4.0" revision="1282" file="patches/8.x/8.4.0.php" />
 		
 		<patch version="9.0.0" revision="1313" file="patches/9.x/9.0.0.php" />
-		<patch version="9.1.0" revision="1320" file="patches/9.x/9.1.0.php" />
+		<patch version="9.1.0" revision="1322" file="patches/9.x/9.1.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -92,7 +92,6 @@
 			<class name="CerbMailTransport_Smtp" />
 			<class name="IServiceProvider_HttpRequestSigner" />
 			<class name="IServiceProvider_OAuth" />
-			<class name="IServiceProvider_OAuthRefresh" />
 		</file>
 		
 		<file path="api/dao/abstract_custom_record.php">
@@ -299,6 +298,14 @@
 			<class name="Model_ConnectedAccount" />
 			<class name="SearchFields_ConnectedAccount" />
 			<class name="View_ConnectedAccount" />
+		</file>
+		
+		<file path="api/dao/connected_service.php">
+			<class name="Context_ConnectedService" />
+			<class name="DAO_ConnectedService" />
+			<class name="Model_ConnectedService" />
+			<class name="SearchFields_ConnectedService" />
+			<class name="View_ConnectedService" />
 		</file>
 		
 		<file path="api/dao/context_link.php">
@@ -1391,9 +1398,51 @@
 					<value>
 						<data key="cards" />
 						<data key="custom_fields" />
-						<data key="records" />
 						<data key="links" />
+						<data key="records" />
 						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.connected_service</id>
+			<name>Connected Service</name>
+			<class>
+				<file>api/dao/connected_service.php</file>
+				<name>Context_ConnectedService</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="connected service" value="singular" />
+						<data key="connected services" value="plural" />
+						<data key="service" value="singular short" />
+						<data key="services" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="connected_service" />
+				<param key="dao_class" value="DAO_ConnectedService" />
+				<param key="view_class" value="View_ConnectedService" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
 						<data key="workspace" />
 					</value>
 				</param>
@@ -4151,7 +4200,7 @@
 			</params>
 		</extension>
 
-		<!-- Connected Services -->
+		<!-- Connected Service Providers -->
 		
 		<extension point="cerb.service.provider">
 			<id>core.service.provider.cerb</id>
@@ -5467,6 +5516,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="connected_account" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.connected_service</id>
+				<name>Connected Service Section</name>
+				<class>
+					<file>api/uri/profiles/connected_service.php</file>
+					<name>PageSection_ProfilesConnectedService</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="connected_service" />
 				</params>
 			</extension>
 			

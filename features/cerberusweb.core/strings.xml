@@ -657,6 +657,16 @@
 				<seg>connected accounts</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.connected_service">
+			<tuv xml:lang="en_US">
+				<seg>connected service</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.connected_services">
+			<tuv xml:lang="en_US">
+				<seg>connected services</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.contact">
 			<tuv xml:lang="en_US">
 				<seg>contact</seg>

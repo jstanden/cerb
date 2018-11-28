@@ -58,9 +58,9 @@ $extension_point_meta = [
 		'examples' => [],
 		'extensible' => true,
 		],
-	'cerb.service.provider' => [
-		'label' => 'Connected Account Service Provider',
-		'class' => 'Extension_ServiceProvider',
+	'cerb.connected_service.provider' => [
+		'label' => 'Connected Service Provider',
+		'class' => 'Extension_ConnectedServiceProvider',
 		'examples' => [],
 		'extensible' => true,
 		],

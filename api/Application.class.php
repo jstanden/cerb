@@ -998,6 +998,7 @@ class CerberusContexts {
 	const CONTEXT_CLASSIFIER_EXAMPLE = 'cerberusweb.contexts.classifier.example';
 	const CONTEXT_COMMENT = 'cerberusweb.contexts.comment';
 	const CONTEXT_CONNECTED_ACCOUNT = 'cerberusweb.contexts.connected_account';
+	const CONTEXT_CONNECTED_SERVICE = 'cerberusweb.contexts.connected_service';
 	const CONTEXT_CONTACT = 'cerberusweb.contexts.contact';
 	const CONTEXT_CONTEXT_AVATAR = 'cerberusweb.contexts.context.avatar';
 	const CONTEXT_CURRENCY = 'cerberusweb.contexts.currency';

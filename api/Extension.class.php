@@ -1063,15 +1063,15 @@ abstract class Extension_CommunityPortal extends DevblocksExtension implements D
 	}
 };
 
-abstract class Extension_ServiceProvider extends DevblocksExtension {
-	const POINT = 'cerb.service.provider';
+abstract class Extension_ConnectedServiceProvider extends DevblocksExtension {
+	const POINT = 'cerb.connected_service.provider';
 	
 	static $_registry = [];
 	
 	/**
 	 * @internal
 	 * 
-	 * @return DevblocksExtensionManifest[]|Extension_ServiceProvider[]
+	 * @return DevblocksExtensionManifest[]|Extension_ConnectedServiceProvider[]
 	 */
 	static function getAll($as_instances=true) {
 		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
@@ -1093,7 +1093,7 @@ abstract class Extension_ServiceProvider extends DevblocksExtension {
 			return self::$_registry[$extension_id];
 		
 		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
-			&& $extension instanceof Extension_ServiceProvider) {
+			&& $extension instanceof Extension_ConnectedServiceProvider) {
 
 			self::$_registry[$extension->id] = $extension;
 			return $extension;
@@ -1102,6 +1102,13 @@ abstract class Extension_ServiceProvider extends DevblocksExtension {
 		return null;
 	}
 	
-	abstract function renderConfigForm(Model_ConnectedAccount $account);
-	abstract function saveConfigForm(Model_ConnectedAccount $account, array &$params);
+	abstract function renderConfigForm(Model_ConnectedService $service);
+	abstract function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null);
+	
+	abstract function renderAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account);
+	abstract function saveAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account, array &$params, &$error=null);
+	
+	abstract function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options=[]) : bool;
+	
+	function ajaxAction() {}
 };

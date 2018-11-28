@@ -1,4 +1,4 @@
-{$view_context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}
+{$view_context = CerberusContexts::CONTEXT_CONNECTED_SERVICE}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}
@@ -10,10 +10,11 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal cerb-peek-trigger" data-context="{$view_context}" data-context-id="0" data-edit="true"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="0"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=viewShowQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=viewCustomize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
+			{if $active_worker->hasPriv("contexts.{$view_context}.import")}<a href="javascript:;" title="{$translate->_('common.import')|capitalize}" onclick="genericAjaxPopup('import','c=internal&a=showImportPopup&context={$view_context}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-file-import"></span></a>{/if}
 			{if $active_worker->hasPriv("contexts.{$view_context}.export")}<a href="javascript:;" title="{$translate->_('common.export')|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-file-export"></span></a>{/if}
 			<a href="javascript:;" title="{$translate->_('common.copy')|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=viewShowCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
 			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
@@ -29,16 +30,22 @@
 <input type="hidden" name="context_id" value="{$view_context}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="connected_account">
+<input type="hidden" name="section" value="connected_service">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<thead>
 	<tr>
+		{if !$view->options.disable_watchers}
+		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.watchers'|devblocks_translate|capitalize}">
+			<span class="glyphicons glyphicons-eye-open" style="color:rgb(80,80,80);"></span>
+		</th>
+		{/if}
+
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th class="{if $view->options.disable_sorting}no-sort{/if}">
@@ -56,15 +63,9 @@
 		{/foreach}
 	</tr>
 	</thead>
-	
-	{* Bulk lazy load services *}
-	{$object_services = []}
-	{if in_array(SearchFields_ConnectedAccount::SERVICE_ID, $view->view_columns)}
-		{$service_ids = DevblocksPlatform::extractArrayValues($results, 'c_service_id')}
-		{$object_services = DAO_ConnectedService::getIds($service_ids)}
-	{/if}
 
 	{* Column Data *}
+	{$object_watchers = DAO_ContextLink::getContextLinks($view_context, array_keys($data), CerberusContexts::CONTEXT_WORKER)}
 	{foreach from=$data item=result key=idx name=results}
 
 	{if $smarty.foreach.results.iteration % 2}
@@ -74,43 +75,31 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
+			<td data-column="*_watchers" align="center" nowrap="nowrap" style="padding:5px;">
+				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$view_context context_id=$result.c_id}
+			</td>
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column == "c_name"}
-			<td data-column="{$column}">
+			<td>
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&type=connected_account&id={$result.c_id}-{$result.c_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_name}</a>
-				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
+				<a href="{devblocks_url}c=profiles&type=connected_service&id={$result.c_id}-{$result.c_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_name}</a>
+				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
-			{elseif in_array($column, ['c_created_at', 'c_updated_at'])}
-				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
+			{elseif in_array($column, ["c_extension_id"])}
+				<td>
+					{$provider = $providers.{$result.$column}}
+					{if $provider}
+						{$provider->name}
+					{else}
+						{$result.$column}
+					{/if}
+				</td>
+			{elseif in_array($column, ["c_updated_at"])}
+				<td>
 					{if !empty($result.$column)}
-						{$result.$column|devblocks_prettytime}&nbsp;
-					{/if}
-				</td>
-			{elseif $column=="c_service_id"}
-				<td data-column="{$column}">
-					{$service = $object_services[$result.$column]}
-					{if $service}
-						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_SERVICE}" data-context-id="{$service->id}">{$service->name}</a>
-					{/if}
-				</td>
-			{elseif $column=="*_owner"}
-				{$owner_context = $result.c_owner_context}
-				{$owner_context_id = $result.c_owner_context_id}
-				{$owner_context_ext = Extension_DevblocksContext::get($owner_context)}
-				<td data-column="{$column}">
-					{if !is_null($owner_context_ext)}
-						{$meta = $owner_context_ext->getMeta($owner_context_id)}
-						{if !empty($meta)}
-							<img src="{devblocks_url}c=avatars&context={$owner_context_ext->id}&context_id={$owner_context_id}{/devblocks_url}?v={$result.c_updated_at}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
-							{if $owner_context_id} 
-							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{$owner_context}" data-context-id="{$owner_context_id}">{$meta.name}</a>
-							{else}
-							{$meta.name}
-							{/if}
-						{/if}
+						<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 					{/if}
 				</td>
 			{else}
@@ -159,33 +148,35 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
-
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	$view_actions = $('#{$view->id}_actions');
+$(function() {
+	var $frm = $('#viewForm{$view->id}');
 	
-	hotkey_activated = true;
-
-	switch(event.keypress_event.which) {
-		case 101: // (e) explore
-			$btn = $view_actions.find('button.action-explore');
+	{if $pref_keyboard_shortcuts}
+	$frm.bind('keyboard_shortcut',function(event) {
+		$view_actions = $('#{$view->id}_actions');
 		
-			if(event.indirect) {
-				$btn.select().focus();
-				
-			} else {
-				$btn.click();
-			}
-			break;
+		hotkey_activated = true;
+	
+		switch(event.keypress_event.which) {
+			case 101: // (e) explore
+				$btn = $view_actions.find('button.action-explore');
 			
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
+				if(event.indirect) {
+					$btn.select().focus();
+					
+				} else {
+					$btn.click();
+				}
+				break;
+				
+			default:
+				hotkey_activated = false;
+				break;
+		}
+	
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+	{/if}
 });
-{/if}
 </script>

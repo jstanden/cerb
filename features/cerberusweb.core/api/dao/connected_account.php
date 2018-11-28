@@ -1,12 +1,12 @@
 <?php
 class DAO_ConnectedAccount extends Cerb_ORMHelper {
 	const CREATED_AT = 'created_at';
-	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const PARAMS_JSON = 'params_json';
+	const SERVICE_ID = 'service_id';
 	const UPDATED_AT = 'updated_at';
 	
 	private function __construct() {}
@@ -17,22 +17,6 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CREATED_AT)
 			->timestamp()
-			;
-		$validation
-			->addField(self::EXTENSION_ID)
-			->string()
-			->setRequired(true)
-			->addValidator(function($value, &$error) {
-				if(false == (Extension_ServiceProvider::get($value))) {
-					$error = sprintf("(%s) is not a valid service provider (%s) extension ID.",
-						$value,
-						Extension_ServiceProvider::POINT
-					);
-					return false;
-				}
-				
-				return true;
-			})
 			;
 		$validation
 			->addField(self::ID)
@@ -58,6 +42,11 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			->addField(self::PARAMS_JSON)
 			->string()
 			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::SERVICE_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CONNECTED_SERVICE, true))
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -155,51 +144,59 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	static function getByExtension($extension_id) {
-		$accounts = DAO_ConnectedAccount::getAll();
+	/*
+	 * 
+	 */
+	static function getByServiceExtension($extension_id) {
+		if(is_null($extension_id))
+			return self::getAll();
 		
-		if(!is_null($extension_id)) {
-			$accounts = array_filter($accounts, function($account) use ($extension_id) {
-				return $account->extension_id == $extension_id;
-			});
-		}
+		if(false == ($services = DAO_ConnectedService::getByExtension($extension_id)))
+			return [];
+		
+		$accounts = DAO_ConnectedAccount::getByServiceIds(array_keys($services));
 		
 		return $accounts;
 	}
 	
+	/*
+	 * 
+	 */
+	static function getByServiceIds($service_ids) {
+		$service_ids = DevblocksPlatform::sanitizeArray($service_ids, 'int', ['nonzero','unique']);
+		
+		if(empty($service_ids))
+			return [];
+		
+		return self::getWhere(
+			sprintf("%s IN (%s)",
+				DAO_ConnectedAccount::SERVICE_ID,
+				implode(',', $service_ids)
+			)
+		);
+	}
+	
+	/*
+	 *
+	 */
 	static function getReadableByActor($actor, $extension_id=null) {
-		$accounts = DAO_ConnectedAccount::getAll();
-		
-		if(!is_null($extension_id)) {
-			$accounts = array_filter($accounts, function($account) use ($extension_id) {
-				return $account->extension_id == $extension_id;
-			});
-		}
-		
+		$accounts = DAO_ConnectedAccount::getByServiceExtension($extension_id);
 		return CerberusContexts::filterModelsByActorReadable('Context_ConnectedAccount', $accounts, $actor);
 	}
 	
+	/*
+	 *
+	 */
 	static function getWriteableByActor($actor, $extension_id=null) {
-		$accounts = DAO_ConnectedAccount::getAll();
-		
-		if(!is_null($extension_id)) {
-			$accounts = array_filter($accounts, function($account) use ($extension_id) {
-				return $account->extension_id == $extension_id;
-			});
-		}
-		
+		$accounts = DAO_ConnectedAccount::getByServiceExtension($extension_id);
 		return CerberusContexts::filterModelsByActorWriteable('Context_ConnectedAccount', $accounts, $actor);
 	}
 	
+	/*
+	 *
+	 */
 	static function getUsableByActor($actor, $extension_id=null) {
-		$accounts = DAO_ConnectedAccount::getAll();
-		
-		if(!is_null($extension_id)) {
-			$accounts = array_filter($accounts, function($account) use ($extension_id) {
-				return $account->extension_id == $extension_id;
-			});
-		}
-		
+		$accounts = DAO_ConnectedAccount::getByServiceExtension($extension_id);
 		return array_intersect_key($accounts, array_flip(array_keys(Context_ConnectedAccount::isUsableByActor($accounts, $actor), true)));
 	}
 	
@@ -242,7 +239,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, extension_id, owner_context, owner_context_id, params_json, created_at, updated_at ".
+		$sql = "SELECT id, name, service_id, owner_context, owner_context_id, params_json, created_at, updated_at ".
 			"FROM connected_account ".
 			$where_sql.
 			$sort_sql.
@@ -344,7 +341,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			$object = new Model_ConnectedAccount();
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
-			$object->extension_id = $row['extension_id'];
+			$object->service_id = intval($row['service_id']);
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->params_json_encrypted = $row['params_json'];
@@ -405,14 +402,14 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"connected_account.id as %s, ".
 			"connected_account.name as %s, ".
-			"connected_account.extension_id as %s, ".
+			"connected_account.service_id as %s, ".
 			"connected_account.owner_context as %s, ".
 			"connected_account.owner_context_id as %s, ".
 			"connected_account.created_at as %s, ".
 			"connected_account.updated_at as %s ",
 				SearchFields_ConnectedAccount::ID,
 				SearchFields_ConnectedAccount::NAME,
-				SearchFields_ConnectedAccount::EXTENSION_ID,
+				SearchFields_ConnectedAccount::SERVICE_ID,
 				SearchFields_ConnectedAccount::OWNER_CONTEXT,
 				SearchFields_ConnectedAccount::OWNER_CONTEXT_ID,
 				SearchFields_ConnectedAccount::CREATED_AT,
@@ -505,7 +502,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	const ID = 'c_id';
 	const NAME = 'c_name';
-	const EXTENSION_ID = 'c_extension_id';
+	const SERVICE_ID = 'c_service_id';
 	const OWNER_CONTEXT = 'c_owner_context';
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
 	const CREATED_AT = 'c_created_at';
@@ -581,12 +578,13 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	
 	static function getLabelsForKeyValues($key, $values) {
 		switch($key) {
-			case SearchFields_ConnectedAccount::EXTENSION_ID:
-				return self::_getLabelsForKeyExtensionValues(Extension_ServiceProvider::POINT);
-				break;
-				
 			case SearchFields_ConnectedAccount::ID:
 				$models = DAO_ConnectedAccount::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
+				
+			case SearchFields_ConnectedAccount::SERVICE_ID:
+				$models = DAO_ConnectedService::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 				break;
 				
@@ -615,12 +613,12 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'connected_account', 'created_at', $translate->_('common.created'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'connected_account', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'connected_account', 'name', $translate->_('common.name'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'connected_account', 'extension_id', $translate->_('common.service.provider'), null, true),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'connected_account', 'owner_context', null, null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'connected_account', 'owner_context_id', null, null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'connected_account', 'created_at', $translate->_('common.created'), null, true),
+			self::SERVICE_ID => new DevblocksSearchField(self::SERVICE_ID, 'connected_account', 'service_id', $translate->_('common.service.provider'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'connected_account', 'updated_at', $translate->_('common.updated'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -642,17 +640,24 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 };
 
 class Model_ConnectedAccount {
+	public $created_at;
 	public $id;
 	public $name;
-	public $extension_id;
 	public $owner_context;
 	public $owner_context_id;
 	public $params_json_encrypted;
-	public $created_at;
+	public $service_id = 0;
 	public $updated_at;
 	
-	public function getExtension() {
-		return Extension_ServiceProvider::get($this->extension_id);
+	public function getService() {
+		return DAO_ConnectedService::get($this->service_id);
+	}
+	
+	public function getServiceExtension() {
+		if(false == ($service = $this->getService()))
+			return null;
+		
+		return $service->getExtension();
 	}
 	
 	public function decryptParams($actor=null) {
@@ -670,30 +675,15 @@ class Model_ConnectedAccount {
 		return $params;
 	}
 	
-	public function canAuthenticateHttpRequests() {
+	public function authenticateHttpRequest(Psr\Http\Message\RequestInterface &$request, array &$options, $actor) : bool {
 		// Load the extension for this connected account
-		if(false == ($ext = Extension_ServiceProvider::get($this->extension_id)))
-			return false;
-		
-		if($ext instanceof IServiceProvider_HttpRequestSigner)
-			return true;
-		
-		return false;
-	}
-	
-	public function authenticateHttpRequest(&$ch, &$verb, &$url, &$body, &$headers, $actor) {
-		// Load the extension for this connected account
-		if(false == ($ext = Extension_ServiceProvider::get($this->extension_id)))
+		if(false == ($ext = $this->getServiceExtension()))
 			return false;
 		
 		if(!Context_ConnectedAccount::isUsableByActor($this, $actor))
 			return false;
 		
-		// Check the interface on the service
-		if(!($ext instanceof IServiceProvider_HttpRequestSigner))
-			return false;
-		
-		return $ext->authenticateHttpRequest($this, $ch, $verb, $url, $body, $headers);
+		return $ext->authenticateHttpRequest($this, $request, $options);
 	}
 };
 
@@ -709,7 +699,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 
 		$this->view_columns = array(
 			SearchFields_ConnectedAccount::NAME,
-			SearchFields_ConnectedAccount::EXTENSION_ID,
+			SearchFields_ConnectedAccount::SERVICE_ID,
 			SearchFields_ConnectedAccount::VIRTUAL_OWNER,
 			SearchFields_ConnectedAccount::UPDATED_AT,
 		);
@@ -759,7 +749,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 			
 			switch($field_key) {
 				// Fields
-				case SearchFields_ConnectedAccount::EXTENSION_ID:
+				case SearchFields_ConnectedAccount::SERVICE_ID:
 					$pass = true;
 					break;
 					
@@ -793,11 +783,13 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 			return array();
 		
 		switch($column) {
-			case SearchFields_ConnectedAccount::EXTENSION_ID:
-				$label_map = array_column(DevblocksPlatform::objectsToArrays(Extension_ServiceProvider::getAll(false)), 'name', 'id');
+			case SearchFields_ConnectedAccount::SERVICE_ID:
+				$label_map = function($ids) use ($column) {
+					return SearchFields_ConnectedAccount::getLabelsForKeyValues($column, $ids);
+				};
 				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map);
-				
 				break;
+				
 			case SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
@@ -857,10 +849,18 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ConnectedAccount::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'service.id' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_ConnectedAccount::SERVICE_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CONNECTED_SERVICE, 'q' => ''],
+					]
+				),
 			'service' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ConnectedAccount::EXTENSION_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_ConnectedAccount::SERVICE_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'updated' => 
 				array(
@@ -919,10 +919,6 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		// Extension manifests
-		$provider_mfts = Extension_ServiceProvider::getAll(false);
-		$tpl->assign('provider_mfts', $provider_mfts);
-		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT);
 		$tpl->assign('custom_fields', $custom_fields);
@@ -933,11 +929,12 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_ConnectedAccount::EXTENSION_ID:
-				$label_map = SearchFields_ConnectedAccount::getLabelsForKeyValues($field, $values);
+			case SearchFields_ConnectedAccount::SERVICE_ID:
+				$label_map = function($ids) use ($field) {
+					return SearchFields_ConnectedAccount::getLabelsForKeyValues($field, $ids);
+				};
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
 				
@@ -974,11 +971,11 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 
 		switch($field) {
 			case SearchFields_ConnectedAccount::NAME:
-			case SearchFields_ConnectedAccount::EXTENSION_ID:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_ConnectedAccount::ID:
+			case SearchFields_ConnectedAccount::SERVICE_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -1102,10 +1099,10 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			],
 		);
 			
-		$properties['extension'] = array(
+		$properties['service'] = array(
 			'label' => mb_ucfirst($translate->_('common.service.provider')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->extension_id,
+			'value' => @$model->getService()->name,
 		);
 		
 		$properties['created'] = array(
@@ -1143,7 +1140,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	function getDefaultProperties() {
 		return array(
 			'owner__label',
-			'service',
+			'service__label',
 			'updated_at',
 		);
 	}
@@ -1197,7 +1194,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
 		$token_values['_types'] = $token_types;
@@ -1207,7 +1204,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$token_values['_label'] = $connected_account->name;
 			$token_values['id'] = $connected_account->id;
 			$token_values['name'] = $connected_account->name;
-			$token_values['service'] = $connected_account->extension_id;
+			$token_values['service_id'] = $connected_account->service_id;
 			$token_values['updated_at'] = $connected_account->updated_at;
 			
 			$token_values['owner__context'] = $connected_account->owner_context;
@@ -1221,18 +1218,29 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=connected_account&id=%d-%s",$connected_account->id, DevblocksPlatform::strToPermalink($connected_account->name)), true);
 		}
 		
+		// Service
+		$merge_token_labels = $merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CONNECTED_SERVICE, null, $merge_token_labels, $merge_token_values, '', true);
+			CerberusContexts::merge(
+				'service_',
+				$prefix.'Service:',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
+		
 		return true;
 	}
 	
 	function getKeyToDaoFieldMap() {
 		return [
-			'extension_id' => DAO_ConnectedAccount::EXTENSION_ID,
 			'id' => DAO_ConnectedAccount::ID,
 			'links' => '_links',
 			'name' => DAO_ConnectedAccount::NAME,
 			'owner__context' => DAO_ConnectedAccount::OWNER_CONTEXT,
 			'owner_id' => DAO_ConnectedAccount::OWNER_CONTEXT_ID,
-			'service' => DAO_ConnectedAccount::EXTENSION_ID,
+			'service_id' => DAO_ConnectedAccount::SERVICE_ID,
 			'updated_at' => DAO_ConnectedAccount::UPDATED_AT,
 		];
 	}
@@ -1240,10 +1248,8 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
-		$keys['service']['type'] = "extension";
-		$keys['service']['notes'] = "[Service Provider](/docs/plugins/extensions/points/cerb.service.provider/)";
-		
-		unset($keys['extension_id']);
+		$keys['service_id']['type'] = "id";
+		$keys['service_id']['notes'] = "[Service Provider](/docs/plugins/extensions/points/cerb.connected_service.provider/)";
 		
 		return $keys;
 	}
@@ -1397,8 +1403,8 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 						continue;
 					
 					switch($k) {
-						case 'service':
-							$model->extension_id = $v;
+						case 'service.id':
+							$model->service_id = intval($v);
 							break;
 					}
 				}
@@ -1406,10 +1412,25 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			
 			$tpl->assign('model', $model);
 			
-			if(empty($context_id) && empty($model->extension_id)) {
-				$services = Extension_ServiceProvider::getAll(false);
-				$tpl->assign('services', $services);
+			if(empty($context_id) && empty($model->service_id)) {
+				$service_manifests = Extension_ConnectedServiceProvider::getAll(false);
 				
+				// Only instantiatable
+				// [TODO] Cache this?
+				$services = array_filter(
+					DAO_ConnectedService::getAll(),
+					function($service) use ($service_manifests) {
+						if(false == (@$service_manifest = $service_manifests[$service->extension_id]))
+							return false;
+						
+						return $service_manifest->hasOption('accounts');
+					}
+				);
+				
+				// Sort services by name
+				DevblocksPlatform::sortObjects($services, 'name');
+				
+				$tpl->assign('services', $services);
 				$tpl->display('devblocks:cerberusweb.core::internal/connected_account/new.tpl');
 				return;
 			}

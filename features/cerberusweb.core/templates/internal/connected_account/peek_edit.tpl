@@ -1,4 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}
+{$service = $model->getService()}
+
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -6,7 +8,8 @@
 <input type="hidden" name="section" value="connected_account">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
-{if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+<input type="hidden" name="id" value="{$model->id}">
+<input type="hidden" name="service_id" value="{$service->id}">
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -22,12 +25,9 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.service'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<input type="hidden" name="extension_id" value="{$model->extension_id}">
-				{$ext = $model->getExtension()}
-				{if $ext}
-					{$ext->manifest->name}
-				{else}
-					{$model->extension_id}
+				<input type="hidden" name="service_id" value="{$model->service_id}">
+				{if $service}
+					{$service->name}
 				{/if}
 			</td>
 		</tr>
@@ -45,9 +45,11 @@
 	</table>
 </fieldset>
 
-{$extension = $model->getExtension()}
-{if $extension}
-	{$extension->renderConfigForm($model)}
+{if $service}
+	{$service_ext = $service->getExtension()}
+	{if $service_ext}
+		{$service_ext->renderAccountConfigForm($service, $model)}
+	{/if}
 {/if}
 
 {if !empty($custom_fields)}
