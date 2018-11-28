@@ -15,14 +15,24 @@
 
 <table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
 	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 		</td>
 	</tr>
 	
 	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.type'|devblocks_translate}:</b></td>
+		<td width="1%" valign="top" nowrap="nowrap"><b><abbr title="The alias used for this service in callback URLs, etc. Must only contain letters, numbers, and dashes.">{'common.uri'|devblocks_translate}:</b></abbr></td>
+		<td width="99%" valign="top">
+			<input type="text" name="uri" value="{$model->uri}" style="width:98%;">
+			<div>
+				<small>(letters, numbers, and dashes)</small>
+			</div>
+		</td>
+	</tr>
+	
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.type'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 		{if 0 == $model->id}
 			<select name="extension_id">

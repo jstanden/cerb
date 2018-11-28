@@ -58,6 +58,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
 				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+				@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'], 'string', '');
 				
 				$service = new Model_ConnectedService();
 				$service->id = 0;
@@ -83,6 +84,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 					$fields = array(
 						DAO_ConnectedService::NAME => $name,
 						DAO_ConnectedService::UPDATED_AT => time(),
+						DAO_ConnectedService::URI => $uri,
 					);
 				}
 				

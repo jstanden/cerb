@@ -44,6 +44,7 @@ if(!isset($tables['connected_service'])) {
 	CREATE TABLE `connected_service` (
 		id int unsigned auto_increment,
 		name varchar(255) not null default '',
+		uri varchar(255) not null default '',
 		extension_id varchar(255) not null default '',
 		params_json text,
 		updated_at int unsigned not null default 0,

@@ -5,6 +5,7 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
+	const URI = 'uri';
 	
 	private function __construct() {}
 	
@@ -43,8 +44,31 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 			->setMaxLength(16777215)
 			;
 		$validation
-			->addField(self::UPDATED_AT)
+			->addField(self::UPDATED_AT, DevblocksPlatform::translateCapitalized('common.updated'))
 			->timestamp()
+			;
+		$validation
+			->addField(self::URI, DevblocksPlatform::translate('common.uri'))
+			->string()
+			->setUnique(get_class())
+			->setNotEmpty(false)
+			->addFormatter(function(&$value, &$error=null) {
+				$value = DevblocksPlatform::strLower($value);
+				return true;
+			})
+			->addValidator(function($string, &$error=null) {
+				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-'))) {
+					$error = "may only contain lowercase letters, numbers, and dashes";
+					return false;
+				}
+					
+				if(strlen($string) > 64) {
+					$error = "must be shorter than 64 characters.";
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		$validation
 			->addField('_links')
@@ -137,7 +161,7 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, extension_id, updated_at, params_json ".
+		$sql = "SELECT id, name, uri, extension_id, updated_at, params_json ".
 			"FROM connected_service ".
 			$where_sql.
 			$sort_sql.
@@ -225,6 +249,11 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 		return $models;
 	}
 	
+	/**
+	 * 
+	 * @param string $extension_id
+	 * @return Model_ConnectedService[]
+	 */
 	static function getByExtension($extension_id) {
 		return self::getWhere(
 			sprintf("%s = %s",
@@ -232,6 +261,45 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 				Cerb_ORMHelper::qstr($extension_id)
 			)
 		);
+	}
+	
+	/**
+	 * 
+	 * @param array $extension_ids
+	 * @return Model_ConnectedService[]
+	 */
+	static function getByExtensions(array $extension_ids) {
+		if(empty($extension_ids))
+			return [];
+		
+		return self::getWhere(
+			sprintf("%s IN (%s)",
+				self::EXTENSION_ID,
+				implode(',', Cerb_ORMHelper::qstrArray($extension_ids))
+			)
+		);
+	}
+	
+	/**
+	 * 
+	 * @param string $uri
+	 * @return Model_ConnectedService|NULL
+	 */
+	static function getByUri($uri) {
+		if(empty($uri))
+			return null;
+		
+		$results = self::getWhere(
+			sprintf("%s = %s",
+				self::URI,
+				Cerb_ORMHelper::qstr($uri)
+			)
+		);
+		
+		if(empty($results))
+			return null;
+		
+		return array_shift($results);
 	}
 	
 	/**
@@ -249,6 +317,7 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->extension_id = $row['extension_id'];
 			$object->name = $row['name'];
+			$object->uri = $row['uri'];
 			$object->updated_at = intval($row['updated_at']);
 			$object->params_json_encrypted = $row['params_json'];
 			$objects[$object->id] = $object;
@@ -306,10 +375,12 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"connected_service.id as %s, ".
 			"connected_service.name as %s, ".
+			"connected_service.uri as %s, ".
 			"connected_service.extension_id as %s, ".
 			"connected_service.updated_at as %s ",
 				SearchFields_ConnectedService::ID,
 				SearchFields_ConnectedService::NAME,
+				SearchFields_ConnectedService::URI,
 				SearchFields_ConnectedService::EXTENSION_ID,
 				SearchFields_ConnectedService::UPDATED_AT
 			);
@@ -401,6 +472,7 @@ class SearchFields_ConnectedService extends DevblocksSearchFields {
 	const EXTENSION_ID = 'c_extension_id';
 	const ID = 'c_id';
 	const NAME = 'c_name';
+	const URI = 'c_uri';
 	const UPDATED_AT = 'c_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -479,6 +551,7 @@ class SearchFields_ConnectedService extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'connected_service', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'connected_service', 'name', $translate->_('common.name'), null, true),
+			self::URI => new DevblocksSearchField(self::URI, 'connected_service', 'uri', $translate->_('common.uri'), null, true),
 			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'connected_service', 'extension_id', $translate->_('common.type'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'connected_service', 'updated_at', $translate->_('common.updated'), null, true),
 
@@ -502,6 +575,7 @@ class SearchFields_ConnectedService extends DevblocksSearchFields {
 class Model_ConnectedService {
 	public $id;
 	public $name;
+	public $uri;
 	public $extension_id;
 	public $updated_at;
 	public $params_json_encrypted;
@@ -531,13 +605,14 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 
 	function __construct() {
 		$this->id = self::DEFAULT_ID;
-		$this->name = DevblocksPlatform::translateCapitalized('Connected Services');
+		$this->name = DevblocksPlatform::translateCapitalized('common.connected_services');
 		$this->renderLimit = 25;
 		$this->renderSortBy = SearchFields_ConnectedService::ID;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
 			SearchFields_ConnectedService::NAME,
+			SearchFields_ConnectedService::URI,
 			SearchFields_ConnectedService::EXTENSION_ID,
 			SearchFields_ConnectedService::UPDATED_AT,
 		);
@@ -674,10 +749,20 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ConnectedService::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_ConnectedService::EXTENSION_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_ConnectedService::UPDATED_AT),
+				),
+			'uri' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_ConnectedService::URI, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 		);
 		
@@ -777,6 +862,7 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 		switch($field) {
 			case SearchFields_ConnectedService::EXTENSION_ID:
 			case SearchFields_ConnectedService::NAME:
+			case SearchFields_ConnectedService::URI:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -883,6 +969,13 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			'value' => $model->updated_at,
 		);
 		
+		$properties['uri'] = array(
+			'label' => $translate->_('common.uri'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->uri,
+			'params' => [],
+		);
+		
 		return $properties;
 	}
 	
@@ -905,6 +998,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 	
 	function getDefaultProperties() {
 		return array(
+			'uri',
 			'extension_id',
 			'updated_at',
 		);
@@ -935,6 +1029,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			'name' => $prefix.$translate->_('common.name'),
 			'extension_id' => $prefix.$translate->_('common.type'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'uri' => $prefix.$translate->_('common.uri'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -945,6 +1040,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'uri' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
@@ -969,6 +1065,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			$token_values['name'] = $connected_service->name;
 			$token_values['extension_id'] = $connected_service->extension_id;
 			$token_values['updated_at'] = $connected_service->updated_at;
+			$token_values['uri'] = $connected_service->uri;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($connected_service, $token_values);
@@ -988,6 +1085,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			'name' => DAO_ConnectedService::NAME,
 			'extension_id' => DAO_ConnectedService::EXTENSION_ID,
 			'updated_at' => DAO_ConnectedService::UPDATED_AT,
+			'uri' => DAO_ConnectedService::URI,
 		];
 	}
 	
