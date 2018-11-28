@@ -86,6 +86,14 @@ class _DevblocksServices {
 	
 	/**
 	 * 
+	 * @return _DevblocksHttpService
+	 */
+	function http() {
+		return _DevblocksHttpService::getInstance();
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksGPGService
 	 */
 	function gpg() {
@@ -575,6 +583,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		return $colors;
 	}
+	
+	/*
+	 * @deprecated
+	 */
 	static function curlInit($url=null) {
 		$ch = curl_init($url);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
@@ -583,6 +595,9 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $ch;
 	}
 	
+	/*
+	 * @deprecated
+	 */
 	static function curlExec($ch, $follow=false, $return=true) {
 		// Proxy
 		if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY) {
