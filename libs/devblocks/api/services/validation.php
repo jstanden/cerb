@@ -839,4 +839,28 @@ class _DevblocksValidationService {
 		
 		return true;
 	}
+	
+	function validateAll(array &$values, &$error=null) {
+		$fields = $this->getFields();
+		
+		if(is_array($values))
+		foreach($values as $field_key => &$value) {
+			if(!array_key_exists($field_key, $fields)) {
+				$error = sprintf("'%s' is not a valid field.", $field_key);
+				return false;
+			}
+		
+			$field = $fields[$field_key];
+			
+			try {
+				$this->validate($field, $value);
+				
+			} catch (Exception_DevblocksValidationError $e) {
+				$error = $e->getMessage();
+				return false;
+			}
+		}
+		
+		return true;
+	}
 };
