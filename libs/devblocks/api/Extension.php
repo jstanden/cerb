@@ -829,7 +829,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			if(false == ($search_button_context = Extension_DevblocksContext::get($search_button['context'], true)))
 				continue;
 			
-			if(false == ($view = $search_button_context->getSearchView()))
+			if(false == ($view = $search_button_context->getTempView()))
 				continue;
 			
 			$label_aliases = Extension_DevblocksContext::getAliasesForContext($search_button_context->manifest);
