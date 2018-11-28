@@ -796,10 +796,15 @@ class DevblocksEventHelper {
 					$key_to_set = $value_key.'_'.$field_id;
 					$dict->$key_to_set = implode(', ', $opts);
 
-					// [TODO] In delta mode this replaces the previous values for the behavior run
 					$array =& $dict->$value_key;
-					if(is_array($array))
-						$array[$field_id] = $opts;
+					
+					if(!is_array($array))
+						$array[$field_id] = [];
+					
+					if(is_array($opts))
+					foreach($opts as $opt) {
+						$array[$field_id][$opt] = $opt;
+					}
 				}
 				
 				break;
