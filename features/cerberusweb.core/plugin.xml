@@ -4278,6 +4278,22 @@
 			</params>
 		</extension>
 		
+		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.oauth2</id>
+			<name>OAuth2 Provider</name>
+			<class>
+				<file>api/service_providers/oauth.php</file>
+				<name>ServiceProvider_OAuth2</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="accounts" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 					</value>
 				</param>
 			</params>
