@@ -88,6 +88,10 @@ $(function() {
 		.cerbChooserTrigger()
 		;
 	
+	$action.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+		;
+	
 	$action.find('.chooser-account')
 		.cerbChooserTrigger()
 		.on('cerb-chooser-selected', function(e) {

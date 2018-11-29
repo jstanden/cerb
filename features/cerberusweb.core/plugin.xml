@@ -4220,8 +4220,8 @@
 			<id>core.va.action.classifier_prediction</id>
 			<name>Classifier Prediction</name>
 			<class>
-				<file>api/plugin.classes.php</file>
-				<name>VaAction_ClassifierPrediction</name>
+				<file>api/bots/actions/classifier.php</file>
+				<name>BotAction_ClassifierPrediction</name>
 			</class>
 			<params>
 				<param key="label" value="Execute classifier prediction" />
@@ -4237,7 +4237,7 @@
 			<id>core.bot.action.data_query</id>
 			<name>Data Query</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/data_queries.php</file>
 				<name>BotAction_DataQuery</name>
 			</class>
 			<params>
@@ -4254,8 +4254,8 @@
 			<id>core.va.action.http_request</id>
 			<name>HTTP Request</name>
 			<class>
-				<file>api/plugin.classes.php</file>
-				<name>VaAction_HttpRequest</name>
+				<file>api/bots/actions/http.php</file>
+				<name>BotAction_HttpRequest</name>
 			</class>
 			<params>
 				<param key="label" value="Execute HTTP request" />
@@ -4271,7 +4271,7 @@
 			<id>core.bot.action.email_parser</id>
 			<name>Email Parser</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/email.php</file>
 				<name>BotAction_EmailParser</name>
 			</class>
 			<params>
@@ -4288,7 +4288,7 @@
 			<id>core.bot.action.calculate_time_elapsed</id>
 			<name>Get time elapsed using calendar availability</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/calendar.php</file>
 				<name>BotAction_CalculateTimeElapsed</name>
 			</class>
 			<params>
@@ -4305,7 +4305,7 @@
 			<id>core.bot.action.interaction_proactive.schedule</id>
 			<name>Schedule Proactive Interaction</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bot/actions/interactions.php</file>
 				<name>BotAction_ScheduleInteractionProactive</name>
 			</class>
 			<params>
@@ -4322,8 +4322,8 @@
 			<id>core.va.action.create_attachment</id>
 			<name>Create Attachment</name>
 			<class>
-				<file>api/plugin.classes.php</file>
-				<name>VaAction_CreateAttachment</name>
+				<file>api/bots/actions/create.php</file>
+				<name>BotAction_CreateAttachment</name>
 			</class>
 			<params>
 				<param key="label" value="Create attachment" />
@@ -4339,7 +4339,7 @@
 			<id>core.bot.action.create_reminder</id>
 			<name>Create Reminder</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/create.php</file>
 				<name>BotAction_CreateReminder</name>
 			</class>
 			<params>
@@ -4353,27 +4353,10 @@
 		</extension>
 		
 		<extension point="devblocks.event.action">
-			<id>core.bot.action.record.create</id>
-			<name>Record Create</name>
-			<class>
-				<file>api/plugin.classes.php</file>
-				<name>BotAction_RecordCreate</name>
-			</class>
-			<params>
-				<param key="label" value="Record create" />
-				<param key="events">
-					<value>
-						<data key="*" />
-					</value>
-				</param>
-			</params>
-		</extension>
-		
-		<extension point="devblocks.event.action">
 			<id>core.bot.action.package.import</id>
 			<name>Package Import</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/packages.php</file>
 				<name>BotAction_PackageImport</name>
 			</class>
 			<params>
@@ -4387,10 +4370,27 @@
 		</extension>
 		
 		<extension point="devblocks.event.action">
+			<id>core.bot.action.record.create</id>
+			<name>Record Create</name>
+			<class>
+				<file>api/bots/actions/records.php</file>
+				<name>BotAction_RecordCreate</name>
+			</class>
+			<params>
+				<param key="label" value="Record create" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event.action">
 			<id>core.bot.action.record.update</id>
 			<name>Record Update</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/records.php</file>
 				<name>BotAction_RecordUpdate</name>
 			</class>
 			<params>
@@ -4407,7 +4407,7 @@
 			<id>core.bot.action.record.upsert</id>
 			<name>Record Upsert</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/records.php</file>
 				<name>BotAction_RecordUpsert</name>
 			</class>
 			<params>
@@ -4424,7 +4424,7 @@
 			<id>core.bot.action.record.delete</id>
 			<name>Record Delete</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/records.php</file>
 				<name>BotAction_RecordDelete</name>
 			</class>
 			<params>
@@ -4441,7 +4441,7 @@
 			<id>core.bot.action.record.retrieve</id>
 			<name>Record Retrieve</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/records.php</file>
 				<name>BotAction_RecordRetrieve</name>
 			</class>
 			<params>
@@ -4458,11 +4458,28 @@
 			<id>core.bot.action.record.search</id>
 			<name>Record Search</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/bots/actions/records.php</file>
 				<name>BotAction_RecordSearch</name>
 			</class>
 			<params>
 				<param key="label" value="Record search" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event.action">
+			<id>wgm.aws.bot.action.get_presigned_url</id>
+			<name>Service AWS Get Pre-signed URL</name>
+			<class>
+				<file>api/service_providers/aws.php</file>
+				<name>BotAction_AwsGetPresignedUrl</name>
+			</class>
+			<params>
+				<param key="label" value="Service AWS Get Pre-signed URL" />
 				<param key="events">
 					<value>
 						<data key="*" />
