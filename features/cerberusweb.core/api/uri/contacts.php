@@ -18,7 +18,7 @@
 class ChContactsPage extends CerberusPageExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == CerberusApplication::getActiveWorker())
 			return false;
 		
 		return true;
@@ -234,7 +234,7 @@ class ChContactsPage extends CerberusPageExtension {
 		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
 		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
 		
-		list($orgs,$null) = DAO_ContactOrg::search(
+		list($orgs,) = DAO_ContactOrg::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'),

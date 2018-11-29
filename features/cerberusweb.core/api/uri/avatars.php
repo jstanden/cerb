@@ -18,7 +18,7 @@
 class Controller_Avatars extends DevblocksControllerExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == CerberusApplication::getActiveWorker())
 			return false;
 		return true;
 	}
@@ -36,7 +36,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		@$avatar_context_id = intval(array_shift($stack)); // 1
 		
 		// Security
-		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
+		if(null == CerberusApplication::getActiveWorker())
 			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
 
 		switch($alias) {

@@ -82,10 +82,8 @@
 			<class name="EventListener_Triggers" />
 		</file>
 		
-		<file path="api/plugin.classes.php">
-			<class name="ChTaskSource_Org" />
-			<class name="ChTaskSource_Ticket" />
-			<class name="IServiceProvider_HttpRequestSigner" />
+		<file path="api/service_providers/cerb.php">
+			<class name="WgmCerb_API" />
 			<class name="IServiceProvider_OAuth" />
 		</file>
 		

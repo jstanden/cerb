@@ -188,7 +188,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 				);
 				@$tables = $db->metaTablesDetailed();
 				
-				foreach($tables as $table => $info) {
+				foreach($tables as $info) {
 					$status['database']['data_bytes'] += $info['Data_length'];
 					$status['database']['index_bytes'] += $info['Index_length'];
 					$status['database']['data_slack_bytes'] += $info['Data_free'];
@@ -355,8 +355,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 				break;
 				
 			case 'export_bots':
-				$event_mfts = DevblocksPlatform::getExtensions('devblocks.event', false);
-
 				header("Content-type: application/json");
 				
 				$output = [
