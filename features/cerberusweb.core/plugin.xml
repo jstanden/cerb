@@ -4207,6 +4207,22 @@
 					<value>
 						<data key="cerberusweb.contexts.app" />
 						<data key="cerberusweb.contexts.worker" />
+		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.cerb.api.legacy</id>
+			<name>Cerb API (Legacy Signatures)</name>
+			<class>
+				<file>api/service_providers/cerb.php</file>
+				<name>ServiceProvider_CerbApiLegacy</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="accounts" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 					</value>
 				</param>
 			</params>
