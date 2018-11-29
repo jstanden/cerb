@@ -124,8 +124,8 @@ class _DevblocksServices {
 	 * @param string $signature_method
 	 * @return _DevblocksOAuthService
 	 */
-	function oauth($consumer_key, $consumer_secret, $signature_method='HMAC-SHA1') {
-		return new _DevblocksOAuthService($consumer_key, $consumer_secret, $signature_method);
+	function oauth() {
+		return _DevblocksOAuthService::getInstance();
 	}
 	
 	/**
@@ -3063,14 +3063,6 @@ class DevblocksPlatform extends DevblocksEngine {
 			return null;
 		
 		return $value;
-	}
-	
-	/**
-	 * @deprecated
-	 * @return _DevblocksOAuthService
-	 */
-	static function getOAuthService($consumer_key, $consumer_secret, $signature_method='HMAC-SHA1') {
-		return new _DevblocksOAuthService($consumer_key, $consumer_secret, $signature_method);
 	}
 	
 	static private function _deepCloneArray(&$array) {

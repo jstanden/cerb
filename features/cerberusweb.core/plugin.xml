@@ -84,6 +84,9 @@
 		
 		<file path="api/service_providers/cerb.php">
 			<class name="WgmCerb_API" />
+		</file>
+		
+		<file path="api/service_providers/oauth.php">
 			<class name="IServiceProvider_OAuth" />
 		</file>
 		
@@ -4249,6 +4252,22 @@
 			<class>
 				<file>api/service_providers/http.php</file>
 				<name>ServiceProvider_HttpBasic</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="accounts" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.oauth1</id>
+			<name>OAuth1 Provider</name>
+			<class>
+				<file>api/service_providers/oauth.php</file>
+				<name>ServiceProvider_OAuth1</name>
 			</class>
 			<params>
 				<param key="options">

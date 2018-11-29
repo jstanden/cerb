@@ -201,6 +201,7 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/oauth.php', array(
 			'_DevblocksOAuthService',
+			'_DevblocksOAuth1Client',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/openid.php', array(
 			'_DevblocksOpenIDManager',
