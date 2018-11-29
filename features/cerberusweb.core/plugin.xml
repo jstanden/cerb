@@ -6636,7 +6636,7 @@
 			<id>cron.mailbox</id>
 			<name>Mailbox Checker and Email Downloader</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/mail.php</file>
 				<name>MailboxCron</name>
 			</class>
 			<params />
@@ -6646,7 +6646,7 @@
 			<id>cron.parser</id>
 			<name>Inbound Email Message Processor</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/mail.php</file>
 				<name>ParseCron</name>
 			</class>
 			<params />
@@ -6656,7 +6656,7 @@
 			<id>cron.maint</id>
 			<name>Maintenance</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/maint.php</file>
 				<name>MaintCron</name>
 			</class>
 			<params />
@@ -6666,7 +6666,7 @@
 			<id>cron.heartbeat</id>
 			<name>Heartbeat</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/heartbeat.php</file>
 				<name>HeartbeatCron</name>
 			</class>
 			<params />
@@ -6676,7 +6676,7 @@
 			<id>cron.storage</id>
 			<name>Storage Manager</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/storage.php</file>
 				<name>StorageCron</name>
 			</class>
 			<params />
@@ -6686,7 +6686,7 @@
 			<id>cron.search</id>
 			<name>Search Indexer</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/search.php</file>
 				<name>SearchCron</name>
 			</class>
 			<params />
@@ -6696,7 +6696,7 @@
 			<id>cron.reminders</id>
 			<name>Reminders</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/reminders.php</file>
 				<name>Cron_Reminders</name>
 			</class>
 			<params />
@@ -6706,7 +6706,7 @@
 			<id>cron.mail_queue</id>
 			<name>Mail Queue Processor</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/mail.php</file>
 				<name>MailQueueCron</name>
 			</class>
 			<params />
@@ -6716,7 +6716,7 @@
 			<id>cron.bot.scheduled_behavior</id>
 			<name>Bot Scheduled Behavior</name>
 			<class>
-				<file>api/cron.classes.php</file>
+				<file>api/crons/bots.php</file>
 				<name>Cron_BotScheduledBehavior</name>
 			</class>
 			<params />
