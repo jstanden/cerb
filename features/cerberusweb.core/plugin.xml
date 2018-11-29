@@ -4195,18 +4195,22 @@
 
 		<!-- Connected Service Providers -->
 		
-		<extension point="cerb.service.provider">
-			<id>core.service.provider.cerb</id>
-			<name>Cerb</name>
+		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.aws</id>
+			<name>Amazon Web Services</name>
 			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ServiceProvider_Cerb</name>
+				<file>api/service_providers/aws.php</file>
+				<name>ServiceProvider_Aws</name>
 			</class>
 			<params>
-				<param key="contexts">
+				<param key="options">
 					<value>
-						<data key="cerberusweb.contexts.app" />
-						<data key="cerberusweb.contexts.worker" />
+						<data key="accounts" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<extension point="cerb.connected_service.provider">
 			<id>cerb.service.provider.cerb.api.legacy</id>
 			<name>Cerb API (Legacy Signatures)</name>
