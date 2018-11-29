@@ -4227,6 +4227,22 @@
 			</params>
 		</extension>
 		
+		<extension point="cerb.connected_service.provider">
+			<id>wgm.facebook.pages.service.provider</id>
+			<name>Facebook Pages</name>
+			<class>
+				<file>api/service_providers/facebook.php</file>
+				<name>ServiceProvider_FacebookPages</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="accounts" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 					</value>
 				</param>
 			</params>
