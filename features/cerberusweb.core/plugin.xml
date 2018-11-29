@@ -4243,6 +4243,22 @@
 			</params>
 		</extension>
 		
+		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.http.basic</id>
+			<name>HTTP Basic Authentication</name>
+			<class>
+				<file>api/service_providers/http.php</file>
+				<name>ServiceProvider_HttpBasic</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="accounts" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 					</value>
 				</param>
 			</params>
