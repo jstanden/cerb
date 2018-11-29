@@ -51,6 +51,8 @@ $path = APP_PATH . '/api/app/';
 
 DevblocksPlatform::registerClasses($path . 'Mail.php', array(
 	'CerberusMail',
+	'Cerb_SwiftPlugin_GPGSigner',
+	'Cerb_SwiftPlugin_TransportExceptionLogger',
 ));
 
 DevblocksPlatform::registerClasses($path . 'Parser.php', array(

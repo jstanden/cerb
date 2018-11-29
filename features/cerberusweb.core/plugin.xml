@@ -83,8 +83,6 @@
 		</file>
 		
 		<file path="api/plugin.classes.php">
-			<class name="Cerb_SwiftPlugin_GPGSigner" />
-			<class name="Cerb_SwiftPlugin_TransportExceptionLogger" />
 			<class name="ChPageController" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
