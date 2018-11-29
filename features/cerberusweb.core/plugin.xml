@@ -86,8 +86,6 @@
 			<class name="ChPageController" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
-			<class name="CerbMailTransport_Null" />
-			<class name="CerbMailTransport_Smtp" />
 			<class name="IServiceProvider_HttpRequestSigner" />
 			<class name="IServiceProvider_OAuth" />
 		</file>
@@ -4706,7 +4704,7 @@
 			<id>core.mail.transport.null</id>
 			<name>Null</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/mail/transports/null.php</file>
 				<name>CerbMailTransport_Null</name>
 			</class>
 			<params>
@@ -4717,7 +4715,7 @@
 			<id>core.mail.transport.smtp</id>
 			<name>SMTP</name>
 			<class>
-				<file>api/plugin.classes.php</file>
+				<file>api/mail/transports/smtp.php</file>
 				<name>CerbMailTransport_Smtp</name>
 			</class>
 			<params>
