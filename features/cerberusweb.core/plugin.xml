@@ -83,7 +83,6 @@
 		</file>
 		
 		<file path="api/plugin.classes.php">
-			<class name="ChPageController" />
 			<class name="ChTaskSource_Org" />
 			<class name="ChTaskSource_Ticket" />
 			<class name="IServiceProvider_HttpRequestSigner" />
@@ -4666,8 +4665,8 @@
 			<id>core.controller.page</id>
 			<name>Cerb Controller</name>
 			<class>
-				<file>api/plugin.classes.php</file>
-				<name>ChPageController</name>
+				<file>api/controllers/default.php</file>
+				<name>Controller_Default</name>
 			</class>
 			<params>
 			</params>
