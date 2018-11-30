@@ -137,6 +137,88 @@ EOD;
 }
 
 // ===========================================================================
+// Migrate asset records to custom records
+
+if(isset($tables['asset'])) {
+	$sql = sprintf("INSERT INTO custom_record (name, name_plural, uri, params_json, updated_at) " .
+		"VALUES (%s, %s, %s, %s, %d)",
+		$db->qstr('Asset'),
+		$db->qstr('Assets'),
+		$db->qstr('asset'),
+		$db->qstr('[]'),
+		time()
+	);
+	$db->ExecuteMaster($sql);
+	
+	$custom_record_id = $db->LastInsertId();
+	
+	$sql = sprintf("
+		CREATE TABLE `custom_record_%d` (
+			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			name VARCHAR(255) DEFAULT '',
+			owner_context VARCHAR(255) DEFAULT '',
+			owner_context_id INT UNSIGNED NOT NULL DEFAULT 0,
+			created_at INT UNSIGNED NOT NULL DEFAULT 0,
+			updated_at INT UNSIGNED NOT NULL DEFAULT 0,
+			primary key (id),
+			index (created_at),
+			index (updated_at),
+			index owner (owner_context, owner_context_id)
+		) ENGINE=%s",
+		$custom_record_id,
+		APP_DB_ENGINE
+	);
+	$db->ExecuteMaster($sql);
+	
+	// Move records over
+	$sql = sprintf("INSERT INTO custom_record_%d (name, created_at, updated_at) SELECT name, updated_at AS created_at, updated_at FROM asset",
+		$custom_record_id
+	);
+	$db->ExecuteMaster($sql);
+	
+	// Migrate contexts
+	$db->ExecuteMaster(sprintf("UPDATE attachment_link SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE comment SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_activity_log SET target_context = 'contexts.custom_record.%d' WHERE target_context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_alias SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_avatar SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_bulk_update SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_link SET from_context = 'contexts.custom_record.%d' WHERE from_context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_link SET to_context = 'contexts.custom_record.%d' WHERE to_context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_merge_history SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_saved_search SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_scheduled_behavior SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_to_skill SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE context_to_custom_fieldset SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE custom_field SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE custom_field_clobvalue SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE custom_field_numbervalue SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE custom_field_stringvalue SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE custom_fieldset SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE devblocks_setting SET setting = 'card:search:contexts.custom_record.%d' WHERE setting = 'card:search:cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE devblocks_setting SET setting = 'profile:tabs:contexts.custom_record.%d' WHERE setting = 'profile:tabs:cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE notification SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE snippet SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE profile_tab SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE workspace_list SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.asset'", $custom_record_id));
+	
+	$db->ExecuteMaster(sprintf("UPDATE context_activity_log SET entry_json = REPLACE(entry_json, 'cerberusweb.contexts.asset', 'contexts.custom_record.%d')", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = REPLACE(params_json, 'cerberusweb.contexts.asset', 'contexts.custom_record.%d')", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE devblocks_setting SET setting = REPLACE(setting, 'cerberusweb.contexts.asset', 'contexts.custom_record.%d') WHERE setting LIKE '%%cerberusweb.contexts.asset%%'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE devblocks_setting SET value = REPLACE(value, 'cerberusweb.contexts.asset', 'contexts.custom_record.%d') WHERE value LIKE '%%cerberusweb.contexts.asset%%'", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE notification SET entry_json = REPLACE(entry_json, 'cerberusweb.contexts.asset', 'contexts.custom_record.%d')", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE profile_widget SET extension_params_json = REPLACE(extension_params_json, 'cerberusweb.contexts.asset', 'contexts.custom_record.%d')", $custom_record_id));
+	$db->ExecuteMaster(sprintf("UPDATE workspace_widget SET params_json = REPLACE(params_json, 'cerberusweb.contexts.asset', 'contexts.custom_record.%d')", $custom_record_id));
+	
+	$db->ExecuteMaster("DELETE FROM worker_view_model WHERE class_name = 'View_Asset'");
+
+	// Drop table
+	$db->ExecuteMaster("DROP TABLE asset");
+	
+	unset($tables['asset']);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
