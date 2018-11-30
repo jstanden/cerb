@@ -108,11 +108,11 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$tpl->assign('context', $context);
 		$tpl->assign('form_id', $form_id);
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(false == (Extension_DevblocksContext::get($context)))
 			return;
 		
-		$labels = array();
-		$null = array();
+		$labels = [];
+		$null = [];
 		
 		CerberusContexts::getContext($context, null, $labels, $null, '', true, false);
 		
@@ -209,6 +209,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				}
 				
 				// Create / Update
+				
+				$error = null;
 				
 				if(empty($id)) {
 					// Validate fields from DAO

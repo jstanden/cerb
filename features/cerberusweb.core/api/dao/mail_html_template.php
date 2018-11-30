@@ -989,7 +989,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		$url_writer = DevblocksPlatform::services()->url();
 		$list = [];
 		
-		list($results, $null) = DAO_MailHtmlTemplate::search(
+		list($results,) = DAO_MailHtmlTemplate::search(
 			[],
 			[
 				new DevblocksSearchCriteria(SearchFields_MailHtmlTemplate::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),

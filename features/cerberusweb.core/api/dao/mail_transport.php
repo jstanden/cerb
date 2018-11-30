@@ -962,7 +962,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		$url_writer = DevblocksPlatform::services()->url();
 		$list = [];
 		
-		list($results, $null) = DAO_MailTransport::search(
+		list($results,) = DAO_MailTransport::search(
 			[],
 			[
 				new DevblocksSearchCriteria(SearchFields_MailTransport::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),

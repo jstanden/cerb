@@ -635,7 +635,7 @@ class Model_ContextSavedSearch {
 		$view->renderPage = 0;
 		$view->renderTotal = false;
 		
-		list($results, $null) = $view->getData();
+		list($results,) = $view->getData();
 		
 		return $results;
 	}

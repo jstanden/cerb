@@ -2,7 +2,7 @@
 class _DevblocksDatabaseManager {
 	static $instance = null;
 	
-	private $_connections = array();
+	private $_connections = [];
 	private $_last_used_db = null;
 	private $_has_written = false;
 	
@@ -136,7 +136,7 @@ class _DevblocksDatabaseManager {
 	
 	// Always master
 	function metaTables() {
-		$tables = array();
+		$tables = [];
 		
 		$sql = "SHOW TABLES";
 		$rs = $this->GetArrayMaster($sql);
@@ -151,7 +151,7 @@ class _DevblocksDatabaseManager {
 	
 	// Always master
 	function metaTablesDetailed() {
-		$tables = array();
+		$tables = [];
 		
 		$sql = "SHOW TABLE STATUS";
 		$rs = $this->GetArrayMaster($sql);
@@ -166,8 +166,8 @@ class _DevblocksDatabaseManager {
 	
 	// Always master
 	function metaTable($table_name) {
-		$columns = array();
-		$indexes = array();
+		$columns = [];
+		$indexes = [];
 		
 		$sql = sprintf("SHOW COLUMNS FROM %s", $table_name);
 		$rs = $this->GetArrayMaster($sql);
@@ -194,7 +194,7 @@ class _DevblocksDatabaseManager {
 
 			if(!isset($indexes[$key_name]))
 				$indexes[$key_name] = array(
-					'columns' => array(),
+					'columns' => [],
 				);
 			
 			$indexes[$key_name]['columns'][$column_name] = array(
@@ -212,20 +212,9 @@ class _DevblocksDatabaseManager {
 		);
 	}
 	
-	/**
-	 * Everything executes against the master by default
-	 * 
-	 * @deprecated
-	 * @param string $sql
-	 * @return mysqli_result|boolean
-	 */
-	function Execute($sql) {
-		return $this->ExecuteMaster($sql);
-	}
-	
 	function ExecuteMaster($sql, $option_bits = 0) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::services()->log('MASTER');
+			DevblocksPlatform::services()->log('MASTER');
 		
 		if(APP_DB_OPT_READ_MASTER_AFTER_WRITE && '' != APP_DB_SLAVE_HOST) {
 			// If we're ignoring master read-after-write, do nothing
@@ -239,7 +228,7 @@ class _DevblocksDatabaseManager {
 		
 				$cache_key = 'session:db:last_write:' . session_id();
 				//error_log(sprintf("Write to master (%s): %s", $cache_key, $sql));
-				$cache->save(time(), $cache_key, array(), APP_DB_OPT_READ_MASTER_AFTER_WRITE, $local_only);
+				$cache->save(time(), $cache_key, [], APP_DB_OPT_READ_MASTER_AFTER_WRITE, $local_only);
 				$this->_has_written = true;
 			}
 		}
@@ -261,7 +250,7 @@ class _DevblocksDatabaseManager {
 			$cache_key = 'session:db:last_write:' . session_id();
 			
 			// If we've already executed DML this request, or another request has recently, redirect reads to master
-			if($this->_has_written || (false != ($last_write = $cache->load($cache_key, false, $local_only)))) {
+			if($this->_has_written || (false != ($cache->load($cache_key, false, $local_only)))) {
 				//error_log(sprintf("Redirecting read-after-write to master (%s): %s", $cache_key, $sql));
 				$db = $this->_master_db;
 				$this->_has_written = true;
@@ -269,7 +258,7 @@ class _DevblocksDatabaseManager {
 		}
 		
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::services()->log('SLAVE');
+			DevblocksPlatform::services()->log('SLAVE');
 		
 		return $this->_Execute($sql, $db);
 	}
@@ -340,17 +329,29 @@ class _DevblocksDatabaseManager {
 		return mysqli_real_escape_string($this->_slave_db, $string);
 	}
 	
+	function escapeArray(array $array) {
+		$results = [];
+
+		foreach($array as $string) {
+			if(!is_string($string))
+				$string = strval($string);
+			
+			$results[] = mysqli_real_escape_string($this->_slave_db, $string);
+		}
+		
+		return $results;
+	}
+	
 	function qstr($string) {
 		return "'".mysqli_real_escape_string($this->_slave_db, $string)."'";
 	}
 	
-	function qstrArray($array) {
+	function qstrArray(array $array) {
 		$results = [];
 
-		if(is_array($array))
 		foreach($array as $string) {
 			if(!is_string($string))
-				continue;
+				$string = strval($string);
 			
 			$results[] = "'".mysqli_real_escape_string($this->_slave_db, $string)."'";
 		}
@@ -358,20 +359,9 @@ class _DevblocksDatabaseManager {
 		return $results;
 	}
 	
-	/**
-	 * Defaults to slave
-	 * 
-	 * @deprecated
-	 * @param string $sql
-	 * @return array|boolean
-	 */
-	function GetArray($sql) {
-		return $this->GetArraySlave($sql);
-	}
-	
 	function GetArrayMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::services()->log('MASTER');
+			DevblocksPlatform::services()->log('MASTER');
 		
 		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		
@@ -380,7 +370,7 @@ class _DevblocksDatabaseManager {
 	
 	function GetArraySlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::services()->log('SLAVE');
+			DevblocksPlatform::services()->log('SLAVE');
 		
 		$rs = $this->ExecuteSlave($sql);
 		
@@ -388,7 +378,7 @@ class _DevblocksDatabaseManager {
 	}
 	
 	private function _GetArray($rs) {
-		$results = array();
+		$results = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -401,20 +391,9 @@ class _DevblocksDatabaseManager {
 		return $results;
 	}
 	
-	/**
-	 * Defaults to slave
-	 *
-	 * @deprecated
-	 * @param string $sql
-	 * @return array|boolean
-	 */
-	public function GetRow($sql) {
-		return $this->GetRowSlave($sql);
-	}
-	
 	public function GetRowMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::services()->log('MASTER');
+			DevblocksPlatform::services()->log('MASTER');
 		
 		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		return $this->_GetRow($rs);
@@ -422,7 +401,7 @@ class _DevblocksDatabaseManager {
 	
 	public function GetRowSlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::services()->log('SLAVE');
+			DevblocksPlatform::services()->log('SLAVE');
 		
 		$rs = $this->ExecuteSlave($sql);
 		return $this->_GetRow($rs);
@@ -437,20 +416,9 @@ class _DevblocksDatabaseManager {
 		return false;
 	}
 	
-	/**
-	 * Defaults to slave
-	 *  
-	 * @deprecated
-	 * @param string $sql
-	 * @return mixed|boolean
-	 */
-	function GetOne($sql) {
-		return $this->GetOneSlave($sql, $this->_slave_db);
-	}
-	
 	function GetOneMaster($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::services()->log('MASTER');
+			DevblocksPlatform::services()->log('MASTER');
 		
 		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		return $this->_GetOne($rs);
@@ -458,7 +426,7 @@ class _DevblocksDatabaseManager {
 	
 	function GetOneSlave($sql) {
 		if(DEVELOPMENT_MODE_QUERIES)
-			$console = DevblocksPlatform::services()->log('SLAVE');
+			DevblocksPlatform::services()->log('SLAVE');
 		
 		$rs = $this->ExecuteSlave($sql);
 		return $this->_GetOne($rs);

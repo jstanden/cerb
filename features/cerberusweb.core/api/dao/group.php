@@ -1899,7 +1899,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$url_writer = DevblocksPlatform::services()->url();
 		$list = [];
 		
-		list($results, $null) = DAO_Group::search(
+		list($results,) = DAO_Group::search(
 			[],
 			[
 				new DevblocksSearchCriteria(SearchFields_Group::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),

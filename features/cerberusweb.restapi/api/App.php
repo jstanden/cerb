@@ -50,7 +50,7 @@ class Plugin_RestAPI {
 			if(isset($array['results'])) {
 				$filtered_results = array();
 
-				foreach($array['results'] as $k => $v) {
+				foreach($array['results'] as $v) {
 					$filtered_results[] = $v;
 				}
 
@@ -501,6 +501,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		switch(DevblocksPlatform::strUpper($verb)) {
 			case 'PATCH':
 			case 'PUT':
+				$_vars = [];
 				parse_str($this->getPayload(), $_vars);
 				$_POST = array_merge_recursive($_POST, $_vars);
 				$_REQUEST = array_merge_recursive($_REQUEST, $_vars);
@@ -554,7 +555,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 				$fields = DAO_CustomField::getByContext($context);
 
 				if(is_array($fields))
-				foreach($fields as $field_id => $fieldData) {
+				foreach(array_keys($fields) as $field_id) {
 					if($field_id === intval($parts[1])) {
 						$field = 'cf_'.$field_id;
 						unset($filters[$key]);
@@ -684,7 +685,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 		$fields = array();
 
 		if(is_array($scope_array))
-		foreach($scope_array as $k => $v) {
+		foreach(array_keys($scope_array) as $k) {
 			$parts = explode("_",$k,2);
 			if(2==count($parts) && 'custom'==$parts[0] && is_numeric($parts[1])) {
 				$fields[intval($parts[1])] = DevblocksPlatform::importGPC($scope_array[$k]);

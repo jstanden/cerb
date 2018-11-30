@@ -167,7 +167,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 			SearchFields_Bot::NAME => new DevblocksSearchCriteria(SearchFields_Bot::NAME, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
 		);
 		
-		list($results, $null) = DAO_Bot::search(
+		list($results,) = DAO_Bot::search(
 			array(),
 			$params,
 			25,
@@ -385,8 +385,6 @@ class DAO_Bot extends Cerb_ORMHelper {
 	}
 	
 	public static function deleteByOwner($context, $context_ids) {
-		$db = DevblocksPlatform::services()->database();
-		
 		if(empty($context) || empty($context_ids))
 			return false;
 		
@@ -404,7 +402,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Bot::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Bot', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Bot', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"bot.id as %s, ".
@@ -759,7 +757,7 @@ class Model_Bot {
 		$behaviors = $this->getBehaviors(null, true);
 		
 		foreach($behaviors as $behavior) {
-			if(null == ($event = $behavior->getEvent()))
+			if(null == ($behavior->getEvent()))
 				continue;
 			
 			$behavior_json = $behavior->exportToJson(0);
@@ -1022,7 +1020,6 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			case SearchFields_Bot::IS_DISABLED:
@@ -1036,8 +1033,6 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_Bot::VIRTUAL_CONTEXT_LINK:
@@ -1233,8 +1228,6 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		if(false == ($bot = DAO_Bot::get($context_id)))
 			return [];
 			
-		$url_writer = DevblocksPlatform::services()->url();
-		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($bot->name);
 		

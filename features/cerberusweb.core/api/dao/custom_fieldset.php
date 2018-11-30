@@ -283,7 +283,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			$context_id
 		);
 		
-		$results = $db->GetArray($sql);
+		$results = $db->GetArraySlave($sql);
 		
 		return DAO_CustomFieldset::getIds(array_column($results, 'custom_fieldset_id'));
 	}

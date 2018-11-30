@@ -1887,6 +1887,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger) {
+		$actions = null;
+		
 		return new Model_DevblocksEvent(
 			static::ID,
 			[

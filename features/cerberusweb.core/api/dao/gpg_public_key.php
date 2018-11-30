@@ -257,7 +257,7 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$results = $db->GetArray(sprintf("SELECT id, fingerprint FROM gpg_public_key WHERE id IN (%s)", $ids_list));
+		$results = $db->GetArraySlave(sprintf("SELECT id, fingerprint FROM gpg_public_key WHERE id IN (%s)", $ids_list));
 
 		// Delete from keyring
 		if(is_array($results))

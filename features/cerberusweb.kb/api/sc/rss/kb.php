@@ -73,7 +73,7 @@ XML;
 			return;
 		
 		// Search Results
-		list($results, $null) = DAO_KbArticle::search(
+		list($results,) = DAO_KbArticle::search(
 			array(
 				SearchFields_KbArticle::ID,
 				SearchFields_KbArticle::UPDATED,
@@ -151,7 +151,7 @@ XML;
 			return;
 		
 		// Search Results
-		list($results, $null) = DAO_KbArticle::search(
+		list($results,) = DAO_KbArticle::search(
 			array(
 				SearchFields_KbArticle::ID,
 				SearchFields_KbArticle::UPDATED,
@@ -234,7 +234,7 @@ XML;
 			return;
 		
 		// Search Results
-		list($results, $null) = DAO_KbArticle::search(
+		list($results,) = DAO_KbArticle::search(
 			array(
 				SearchFields_KbArticle::ID,
 				SearchFields_KbArticle::UPDATED,

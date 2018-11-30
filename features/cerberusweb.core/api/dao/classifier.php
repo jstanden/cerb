@@ -1030,7 +1030,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		$url_writer = DevblocksPlatform::services()->url();
 		$list = array();
 		
-		list($results, $null) = DAO_Classifier::search(
+		list($results,) = DAO_Classifier::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_Classifier::NAME,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),

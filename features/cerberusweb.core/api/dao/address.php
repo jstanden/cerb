@@ -154,7 +154,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			// Format the email address
 			$full_address = trim(DevblocksPlatform::strLower($address->mailbox.'@'.$address->host));
 			
-			$id = $db->GetOne(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($full_address)));
+			$id = $db->GetOneMaster(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($full_address)));
 			
 			// If an email address is a duplicate, we can only set it on the same record
 			if($id && !in_array($id, $ids))

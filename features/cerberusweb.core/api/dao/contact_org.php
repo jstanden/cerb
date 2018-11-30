@@ -1604,7 +1604,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$list[] = $empty;
 		}
 		
-		list($results, $null) = DAO_ContactOrg::search(
+		list($results,) = DAO_ContactOrg::search(
 			array(),
 			array(
 				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),

@@ -423,7 +423,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			implode(',', $db->qstrArray($remove_contexts))
 		);
 		
-		return $db->Execute($sql);
+		return $db->ExecuteMaster($sql);
 	}
 	
 	static function mergeIds($from_ids, $to_id) {

@@ -975,7 +975,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		$url_writer = DevblocksPlatform::services()->url();
 		$list = [];
 		
-		list($results, $null) = DAO_EmailSignature::search(
+		list($results,) = DAO_EmailSignature::search(
 			[],
 			[
 				new DevblocksSearchCriteria(SearchFields_EmailSignature::NAME,DevblocksSearchCriteria::OPER_LIKE,$term.'%'),

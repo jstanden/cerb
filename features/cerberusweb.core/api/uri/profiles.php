@@ -520,7 +520,7 @@ class ProfileTab_PortalDeploy extends Extension_ProfileTab {
 		
 		// Install
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=portal&a='.$portal->code,true);
+		$url = $url_writer->writeNoProxy('c=portal&a='.$portal->code, true);
 		$url_parts = parse_url($url);
 		
 		$host = $url_parts['host'];

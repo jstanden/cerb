@@ -193,7 +193,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$activities = [];
 		
 		// Check drafts
-		list($results, $null) = DAO_MailQueue::search(
+		list($results,) = DAO_MailQueue::search(
 			[],
 			array(
 				SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED, '=', 0),
@@ -231,7 +231,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			'ticket.message.outbound',
 		);
 		
-		list($results, $null) = DAO_ContextActivityLog::search(
+		list($results,) = DAO_ContextActivityLog::search(
 			[],
 			array(
 				SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT, '=', CerberusContexts::CONTEXT_TICKET),
