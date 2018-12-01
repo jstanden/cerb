@@ -55,16 +55,22 @@ class Controller_Portal extends DevblocksControllerExtension {
 		
 		// Allow direct use of /portal URLs
 		
-		if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYHOST'])) {
-			$_SERVER['HTTP_DEVBLOCKSPROXYHOST'] = DevblocksPlatform::getHostname();
-			
-			if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYSSL'])) {
-				$_SERVER['HTTP_DEVBLOCKSPROXYSSL'] = $url_writer->isSSL(false) ? 1 : 0;
-			}
-			
-			if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYBASE'])) {
-				$_SERVER['HTTP_DEVBLOCKSPROXYBASE'] = rtrim($url_writer->writeNoProxy('c=portal&code=' . $tool->uri), '/');
-			}
+		@$proxy_type = $_SERVER['HTTP_DEVBLOCKSPROXYTYPE'] ?: ($_SERVER['HTTP_DEVBLOCKSPROXYHOST'] ? 'portal' : 'app');
+		
+		switch($proxy_type) {
+			case 'app':
+				if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYHOST'])) {
+					$_SERVER['HTTP_DEVBLOCKSPROXYHOST'] = DevblocksPlatform::getHostname();
+				}
+				
+				if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYSSL'])) {
+					$_SERVER['HTTP_DEVBLOCKSPROXYSSL'] = $url_writer->isSSL(false) ? 1 : 0;
+				}
+				
+				if(!isset($_SERVER['HTTP_DEVBLOCKSPROXYBASE'])) {
+					$_SERVER['HTTP_DEVBLOCKSPROXYBASE'] = rtrim($url_writer->writeNoProxy('c=portal&code=' . $tool->uri), '/');
+				}
+				break;
 		}
 		
 		// Routing
