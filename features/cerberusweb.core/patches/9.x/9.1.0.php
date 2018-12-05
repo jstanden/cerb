@@ -137,6 +137,20 @@ EOD;
 }
 
 // ===========================================================================
+// Migrate `login.openid` authenticators to `login.password`
+
+if(array_key_exists('openid_to_worker', $tables)) {
+	$sql = sprintf("UPDATE worker SET auth_extension_id=%s WHERE auth_extension_id=%s",
+		$db->qstr('login.password'),
+		$db->qstr('login.openid')
+	);
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster("DROP TABLE openid_to_worker");
+	unset($tables['openid_to_worker']);
+}
+
+// ===========================================================================
 // Migrate asset records to custom records
 
 if(isset($tables['asset'])) {
