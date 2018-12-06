@@ -151,6 +151,21 @@ if(array_key_exists('openid_to_worker', $tables)) {
 }
 
 // ===========================================================================
+// Migrate `login.password.google_auth` authenticators to `login.password`
+
+$sql = sprintf("UPDATE worker SET auth_extension_id=%s WHERE auth_extension_id=%s",
+	$db->qstr('login.password'),
+	$db->qstr('login.password.google_auth')
+);
+$db->ExecuteMaster($sql);
+	
+$sql = sprintf("UPDATE worker_pref SET setting = %s WHERE setting = %s",
+	$db->qstr('mfa.totp.seed'),
+	$db->qstr('login.password.google_auth.seed')
+);
+$db->ExecuteMaster($sql);
+
+// ===========================================================================
 // Migrate asset records to custom records
 
 if(isset($tables['asset'])) {
