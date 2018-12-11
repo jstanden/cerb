@@ -24,6 +24,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const GENDER = 'gender';
 	const ID = 'id';
 	const IS_DISABLED = 'is_disabled';
+	const IS_PASSWORD_DISABLED = 'is_password_disabled';
 	const IS_SUPERUSER = 'is_superuser';
 	const LANGUAGE = 'language';
 	const LAST_NAME = 'last_name';
@@ -112,6 +113,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// tinyint(1) unsigned
 		$validation
 			->addField(self::IS_DISABLED)
+			->bit()
+			;
+		// tinyint(1) unsigned
+		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_PASSWORD_DISABLED)
 			->bit()
 			;
 		// tinyint(1) unsigned
@@ -387,7 +394,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, first_name, last_name, email_id, title, is_superuser, is_disabled, auth_extension_id, at_mention_name, timezone, time_format, language, calendar_id, gender, dob, location, phone, mobile, updated ".
+		$sql = "SELECT id, first_name, last_name, email_id, title, is_superuser, is_disabled, is_password_disabled, is_mfa_required, at_mention_name, timezone, time_format, language, calendar_id, gender, dob, location, phone, mobile, updated ".
 			"FROM worker ".
 			$where_sql.
 			$sort_sql.
@@ -517,6 +524,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->gender = $row['gender'];
 			$object->id = intval($row['id']);
 			$object->is_disabled = intval($row['is_disabled']);
+			$object->is_password_disabled = intval($row['is_password_disabled']);
 			$object->is_superuser = intval($row['is_superuser']);
 			$object->language = $row['language'];
 			$object->last_name = $row['last_name'];
@@ -819,6 +827,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 					$change_fields[DAO_Worker::IS_DISABLED] = intval($v);
 					break;
 					
+					
+				case 'is_password_disabled':
+					$change_fields[DAO_Worker::IS_PASSWORD_DISABLED] = intval($v);
 					break;
 					
 				default:
@@ -1056,6 +1067,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(null == ($worker = DAO_Worker::getByEmail($email)) || $worker->is_disabled)
 			return null;
 		
+		if($worker->is_password_disabled)
+			return null;
+		
 		$worker_auth = $db->GetRowSlave(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker->id));
 		
 		if(!isset($worker_auth['pass_hash']) || !isset($worker_auth['pass_salt']))
@@ -1114,6 +1128,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"w.title as %s, ".
 			"w.email_id as %s, ".
 			"w.is_superuser as %s, ".
+			"w.is_password_disabled as %s, ".
 			"w.at_mention_name as %s, ".
 			"w.timezone as %s, ".
 			"w.time_format as %s, ".
@@ -1132,6 +1147,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				SearchFields_Worker::TITLE,
 				SearchFields_Worker::EMAIL_ID,
 				SearchFields_Worker::IS_SUPERUSER,
+				SearchFields_Worker::IS_PASSWORD_DISABLED,
 				SearchFields_Worker::AT_MENTION_NAME,
 				SearchFields_Worker::TIMEZONE,
 				SearchFields_Worker::TIME_FORMAT,
@@ -1299,6 +1315,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const FIRST_NAME = 'w_first_name';
 	const GENDER = 'w_gender';
 	const IS_DISABLED = 'w_is_disabled';
+	const IS_PASSWORD_DISABLED = 'w_is_password_disabled';
 	const IS_SUPERUSER = 'w_is_superuser';
 	const LANGUAGE = 'w_language';
 	const LAST_NAME = 'w_last_name';
@@ -1520,6 +1537,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', $translate->_('common.name.first'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::GENDER => new DevblocksSearchField(self::GENDER, 'w', 'gender', $translate->_('common.gender'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_PASSWORD_DISABLED => new DevblocksSearchField(self::IS_PASSWORD_DISABLED, 'w', 'is_password_disabled', ucwords($translate->_('worker.is_password_disabled')), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'w', 'language', $translate->_('common.language'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::LAST_NAME => new DevblocksSearchField(self::LAST_NAME, 'w', 'last_name', $translate->_('common.name.last'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -1731,6 +1749,7 @@ class Model_Worker {
 	public $gender;
 	public $id;
 	public $is_disabled = 0;
+	public $is_password_disabled = 0;
 	public $is_superuser = 0;
 	public $language;
 	public $last_name;
@@ -2095,6 +2114,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				case SearchFields_Worker::FIRST_NAME:
 				case SearchFields_Worker::GENDER:
 				case SearchFields_Worker::IS_DISABLED:
+				case SearchFields_Worker::IS_PASSWORD_DISABLED:
 				case SearchFields_Worker::IS_SUPERUSER:
 				case SearchFields_Worker::LANGUAGE:
 				case SearchFields_Worker::LAST_NAME:
@@ -2147,6 +2167,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 
 			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_PASSWORD_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
@@ -2335,6 +2356,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Worker::IS_DISABLED),
+				),
+			'isPasswordDisabled' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Worker::IS_PASSWORD_DISABLED),
 				),
 			'language' => 
 				array(
@@ -2626,6 +2652,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 			
 			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_PASSWORD_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
@@ -2667,6 +2694,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Worker::EMAIL_ID:
 			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_PASSWORD_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
@@ -3206,6 +3234,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'email_id' => DAO_Worker::EMAIL_ID,
 			'id' => DAO_Worker::ID,
 			'is_disabled' => DAO_Worker::IS_DISABLED,
+			'is_password_disabled' => DAO_Worker::IS_PASSWORD_DISABLED,
 			'is_superuser' => DAO_Worker::IS_SUPERUSER,
 			'language' => DAO_Worker::LANGUAGE,
 			'last_name' => DAO_Worker::LAST_NAME,
@@ -3230,6 +3259,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$keys['first_name']['notes'] = "Given name";
 		$keys['gender']['notes'] = "`F` (female), `M` (male), or blank or unknown";
 		$keys['is_disabled']['notes'] = "Is this worker deactivated and prevented from logging in?";
+		$keys['is_password_disabled']['notes'] = "Is this worker allowed to log in with a password?";
 		$keys['is_superuser']['notes'] = "Is this worker an administrator with full privileges?";
 		$keys['language']['notes'] = "ISO-639 language code and ISO-3166 country code; e.g. `en_US`";
 		$keys['last_name']['notes'] = "Surname";

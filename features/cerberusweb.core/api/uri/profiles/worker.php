@@ -82,6 +82,8 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string', '');
 				@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string', '');
 				@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string', '');
+				@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string','');
+				@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string','');
 				@$at_mention_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::importGPC($_POST['at_mention_name'],'string'));
 				@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
 				@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
@@ -89,6 +91,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'],'string');
 				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'bit', 0);
 				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'bit',0);
+				@$is_password_disabled = DevblocksPlatform::importGPC($_POST['is_password_disabled'],'bit',0);
 				@$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'],'array');
 				
 				$error = null;
@@ -112,6 +115,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				// ============================================
 				// Validation
 				
+				if($password_new && 0 != strcmp($password_new, $password_verify))
+					throw new Exception_DevblocksAjaxValidationError("The given passwords don't match.");
+				
 				if(empty($id)) {
 					$fields = [
 						DAO_Worker::FIRST_NAME => $first_name,
@@ -119,6 +125,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::TITLE => $title,
 						DAO_Worker::IS_SUPERUSER => $is_superuser,
 						DAO_Worker::IS_DISABLED => $disabled,
+						DAO_Worker::IS_PASSWORD_DISABLED => $is_password_disabled,
 						DAO_Worker::EMAIL_ID => $email_id,
 						DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 						DAO_Worker::LANGUAGE => $language,
@@ -193,6 +200,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_Worker::EMAIL_ID => $email_id,
 					DAO_Worker::IS_SUPERUSER => $is_superuser,
 					DAO_Worker::IS_DISABLED => $disabled,
+					DAO_Worker::IS_PASSWORD_DISABLED => $is_password_disabled,
 					DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 					DAO_Worker::LANGUAGE => $language,
 					DAO_Worker::TIMEZONE => $timezone,
@@ -233,6 +241,14 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 				
 				if($id) {
+					// Passwords
+					if($is_password_disabled) {
+						DAO_Worker::setAuth($id, null);
+						
+					} else if ($password_new && 0 == strcmp($password_new, $password_verify)) {
+						DAO_Worker::setAuth($id, $password_new);
+					}
+					
 					// Custom field saves
 					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $id, $field_ids, $error))
@@ -360,6 +376,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		// Worker fields
 		@$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'],'string',''));
+		@$is_password_disabled = trim(DevblocksPlatform::importGPC($_POST['is_password_disabled'],'string',''));
 		@$title = trim(DevblocksPlatform::importGPC($_POST['title'],'string',''));
 		@$location = trim(DevblocksPlatform::importGPC($_POST['location'],'string',''));
 		@$gender = trim(DevblocksPlatform::importGPC($_POST['gender'],'string',''));
@@ -371,6 +388,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		// Do: Disabled
 		if(0 != strlen($is_disabled))
 			$do['is_disabled'] = $is_disabled;
+		
+		// Do: Password Disabled
+		if(0 != strlen($is_password_disabled))
+			$do['is_password_disabled'] = $is_password_disabled;
 		
 		if(0 != strlen($title))
 			$do['title'] = $title;

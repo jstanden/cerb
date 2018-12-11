@@ -83,14 +83,19 @@
 		</tr>
 		
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right">{'worker.auth_extension_id'|devblocks_translate|capitalize}:</td>
+			<td width="0%" nowrap="nowrap" align="right">
+				{'worker.is_password_disabled'|devblocks_translate|capitalize}:
+				<span class="glyphicons glyphicons-circle-question-mark" title="When a worker's password is disabled, they may only log in using a trusted Single Sign-On (SSO) identity."></span>
+			</td>
 			<td width="100%">
-				<select name="auth_extension_id">
+				<select name="is_password_disabled">
 					<option value="">&nbsp;</option>
-					{foreach from=$auth_extensions item=auth_extension key=auth_extension_id}
-					<option value="{$auth_extension_id}">{$auth_extension->name}</option>
-					{/foreach}
+					<option value="0">{'common.no'|devblocks_translate}</option>
+					<option value="1">{'common.yes'|devblocks_translate}</option>
 				</select>
+				
+				<button type="button" onclick="this.form.is_password_disabled.selectedIndex=1;">{'common.no'|devblocks_translate}</button>
+				<button type="button" onclick="this.form.is_password_disabled.selectedIndex=2;">{'common.yes'|devblocks_translate}</button>
 			</td>
 		</tr>
 		

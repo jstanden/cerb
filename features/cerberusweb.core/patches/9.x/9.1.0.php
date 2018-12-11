@@ -153,6 +153,9 @@ if(array_key_exists('openid_to_worker', $tables)) {
 
 // ===========================================================================
 // Migrate `login.password.google_auth` authenticators to `login.password`
+if(!isset($columns['is_password_disabled'])) {
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN is_password_disabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 0");
+}
 
 $sql = sprintf("UPDATE worker SET auth_extension_id=%s WHERE auth_extension_id=%s",
 	$db->qstr('login.password'),
