@@ -600,7 +600,7 @@ abstract class DevblocksEngine {
 		
 		// Security: IP Whitelist
 		
-		if(!in_array($controller_uri, array('oauth', 'portal')) && defined('APP_SECURITY_FIREWALL_WHITELIST') && !empty(APP_SECURITY_FIREWALL_WHITELIST)) {
+		if(!in_array($controller_uri, array('sso', 'oauth', 'portal')) && defined('APP_SECURITY_FIREWALL_WHITELIST') && !empty(APP_SECURITY_FIREWALL_WHITELIST)) {
 			@$remote_addr = DevblocksPlatform::getClientIp();
 			$valid_ips = DevblocksPlatform::parseCsvString(APP_SECURITY_FIREWALL_WHITELIST);
 			
@@ -612,7 +612,7 @@ abstract class DevblocksEngine {
 		// Security: CSRF
 		
 		// If we are running a controller action with an active session...
-		if(!in_array($controller_uri, array('oauth', 'cron', 'portal')) && (isset($_REQUEST['c']) || isset($_REQUEST['a']))) {
+		if(!in_array($controller_uri, array('sso', 'oauth', 'cron', 'portal')) && (isset($_REQUEST['c']) || isset($_REQUEST['a']))) {
 			
 			// ...and we're not in DEVELOPMENT_MODE
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {

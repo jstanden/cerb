@@ -4812,6 +4812,18 @@
 				<param key="uri" value="resource" />
 			</params>
 		</extension>
+		
+		<extension point="devblocks.controller">
+			<id>controller.sso</id>
+			<name>SSO Controller</name>
+			<class>
+				<file>api/controllers/sso.php</file>
+				<name>Controller_SSO</name>
+			</class>
+			<params>
+				<param key="uri" value="sso"/>
+			</params>
+		</extension>
 
 		<!-- Http Listeners -->
 		
