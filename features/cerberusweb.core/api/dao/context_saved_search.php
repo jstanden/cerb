@@ -49,8 +49,8 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 			->addField(self::TAG)
 			->string()
 			->setMaxLength(64)
-			->setNotEmpty(false)
 			->setUnique(get_class())
+			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
 				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-'))) {
 					$error = "may only contain letters, numbers, and dashes";
@@ -275,8 +275,6 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = array();
@@ -395,7 +393,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextSavedSearch::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextSavedSearch', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextSavedSearch', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"context_saved_search.id as %s, ".
@@ -863,8 +861,6 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
@@ -996,7 +992,6 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 	
 	function getMeta($context_id) {
 		$context_saved_search = DAO_ContextSavedSearch::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($context_saved_search->name);

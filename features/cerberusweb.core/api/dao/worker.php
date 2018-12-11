@@ -594,13 +594,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(false == ($model = DAO_Address::getByEmail($email)))
 			return null;
 		
-		$workers = DAO_Worker::getAll();
-		
-		if(is_array($workers))
-		foreach($workers as $worker) {
-			if($model->id == $worker->email_id)
-				return $worker;
-		}
+		if(false != ($worker = $model->getWorker()))
+			return $worker;
 		
 		return null;
 	}

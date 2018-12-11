@@ -105,7 +105,7 @@ class CerberusApplication extends DevblocksApplication {
 			: null
 			;
 	}
-
+	
 	static function getBotsByAtMentionsText($text) {
 		$bots = [];
 

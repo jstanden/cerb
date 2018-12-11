@@ -44,8 +44,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger, $parser_model=null) { //, Model_Message $message=null, Model_Ticket $ticket=null, Model_Group $group=null
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$replyto = DAO_Address::getDefaultLocalAddress();
 		
 		$parser_message = new CerberusParserMessage();
@@ -492,7 +490,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			case 'create_notification':
-				$translate = DevblocksPlatform::getTranslationService();
 				DevblocksEventHelper::renderActionCreateNotification($trigger);
 				break;
 				
@@ -530,6 +527,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			default:
+				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
@@ -582,9 +580,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				@$replace = $tpl_builder->build($params['replace'], $dict);
+				//@$replace = $tpl_builder->build($params['replace'], $dict);
+				//@$with = $tpl_builder->build($params['with'], $dict);
 				@$replace_mode = $params['replace_mode'];
-				@$with = $tpl_builder->build($params['with'], $dict);
 				
 				$out = '';
 				
@@ -704,6 +702,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			default:
+				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
 					$field_key = $matches[1];
 					$field_id = $matches[2];
@@ -993,12 +992,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				break;
 				
 			default:
+				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
 					$field_key = $matches[1];
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
-					$context = null;
-					$context_id = null;
 					
 					switch($custom_field->type) {
 						case Model_CustomField::TYPE_LIST:

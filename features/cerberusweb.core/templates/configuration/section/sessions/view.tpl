@@ -25,12 +25,10 @@
 <input type="hidden" name="action" value="viewDelete">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="3" cellspacing="0" border="0" width="100%" class="worklistBody">
-
+<table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 	{* Column Headers *}
 	<thead>
 	<tr>
-		<th style="width:25px;min-width:25px;max-width:25px;"></th>
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th class="{if $view->options.disable_sorting}no-sort{/if}">
@@ -59,14 +57,10 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
-			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"><input type="checkbox" name="row_id[]" value="{$result.d_session_key}" style="display:none;"></td>
-			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
-			</td>
-		</tr>
-		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="d_user_id"}
 			<td data-column="{$column}">
+				<input type="checkbox" name="row_id[]" value="{$result.d_session_key}" style="display:none;">
 				{if isset($workers.{$result.$column})}
 				{$worker = $workers.{$result.$column}}
 				{$worker->getName()}

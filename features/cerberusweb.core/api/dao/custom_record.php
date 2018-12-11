@@ -252,8 +252,6 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = array();
@@ -389,7 +387,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CustomRecord::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CustomRecord', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CustomRecord', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"custom_record.id as %s, ".
@@ -859,7 +857,6 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -870,8 +867,6 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_CustomRecord::VIRTUAL_CONTEXT_LINK:
@@ -966,7 +961,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		$results = self::isWriteableByActor($dicts, $actor);
 		
 		// Only allow a custom record to be deleted if it's empty
-		foreach($dicts as $dict_id => $dict) {
+		foreach(array_keys($dicts) as $dict_id) {
 			// If not writeable, skip
 			if(!$results[$dict_id])
 				continue;
@@ -1033,7 +1028,6 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 	
 	function getMeta($context_id) {
 		$custom_record = DAO_CustomRecord::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($custom_record->name);

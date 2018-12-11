@@ -582,7 +582,6 @@ class Model_MailToGroupRule {
 			return;
 		
 		$groups = DAO_Group::getAll();
-		$buckets = DAO_Bucket::getAll();
 		$custom_fields = DAO_CustomField::getAll();
 		
 		// Update the model using actions

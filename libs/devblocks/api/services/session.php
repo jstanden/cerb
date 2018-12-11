@@ -25,8 +25,6 @@ class _DevblocksSessionManager {
 		if(null == $instance) {
 			$url_writer = DevblocksPlatform::services()->url();
 			
-			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-			
 			@session_destroy();
 			
 			$handler_class = DevblocksPlatform::getHandlerSession();

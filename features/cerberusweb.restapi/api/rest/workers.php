@@ -72,9 +72,8 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function getContext($model) {
-		$labels = array();
-		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $model, $labels, $values, null, true);
+		$labels = $values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $model, $labels, $values, null, true);
 
 		return $values;
 	}
