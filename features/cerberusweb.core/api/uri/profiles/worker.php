@@ -82,8 +82,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string', '');
 				@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string', '');
 				@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string', '');
-				@$auth_extension_id = DevblocksPlatform::importGPC($_POST['auth_extension_id'],'string');
-				@$auth_params = DevblocksPlatform::importGPC($_POST['auth_params'],'array',[]);
 				@$at_mention_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::importGPC($_POST['at_mention_name'],'string'));
 				@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
 				@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
@@ -122,7 +120,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::IS_SUPERUSER => $is_superuser,
 						DAO_Worker::IS_DISABLED => $disabled,
 						DAO_Worker::EMAIL_ID => $email_id,
-						DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id,
 						DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 						DAO_Worker::LANGUAGE => $language,
 						DAO_Worker::TIMEZONE => $timezone,
@@ -196,7 +193,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_Worker::EMAIL_ID => $email_id,
 					DAO_Worker::IS_SUPERUSER => $is_superuser,
 					DAO_Worker::IS_DISABLED => $disabled,
-					DAO_Worker::AUTH_EXTENSION_ID => $auth_extension_id,
 					DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 					DAO_Worker::LANGUAGE => $language,
 					DAO_Worker::TIMEZONE => $timezone,
@@ -221,15 +217,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				// Update worker
 				DAO_Worker::update($id, $fields);
 				DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
-				
-				// Auth
-				if(!$auth_extension_id || false == ($auth_ext = Extension_LoginAuthenticator::get($auth_extension_id, true)))
-					throw new Exception_DevblocksAjaxValidationError("Invalid authentication method.");
-				
-				/* @var $auth_ext Extension_LoginAuthenticator */
-				if(false === ($auth_ext->saveWorkerConfig($id, $auth_params, $error))) {
-					throw new Exception_DevblocksAjaxValidationError($error);
-				}
 				
 				// Update group memberships
 				if(is_array($group_memberships))
@@ -319,10 +306,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		// Auth extensions
-		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
-		$tpl->assign('auth_extensions', $auth_extensions);
-		
 		// Languages
 		$translate = DevblocksPlatform::getTranslationService();
 		$locales = $translate->getLocaleStrings();
@@ -377,7 +360,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		// Worker fields
 		@$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'],'string',''));
-		@$auth_extension_id = trim(DevblocksPlatform::importGPC($_POST['auth_extension_id'],'string',''));
 		@$title = trim(DevblocksPlatform::importGPC($_POST['title'],'string',''));
 		@$location = trim(DevblocksPlatform::importGPC($_POST['location'],'string',''));
 		@$gender = trim(DevblocksPlatform::importGPC($_POST['gender'],'string',''));
@@ -390,10 +372,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		if(0 != strlen($is_disabled))
 			$do['is_disabled'] = $is_disabled;
 		
-		// Do: Authentication Extension
-		if(0 != strlen($auth_extension_id))
-			$do['auth_extension_id'] = $auth_extension_id;
-			
 		if(0 != strlen($title))
 			$do['title'] = $title;
 		
@@ -573,25 +551,5 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	}
-	
-	function getAuthExtensionParamsAction() {
-		$extension_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'], 'string', '');
-		$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'string', '');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		// Admins only
-		if(!$active_worker->is_superuser)
-			return;
-		
-		if(false == ($auth_ext = Extension_LoginAuthenticator::get($extension_id, true)))
-			return;
-		
-		/* @var $auth_ext Extension_LoginAuthenticator */
-			
-		$worker = DAO_Worker::get($worker_id);
-		
-		$auth_ext->renderWorkerConfig($worker);
 	}
 };

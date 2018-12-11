@@ -4693,11 +4693,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.auth_extension_id">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="it_IT">
 				<seg/>

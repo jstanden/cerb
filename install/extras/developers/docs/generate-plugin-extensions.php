@@ -85,11 +85,6 @@ $extension_point_meta = [
 		'class' => 'Extension_Sensor',
 		'examples' => [],
 		],
-	'cerberusweb.login' => [
-		'label' => 'Login Authenticator',
-		'class' => 'Extension_LoginAuthenticator',
-		'examples' => [],
-		],
 	'cerberusweb.mail.transport' => [
 		'label' => 'Mail Transport Type',
 		'class' => 'Extension_MailTransport',

@@ -6712,20 +6712,6 @@
 			</params>
 		</extension>
 		
-		<!--  Login Extensions -->
-
-		<extension point="cerberusweb.login">
-			<id>login.password</id>
-			<name>Password</name>
-			<class>
-				<file>api/login.classes.php</file>
-				<name>DefaultLoginModule</name>
-			</class>
-			<params>
-				<param key="uri" value="password" />
-			</params>
-		</extension>
-
 		<!-- Cron Extensions -->
 		
 		<extension point="cerberusweb.cron">

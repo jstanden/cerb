@@ -4732,11 +4732,6 @@ login &lt;ftp&#13;
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="worker.auth_extension_id">
-			<tuv xml:lang="ru_RU">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="worker.is_superuser">
 			<tuv xml:lang="ru_RU">
 				<seg>Администратор</seg>

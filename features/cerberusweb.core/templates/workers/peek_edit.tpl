@@ -14,7 +14,7 @@
 	<ul>
 		<li><a href="#{$form_id}Profile">{'common.profile'|devblocks_translate|capitalize}</a></li>
 		<li><a href="#{$form_id}Groups">{'common.groups'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#{$form_id}Login">{'common.login'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#{$form_id}Login">{'common.authentication'|devblocks_translate|capitalize}</a></li>
 		<li><a href="#{$form_id}Localization">{'common.localization'|devblocks_translate|capitalize}</a></li>
 		<li><a href="#{$form_id}Availability">{'common.availability'|devblocks_translate|capitalize}</a></li>
 	</ul>
@@ -206,18 +206,7 @@
 	</div>
 	
 	<div id="{$form_id}Login">
-		<select name="auth_extension_id">
-			{foreach from=$auth_extensions item=auth_ext_mft key=auth_ext_id}
-			<option value="{$auth_ext_id}" {if $worker->auth_extension_id==$auth_ext_id}selected="selected"{/if}>{$auth_ext_mft->name}</option>
-			{/foreach}
-		</select>
 		
-		<div class="cerb-auth-extension-params" style="margin:5px 0px 0px 10px;">
-			{if $worker->auth_extension_id}
-				{$login_ext = $worker->getAuthExtension()}
-				{$login_ext->renderWorkerConfig($worker)}
-			{/if}
-		</div>
 	</div>
 	
 	<div id="{$form_id}Groups">
@@ -369,17 +358,8 @@ $(function() {
 			$table.find('input:radio[value=' + value + ']').click();
 		});
 		
-		// Login extension
+		// Password
 		
-		var $auth_extension = $popup.find('select[name=auth_extension_id]');
-		var $auth_extension_params = $popup.find('div.cerb-auth-extension-params');
-		
-		$auth_extension.on('change', function(e) {
-			var auth_ext_id = $auth_extension.val();
-			
-			// Load the worker auth ext form
-			genericAjaxGet($auth_extension_params,'c=profiles&a=handleSectionAction&section=worker&action=getAuthExtensionParams&worker_id={$worker->id}&ext_id=' + encodeURIComponent(auth_ext_id));
-		});
 	});
 });
 </script>

@@ -132,13 +132,6 @@
 				{else}
 				<td data-column="{$column}">{'common.never'|devblocks_translate|lower}</td>
 				{/if}
-			{elseif $column=="w_auth_extension_id"}
-				<td data-column="{$column}">
-					{if isset($auth_extensions.{$result.$column})}
-						{$auth_ext = $auth_extensions.{$result.$column}}
-						{$auth_ext->name}
-					{/if}
-				</td>
 			{else}
 			<td data-column="{$column}">{$result.$column}</td>
 			{/if}

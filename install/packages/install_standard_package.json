@@ -102,7 +102,6 @@
 			"is_disabled": 0,
 			"timezone": "{{{admin_timezone}}}",
 			"time_format": "D, d M Y h:i a",
-			"auth_extension_id": "login.password",
 			"password": "{{{admin_password}}}",
 			"language": "en_US",
 			"calendar_id": "{{{uid.calendar_admin}}}"

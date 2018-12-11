@@ -17,7 +17,6 @@
 
 class DAO_Worker extends Cerb_ORMHelper {
 	const AT_MENTION_NAME = 'at_mention_name';
-	const AUTH_EXTENSION_ID = 'auth_extension_id';
 	const CALENDAR_ID = 'calendar_id';
 	const DOB = 'dob';
 	const EMAIL_ID = 'email_id';
@@ -52,14 +51,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->addField(self::AT_MENTION_NAME)
 			->string()
 			->setMaxLength(64)
-			;
-		// varchar(255)
-		$validation
-			->addField(self::AUTH_EXTENSION_ID)
-			->string()
-			->setMaxLength(255)
-			->addValidator($validation->validators()->extension('Extension_LoginAuthenticator'))
-			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
@@ -519,7 +510,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_Worker();
 			$object->at_mention_name = $row['at_mention_name'];
-			$object->auth_extension_id = $row['auth_extension_id'];
 			$object->calendar_id = intval($row['calendar_id']);
 			$object->dob = $row['dob'];
 			$object->email_id = intval($row['email_id']);
@@ -829,9 +819,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 					$change_fields[DAO_Worker::IS_DISABLED] = intval($v);
 					break;
 					
-				case 'auth_extension_id':
-					if(null !== (Extension_LoginAuthenticator::get($v, false)))
-						$change_fields[DAO_Worker::AUTH_EXTENSION_ID] = $v;
 					break;
 					
 				default:
@@ -1127,7 +1114,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"w.title as %s, ".
 			"w.email_id as %s, ".
 			"w.is_superuser as %s, ".
-			"w.auth_extension_id as %s, ".
 			"w.at_mention_name as %s, ".
 			"w.timezone as %s, ".
 			"w.time_format as %s, ".
@@ -1146,7 +1132,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 				SearchFields_Worker::TITLE,
 				SearchFields_Worker::EMAIL_ID,
 				SearchFields_Worker::IS_SUPERUSER,
-				SearchFields_Worker::AUTH_EXTENSION_ID,
 				SearchFields_Worker::AT_MENTION_NAME,
 				SearchFields_Worker::TIMEZONE,
 				SearchFields_Worker::TIME_FORMAT,
@@ -1307,7 +1292,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 class SearchFields_Worker extends DevblocksSearchFields {
 	// Worker
 	const ID = 'w_id';
-	const AUTH_EXTENSION_ID = 'w_auth_extension_id';
 	const AT_MENTION_NAME = 'w_at_mention_name';
 	const CALENDAR_ID = 'w_calendar_id';
 	const DOB = 'w_dob';
@@ -1530,7 +1514,6 @@ class SearchFields_Worker extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'w', 'id', $translate->_('common.id'), null, true),
 			self::AT_MENTION_NAME => new DevblocksSearchField(self::AT_MENTION_NAME, 'w', 'at_mention_name', $translate->_('worker.at_mention_name'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::AUTH_EXTENSION_ID => new DevblocksSearchField(self::AUTH_EXTENSION_ID, 'w', 'auth_extension_id', $translate->_('worker.auth_extension_id'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CALENDAR_ID => new DevblocksSearchField(self::CALENDAR_ID, 'w', 'calendar_id', $translate->_('common.calendar'), null, true),
 			self::DOB => new DevblocksSearchField(self::DOB, 'w', 'dob', $translate->_('common.dob.abbr'), Model_CustomField::TYPE_DATE, true),
 			self::EMAIL_ID => new DevblocksSearchField(self::EMAIL_ID, 'w', 'email_id', ucwords($translate->_('common.email')), null, true),
@@ -1741,15 +1724,14 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 
 class Model_Worker {
 	public $at_mention_name;
-	public $auth_extension_id;
 	public $calendar_id = 0;
 	public $dob;
 	public $email_id = 0;
 	public $first_name;
 	public $gender;
 	public $id;
-	public $is_superuser = 0;
 	public $is_disabled = 0;
+	public $is_superuser = 0;
 	public $language;
 	public $last_name;
 	public $location;
@@ -1786,14 +1768,6 @@ class Model_Worker {
 
 	function getRoles() {
 		return DAO_WorkerRole::getRolesByWorker($this->id);
-	}
-	
-	/**
-	 * 
-	 * @return Extension_LoginAuthenticator|NULL
-	 */
-	function getAuthExtension($as_instance=true) {
-		return Extension_LoginAuthenticator::get($this->auth_extension_id, $as_instance);
 	}
 	
 	/**
@@ -2567,12 +2541,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		// Login auth
-		$auth_extensions = Extension_LoginAuthenticator::getAll(false);
-		$tpl->assign('auth_extensions', $auth_extensions);
-		
 		// Template
-
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
 			default:
@@ -3230,7 +3199,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		return [
 			'address_id' => DAO_Worker::EMAIL_ID,
 			'at_mention_name' => DAO_Worker::AT_MENTION_NAME,
-			'auth_extension_id' => DAO_Worker::AUTH_EXTENSION_ID,
 			'calendar_id' => DAO_Worker::CALENDAR_ID,
 			'dob' => DAO_Worker::DOB,
 			'first_name' => DAO_Worker::FIRST_NAME,
@@ -3256,7 +3224,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$keys = parent::getKeyMeta();
 		
 		$keys['at_mention_name']['notes'] = "The nickname used for `@mention` notifications in comments";
-		$keys['auth_extension_id']['notes'] = "The [plugin](/docs/plugins/) extension used for login authentication; default is `login.password`";
 		$keys['calendar_id']['notes'] = "The ID of the [calendar](/docs/records/types/calendar/) used to compute worker availability";
 		$keys['dob']['notes'] = "Date of birth in `YYYY-MM-DD` format";
 		$keys['email_id']['notes'] = "The ID of the primary [email address](/docs/records/types/address/); alternative to `email`";
@@ -3448,7 +3415,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		if(false == ($worker = DAO_Worker::get($context_id))) {
 			$worker = new Model_Worker();
 			$worker->id = 0;
-			$worker->auth_extension_id = DefaultLoginModule::ID;
 			$worker->timezone = $active_worker->timezone;
 			$worker->time_format = $active_worker->time_format;
 			$worker->language = $active_worker->language;
@@ -3481,10 +3447,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
-			
-			// Authenticators
-			$auth_extensions = Extension_LoginAuthenticator::getAll(false);
-			$tpl->assign('auth_extensions', $auth_extensions);
 			
 			// Calendars
 			$calendars = DAO_Calendar::getOwnedByWorker($worker);

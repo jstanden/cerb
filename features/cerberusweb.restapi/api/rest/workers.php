@@ -87,7 +87,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 		
 		if('dao'==$type) {
 			$tokens = array(
-				'auth' => DAO_Worker::AUTH_EXTENSION_ID,
 				'dob' => DAO_Worker::DOB,
 				'email_id' => DAO_Worker::EMAIL_ID,
 				'first_name' => DAO_Worker::FIRST_NAME,
@@ -111,7 +110,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 				'fieldsets' => SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
 				'links' => SearchFields_Worker::VIRTUAL_CONTEXT_LINK,
 					
-				'auth' => SearchFields_Worker::AUTH_EXTENSION_ID,
 				'first_name' => SearchFields_Worker::FIRST_NAME,
 				'gender' => SearchFields_Worker::GENDER,
 				'is_disabled' => SearchFields_Worker::IS_DISABLED,
@@ -130,7 +128,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 		} else {
 			$tokens = array(
-				'auth' => SearchFields_Worker::AUTH_EXTENSION_ID,
 				'dob' => SearchFields_Worker::DOB,
 				'id' => SearchFields_Worker::ID,
 				'email_id' => SearchFields_Worker::EMAIL_ID,
@@ -164,12 +161,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			
 			if(isset($mentions[$mention]) && $mentions[$mention] != $id) {
 				$this->error(self::ERRNO_CUSTOM, sprintf("The 'mention' of '%s' is already used.", $mention));
-			}
-		}
-		
-		if(isset($fields[DAO_Worker::AUTH_EXTENSION_ID])) {
-			if(false == ($login_ext = Extension_LoginAuthenticator::get($fields[DAO_Worker::AUTH_EXTENSION_ID], false))) {
-				$this->error(self::ERRNO_CUSTOM, "The 'auth' field specifies an invalid extension.");
 			}
 		}
 		
@@ -447,9 +438,6 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 			'first_name',
 		);
 		$this->_handleRequiredFields($reqfields, $fields);
-		
-		if(!isset($fields[DAO_Worker::AUTH_EXTENSION_ID]))
-			$fields[DAO_Worker::AUTH_EXTENSION_ID] = 'login.password';
 		
 		// Validate $fields
 		$this->_validateFields($fields);

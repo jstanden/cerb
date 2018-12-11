@@ -4596,7 +4596,6 @@ For example: *receipt*</seg>
 				<seg>@Mention</seg>
 			</tuv>
 		</tu>
-		<tu tuid="worker.auth_extension_id">
 			<tuv xml:lang="en_US">
 				<seg>Authentication</seg>
 			</tuv>

@@ -142,7 +142,6 @@ class CerbEval_Install extends PHPUnit_Framework_TestCase {
 			DAO_Worker::LANGUAGE => 'en_US',
 			DAO_Worker::TIMEZONE => 'America/Los_Angeles',
 			DAO_Worker::TITLE => 'Customer Support',
-			DAO_Worker::AUTH_EXTENSION_ID => 'login.password',
 			DAO_Worker::UPDATED => time(),
 			DAO_Worker::GENDER => 'F',
 		));
