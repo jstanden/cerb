@@ -101,10 +101,8 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column=="w_is_disabled"}
-				<td data-column="{$column}">{if $result.w_is_disabled}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
-			{elseif $column=="w_is_superuser"}
-				<td data-column="{$column}">{if $result.w_is_superuser}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
+			{elseif in_array($column, ['w_is_disabled','w_is_mfa_required','w_is_password_disabled','w_is_superuser'])}
+				<td data-column="{$column}">{if $result.$column}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column=="a_address_email"}
 				{$addy = $object_addys.{$result.w_email_id}}
 				<td data-column="{$column}"><a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}" title="{$addy->email}">{$addy->email|truncate:64:'...':true:true}</a></td>

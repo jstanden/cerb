@@ -192,6 +192,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/gpg.php', array(
 			'_DevblocksGPGService',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/mfa.php', array(
+			'_DevblocksMultiFactorAuthService',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/nlp.php', array(
 			'_DevblocksNaturalLanguageManager',
 		));

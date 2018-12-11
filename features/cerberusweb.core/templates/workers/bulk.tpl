@@ -99,6 +99,22 @@
 			</td>
 		</tr>
 		
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">
+				{'worker.is_mfa_required'|devblocks_translate|capitalize}:
+				<span class="glyphicons glyphicons-circle-question-mark" title="Multi-Factor Authentication (MFA) requires both a password (something you know) and a one-time code from a device in your physical possession (something you have)."></span>
+			</td>
+			<td width="100%">
+				<select name="is_mfa_required">
+					<option value="">&nbsp;</option>
+					<option value="0">{'common.no'|devblocks_translate}</option>
+					<option value="1">{'common.yes'|devblocks_translate}</option>
+				</select>
+				
+				<button type="button" onclick="this.form.is_mfa_required.selectedIndex=1;">{'common.no'|devblocks_translate}</button>
+				<button type="button" onclick="this.form.is_mfa_required.selectedIndex=2;">{'common.yes'|devblocks_translate}</button>
+			</td>
+		</tr>
 		
 	</table>
 </fieldset>

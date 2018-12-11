@@ -118,10 +118,13 @@ class _DevblocksServices {
 	}
 	
 	/**
-	 * 
-	 * @param string $consumer_key
-	 * @param string $consumer_secret
-	 * @param string $signature_method
+	 * @return _DevblocksMultiFactorAuthService
+	 */
+	function mfa() {
+		return _DevblocksMultiFactorAuthService::getInstance();
+	}
+	
+	/**
 	 * @return _DevblocksOAuthService
 	 */
 	function oauth() {
