@@ -4295,6 +4295,22 @@
 		</extension>
 		
 		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.saml.idp</id>
+			<name>SAML Identity Provider</name>
+			<class>
+				<file>api/service_providers/saml.php</file>
+				<name>ServiceProvider_SAML</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="sso" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.connected_service.provider">
 			<id>cerb.service.provider.token.bearer</id>
 			<name>Token Bearer</name>
 			<class>

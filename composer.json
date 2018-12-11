@@ -19,6 +19,7 @@
 		"smarty/smarty" : "3.1.31",
 		"swiftmailer/swiftmailer" : "5.4.9",
 		"mtdowling/cron-expression" : "^1.2",
+		"onelogin/php-saml" : "^3.0",
 		"defuse/php-encryption" : "^2.1",
 		"guzzlehttp/guzzle": "~6.0"
 	},
