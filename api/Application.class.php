@@ -76,6 +76,7 @@ DevblocksPlatform::registerClasses($path . 'Utils.php', array(
  */
 class CerberusApplication extends DevblocksApplication {
 	private static $_active_worker = null;
+	private static $_login_state = null;
 
 	/**
 	 * @return CerberusVisit
@@ -2948,8 +2949,276 @@ class CerberusVisit extends DevblocksVisit {
 			$this->imposter_id = $worker->id;
 		}
 	}
+};
 
-
+class CerbLoginWorkerAuthState {
+	private static $_instance = null;
+	
+	private $email = null;
+	private $is_consent_given = false;
+	private $is_consent_required = false;
+	private $is_mfa_authenticated = false;
+	private $is_mfa_required = false;
+	private $is_oauth = false;
+	private $is_password_authenticated = false;
+	private $is_sso_authenticated = false;
+	private $params = [];
+	private $redirect_uris = [];
+	private $time_created_at = 0;
+	private $time_consented_at = 0;
+	private $time_mfa_challenged_at = 0;
+	private $was_consent_asked = false;
+	private $worker_id = 0;
+	
+	private $worker = null;
+	
+	static function getInstance() {
+		if(!is_null(self::$_instance))
+			return self::$_instance;
+		
+		@$session_state =& $_SESSION['login.state'];
+		
+		if(!$session_state || $session_state instanceof __PHP_Incomplete_Class)
+			$session_state = new CerbLoginWorkerAuthState();
+		
+		self::$_instance = $session_state;
+		return self::$_instance;
+	}
+	
+	private function __construct() {
+		$this->time_created_at = time();
+		
+		// If we know the email from a cookie, use it
+		if(array_key_exists('cerb_login_email', $_COOKIE))
+			$this->email = $_COOKIE['cerb_login_email'];
+	}
+	
+	function __sleep() {
+		return [
+			'email',
+			'is_consent_given',
+			'is_consent_required',
+			'is_mfa_authenticated',
+			'is_mfa_required',
+			'is_password_authenticated',
+			'is_sso_authenticated',
+			'params',
+			'redirect_uris',
+			'time_created_at',
+			'time_consented_at',
+			'time_mfa_challenged_at',
+			'was_consent_asked',
+			'worker_id',
+		];
+	}
+	
+	function __wakeup() {
+		if($this->worker_id)
+			$this->setWorker(DAO_Worker::get($this->worker_id));
+	}
+	
+	function destroy() {
+		self::$_instance = null;
+		unset($_SESSION['login.state']);
+	}
+	
+	function clearAuthState() {
+		return $this
+			->setWorker(null)
+			->setParams([])
+			->setIsConsentGiven(false)
+			->setIsMfaAuthenticated(false)
+			->setIsMfaRequired(false)
+			->setIsPasswordAuthenticated(false)
+			->setIsSSOAuthenticated(false)
+			->setTimeConsentedAt(0)
+			->setTimeMfaChallengedAt(0)
+			->setWasConsentAsked(false)
+			;
+	}
+	
+	function getEmail() {
+		return $this->email;
+	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	function isAuthenticated(array $options=[]) {
+		if(!$this->getWorker())
+			return false;
+		
+		if(!(array_key_exists('ignore_mfa', $options) && $options['ignore_mfa']))
+		if($this->isMfaRequired() && !$this->isMfaAuthenticated())
+			return false;
+		
+		if($this->isSSOAuthenticated())
+			return true;
+		
+		if(!$this->isPasswordAuthenticated())
+			return false;
+		
+		return true;
+	}
+	
+	function isConsentGiven() {
+		return $this->is_consent_given;
+	}
+	
+	function isConsentRequired() {
+		return $this->is_consent_required;
+	}
+	
+	function isMfaAuthenticated() {
+		return $this->is_mfa_authenticated;
+	}
+	
+	function isMfaRequired() {
+		return $this->is_mfa_required;
+	}
+	
+	function isPasswordAuthenticated() {
+		return $this->worker_id && $this->is_password_authenticated;
+	}
+	
+	function isSSOAuthenticated() {
+		return $this->is_sso_authenticated;
+	}
+	
+	function getParam($key, $default=null) {
+		if(array_key_exists($key, $this->params))
+			return $this->params[$key];
+		
+		return $default;
+	}
+	
+	function popRedirectUri() {
+		$uri = array_pop($this->redirect_uris);
+		return $uri;
+	}
+	
+	function pushRedirectUri($uri) {
+		$this->redirect_uris[] = $uri;
+		return $this;
+	}
+	
+	function getWorker() {
+		return $this->worker;
+	}
+	
+	function getWorkerId() {
+		return $this->worker_id;
+	}
+	
+	function setEmail($email) {
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		$this->email = $email;
+		
+		// Set a cookie
+		setcookie(
+			'cerb_login_email',
+			$email,
+			time()+30*86400,
+			$url_writer->write('c=login',false,false),
+			null,
+			$url_writer->isSSL(),
+			true
+		);
+		
+		return $this;
+	}
+	
+	function setIsConsentGiven($bool) {
+		$this->is_consent_given = boolval($bool);
+		return $this;
+	}
+	
+	function setIsConsentRequired($bool) {
+		$this->is_consent_required = boolval($bool);
+		return $this;
+	}
+	
+	function setIsPasswordAuthenticated($bool) {
+		$this->is_password_authenticated = boolval($bool);
+		return $this;
+	}
+	
+	function setIsMfaAuthenticated($bool) {
+		$this->is_mfa_authenticated = boolval($bool);
+		return $this;
+	}
+	
+	function setIsMfaRequired($bool) {
+		$this->is_mfa_required = boolval($bool);
+		return $this;
+	}
+	
+	function setIsSSOAuthenticated($bool) {
+		$this->is_sso_authenticated = boolval($bool);
+		return $this;
+	}
+	
+	function setParams(array $params) {
+		$this->params = $params;
+		return $this;
+	}
+	
+	function setParam($key, $value) {
+		$this->params[$key] = $value;
+		return $this;
+	}
+	
+	function setParamIncr($key, $n, $min=PHP_INT_MIN, $max=PHP_INT_MAX) {
+		@$value = intval($this->params[$key]);
+		$this->params[$key] = DevblocksPlatform::intClamp($value + intval($n), $min, $max);
+		return $this;
+	}
+	
+	function setParamDecr($key, $n, $min=PHP_INT_MIN, $max=PHP_INT_MAX) {
+		@$value = intval($this->params[$key]);
+		$this->params[$key] = DevblocksPlatform::intClamp($value - intval($n), $min, $max);
+		return $this;
+	}
+	
+	function setTimeConsentedAt($time) {
+		$this->time_consented_at = intval($time);
+		return $this;
+	}
+	
+	function setTimeMfaChallengedAt($time) {
+		$this->time_mfa_challenged_at = intval($time);
+		return $this;
+	}
+	
+	function setWasConsentAsked($bool) {
+		$this->was_consent_asked = boolval($bool);
+		return $this;
+	}
+	
+	function setWorker($worker) {
+		if(!($worker instanceof Model_Worker)) {
+			$this->worker_id = 0;
+			$this->worker = null;
+			
+		} else {
+			$this->worker_id = $worker->id;
+			$this->worker = $worker;
+		}
+		
+		return $this;
+	}
+	
+	function unsetParam($key) {
+		unset($this->params[$key]);
+		return $this;
+	}
+	
+	function wasConsentAsked() {
+		return $this->was_consent_asked;
+	}
+	
 };
 
 class Cerb_ORMHelper extends DevblocksORMHelper {
