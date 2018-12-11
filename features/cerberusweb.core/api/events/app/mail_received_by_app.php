@@ -150,6 +150,25 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		);
 		
 		/**
+		 * Routing Group
+		 */
+		
+		$group = !empty($parser_model) ? $parser_model->getRoutingGroup() : null;
+		
+		$group_labels = $group_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group, $group_labels, $group_values, '', true);
+
+		// Merge
+		CerberusContexts::merge(
+			'routing_group_',
+			'Routing group ',
+			$group_labels,
+			$group_values,
+			$labels,
+			$values
+		);
+		
+		/**
 		 * Parent Ticket
 		 */
 		

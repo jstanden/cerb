@@ -566,6 +566,37 @@ class CerberusParserModel {
 		
 		return $this->_group_id;
 	}
+	
+	/**
+	 * 
+	 * @return Model_Group|null
+	 */
+	public function getRoutingGroup() {
+		$model = clone $this; /* @var $model CerberusParserModel */
+		$group_id = 0;
+		
+		// Routing new tickets
+		if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
+			$model->getSenderAddressModel(),
+			$model->getMessage()
+		))) {
+			
+			// Update our model with the results of the routing rules
+			if(is_array($routing_rules))
+			foreach($routing_rules as $rule) {
+				if(false != ($move_group_id = $rule->actions['move']['group_id']))
+					$group_id = $move_group_id;
+			}
+		}
+		
+		if($group_id && false != ($group = DAO_Group::get($group_id)))
+			return $group;
+		
+		if(false != ($group = DAO_Group::getDefaultGroup()))
+			return $group;
+		
+		return null;
+	}
 };
 
 class ParserFile {
