@@ -1760,7 +1760,7 @@ UL.ui-menu li.ui-menu-item.ui-state-focus {
 }
 UL.ui-menu li.ui-state-focus {
   border: 0;
-  margin: inherit;
+  margin: 0;
   background: #618ce3;
 }
 

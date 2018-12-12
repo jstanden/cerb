@@ -1808,14 +1808,14 @@ UL.ui-menu {
 		break-inside: avoid-column;
 		page-break-inside: avoid;
 	}
-		
+	
 	li.ui-menu-item.ui-state-focus {
 		color: white;
 	}
 
 	li.ui-state-focus {
 		border: 0;
-		margin: inherit;
+		margin: 0;
 		background: rgb(97,140,227);
 	}
 }
