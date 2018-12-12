@@ -603,9 +603,16 @@ class _DevblocksValidationTypeNumber extends _DevblocksValidationType {
 	}
 }
 
-class _DevblocksValidationTypeString extends _DevblocksValidationType {
-	function __construct($type_name='string') {
-		parent::__construct($type_name);
+trait _DevblocksValidationStringTrait {
+	function setMinLength($length) {
+		if(is_string($length)) {
+			$length = DevblocksPlatform::strBitsToInt($length);
+		}
+		
+		if(!is_numeric($length))
+			return false;
+		
+		$this->_data['length_min'] = $length;
 		return $this;
 	}
 	
@@ -617,7 +624,7 @@ class _DevblocksValidationTypeString extends _DevblocksValidationType {
 		if(!is_numeric($length))
 			return false;
 		
-		$this->_data['length'] = $length;
+		$this->_data['length_max'] = $length;
 		return $this;
 	}
 	
@@ -627,23 +634,20 @@ class _DevblocksValidationTypeString extends _DevblocksValidationType {
 	}
 }
 
-class _DevblocksValidationTypeStringOrArray extends _DevblocksValidationType {
-	function __construct($type_name='stringOrArray') {
+class _DevblocksValidationTypeString extends _DevblocksValidationType {
+	use _DevblocksValidationStringTrait;
+	
+	function __construct($type_name='string') {
 		parent::__construct($type_name);
 		return $this;
 	}
+}
+
+class _DevblocksValidationTypeStringOrArray extends _DevblocksValidationType {
+	use _DevblocksValidationStringTrait;
 	
-	function setMaxLength($length) {
-		if(is_string($length)) {
-			$length = DevblocksPlatform::strBitsToInt($length);
-		}
-		
-		$this->_data['length'] = intval($length);
-		return $this;
-	}
-	
-	function setPossibleValues(array $possible_values) {
-		$this->_data['possible_values'] = $possible_values;
+	function __construct($type_name='stringOrArray') {
+		parent::__construct($type_name);
 		return $this;
 	}
 }
@@ -802,8 +806,12 @@ class _DevblocksValidationService {
 				}
 				
 				if($data) {
-					if(isset($data['length']) && strlen($value) > $data['length']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length']));
+					if(isset($data['length_min']) && strlen($value) < $data['length_min']) {
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be longer than %d characters.", $field_label, $data['length_min']));
+					}
+					
+					if(isset($data['length_max']) && strlen($value) > $data['length_max']) {
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
 					}
 					
 					if(isset($data['possible_values']) && !in_array($value, $data['possible_values'])) {
@@ -825,8 +833,12 @@ class _DevblocksValidationService {
 				
 				if($data) {
 					foreach($values as $v) {
-						if(isset($data['length']) && strlen($v) > $data['length']) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length']));
+						if(isset($data['length_min']) && strlen($v) < $data['length_min']) {
+							throw new Exception_DevblocksValidationError(sprintf("'%s' must be longer than %d characters.", $field_label, $data['length_min']));
+						}
+						
+						if(isset($data['length_max']) && strlen($v) > $data['length_max']) {
+							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
 						}
 						
 						if(isset($data['possible_values']) && !in_array($v, $data['possible_values'])) {
