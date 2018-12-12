@@ -3,6 +3,48 @@
 
 // Cerb custom styles
 
+// Alerts
+
+#cerb-alerts {
+	position: fixed;
+	z-index: 999999;
+	top: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+	line-height: 2.5;
+	overflow: hidden;
+	
+	.cerb-alert {
+		padding:2px;
+		border:0;
+		background:rgb(253, 226, 108);
+		font-weight:bold;
+		border-bottom:solid 1px rgb(255,255,255);
+		
+		&.cerb-alert-note {
+			color:black;
+			background:rgb(253, 226, 108);
+		}
+		
+		&.cerb-alert-error {
+			background-color:rgb(253, 58, 71);
+			color:white;
+		}
+		
+		&.cerb-alert-success {
+			background:rgb(112, 239, 62);
+			color:rgb(47, 58, 31);
+		}
+		
+		.cerb-alert-close {
+			float: right;
+			font-size: 1.5em;
+			cursor: pointer;
+		}
+	}
+}
+
 // Forms
 
 DIV.cerb-form {

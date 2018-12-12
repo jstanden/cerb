@@ -98,6 +98,56 @@ function DevblocksClass() {
 		});
 	}
 	
+	this.clearAlerts = function() {
+		var $alerts = $('#cerb-alerts');
+		$alerts.find('.cerb-alert').remove();
+	}
+	
+	this.createAlertError = function(message) {
+		return this.createAlert(message, 'error', 0);
+	}
+	
+	this.createAlert = function(message, style, duration) {
+		if(undefined == message)
+			return;
+		
+		if(undefined == duration)
+			duration = 2500;
+		
+		var $alerts = $('#cerb-alerts');
+		
+		var $alert = $('<div/>')
+			.addClass('cerb-alert')
+			.text(message)
+			.hide()
+			.appendTo($alerts)
+			;
+		
+		var $close = $('<span class="cerb-alert-close"><span class="glyphicons glyphicons-remove"></span></span>')
+			.on('click', function(e) {
+				var $alert = $(this).closest('.cerb-alert');
+				
+				$alert.effect('slide',{ direction:'up', mode:'hide' }, 500, function() {
+					$alert.remove();
+				});
+			})
+			.appendTo($alert)
+			;
+		
+		if(style != undefined)
+			$alert
+				.addClass('cerb-alert-' + style)
+				;
+		
+		$alert.effect('slide',{ direction:'up', mode:'show' }, 250);
+		
+		if(parseInt(duration) > 0) {
+			$alert.delay(duration).effect('slide',{ direction:'up', mode:'hide' }, 500, function() {
+				$alert.remove();
+			});
+		}
+	}
+	
 	this.showError = function(target, message, animate) {
 		$html = $('<div class="ui-widget"/>')
 			.append(

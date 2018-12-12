@@ -131,6 +131,41 @@ BUTTON SPAN {
   vertical-align: middle;
 }
 
+#cerb-alerts {
+  position: fixed;
+  z-index: 999999;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  line-height: 2.5;
+  overflow: hidden;
+}
+#cerb-alerts .cerb-alert {
+  padding: 2px;
+  border: 0;
+  background: #fde26c;
+  font-weight: bold;
+  border-bottom: solid 1px white;
+}
+#cerb-alerts .cerb-alert.cerb-alert-note {
+  color: black;
+  background: #fde26c;
+}
+#cerb-alerts .cerb-alert.cerb-alert-error {
+  background-color: #fd3a47;
+  color: white;
+}
+#cerb-alerts .cerb-alert.cerb-alert-success {
+  background: #70ef3e;
+  color: #2f3a1f;
+}
+#cerb-alerts .cerb-alert .cerb-alert-close {
+  float: right;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
 DIV.cerb-form {
   margin: 0px 0px 10px 0px;
 }

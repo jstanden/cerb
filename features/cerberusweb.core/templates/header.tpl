@@ -59,3 +59,4 @@
 </head>
 
 <body>
+<div id="cerb-alerts"></div>
