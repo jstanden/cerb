@@ -2215,7 +2215,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 	}
 };
 
-class Context_Message extends Extension_DevblocksContext implements IDevblocksContextPeek {
+class Context_Message extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = CerberusContexts::CONTEXT_MESSAGE;
 	
 	static function isReadableByActor($models, $actor) {
@@ -2846,5 +2846,117 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			
 			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek.tpl');
 		}
+	}
+	
+	public function profileGetFields($model = null) {
+		$properties = [];
+		
+		/* @var $model Model_Message */
+		
+		if(is_null($model))
+			$model = new Model_Message();
+		
+		$properties['created'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.created'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created_date,
+			'params' => [],
+		];
+		
+		$properties['id'] = [
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+			'params' => [],
+		];
+		
+		$properties['is_broadcast'] = [
+			'label' => DevblocksPlatform::translate('message.is_broadcast'),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_broadcast,
+			'params' => [],
+		];
+		
+		$properties['is_not_sent'] = [
+			'label' => DevblocksPlatform::translate('message.is_not_sent'),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_not_sent,
+			'params' => [],
+		];
+		
+		$properties['is_outgoing'] = [
+			'label' => DevblocksPlatform::translate('message.is_outgoing'),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_outgoing,
+			'params' => [],
+		];
+		
+		$properties['response_time'] = [
+			'label' => DevblocksPlatform::translate('message.response_time'),
+			'type' => 'time_secs',
+			'value' => $model->response_time,
+			'params' => [],
+		];
+		
+		$properties['sender'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.sender'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->address_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_ADDRESS,
+			],
+		];
+		
+		$properties['ticket'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.ticket'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->ticket_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_TICKET,
+			],
+		];
+		
+		$properties['ticket_id'] = [
+			'label' => DevblocksPlatform::translateCapitalized('ticket.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->ticket_id,
+			'params' => [],
+		];
+		
+		$properties['was_encrypted'] = [
+			'label' => DevblocksPlatform::translateCapitalized('message.is_encrypted'),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->was_encrypted,
+			'params' => [],
+		];
+		
+		$properties['was_signed'] = [
+			'label' => DevblocksPlatform::translateCapitalized('message.is_signed'),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->was_signed,
+			'params' => [],
+		];
+		
+		$properties['worker'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.worker'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->worker_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			],
+		];
+		
+		$properties['worker_id'] = [
+			'label' => 'Worker ID',
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->worker_id,
+			'params' => [],
+		];
+		
+		return $properties;
+	}
+
+	public function profileGetUrl($context_id) {
+		return null;
 	}
 };
