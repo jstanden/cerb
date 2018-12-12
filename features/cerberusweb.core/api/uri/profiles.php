@@ -1934,30 +1934,32 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 			// =================================================================
 			// Properties
 			
-			$properties = $context_ext->profileGetFields();
-			
-			$tpl->assign('custom_field_values', []);
-			
-			$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context);
-			
-			if(!empty($properties_cfields))
-				$properties = array_merge($properties, $properties_cfields);
-			
-			// Sort properties by the configured order
-			
-			@$properties_enabled = array_flip($model->extension_params['properties'][0] ?: []);
-			
-			uksort($properties, function($a, $b) use ($properties_enabled, $properties) {
-				$a_pos = array_key_exists($a, $properties_enabled) ? $properties_enabled[$a] : 1000;
-				$b_pos = array_key_exists($b, $properties_enabled) ? $properties_enabled[$b] : 1000;
+			if($context_ext instanceof IDevblocksContextProfile) {
+				$properties = $context_ext->profileGetFields();
 				
-				if($a_pos == $b_pos)
-					return $properties[$a]['label'] > $properties[$b]['label'] ? 1 : -1;
+				$tpl->assign('custom_field_values', []);
 				
-				return $a_pos < $b_pos ? -1 : 1;
-			});
-			
-			$tpl->assign('properties', $properties);
+				$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context);
+				
+				if(!empty($properties_cfields))
+					$properties = array_merge($properties, $properties_cfields);
+				
+				// Sort properties by the configured order
+				
+				@$properties_enabled = array_flip($model->extension_params['properties'][0] ?: []);
+				
+				uksort($properties, function($a, $b) use ($properties_enabled, $properties) {
+					$a_pos = array_key_exists($a, $properties_enabled) ? $properties_enabled[$a] : 1000;
+					$b_pos = array_key_exists($b, $properties_enabled) ? $properties_enabled[$b] : 1000;
+					
+					if($a_pos == $b_pos)
+						return $properties[$a]['label'] > $properties[$b]['label'] ? 1 : -1;
+					
+					return $a_pos < $b_pos ? -1 : 1;
+				});
+				
+				$tpl->assign('properties', $properties);
+			}
 			
 			$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets($context, null, [], true);
 			$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
