@@ -203,6 +203,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$validation
 			->addField(self::_PASSWORD)
 			->string()
+			->setMinLength(8)
 			;
 		$validation
 			->addField('_links')
