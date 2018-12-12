@@ -68,15 +68,12 @@
 	</div>
 </fieldset>
 
-<div class="status"></div>
-
 <button type="button" class="submit" style="margin-top:10px;"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </form>
 
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#{$form_id}');
-	var $status = $frm.find('div.status');
 	
 	// Avatar chooser
 	var $avatar_chooser = $frm.find('button.cerb-avatar-chooser');
@@ -84,17 +81,7 @@ $(function() {
 	ajax.chooserAvatar($avatar_chooser, $avatar_image);
 	
 	$frm.find('button.submit').on('click', function(e) {
-		genericAjaxPost($frm, '', null, function(json) {
-			if(json && typeof json == 'object') {
-				if(json.error) {
-					Devblocks.showError($status, json.error);
-				} else if (json.message) {
-					Devblocks.showSuccess($status, json.message);
-				} else {
-					Devblocks.showSuccess($status, "Saved!");
-				}
-			}
-		});
+		Devblocks.saveTabForm($frm);
 	});
 });
 </script>

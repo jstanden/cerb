@@ -70,6 +70,34 @@ function DevblocksClass() {
 		}
 	}
 	
+	this.saveTabForm = function($frm) {
+		genericAjaxPost($frm, '', null, function(json) {
+			Devblocks.clearAlerts();
+			
+			if(json && typeof json == 'object') {
+				if(json.error) {
+					Devblocks.createAlertError(json.error);
+					
+				} else {
+					$frm.fadeTo('fast', 0.2);
+					
+					if (json.message) {
+						Devblocks.createAlert(json.message, 'note');
+					} else {
+						Devblocks.createAlert("Saved!", 'note');
+					}
+					
+					setTimeout(function() {
+						// Reload the tab
+						var $tabs = $frm.closest('.ui-tabs');
+						var tabId = $tabs.tabs("option", "active");
+						$tabs.tabs("load", tabId);
+					}, 750);
+				}
+			}
+		});
+	}
+	
 	this.showError = function(target, message, animate) {
 		$html = $('<div class="ui-widget"/>')
 			.append(
