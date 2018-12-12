@@ -24,6 +24,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	const GENDER = 'gender';
 	const ID = 'id';
 	const IS_DISABLED = 'is_disabled';
+	const IS_MFA_REQUIRED = 'is_mfa_required';
 	const IS_PASSWORD_DISABLED = 'is_password_disabled';
 	const IS_SUPERUSER = 'is_superuser';
 	const LANGUAGE = 'language';
@@ -116,6 +117,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->bit()
 			;
 		// tinyint(1) unsigned
+		$validation
+			->addField(self::IS_MFA_REQUIRED)
+			->bit()
+			;
 		// tinyint(1) unsigned
 		$validation
 			->addField(self::IS_PASSWORD_DISABLED)
@@ -524,6 +529,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->gender = $row['gender'];
 			$object->id = intval($row['id']);
 			$object->is_disabled = intval($row['is_disabled']);
+			$object->is_mfa_required = intval($row['is_mfa_required']);
 			$object->is_password_disabled = intval($row['is_password_disabled']);
 			$object->is_superuser = intval($row['is_superuser']);
 			$object->language = $row['language'];
@@ -827,6 +833,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 					$change_fields[DAO_Worker::IS_DISABLED] = intval($v);
 					break;
 					
+				case 'is_mfa_required':
+					$change_fields[DAO_Worker::IS_MFA_REQUIRED] = intval($v);
+					break;
 					
 				case 'is_password_disabled':
 					$change_fields[DAO_Worker::IS_PASSWORD_DISABLED] = intval($v);
@@ -1128,6 +1137,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"w.title as %s, ".
 			"w.email_id as %s, ".
 			"w.is_superuser as %s, ".
+			"w.is_mfa_required as %s, ".
 			"w.is_password_disabled as %s, ".
 			"w.at_mention_name as %s, ".
 			"w.timezone as %s, ".
@@ -1147,6 +1157,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 				SearchFields_Worker::TITLE,
 				SearchFields_Worker::EMAIL_ID,
 				SearchFields_Worker::IS_SUPERUSER,
+				SearchFields_Worker::IS_MFA_REQUIRED,
 				SearchFields_Worker::IS_PASSWORD_DISABLED,
 				SearchFields_Worker::AT_MENTION_NAME,
 				SearchFields_Worker::TIMEZONE,
@@ -1315,6 +1326,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const FIRST_NAME = 'w_first_name';
 	const GENDER = 'w_gender';
 	const IS_DISABLED = 'w_is_disabled';
+	const IS_MFA_REQUIRED = 'w_is_mfa_required';
 	const IS_PASSWORD_DISABLED = 'w_is_password_disabled';
 	const IS_SUPERUSER = 'w_is_superuser';
 	const LANGUAGE = 'w_language';
@@ -1537,6 +1549,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::FIRST_NAME => new DevblocksSearchField(self::FIRST_NAME, 'w', 'first_name', $translate->_('common.name.first'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::GENDER => new DevblocksSearchField(self::GENDER, 'w', 'gender', $translate->_('common.gender'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'w', 'is_disabled', ucwords($translate->_('common.disabled')), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_MFA_REQUIRED => new DevblocksSearchField(self::IS_MFA_REQUIRED, 'w', 'is_mfa_required', ucwords($translate->_('worker.is_mfa_required')), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_PASSWORD_DISABLED => new DevblocksSearchField(self::IS_PASSWORD_DISABLED, 'w', 'is_password_disabled', ucwords($translate->_('worker.is_password_disabled')), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_SUPERUSER => new DevblocksSearchField(self::IS_SUPERUSER, 'w', 'is_superuser', $translate->_('worker.is_superuser'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::LANGUAGE => new DevblocksSearchField(self::LANGUAGE, 'w', 'language', $translate->_('common.language'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -1749,6 +1762,7 @@ class Model_Worker {
 	public $gender;
 	public $id;
 	public $is_disabled = 0;
+	public $is_mfa_required = 0;
 	public $is_password_disabled = 0;
 	public $is_superuser = 0;
 	public $language;
@@ -2058,6 +2072,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::AT_MENTION_NAME,
 			SearchFields_Worker::LANGUAGE,
 			SearchFields_Worker::TIMEZONE,
+			SearchFields_Worker::IS_MFA_REQUIRED,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -2114,6 +2129,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				case SearchFields_Worker::FIRST_NAME:
 				case SearchFields_Worker::GENDER:
 				case SearchFields_Worker::IS_DISABLED:
+				case SearchFields_Worker::IS_MFA_REQUIRED:
 				case SearchFields_Worker::IS_PASSWORD_DISABLED:
 				case SearchFields_Worker::IS_SUPERUSER:
 				case SearchFields_Worker::LANGUAGE:
@@ -2167,6 +2183,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 
 			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_MFA_REQUIRED:
 			case SearchFields_Worker::IS_PASSWORD_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
@@ -2356,6 +2373,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Worker::IS_DISABLED),
+				),
+			'isMfaRequired' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Worker::IS_MFA_REQUIRED),
 				),
 			'isPasswordDisabled' => 
 				array(
@@ -2652,6 +2674,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 			
 			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_MFA_REQUIRED:
 			case SearchFields_Worker::IS_PASSWORD_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
 				$this->_renderCriteriaParamBoolean($param);
@@ -2694,6 +2717,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Worker::EMAIL_ID:
 			case SearchFields_Worker::IS_DISABLED:
+			case SearchFields_Worker::IS_MFA_REQUIRED:
 			case SearchFields_Worker::IS_PASSWORD_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
 				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
@@ -3234,6 +3258,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'email_id' => DAO_Worker::EMAIL_ID,
 			'id' => DAO_Worker::ID,
 			'is_disabled' => DAO_Worker::IS_DISABLED,
+			'is_mfa_required' => DAO_Worker::IS_MFA_REQUIRED,
 			'is_password_disabled' => DAO_Worker::IS_PASSWORD_DISABLED,
 			'is_superuser' => DAO_Worker::IS_SUPERUSER,
 			'language' => DAO_Worker::LANGUAGE,
@@ -3259,6 +3284,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$keys['first_name']['notes'] = "Given name";
 		$keys['gender']['notes'] = "`F` (female), `M` (male), or blank or unknown";
 		$keys['is_disabled']['notes'] = "Is this worker deactivated and prevented from logging in?";
+		$keys['is_mfa_required']['notes'] = "Is this worker required to use multi-factor authentication?";
 		$keys['is_password_disabled']['notes'] = "Is this worker allowed to log in with a password?";
 		$keys['is_superuser']['notes'] = "Is this worker an administrator with full privileges?";
 		$keys['language']['notes'] = "ISO-639 language code and ISO-3166 country code; e.g. `en_US`";

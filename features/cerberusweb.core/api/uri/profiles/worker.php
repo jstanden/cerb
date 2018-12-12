@@ -92,6 +92,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'bit', 0);
 				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'bit',0);
 				@$is_password_disabled = DevblocksPlatform::importGPC($_POST['is_password_disabled'],'bit',0);
+				@$is_mfa_required = DevblocksPlatform::importGPC($_POST['is_mfa_required'],'bit',0);
 				@$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'],'array');
 				
 				$error = null;
@@ -126,6 +127,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::IS_SUPERUSER => $is_superuser,
 						DAO_Worker::IS_DISABLED => $disabled,
 						DAO_Worker::IS_PASSWORD_DISABLED => $is_password_disabled,
+						DAO_Worker::IS_MFA_REQUIRED => $is_mfa_required,
 						DAO_Worker::EMAIL_ID => $email_id,
 						DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 						DAO_Worker::LANGUAGE => $language,
@@ -201,6 +203,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_Worker::IS_SUPERUSER => $is_superuser,
 					DAO_Worker::IS_DISABLED => $disabled,
 					DAO_Worker::IS_PASSWORD_DISABLED => $is_password_disabled,
+					DAO_Worker::IS_MFA_REQUIRED => $is_mfa_required,
 					DAO_Worker::AT_MENTION_NAME => $at_mention_name,
 					DAO_Worker::LANGUAGE => $language,
 					DAO_Worker::TIMEZONE => $timezone,
@@ -377,6 +380,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		// Worker fields
 		@$is_disabled = trim(DevblocksPlatform::importGPC($_POST['is_disabled'],'string',''));
 		@$is_password_disabled = trim(DevblocksPlatform::importGPC($_POST['is_password_disabled'],'string',''));
+		@$is_mfa_required = trim(DevblocksPlatform::importGPC($_POST['is_mfa_required'],'string',''));
 		@$title = trim(DevblocksPlatform::importGPC($_POST['title'],'string',''));
 		@$location = trim(DevblocksPlatform::importGPC($_POST['location'],'string',''));
 		@$gender = trim(DevblocksPlatform::importGPC($_POST['gender'],'string',''));
@@ -393,6 +397,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		if(0 != strlen($is_password_disabled))
 			$do['is_password_disabled'] = $is_password_disabled;
 		
+		// Do: MFA Required
+		if(0 != strlen($is_mfa_required))
+			$do['is_mfa_required'] = $is_mfa_required;
+			
 		if(0 != strlen($title))
 			$do['title'] = $title;
 		

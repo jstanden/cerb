@@ -149,6 +149,13 @@ if(array_key_exists('openid_to_worker', $tables)) {
 	
 	$db->ExecuteMaster("DROP TABLE openid_to_worker");
 	unset($tables['openid_to_worker']);
+if(!isset($tables['worker']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('worker');
+
+if(!isset($columns['is_mfa_required'])) {
+	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN is_mfa_required TINYINT(1) UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================

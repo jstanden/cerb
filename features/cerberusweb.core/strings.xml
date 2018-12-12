@@ -4596,6 +4596,11 @@ For example: *receipt*</seg>
 				<seg>@Mention</seg>
 			</tuv>
 		</tu>
+		<tu tuid="worker.is_mfa_required">
+			<tuv xml:lang="en_US">
+				<seg>MFA Required</seg>
+			</tuv>
+		</tu>
 		<tu tuid="worker.is_password_disabled">
 			<tuv xml:lang="en_US">
 				<seg>Password Disabled</seg>

@@ -232,6 +232,14 @@
 			</div>
 		</fieldset>
 		
+		<fieldset class="peek black">
+			<legend>{'common.auth.mfa'|devblocks_translate|capitalize}</legend>
+			
+			<div>
+				<label><input type="radio" name="is_mfa_required" value="1" {if $worker->is_mfa_required}checked="checked"{/if}> {'common.required'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="is_mfa_required" value="0" {if !$worker->is_mfa_required}checked="checked"{/if}> {'common.optional'|devblocks_translate|capitalize}</label>
+			</div>
+		</fieldset>
 	</div>
 	
 	<div id="{$form_id}Groups">
