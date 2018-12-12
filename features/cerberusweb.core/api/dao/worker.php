@@ -1076,6 +1076,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(null == ($worker = DAO_Worker::getByEmail($email)) || $worker->is_disabled)
 			return null;
 		
+		if($worker->is_disabled)
+			return null;
+		
 		if($worker->is_password_disabled)
 			return null;
 		
