@@ -207,6 +207,11 @@
 
 		<!-- Common Strings -->
 		
+		<tu tuid="common.accept">
+			<tuv xml:lang="en_US">
+				<seg>accept</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.access_denied">
 			<tuv xml:lang="en_US">
 				<seg>Access denied.</seg>
@@ -337,9 +342,24 @@
 				<seg>attributes</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.auth.2fa">
+			<tuv xml:lang="en_US">
+				<seg>two-factor authentication</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.auth.mfa">
+			<tuv xml:lang="en_US">
+				<seg>multi-factor authentication</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.authenticate">
 			<tuv xml:lang="en_US">
 				<seg>authenticate</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.authentication">
+			<tuv xml:lang="en_US">
+				<seg>authentication</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.author">
@@ -912,6 +932,11 @@
 				<seg>developers</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.disable">
+			<tuv xml:lang="en_US">
+				<seg>disable</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.disabled">
 			<tuv xml:lang="en_US">
 				<seg>Disabled</seg>
@@ -1007,9 +1032,19 @@
 				<seg>email transports</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.enable">
+			<tuv xml:lang="en_US">
+				<seg>enable</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.enabled">
 			<tuv xml:lang="en_US">
 				<seg>Enabled</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.encrypt">
+			<tuv xml:lang="en_US">
+				<seg>encrypt</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.encrypted">
@@ -2095,6 +2130,11 @@
 				<seg>Reply</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.required">
+			<tuv xml:lang="en_US">
+				<seg>required</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.reset">
 			<tuv xml:lang="en_US">
 				<seg>reset</seg>
@@ -2624,6 +2664,11 @@
 		<tu tuid="common.variables">
 			<tuv xml:lang="en_US">
 				<seg>variables</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.verify">
+			<tuv xml:lang="en_US">
+				<seg>verify</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.visibility">
