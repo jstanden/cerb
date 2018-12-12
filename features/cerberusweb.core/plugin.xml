@@ -5084,7 +5084,7 @@
 			<name>Signin Page</name>
 			<class>
 				<file>api/uri/login.php</file>
-				<name>ChSignInPage</name>
+				<name>Page_Login</name>
 			</class>
 			<params>
 				<param key="uri" value="login" />

@@ -7,16 +7,13 @@
 {/if}
 
 {if !empty($tour_enabled)}{include file="devblocks:cerberusweb.core::internal/tour/banner.tpl"}{/if}
+
+{if $active_worker}
 <div class="cerb-no-print" style="display:flex;flex-flow:row wrap;">
 	<div style="flex:2 2;">
 		<a href="{devblocks_url}{/devblocks_url}"><div id="cerb-logo"></div></a>
 	</div>
 	<div style="flex:1 1 250px;text-align:right;padding-bottom:5px;margin-top:auto;">
-		{if empty($visit)}
-			<div class="badge badge-lightgray">
-				<a href="{devblocks_url}c=login{/devblocks_url}" class="no-underline"><b>{'header.signon'|devblocks_translate|lower}</b></a>
-			</div>
-		{elseif !empty($active_worker)}
 			<img src="{devblocks_url}c=avatars&context=worker&context_id={$active_worker->id}{/devblocks_url}?v={$active_worker->updated}" style="height:1.75em;width:1.75em;border-radius:0.875em;vertical-align:middle;">
 			<b><a href="javascript:;" id="lnkSignedIn" data-worker-id="{$active_worker->id}" data-worker-name="{$active_worker->getName()}">{$active_worker->getName()}</a></b><span class="glyphicons glyphicons-chevron-down" style="margin:2px 0px 0px 2px;"></span>
 			{if $visit->isImposter()}
@@ -34,9 +31,13 @@
 				<li><a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{'header.signoff'|devblocks_translate|lower}</a></li>
 				<li><a href="{devblocks_url}c=login&a=signout&w=all{/devblocks_url}">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
 			</ul>
-		{/if}
 	</div>
 </div>
+{else}
+<div style="text-align:center;">
+	<a href="{devblocks_url}{/devblocks_url}"><div id="cerb-logo" style="background-position:center;"></div></a>
+</div>
+{/if}
 
 <script type="text/javascript">
 $(function(e) {
