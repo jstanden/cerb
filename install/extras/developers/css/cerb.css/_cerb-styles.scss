@@ -1802,3 +1802,20 @@ div.cerb-uploads {
 	padding: 1px;
 	height: 20px;
 }
+
+UL.ui-menu {
+	li.ui-menu-item {
+		break-inside: avoid-column;
+		page-break-inside: avoid;
+	}
+		
+	li.ui-menu-item.ui-state-focus {
+		color: white;
+	}
+
+	li.ui-state-focus {
+		border: 0;
+		margin: inherit;
+		background: rgb(97,140,227);
+	}
+}

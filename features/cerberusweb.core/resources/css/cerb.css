@@ -1751,6 +1751,19 @@ div.cerb-uploads p.failure {
   height: 20px;
 }
 
+UL.ui-menu li.ui-menu-item {
+  break-inside: avoid-column;
+  page-break-inside: avoid;
+}
+UL.ui-menu li.ui-menu-item.ui-state-focus {
+  color: white;
+}
+UL.ui-menu li.ui-state-focus {
+  border: 0;
+  margin: inherit;
+  background: #618ce3;
+}
+
 @keyframes cerb-badge-bounce {
   from {
     right: -15px;

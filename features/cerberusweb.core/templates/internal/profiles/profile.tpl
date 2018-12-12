@@ -23,7 +23,7 @@
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
-			<span id="spanInteractions" title="{'common.interactions'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (I){/if}">
+			<span id="spanInteractions">
 			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 			</span>
 			
