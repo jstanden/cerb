@@ -995,7 +995,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			return false;
 		
 		// Clear worker addresses
-		$sql = sprintf("UPDATE address SET worker_id = 0 WHERE owner_id = %d", $id);
+		$sql = sprintf("UPDATE address SET worker_id = 0 WHERE worker_id = %d", $id);
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 		
