@@ -493,6 +493,7 @@ class _DevblocksValidationType {
 	function setUnique($dao_class) {
 		$this->_data['unique'] = true;
 		$this->_data['dao_class'] = $dao_class;
+		$this->setNotEmpty(true);
 		return $this;
 	}
 	
@@ -733,17 +734,22 @@ class _DevblocksValidationService {
 		if(isset($data['unique']) && $data['unique']) {
 			@$dao_class = $data['dao_class'];
 			
-			if(empty($dao_class))
-				throw new Exception_DevblocksValidationError("'%s' has an invalid unique constraint.", $field_label);
-			
-			if(isset($scope['id'])) {
-				$results = $dao_class::getWhere(sprintf("%s = %s AND id != %d", $dao_class::escape($field_name), $dao_class::qstr($value), $scope['id']), null, null, 1);
+			if(array_key_exists('not_empty', $data) && !$data['not_empty'] && 0 == strlen($value)) {
+				// May be empty
+				
 			} else {
-				$results = $dao_class::getWhere(sprintf("%s = %s", $dao_class::escape($field_name), $dao_class::qstr($value)), null, null, 1);
-			}
-			
-			if(!empty($results)) {
-				throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_label, $value));
+				if(empty($dao_class))
+					throw new Exception_DevblocksValidationError("'%s' has an invalid unique constraint.", $field_label);
+				
+				if(isset($scope['id'])) {
+					$results = $dao_class::getWhere(sprintf("%s = %s AND id != %d", $dao_class::escape($field_name), $dao_class::qstr($value), $scope['id']), null, null, 1);
+				} else {
+					$results = $dao_class::getWhere(sprintf("%s = %s", $dao_class::escape($field_name), $dao_class::qstr($value)), null, null, 1);
+				}
+				
+				if(!empty($results)) {
+					throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_label, $value));
+				}
 			}
 		}
 		
