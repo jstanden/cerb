@@ -1161,6 +1161,18 @@ if(isset($columns['auth_extension_id'])) {
 	}
 	
 	// ===========================================================================
+	// Migrate `login.password.google_auth` authenticators
+	
+	$sql = sprintf("UPDATE worker_pref SET setting = %s WHERE setting = %s",
+		$db->qstr('mfa.totp.seed'),
+		$db->qstr('login.password.google_auth.seed')
+	);
+	$db->ExecuteMaster($sql);
+	
+	$sql = "UPDATE worker SET is_mfa_required=1 WHERE id IN (SELECT worker_id FROM worker_pref WHERE setting = 'mfa.totp.seed')";
+	$db->ExecuteMaster($sql);
+	
+	// ===========================================================================
 	// Drop column
 	
 	$db->ExecuteMaster("ALTER TABLE worker DROP COLUMN auth_extension_id");
