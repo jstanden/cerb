@@ -451,6 +451,76 @@ if(array_key_exists('extension_id', $columns)) {
 		}
 	}
 	
+	// ===========================================================================
+	// Migrate Freshbooks plugin to abstract OAuth1
+	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s and setting = 'credentials'", $db->qstr('wgm.freshbooks'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+	
+		$params = [
+			'client_id' => $credentials['consumer_key'],
+			'client_secret' => $credentials['consumer_secret'],
+			'request_token_url' => 'https://webgroupmedia.freshbooks.com/oauth/oauth_request.php',
+			'authentication_url' => 'https://webgroupmedia.freshbooks.com/oauth/oauth_authorize.php',
+			'access_token_url' => 'https://webgroupmedia.freshbooks.com/oauth/oauth_access.php',
+			'signature_method' => 'PLAINTEXT',
+		];
+		
+		cerb_910_migrate_connected_service('Freshbooks Classic', 'wgm.freshbooks.service.provider', $params, 'cerb.service.provider.oauth1');
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.freshbooks'");
+		
+		if(isset($tables['wgm_freshbooks_client'])) {
+			$sql = sprintf("INSERT INTO custom_fieldset (name, context, owner_context, owner_context_id, updated_at) ".
+				"VALUES (%s, %s, %s, %d, %d)",
+				$db->qstr('Freshbooks'),
+				$db->qstr('cerberusweb.contexts.org'),
+				$db->qstr('cerberusweb.contexts.app'),
+				0,
+				time()
+			);
+			$db->ExecuteMaster($sql);
+			
+			$custom_fieldset_id = $db->LastInsertId();
+			
+			$sql = sprintf("INSERT INTO custom_field (name, context, type, pos, params_json, custom_fieldset_id, updated_at) ".
+				"VALUES (%s, %s, %s, %d, %s, %d, %d)",
+				$db->qstr('Client ID'),
+				$db->qstr('cerberusweb.contexts.org'),
+				$db->qstr('N'),
+				0,
+				$db->qstr('[]'),
+				$custom_fieldset_id,
+				time()
+			);
+			$db->ExecuteMaster($sql);
+			
+			$custom_field_id = $db->LastInsertId();
+			
+			// Migrate
+			$sql = sprintf("INSERT INTO custom_field_numbervalue (field_id, context, context_id, field_value) ".
+				"SELECT %d, %s, org_id, id FROM wgm_freshbooks_client WHERE org_id != 0",
+				$custom_field_id,
+				$db->qstr('cerberusweb.contexts.org')
+			);
+			$db->ExecuteMaster($sql);
+			
+			$sql = sprintf("INSERT IGNORE INTO context_to_custom_fieldset (context, context_id, custom_fieldset_id) ".
+				"SELECT context, context_id, %d FROM custom_field_numbervalue WHERE field_id = %d",
+				$custom_fieldset_id,
+				$custom_field_id
+			);
+			$db->ExecuteMaster($sql);
+			
+			// Drop tables
+			$db->ExecuteMaster('DROP TABLE wgm_freshbooks_client');
+			$db->ExecuteMaster('DROP TABLE freshbooks_invoice');
+			
+			unset($tables['wgm_freshbooks_client']);
+			unset($tables['freshbooks_invoice']);
+		}
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
