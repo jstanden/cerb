@@ -565,6 +565,27 @@ if(array_key_exists('extension_id', $columns)) {
 		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.gitlab'");
 	}
 	
+	// ===========================================================================
+	// Migrate Google plugin to abstract OAuth2
+	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s", $db->qstr('wgm.google'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+		
+		$params = [
+			'grant_type' => 'authorization_code',
+			'client_id' => $credentials['consumer_key'],
+			'client_secret' => $credentials['consumer_secret'],
+			'authorization_url' => 'https://accounts.google.com/o/oauth2/v2/auth',
+			'access_token_url' => 'https://www.googleapis.com/oauth2/v4/token',
+			'scope' => 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+			'approval_prompt' => 'auto',
+		];
+		
+		cerb_910_migrate_connected_service('Google', 'wgm.google.service.provider', $params);
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.google'");
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
