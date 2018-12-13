@@ -521,6 +521,27 @@ if(array_key_exists('extension_id', $columns)) {
 		}
 	}
 	
+	// ===========================================================================
+	// Migrate GitHub plugin to abstract OAuth2
+	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s", $db->qstr('wgm.github'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+	
+		$params = [
+			'grant_type' => 'authorization_code',
+			'client_id' => $credentials['consumer_key'],
+			'client_secret' => $credentials['consumer_secret'],
+			'authorization_url' => 'https://github.com/login/oauth/authorize',
+			'access_token_url' => 'https://github.com/login/oauth/access_token',
+			'scope' => 'user public_repo notifications',
+			'approval_prompt' => 'auto',
+		];
+		
+		cerb_910_migrate_connected_service('GitHub', 'wgm.github.service.provider', $params);
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.github'");
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
