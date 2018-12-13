@@ -94,7 +94,36 @@ if(array_key_exists('extension_id', $columns)) {
 		return $service_id;
 	}
 	
+	// ===========================================================================
+	// Migrate AWS accounts to service provider
 	
+	if(false != ($accounts = $db->GetArrayMaster(sprintf("SELECT id, name, params_json FROM connected_account WHERE extension_id = %s", $db->qstr('wgm.aws.service.provider'))))) {
+		$service_name = 'Amazon Web Services (AWS)';
+		$extension_id = 'cerb.service.provider.aws';
+		$params = [];
+		
+		$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
+			"VALUES (%s, %s, %s, %d)",
+			$db->qstr($service_name),
+			$db->qstr($extension_id),
+			$db->qstr($encrypt->encrypt(json_encode($params))),
+			time()
+		);
+		
+		if(false === $db->ExecuteMaster($sql))
+			die("Failed to create a connected service for " . $service_name);
+		
+		$service_id = $db->LastInsertId();
+		
+		foreach($accounts as $account) {
+			$sql = sprintf("UPDATE connected_account SET extension_id = '', service_id = %d, updated_at = %d WHERE id = %d",
+				$service_id,
+				time(),
+				$account['id']
+			);
+			$db->ExecuteMaster($sql);
+		}
+	}
 	
 	
 	
