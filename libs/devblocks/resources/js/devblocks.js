@@ -70,7 +70,7 @@ function DevblocksClass() {
 		}
 	}
 	
-	this.saveTabForm = function($frm) {
+	this.saveAjaxTabForm = function($frm) {
 		genericAjaxPost($frm, '', null, function(json) {
 			Devblocks.clearAlerts();
 			
@@ -83,19 +83,58 @@ function DevblocksClass() {
 					
 					if (json.message) {
 						Devblocks.createAlert(json.message, 'note');
-					} else {
-						Devblocks.createAlert("Saved!", 'note');
 					}
 					
-					setTimeout(function() {
+					var funcReloadTab = function() {
+						// Fade in the form (if the tab isn't Ajax)
+						$frm.fadeTo('fast', 1.0);
+						
 						// Reload the tab
 						var $tabs = $frm.closest('.ui-tabs');
 						var tabId = $tabs.tabs("option", "active");
 						$tabs.tabs("load", tabId);
-					}, 750);
+					};
+					
+					setTimeout(funcReloadTab, 750);
 				}
 			}
 		});
+	}
+	
+	this.saveAjaxForm = function($frm, options) {
+		genericAjaxPost($frm, '', null, function(json) {
+			Devblocks.handleAjaxFormResponse($frm, json, options);
+		});
+	}
+	
+	this.handleAjaxFormResponse = function($frm, json, options) {
+		Devblocks.clearAlerts();
+		
+		if(typeof options != 'object')
+			options = {};
+		
+		if(json && typeof json == 'object') {
+			if(json.error) {
+				Devblocks.createAlertError(json.error);
+				
+			} else {
+				$frm.fadeTo('fast', 0.2);
+				
+				if(json.message) {
+					Devblocks.createAlert(json.message, 'note');
+				}
+				
+				if(typeof options.success == 'function') {
+					options.success(json);
+				}
+				
+				var funcShowForm = function() {
+					$frm.fadeTo('fast', 1.0);
+				};
+				
+				setTimeout(funcShowForm, 750);
+			}
+		}
 	}
 	
 	this.clearAlerts = function() {

@@ -119,7 +119,7 @@ $(function() {
 	{/if}
 	
 	$frm.find('button.submit').on('click', function(e) {
-		Devblocks.saveTabForm($frm);
+		Devblocks.saveAjaxTabForm($frm);
 	});
 });
 </script>

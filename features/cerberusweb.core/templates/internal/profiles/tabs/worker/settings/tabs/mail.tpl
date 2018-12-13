@@ -68,7 +68,7 @@ $(function() {
 	
 	$frm.find('button.submit').on('click', function(e) {
 		genericAjaxPost($frm, '', null, function(json) {
-			Devblocks.saveTabForm($frm);
+			Devblocks.saveAjaxTabForm($frm);
 		});
 	});
 });

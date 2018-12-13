@@ -33,7 +33,7 @@ $(function() {
 	var $frm = $('#{$form_id}');
 	
 	$frm.find('button.submit').on('click', function(e) {
-		Devblocks.saveTabForm($frm);
+		Devblocks.saveAjaxTabForm($frm);
 	});
 });
 </script>

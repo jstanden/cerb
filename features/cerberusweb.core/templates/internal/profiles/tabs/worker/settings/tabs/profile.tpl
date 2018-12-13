@@ -81,7 +81,7 @@ $(function() {
 	ajax.chooserAvatar($avatar_chooser, $avatar_image);
 	
 	$frm.find('button.submit').on('click', function(e) {
-		Devblocks.saveTabForm($frm);
+		Devblocks.saveAjaxTabForm($frm);
 	});
 });
 </script>
