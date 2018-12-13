@@ -33,11 +33,13 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	}
 	
 	function saveSettingsJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+			
 		try {
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not an administrator.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$default_group_id = DevblocksPlatform::importGPC($_POST['default_group_id'],'integer',0);
 			@$parser_autoreq = DevblocksPlatform::importGPC($_POST['parser_autoreq'],'integer',0);
@@ -54,7 +56,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			
 			$cardinality = CerberusApplication::generateTicketMaskCardinality($ticket_mask_format);
 			if($cardinality < 10000000)
-				throw new Exception(sprintf("<b>Error!</b> There are only %s ticket mask combinations.",
+				throw new Exception(sprintf("Error! There are only %s ticket mask combinations.",
 					strrev(implode(',',str_split(strrev($cardinality),3)))
 				));
 			
@@ -71,36 +73,50 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			$settings->set('cerberusweb.core',CerberusSettings::TICKET_MASK_FORMAT, $ticket_mask_format);
 			$settings->set('cerberusweb.core',CerberusSettings::HTML_NO_STRIP_MICROSOFT, $html_no_strip_microsoft);
 			
-			echo json_encode(array('status'=>true));
+			echo json_encode([
+				'status' => true,
+				'message' => DevblocksPlatform::translate('success.saved_changes'),
+			]);
 			return;
 			
 		} catch (Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage()
+			]);
 			return;
-			
 		}
-		
 	}
 	
 	function testMaskAction() {
 		@$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'],'string','');
 		
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
 			$cardinality = CerberusApplication::generateTicketMaskCardinality($ticket_mask_format);
 			if($cardinality < 10000000)
-				throw new Exception(sprintf("<b>Error!</b> There are only %s ticket mask combinations.",
+				throw new Exception(sprintf("Error! There are only %s ticket mask combinations.",
 					strrev(implode(',',str_split(strrev($cardinality),3)))
 				));
 			
 			$sample_mask = CerberusApplication::generateTicketMask($ticket_mask_format);
-			$output = sprintf("<b>%s</b> &nbsp; There are %s possible ticket mask combinations.",
-				$sample_mask,
-				strrev(implode(',',str_split(strrev($cardinality),3)))
+			
+			$output = sprintf("There are %s possible ticket mask combinations (%s)",
+				strrev(implode(',',str_split(strrev($cardinality),3))),
+				$sample_mask
 			);
-			echo json_encode(array('status'=>true,'message'=>$output));
+			
+			echo json_encode([
+				'status' => true,
+				'message' => $output,
+			]);
 			
 		} catch (Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage()
+			]);
 			return;
 		}
 	}
@@ -742,11 +758,13 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	}
 	
 	function saveMailRelayJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not an administrator.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$relay_disable = DevblocksPlatform::importGPC($_POST['relay_disable'],'integer',0);
 			@$relay_disable_auth = DevblocksPlatform::importGPC($_POST['relay_disable_auth'],'integer',0);
@@ -759,11 +777,17 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			$settings->set('cerberusweb.core',CerberusSettings::RELAY_DISABLE_AUTH, $relay_disable_auth);
 			$settings->set('cerberusweb.core',CerberusSettings::RELAY_SPOOF_FROM, $relay_spoof_from);
 			
-			echo json_encode(array('status'=>true));
+			echo json_encode([
+				'status'=>true,
+				'message' => DevblocksPlatform::translate('success.saved_changes'),
+			]);
 			return;
 			
 		} catch (Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage()
+			]);
 			return;
 			
 		}

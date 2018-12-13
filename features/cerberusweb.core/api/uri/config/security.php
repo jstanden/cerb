@@ -26,11 +26,13 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 	}
 	
 	function saveJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not a superuser.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$authorized_ips = DevblocksPlatform::importGPC($_POST['authorized_ips'],'string','');
 			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::AUTHORIZED_IPS, $authorized_ips);
@@ -38,11 +40,17 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 			@$session_lifespan = DevblocksPlatform::importGPC($_POST['session_lifespan'],'integer',0);
 			DevblocksPlatform::setPluginSetting('cerberusweb.core',CerberusSettings::SESSION_LIFESPAN, $session_lifespan);
 			
-			echo json_encode(array('status'=>true));
+			echo json_encode([
+				'status' => true,
+				'message' => DevblocksPlatform::translate('success.saved_changes'),
+			]);
 			return;
 			
 		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage()
+			]);
 			return;
 		}
 	}

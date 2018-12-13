@@ -33,8 +33,10 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 		try {
 			$worker = CerberusApplication::getActiveWorker();
 			
+			header('Content-Type: application/json; charset=utf-8');
+			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not a superuser.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string','');
 			@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string',CerberusSettingsDefaults::TIME_FORMAT);
@@ -43,11 +45,17 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 			$settings->set('cerberusweb.core',CerberusSettings::TIMEZONE, $timezone);
 			$settings->set('cerberusweb.core',CerberusSettings::TIME_FORMAT, $time_format);
 			
-			echo json_encode(array('status'=>true));
+			echo json_encode([
+				'status'=>true,
+				'message' => DevblocksPlatform::translate('success.saved_changes'),
+			]);
 			return;
 				
 		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage(),
+			]);
 			return;
 		}
 	}

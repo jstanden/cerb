@@ -35,21 +35,24 @@ $(function() {
 	
 	$button
 		.click(function(e) {
+			Devblocks.clearAlerts();
+			
 			$button.hide();
 			$spinner.detach();
 			$status.html('').append($spinner);
 			
 			genericAjaxPost('frmSetupDataQueryTester','',null,function(json) {
 				$button.fadeIn();
+				$status.html('');
 				
 				if(null == json || false == json.status) {
-					Devblocks.showError($status,json.error);
+					Devblocks.createAlertError(json.error);
 					
 				} else if (json.html) {
 					$status.html(json.html);
 					
 				} else {
-					Devblocks.showError($status,"An unknown error occurred.");
+					Devblocks.createAlertError("An unknown error occurred.");
 				}
 			});
 		})

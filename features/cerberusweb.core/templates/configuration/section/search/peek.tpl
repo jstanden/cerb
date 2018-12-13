@@ -18,8 +18,6 @@
 </fieldset>
 {/foreach}
 
-<div class="status"></div>
-
 <div style="margin-top:10px;">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 </div>
@@ -35,7 +33,6 @@ $(function() {
 		
 		var $frm = $('#frmSearchSchemaPeek');
 		var $fieldsets = $frm.find('> fieldset');
-		var $status = $frm.find('div.status');
 		
 		$frm.find('fieldset legend input:radio').on('click', function() {
 			$fieldsets.find('> div').hide();
@@ -45,16 +42,10 @@ $(function() {
 		$frm.find('textarea').autosize();
 		
 		$frm.find('button.submit').on('click', function() {
-			$status.html('').hide();
-			
-			genericAjaxPost($frm, '', null, function(json) {
-				if(json && json.error) {
-					Devblocks.showError('#frmSearchSchemaPeek div.status', json.error, true);
-					
-				} else {
+			Devblocks.saveAjaxForm($frm, {
+				success: function() {
 					window.location.href = '{devblocks_url}c=config&a=search{/devblocks_url}';
 				}
-				
 			});
 		});
 	});

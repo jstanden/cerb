@@ -44,7 +44,6 @@
 	<b>Paste the license information you received with your order:</b><br>
 	<textarea rows="8" cols="80" name="key"></textarea><br>
 
-	<div class="status"></div>
 	<div class="delete_confirm" style="display:none;">
 		<div class="ui-widget">
 			<div class="ui-state-highlight ui-corner-all" style="margin:10px;padding:5px;display:inline-block;">
@@ -62,24 +61,22 @@
 </form>
 
 <script type="text/javascript">
-	$('#frmLicense BUTTON.submit')
+$(function() {
+	var $frm = $('#frmLicense');
+	
+	$frm.find('BUTTON.submit')
 		.click(function(e) {
-			genericAjaxPost('frmLicense','',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError('#frmLicense div.status',$o.error);
-				} else {
-					//Devblocks.showSuccess('#frmLicense div.status','Settings saved!');
+			Devblocks.saveAjaxForm($frm, {
+				success: function(json) {
 					document.location.href = '{devblocks_url}c=config&a=license{/devblocks_url}';
 				}
 			});
 		})
 	;
-	$('#frmLicense BUTTON.delete')
+	$frm.find('BUTTON.delete')
 		.click(function(e) {
-			$frm = $('#frmLicense');
-			$frm.find('div.status:visible').html('');
 			$frm.find('div.delete_confirm').fadeIn();
 		})
 	;
+});
 </script>

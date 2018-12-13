@@ -79,9 +79,6 @@ This process protects the privacy of personal worker email addresses, while stil
 	</div>
 	
 </fieldset>
-
-<div class="status"></div>
-
 </form>
 
 <script type="text/javascript">
@@ -100,14 +97,7 @@ $(function() {
 	
 	$frm.find('button.submit')
 		.click(function(e) {
-			genericAjaxPost('frmSetupMailRelay','',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError('#frmSetupMailRelay div.status',$o.error);
-				} else {
-					Devblocks.showSuccess('#frmSetupMailRelay div.status','Saved!', true);
-				}
-			});
+			Devblocks.saveAjaxTabForm($frm);
 		})
 	;
 });

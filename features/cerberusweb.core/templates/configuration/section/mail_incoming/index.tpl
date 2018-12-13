@@ -93,71 +93,51 @@
 			
 		</fieldset>
 		
-		<div class="status"></div>
 		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		
 		</form>
 	</div>
 </div>
 
 <script type="text/javascript">
 $(function() {
+	var $frm = $('#frmSetupMailIncoming');
+	
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
 	tabOptions.active = Devblocks.getjQueryUiTabSelected('tabsSetupMailIncoming', '{$tab}');
 	
-	var $tabs = $('#tabsSetupMailIncoming').tabs(tabOptions);
+	var $mailTabs = $('#tabsSetupMailIncoming').tabs(tabOptions);
 	
-	$tabs.find('.cerb-peek-trigger')
+	$mailTabs.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		;
 	
-	$tabs.find('.chooser-abstract')
+	$mailTabs.find('.chooser-abstract')
 		.cerbChooserTrigger()
 		;
 	
-	$tabs.find('.cerb-code-editor')
+	$mailTabs.find('.cerb-code-editor')
 		.cerbCodeEditor()
 		;
 	
-	$tabs.find('.cerb-template-trigger')
+	$mailTabs.find('.cerb-template-trigger')
 		.cerbTemplateTrigger()
 		;
 	
-	$tabs.find('BUTTON.submit')
+	$mailTabs.find('BUTTON.submit')
 		.click(function(e) {
-			var $button = $(this);
-			var $button_form = $button.closest('form');
-			var $status = $button_form.find('div.status');
-			
-			genericAjaxPost($button_form,'',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError($status, $o.error);
-				} else {
-					Devblocks.showSuccess($status,'Saved!');
-				}
-			});
+			Devblocks.saveAjaxTabForm($frm);
 		})
 	;
 	
 	$('#tabsSetupMailIncomingSettings BUTTON.tester')
 		.click(function(e) {
-			var $button = $(this).hide();
-			var $button_form = $button.closest('form');
-			var $status = $button_form.find('div.status');
+			var $button = $(this);
 			
-			genericAjaxPost($button_form,'','c=config&a=handleSectionAction&section=mail_incoming&action=testMask',function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError($status,$o.error, false);
-				} else {
-					Devblocks.showSuccess($status,$o.message);
-				}
-				
+			genericAjaxPost($frm,'','c=config&a=handleSectionAction&section=mail_incoming&action=testMask', function(json) {
+				Devblocks.handleAjaxFormResponse($frm, json);
 				$button.show();
 			});
 		})
 	;
 });
-
 </script>

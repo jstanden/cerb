@@ -33,23 +33,18 @@
 	</select><br>
 	<br>
 
-	<div class="status"></div>
-	
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
 
 <script type="text/javascript">
-	$('#frmSetupLocalization BUTTON.submit')
+$(function() {
+	var $frm = $('#frmSetupLocalization');
+	
+	$frm.find('BUTTON.submit')
 		.click(function(e) {
-			genericAjaxPost('frmSetupLocalization','',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError('#frmSetupLocalization div.status',$o.error);
-				} else {
-					Devblocks.showSuccess('#frmSetupLocalization div.status','Your changes have been saved.');
-				}
-			});
+			Devblocks.saveAjaxForm($frm);
 		})
 	;
+});
 </script>

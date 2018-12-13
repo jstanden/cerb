@@ -39,7 +39,7 @@ class PageSection_SetupTeam extends Extension_PageSection {
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not an administrator.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			//@$mail_default_from_id = DevblocksPlatform::importGPC($_POST['mail_default_from_id'],'integer',0);
 			

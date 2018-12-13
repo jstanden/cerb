@@ -21,8 +21,6 @@
 </fieldset>
 {/foreach}
 
-<div class="status"></div>
-
 <div style="margin-top:10px;">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 </div>
@@ -48,16 +46,10 @@ $(function() {
 		$frm.find('textarea').autosize();
 		
 		$frm.find('button.submit').on('click', function() {
-			$status.html('').hide();
-			
-			genericAjaxPost($frm, '', null, function(json) {
-				if(json && json.error) {
-					Devblocks.showError('#frmCachePeek div.status', json.error, true);
-					
-				} else {
+			Devblocks.saveAjaxForm($frm,{
+				success: function() {
 					window.location.href = '{devblocks_url}c=config&a=cache{/devblocks_url}';
 				}
-				
 			});
 		});
 	});

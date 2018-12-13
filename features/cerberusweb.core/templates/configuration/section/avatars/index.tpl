@@ -24,23 +24,18 @@
 		<label><input type="radio" name="avatar_default_style_worker" value="silhouettes" {if $avatar_default_style_worker == 'silhouettes'}checked="checked"{/if}> Silhouettes</label>
 	</div>
 	
-	<div class="status"></div>
-	
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
 
 <script type="text/javascript">
-	$('#frmSetupAvatars BUTTON.submit')
+$(function() {
+	var $frm = $('#frmSetupAvatars');
+	
+	$frm.find('BUTTON.submit')
 		.click(function(e) {
-			genericAjaxPost('frmSetupAvatars','',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError('#frmSetupAvatars div.status',$o.error);
-				} else {
-					Devblocks.showSuccess('#frmSetupAvatars div.status','Your changes have been saved.');
-				}
-			});
+			Devblocks.saveAjaxForm($frm);
 		})
 	;
+});
 </script>

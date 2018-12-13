@@ -41,22 +41,20 @@
 	</select>
 </fieldset>
 
-<div class="status"></div>
 <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 
 </form>
 
 <script type="text/javascript">
-	$('#frmSetupSecurity BUTTON.submit')
-		.click(function(e) {
+$(function() {
+	var $frm = $('#frmSetupSecurity');
+	
+	$frm.find('BUTTON.submit')
+		$frm.click(function(e) {
 			genericAjaxPost('frmSetupSecurity','',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError('#frmSetupSecurity div.status', $o.error);
-				} else {
-					Devblocks.showSuccess('#frmSetupSecurity div.status','Your changes have been saved.');
-				}
+				Devblocks.saveAjaxForm($frm);
 			});
 		})
 	;
+});
 </script>

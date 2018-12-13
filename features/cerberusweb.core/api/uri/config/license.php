@@ -26,12 +26,13 @@ class PageSection_SetupLicense extends Extension_PageSection {
 	}
 	
 	function saveJsonAction() {
-		$translate = DevblocksPlatform::getTranslationService();
 		$worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
 
 		try {
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not a superuser.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 				
 			@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');
 			@$company = DevblocksPlatform::importGPC($_POST['company'],'string','');
@@ -62,17 +63,23 @@ class PageSection_SetupLicense extends Extension_PageSection {
 				 * our licensing.  Buy a legitimate copy to help support the project!
 				 * https://cerb.ai/
 				 */
-		
+				
 				// Please be honest.
 				if(!empty($valid))
 					DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::LICENSE, json_encode($valid));
 				
-				echo json_encode(array('status'=>true));
+				echo json_encode([
+					'status' => true,
+					'message' => DevblocksPlatform::translate('success.saved_changes'),
+				]);
 				return;
 			}
 			
 		} catch (Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage()
+			]);
 			return;
 			
 		}

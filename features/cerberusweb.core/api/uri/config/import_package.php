@@ -33,7 +33,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			$tpl = DevblocksPlatform::services()->template();
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception_DevblocksValidationError("You are not a superuser.");
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$json_string = DevblocksPlatform::importGPC($_POST['json'],'string','');
 			@$prompts = DevblocksPlatform::importGPC($_POST['prompts'],'array',[]);
@@ -67,7 +67,11 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			
 			$results_html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/results.tpl');
 			
-			echo json_encode(array('status' => true, 'results_html' => $results_html));
+			echo json_encode([
+				'status' => true,
+				'message' => DevblocksPlatform::translate('success.imported'),
+				'results_html' => $results_html,
+			]);
 			
 		} catch(Exception_DevblocksValidationError $e) {
 			echo json_encode(array('status' => false, 'error' => $e->getMessage()));

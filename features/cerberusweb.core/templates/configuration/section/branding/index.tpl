@@ -38,7 +38,6 @@
 </fieldset>
 
 <div class="cerb-buttons">
-	<div class="status"></div>
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </div>
 </form>
@@ -71,13 +70,7 @@ $(function() {
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {
-			genericAjaxPost('frmSetupBranding','',null,function(json) {
-				if(false == json || false == json.status) {
-					Devblocks.showError('#frmSetupBranding div.status',json.error);
-				} else {
-					Devblocks.showSuccess('#frmSetupBranding div.status','Your changes have been saved.');
-				}
-			});
+			Devblocks.saveAjaxForm($frm);
 		})
 		;
 	

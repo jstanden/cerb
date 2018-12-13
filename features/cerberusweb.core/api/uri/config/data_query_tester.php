@@ -36,6 +36,7 @@ class PageSection_SetupDevelopersDataQueryTester extends Extension_PageSection {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$data = DevblocksPlatform::services()->data();
+		$error = null;
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

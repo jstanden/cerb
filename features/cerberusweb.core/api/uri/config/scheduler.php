@@ -47,7 +47,7 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		try {
 			$worker = CerberusApplication::getActiveWorker();
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not a superuser.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			// Save the job changes
 			@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');

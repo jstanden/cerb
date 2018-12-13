@@ -20,8 +20,6 @@
 	
 	<div class="prompts" style="margin-bottom:10px;"></div>
 	
-	<div class="status"></div>
-	
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.import'|devblocks_translate|capitalize}</button>
 </fieldset>
 </form>
@@ -29,7 +27,6 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#frmSetupImportPackage');
-	var $status = $frm.find('div.status');
 	
 	$frm.find('textarea')
 		.cerbCodeEditor()
@@ -37,20 +34,23 @@ $(function() {
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {
-			$status.html('').hide();
+			Devblocks.clearAlerts();
 			
 			genericAjaxPost('frmSetupImportPackage','',null,function(json) {
 				if(false == json.status && json.prompts) {
 					$frm.find('div.prompts').html(json.prompts);
 				} else if(null == json || false == json.status) {
-					Devblocks.showError($status,json.error);
+					Devblocks.createAlertError(json.error);
+					
 				} else {
+					if(json.message) {
+						Devblocks.createAlert(json.message,'note');
+					}
+					
 					if(json.results_html) {
 						var $html = $(json.results_html);
 						$frm.html($html);
 						$html.find('.cerb-peek-trigger').cerbPeekTrigger();
-					} else {
-						Devblocks.showSuccess($status,'Imported!');
 					}
 				}
 			});

@@ -32,7 +32,6 @@
 			</ul>
 		</div>
 		
-		<div class="status" style="margin-top:10px;"></div>
 		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 		</form>
 	</div>
@@ -127,7 +126,6 @@
 			</div>
 		</fieldset>
 		
-		<div class="status"></div>
 		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 		</form>
 	</div>
@@ -160,16 +158,8 @@ $(function() {
 		.click(function(e) {
 			var $button = $(this);
 			var $button_form = $button.closest('form');
-			var $status = $button_form.find('div.status');
 			
-			genericAjaxPost($button_form,'',null,function(json) {
-				$o = $.parseJSON(json);
-				if(false == $o || false == $o.status) {
-					Devblocks.showError($status, $o.error);
-				} else {
-					Devblocks.showSuccess($status,'Saved!');
-				}
-			});
+			Devblocks.saveAjaxTabForm($button_form);
 		})
 	;
 });

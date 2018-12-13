@@ -31,7 +31,7 @@ class PageSection_SetupBranding extends Extension_PageSection {
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not a superuser.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			header('Content-Type: application/json; charset=utf-8');
 			

@@ -40,12 +40,13 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 	}
 	
 	function saveSettingsJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
-			$translate = DevblocksPlatform::getTranslationService();
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not an administrator.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$mail_default_from_id = DevblocksPlatform::importGPC($_POST['mail_default_from_id'],'integer',0);
 			
@@ -54,11 +55,17 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 			$settings = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::MAIL_DEFAULT_FROM_ID, $mail_default_from_id);
 			
-			echo json_encode(array('status'=>true));
+			echo json_encode([
+				'status' => true,
+				'message' => DevblocksPlatform::translate('success.saved_changes'),
+			]);
 			return;
 			
 		} catch (Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode([
+				'status' => false,
+				'error' => $e->getMessage()
+			]);
 			return;
 			
 		}
@@ -107,13 +114,14 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 	}
 	
 	function saveTemplatesJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
-			$translate = DevblocksPlatform::getTranslationService();
 			$settings = DevblocksPlatform::services()->pluginSettings();
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception("You are not an administrator.");
+				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$templates = DevblocksPlatform::importGPC($_POST['templates'],'array',[]);
 			
@@ -121,13 +129,18 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 			
 			$settings->set('cerberusweb.core',CerberusSettings::MAIL_AUTOMATED_TEMPLATES, $templates, true);
 			
-			echo json_encode(array('status'=>true));
+			echo json_encode([
+				'status'=>true,
+				'message' => DevblocksPlatform::translate('success.saved_changes'),
+			]);
 			return;
 			
 		} catch (Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode([
+				'status'=>false,
+				'error'=>$e->getMessage()
+			]);
 			return;
-			
 		}
 	}
 	
