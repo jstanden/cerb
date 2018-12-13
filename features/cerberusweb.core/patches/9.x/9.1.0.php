@@ -333,6 +333,27 @@ if(array_key_exists('extension_id', $columns)) {
 		}
 	}
 	
+	// ===========================================================================
+	// Migrate Dropbox plugin to abstract OAuth2
+	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s", $db->qstr('wgm.dropbox'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+		
+		$params = [
+			'grant_type' => 'authorization_code',
+			'client_id' => $credentials['client_id'],
+			'client_secret' => $credentials['client_secret'],
+			'authorization_url' => 'https://www.dropbox.com/oauth2/authorize',
+			'access_token_url' => 'https://api.dropboxapi.com/oauth2/token',
+			'scope' => '',
+			'approval_prompt' => '',
+		];
+		
+		cerb_910_migrate_connected_service('Dropbox', 'wgm.dropbox.service.provider', $params);
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.dropbox'");
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
