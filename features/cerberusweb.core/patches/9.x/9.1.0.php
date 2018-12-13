@@ -153,7 +153,60 @@ if(array_key_exists('extension_id', $columns)) {
 		$db->ExecuteMaster($sql);
 	}
 	
+	// ===========================================================================
+	// Migrate Clickatell plugin to bearer token
 	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s", $db->qstr('wgm.clickatell'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+		
+		$params = [
+			'token_name' => 'Bearer',
+		];
+		
+		cerb_910_migrate_connected_service('Clickatell', 'wgm.clickatell', $params, 'cerb.service.provider.token.bearer');
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.clickatell'");
+		
+		// Migrate 'Execute API Request to JIRA' actions
+		if(false != ($nodes = $db->GetArrayMaster('SELECT id, params_json FROM decision_node WHERE params_json LIKE "%wgmclickatell.event.action.send_sms%"'))) {
+			foreach($nodes as $node) {
+				$params = json_decode($node['params_json'], true);
+				
+				if(array_key_exists('actions', $params))
+				foreach($params['actions'] as $action_idx => $action) {
+					if('wgmclickatell.event.action.send_sms' == $action['action']) {
+						$placeholder_action = [
+							'action' => '_set_custom_var',
+							'value' => $action['content'],
+							'format' => '',
+							'is_simulator_only' => '0',
+							'var' => '_clickatell_message',
+						];
+						
+						$http_action = [
+							'action' => 'core.va.action.http_request',
+							'http_verb' => 'post',
+							'http_url' => 'https://api.clickatell.com/rest/message',
+							'http_headers' => "Content-Type: application/json\r\nX-Version: 1\r\nAccept: application/json\r\n",
+							'http_body' => "{% set json = {\r\n\ttext: _clickatell_message,\r\n\tto: [\"" . $action['phone'] . "\"]\r\n}%}\r\n{{json|json_encode|json_pretty}}",
+							'auth' => 'connected_account',
+							'auth_connected_account_id' => 0,
+							'run_in_simulator' => 0,
+							'response_placeholder' => '_clickatell_response',
+						];
+						
+						array_splice($params['actions'], $action_idx, 1, [ $placeholder_action, $http_action ]);
+					}
+				}
+				
+				$sql = sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+					$db->qstr(json_encode($params)),
+					$node['id']
+				);
+				$db->ExecuteMaster($sql);
+			}
+		}
+	}
 	
 	// ===========================================================================
 	// Migrate LDAP accounts to service provider
