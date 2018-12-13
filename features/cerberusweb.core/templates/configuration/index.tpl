@@ -5,6 +5,7 @@
 				<a href="javascript:;" class="menu">{'common.configure'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
 					<li><b>System</b></li>
+					<li><a href="{devblocks_url}c=config&a=auth{/devblocks_url}">{'common.authentication'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=branding{/devblocks_url}">Branding</a></li>
 					{if !$smarty.const.DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=cache{/devblocks_url}">Cache</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=import_package{/devblocks_url}">Import Package</a></li>
