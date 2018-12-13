@@ -354,6 +354,103 @@ if(array_key_exists('extension_id', $columns)) {
 		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.dropbox'");
 	}
 	
+	// ===========================================================================
+	// Migrate Facebook plugin to abstract OAuth2
+	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s", $db->qstr('wgm.facebook'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+	
+		$params = [
+			'grant_type' => 'authorization_code',
+			'client_id' => $credentials['client_id'],
+			'client_secret' => $credentials['client_secret'],
+			'authorization_url' => 'https://graph.facebook.com/oauth/authorize',
+			'access_token_url' => 'https://graph.facebook.com/oauth/access_token',
+			'scope' => 'public_profile,read_page_mailboxes,manage_pages,publish_pages',
+			'approval_prompt' => 'auto',
+		];
+		
+		// Facebook Accounts
+		
+		cerb_910_migrate_connected_service('Facebook', 'wgm.facebook.service.provider', $params);
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.facebook'");
+	}
+	
+	// ===========================================================================
+	// Migrate Facebook Pages to services
+	
+	if(false != ($pages = $db->GetArrayMaster(sprintf("SELECT id, name, params_json FROM connected_account WHERE extension_id = %s", $db->qstr('wgm.facebook.pages.service.provider'))))) {
+		$service_name = 'Facebook Pages';
+		$params = [];
+		
+		$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
+			"VALUES (%s, %s, %s, %d)",
+			$db->qstr($service_name),
+			$db->qstr('wgm.facebook.pages.service.provider'),
+			$db->qstr($encrypt->encrypt(json_encode($params))),
+			time()
+		);
+		
+		if(false === $db->ExecuteMaster($sql))
+			die("Failed to create a connected service for " . $service_name);
+		
+		$service_id = $db->LastInsertId();
+		
+		foreach($pages as $page) {
+			@$params = json_decode($encrypt->decrypt($page['params_json']), true) ?: [];
+			
+			$new_params = [
+				'connected_account_id' => 0,
+				'page' => $params,
+			];
+			
+			$sql = sprintf("UPDATE connected_account SET params_json = %s, service_id = %d, extension_id = '' WHERE id = %d",
+				$db->qstr($encrypt->encrypt(json_encode($new_params))),
+				$service_id,
+				$page['id']
+			);
+			$db->ExecuteMaster($sql);
+		}
+		
+		// Migrate 'Post to Facebook Page' actions
+		if(false != ($nodes = $db->GetArrayMaster('SELECT id, params_json FROM decision_node WHERE params_json LIKE "%wgmfacebook.event.action.post%"'))) {
+			foreach($nodes as $node) {
+				$params = json_decode($node['params_json'], true);
+				
+				if(array_key_exists('actions', $params))
+				foreach($params['actions'] as $action_idx => $action) {
+					if('wgmfacebook.event.action.post' == $action['action']) {
+						$account = $db->GetRowMaster(sprintf("SELECT id, params_json FROM connected_account WHERE id = %d", $action['connected_account_id']));
+						$account_params = json_decode($encrypt->decrypt($account['params_json']), true);
+						
+						$http_action = [
+							'action' => 'core.va.action.http_request',
+							'http_verb' => 'post',
+							'http_url' => sprintf('https://graph.facebook.com/%s/feed',
+								@$account_params['page']['id'] ?: 'page-id'
+							),
+							'http_headers' => '',
+							'http_body' => "{% set message %}\r\n" . $action['content'] . "\r\n{% endset %}\r\nmessage={{message|url_encode}}",
+							'auth' => 'connected_account',
+							'auth_connected_account_id' => $action['connected_account_id'],
+							'run_in_simulator' => 0,
+							'response_placeholder' => '_facebook_response',
+						];
+						
+						array_splice($params['actions'], $action_idx, 1, [ $http_action ]);
+					}
+				}
+				
+				$sql = sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+					$db->qstr(json_encode($params)),
+					$node['id']
+				);
+				$db->ExecuteMaster($sql);
+			}
+		}
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
