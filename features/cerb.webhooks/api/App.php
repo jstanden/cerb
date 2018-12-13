@@ -171,34 +171,6 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 	}
 };
 
-class Webhooks_SetupPageSection extends Extension_PageSection {
-	const ID = 'webhooks.setup.section';
-	
-	function render() {
-		$settings = DevblocksPlatform::services()->pluginSettings();
-		
-		$tpl = DevblocksPlatform::services()->template();
-	
-		$defaults = C4_AbstractViewModel::loadFromClass('View_WebhookListener');
-		$defaults->id = 'setup_webhook_listeners';
-		
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-		$tpl->assign('view', $view);
-		
-		$tpl->display('devblocks:cerb.webhooks::setup/page.tpl');
-	}
-	
-};
-
-class Webhooks_SetupPluginsMenuItem extends Extension_PageMenuItem {
-	const ID = 'webhooks.setup.menu.plugins';
-	
-	function render() {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->display('devblocks:cerb.webhooks::setup/menu_item.tpl');
-	}
-};
-
 class Portal_Webhook extends Extension_CommunityPortal {
 	const PARAM_WEBHOOK_BEHAVIOR_ID = 'webhook_behavior_id';
 	
