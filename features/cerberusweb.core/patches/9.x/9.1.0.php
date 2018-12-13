@@ -67,38 +67,37 @@ if(!isset($columns['service_id'])) {
 	$db->ExecuteMaster($sql);
 }
 
-function cerb_910_migrate_connected_service($service_name, $from_extension_id, $service_params, $service_extension_id='cerb.service.provider.oauth2') {
-	$db = DevblocksPlatform::services()->database();
-	$encrypt = DevblocksPlatform::services()->encryption();
+if(array_key_exists('extension_id', $columns)) {
+	function cerb_910_migrate_connected_service($service_name, $from_extension_id, $service_params, $service_extension_id='cerb.service.provider.oauth2') {
+		$db = DevblocksPlatform::services()->database();
+		$encrypt = DevblocksPlatform::services()->encryption();
+		
+		$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
+			"VALUES (%s, %s, %s, %d)",
+			$db->qstr($service_name),
+			$db->qstr($service_extension_id),
+			$db->qstr($encrypt->encrypt(json_encode($service_params))),
+			time()
+		);
+		
+		if(false === $db->ExecuteMaster($sql))
+			die("Failed to create a connected service for " . $service_name);
+		
+		$service_id = $db->LastInsertId();
+		
+		$sql = sprintf("UPDATE connected_account SET extension_id = '', service_id = %d WHERE extension_id = %s",
+			$service_id,
+			$db->qstr($from_extension_id)
+		);
+		$db->ExecuteMaster($sql);
+		
+		return $service_id;
+	}
 	
-	$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
-		"VALUES (%s, %s, %s, %d)",
-		$db->qstr($service_name),
-		$db->qstr($service_extension_id),
-		$db->qstr($encrypt->encrypt(json_encode($service_params))),
-		time()
-	);
 	
-	if(false === $db->ExecuteMaster($sql))
-		die("Failed to create a connected service for " . $service_name);
 	
-	$service_id = $db->LastInsertId();
 	
-	$sql = sprintf("UPDATE connected_account SET extension_id = '', service_id = %d WHERE extension_id = %s",
-		$service_id,
-		$db->qstr($from_extension_id)
-	);
-	$db->ExecuteMaster($sql);
 	
-	return $service_id;
-}
-
-// ===========================================================================
-// Drop `connected_account.extension_id`
-
-list($columns,) = $db->metaTable('connected_account');
-
-if(isset($columns['extension_id'])) {
 	// ===========================================================================
 	// Migrate LDAP accounts to service provider
 	
@@ -245,7 +244,7 @@ if(!$db->GetOneMaster(sprintf('SELECT value FROM devblocks_setting WHERE plugin_
 // ===========================================================================
 // Default profile for connected services
 
-if(!$db->GetOne(sprintf("SELECT COUNT(*) FROM profile_tab WHERE context = %s",
+if(!$db->GetOneMaster(sprintf("SELECT COUNT(*) FROM profile_tab WHERE context = %s",
 	$db->qstr('cerberusweb.contexts.connected_service')))) {
 
 	$sqls = <<< EOD
