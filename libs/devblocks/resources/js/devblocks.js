@@ -302,7 +302,6 @@ function DevblocksClass() {
 		var $button = $(e.target);
 		var $popup = genericAjaxPopupFind($button);
 		var $frm = $popup.find('form').first();
-		var $status = $popup.find('div.status');
 		var options = e.data;
 		var is_delete = (options && options.mode == 'delete');
 		var is_continue = (options && options.mode == 'continue');
@@ -318,8 +317,7 @@ function DevblocksClass() {
 			return false;
 		
 		// Clear the status div
-		if($status instanceof jQuery)
-			$status.html('').hide();
+		Devblocks.clearAlerts();
 		
 		// Are we deleting the record?
 		if(is_delete) {
@@ -355,7 +353,7 @@ function DevblocksClass() {
 					genericAjaxGet('view'+e.view_id, 'c=internal&a=viewRefresh&id=' + e.view_id);
 				
 				if(is_continue) {
-					Devblocks.showSuccess($status, "Saved!");
+					Devblocks.createAlert('Saved!', 'note');
 					
 				} else {
 					genericAjaxPopupClose($popup, event);
@@ -363,8 +361,8 @@ function DevblocksClass() {
 				
 			} else {
 				// Output errors
-				if(e.error && ($status instanceof jQuery))
-					Devblocks.showError($status, e.error);
+				if(e.error)
+					Devblocks.createAlertError(e.error);
 				
 				// Highlight the failing field
 				if(e.field)
