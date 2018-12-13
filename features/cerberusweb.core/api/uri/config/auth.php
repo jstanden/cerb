@@ -69,7 +69,7 @@ class PageSection_SetupAuth extends Extension_PageSection {
 			$error = null;
 			
 			if(!$worker || !$worker->is_superuser)
-				throw new Exception_DevblocksValidationError("You are not an administrator.");
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			$validation
 				->addField('auth_sso_service_ids', 'SSO Services')
@@ -97,7 +97,7 @@ class PageSection_SetupAuth extends Extension_PageSection {
 			
 			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_SSO_SERVICE_IDS, implode(',', array_keys($sso_services)));
 			
-			echo json_encode(array('status'=>true));
+			echo json_encode(array('status'=>true, 'message'=>DevblocksPlatform::translate('success.saved_changes')));
 			return;
 				
 		} catch(Exception_DevblocksValidationError $e) {

@@ -50,9 +50,11 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		// varchar(64)
 		$validation
-			->addField(self::AT_MENTION_NAME)
+			->addField(self::AT_MENTION_NAME, DevblocksPlatform::translateCapitalized('worker.at_mention_name'))
 			->string()
 			->setMaxLength(64)
+			->setUnique(get_class())
+			->setNotEmpty(false)
 			;
 		// int(10) unsigned
 		$validation
@@ -77,7 +79,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			;
 		// int(10) unsigned
 		$validation
-			->addField(self::EMAIL_ID)
+			->addField(self::EMAIL_ID, DevblocksPlatform::translateCapitalized('common.email'))
 			->id()
 			->setRequired(true)
 			->setUnique(get_class())

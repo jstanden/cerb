@@ -70,7 +70,7 @@ class WebhookListenerEngine_BotBehavior extends Extension_WebhookListenerEngine 
 		$visible_va_ids = array();
 
 		if(is_array($behaviors));
-		foreach($behaviors as $behavior_id => $behavior) {
+		foreach($behaviors as $behavior) {
 			$visible_va_ids[$behavior->bot_id] = true;
 		}
 		
@@ -148,7 +148,6 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 	
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
-		$db = DevblocksPlatform::services()->database();
 		
 		// [TODO] Restrict by IP?
 		
@@ -192,8 +191,6 @@ class Portal_Webhook extends Extension_CommunityPortal {
 	public function handleRequest(DevblocksHttpRequest $request) {
 		$path = $request->path;
 		
-		$config = $this->getConfig();
-		
 		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
 		
 		if(empty($a)) {
@@ -220,7 +217,6 @@ class Portal_Webhook extends Extension_CommunityPortal {
 		$path = $response->path;
 		//$stack = array_shift($path);
 		
-		$portal_code = ChPortalHelper::getCode();
 		$config = $this->getConfig();
 		
 		@$webhook_behavior_id = $config[self::PARAM_WEBHOOK_BEHAVIOR_ID];

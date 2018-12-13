@@ -3065,7 +3065,15 @@
 				<seg>Is Disabled</seg>
 			</tuv>
 		</tu>
+		
+		<!-- Success -->
 
+		<tu tuid="success.saved_changes">
+			<tuv xml:lang="en_US">
+				<seg>Your changes have been saved!</seg>
+			</tuv>
+		</tu>
+		
 		<!-- Errors -->
 		
 		<tu tuid="error.core.no_acl.admin">

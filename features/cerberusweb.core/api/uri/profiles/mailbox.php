@@ -37,7 +37,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker || !$active_worker->is_superuser)
-			throw new Exception_DevblocksAjaxValidationError("You are not an administrator.");
+			throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

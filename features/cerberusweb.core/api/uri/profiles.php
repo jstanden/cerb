@@ -819,6 +819,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					echo json_encode([
 						'status' => true,
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
 					break;
@@ -839,6 +840,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					echo json_encode([
 						'status' => true,
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
 					break;
@@ -873,6 +875,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					echo json_encode([
 						'status' => true,
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
 					break;
@@ -910,6 +913,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					echo json_encode([
 						'status' => true,
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
 					break;
@@ -920,6 +924,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					echo json_encode([
 						'status' => true,
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
 					break;
@@ -990,6 +995,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					echo json_encode([
 						'status' => true,
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
 					break;
@@ -1003,6 +1009,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					echo json_encode([
 						'status' => true,
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
 					]);
 					return;
 					break;

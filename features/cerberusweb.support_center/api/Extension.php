@@ -77,7 +77,7 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 				}
 
 				if(count(array_intersect(array_keys($options), $with_options)) != count($with_options))
-					unset($controller[$k]);
+					unset($controllers[$k]);
 			}
 		}
 		
