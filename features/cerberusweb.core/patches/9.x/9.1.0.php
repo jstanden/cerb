@@ -834,6 +834,27 @@ if(array_key_exists('extension_id', $columns)) {
 		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.nest'");
 	}
 	
+	// ===========================================================================
+	// Migrate Salesforce plugin to abstract OAuth2
+	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s", $db->qstr('wgm.salesforce'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+		
+		$params = [
+			'grant_type' => 'authorization_code',
+			'client_id' => $credentials['consumer_key'],
+			'client_secret' => $credentials['consumer_secret'],
+			'authorization_url' => 'https://login.salesforce.com/services/oauth2/authorize',
+			'access_token_url' => 'https://login.salesforce.com/services/oauth2/token',
+			'scope' => 'api refresh_token',
+			'approval_prompt' => 'auto',
+		];
+		
+		cerb_910_migrate_connected_service('Salesforce', 'wgm.salesforce.service.provider', $params);
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.salesforce'");
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
