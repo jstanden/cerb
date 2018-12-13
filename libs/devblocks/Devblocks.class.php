@@ -185,6 +185,14 @@ class _DevblocksServices {
 	
 	/**
 	 * 
+	 * @return _DevblocksStringService
+	 */
+	function string() {
+		return _DevblocksStringService::getInstance();
+	}
+	
+	/**
+	 * 
 	 * @return Smarty
 	 */
 	function template() {

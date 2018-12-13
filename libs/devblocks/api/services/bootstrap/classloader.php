@@ -235,6 +235,9 @@ class _DevblocksClassLoadManager {
 			'DevblocksStorageEngineDisk',
 			'DevblocksStorageEngineS3',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/string.php', [
+			'_DevblocksStringService',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/template_builder.php', array(
 			'_DevblocksTemplateBuilder',
 			'_DevblocksTwigExtensions',

@@ -1234,6 +1234,22 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testStrBase64UrlEncode() {
+		$string = '';
+		for($i=0;$i<255;$i++) { $string .= chr($i); }
+		$expected = 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn-AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq-wsbKztLW2t7i5uru8vb6_wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t_g4eLj5OXm5-jp6uvs7e7v8PHy8_T19vf4-fr7_P3-';
+		$actual = DevblocksPlatform::services()->string()->base64UrlEncode($string);
+		$this->assertSame($expected, $actual);
+	}
+	
+	public function testStrBase64UrlDecode() {
+		$string = 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn-AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq-wsbKztLW2t7i5uru8vb6_wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t_g4eLj5OXm5-jp6uvs7e7v8PHy8_T19vf4-fr7_P3-';
+		$expected = '';
+		for($i=0;$i<255;$i++) { $expected .= chr($i); }
+		$actual = DevblocksPlatform::services()->string()->base64UrlDecode($string);
+		$this->assertSame($expected, $actual);
+	}
+	
 	public function testStrParseDecimal() {
 		// comma thousands, no dot, two decimal places
 		$string = '525,000';

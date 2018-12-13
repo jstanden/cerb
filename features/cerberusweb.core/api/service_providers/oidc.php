@@ -99,17 +99,13 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		return null;
 	}
 	
-	function base64UrlDecode($string) {
-		return base64_decode(strtr($string,'-_','+/'));
-	}
-	
 	public function convertJwkToRsa($jwk) {
 		$rsa = new RSA();
 		
 		$rsa->loadKey(
 			[
 				'e' => new BigInteger(base64_decode($jwk['e']), 256),
-				'n' => new BigInteger($this->base64UrlDecode($jwk['n']), 256)
+				'n' => new BigInteger(DevblocksPlatform::services()->string()->base64UrlDecode($jwk['n']), 256)
 			]
 		);
 		
