@@ -1131,17 +1131,8 @@ EOD;
 }
 
 // ===========================================================================
-// Migrate `login.openid` authenticators to `login.password`
+// Remove 'worker.auth_extension_id'
 
-if(array_key_exists('openid_to_worker', $tables)) {
-	$sql = sprintf("UPDATE worker SET auth_extension_id=%s WHERE auth_extension_id=%s",
-		$db->qstr('login.password'),
-		$db->qstr('login.openid')
-	);
-	$db->ExecuteMaster($sql);
-	
-	$db->ExecuteMaster("DROP TABLE openid_to_worker");
-	unset($tables['openid_to_worker']);
 if(!isset($tables['worker']))
 	return FALSE;
 
@@ -1151,23 +1142,16 @@ if(!isset($columns['is_mfa_required'])) {
 	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN is_mfa_required TINYINT(1) UNSIGNED NOT NULL DEFAULT 0");
 }
 
-// ===========================================================================
-// Migrate `login.password.google_auth` authenticators to `login.password`
 if(!isset($columns['is_password_disabled'])) {
 	$db->ExecuteMaster("ALTER TABLE worker ADD COLUMN is_password_disabled TINYINT(1) UNSIGNED NOT NULL DEFAULT 0");
 }
 
-$sql = sprintf("UPDATE worker SET auth_extension_id=%s WHERE auth_extension_id=%s",
-	$db->qstr('login.password'),
-	$db->qstr('login.password.google_auth')
-);
-$db->ExecuteMaster($sql);
+if(isset($columns['auth_extension_id'])) {
+	// ===========================================================================
+	// Drop column
 	
-$sql = sprintf("UPDATE worker_pref SET setting = %s WHERE setting = %s",
-	$db->qstr('mfa.totp.seed'),
-	$db->qstr('login.password.google_auth.seed')
-);
-$db->ExecuteMaster($sql);
+	$db->ExecuteMaster("ALTER TABLE worker DROP COLUMN auth_extension_id");
+}
 
 // ===========================================================================
 // Migrate asset records to custom records
