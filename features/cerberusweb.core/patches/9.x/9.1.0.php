@@ -883,6 +883,27 @@ if(array_key_exists('extension_id', $columns)) {
 		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.slack'");
 	}
 	
+	// ===========================================================================
+	// Migrate Spotify plugin to abstract OAuth2
+	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s", $db->qstr('wgm.spotify'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+		
+		$params = [
+			'grant_type' => 'authorization_code',
+			'client_id' => $credentials['consumer_key'],
+			'client_secret' => $credentials['consumer_secret'],
+			'authorization_url' => 'https://accounts.spotify.com/authorize',
+			'access_token_url' => 'https://accounts.spotify.com/api/token',
+			'scope' => '',
+			'approval_prompt' => 'auto',
+		];
+		
+		cerb_910_migrate_connected_service('Spotify', 'wgm.spotify.service.provider', $params);
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.spotify'");
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
