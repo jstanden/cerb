@@ -5205,19 +5205,6 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.connected_accounts</id>
-				<name>Connected Accounts Section</name>
-				<class>
-					<file>api/uri/config/connected_accounts.php</file>
-					<name>PageSection_SetupConnectedAccounts</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="connected_accounts" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.developers.data_query_tester</id>
 				<name>Data Query Tester</name>
 				<class>
