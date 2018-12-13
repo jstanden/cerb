@@ -1148,6 +1148,19 @@ if(!isset($columns['is_password_disabled'])) {
 
 if(isset($columns['auth_extension_id'])) {
 	// ===========================================================================
+	// Migrate `login.openid` authenticators
+	
+	if(array_key_exists('openid_to_worker', $tables)) {
+		$sql = sprintf("UPDATE worker SET is_password_disabled=1 WHERE auth_extension_id=%s",
+			$db->qstr('login.openid')
+		);
+		$db->ExecuteMaster($sql);
+		
+		$db->ExecuteMaster("DROP TABLE openid_to_worker");
+		unset($tables['openid_to_worker']);
+	}
+	
+	// ===========================================================================
 	// Drop column
 	
 	$db->ExecuteMaster("ALTER TABLE worker DROP COLUMN auth_extension_id");
