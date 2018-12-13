@@ -125,6 +125,34 @@ if(array_key_exists('extension_id', $columns)) {
 		}
 	}
 	
+	// ===========================================================================
+	// Migrate Cerb accounts to service provider
+	
+	if(false != $db->GetOneMaster(sprintf("SELECT COUNT(*) FROM connected_account WHERE extension_id = %s", $db->qstr('core.service.provider.cerb')))) {
+		$service_name = 'Cerb (Legacy API)';
+		$extension_id = 'cerb.service.provider.cerb.api.legacy';
+		$params = [];
+		
+		$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
+			"VALUES (%s, %s, %s, %d)",
+			$db->qstr($service_name),
+			$db->qstr($extension_id),
+			$db->qstr($encrypt->encrypt(json_encode($params))),
+			time()
+		);
+		
+		if(false === $db->ExecuteMaster($sql))
+			die("Failed to create a connected service for " . $service_name);
+		
+		$service_id = $db->LastInsertId();
+		
+		$sql = sprintf("UPDATE connected_account SET extension_id = '', service_id = %d WHERE extension_id = %s",
+			$service_id,
+			$db->qstr('core.service.provider.cerb')
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
 	
 	
 	// ===========================================================================
