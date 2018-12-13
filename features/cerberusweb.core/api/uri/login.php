@@ -97,6 +97,10 @@ class Page_Login extends CerberusPageExtension {
 				$this->_routeMultiFactorAuth();
 				break;
 				
+			case 'invite':
+				$this->_routeInvite($stack);
+				break;
+			
 			case 'consent':
 				$this->_routeConsent();
 				break;
@@ -120,7 +124,7 @@ class Page_Login extends CerberusPageExtension {
 		
 		$login_state = CerbLoginWorkerAuthState::getInstance();
 		
-		if(!empty($url))
+		if($url)
 			$login_state->pushRedirectUri($url);
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -219,6 +223,64 @@ class Page_Login extends CerberusPageExtension {
 		
 		$this->_checkSeats($authenticated_worker);
 		$this->_processAuthenticated($authenticated_worker);
+	}
+	
+	private function _routeInvite(array $path=[]) {
+		@$code = array_shift($path);
+		
+		// Do we have a logged in session?
+		if(false != (CerberusApplication::getActiveWorker()))
+			return;
+		
+		$token = DAO_ConfirmationCode::getByCode('login.invite', $code);
+		
+		$login_state = CerbLoginWorkerAuthState::getInstance()
+			->clearAuthState()
+			;
+		
+		// Invalid or expired token
+		if(empty($token) || $token->created + 7200 < time()) {
+			$query = ['error' => 'confirm.invalid'];
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover'], $query));
+		}
+		
+		if(
+			0 == (@$invite_worker_id = intval($token->meta['worker_id']))
+			|| false == ($worker = DAO_Worker::get($invite_worker_id))
+		) {
+			$query = ['error' => 'confirm.invalid'];
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
+		}
+		
+		if($worker->is_disabled) {
+			$query = ['error' => 'account.disabled'];
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
+		}
+		
+		if($worker->is_password_disabled) {
+			$query = ['error' => 'confirm.invalid'];
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
+		}
+		
+		if(DAO_Worker::hasAuth($worker->id)) {
+			$query = ['error' => 'confirm.invalid'];
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
+		}
+		
+		$worker_email = $worker->getEmailString();
+		
+		$recover_code = sprintf("%s:%s", $worker_email, $code);
+		
+		// Delete the one-time use confirmation code
+		DAO_ConfirmationCode::delete($token->id);
+		
+		$login_state
+			->setEmail($worker_email)
+			->setParam('recover.code', $recover_code)
+			->setParam('recover.code.given', $code)
+			;
+		
+		DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','verify']));
 	}
 	
 	private function _routeConsent() {
@@ -515,58 +577,59 @@ class Page_Login extends CerberusPageExtension {
 					}
 					
 				// Secret questions?
-				} else if(
-					false != ($secret_questions = @json_decode(DAO_WorkerPref::get($unauthenticated_worker->id, 'login.recover.secret_questions', ''), true))
-					&& is_array($secret_questions)
-					&& 0 != count($secret_questions)
-				) {
+				} else {
+					@$secret_questions = @json_decode(DAO_WorkerPref::get($unauthenticated_worker->id, 'login.recover.secret_questions', '[]'), true);
 					@$secret_answers = DevblocksPlatform::importGPC($_REQUEST['secrets'], 'array', []);
 					
-					if(!$secret_answers) {
-						if($secret_questions) {
-							$tpl->assign('secret_questions', $secret_questions);
-						}
+					// No MFA and no secret questions
+					if(0 === count(array_filter($secret_questions, function($arr) {
+						return !empty(@$arr['q']);
 						
-						$tpl->display('devblocks:cerberusweb.core::login/recover/recover_verify_secrets.tpl');
+					}))) {
+						$login_state
+							->setParam('recover.verified', true)
+							;
+						
+						DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','reset']));
 						
 					} else {
-						// Test secret challenges
-						$answers_needed = 0;
-						$answers_correct = 0;
-						
-						foreach($secret_questions as $idx => $question) {
-							if(!array_key_exists('a', $question) || 0 == strlen($question['a']))
-								continue;
+						if(!$secret_answers) {
+							if($secret_questions) {
+								$tpl->assign('secret_questions', $secret_questions);
+							}
 							
-							$answers_needed++;
+							$tpl->display('devblocks:cerberusweb.core::login/recover/recover_verify_secrets.tpl');
 							
-							// Wrong answer?
-							if(0 === strcmp($question['a'], $secret_answers[$idx]))
-								$answers_correct++;
-						}
-						
-						// If everything was correct
-						if($answers_needed == $answers_correct) {
-							$login_state
-								->setParam('recover.verified', true)
-								;
+						} else {
+							// Test secret challenges
+							$answers_needed = 0;
+							$answers_correct = 0;
 							
-							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','reset']));
+							foreach($secret_questions as $idx => $question) {
+								if(!array_key_exists('a', $question) || 0 == strlen($question['a']))
+									continue;
+								
+								$answers_needed++;
+								
+								// Wrong answer?
+								if(0 === strcmp($question['a'], $secret_answers[$idx]))
+									$answers_correct++;
+							}
 							
-						} else { // Otherwise, we had some wrong answers
-							$query = [ 'error' =>  'auth.failed'];
-							DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','verify'], $query));
+							// If everything was correct
+							if($answers_needed == $answers_correct) {
+								$login_state
+									->setParam('recover.verified', true)
+									;
+								
+								DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','reset']));
+								
+							} else { // Otherwise, we had some wrong answers
+								$query = [ 'error' =>  'auth.failed'];
+								DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','verify'], $query));
+							}
 						}
 					}
-				
-				// No MFA and no secret questions
-				} else {
-					
-					$login_state
-						->setParam('recover.verified', true)
-						;
-					
-					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover','reset']));
 				}
 				break;
 				

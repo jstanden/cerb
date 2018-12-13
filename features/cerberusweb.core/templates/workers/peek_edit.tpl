@@ -213,23 +213,6 @@
 				<label><input type="radio" name="is_password_disabled" value="0" {if !$worker->is_password_disabled}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
 				<label><input type="radio" name="is_password_disabled" value="1" {if $worker->is_password_disabled}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize} (SSO only)</label>
 			</div>
-			
-			<div class="block cerb-password-params" style="{if $worker->is_password_disabled}display:none;{/if}">
-				<table cellpadding="0" cellspacing="0" border="0" width="100%">
-					<tr>
-						<td width="0%" nowrap="nowrap" valign="top">{'common.password'|devblocks_translate|capitalize}:&nbsp;</td>
-						<td width="100%">
-							<input type="password" name="password_new" value=""  style="width:90%;" placeholder="{if $worker->id}(leave blank for unchanged){else}(leave blank to send a random password by email){/if}">
-						</td>
-					</tr>
-					<tr>
-						<td width="0%" nowrap="nowrap" valign="top">{'common.verify'|devblocks_translate|capitalize}:&nbsp;</td>
-						<td width="100%">
-							<input type="password" name="password_verify" value="" style="width:90%;">
-						</td>
-					</tr>
-				</table>
-			</div>
 		</fieldset>
 		
 		<fieldset class="peek black">
@@ -390,20 +373,6 @@ $(function() {
 			
 			$table.find('input:radio[value=' + value + ']').click();
 		});
-		
-		// Password
-		
-		var $is_password_disabled = $popup.find('input[name=is_password_disabled]')
-			.change(function(e) {
-				var $div_password_params = $popup.find('div.cerb-password-params');
-				var is_password_disabled = $(this).val();
-				
-				if(1 == is_password_disabled) {
-					$div_password_params.hide();
-				} else {
-					$div_password_params.fadeIn();
-				}
-			})
 	});
 });
 </script>

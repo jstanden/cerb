@@ -82,8 +82,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string', '');
 				@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string', '');
 				@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string', '');
-				@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string','');
-				@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'],'string','');
 				@$at_mention_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::importGPC($_POST['at_mention_name'],'string'));
 				@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
 				@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
@@ -95,6 +93,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$is_mfa_required = DevblocksPlatform::importGPC($_POST['is_mfa_required'],'bit',0);
 				@$group_memberships = DevblocksPlatform::importGPC($_POST['group_memberships'],'array');
 				
+				$existing_worker = DAO_Worker::get($id);
 				$error = null;
 				
 				// ============================================
@@ -116,28 +115,25 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				// ============================================
 				// Validation
 				
-				if($password_new && 0 != strcmp($password_new, $password_verify))
-					throw new Exception_DevblocksAjaxValidationError("The given passwords don't match.");
-				
 				if(empty($id)) {
 					$fields = [
-						DAO_Worker::FIRST_NAME => $first_name,
-						DAO_Worker::LAST_NAME => $last_name,
-						DAO_Worker::TITLE => $title,
-						DAO_Worker::IS_SUPERUSER => $is_superuser,
-						DAO_Worker::IS_DISABLED => $disabled,
-						DAO_Worker::IS_PASSWORD_DISABLED => $is_password_disabled,
-						DAO_Worker::IS_MFA_REQUIRED => $is_mfa_required,
-						DAO_Worker::EMAIL_ID => $email_id,
 						DAO_Worker::AT_MENTION_NAME => $at_mention_name,
-						DAO_Worker::LANGUAGE => $language,
-						DAO_Worker::TIMEZONE => $timezone,
-						DAO_Worker::TIME_FORMAT => $time_format,
-						DAO_Worker::GENDER => $gender,
-						DAO_Worker::LOCATION => $location,
 						DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
+						DAO_Worker::EMAIL_ID => $email_id,
+						DAO_Worker::FIRST_NAME => $first_name,
+						DAO_Worker::GENDER => $gender,
+						DAO_Worker::IS_DISABLED => $disabled,
+						DAO_Worker::IS_MFA_REQUIRED => $is_mfa_required,
+						DAO_Worker::IS_PASSWORD_DISABLED => $is_password_disabled,
+						DAO_Worker::IS_SUPERUSER => $is_superuser,
+						DAO_Worker::LANGUAGE => $language,
+						DAO_Worker::LAST_NAME => $last_name,
+						DAO_Worker::LOCATION => $location,
 						DAO_Worker::MOBILE => $mobile,
 						DAO_Worker::PHONE => $phone,
+						DAO_Worker::TIME_FORMAT => $time_format,
+						DAO_Worker::TIMEZONE => $timezone,
+						DAO_Worker::TITLE => $title,
 					];
 					
 					// Update alternate email addresses
@@ -159,11 +155,43 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKER, $id);
 					}
 					
-				} // end create worker
+				} else {
+					// Update
+					$fields = [
+						DAO_Worker::AT_MENTION_NAME => $at_mention_name,
+						DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
+						DAO_Worker::EMAIL_ID => $email_id,
+						DAO_Worker::FIRST_NAME => $first_name,
+						DAO_Worker::GENDER => $gender,
+						DAO_Worker::IS_DISABLED => $disabled,
+						DAO_Worker::IS_MFA_REQUIRED => $is_mfa_required,
+						DAO_Worker::IS_PASSWORD_DISABLED => $is_password_disabled,
+						DAO_Worker::IS_SUPERUSER => $is_superuser,
+						DAO_Worker::LANGUAGE => $language,
+						DAO_Worker::LAST_NAME => $last_name,
+						DAO_Worker::LOCATION => $location,
+						DAO_Worker::MOBILE => $mobile,
+						DAO_Worker::PHONE => $phone,
+						DAO_Worker::TIME_FORMAT => $time_format,
+						DAO_Worker::TIMEZONE => $timezone,
+						DAO_Worker::TITLE => $title,
+					];
+					
+					// Update alternate email addresses
+					$fields[DAO_Worker::_EMAIL_IDS] = array_unique(array_merge($email_ids, [$email_id]));
+					
+					if(!DAO_Worker::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if(!DAO_Worker::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					// Update worker
+					DAO_Worker::update($id, $fields);
+					DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
+				}
 				
-				// Calendar
-				
-				// Create a calendar for this worker
+				// Create a new calendar for this worker?
 				if('new' == $calendar_id) {
 					$fields = array(
 						DAO_Calendar::NAME => sprintf("%s%s's Calendar", $first_name, $last_name ? (' ' . $last_name) : ''),
@@ -194,40 +222,8 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					}
 				}
 				
-				// Update
-				$fields = [
-					DAO_Worker::FIRST_NAME => $first_name,
-					DAO_Worker::LAST_NAME => $last_name,
-					DAO_Worker::TITLE => $title,
-					DAO_Worker::EMAIL_ID => $email_id,
-					DAO_Worker::IS_SUPERUSER => $is_superuser,
-					DAO_Worker::IS_DISABLED => $disabled,
-					DAO_Worker::IS_PASSWORD_DISABLED => $is_password_disabled,
-					DAO_Worker::IS_MFA_REQUIRED => $is_mfa_required,
-					DAO_Worker::AT_MENTION_NAME => $at_mention_name,
-					DAO_Worker::LANGUAGE => $language,
-					DAO_Worker::TIMEZONE => $timezone,
-					DAO_Worker::TIME_FORMAT => $time_format,
-					DAO_Worker::GENDER => $gender,
-					DAO_Worker::LOCATION => $location,
-					DAO_Worker::DOB => (null == $dob_ts) ? null : gmdate('Y-m-d', $dob_ts),
-					DAO_Worker::MOBILE => $mobile,
-					DAO_Worker::PHONE => $phone,
-					DAO_Worker::CALENDAR_ID => $calendar_id,
-				];
-				
-				// Update alternate email addresses
-				$fields[DAO_Worker::_EMAIL_IDS] = array_unique(array_merge($email_ids, [$email_id]));
-				
-				if(!DAO_Worker::validate($fields, $error, $id))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				if(!DAO_Worker::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				// Update worker
-				DAO_Worker::update($id, $fields);
-				DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
+				if($existing_worker && $existing_worker->calendar_id != $calendar_id)
+					DAO_Worker::update([DAO_Worker::CALENDAR_ID => $calendar_id]);
 				
 				// Update group memberships
 				if(is_array($group_memberships))
@@ -244,61 +240,88 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 				
 				if($id) {
+					if(false == ($updated_worker = DAO_Worker::get($id)))
+						throw new Exception_DevblocksAjaxValidationError("Failed to create the worker record.");
+					
 					// Passwords
 					if($is_password_disabled) {
 						DAO_Worker::setAuth($id, null);
+					}
+					
+					// Are we sending an invite?
+					if(
+						// Are they a new record?
+						!$existing_worker 
+						// Or are we re-enabling passwords on an existing worker?
+						|| ($existing_worker && !$is_password_disabled && $existing_worker->is_password_disabled && !DAO_Worker::hasAuth($updated_worker->id))
+					) {
+						$url = DevblocksPlatform::services()->url();
 						
-					} else if ($password_new && 0 == strcmp($password_new, $password_verify)) {
-						DAO_Worker::setAuth($id, $password_new);
+						$invite_code = CerberusApplication::generatePassword(64);
+						
+						$fields = [
+							DAO_ConfirmationCode::CONFIRMATION_CODE => $invite_code,
+							DAO_ConfirmationCode::CREATED => time(),
+							DAO_ConfirmationCode::NAMESPACE_KEY => 'login.invite',
+							DAO_ConfirmationCode::META_JSON => json_encode([
+								'worker_id' => $updated_worker->id,
+							]),
+						];
+						DAO_ConfirmationCode::create($fields);
+						
+						$labels = $values = $worker_labels = $worker_values = [];
+						CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $updated_worker, $worker_labels, $worker_values, '', true, true);
+						CerberusContexts::merge('worker_', null, $worker_labels, $worker_values, $labels, $values);
+						
+						$values['url'] = $url->write('c=login&a=invite', true) . '/' . $invite_code;
+						
+						CerberusApplication::sendEmailTemplate($updated_worker->getEmailString(), 'worker_invite', $values);
 					}
 					
 					// Custom field saves
 					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $id, $field_ids, $error))
+					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					// Aliases
-					DAO_ContextAlias::set(CerberusContexts::CONTEXT_WORKER, $id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));
+					DAO_ContextAlias::set(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));
 					
 					// Avatar image
 					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
-					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $id, $avatar_image);
+					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, $avatar_image);
 					
 					// Flush caches
-					DAO_WorkerRole::clearWorkerCache($id);
+					DAO_WorkerRole::clearWorkerCache($updated_worker->id);
 					
 					// Index immediately
 					$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
-					$search->indexIds(array($id));
+					$search->indexIds([$updated_worker->id]);
 				}
 			}
 			
-			$label = [$first_name];
-			if($last_name)
-				$label[] = $last_name;
-			$label = implode(' ', $label);
+			$label = $updated_worker->getName();
 			
-			echo json_encode(array(
+			echo json_encode([
 				'status' => true,
 				'id' => $id,
 				'label' => $label,
 				'view_id' => $view_id,
-			));
+			]);
 			return;
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
-			echo json_encode(array(
+			echo json_encode([
 				'status' => false,
 				'error' => $e->getMessage(),
 				'field' => $e->getFieldName(),
-			));
+			]);
 			return;
 			
 		} catch (Exception $e) {
-			echo json_encode(array(
+			echo json_encode([
 				'status' => false,
 				'error' => 'An error occurred.',
-			));
+			]);
 			return;
 		}
 	}
