@@ -1033,6 +1033,65 @@ if(array_key_exists('extension_id', $columns)) {
 		}
 	}
 	
+	// ===========================================================================
+	// Migrate Twitter plugin to abstract OAuth1
+	
+	if(false != ($credentials_encrypted = $db->GetOneMaster(sprintf("SELECT value FROM devblocks_setting WHERE plugin_id = %s and setting = 'credentials'", $db->qstr('wgm.twitter'))))) {
+		$credentials = json_decode($encrypt->decrypt($credentials_encrypted), true);
+	
+		$params = [
+			'client_id' => $credentials['consumer_key'],
+			'client_secret' => $credentials['consumer_secret'],
+			'request_token_url' => 'https://api.twitter.com/oauth/request_token',
+			'authentication_url' => 'https://api.twitter.com/oauth/authenticate',
+			'access_token_url' => 'https://api.twitter.com/oauth/access_token',
+			'signature_method' => 'HMAC-SHA1',
+		];
+		
+		cerb_910_migrate_connected_service('Twitter', 'wgm.twitter.service.provider', $params, 'cerb.service.provider.oauth1');
+		
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.twitter' AND setting = 'credentials'");
+		
+		// Migrate 'Post to Twitter' actions
+		if(false != ($nodes = $db->GetArrayMaster('SELECT id, params_json FROM decision_node WHERE params_json LIKE "%wgmtwitter.event.action.post%"'))) {
+			foreach($nodes as $node) {
+				$params = json_decode($node['params_json'], true);
+				
+				if(array_key_exists('actions', $params))
+				foreach($params['actions'] as $action_idx => $action) {
+					if('wgmtwitter.event.action.post' == $action['action']) {
+						$placeholder_action = [
+							'action' => '_set_custom_var',
+							'value' => $action['content'],
+							'format' => '',
+							'is_simulator_only' => '0',
+							'var' => 'tweet',
+						];
+						
+						$http_action = [
+							'action' => 'core.va.action.http_request',
+							'http_verb' => 'post',
+							'http_url' => 'https://api.twitter.com/1.1/statuses/update.json',
+							'http_headers' => "",
+							'http_body' => "status={{tweet|url_encode}}",
+							'auth' => 'connected_account',
+							'auth_connected_account_id' => @$action['connected_account_id'],
+							'run_in_simulator' => '0',
+							'response_placeholder' => '_twitter_response',
+						];
+						
+						array_splice($params['actions'], $action_idx, 1, [ $placeholder_action, $http_action ]);
+					}
+				}
+				
+				$sql = sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+					$db->qstr(json_encode($params)),
+					$node['id']
+				);
+				$db->ExecuteMaster($sql);
+			}
+		}
+	}
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
