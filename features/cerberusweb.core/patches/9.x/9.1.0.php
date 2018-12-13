@@ -904,6 +904,46 @@ if(array_key_exists('extension_id', $columns)) {
 		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.spotify'");
 	}
 	
+	// ===========================================================================
+	// Migrate Stripe accounts to service provider
+	
+	if(false != ($accounts = $db->GetArrayMaster(sprintf("SELECT id, name, params_json FROM connected_account WHERE extension_id = %s", $db->qstr('wgm.stripe.service.provider'))))) {
+		$service_name = 'Stripe';
+		$extension_id = 'cerb.service.provider.http.basic';
+		$params = [
+			'base_url' => 'https://api.stripe.com/',
+		];
+		
+		$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
+			"VALUES (%s, %s, %s, %d)",
+			$db->qstr($service_name),
+			$db->qstr($extension_id),
+			$db->qstr($encrypt->encrypt(json_encode($params))),
+			time()
+		);
+		
+		if(false === $db->ExecuteMaster($sql))
+			die("Failed to create a connected service for " . $service_name);
+		
+		$service_id = $db->LastInsertId();
+		
+		foreach($accounts as $account) {
+			$params = json_decode($encrypt->decrypt($account['params_json']), true);
+			
+			$params['username'] = @$params['secret_key'] ?: '';
+			$params['password'] = '';
+			unset($params['secret_key']);
+			
+			$sql = sprintf("UPDATE connected_account SET extension_id = '', params_json = %s, service_id = %d, updated_at = %d WHERE id = %d",
+				$db->qstr($encrypt->encrypt(json_encode($params))),
+				$service_id,
+				time(),
+				$account['id']
+			);
+			$db->ExecuteMaster($sql);
+		}
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
