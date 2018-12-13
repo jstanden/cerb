@@ -586,6 +586,100 @@ if(array_key_exists('extension_id', $columns)) {
 		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.google'");
 	}
 	
+	// ===========================================================================
+	// Migrate HipChat plugin to bearer token
+	
+	if(false != ($results = $db->GetArrayMaster(sprintf("SELECT setting, value FROM devblocks_setting WHERE plugin_id = %s", $db->qstr('wgm.hipchat'))))) {
+		$params = [
+			'token_name' => 'Bearer',
+		];
+		
+		$service_id = cerb_910_migrate_connected_service('HipChat', 'wgm.hipchat', $params, 'cerb.service.provider.token.bearer');
+		
+		// Create connected account
+		
+		$plugin_settings = [];
+		
+		foreach($results as $row) {
+			$plugin_settings[$row['setting']] = $row['value'];
+		}
+		
+		$account_params = [
+			'token' => $plugin_settings['api_token'],
+		];
+		
+		$sql = sprintf("INSERT INTO connected_account (name, owner_context, owner_context_id, params_json, created_at, updated_at, service_id) ".
+			"VALUES (%s, %s, %d, %s, %d, %d, %d)",
+			$db->qstr('HipChat'),
+			$db->qstr('cerberusweb.contexts.app'),
+			0,
+			$db->qstr($encrypt->encrypt(json_encode($account_params))),
+			time(),
+			time(),
+			$service_id
+		);
+		$db->ExecuteMaster($sql);
+		
+		// Wipe old settings
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.hipchat'");
+		
+		// Migrate 'Post to HipChat' actions
+		if(false != ($nodes = $db->GetArrayMaster('SELECT id, params_json FROM decision_node WHERE params_json LIKE "%wgmhipchat.event.action.post%"'))) {
+			foreach($nodes as $node) {
+				$params = json_decode($node['params_json'], true);
+				
+				if(array_key_exists('actions', $params))
+				foreach($params['actions'] as $action_idx => $action) {
+					if('wgmhipchat.event.action.post' == $action['action']) {
+						$placeholder_room = [
+							'action' => '_set_custom_var',
+							'value' => (@$action['room'] ?: $plugin_settings['api_room']),
+							'format' => '',
+							'is_simulator_only' => '0',
+							'var' => '_hipchat_room',
+						];
+						
+						$placeholder_from = [
+							'action' => '_set_custom_var',
+							'value' => @$action['from'] ?: 'Cerb',
+							'format' => '',
+							'is_simulator_only' => '0',
+							'var' => '_hipchat_from',
+						];
+						
+						$placeholder_message = [
+							'action' => '_set_custom_var',
+							'value' => @$action['content'],
+							'format' => '',
+							'is_simulator_only' => '0',
+							'var' => '_hipchat_message',
+						];
+						
+						$http_action = [
+							'action' => 'core.va.action.http_request',
+							'http_verb' => 'post',
+							'http_url' => 'https://api.hipchat.com/v1/rooms/message?auth_token=' . $account_params['token'],
+							'http_headers' => "Accept: application/json\r\n",
+							'http_body' => "{% set params = {\r\n\tmessage: _hipchat_message,\r\n\tmessage_format: \"" . (@$action['is_html'] ? 'html' : 'text') . "\",\r\n\tnotify: true,\r\n\tfrom: _hipchat_from,\r\n\troom_id: _hipchat_room,\r\n\tcolor: \"" . $action['color'] . "\",\r\n}%}\r\n{{params|url_encode}}",
+							'auth' => '',
+							'auth_connected_account_id' => 0,
+							'run_in_simulator' => @$action['run_in_simulator'] ? 1 : 0,
+							'response_placeholder' => '_hipchat_response',
+						];
+						
+						array_splice($params['actions'], $action_idx, 1, [ $placeholder_room, $placeholder_from, $placeholder_message, $http_action ]);
+					}
+				}
+				
+				$sql = sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+					$db->qstr(json_encode($params)),
+					$node['id']
+				);
+				$db->ExecuteMaster($sql);
+			}
+		}
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
