@@ -4311,6 +4311,22 @@
 		</extension>
 		
 		<extension point="cerb.connected_service.provider">
+			<id>cerb.service.provider.oidc</id>
+			<name>OpenID Connect Identity Provider</name>
+			<class>
+				<file>api/service_providers/oidc.php</file>
+				<name>ServiceProvider_OpenIdConnect</name>
+			</class>
+			<params>
+				<param key="options">
+					<value>
+						<data key="sso" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.connected_service.provider">
 			<id>cerb.service.provider.saml.idp</id>
 			<name>SAML Identity Provider</name>
 			<class>
