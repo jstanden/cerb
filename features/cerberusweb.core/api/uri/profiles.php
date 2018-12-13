@@ -685,17 +685,25 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				
 			case 'security':
 				// Secret questions
+				
 				$secret_questions_json = DAO_WorkerPref::get($worker->id, 'login.recover.secret_questions', null);
+				
 				if(false !== ($secret_questions = json_decode($secret_questions_json, true)) && is_array($secret_questions)) {
 					$tpl->assign('secret_questions', $secret_questions);
 				}
 				
-				// Load the worker's auth extension
-				if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
-					/* @var $ext Extension_LoginAuthenticator */
-					$tpl->assign('auth_extension', $ext);
+				// MFA
+				if(!$worker->is_mfa_required) {
+					$is_mfa_enabled = !is_null(DAO_WorkerPref::get($worker_id, 'mfa.totp.seed', null));
+					$tpl->assign('is_mfa_enabled', $is_mfa_enabled);
+					
+					if(!$is_mfa_enabled) {
+						$seed = DevblocksPlatform::services()->mfa()->generateMultiFactorOtpSeed(24);
+						$tpl->assign('seed', $seed);
+					}
 				}
 				
+				// Template
 				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/security.tpl');
 				break;
 				
@@ -798,14 +806,14 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				case 'pages':
 					@$page_ids = DevblocksPlatform::importGPC($_REQUEST['pages'],'array:integer',[]);
 					
-					$pages = DAO_WorkspacePage::getIds($page_ids);
-					
-					if(!Context_WorkspacePage::isReadableByActor($pages, $worker))
-						throw new Exception_DevblocksAjaxValidationError(
-							sprintf("%s can't view a selected workspace page.",
-								$worker->getName()
-							)
-						);
+					if(false != ($pages = DAO_WorkspacePage::getIds($page_ids))) {
+						if(!Context_WorkspacePage::isReadableByActor($pages, $worker))
+							throw new Exception_DevblocksAjaxValidationError(
+								sprintf("%s can't view a selected workspace page.",
+									$worker->getName()
+								)
+							);
+					}
 					
 					DAO_WorkerPref::setAsJson($worker->id, 'menu_json', $page_ids);
 					
@@ -918,6 +926,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 				case 'security':
 					// Secret questions
+					
 					@$q = DevblocksPlatform::importGPC($_REQUEST['sq_q'], 'array', array('','',''));
 					@$h = DevblocksPlatform::importGPC($_REQUEST['sq_h'], 'array', array('','',''));
 					@$a = DevblocksPlatform::importGPC($_REQUEST['sq_a'], 'array', array('','',''));
@@ -930,9 +939,53 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					DAO_WorkerPref::set($worker->id, 'login.recover.secret_questions', json_encode($secret_questions));
 					
-					if(null != ($ext = Extension_LoginAuthenticator::get($worker->auth_extension_id, true))) {
-						/* @var $ext Extension_LoginAuthenticator */
-						$ext->saveWorkerPrefs($worker);
+					// MFA
+					
+					if(!$worker->is_mfa_required) {
+						@$mfa_params = DevblocksPlatform::importGPC($_REQUEST['mfa_params'], 'array', []);
+						@$state = DevblocksPlatform::importGPC($mfa_params['state'], 'integer', 0);
+						@$seed = DevblocksPlatform::importGPC($mfa_params['seed'], 'string', '');
+						@$otp = DevblocksPlatform::importGPC($mfa_params['otp'], 'string', '');
+						
+						try {
+							$is_mfa_enabled = !is_null(DAO_WorkerPref::get($worker_id, 'mfa.totp.seed', null));
+							
+							// If disabling an enabled MFA
+							if(!$state && $is_mfa_enabled) {
+								DAO_WorkerPref::delete($worker_id, 'mfa.totp.seed');
+								
+							// Or enabling a disabled MFA
+							} elseif ($state && !$is_mfa_enabled) {
+								if(!($active_worker->id == $worker_id || $active_worker->is_superuser))
+									throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translateCapitalized('common.access_denied'));
+								
+								if($is_mfa_enabled)
+									throw new Exception_DevblocksAjaxValidationError("Two-factor authentication is already enabled for this account.");
+									
+								if(!$seed)
+									throw new Exception_DevblocksAjaxValidationError("The TOTP seed is invalid.");
+								
+								if(!$otp || strlen($otp) != 6 || !is_numeric($otp))
+									throw new Exception_DevblocksAjaxValidationError("The given security code is invalid. It must be six digits.");
+								
+								$server_otp = DevblocksPlatform::services()->mfa()->getMultiFactorOtpFromSeed($seed);
+								
+								if(0 != strcmp($server_otp, $otp))
+									throw new Exception_DevblocksAjaxValidationError("The given security code is invalid. Please try again.");
+								
+								DAO_WorkerPref::set($worker_id, 'mfa.totp.seed', $seed);
+								
+							} else {
+								// Leave the same settings intact
+							}
+							
+						} catch (Exception_DevblocksAjaxValidationError $e) {
+							echo json_encode([
+								'status' => false,
+								'error' => $e->getMessage(),
+							]);
+							return;
+						}
 					}
 					
 					echo json_encode([
