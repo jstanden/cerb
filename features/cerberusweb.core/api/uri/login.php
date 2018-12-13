@@ -792,6 +792,7 @@ class Page_Login extends CerberusPageExtension {
 			
 		} else {
 			$tour_enabled = intval(DAO_WorkerPref::get($authenticated_worker->id, 'assist_mode', 1));
+			$next_page = ($tour_enabled) ?  ['welcome'] : [];
 			
 			$devblocks_response = new DevblocksHttpResponse($next_page);
 			DevblocksPlatform::redirect($devblocks_response, 1);
