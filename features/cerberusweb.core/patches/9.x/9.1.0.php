@@ -99,6 +99,131 @@ function cerb_910_migrate_connected_service($service_name, $from_extension_id, $
 list($columns,) = $db->metaTable('connected_account');
 
 if(isset($columns['extension_id'])) {
+	// ===========================================================================
+	// Migrate LDAP accounts to service provider
+	
+	if(false != ($accounts = $db->GetArrayMaster(sprintf("SELECT id, name, params_json FROM connected_account WHERE extension_id = %s", $db->qstr('wgm.ldap.service.provider'))))) {
+		$account_to_service_id = [];
+		
+		foreach($accounts as $account) {
+			$service_name = 'LDAP';
+			$extension_id = 'cerb.service.provider.ldap';
+			
+			$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
+				"VALUES (%s, %s, %s, %d)",
+				$db->qstr(sprintf("LDAP (%s)", $account['name'])),
+				$db->qstr($extension_id),
+				$db->qstr($account['params_json']),
+				time()
+			);
+			
+			if(false === $db->ExecuteMaster($sql))
+				die("Failed to create an LDAP service for " . $account['name']);
+			
+			$service_id = $db->LastInsertId();
+			
+			$account_to_service_id[$account['id']] = $service_id;
+			
+			$sql = sprintf("DELETE FROM connected_account WHERE id = %d",
+				$account['id']
+			);
+			$db->ExecuteMaster($sql);
+		}
+		
+		// LDAP worker settings
+		if(false != ($prefs_json = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE plugin_id = 'wgm.ldap' and setting = 'config_json'"))) {
+			$prefs = json_decode($prefs_json, true);
+			
+			if(array_key_exists('connected_account_id', $prefs)) {
+				$prefs['connected_service_id'] = @$account_to_service_id[$prefs['connected_account_id']] ?: 0;
+				unset($prefs['connected_account_id']);
+			}
+			
+			if(false != ($connected_service_id = $prefs['connected_service_id'])) {
+				$service_params_json = $db->GetOneMaster(sprintf("SELECT params_json FROM connected_service WHERE id = %d", $connected_service_id));
+				
+				if(false != ($service_params = json_decode($encrypt->decrypt($service_params_json), true))) {
+					@$service_params['context_search'] = $prefs['context_search'];
+					@$service_params['field_email'] = $prefs['field_email'];
+					@$service_params['field_firstname'] = $prefs['field_firstname'];
+					@$service_params['field_lastname'] = $prefs['field_lastname'];
+					
+					$sql = sprintf("UPDATE connected_service SET params_json = %s WHERE id = %d",
+						$db->qstr($encrypt->encrypt(json_encode($service_params))),
+						$connected_service_id
+					);
+					$db->ExecuteMaster($sql);
+				}
+				
+				// [TODO] Append to SSO options if any workers used that auth_extension_id
+			}
+			
+			$sql = "DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.ldap' and setting = 'config_json'";
+			$db->ExecuteMaster($sql);
+		}
+		
+		// LDAP portal settings
+		if(false != ($portals = $db->GetArrayMaster("SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'wgm.ldap.config_json'"))) {
+			$portal_ldap_setup_to_id = [];
+			
+			foreach($portals as $portal) {
+				$prefs = json_decode($portal['property_value'], true);
+				
+				if(array_key_exists('connected_account_id', $prefs)) {
+					$prefs['connected_service_id'] = @$account_to_service_id[$prefs['connected_account_id']] ?: 0;
+					unset($prefs['connected_account_id']);
+				}
+				
+				if(false != ($connected_service_id = $prefs['connected_service_id'])) {
+					$service_params_json = $db->GetOneMaster(sprintf("SELECT params_json FROM connected_service WHERE id = %d", $connected_service_id));
+					
+					if(false != ($service_params = json_decode($encrypt->decrypt($service_params_json), true))) {
+						@$service_params['context_search'] = $prefs['context_search'];
+						@$service_params['field_email'] = $prefs['field_email'];
+						@$service_params['field_firstname'] = $prefs['field_firstname'];
+						@$service_params['field_lastname'] = $prefs['field_lastname'];
+						
+						ksort($service_params);
+						
+						$service_hash = sha1(json_encode($service_params));
+						
+						if(array_key_exists($service_hash, $portal_ldap_setup_to_id)) {
+							$connected_service_id = $portal_ldap_setup_to_id[$service_hash];
+							
+						} else {
+							// Dupe it
+							$sql = sprintf("INSERT INTO connected_service (name, uri, extension_id, params_json, updated_at) ".
+								"SELECT name, %s, extension_id, %s, %d ".
+								"FROM connected_service ".
+								"WHERE id = %d",
+								$db->qstr('ldap-' . $portal['tool_code']),
+								$db->qstr($encrypt->encrypt(json_encode($service_params))),
+								time(),
+								$connected_service_id
+							);
+							$db->ExecuteMaster($sql);
+							
+							$connected_service_id = $db->LastInsertId();
+							$portal_ldap_setup_to_id[$service_hash] = $connected_service_id;
+						}
+					}
+				}
+				
+				$sql = sprintf("INSERT IGNORE INTO community_tool_property (tool_code, property_key, property_value) VALUES (%s, %s, %d)",
+					$db->qstr($portal['tool_code']),
+					$db->qstr('sso.ldap.service_id'),
+					$connected_service_id
+				);
+				$db->ExecuteMaster($sql);
+				
+				$sql = sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND property_key = 'wgm.ldap.config_json'",
+					$db->qstr($portal['tool_code'])
+				);
+				$db->ExecuteMaster($sql);
+			}
+		}
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
