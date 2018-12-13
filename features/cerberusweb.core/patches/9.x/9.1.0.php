@@ -1173,6 +1173,14 @@ if(isset($columns['auth_extension_id'])) {
 	$db->ExecuteMaster($sql);
 	
 	// ===========================================================================
+	// Migrate `login.ldap` authenticators
+	
+	$sql = sprintf("UPDATE worker SET is_password_disabled=1 WHERE auth_extension_id=%s",
+		$db->qstr('login.ldap')
+	);
+	$db->ExecuteMaster($sql);
+	
+	// ===========================================================================
 	// Drop column
 	
 	$db->ExecuteMaster("ALTER TABLE worker DROP COLUMN auth_extension_id");
