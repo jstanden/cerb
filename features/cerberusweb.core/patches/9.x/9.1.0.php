@@ -855,6 +855,13 @@ if(array_key_exists('extension_id', $columns)) {
 		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.salesforce'");
 	}
 	
+	// ===========================================================================
+	// Drop Shiftplanning plugin
+	
+	if(false != $db->GetRowMaster("SELECT COUNT(setting) FROM devblocks_setting WHERE plugin_id = 'wgm.shiftplanning'")) {
+		$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'wgm.shiftplanning'");
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
