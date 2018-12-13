@@ -680,6 +680,118 @@ if(array_key_exists('extension_id', $columns)) {
 		}
 	}
 	
+	// ===========================================================================
+	// Migrate JIRA accounts to service provider
+	
+	$jira_default_account_id = 0;
+	
+	if(false != ($accounts = $db->GetArrayMaster(sprintf("SELECT id, name, params_json FROM connected_account WHERE extension_id = %s", $db->qstr('wgm.jira.service.provider'))))) {
+		$base_url_to_service_id = [];
+		
+		foreach($accounts as $account) {
+			if(!$jira_default_account_id)
+				$jira_default_account_id = $account['id'];
+			
+			$params = json_decode($encrypt->decrypt($account['params_json']), true);
+			
+			if(!array_key_exists($params['base_url'], $base_url_to_service_id)) {
+				@$host = parse_url($params['base_url'], PHP_URL_HOST) ?: '';
+				
+				$service_name = sprintf('JIRA (%s)', $host);
+				$extension_id = 'cerb.service.provider.http.basic';
+				$service_params = [
+					'base_url' => $params['base_url'],
+				];
+				
+				$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
+					"VALUES (%s, %s, %s, %d)",
+					$db->qstr($service_name),
+					$db->qstr($extension_id),
+					$db->qstr($encrypt->encrypt(json_encode($service_params))),
+					time()
+				);
+				
+				if(false === $db->ExecuteMaster($sql))
+					die("Failed to create a connected service for " . $service_name);
+				
+				$service_id = $db->LastInsertId();
+				$base_url_to_service_id[$params['base_url']] = $service_id;
+				
+			} else {
+				$service_id = $base_url_to_service_id[$params['base_url']];
+			}
+			
+			$params['username'] = @$params['jira_user'] ?: '';
+			$params['password'] = @$params['jira_password'] ?: '';
+			unset($params['base_url']);
+			unset($params['jira_user']);
+			unset($params['jira_password']);
+			
+			$sql = sprintf("UPDATE connected_account SET extension_id = '', params_json = %s, service_id = %d, updated_at = %d WHERE id = %d",
+				$db->qstr($encrypt->encrypt(json_encode($params))),
+				$service_id,
+				time(),
+				$account['id']
+			);
+			$db->ExecuteMaster($sql);
+		}
+		
+		// Migrate 'Execute API Request to JIRA' actions
+		if(false != ($nodes = $db->GetArrayMaster('SELECT id, params_json FROM decision_node WHERE params_json LIKE "%wgmjira.event.action.api_call%"'))) {
+			foreach($nodes as $node) {
+				$params = json_decode($node['params_json'], true);
+				
+				if(array_key_exists('actions', $params))
+				foreach($params['actions'] as $action_idx => $action) {
+					if('wgmjira.event.action.api_call' == $action['action']) {
+						@$connected_account_id = $action['connected_account_id'] ?: $jira_default_account_id;
+						
+						$account = $db->GetRowMaster(sprintf("SELECT id, service_id, params_json FROM connected_account WHERE id = %d", $connected_account_id));
+						$account_params = json_decode($encrypt->decrypt($account['params_json']), true);
+						
+						$service = $db->GetRowMaster(sprintf("SELECT params_json FROM connected_service WHERE id = %d", $account['service_id']));
+						$service_params = json_decode($encrypt->decrypt($service['params_json']), true);
+						
+						$http_verb =  DevblocksPlatform::strLower($action['api_verb']);
+						
+						$http_action = [
+							'action' => 'core.va.action.http_request',
+							'http_verb' => $http_verb,
+							'http_url' => sprintf('%s%s',
+								rtrim($service_params['base_url'], '/'),
+								$action['api_path']
+							),
+							'http_headers' => "Content-Type: application/json\r\n",
+							'auth' => 'connected_account',
+							'auth_connected_account_id' => $connected_account_id,
+							'run_in_simulator' => @$action['run_in_simulator'] ? 1 : 0,
+							'response_placeholder' => '_jira_http_response',
+						];
+						
+						if(in_array($http_verb, ['post', 'put']))
+							$http_action['http_body'] = $action['json'];
+						
+						$placeholder_action = [
+							'action' => '_set_custom_var',
+							'value' => '{{_jira_http_response.body|json_encode|json_pretty}}',
+							'format' => 'json',
+							'is_simulator_only' => '0',
+							'var' => @$action['response_placeholder'] ?: '_jira_response',
+						];
+						
+						array_splice($params['actions'], $action_idx, 1, [ $http_action, $placeholder_action ]);
+					}
+				}
+				
+				$sql = sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+					$db->qstr(json_encode($params)),
+					$node['id']
+				);
+				$db->ExecuteMaster($sql);
+			}
+		}
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
