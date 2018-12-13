@@ -944,6 +944,95 @@ if(array_key_exists('extension_id', $columns)) {
 		}
 	}
 	
+	// ===========================================================================
+	// Migrate Twilio accounts to service provider
+	
+	if(false != ($accounts = $db->GetArrayMaster(sprintf("SELECT id, name, params_json FROM connected_account WHERE extension_id = %s", $db->qstr('wgm.twilio.service.provider'))))) {
+		$service_name = 'Twilio';
+		$extension_id = 'cerb.service.provider.http.basic';
+		$params = [
+			'base_url' => 'https://api.twilio.com/',
+		];
+		
+		$sql = sprintf("INSERT INTO connected_service (name, extension_id, params_json, updated_at) ".
+			"VALUES (%s, %s, %s, %d)",
+			$db->qstr($service_name),
+			$db->qstr($extension_id),
+			$db->qstr($encrypt->encrypt(json_encode($params))),
+			time()
+		);
+		
+		if(false === $db->ExecuteMaster($sql))
+			die("Failed to create a connected service for " . $service_name);
+		
+		$service_id = $db->LastInsertId();
+		
+		foreach($accounts as $account) {
+			$params = json_decode($encrypt->decrypt($account['params_json']), true);
+			
+			$params['username'] = @$params['api_sid'] ?: '';
+			$params['password'] = @$params['api_token'] ?: '';
+			unset($params['api_sid']);
+			unset($params['api_token']);
+			
+			$sql = sprintf("UPDATE connected_account SET extension_id = '', params_json = %s, service_id = %d, updated_at = %d WHERE id = %d",
+				$db->qstr($encrypt->encrypt(json_encode($params))),
+				$service_id,
+				time(),
+				$account['id']
+			);
+			$db->ExecuteMaster($sql);
+		}
+		
+		// Migrate 'Send SMS via Twilio' actions
+		if(false != ($nodes = $db->GetArrayMaster('SELECT id, params_json FROM decision_node WHERE params_json LIKE "%wgmtwilio.event.action.send_sms%"'))) {
+			foreach($nodes as $node) {
+				$params = json_decode($node['params_json'], true);
+				
+				if(array_key_exists('actions', $params))
+				foreach($params['actions'] as $action_idx => $action) {
+					if('wgmtwilio.event.action.send_sms' == $action['action']) {
+						$account_params_json = $db->GetOneMaster(sprintf("SELECT params_json FROM connected_account WHERE id = %d", $action['connected_account_id']));
+						$account_params = json_decode($encrypt->decrypt($account_params_json), true);
+						
+						$placeholder_action = [
+							'action' => '_set_custom_var',
+							'value' => $action['content'],
+							'format' => '',
+							'is_simulator_only' => '0',
+							'var' => 'twilio_message',
+						];
+						
+						$http_action = [
+							'action' => 'core.va.action.http_request',
+							'http_verb' => 'post',
+							'http_url' => sprintf('https://api.twilio.com/2010-04-01/Accounts/%s/SMS/Messages.json',
+								$account_params['username']
+							),
+							'http_headers' => "Content-Type: application/x-www-form-urlencoded\r\n",
+							'http_body' => sprintf("{%% set params = {\r\n\t\"From\": \"%s\",\r\n\t\"To\": \"%s\",\r\n\t\"Body\": twilio_message,\r\n} %%}\r\n{{params|url_encode}}",
+								@$action['from'] ?: $account_params['default_caller_id'],
+								$action['phone']
+							),
+							'auth' => 'connected_account',
+							'auth_connected_account_id' => $action['connected_account_id'],
+							'run_in_simulator' => '0',
+							'response_placeholder' => '_twilio_response',
+						];
+						
+						array_splice($params['actions'], $action_idx, 1, [ $placeholder_action, $http_action ]);
+					}
+				}
+				
+				$sql = sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+					$db->qstr(json_encode($params)),
+					$node['id']
+				);
+				$db->ExecuteMaster($sql);
+			}
+		}
+	}
+	
 	$db->ExecuteMaster("ALTER TABLE connected_account DROP COLUMN extension_id");
 }
 
