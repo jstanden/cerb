@@ -1,4 +1,6 @@
 <?php
+use GuzzleHttp\Psr7\ServerRequest;
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -105,12 +107,8 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 
 		return $controllers;
 	}
-
-	function handleRequest(DevblocksHttpRequest $request) {
-		$stack = $request->path;
-		$db = DevblocksPlatform::services()->database();
-
-		// **** BEGIN AUTH
+	
+	private function _getAuthorizedWorkerByLegacySignature(DevblocksHttpRequest $request) {
 		@$verb = $_SERVER['REQUEST_METHOD'];
 		@$header_date = $_SERVER['HTTP_X_DATE'];
 		
@@ -123,7 +121,6 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		// Try new header first
 		if(isset($_SERVER['HTTP_CERB_AUTH'])) {
 			$header_signature = $_SERVER['HTTP_CERB_AUTH'];
-
 		// Fallback to older header
 		} elseif(isset($_SERVER['HTTP_CERB5_AUTH'])) {
 			$header_signature = $_SERVER['HTTP_CERB5_AUTH'];
@@ -162,6 +159,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		}
 
 		// REST extensions
+		$stack = $request->path;
 		@array_shift($stack); // rest
 
 		// Check this API key's path restrictions
@@ -185,9 +183,80 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		if(!$permitted) {
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (You are not authorized to make this request)"));
 		}
+		
+		return $worker;
+	}
+	
+	private function _getAuthorizedWorkerByOAuth2Token(DevblocksHttpRequest $request) {
+		$accessTokenRepository = new Cerb_OAuth2AccessTokenRepository();
+		
+		$publicKey = DevblocksPlatform::services()->oauth()->getServerPublicKey();
+		
+		// Setup the authorization server
+		$server = new \League\OAuth2\Server\ResourceServer(
+			$accessTokenRepository,
+			$publicKey
+		);
+		
+		$http_request = ServerRequest::fromGlobals();
+		
+		try {
+			new \League\OAuth2\Server\Middleware\ResourceServerMiddleware($server);
+			$http_request = $server->validateAuthenticatedRequest($http_request);
+			
+			// Verify the client ID
+			
+			$oauth_client_id = $http_request->getAttribute('oauth_client_id');
+			
+			if(false == DAO_OAuthApp::getByClientId($oauth_client_id))
+				throw new Exception_Devblocks("Invalid OAuth2 client.");
+			
+			// Set scopes
+			//$http_request->getAttribute('oauth_scopes');
+			
+			// Success
+			
+			$worker_id = $http_request->getAttribute('oauth_user_id');
+			
+			if(false != ($worker = DAO_Worker::get($worker_id)))
+				return $worker;
+			
+		} catch (\League\OAuth2\Server\Exception\OAuthServerException $e) {
+			error_log($e->getMessage());
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+		
+		return null;
+	}
+	
+	private function _getAuthorizedWorker(DevblocksHttpRequest $request) {
+		@$header_auth = $_SERVER['HTTP_AUTHORIZATION'];
+		@$header_signature = $_SERVER['HTTP_CERB_AUTH'] ?: $_SERVER['HTTP_CERB5_AUTH'];
+		
+		// Check for OAuth2
+		if($header_auth)
+			return $this->_getAuthorizedWorkerByOAuth2Token($request);
+		
+		// Check for legacy signatures
+		if($header_signature)
+			return $this->_getAuthorizedWorkerByLegacySignature($request);
+		
+		return null;
+	}
 
+	function handleRequest(DevblocksHttpRequest $request) {
+		@$verb = $_SERVER['REQUEST_METHOD'];
+		
+		if(false == ($worker = $this->_getAuthorizedWorker($request))) {
+			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Unauthorized request"));
+		}
+		
 		// Controller
 
+		$stack = $request->path;
+		@array_shift($stack); // rest
 		@$controller_uri = array_shift($stack); // e.g. tickets
 
 		$controllers = $this->_getRestControllers();
