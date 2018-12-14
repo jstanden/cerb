@@ -208,6 +208,9 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 			'scopes' => $service_params['scope'],
 		];
 		
+		if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY)
+			$settings['proxy'] = DEVBLOCKS_HTTP_PROXY;
+		
 		try {
 			$provider = new Cerb_OAuth2Provider($settings);
 		} catch (InvalidArgumentException $e) {

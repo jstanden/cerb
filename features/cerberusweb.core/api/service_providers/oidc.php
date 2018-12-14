@@ -56,7 +56,10 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		if(!in_array('openid', $options['scopes'])) {
 			array_push($options['scopes'], 'openid');
 		}
-
+		
+		if(defined('DEVBLOCKS_HTTP_PROXY') && DEVBLOCKS_HTTP_PROXY)
+			$options['proxy'] = DEVBLOCKS_HTTP_PROXY;
+		
 		parent::__construct($options, $collaborators);
 	}
 
@@ -74,13 +77,16 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 	}
 	
 	public function fetchJwks($url) {
+		$http = DevblocksPlatform::services()->http();
+		
 		$request = new Request('GET', $url);
 		$request_options = [];
 		$error = null;
 		
-		$response = DevblocksPlatform::services()->http()->sendRequest($request, $request_options, $error);
 		
-		$json = DevblocksPlatform::services()->http()->getResponseAsJson($response, $error);
+		$response = $http->sendRequest($request, $request_options, $error);
+		
+		$json = $http->getResponseAsJson($response, $error);
 		
 		return $json;
 	}
