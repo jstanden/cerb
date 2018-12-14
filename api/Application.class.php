@@ -40,7 +40,7 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 define("APP_BUILD", 2018121401);
-define("APP_VERSION", '9.0.9');
+define("APP_VERSION", '9.0.10');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
 
