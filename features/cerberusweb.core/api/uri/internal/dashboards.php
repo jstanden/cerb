@@ -1772,12 +1772,13 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
-		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', null);
 		@$options = DevblocksPlatform::importGPC($widget->params['options'], 'array', []);
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
+		
+		$error = null;
 		
 		if(false == ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);

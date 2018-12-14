@@ -266,14 +266,14 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 				// Verify that activity_id exists
 				case 'activity_id':
 					if(!empty($value))
-						if(false == ($activity = DAO_TimeTrackingActivity::get($value)))
+						if(false == (DAO_TimeTrackingActivity::get($value)))
 							$this->error(self::ERRNO_CUSTOM, sprintf("'%d' is not a valid %s.", $value, $putfield));
 					break;
 					
 				// Verify that worker_id exists
 				case 'worker_id':
 					if(!empty($value))
-						if(false == ($lookup = DAO_Worker::get($value)))
+						if(false == (DAO_Worker::get($value)))
 							$this->error(self::ERRNO_CUSTOM, sprintf("'%d' is not a valid %s.", $value, $putfield));
 					break;
 			}

@@ -393,8 +393,6 @@ if(isset($tables['preparse_rule'])) {
 			
 			if(is_array($actions))
 			foreach($actions as $key => $data) {
-				$action = null;
-				
 				switch($key) {
 					case 'blackhole':
 						$action_labels[] = 'reject';

@@ -252,8 +252,6 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -430,7 +428,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CustomField::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CustomField', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CustomField', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"custom_field.context as %s, ".
@@ -649,7 +647,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 						$values = array($values);
 
 					// Protect from injection in cases where it's not desireable (controlled above)
-					foreach($values as $idx => $v) {
+					foreach($values as $v) {
 						if(!isset($field->params['options']) || !in_array($v, $field->params['options']))
 							continue;
 
@@ -670,7 +668,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					if(!is_array($values))
 						$values = array($values);
 
-					foreach($values as $idx => $v) {
+					foreach($values as $v) {
 						$is_unset = ('-'==substr($v,0,1)) ? true : false;
 						$v = ltrim($v,'+-');
 							
@@ -733,7 +731,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			return !empty($d);
 		}));
 		
-		foreach($values as $field_id => $value) {
+		foreach(array_keys($values) as $field_id) {
 			if(
 				false == (@$custom_field = $custom_fields[$field_id]) 
 				|| array_key_exists($custom_field->custom_fieldset_id, $remove_fieldset_ids)) {
@@ -1181,7 +1179,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				default:
-					if(false !== ($field_ext = $fields[$field_id]->getTypeExtension())) {
+					if(false !== ($fields[$field_id]->getTypeExtension())) {
 						@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 						$do['cf_'.$field_id] = array('value' => $field_value);
 					}
@@ -1226,7 +1224,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				default:
-					if(false != ($field_ext = Extension_CustomField::get($fields[$field_id]->type))) {
+					if(false != (Extension_CustomField::get($fields[$field_id]->type))) {
 						@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
 						
 					} else {
@@ -1894,8 +1892,6 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_CustomField::VIRTUAL_FIELDSET_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
@@ -2054,7 +2050,6 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 	
 	function getMeta($context_id) {
 		$custom_field = DAO_CustomField::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($custom_field->name);
@@ -2086,7 +2081,6 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			$prefix = 'Custom Field:';
 			
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CUSTOM_FIELD);
 		
 		// Polymorph
 		if(is_numeric($cfield)) {

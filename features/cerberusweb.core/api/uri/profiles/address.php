@@ -74,6 +74,8 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				DAO_Address::clearCache();
 			}
 			
+			$error = null;
+			
 			if(empty($id)) {
 				$fields[DAO_Address::EMAIL] = $email;
 				
@@ -158,8 +160,6 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 

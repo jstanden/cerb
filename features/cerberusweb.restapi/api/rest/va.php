@@ -22,7 +22,7 @@ class ChRest_Bots extends Extension_RestController {
 	}
 	
 	function putAction($stack) {
-		@$action = array_shift($stack);
+		//@$action = array_shift($stack);
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	

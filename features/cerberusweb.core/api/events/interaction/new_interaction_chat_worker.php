@@ -280,6 +280,9 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$actions =& $dict->_actions;
 				
+				if(!is_array($actions))
+					$actions = [];
+				
 				$bot_name = $tpl_builder->build($bot_name, $dict);
 				
 				$actions[] = array(
@@ -293,6 +296,9 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$actions =& $dict->_actions;
+				
+				if(!is_array($actions))
+					$actions = [];
 				
 				@$behavior_id = intval($params['behavior_id']);
 				

@@ -101,6 +101,8 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				
 				// DAO
 				
+				$error = null;
+				
 				if(empty($id)) { // New
 					if(!$dao_class::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -164,7 +166,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
 		$context = $this->_getContextName();
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -310,8 +311,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Abstraction
-		
-		$context = self::_getContextName();
 		
 		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
 			return;

@@ -538,6 +538,9 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 			case 'prompt_buttons':
 				$actions =& $dict->_actions;
+				
+				if(!is_array($actions))
+					$actions = [];
 
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				

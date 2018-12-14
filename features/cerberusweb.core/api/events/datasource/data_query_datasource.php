@@ -203,8 +203,6 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 			case 'return_data':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				$actions =& $dict->_actions;
-				
 				@$data = $params['data'] ?: '';
 				$output = $tpl_builder->build($data, $dict);
 				
@@ -225,13 +223,11 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 				
 				$actions =& $dict->_actions;
 				
+				if(!is_array($actions))
+					$actions = [];
+				
 				@$data = $params['data'] ?: '';
 				$output = $tpl_builder->build($data, $dict);
-				
-				$out = sprintf(">>> Returning data:\n".
-					"%s\n",
-					$output
-				);
 				
 				$actions[] = array(
 					'_action' => 'return_data',

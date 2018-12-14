@@ -31,7 +31,6 @@ class PageSection_SetupRecords extends Extension_PageSection {
 	function showRecordPopupAction() {
 		@$context_ext_id = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		
-		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
 		if(!$context_ext_id || false == ($context_ext = Extension_DevblocksContext::get($context_ext_id, true)))

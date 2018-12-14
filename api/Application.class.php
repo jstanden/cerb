@@ -2714,7 +2714,6 @@ class CerberusSettingsDefaults {
 	const AUTH_SSO_SERVICE_IDS = "";
 };
 
-// [TODO] Implement our own session handler w/o PHP 'session'
 class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	static $_data = null;
 

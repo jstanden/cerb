@@ -192,8 +192,6 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 			case 'render_html':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				$actions =& $dict->_actions;
-				
 				@$html = $params['html'];
 				$html = $tpl_builder->build($html, $dict);
 				
@@ -213,6 +211,9 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				$actions =& $dict->_actions;
+				
+				if(!is_array($actions))
+					$actions = [];
 				
 				@$html = $params['html'];
 				$html = $tpl_builder->build($html, $dict);

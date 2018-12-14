@@ -421,6 +421,9 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 				
 				$actions =& $dict->_actions;
 				
+				if(!is_array($actions))
+					$actions = [];
+				
 				@$behavior_id = intval($params['behavior_id']);
 				
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))

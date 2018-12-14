@@ -129,8 +129,6 @@ class ChRest_Records extends Extension_RestController {
 		@$query = DevblocksPlatform::importGPC($_REQUEST['query'], 'string', '');
 		@$fields = DevblocksPlatform::importGPC($_REQUEST['fields'], 'array', []);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		if(empty($query))
 			$this->error(self::ERRNO_PARAM_REQUIRED, "The 'query' parameter is required.");
 		

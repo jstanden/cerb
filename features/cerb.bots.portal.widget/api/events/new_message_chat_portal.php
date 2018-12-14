@@ -494,6 +494,9 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 			case 'prompt_buttons':
 				$actions =& $dict->_actions;
 				
+				if(!is_array($actions))
+					$actions = [];
+				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				@$options = $tpl_builder->build($params['options'], $dict);

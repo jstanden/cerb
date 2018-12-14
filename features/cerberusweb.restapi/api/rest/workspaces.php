@@ -53,7 +53,7 @@ class ChRest_Workspaces extends Extension_RestController { // implements IExtens
 	}
 	
 	function putAction($stack) {
-		@$action = array_shift($stack);
+		//@$action = array_shift($stack);
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	

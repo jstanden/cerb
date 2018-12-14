@@ -58,16 +58,24 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 	}
 	
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
-		
 		// We can accept a model object or a context_id
 		@$model = $event_model->params['context_model'] ?: $event_model->params['context_id'];
+		
+		/**
+		 * Message
+		 */
+		
+		$labels = $values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $model, $labels, $values, null, true);
+		
+		// Fill in some custom values
+		$values['sender_is_worker'] = (!empty($values['worker_id'])) ? 1 : 0;
 		
 		/**
 		 * Behavior
 		 */
 		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = $merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -81,25 +89,13 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 			);
 		
 		/**
-		 * Message
-		 */
-		
-		$labels = [];
-		$values = [];
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $model, $labels, $values, null, true);
-
-		// Fill in some custom values
-		$values['sender_is_worker'] = (!empty($values['worker_id'])) ? 1 : 0;
-		
-		/**
 		 * Ticket
 		 */
 		
 		@$ticket_id = $values['ticket_id'];
 		$group_id = 0;
 		
-		$ticket_labels = [];
-		$ticket_values = [];
+		$ticket_labels = $ticket_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, 'Message:Ticket:', true);
 
 			// Fill some custom values
@@ -134,8 +130,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
-		$group_labels = [];
-		$group_values = [];
+		$group_labels = $group_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, 'Message:Ticket:Group:', true);
 				
 			// Merge
@@ -152,8 +147,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		 * Sender Worker
 		 */
 		@$worker_id = $values['worker_id'];
-		$worker_labels = [];
-		$worker_values = [];
+		$worker_labels = $worker_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, 'Message worker:', true);
 				
 			// Clear dupe content
@@ -788,6 +782,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				break;
 				
 			default:
+				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
@@ -805,8 +800,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 		@$message_id = $dict->id;
 		@$ticket_id = $dict->ticket_id;
 
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		if(empty($message_id) || empty($ticket_id))
 			return;
 		
@@ -942,7 +935,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
 				
-				
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
 					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
@@ -1057,10 +1049,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					if(!empty($header) && !empty($value))
 						$properties['headers'][trim($header)] = trim($value);
 				}
-				
-				@$headers = $tpl_builder->build($params['headers'], $dict);
-
-				// Attachments
 				
 				// Attachment list variables
 		

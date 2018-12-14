@@ -112,12 +112,9 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger) {
-		$actions = [];
-		
 		return new Model_DevblocksEvent(
 			self::ID,
-			[
-			]
+			[]
 		);
 	}
 	

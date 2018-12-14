@@ -36,6 +36,7 @@ trait DevblocksExtensionGetterTrait {
 	}
 
 	/**
+	 * @param string $extension_id
 	 * @internal
 	 */
 	public static function get($id, $as_instance=true) {
