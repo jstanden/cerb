@@ -208,7 +208,7 @@ $(function() {
 		$legend.find('a').click($funcGroupAnyToggle);
 
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
-			var seq = $(this).closest('fieldset').find('input:hidden[name="conditions[]"]').val();
+			var seq = $(this).closest('li').find('input:hidden[name="nodes[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
