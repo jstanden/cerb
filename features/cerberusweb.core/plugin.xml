@@ -86,6 +86,22 @@
 			<class name="WgmCerb_API" />
 		</file>
 		
+		<file path="api/oauth2/oauth2_server.php">
+			<class name="Cerb_OAuth2AccessTokenEntity" />
+			<class name="Cerb_OAuth2AccessTokenRepository" />
+			<class name="Cerb_OAuth2AuthCodeEntity" />
+			<class name="Cerb_OAuth2AuthCodeRepository" />
+			<class name="Cerb_OAuth2ClientEntity" />
+			<class name="Cerb_OAuth2ClientRespository" />
+			<class name="Cerb_OAuth2Provider" />
+			<class name="Cerb_OAuth2RefreshTokenEntity" />
+			<class name="Cerb_OAuth2RefreshTokenRepository" />
+			<class name="Cerb_OAuth2ScopeEntity" />
+			<class name="Cerb_OAuth2ScopeRepository" />
+			<class name="Cerb_OAuth2UserEntity" />
+			<class name="Cerb_OAuth2UserRepository" />
+		</file>
+		
 		<file path="api/service_providers/oauth.php">
 			<class name="IServiceProvider_OAuth" />
 		</file>
@@ -469,6 +485,18 @@
 		
 		<file path="api/dao/message_headers.php">
 			<class name="DAO_MessageHeaders" />
+		</file>
+		
+		<file path="api/dao/oauth_app.php">
+			<class name="Context_OAuthApp" />
+			<class name="DAO_OAuthApp" />
+			<class name="Model_OAuthApp" />
+			<class name="SearchFields_OAuthApp" />
+			<class name="View_OAuthApp" />
+		</file>
+		
+		<file path="api/dao/oauth_token.php">
+			<class name="DAO_OAuthToken" />
 		</file>
 		
 		<file path="api/dao/plugin_library.php">
@@ -2563,6 +2591,45 @@
 						<data key="export" />
 						<data key="update" />
 						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.oauth.app</id>
+			<name>OAuth App</name>
+			<class>
+				<file>api/dao/oauth_app.php</file>
+				<name>Context_OAuthApp</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="OAuth app" value="singular" />
+						<data key="OAuth apps" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="oauth_app" />
+				<param key="dao_class" value="DAO_OAuthApp" />
+				<param key="view_class" value="View_OAuthApp" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -5881,7 +5948,20 @@
 					<param key="uri" value="mail_transport" />
 				</params>
 			</extension>
-
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.oauth_app</id>
+				<name>OAuth App Section</name>
+				<class>
+					<file>api/uri/profiles/oauth_app.php</file>
+					<name>PageSection_ProfilesOAuthApp</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="oauth_app" />
+				</params>
+			</extension>
+			
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.organization</id>
 				<name>Organization Section</name>

@@ -3,6 +3,7 @@ _master.key
 attachments
 classes
 context_avatar
+keys
 message_content
 tmp/cache
 tmp/mime*

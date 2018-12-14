@@ -299,11 +299,16 @@ class Page_Login extends CerberusPageExtension {
 				;
 			
 			if(false != ($login_post_url = $login_state->popRedirectUri())) {
-				DevblocksPlatform::redirectURL($login_post_url, 0);
+				DevblocksPlatform::redirectURL($login_post_url);
 			}
 			exit;
 			
 		} else {
+			// Check which OAuth app ID wants consent
+			$oauth_app_id = $login_state->isConsentRequired();
+			$oauth_app = DAO_OAuthApp::get($oauth_app_id);
+			$tpl->assign('oauth_app', $oauth_app);
+			
 			$tpl->display('devblocks:cerberusweb.core::login/auth/consent/oauth_consent.tpl');
 		}
 	}

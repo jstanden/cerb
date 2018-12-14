@@ -3044,6 +3044,21 @@
 		<tu tuid='dao.mailbox.auth_disable_plain'>
 			<tuv xml:lang="en_US"><seg>Disable PLAIN Auth</seg></tuv>
 		</tu>
+		
+		<!-- OAuthApp -->
+		
+		<tu tuid='dao.oauth_app.client_id'>
+			<tuv xml:lang="en_US">
+			<seg>Client ID</seg></tuv>
+		</tu>
+		<tu tuid='dao.oauth_app.client_secret'>
+			<tuv xml:lang="en_US">
+			<seg>Client Secret</seg></tuv>
+		</tu>
+		<tu tuid='dao.oauth_app.callback_url'>
+			<tuv xml:lang="en_US">
+			<seg>Callback URL</seg></tuv>
+		</tu>
 
 		<!-- Snippets -->
 		

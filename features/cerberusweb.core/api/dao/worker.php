@@ -1022,6 +1022,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// Sessions
 		DAO_DevblocksSession::deleteByUserIds($id);
 		
+		// OAuth tokens
+		DAO_OAuthToken::deleteByWorkerId($id);
+		
 		// Clear search records
 		$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
 		$search->delete(array($id));

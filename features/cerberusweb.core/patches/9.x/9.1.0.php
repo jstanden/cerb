@@ -37,6 +37,69 @@ if(!isset($tables['custom_field_geovalue'])) {
 }
 
 // ===========================================================================
+// Add `oauth_app`
+
+if(!isset($tables['oauth_app'])) {
+	$sql = sprintf("
+	CREATE TABLE `oauth_app` (
+		id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		name varchar(255) NOT NULL DEFAULT '',
+		url varchar(255) NOT NULL DEFAULT '',
+		client_id varchar(255) NOT NULL DEFAULT '',
+		client_secret varchar(255) NOT NULL DEFAULT '',
+		callback_url varchar(255) NOT NULL DEFAULT '',
+		updated_at int(10) unsigned NOT NULL DEFAULT '0',
+		PRIMARY KEY (id),
+		INDEX (client_id)
+	) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['oauth_app'] = 'oauth_app';
+}
+
+// ===========================================================================
+// Default profile for OAuth apps
+
+if(!$db->GetOneMaster(sprintf("SELECT COUNT(*) FROM profile_tab WHERE context = %s",
+	$db->qstr('cerberusweb.contexts.oauth.app')))) {
+
+	$sqls = <<< EOD
+# OAuth app
+INSERT INTO profile_tab (name, context, extension_id, extension_params_json, updated_at) VALUES ('Overview','cerberusweb.contexts.oauth.app','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP());
+SET @last_tab_id = LAST_INSERT_ID();
+INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, zone, pos, width_units, updated_at) VALUES ('OAuth App',@last_tab_id,'cerb.profile.tab.widget.fields','{\"context\":\"cerberusweb.contexts.oauth.app\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"name\",\"url\",\"updated\"]],\"links\":{\"show\":\"1\"},\"search\":{\"context\":[],\"label_singular\":[],\"label_plural\":[],\"query\":[]}}','sidebar',1,4,UNIX_TIMESTAMP());
+INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.core','profile:tabs:cerberusweb.contexts.oauth.app',CONCAT('[',@last_tab_id,']'));
+EOD;
+
+	foreach(DevblocksPlatform::parseCrlfString($sqls) as $sql) {
+		$sql = str_replace(['\r','\n','\t'],['\\\r','\\\n','\\\t'],$sql);
+		$db->ExecuteMaster($sql);
+	}
+}
+
+// ===========================================================================
+// Add `oauth_token`
+
+if(!isset($tables['oauth_token'])) {
+	$sql = sprintf("
+	CREATE TABLE `oauth_token` (
+		token_type varchar(32) NOT NULL DEFAULT '',
+		token varchar(255) NOT NULL DEFAULT '',
+		app_id int(10) unsigned NOT NULL DEFAULT '0',
+		worker_id int(10) unsigned NOT NULL DEFAULT '0',
+		created_at int(10) unsigned NOT NULL DEFAULT '0',
+		expires_at int(10) unsigned NOT NULL DEFAULT '0',
+		PRIMARY KEY (token_type, token),
+		INDEX (app_id)
+	) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['oauth_token'] = 'oauth_token';
+}
+
+// ===========================================================================
 // Add `connected_service` table
 
 if(!isset($tables['connected_service'])) {
