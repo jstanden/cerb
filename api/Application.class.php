@@ -2685,6 +2685,8 @@ class CerberusSettings {
 	const HTML_NO_STRIP_MICROSOFT = 'html_no_strip_microsoft';
 	const MAIL_DEFAULT_FROM_ID = 'mail_default_from_id';
 	const MAIL_AUTOMATED_TEMPLATES = 'mail_automated_templates';
+	const AUTH_MFA_ALLOW_REMEMBER = 'auth_mfa_allow_remember';
+	const AUTH_MFA_REMEMBER_DAYS = 'auth_mfa_remember_days';
 	const AUTH_SSO_SERVICE_IDS = 'auth_sso_service_ids';
 };
 
@@ -2711,6 +2713,8 @@ class CerberusSettingsDefaults {
 	const HTML_NO_STRIP_MICROSOFT = 0;
 	const MAIL_DEFAULT_FROM_ID = 0;
 	const MAIL_AUTOMATED_TEMPLATES = "{\"worker_invite\":{\"send_from_id\":\"0\",\"send_as\":\"Cerb\",\"subject\":\"Welcome to Cerb!\",\"body\":\"Welcome, {{worker_first_name}}!\\r\\n\\r\\nYour team has invited you to create a Cerb login at:\\r\\n{{url}}\\r\\n\"},\"worker_recover\":{\"send_from_id\":\"0\",\"send_as\":\"Cerb\",\"subject\":\"Your account recovery confirmation code\",\"body\":\"Hi, {{worker_first_name}}.\\r\\n\\r\\nWe recently received a request to reset your account's login information.\\r\\n\\r\\nHere's your account reset confirmation code: {{code}}\\r\\n\\r\\nIP: {{ip}}\\r\\n\\r\\nIf you didn't initiate this request, please forward this message to a system administrator.\"}}";
+	const AUTH_MFA_ALLOW_REMEMBER = 0;
+	const AUTH_MFA_REMEMBER_DAYS = 0;
 	const AUTH_SSO_SERVICE_IDS = "";
 };
 

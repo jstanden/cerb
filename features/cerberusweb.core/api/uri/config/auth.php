@@ -22,6 +22,9 @@ class PageSection_SetupAuth extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'auth');
 		
+		// ============================================
+		// SSO
+		
 		// Find provider extensions with 'sso' flag
 		$provider_mfts = Extension_ConnectedServiceProvider::getAll(false, ['sso']);
 		
@@ -55,6 +58,18 @@ class PageSection_SetupAuth extends Extension_PageSection {
 		$tpl->assign('sso_services_available', $sso_services_available);
 		$tpl->assign('sso_services_enabled', $sso_services_enabled);
 		
+		// ============================================
+		// MFA
+		
+		$params = [
+			'auth_mfa_allow_remember' => DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_ALLOW_REMEMBER, CerberusSettingsDefaults::AUTH_MFA_ALLOW_REMEMBER),
+			'auth_mfa_remember_days' => DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_REMEMBER_DAYS, CerberusSettingsDefaults::AUTH_MFA_REMEMBER_DAYS),
+		];
+		$tpl->assign('params', $params);
+		
+		// ============================================
+		// Template
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/auth/index.tpl');
 	}
 	
@@ -76,9 +91,22 @@ class PageSection_SetupAuth extends Extension_PageSection {
 				->idArray()
 				->addValidator($validation->validators()->contextIds(Context_ConnectedService::ID, true))
 				;
+			$validation
+				->addField('auth_mfa_allow_remember', 'Remember trusted MFA devices')
+				->bit()
+				;
+			$validation
+				->addField('auth_mfa_remember_days', 'Remember MFA days')
+				->number()
+				->setMin(0)
+				->setMax(60)
+				;
 			
 			if(false == $validation->validateAll($params, $error))
 				throw new Exception_DevblocksValidationError($error);
+			
+			// ============================================
+			// SSO
 			
 			@$auth_sso_service_ids = DevblocksPlatform::importGPC($params['auth_sso_service_ids'],'array:int',[]);
 			
@@ -96,6 +124,15 @@ class PageSection_SetupAuth extends Extension_PageSection {
 			}
 			
 			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_SSO_SERVICE_IDS, implode(',', array_keys($sso_services)));
+			
+			// ============================================
+			// MFA
+			
+			@$auth_mfa_allow_remember = DevblocksPlatform::importGPC($params['auth_mfa_allow_remember'], 'int', 0);
+			@$auth_mfa_remember_days = DevblocksPlatform::importGPC($params['auth_mfa_remember_days'], 'int', 0);
+			
+			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_ALLOW_REMEMBER, $auth_mfa_allow_remember);
+			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_REMEMBER_DAYS, $auth_mfa_remember_days);
 			
 			echo json_encode(array('status'=>true, 'message'=>DevblocksPlatform::translate('success.saved_changes')));
 			return;

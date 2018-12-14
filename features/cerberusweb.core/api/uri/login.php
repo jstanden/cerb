@@ -327,6 +327,9 @@ class Page_Login extends CerberusPageExtension {
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login']), 1);
 		}
 		
+		$setting_can_remember = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_ALLOW_REMEMBER, 0);
+		$setting_remember_days = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_REMEMBER_DAYS, 0);
+		
 		$mfa_totp_seed = DAO_WorkerPref::get($worker->id, 'mfa.totp.seed', null);
 		
 		switch($action) {
@@ -359,6 +362,18 @@ class Page_Login extends CerberusPageExtension {
 					// If verified
 					if($otp == DevblocksPlatform::services()->mfa()->getMultiFactorOtpFromSeed($mfa_totp_seed)) {
 						$login_state->setIsMfaAuthenticated(true);
+						
+						if($setting_can_remember && $remember_device) {
+							$encrypt = DevblocksPlatform::services()->encryption();
+							$url_writer = DevblocksPlatform::services()->url();
+							
+							$remember_expires_at = time()+(86400 * $setting_remember_days);
+							$remember_bin = pack('N2', $worker->id, time());
+							$remember_value = $encrypt->encrypt($remember_bin);
+							
+							setcookie('mfa:' . $worker->id, $remember_value, $remember_expires_at, '/', NULL, $url_writer->isSSL(), true);
+						}
+						
 						DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','authenticated']));
 						
 					} else {
@@ -382,7 +397,27 @@ class Page_Login extends CerberusPageExtension {
 					}
 					
 				} else {
+					// Is this device remembered?
+					if($setting_can_remember && array_key_exists('mfa:'.$worker->id, $_COOKIE)) {
+						$encrypt = DevblocksPlatform::services()->encryption();
+						if(false != ($remember_params = @unpack('Nworker_id/Ncreated_at', $encrypt->decrypt($_COOKIE['mfa:' . $worker->id])))) {
+							@$remember_worker_id = $remember_params['worker_id'];
+							@$remember_created_at = $remember_params['created_at'];
+							$remember_expires_at = $remember_created_at + (86400 * $setting_remember_days);
+							
+							if(
+								$worker->id == $remember_worker_id 
+								&& $remember_expires_at > time()
+							) {
+								$login_state->setIsMfaAuthenticated(true);
+								DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','authenticated']));
+							}
+						}
+					}
+					
 					$tpl = DevblocksPlatform::services()->template();
+					$tpl->assign('setting_mfa_can_remember', $setting_can_remember);
+					$tpl->assign('setting_mfa_remember_days', $setting_remember_days);
 					
 					// Is MFA/TOTP configured for this worker?
 					if($mfa_totp_seed) {

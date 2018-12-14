@@ -14,6 +14,15 @@
 		<div>
 			<input type="text" name="otp" size="45" value="" placeholder="e.g. 123456" style="width:100%;line-height:1.5em;height:24px;padding:0px 5px;border-radius:5px;box-sizing:border-box;">
 		</div>
+		
+		{if $setting_mfa_can_remember && $setting_mfa_remember_days}
+		<div style="padding:5px 0 0 5px;">
+			<label>
+				<input type="checkbox" name="remember_device" value="1"> 
+				Remember this device for {$setting_mfa_remember_days} days
+			</label>
+		</div>
+		{/if}
 
 		<div style="margin-top:10px;">
 			<button type="submit" style="width:100%;">
