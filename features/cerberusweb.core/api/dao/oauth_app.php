@@ -8,6 +8,8 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 	const UPDATED_AT = 'updated_at';
 	const URL = 'url';
 	
+	const _CACHE_ALL = 'oauth_apps_all';
+	
 	private function __construct() {}
 	
 	static function getFields() {
@@ -67,6 +69,11 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 		return $id;
 	}
 	
+	static function clearCache() {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache->remove(self::CACHE_ALL);
+	}
+	
 	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
@@ -109,10 +116,13 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
+		
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('oauth_app', $fields, $where);
+		self::clearCache();
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
@@ -171,15 +181,15 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 	 * @return Model_OAuthApp[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::services()->cache();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+		$cache = DevblocksPlatform::services()->cache();
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_OAuthApp::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
-			//if(!is_array($objects))
-			//	return false;
-				
-			//$cache->save($objects, self::_CACHE_ALL);
-		//}
+			if(!is_array($objects))
+				return false;
+			
+			$cache->save($objects, self::_CACHE_ALL);
+		}
 		
 		return $objects;
 	}
@@ -191,10 +201,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 		if(empty($id))
 			return null;
 		
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$objects = self::getAll();
 		
 		if(isset($objects[$id]))
 			return $objects[$id];
@@ -213,25 +220,12 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 
 		if(empty($ids))
 			return [];
-
-		if(!method_exists(get_called_class(), 'getWhere'))
-			return [];
-
+		
+		$objects = self::getAll();
+		
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-
-		$models = [];
-
-		$results = static::getWhere(sprintf("id IN (%s)",
-			implode(',', $ids)
-		));
-
-		// Sort $models in the same order as $ids
-		foreach($ids as $id) {
-			if(isset($results[$id]))
-				$models[$id] = $results[$id];
-		}
-
-		unset($results);
+		
+		$models = array_intersect_key($objects, array_flip($ids));
 
 		return $models;
 	}
@@ -242,20 +236,15 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 	 * @return Model_OAuthApp|NULL
 	 */
 	static function getByClientId($client_id) {
-		$results = self::getWhere(
-			sprintf("%s = %s",
-				Cerb_ORMHelper::escape(DAO_OAuthApp::CLIENT_ID),
-				Cerb_ORMHelper::qstr($client_id)
-			),
-			null,
-			true,
-			1
-		);
+		$apps = self::getAll();
 		
-		if(!$results || 0 == count($results))
-			return null;
+		// [TODO] Binary search, hash
+		foreach($apps as $app) {
+			if($app->client_id == $client_id)
+				return $app;
+		}
 		
-		return array_shift($results);
+		return null;
 	}
 	
 	/**
@@ -314,6 +303,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 			)
 		);
 		
+		self::clearCache();
 		return true;
 	}
 	
