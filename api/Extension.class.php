@@ -977,43 +977,11 @@ abstract class Extension_CommunityPortal extends DevblocksExtension implements D
 };
 
 abstract class Extension_ConnectedServiceProvider extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
 	const POINT = 'cerb.connected_service.provider';
 	
 	static $_registry = [];
-	
-	/**
-	 * @internal
-	 * 
-	 * @return DevblocksExtensionManifest[]|Extension_ConnectedServiceProvider[]
-	 */
-	static function getAll($as_instances=true) {
-		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
-
-		// Sorting
-		if($as_instances)
-			DevblocksPlatform::sortObjects($exts, 'manifest->name');
-		else
-			DevblocksPlatform::sortObjects($exts, 'name');
-		
-		return $exts;
-	}
-
-	/**
-	 * @internal
-	 */
-	static function get($extension_id) {
-		if(isset(self::$_registry[$extension_id]))
-			return self::$_registry[$extension_id];
-		
-		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
-			&& $extension instanceof Extension_ConnectedServiceProvider) {
-
-			self::$_registry[$extension->id] = $extension;
-			return $extension;
-		}
-		
-		return null;
-	}
 	
 	abstract function renderConfigForm(Model_ConnectedService $service);
 	abstract function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null);

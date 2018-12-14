@@ -3,6 +3,59 @@ abstract class DevblocksApplication {
 
 }
 
+trait DevblocksExtensionGetterTrait {
+	/**
+	 * @internal
+	 */
+	public static function getAll($as_instances=false, $with_options=null) {
+		$extensions = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+		
+		if($as_instances)
+			DevblocksPlatform::sortObjects($extensions, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($extensions, 'name');
+		
+		if(!empty($with_options)) {
+			if(!is_array($with_options))
+				$with_options = array($with_options);
+
+			foreach($extensions as $k => $controller) {
+				@$options = $controller->params['options'][0];
+
+				if(!is_array($options) || empty($options)) {
+					unset($extensions[$k]);
+					continue;
+				}
+
+				if(count(array_intersect(array_keys($options), $with_options)) != count($with_options))
+					unset($extensions[$k]);
+			}
+		}
+		
+		return $extensions;
+	}
+
+	/**
+	 * @internal
+	 */
+	public static function get($id, $as_instance=true) {
+		$extensions = self::getAll(false);
+		
+		if(!isset($extensions[$id]))
+			return null;
+		
+		$manifest = $extensions[$id]; /* @var $manifest DevblocksExtensionManifest */
+
+		if($as_instance) {
+			return $manifest->createInstance();
+		} else {
+			return $extensions[$id];
+		}
+		
+		return null;
+	}
+}
+
 /**
  * The superclass of instanced extensions.
  *
