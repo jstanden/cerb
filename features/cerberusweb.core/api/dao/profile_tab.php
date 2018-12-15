@@ -7,6 +7,8 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
 	const UPDATED_AT = 'updated_at';
 	
+	const _CACHE_ALL = 'profile_tabs_all';
+	
 	private function __construct() {}
 	
 	static function getFields() {
@@ -104,10 +106,13 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
+		
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('profile_tab', $fields, $where);
+		self::clearCache();
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
@@ -154,15 +159,16 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	 * @return Model_ProfileTab[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::services()->cache();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+		$cache = DevblocksPlatform::services()->cache();
+		
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_ProfileTab::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
-			//if(!is_array($objects))
-			//	return false;
+			if(!is_array($objects))
+				return false;
 				
-			//$cache->save($objects, self::_CACHE_ALL);
-		//}
+			$cache->save($objects, self::_CACHE_ALL);
+		}
 		
 		return $objects;
 	}
@@ -182,6 +188,8 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	}
 	
 	static function getByContext($context) {
+		// [TODO] Cache by context?
+		
 		$objects = self::getWhere(
 			sprintf("%s = %s",
 				Cerb_ORMHelper::escape(self::CONTEXT),
@@ -318,6 +326,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 			)
 		);
 		
+		self::clearCache();
 		return true;
 	}
 	
@@ -420,13 +429,11 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		return array($results,$total);
 	}
 	
-	/*
-	static function clearCache() {
+	public static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
-		$cache_key = sprintf("profile_dashboard_%d", $profile_tab_id);
-		$cache->remove($cache_key);
+		$cache->remove(self::_CACHE_ALL);
+		//$cache_key = sprintf("profile_dashboard_%d", $profile_tab_id);
 	}
-	*/
 };
 
 class SearchFields_ProfileTab extends DevblocksSearchFields {
