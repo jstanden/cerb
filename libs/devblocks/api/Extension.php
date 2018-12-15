@@ -4,10 +4,12 @@ abstract class DevblocksApplication {
 }
 
 trait DevblocksExtensionGetterTrait {
+	static $_registry = [];
+	
 	/**
 	 * @internal
 	 */
-	public static function getAll($as_instances=false, $with_options=null) {
+	public static function getAll($as_instances=true, $with_options=null) {
 		$extensions = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
 		
 		if($as_instances)
@@ -39,18 +41,22 @@ trait DevblocksExtensionGetterTrait {
 	 * @param string $extension_id
 	 * @internal
 	 */
-	public static function get($id, $as_instance=true) {
+	public static function get($extension_id, $as_instance=true) {
+		if($as_instance && isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
 		$extensions = self::getAll(false);
 		
-		if(!isset($extensions[$id]))
+		if(!isset($extensions[$extension_id]))
 			return null;
 		
-		$manifest = $extensions[$id]; /* @var $manifest DevblocksExtensionManifest */
+		$manifest = $extensions[$extension_id]; /* @var $manifest DevblocksExtensionManifest */
 
 		if($as_instance) {
-			return $manifest->createInstance();
+			self::$_registry[$extension_id] = $manifest->createInstance();
+			return self::$_registry[$extension_id];
 		} else {
-			return $extensions[$id];
+			return $extensions[$extension_id];
 		}
 		
 		return null;
