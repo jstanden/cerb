@@ -640,7 +640,7 @@ if(!empty($changes)) {
 		implode(',', $changes)
 	));
 	
-	if(!isset($column['host'])) {
+	if(!isset($columns['host'])) {
 		$db->ExecuteMaster("UPDATE address SET host = SUBSTRING(email, LOCATE('@', email)+1)");
 		$db->ExecuteMaster("ANALYZE TABLE address");
 	}

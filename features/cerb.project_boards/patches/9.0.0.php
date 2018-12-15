@@ -1,6 +1,5 @@
 <?php
 $db = DevblocksPlatform::services()->database();
-$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -26,7 +25,8 @@ if(!$result) {
 // ===========================================================================
 // Migrate legacy project board tabs to dashboards
 
-list($columns, $indexes) = $db->metaTable('workspace_tab');
+if(!array_key_exists('workspace_tab',$tables))
+	return FALSE;
 
 $sql = "SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.board'";
 $results = $db->GetArrayMaster($sql);

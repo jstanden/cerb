@@ -1,6 +1,5 @@
 <?php
 $db = DevblocksPlatform::services()->database();
-$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -9,7 +8,7 @@ $tables = $db->metaTables();
 if(!isset($tables['timetracking_entry']))
 	return FALSE;
 
-list($columns, $indexes) = $db->metaTable('timetracking_entry');
+list($columns,) = $db->metaTable('timetracking_entry');
 	
 if(isset($columns['source_extension_id']) && isset($columns['source_id'])) {
 	$source_to_context = array(
@@ -41,7 +40,7 @@ if(isset($columns['source_extension_id']) && isset($columns['source_id'])) {
 if(!isset($tables['timetracking_entry']))
 	return FALSE;
 
-list($columns, $indexes) = $db->metaTable('timetracking_entry');
+list($columns,) = $db->metaTable('timetracking_entry');
 
 if(isset($columns['debit_org_id'])) {
 	$db->ExecuteMaster("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".
@@ -60,9 +59,9 @@ if(isset($columns['debit_org_id'])) {
 if(!isset($tables['timetracking_entry']) || !isset($tables['comment']))
 	return FALSE;
 
-list($columns, $indexes) = $db->metaTable('timetracking_entry');
+list($columns,) = $db->metaTable('timetracking_entry');
 
-list($comment_columns, $comment_indexes) = $db->metaTable('comment');
+list($comment_columns,) = $db->metaTable('comment');
 
 
 if(isset($columns['notes'])) {
@@ -101,7 +100,7 @@ if(isset($columns['notes'])) {
 if(!isset($tables['timetracking_entry']))
 	return FALSE;
 
-list($columns, $indexes) = $db->metaTable('timetracking_entry');
+list($columns,) = $db->metaTable('timetracking_entry');
 	
 if(!isset($columns['is_closed'])) {
 	$db->ExecuteMaster('ALTER TABLE timetracking_entry ADD COLUMN is_closed TINYINT UNSIGNED DEFAULT 0 NOT NULL, ADD INDEX is_closed (is_closed)');
@@ -130,7 +129,7 @@ foreach($tables_autoinc as $table) {
 	if(!isset($tables[$table]))
 		return FALSE;
 	
-	list($columns, $indexes) = $db->metaTable($table);
+	list($columns,) = $db->metaTable($table);
 	if(isset($columns['id'])
 		&& ('int(10) unsigned' != $columns['id']['type']
 		|| 'auto_increment' != $columns['id']['extra'])

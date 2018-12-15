@@ -61,7 +61,7 @@ $add_columns = array(
 	'is_broadcast' => 'ADD COLUMN is_broadcast TINYINT UNSIGNED NOT NULL DEFAULT 0',
 );
 
-foreach($add_columns as $column => $alter_sql) {
+foreach(array_keys($add_columns) as $column) {
 	if(isset($columns[$column]))
 		unset($add_columns[$column]);
 }
@@ -129,7 +129,7 @@ $add_columns = array(
 	'elapsed_resolution_first' => 'ADD COLUMN elapsed_resolution_first INT UNSIGNED NOT NULL DEFAULT 0',
 );
 
-foreach($add_columns as $column => $alter_sql) {
+foreach(array_keys($add_columns) as $column) {
 	if(isset($columns[$column]))
 		unset($add_columns[$column]);
 }

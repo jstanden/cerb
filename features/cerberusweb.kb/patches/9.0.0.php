@@ -1,6 +1,5 @@
 <?php
 $db = DevblocksPlatform::services()->database();
-$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -34,7 +33,8 @@ EOD;
 // ===========================================================================
 // Migrate knowledgebase workspace tabs to workspace widgets
 
-list($columns, $indexes) = $db->metaTable('workspace_tab');
+if(!array_key_exists('workspace_tab', $tables))
+	return FALSE;
 
 $sql = "SELECT id, params_json FROM workspace_tab WHERE extension_id = 'cerberusweb.kb.tab.browse'";
 $results = $db->GetArrayMaster($sql);

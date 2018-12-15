@@ -1,6 +1,5 @@
 <?php
 $db = DevblocksPlatform::services()->database();
-$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -10,7 +9,7 @@ $tables = $db->metaTables();
 if(!isset($tables['comment']))
 	return FALSE;
 	
-list($columns, $indexes) = $db->metaTable('comment');
+list(, $indexes) = $db->metaTable('comment');
 	
 if(isset($indexes['id']))
 	$db->ExecuteMaster("ALTER TABLE comment DROP INDEX id");

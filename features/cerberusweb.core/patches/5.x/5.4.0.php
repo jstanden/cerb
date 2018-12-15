@@ -1,6 +1,5 @@
 <?php
 $db = DevblocksPlatform::services()->database();
-$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -97,7 +96,7 @@ if(!isset($tables['community_tool'])) {
 	
 } else { // update community_tool
 	if($tables['community_tool']) {
-		list($columns, $indexes) = $db->metaTable('community_tool');
+		list($columns,) = $db->metaTable('community_tool');
 		
 		if(isset($columns['id'])
 			&& ('int(10) unsigned' != $columns['id']['type']
@@ -127,7 +126,7 @@ if(!isset($tables['community_tool_property'])) {
 	$db->ExecuteMaster($sql);
 	
 } else { // update community_tool_property
-	list($columns, $indexes) = $db->metaTable('community_tool_property');
+	list($columns,) = $db->metaTable('community_tool_property');
 	
 	if(isset($columns['property_value'])
 		&& 0 != strcasecmp('text',$columns['property_value']['type'])) {
@@ -149,7 +148,7 @@ if(!isset($tables['community_session'])) {
 	$db->ExecuteMaster($sql);
 	
 } else { // update community_session
-	list($columns, $indexes) = $db->metaTable('community_session');
+	list($columns,) = $db->metaTable('community_session');
 
 	if(isset($columns['properties'])
 		&& 0 != strcasecmp('mediumtext',$columns['properties']['type'])) {
@@ -164,7 +163,7 @@ if(isset($tables['community']))
 // ===========================================================================
 // Add reply_address_id/reply_personal/reply_signature fields to groups
 
-list($columns, $indexes) = $db->metaTable('team');
+list($columns,) = $db->metaTable('team');
 
 if(!isset($columns['reply_address_id']))
 	$db->ExecuteMaster("ALTER TABLE team ADD COLUMN reply_address_id INT UNSIGNED DEFAULT 0 NOT NULL");
@@ -173,7 +172,7 @@ if(!isset($columns['reply_personal']))
 if(isset($columns['signature']) && !isset($columns['reply_signature']))
 	$db->ExecuteMaster("ALTER TABLE team CHANGE COLUMN signature reply_signature TEXT");
 	
-if(!isset($column['reply_address_id'])) {
+if(!isset($columns['reply_address_id'])) {
 	// Migrate from group settings (and in code)
 	$results = $db->GetArrayMaster(sprintf("SELECT group_id, setting, value FROM group_setting WHERE setting IN ('reply_from','reply_personal')"));
 	foreach($results as $row) {
@@ -211,7 +210,7 @@ $db->ExecuteMaster("DELETE FROM group_setting WHERE setting IN ('reply_personal_
 // ===========================================================================
 // Add reply_address_id/reply_personal/reply_signature fields to buckets
 
-list($columns, $indexes) = $db->metaTable('category');
+list($columns,) = $db->metaTable('category');
 
 if(!isset($columns['reply_address_id']))
 	$db->ExecuteMaster("ALTER TABLE category ADD COLUMN reply_address_id INT UNSIGNED DEFAULT 0 NOT NULL");
@@ -511,7 +510,7 @@ if(!empty($todo)) {
 // ===========================================================================
 // Add render_filters and drop render_subtotals_clickable
 
-list($columns, $indexes) = $db->metaTable('worker_view_model');
+list($columns,) = $db->metaTable('worker_view_model');
 
 if(!isset($columns['render_filters'])) {
 	$db->ExecuteMaster("ALTER TABLE worker_view_model ADD COLUMN render_filters TINYINT(1) NOT NULL DEFAULT 0");
@@ -687,7 +686,7 @@ if(isset($tables['group_inbox_filter'])) {
 						$days = array();
 						
 						if(is_array($data))
-						foreach($data as $day => $null) {
+						foreach(array_keys($data) as $day) {
 							if(isset($map[$day]))
 								$days[] = $map[$day];
 						}

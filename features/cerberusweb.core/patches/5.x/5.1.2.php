@@ -1,6 +1,5 @@
 <?php
 $db = DevblocksPlatform::services()->database();
-$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -9,7 +8,7 @@ $tables = $db->metaTables();
 if(!isset($tables['comment']))
 	return FALSE;
 	
-list($columns, $indexes) = $db->metaTable('comment');
+list(, $indexes) = $db->metaTable('comment');
 	
 // Enforce autoincrement
 $db->ExecuteMaster("ALTER TABLE comment MODIFY COLUMN id int unsigned NOT NULL AUTO_INCREMENT");
