@@ -2983,8 +2983,13 @@ class CerbLoginWorkerAuthState {
 		
 		@$session_state =& $_SESSION['login.state'];
 		
-		if(!$session_state || $session_state instanceof __PHP_Incomplete_Class)
+		if(
+			!$session_state 
+			|| $session_state instanceof __PHP_Incomplete_Class
+			|| $session_state->time_created_at + 1200 < time() // expire after 20 minutes
+		) {
 			$session_state = new CerbLoginWorkerAuthState();
+		}
 		
 		self::$_instance = $session_state;
 		return self::$_instance;
