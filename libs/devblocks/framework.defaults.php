@@ -1,4 +1,6 @@
 <?php
+@ini_set('yaml.decode_php', 'off');
+
 if(!defined('APP_DB_PCONNECT'))
 	define('APP_DB_PCONNECT',false);
 

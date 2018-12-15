@@ -68,7 +68,7 @@
 		<patch version="8.4.0" revision="1282" file="patches/8.x/8.4.0.php" />
 		
 		<patch version="9.0.0" revision="1313" file="patches/9.x/9.0.0.php" />
-		<patch version="9.1.0" revision="1322" file="patches/9.x/9.1.0.php" />
+		<patch version="9.1.0" revision="1323" file="patches/9.x/9.1.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->

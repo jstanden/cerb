@@ -623,11 +623,22 @@ class Model_WorkspaceTab {
 	}
 	
 	function getPlaceholderPrompts() {
-		if(false == (@$placeholder_prompts_json = $this->params['placeholder_prompts']))
+		if(false == (@$placeholder_prompts = $this->params['placeholder_prompts']))
 			return [];
 		
-		if(false == (@$placeholder_prompts = json_decode($placeholder_prompts_json, true)))
+		if(false == (@$placeholder_prompts = yaml_parse($placeholder_prompts, -1)))
 			return [];
+		
+		// Handle PHP's single document YAML format
+		/*
+		if(
+			array_key_exists(0, $placeholder_prompts) 
+			&& !array_key_exists('placeholder', $placeholder_prompts[0])
+			&& array_key_exists(0, $placeholder_prompts[0])
+		) {
+			$placeholder_prompts = $placeholder_prompts[0];
+		}
+		*/
 		
 		return $placeholder_prompts;
 	}

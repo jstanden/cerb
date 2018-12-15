@@ -1332,6 +1332,59 @@ if(isset($tables['asset'])) {
 }
 
 // ===========================================================================
+// Convert workspace tab placeholder prompts from JSON to YAML
+
+$sql = <<< EOD
+SELECT id, params_json FROM workspace_tab WHERE extension_id = 'core.workspace.tab.dashboard' AND params_json LIKE '%placeholder\\\\\\%'
+EOD;
+
+if($rs = $db->ExecuteMaster($sql)) {
+	while($row = mysqli_fetch_assoc($rs)) {
+		if(false === ($json = json_decode($row['params_json'], true)))
+			continue;
+		
+		if(!array_key_exists('placeholder_prompts', $json))
+			continue;
+		
+		$placeholder_prompts_json = $json['placeholder_prompts'];
+		
+		// If it's still in JSON, convert to YAML
+		if(DevblocksPlatform::strStartsWith($placeholder_prompts_json, '[')) {
+			if(false === ($arr = json_decode($placeholder_prompts_json, true)))
+				continue;
+			
+			$yaml = yaml_emit($arr);
+			
+			$yaml_clean = preg_replace(
+				[
+					'#^\-\-\-[\r\n]*#',
+					'#\.\.\.[\r\n]*#',
+					'#^\- #m',
+					'#^  #m',
+				],
+				[
+					'',
+					'',
+					"---\n",
+					'',
+				],
+				$yaml
+			);
+			
+			$json['placeholder_prompts'] = $yaml_clean;
+			
+			$sql = sprintf("UPDATE workspace_tab SET params_json = %s WHERE id = %d",
+				$db->qstr(json_encode($json)),
+				$row['id']
+			);
+			$db->ExecuteMaster($sql);
+		}
+	}
+	
+	mysqli_free_result($rs);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
