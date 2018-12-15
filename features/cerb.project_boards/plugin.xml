@@ -4,14 +4,14 @@
 	<name>Project Boards</name>
 	<description>Bot-powered project management using Kanban-style boards</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.0.10</version>
+	<version>9.1.0</version>
 	<link>https://cerb.ai/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.0" max="9.0.99" />
+		<app_version min="9.1" max="9.1.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
