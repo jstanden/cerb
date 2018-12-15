@@ -71,9 +71,13 @@ $(function() {
 		$popup.find('button.cerb-peek-edit')
 			.cerbPeekTrigger({ 'view_id': '{$view_id}' })
 			.on('cerb-peek-saved', function(e) {
+				e.type = 'peek_saved';
+				$popup.trigger(e);
 				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
 			})
 			.on('cerb-peek-deleted', function(e) {
+				e.type = 'peek_deleted';
+				$popup.trigger(e);
 				genericAjaxPopupClose($layer);
 			})
 			;
