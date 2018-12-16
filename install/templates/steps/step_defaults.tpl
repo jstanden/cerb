@@ -25,7 +25,7 @@ Next, we'll create your administrator account.<br>
 <input type="text" name="org_name" value="{$org_name}" size="64" placeholder="Example, Inc."><br>
 <br>
 
-<b>Choose a password:</b><br>
+<b>Choose a password:</b> (must be at least 8 characters)<br>
 <input type="password" name="worker_pass" value="{$worker_pass}" size="16" autocomplete="off"><br>
 <br>
 

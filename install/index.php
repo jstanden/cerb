@@ -797,7 +797,7 @@ switch($step) {
 			$tpl->assign('timezone', $timezone);
 			
 			// Sanity/Error checking
-			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2) {
+			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2 && strlen($worker_pass) >= 8) {
 				$encrypt = DevblocksPlatform::services()->encryption();
 				
 				// Set the configuration details in the session
