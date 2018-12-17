@@ -793,20 +793,15 @@ class DevblocksEventHelper {
 				DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $opts], true, true);
 
 				if(!empty($value_key)) {
+					// Set the string variant of the custom field
 					$key_to_set = $value_key.'_'.$field_id;
-					$dict->$key_to_set = implode(', ', $opts);
-
-					$array =& $dict->$value_key;
+					$dict->set($key_to_set, implode(', ', $opts));
 					
-					if(!is_array($array))
-						$array[$field_id] = [];
-					
-					if(is_array($opts))
-					foreach($opts as $opt) {
-						$array[$field_id][$opt] = $opt;
-					}
+					// Set the raw variant of the custom field
+					$custom_field_values = $dict->get($value_key, []);
+					$custom_field_values[$field_id] = array_combine($opts, $opts);
+					$dict->set($value_key, $custom_field_values);
 				}
-				
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
