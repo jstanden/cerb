@@ -172,7 +172,7 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		$tpl->display('devblocks:cerberusweb.core::internal/connected_account/oauth_callback.tpl');
 	}
 	
-	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, &$options = []) : bool {
+	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []) : bool {
 		$account_params = $account->decryptParams();
 		
 		if(false == ($service = $account->getService()))
@@ -398,7 +398,7 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		}
 	}
 	
-	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, &$options = []) : bool {
+	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []) : bool {
 		$params = $account->decryptParams();
 		
 		if(false == ($service = $account->getService()))
