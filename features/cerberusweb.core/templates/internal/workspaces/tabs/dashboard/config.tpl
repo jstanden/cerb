@@ -49,7 +49,7 @@
 	</fieldset>
 	
 	<fieldset class="peek">
-		<legend>Prompted placeholders: <small>(optional)</small></legend>
+		<legend>Prompted placeholders: <small>(optional)</small> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/guides/dashboards/filters/"}</legend>
 		<textarea name="params[placeholder_prompts]" data-editor-mode="ace/mode/yaml" class="placeholders" style="width:95%;height:50px;">{$tab->params.placeholder_prompts}</textarea>
 	</fieldset>
 </div>
