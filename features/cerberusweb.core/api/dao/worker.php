@@ -2974,10 +2974,28 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->getGenderAsString(),
 		);
 		
+		$properties['is_password_disabled'] = array(
+			'label' => mb_ucfirst($translate->_('worker.is_password_disabled')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_password_disabled,
+		);
+		
+		$properties['is_mfa_required'] = array(
+			'label' => mb_ucfirst($translate->_('worker.is_mfa_required')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_mfa_required,
+		);
+		
 		$properties['is_superuser'] = array(
 			'label' => mb_ucfirst($translate->_('worker.is_superuser')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->is_superuser,
+		);
+		
+		$properties['mention_name'] = array(
+			'label' => mb_ucfirst($translate->_('worker.at_mention_name')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->at_mention_name,
 		);
 		
 		$properties['mobile'] = array(
