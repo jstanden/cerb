@@ -368,6 +368,27 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		return self::_getRandom('connected_account');
 	}
 	
+	static function deleteByServiceIds($ids) {
+		if(!is_array($ids))
+			$ids = [$ids];
+		
+		$db = DevblocksPlatform::services()->database();
+		
+		$ids = DevblocksPlatform::sanitizeArray($ids, 'int', ['unique','nonzero']);
+		
+		if(empty($ids))
+			return;
+		
+		$results = self::getWhere(
+			sprintf("%s IN (%s)",
+				self::SERVICE_ID,
+				implode(',', $db->qstrArray($ids))
+			)
+		);
+		
+		return self::delete(array_keys($results));
+	}
+	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
 		$db = DevblocksPlatform::services()->database();

@@ -350,6 +350,8 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
+		DAO_ConnectedAccount::deleteByServiceIds($ids);
+		
 		$db->ExecuteMaster(sprintf("DELETE FROM connected_service WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
