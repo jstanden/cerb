@@ -6,11 +6,11 @@ require(APP_PATH . '/api/Application.class.php');
 DevblocksPlatform::init();
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 
-if(!file_exists('./out/') || !is_dir('./out/'))
-	die('The ./out/ directory does not exist.');
+if(!file_exists('./out/records/') || !is_dir('./out/'))
+	die('The ./out/records/ directory does not exist.');
 
-if(!is_writeable('./out/'))
-	die('The ./out/ directory is not writeable.');
+if(!is_writeable('./out/records/'))
+	die('The ./out/records/ directory is not writeable.');
 
 $all_contexts = Extension_DevblocksContext::getAll(true);
 
@@ -21,11 +21,9 @@ foreach($all_contexts as $context_ext) {
 	
 	// Skip internal record types
 	if(in_array($context_ext->id, [
-		Context_FreshbooksInvoice::ID,
 		Context_JiraIssue::ID,
 		Context_JiraProject::ID,
 		Context_WgmCerbLicense::ID,
-		Context_WgmFreshbooksClient::ID,
 	]))
 		continue;
 	
@@ -738,7 +736,7 @@ EOD;
 <div class="clear"></div>
 EOD;
 	
-	$filename = sprintf('./out/%s.md', $context_alias);
+	$filename = sprintf('./out/records/%s.md', $context_alias);
 	
 	echo "Wrote ", $filename, "\n";
 	

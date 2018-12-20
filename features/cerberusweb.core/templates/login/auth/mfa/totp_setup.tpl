@@ -35,7 +35,7 @@
 		</p>
 		
 		<p style="margin-top:10px;">
-			Need help? See: <a href="https://cerb.ai/guides/security/configure-two-factor/" target="_blank" rel="noopener noreferrer" tabindex="-1">Configure two-factor authentication</a>
+			Need help? See: <a href="https://cerb.ai/guides/security/two-factor-auth/" target="_blank" rel="noopener noreferrer" tabindex="-1">Configure two-factor authentication</a>
 		</p>
 		
 		<h3>Step 2: Type the current access code from your two-factor app:</h3>

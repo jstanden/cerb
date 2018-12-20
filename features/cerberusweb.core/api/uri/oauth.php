@@ -84,7 +84,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		$stack = $request->path; // URLs like: /oauth/callback/wgm.facebook.service.provider
+		$stack = $request->path; // URLs like: /oauth/callback
 		array_shift($stack); // oauth
 		@$action = array_shift($stack); // callback
 		
@@ -199,7 +199,7 @@ class Controller_OAuth extends DevblocksControllerExtension {
 				break;
 			
 			case 'callback':
-				@$ext_id = array_shift($stack); // wgm.facebook.service.provider
+				@$ext_id = array_shift($stack);
 				
 				// A session must exist to use this controller
 				if(null == (CerberusApplication::getActiveWorker()))

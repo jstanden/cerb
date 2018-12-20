@@ -238,11 +238,8 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $record['uid'], $error));
 		}
 		
-		@$settings = $json['settings'];
-		// We don't need to validate anything on settings
-		
-		@$worker_prefs = $json['worker_prefs'];
-		// We don't need to validate anything on prefs
+		//@$settings = $json['settings'];
+		//@$worker_prefs = $json['worker_prefs'];
 		
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
@@ -447,7 +444,7 @@ class Cerb_Packages {
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $card['uid'], $error));
 					
 					if(false == ($dao_class = $context_ext->getDaoClass()))
-						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
+						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $card['uid'], "Can't load DAO class."));
 					
 					if(!$dao_class::validate($fields, $error))
 						throw new Exception_DevblocksValidationError($error);
@@ -471,8 +468,7 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Unknown context on record (%s)", $record['_context']));
 
 			$dict = [];
-			$fields = $custom_fields = [];
-			$error = null;
+			$fields = [];
 			
 			// If we're creating a custom record, also include its uri so we can use the context later in the package
 			if(in_array($record['_context'], ['custom_record', CerberusContexts::CONTEXT_CUSTOM_RECORD])) {
@@ -487,11 +483,8 @@ class Cerb_Packages {
 			$uids[$uid_record] = $record_id;
 		}
 		
-		@$settings = $json['settings'];
-		// We don't need to pre-insert settings
-		
-		@$worker_prefs = $json['worker_preferences'];
-		// We don't need to pre-insert prefs
+		//@$settings = $json['settings'];
+		//@$worker_prefs = $json['worker_preferences'];
 		
 		@$custom_fieldsets = $json['custom_fieldsets'];
 		
@@ -733,8 +726,7 @@ class Cerb_Packages {
 						throw new Exception_DevblocksValidationError(sprintf("Unknown context on project card (%s)", $card['_context']));
 
 					$dict = [];
-					$fields = $custom_fields = [];
-					$error = null;
+					$fields = [];
 					
 					if(false == ($dao_class = $context_ext->getDaoClass()))
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
@@ -777,6 +769,7 @@ class Cerb_Packages {
 		
 		unset($json['package']);
 		
+		$findTemplates = null;
 		$findTemplates = function($array) use (&$findTemplates, $tpl_builder, $placeholders, $lexer) {
 			$result = [];
 			
@@ -807,13 +800,11 @@ class Cerb_Packages {
 	private static function _packageImport(&$json, &$uids, &$records_created) {
 		// Records
 		@$records = $json['records'];
-		$record_ids = [];
 		
 		if(is_array($records))
 		foreach($records as $record) {
 			$uid_record = $record['uid'];
 			$record_id = $uids[$uid_record];
-			$record_ids[] = $record_id;
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record['_context'], true)))
 				throw new Exception_DevblocksValidationError(sprintf("Unknown extension on record (%s): %s", $uid_record, $record['_context']));
@@ -1202,7 +1193,7 @@ class Cerb_Packages {
 				$uid = $event['uid'];
 				$id = $uids[$uid];
 				
-				$event_id = DAO_CalendarRecurringProfile::update($id, [
+				DAO_CalendarRecurringProfile::update($id, [
 					DAO_CalendarRecurringProfile::EVENT_NAME => $event['name'],
 					DAO_CalendarRecurringProfile::CALENDAR_ID => $calendar_id,
 					DAO_CalendarRecurringProfile::IS_AVAILABLE => @$event['is_available'] ? 1 : 0,
@@ -1309,10 +1300,10 @@ class Cerb_Packages {
 					$error = null;
 					
 					if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
-						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $uid_card, $error));
+						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $card['uid'], $error));
 					
 					if(false == ($dao_class = $context_ext->getDaoClass()))
-						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
+						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $card['uid'], "Can't load DAO class."));
 					
 					$dao_class::update($card_id, $fields);
 					

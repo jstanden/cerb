@@ -3083,6 +3083,12 @@
 		
 		<!-- Success -->
 
+		<tu tuid="success.imported">
+			<tuv xml:lang="en_US">
+				<seg>Imported!</seg>
+			</tuv>
+		</tu>
+		
 		<tu tuid="success.saved_changes">
 			<tuv xml:lang="en_US">
 				<seg>Your changes have been saved!</seg>

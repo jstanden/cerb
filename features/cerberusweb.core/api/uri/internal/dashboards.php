@@ -90,7 +90,6 @@ class PageSection_InternalDashboards extends Extension_PageSection {
 	}
 	
 	function setWidgetPositionsAction() {
-		@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['column'], 'array', array());
 
 		if(is_array($columns))
@@ -244,7 +243,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 			return false;
 		
 		foreach($json['widgets'] as $widget) {
-			$widget_id = DAO_WorkspaceWidget::create([
+			DAO_WorkspaceWidget::create([
 				DAO_WorkspaceWidget::LABEL => $widget['label'],
 				DAO_WorkspaceWidget::EXTENSION_ID => $widget['extension_id'],
 				DAO_WorkspaceWidget::POS => $widget['pos'],
@@ -513,7 +512,7 @@ class WorkspaceWidget_BehaviorTree extends Extension_WorkspaceWidget {
 		if(false == ($event = $behavior->getEvent()))
 			return;
 		
-		if(false == ($bot = $behavior->getBot()))
+		if(false == ($behavior->getBot()))
 			return;
 		
 		$tpl->assign('behavior', $behavior);
@@ -1593,6 +1592,8 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
+		$error = null;
+		
 		if(false == ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
@@ -1701,6 +1702,8 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -1724,6 +1727,8 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -1860,6 +1865,8 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -1889,6 +1896,8 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -1944,6 +1953,8 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 		@$height = DevblocksPlatform::importGPC($widget->params['height'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
+		
+		$error = null;
 		
 		if(false == ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
@@ -2032,6 +2043,8 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -2084,6 +2097,8 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -2133,6 +2148,8 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 	
 	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
+		
+		$error = null;
 		
 		if(false == ($results = $this->getData($widget, $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
@@ -2186,6 +2203,8 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -2199,7 +2218,7 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 			$row = [];
 			
 			// [TODO] Format using data types, and include a raw column
-			foreach($data['data']['columns'] as $c_key => $c) {
+			foreach(array_keys($data['data']['columns']) as $c_key) {
 				$row[] = $r[$c_key];
 			}
 			
@@ -2220,6 +2239,8 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -2434,6 +2455,8 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 	}
 	
 	private function _exportDataAsCsv(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -2480,6 +2503,8 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 	}
 	
 	private function _exportDataAsJson(Model_WorkspaceWidget $widget) {
+		$error = null;
+		
 		if(false == ($data = $this->getData($widget, $error)))
 			return;
 		
@@ -2827,7 +2852,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 			$data = $series_params['data'];
 			
 			if(is_array($data))
-			foreach($data as $k => $v) {
+			foreach($data as $v) {
 				$row = array(
 					'series' => $series_idx,
 					'series_label' => $series_params['label'],
@@ -2886,7 +2911,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 			);
 			
 			if(is_array($data))
-			foreach($data as $k => $v) {
+			foreach($data as $v) {
 				$row = array(
 					'x' => $v['x'],
 					'x_label' => $v['x_label'],
@@ -3411,7 +3436,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 
 class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
-		if(false == ($page = $widget->getWorkspacePage()))
+		if(false == ($widget->getWorkspacePage()))
 			return;
 		
 		$tpl = DevblocksPlatform::services()->template();
@@ -3469,8 +3494,7 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		
 		@$content = $widget->params['content'];
 		
-		$labels = [];
-		$values = [];
+		$labels = $values = $worker_labels = $worker_values = [];
 		
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
 		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);
@@ -3929,7 +3953,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 			$data = $series_params['data'];
 			
 			if(is_array($data))
-			foreach($data as $k => $v) {
+			foreach($data as $v) {
 				$results[] = array(
 					'series' => $series_idx,
 					'series_label' => $series_params['label'],
@@ -3986,7 +4010,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 			);
 			
 			if(is_array($data))
-			foreach($data as $k => $v) {
+			foreach($data as $v) {
 				$row = array(
 					'x' => $v['x'],
 					'x_label' => $v['x_label'],

@@ -33,9 +33,6 @@
 			<a href="https://cerb.ai/docs/" target="_blank" rel="noopener">Read the user's guide</a>
 		</li>
 		<li>
-			<a href="http://www.facebook.com/cerbapp" target="_blank" rel="noopener noreferrer">Like us on Facebook</a>
-		</li>
-		<li>
 			<a href="http://twitter.com/cerb_ai" target="_blank" rel="noopener noreferrer">Follow us on Twitter</a>
 		</li>
 	</ul>

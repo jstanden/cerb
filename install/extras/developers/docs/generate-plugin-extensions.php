@@ -520,7 +520,7 @@ EOD;
 
 EOD;
 	
-	//file_put_contents(sprintf('out/points-include/%s.md', $point), $include_out);
+	file_put_contents(sprintf('out/points-include/%s.md', $point), $include_out);
 	
 	//$out .= file_get_contents(sprintf('include/points/%s.md', $point));
 	

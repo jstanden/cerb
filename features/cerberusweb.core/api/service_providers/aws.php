@@ -162,7 +162,7 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 			return false;
 		
 		$uri = $request->getUri();
-		$query_params = parse_query($uri->getQuery());
+		$query_params = \GuzzleHttp\Psr7\parse_query($uri->getQuery());
 		
 		$request = $request->withHeader('Host', $uri->getHost());
 		

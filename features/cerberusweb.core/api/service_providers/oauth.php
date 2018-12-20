@@ -339,9 +339,6 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		
 		$authorizationUrl = $provider->getAuthorizationUrl($options);
 		
-		//echo $authorizationUrl;
-		//exit;
-		
 		$_SESSION['oauth_form_id'] = $form_id;
 		$_SESSION['oauth_service_id'] = $service_id;
 		$_SESSION['oauth2state'] = $provider->getState();
