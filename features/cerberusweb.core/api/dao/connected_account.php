@@ -1269,6 +1269,13 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
 		$keys['service_id']['type'] = "id";
 		$keys['service_id']['notes'] = "[Service Provider](/docs/plugins/extensions/points/cerb.connected_service.provider/)";
 		
@@ -1279,6 +1286,22 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+				
+			case 'params':
+				$encrypt = DevblocksPlatform::services()->encryption();
+				
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_ConnectedAccount::PARAMS_JSON] = $encrypt->encrypt($json);
 				break;
 		}
 		
