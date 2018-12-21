@@ -450,6 +450,17 @@ class _DevblocksValidators {
 			return true;
 		};
 	}
+	
+	function yaml() {
+		return function($value, &$error=null) {
+			if(false === @yaml_parse($value, -1)) {
+				$error = "is not valid YAML.";
+				return false;
+			}
+			
+			return true;
+		};
+	}
 }
 
 class _DevblocksValidationType {
