@@ -1057,6 +1057,62 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testStrStartsWith() {
+		// Single prefix
+		$string = '1234567890';
+		$expected = '1';
+		$actual = DevblocksPlatform::strStartsWith($string, '1');
+		$this->assertEquals($expected, $actual);
+		
+		// Array of prefixes
+		$string = 'CDEFGH';
+		$expected = 'C';
+		$actual = DevblocksPlatform::strStartsWith($string, ['A','B','C']);
+		$this->assertEquals($expected, $actual);
+		
+		// Not found
+		$string = 'ABCDEFG';
+		$expected = false;
+		$actual = DevblocksPlatform::strEndsWith($string, ['X','Y','Z']);
+		$this->assertEquals($expected, $actual);
+	}
+	
+	public function testStrEndsWith() {
+		// Single suffix
+		$string = '1234567890';
+		$expected = '0';
+		$actual = DevblocksPlatform::strEndsWith($string, '0');
+		$this->assertEquals($expected, $actual);
+		
+		// Array of suffixes
+		$string = 'TUVWXYZ';
+		$expected = 'Z';
+		$actual = DevblocksPlatform::strEndsWith($string, ['A','M','Z']);
+		$this->assertEquals($expected, $actual);
+		
+		// Not found
+		$string = 'TUVWXYZ';
+		$expected = false;
+		$actual = DevblocksPlatform::strEndsWith($string, ['A','B','C']);
+		$this->assertEquals($expected, $actual);
+	}
+	
+	public function testStrTrimStart() {
+		// Array of prefixes
+		$string = 'ABCDEFG';
+		$expected = 'DEFG';
+		$actual = DevblocksPlatform::strTrimStart($string, ['A','B','C']);
+		$this->assertEquals($expected, $actual);
+	}
+	
+	public function testStrTrimEnd() {
+		// Array of suffixes
+		$string = 'TUVWXYZ';
+		$expected = 'TUVW';
+		$actual = DevblocksPlatform::strTrimEnd($string, ['X','Y','Z']);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	public function testStrBase32Encode() {
 		$expected = 'I5UXMZJANVSSAJBRGAYDAMBAN5TCAQKBKBGCA43UN5RWWLBAOBWGKYLTMUQQ====';
 		$actual = DevblocksPlatform::strBase32Encode('Give me $10000 of AAPL stock, please!');
@@ -1067,6 +1123,22 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$expected = 'Give me $10000 of AAPL stock, please!';
 		$actual = DevblocksPlatform::strBase32Decode('I5UXMZJANVSSAJBRGAYDAMBAN5TCAQKBKBGCA43UN5RWWLBAOBWGKYLTMUQQ====', true);
 		$this->assertEquals($expected, $actual);
+	}
+	
+	public function testStrBase64UrlEncode() {
+		$string = '';
+		for($i=0;$i<255;$i++) { $string .= chr($i); }
+		$expected = 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn-AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq-wsbKztLW2t7i5uru8vb6_wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t_g4eLj5OXm5-jp6uvs7e7v8PHy8_T19vf4-fr7_P3-';
+		$actual = DevblocksPlatform::services()->string()->base64UrlEncode($string);
+		$this->assertSame($expected, $actual);
+	}
+	
+	public function testStrBase64UrlDecode() {
+		$string = 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn-AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq-wsbKztLW2t7i5uru8vb6_wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t_g4eLj5OXm5-jp6uvs7e7v8PHy8_T19vf4-fr7_P3-';
+		$expected = '';
+		for($i=0;$i<255;$i++) { $expected .= chr($i); }
+		$actual = DevblocksPlatform::services()->string()->base64UrlDecode($string);
+		$this->assertSame($expected, $actual);
 	}
 	
 	public function testStrBitsToInt() {
@@ -1232,22 +1304,6 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 		$actual = DevblocksPlatform::arrayDictSet($actual, $key, $val);
 		$this->assertEquals($expected, $actual);
-	}
-	
-	public function testStrBase64UrlEncode() {
-		$string = '';
-		for($i=0;$i<255;$i++) { $string .= chr($i); }
-		$expected = 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn-AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq-wsbKztLW2t7i5uru8vb6_wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t_g4eLj5OXm5-jp6uvs7e7v8PHy8_T19vf4-fr7_P3-';
-		$actual = DevblocksPlatform::services()->string()->base64UrlEncode($string);
-		$this->assertSame($expected, $actual);
-	}
-	
-	public function testStrBase64UrlDecode() {
-		$string = 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn-AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq-wsbKztLW2t7i5uru8vb6_wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t_g4eLj5OXm5-jp6uvs7e7v8PHy8_T19vf4-fr7_P3-';
-		$expected = '';
-		for($i=0;$i<255;$i++) { $expected .= chr($i); }
-		$actual = DevblocksPlatform::services()->string()->base64UrlDecode($string);
-		$this->assertSame($expected, $actual);
 	}
 	
 	public function testStrParseDecimal() {

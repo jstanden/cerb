@@ -1032,6 +1032,28 @@ class DevblocksPlatform extends DevblocksEngine {
 		return false;
 	}
 	
+	static function strTrimStart($string, $prefixes) {
+		if(!is_array($prefixes))
+			$prefixes = [$prefixes];
+		
+		while ($prefix = DevblocksPlatform::strStartsWith($string, $prefixes)) {
+			$string = substr($string, strlen($prefix));
+		}
+		
+		return $string;
+	}
+	
+	static function strTrimEnd($string, array $suffixes = []) {
+		if(!is_array($suffixes))
+			$suffixes = [$suffixes];
+		
+		while ($suffix = DevblocksPlatform::strEndsWith($string, $suffixes)) {
+			$string = substr($string, 0, -strlen($suffix));
+		}
+		
+		return $string;
+	}
+	
 	static function strIsListItem($string) {
 		// Is it using a typical list item delimiter to start?
 		if(DevblocksPlatform::strStartsWith(ltrim($string), ['*','-','#']))
