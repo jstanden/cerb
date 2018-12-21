@@ -3146,8 +3146,8 @@ class CerbLoginWorkerAuthState {
 		return $this;
 	}
 	
-	function setIsConsentRequired($oauth_app_id) {
-		$this->is_consent_required = $oauth_app_id ?: false;
+	function setIsConsentRequired(array $params) {
+		$this->is_consent_required = $params ?: false;
 		return $this;
 	}
 	

@@ -305,9 +305,30 @@ class Page_Login extends CerberusPageExtension {
 			
 		} else {
 			// Check which OAuth app ID wants consent
-			$oauth_app_id = $login_state->isConsentRequired();
-			$oauth_app = DAO_OAuthApp::get($oauth_app_id);
+			$consent_params = $login_state->isConsentRequired();
+			
+			if(
+				!is_array($consent_params) 
+				|| !array_key_exists('client_id', $consent_params)
+				|| false == ($oauth_app = DAO_OAuthApp::getByClientId($consent_params['client_id']))
+				|| false == (@$oauth_requested_scopes = $consent_params['scopes'])
+			) {
+				DevblocksPlatform::dieWithHttpError("Invalid OAuth client.");
+			}
+			
+			/* @var $oauth_requested_scopes Cerb_OAuth2ScopeEntity[] */
+			
 			$tpl->assign('oauth_app', $oauth_app);
+			
+			$scopes = [];
+			
+			foreach($oauth_requested_scopes as $requested_scope) {
+				$scope_id = $requested_scope->getIdentifier();
+				$scope = $oauth_app->getScope($scope_id);
+				$scopes[$scope_id] = $scope;
+			}
+			
+			$tpl->assign('scopes', $scopes);
 			
 			$tpl->display('devblocks:cerberusweb.core::login/auth/consent/oauth_consent.tpl');
 		}

@@ -108,7 +108,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		return $controllers;
 	}
 	
-	private function _getAuthorizedWorkerByLegacySignature(DevblocksHttpRequest $request) {
+	private function _getAuthorizedWorkerByLegacySignature(DevblocksHttpRequest $request, &$error=null) {
 		@$verb = $_SERVER['REQUEST_METHOD'];
 		@$header_date = $_SERVER['HTTP_X_DATE'];
 		
@@ -187,7 +187,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		return $worker;
 	}
 	
-	private function _getAuthorizedWorkerByOAuth2Token(DevblocksHttpRequest $request) {
+	private function _getAuthorizedWorkerByOAuth2Token(DevblocksHttpRequest $request, &$error=null) {
 		$accessTokenRepository = new Cerb_OAuth2AccessTokenRepository();
 		
 		$publicKey = DevblocksPlatform::services()->oauth()->getServerPublicKey();
@@ -208,11 +208,20 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			
 			$oauth_client_id = $http_request->getAttribute('oauth_client_id');
 			
-			if(false == DAO_OAuthApp::getByClientId($oauth_client_id))
+			if(false == ($oauth_app = DAO_OAuthApp::getByClientId($oauth_client_id)))
 				throw new Exception_Devblocks("Invalid OAuth2 client.");
 			
 			// Set scopes
-			//$http_request->getAttribute('oauth_scopes');
+			$oauth_scopes = $oauth_app->getScopes($http_request->getAttribute('oauth_scopes'));
+			
+			$stack = $request->path;
+			@array_shift($stack); // rest
+			$requested_path = DevblocksPlatform::strTrimEnd(implode('/', $stack), ['.json', '.xml']);
+			
+			if(!$this->_isHttpRequestAuthorizedForOAuth2Scopes($http_request->getMethod(), $requested_path, $oauth_scopes)) {
+				$error = 'Your token does not have permission to use this endpoint.';
+				return false;
+			}
 			
 			// Success
 			
@@ -222,7 +231,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 				return $worker;
 			
 		} catch (\League\OAuth2\Server\Exception\OAuthServerException $e) {
-			error_log($e->getMessage());
+			$error = $e->getMessage();
 			
 		} catch (Exception $e) {
 			error_log($e->getMessage());
@@ -231,26 +240,71 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		return null;
 	}
 	
-	private function _getAuthorizedWorker(DevblocksHttpRequest $request) {
+	private function _isHttpRequestAuthorizedForOAuth2Scopes($requested_method, $requested_path, array $oauth_scopes) {
+		$requested_method = DevblocksPlatform::strUpper($requested_method);
+		
+		foreach($oauth_scopes as $oauth_scope) {
+			foreach($oauth_scope['endpoints'] as $data) {
+				$methods = ['DELETE', 'GET', 'PATCH', 'POST','PUT'];
+				
+				$endpoint_pattern = null;
+				$endpoint_methods = [];
+				
+				if(is_array($data)) {
+					$endpoint_pattern = key($data);
+					$endpoint_methods = current($data);
+					
+					if(!is_array($endpoint_methods))
+						$endpoint_methods = [$endpoint_methods];
+					
+					$endpoint_methods = array_intersect($methods, $endpoint_methods);
+					
+				} elseif (is_string($data)) {
+					$endpoint_pattern = $data;
+					$endpoint_methods = $methods;
+					
+				} else {
+					continue;
+				}
+				
+				if(!in_array($requested_method, $endpoint_methods))
+					continue;
+				
+				$endpoint_pattern = DevblocksPlatform::strToRegExp($endpoint_pattern);
+				
+				if(preg_match($endpoint_pattern, $requested_path)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private function _getAuthorizedWorker(DevblocksHttpRequest $request, &$error=null) {
 		@$header_auth = $_SERVER['HTTP_AUTHORIZATION'];
 		@$header_signature = $_SERVER['HTTP_CERB_AUTH'] ?: $_SERVER['HTTP_CERB5_AUTH'];
 		
 		// Check for OAuth2
 		if($header_auth)
-			return $this->_getAuthorizedWorkerByOAuth2Token($request);
+			return $this->_getAuthorizedWorkerByOAuth2Token($request, $error);
 		
 		// Check for legacy signatures
 		if($header_signature)
-			return $this->_getAuthorizedWorkerByLegacySignature($request);
+			return $this->_getAuthorizedWorkerByLegacySignature($request, $error);
 		
 		return null;
 	}
 
 	function handleRequest(DevblocksHttpRequest $request) {
 		@$verb = $_SERVER['REQUEST_METHOD'];
+		$error = null;
 		
-		if(false == ($worker = $this->_getAuthorizedWorker($request))) {
-			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Unauthorized request"));
+		if(false == ($worker = $this->_getAuthorizedWorker($request, $error))) {
+			if(empty($error))
+				$error = 'Unauthorized request';
+			
+			Plugin_RestAPI::render(array('__status'=>'error', 'message' => $error));
 		}
 		
 		// Controller
@@ -444,7 +498,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 	 * 
 	 * @param array $array
 	 */
-	protected function success($array=array()) {
+	protected function success($array=[]) {
 		if(!is_array($array))
 			return false;
 

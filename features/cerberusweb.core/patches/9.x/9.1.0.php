@@ -48,6 +48,7 @@ if(!isset($tables['oauth_app'])) {
 		client_id varchar(255) NOT NULL DEFAULT '',
 		client_secret varchar(255) NOT NULL DEFAULT '',
 		callback_url varchar(255) NOT NULL DEFAULT '',
+		scopes text,
 		updated_at int(10) unsigned NOT NULL DEFAULT '0',
 		PRIMARY KEY (id),
 		INDEX (client_id)
@@ -56,6 +57,13 @@ if(!isset($tables['oauth_app'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['oauth_app'] = 'oauth_app';
+	
+} else {
+	list($columns,) = $db->metaTable('oauth_app');
+	
+	if(!isset($columns['scopes'])) {
+		$db->ExecuteMaster("ALTER TABLE oauth_app ADD COLUMN scopes TEXT");
+	}
 }
 
 // ===========================================================================

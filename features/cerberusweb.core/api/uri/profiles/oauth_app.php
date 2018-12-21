@@ -54,18 +54,24 @@ class PageSection_ProfilesOAuthApp extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+				@$client_id = DevblocksPlatform::importGPC($_REQUEST['client_id'], 'string', '');
+				@$client_secret = DevblocksPlatform::importGPC($_REQUEST['client_secret'], 'string', '');
 				@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
 				@$callback_url = DevblocksPlatform::importGPC($_REQUEST['callback_url'], 'string', '');
+				@$scopes_yaml = DevblocksPlatform::importGPC($_REQUEST['scopes_yaml'], 'string', '');
 				
 				$error = null;
 				
 				if(empty($id)) { // New
-					$fields = array(
+					$fields = [
+						DAO_OAuthApp::CLIENT_ID => $client_id,
+						DAO_OAuthApp::CLIENT_SECRET => $client_secret,
 						DAO_OAuthApp::CALLBACK_URL => $callback_url,
 						DAO_OAuthApp::NAME => $name,
 						DAO_OAuthApp::UPDATED_AT => time(),
 						DAO_OAuthApp::URL => $url,
-					);
+						DAO_OAuthApp::SCOPES => $scopes_yaml,
+					];
 					
 					if(!DAO_OAuthApp::onBeforeUpdateByActor($active_worker, $fields, null, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -80,12 +86,15 @@ class PageSection_ProfilesOAuthApp extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, Context_OAuthApp::ID, $id);
 					
 				} else { // Edit
-					$fields = array(
+					$fields = [
+						DAO_OAuthApp::CLIENT_ID => $client_id,
+						DAO_OAuthApp::CLIENT_SECRET => $client_secret,
 						DAO_OAuthApp::CALLBACK_URL => $callback_url,
 						DAO_OAuthApp::NAME => $name,
 						DAO_OAuthApp::UPDATED_AT => time(),
 						DAO_OAuthApp::URL => $url,
-					);
+						DAO_OAuthApp::SCOPES => $scopes_yaml,
+					];
 					
 					if(!DAO_OAuthApp::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);

@@ -14,8 +14,9 @@
 		<h3>This app would like to:</h3>
 		
 		<ul>
-			<li>Access your profile information</li>
-			<li>Make API requests on your behalf</li>
+			{foreach from=$scopes item=scope}
+			<li>{$scope.label}</li>
+			{/foreach}
 		</ul>
 		
 		<div style="margin-top:10px;text-align:right;">

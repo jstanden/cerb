@@ -204,7 +204,20 @@
 				<seg>{{actor}} logged {{target}} out to free up a license seat.</seg>
 			</tuv>
 		</tu>
-
+		
+		<!-- API -->
+		
+		<tu tuid="api.scope">
+			<tuv xml:lang="en_US">
+				<seg>scope</seg>
+			</tuv>
+		</tu>
+		<tu tuid="api.scopes">
+			<tuv xml:lang="en_US">
+				<seg>scopes</seg>
+			</tuv>
+		</tu>
+		
 		<!-- Common Strings -->
 		
 		<tu tuid="common.accept">

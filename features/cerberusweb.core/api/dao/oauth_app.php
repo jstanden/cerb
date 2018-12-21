@@ -5,6 +5,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 	const CLIENT_SECRET = 'client_secret';
 	const ID = 'id';
 	const NAME = 'name';
+	const SCOPES = 'scopes';
 	const UPDATED_AT = 'updated_at';
 	const URL = 'url';
 	
@@ -24,6 +25,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 			->addField(self::CLIENT_ID, DevblocksPlatform::translateCapitalized('dao.oauth_app.client_id'))
 			->string()
 			->setRequired(true)
+			->setUnique(get_class())
 			;
 		$validation
 			->addField(self::CLIENT_SECRET, DevblocksPlatform::translateCapitalized('dao.oauth_app.client_secret'))
@@ -39,6 +41,12 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 			->addField(self::NAME, DevblocksPlatform::translateCapitalized('common.name'))
 			->string()
 			->setRequired(true)
+			;
+		$validation
+			->addField(self::SCOPES, DevblocksPlatform::translateCapitalized('api.scopes'))
+			->string()
+			->setMaxLength(16777216)
+			->addValidator($validation->validators()->yaml())
 			;
 		$validation
 			->addField(self::UPDATED_AT, DevblocksPlatform::translateCapitalized('common.updated'))
@@ -71,7 +79,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 	
 	static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
-		$cache->remove(self::CACHE_ALL);
+		$cache->remove(self::_CACHE_ALL);
 	}
 	
 	static function update($ids, $fields, $check_deltas=true) {
@@ -159,7 +167,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, url, client_id, client_secret, callback_url, updated_at ".
+		$sql = "SELECT id, name, url, client_id, client_secret, callback_url, scopes, updated_at ".
 			"FROM oauth_app ".
 			$where_sql.
 			$sort_sql.
@@ -265,6 +273,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 			$object->client_id = $row['client_id'];
 			$object->client_secret = $row['client_secret'];
 			$object->callback_url = $row['callback_url'];
+			$object->scopes_yaml = $row['scopes'];
 			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
 		}
@@ -318,12 +327,14 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 			"oauth_app.url as %s, ".
 			"oauth_app.client_id as %s, ".
 			"oauth_app.callback_url as %s, ".
+			"oauth_app.scopes as %s, ".
 			"oauth_app.updated_at as %s ",
 				SearchFields_OAuthApp::ID,
 				SearchFields_OAuthApp::NAME,
 				SearchFields_OAuthApp::URL,
 				SearchFields_OAuthApp::CLIENT_ID,
 				SearchFields_OAuthApp::CALLBACK_URL,
+				SearchFields_OAuthApp::SCOPES,
 				SearchFields_OAuthApp::UPDATED_AT
 			);
 			
@@ -415,6 +426,7 @@ class SearchFields_OAuthApp extends DevblocksSearchFields {
 	const URL = 'o_url';
 	const CLIENT_ID = 'o_client_id';
 	const CALLBACK_URL = 'o_callback_url';
+	const SCOPES = 'o_scopes';
 	const UPDATED_AT = 'o_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -492,6 +504,7 @@ class SearchFields_OAuthApp extends DevblocksSearchFields {
 			self::URL => new DevblocksSearchField(self::URL, 'oauth_app', 'url', $translate->_('common.url'), null, true),
 			self::CLIENT_ID => new DevblocksSearchField(self::CLIENT_ID, 'oauth_app', 'client_id', $translate->_('dao.oauth_app.client_id'), null, true),
 			self::CALLBACK_URL => new DevblocksSearchField(self::CALLBACK_URL, 'oauth_app', 'callback_url', $translate->_('dao.oauth_app.callback_url'), null, true),
+			self::SCOPES => new DevblocksSearchField(self::SCOPES, 'oauth_app', 'scopes', $translate->_('api.scopes'), null, false),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'oauth_app', 'updated_at', $translate->_('common.updated'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -518,7 +531,35 @@ class Model_OAuthApp {
 	public $client_id;
 	public $client_secret;
 	public $callback_url;
+	public $scopes_yaml;
 	public $updated_at;
+	
+	private $_scopes = null;
+	
+	function getAvailableScopes() {
+		if(!is_null($this->_scopes))
+			return $this->_scopes;
+		
+		if(false == ($scopes = @yaml_parse($this->scopes_yaml)))
+			return false;
+		
+		$this->_scopes = $scopes;
+		return $this->_scopes;
+	}
+	
+	function getScopes(array $ids) {
+		$scopes = $this->getAvailableScopes();
+		return array_intersect_key($scopes, array_flip($ids));
+	}
+	
+	function getScope($id) {
+		$scopes = $this->getAvailableScopes();
+		
+		if(!array_key_exists($id, $scopes))
+			return false;
+		
+		return $scopes[$id];
+	}
 };
 
 class View_OAuthApp extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -767,6 +808,7 @@ class View_OAuthApp extends C4_AbstractView implements IAbstractView_Subtotals, 
 			case SearchFields_OAuthApp::URL:
 			case SearchFields_OAuthApp::CLIENT_ID:
 			case SearchFields_OAuthApp::CALLBACK_URL:
+			case SearchFields_OAuthApp::SCOPES:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -939,6 +981,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'scopes' => $prefix.$translate->_('api.scopes'),
 			'url' => $prefix.$translate->_('common.url'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -952,6 +995,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'url' => Model_CustomField::TYPE_URL,
+			'scopes' => Model_CustomField::TYPE_MULTI_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
@@ -977,6 +1021,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['id'] = $oauth_app->id;
 			$token_values['name'] = $oauth_app->name;
 			$token_values['updated_at'] = $oauth_app->updated_at;
+			$token_values['scopes'] = $oauth_app->scopes_yaml;
 			$token_values['url'] = $oauth_app->url;
 			
 			// Custom fields
@@ -999,6 +1044,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 			'links' => '_links',
 			'name' => DAO_OAuthApp::NAME,
 			'updated_at' => DAO_OAuthApp::UPDATED_AT,
+			'scopes' => DAO_OAuthApp::SCOPES,
 			'url' => DAO_OAuthApp::URL,
 		];
 	}
@@ -1009,6 +1055,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 		$keys['callback_url']['notes'] = "The OAuth2 callback URL of the app";
 		$keys['client_id']['notes'] = "The client identifier of the app";
 		$keys['client_secret']['notes'] = "The client secret of the app";
+		$keys['scopes']['notes'] = "The app's available scopes in YAML format";
 		$keys['url']['notes'] = "The app's URL";
 		
 		return $keys;
@@ -1119,8 +1166,34 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
-				$tpl->assign('model', $model);
+			if(!isset($model)) {
+				$model = new Model_OAuthApp();
+				
+				$model->client_id = DevblocksPlatform::strLower(CerberusApplication::generatePassword(32));
+				$model->client_secret = DevblocksPlatform::strLower(CerberusApplication::generatePassword(64));
+				
+				$model->scopes_yaml = <<< EOD
+"profile":
+ label: Access your profile information
+ endpoints:
+  - workers/me: GET
+
+"search":
+ label: Search records on your behalf
+ endpoints:
+  - records/*/search: [GET]
+
+"api:read-only":
+ label: Make any read-only API request on your behalf
+ endpoints:
+  - "*": [GET]
+
+"api":
+ label: Make any API request on your behalf
+ endpoints:
+  - "*" #[GET, PATCH, POST, PUT, DELETE]
+EOD;
+			}
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
@@ -1132,6 +1205,8 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
+			
+			$tpl->assign('model', $model);
 			
 			// View
 			$tpl->assign('id', $context_id);

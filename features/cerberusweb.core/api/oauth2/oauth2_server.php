@@ -278,14 +278,6 @@ class Cerb_OAuth2ScopeRepository implements ScopeRepositoryInterface {
 	}
 
 	public function getScopeEntityByIdentifier($identifier) {
-		// [TODO] Dynamic scopes
-		$available_scopes = [
-			'api',
-		];
-		
-		if(!in_array($identifier, $available_scopes))
-			throw OAuthServerException::invalidScope($identifier);
-		
 		$scope = new Cerb_OAuth2ScopeEntity();
 		$scope->setIdentifier($identifier);
 		return $scope;
