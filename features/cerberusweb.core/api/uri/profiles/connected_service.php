@@ -72,6 +72,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 						DAO_ConnectedService::EXTENSION_ID => $extension_id,
 						DAO_ConnectedService::NAME => $name,
 						DAO_ConnectedService::UPDATED_AT => time(),
+						DAO_ConnectedService::URI => $uri,
 					);
 					
 				} else { // Edit
