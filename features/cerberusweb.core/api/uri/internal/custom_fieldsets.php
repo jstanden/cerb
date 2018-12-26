@@ -15,7 +15,6 @@
 |	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
-if(class_exists('Extension_PageSection')):
 class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 	function render() {}
 	
@@ -57,4 +56,3 @@ class PageSection_InternalCustomFieldsets extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/fieldset.tpl');
 	}
 }
-endif;

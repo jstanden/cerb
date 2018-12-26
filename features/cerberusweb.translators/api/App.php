@@ -40,7 +40,6 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 
-if(class_exists('Extension_PageSection')):
 class ChTranslators_SetupPageSection extends Extension_PageSection {
 	const ID = 'translators.setup.section.translations';
 	
@@ -368,9 +367,7 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 	}
 }
-endif;
 
-if(class_exists('Extension_PageMenuItem')):
 class ChTranslators_SetupPluginsMenuItem extends Extension_PageMenuItem {
 	const ID = 'translators.setup.menu.plugins.translations';
 	
@@ -379,7 +376,6 @@ class ChTranslators_SetupPluginsMenuItem extends Extension_PageMenuItem {
 		$tpl->display('devblocks:cerberusweb.translators::config/menu_item.tpl');
 	}
 }
-endif;
 
 class View_Translation extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'translations';

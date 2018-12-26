@@ -15,7 +15,6 @@
  |	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
-if(class_exists('Extension_PageSection')):
 class PageSection_InternalWatchers extends Extension_PageSection {
 	function render() {}
 	
@@ -24,7 +23,6 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'], 'integer', 0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'], 'integer', 0);
-		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -116,4 +114,3 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		));
 	}
 }
-endif;

@@ -15,7 +15,6 @@
 |	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
-if(class_exists('Extension_PageSection')):
 class PageSection_InternalSkills extends Extension_PageSection {
 	function render() {}
 	
@@ -111,4 +110,3 @@ class PageSection_InternalSkills extends Extension_PageSection {
 	
 	
 }
-endif;

@@ -15,7 +15,6 @@
 |	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
-if(class_exists('Extension_PageSection')):
 class PageSection_InternalCalendars extends Extension_PageSection {
 	function render() {}
 	
@@ -159,4 +158,3 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		echo json_encode($options);
 	}
 }
-endif;
