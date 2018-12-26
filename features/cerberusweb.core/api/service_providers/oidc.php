@@ -350,8 +350,8 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			]);
 			
 		} catch (InvalidTokenException $e) {
-			$provider->getValidatorChain()->getMessages();
-			return;
+			$query = ['error' => 'auth.failed'];
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
 		}
 		
 		$id_token = $token->getIdToken();
@@ -360,7 +360,8 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			false == ($email = $id_token->getClaim('email'))
 			|| false == ($worker = DAO_Worker::getByEmail($email))
 		) {
-			return;
+			$query = ['error' => 'auth.failed'];
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
 		}
 		
 		$login_state

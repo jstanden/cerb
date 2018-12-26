@@ -161,15 +161,17 @@ class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 				
 				$email = $_SESSION['samlNameId'];
 				
-				if(!$email)
-					return false;
 				
 				// Look up worker by email
-				if(null == ($authenticated_worker = DAO_Worker::getByEmail($email)))
-					return false;
+				if(!$email || null == ($authenticated_worker = DAO_Worker::getByEmail($email))) {
+					$query = ['error' => 'auth.failed'];
+					DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
+				}
 				
-				if($authenticated_worker->is_disabled)
-					return false;
+				if($authenticated_worker->is_disabled) {
+					$query = ['error' => 'account.disabled'];
+					DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
+				}
 				
 				$login_state
 					->clearAuthState()
