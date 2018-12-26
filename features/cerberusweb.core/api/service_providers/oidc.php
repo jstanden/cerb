@@ -78,15 +78,21 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 	
 	public function fetchJwks($url) {
 		$http = DevblocksPlatform::services()->http();
+		$cache = DevblocksPlatform::services()->cache();
 		
-		$request = new Request('GET', $url);
-		$request_options = [];
-		$error = null;
+		$cache_key = sprintf('jwks:%s', $url);
 		
-		
-		$response = $http->sendRequest($request, $request_options, $error);
-		
-		$json = $http->getResponseAsJson($response, $error);
+		if(false == ($json = $cache->load($cache_key))) {
+			$request = new Request('GET', $url);
+			$request_options = [];
+			$error = null;
+			
+			$response = $http->sendRequest($request, $request_options, $error);
+			
+			$json = $http->getResponseAsJson($response, $error);
+			
+			$cache->save($json, $cache_key, [], 3600);
+		}
 		
 		return $json;
 	}
