@@ -425,6 +425,11 @@ switch($step) {
 						$db_passed = false;
 						$errors[] = sprintf("The database engine doesn't support FULLTEXT indexes.");
 					}
+					// ADD SPATIAL INDEX
+					if($db_passed && false === mysqli_query($_db, "ALTER TABLE _installer_test_suite ADD COLUMN pos POINT NOT NULL, ADD SPATIAL INDEX (pos)")) {
+						$db_passed = false;
+						$errors[] = sprintf("The database engine doesn't support SPATIAL indexes.");
+					}
 					// DROP TABLE
 					if($db_passed && false === mysqli_query($_db, "DROP TABLE IF EXISTS _installer_test_suite")) {
 						$db_passed = false;
