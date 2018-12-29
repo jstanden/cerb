@@ -1168,10 +1168,10 @@ class Twig_Environment
 		 * @param string $name The undefined variable
 		 * @return mixed
 		 */
-		public function getUndefinedVariable($name, &$context)
+		public function getUndefinedVariable($name)
 		{
 				foreach ($this->variableCallbacks as $callback) {
-					if(false !== ($value = $callback($name, $context)))
+					if(false !== ($value = $callback($name)))
 						return $value;
 				}
 				

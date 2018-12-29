@@ -32,7 +32,18 @@ class Twig_Node_Expression_Name extends Twig_Node_Expression
             if ($this->isSpecial()) {
                 $compiler->repr(true);
             } else {
-                $compiler->raw('array_key_exists(')->repr($name)->raw(', $context)');
+                $compiler
+                    ->raw('(')
+                    ->raw('array_key_exists(')
+                    ->repr($name)
+                    ->raw(', $context)')
+                    ->raw(' || ')
+                    ->raw('!is_null(')
+                    ->raw('$this->env->getUndefinedVariable(')
+                    ->repr($name)
+                    ->raw('))')
+                    ->raw(')')
+                ;
             }
         } elseif ($this->isSpecial()) {
             $compiler->raw($this->specialVars[$name]);
@@ -56,7 +67,7 @@ class Twig_Node_Expression_Name extends Twig_Node_Expression
                         //->raw('null)')
                         ->raw('$this->env->getUndefinedVariable(')
                         ->string($name)
-                        ->raw(', $context))')
+                        ->raw('))')
                     ;
                 } else {
                     $compiler->raw('$this->getContext($context, ')->string($name)->raw('))');
@@ -76,7 +87,7 @@ class Twig_Node_Expression_Name extends Twig_Node_Expression
                         //->raw('null)')
                         ->raw('$this->env->getUndefinedVariable(')
                         ->string($name)
-                        ->raw(', $context))')
+                        ->raw('))')
                     ;
                 } else {
                     $compiler->raw('$this->getContext($context, ')->string($name)->raw('))');
