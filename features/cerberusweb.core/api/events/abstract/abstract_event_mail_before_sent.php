@@ -74,19 +74,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'worker_id' => $active_worker->id,
 		];
 		
-		$dict->_properties =& $properties;
-		$dict->content =& $properties['content'];
-		$dict->content_format =& $properties['content_format'];
-		$dict->headers =& $properties['headers'];
-		$values['to'] =& $properties['to'];
-		$values['cc'] =& $properties['cc'];
-		$values['bcc'] =& $properties['bcc'];
-		$values['subject'] =& $properties['subject'];
-		$values['message_id'] =& $properties['outgoing-message-id'];
-		$values['waiting_until'] =& $properties['ticket_reopen'];
-		$values['status_id'] =& $properties['status_id'];
-		$values['worker_id'] =& $properties['worker_id'];
-		
 		return new Model_DevblocksEvent(
 			$this->_event_id,
 			array(
@@ -501,6 +488,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 
 			default:
+				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
@@ -662,7 +650,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		@$ticket_id = $dict->ticket_id;
-
+		
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -675,12 +663,9 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 						'saved' => [],
 					];
 					
-				$label = '';
-				
 				switch($mode) {
 					case 'saved':
 					case 'sent':
-						$label = $mode . ' ';
 						$dict->_properties['content_appends'][$mode][] = $content;
 						break;
 						
@@ -702,12 +687,9 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 						'saved' => [],
 					];
 					
-				$label = '';
-				
 				switch($mode) {
 					case 'saved':
 					case 'sent':
-						$label = $mode . ' ';
 						$dict->_properties['content_prepends'][$mode][] = $content;
 						break;
 						
@@ -743,7 +725,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				$headers =& $dict->headers;
 				
 				if(!isset($headers))
-					$headers = array();
+					$headers = [];
 				
 				if(empty($value)) {
 					if(isset($headers[$header]))
