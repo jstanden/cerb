@@ -5,6 +5,24 @@ $encrypt = DevblocksPlatform::services()->encryption();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Test SPATIAL indexes
+
+if(false == $db->ExecuteMaster(sprintf("CREATE TABLE IF NOT EXISTS _installer_test_suite (id int) ENGINE=%s", APP_DB_ENGINE))) {
+	echo "ERROR: Failed to create the `_installer_test_suite` table. "; 
+	return false;
+}
+
+if(false == $db->ExecuteMaster("ALTER TABLE _installer_test_suite ADD COLUMN pos POINT NOT NULL, ADD SPATIAL INDEX (pos)")) {
+	echo "ERROR: Your MySQL version does not support SPATIAL indexes. Cerb requires MySQL 5.6 or greater. "; 
+	return false;
+}
+
+if(false == $db->ExecuteMaster("DROP TABLE IF EXISTS _installer_test_suite")) {
+	echo "ERROR: Failed to delete the `_installer_test_suite` table. "; 
+	return false;
+}
+
+// ===========================================================================
 // Alter `custom_field`
 
 if(!isset($tables['custom_field']))
