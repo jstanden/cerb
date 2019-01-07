@@ -1835,7 +1835,7 @@ class Model_Worker {
 	 * @return NULL|string
 	 */
 	function getEmailString() {
-		if(false == $model = $this->getEmailModel())
+		if(false == ($model = $this->getEmailModel()))
 			return null;
 		
 		return $model->email;

@@ -284,8 +284,6 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -381,7 +379,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Mailbox::getFields();
 
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Mailbox', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Mailbox', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"mailbox.id as %s, ".
@@ -929,7 +927,6 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			case SearchFields_Mailbox::ENABLED:
@@ -1156,7 +1153,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 
 	function getMeta($context_id) {
 		$mailbox = DAO_Mailbox::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($mailbox->name);

@@ -18,7 +18,7 @@
 class ChDisplayPage extends CerberusPageExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		
 		return true;
@@ -155,6 +155,8 @@ class ChDisplayPage extends CerberusPageExtension {
 				return;
 				
 			} else {
+				$error = null;
+				
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_MESSAGE, $id, $field_ids, $error))
@@ -607,10 +609,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		@$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
-		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'string','');
 		
 		@$to = DevblocksPlatform::importGPC(@$_REQUEST['to']);
 		
@@ -622,7 +622,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			if(null == ($worker = CerberusApplication::getActiveWorker()))
 				throw new Exception_DevblocksAjaxValidationError("You're not signed in.");
 			
-			if(null == ($ticket = DAO_Ticket::get($ticket_id)))
+			if(null == (DAO_Ticket::get($ticket_id)))
 				throw new Exception_DevblocksAjaxValidationError("You're replying to an invalid ticket.");
 			
 			$properties = array(
@@ -774,7 +774,7 @@ class ChDisplayPage extends CerberusPageExtension {
 			$properties['dont_send'] = true;
 
 		// Send
-		if(false != ($new_message_id = CerberusMail::sendTicketMessage($properties))) {
+		if(false != (CerberusMail::sendTicketMessage($properties))) {
 			if(!empty($draft_id))
 				DAO_MailQueue::delete($draft_id);
 			
@@ -790,7 +790,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				if(empty($to_addys))
 					throw new Exception("Blank recipients list.");
 
-				foreach($to_addys as $to_addy => $to_data)
+				foreach(array_keys($to_addys) as $to_addy)
 					DAO_Ticket::createRequester($to_addy, $ticket_id);
 				
 			} catch(Exception $e) {}
@@ -809,6 +809,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		foreach($lines_in as $line) {
 			$handled = false;
+			$matches = [];
 			
 			if(preg_match('/^\#([A-Za-z0-9_]+)(.*)$/', $line, $matches)) {
 				@$command = $matches[1];
@@ -918,7 +919,7 @@ class ChDisplayPage extends CerberusPageExtension {
 							DAO_Comment::CREATED => time()+2,
 							DAO_Comment::COMMENT => $comment,
 						);
-						$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+						DAO_Comment::create($fields, $also_notify_worker_ids);
 					}
 					break;
 		
@@ -942,7 +943,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 		
@@ -966,7 +966,7 @@ class ChDisplayPage extends CerberusPageExtension {
 				continue;
 			}
 			
-			if(substr($k,0,6) == 'field_')
+			if(DevblocksPlatform::strStartsWith($k, 'field_'))
 				continue;
 			
 			$params[$k] = $v;
@@ -1160,6 +1160,8 @@ class ChDisplayPage extends CerberusPageExtension {
 		
 		if(!Context_Message::isWriteableByActor($message, $active_worker))
 			return;
+		
+		$error = null;
 		
 		if(false == ($results = DAO_Ticket::split($message, $error)))
 			return;

@@ -263,7 +263,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		}
 		
 		// Wipe current bucket responsibilities
-		$results = $db->ExecuteMaster(sprintf("DELETE FROM worker_to_bucket WHERE bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
+		$db->ExecuteMaster(sprintf("DELETE FROM worker_to_bucket WHERE bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
 			$group_id
 		));
 		
@@ -568,8 +568,6 @@ class DAO_Group extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
 		$do = $update->actions;
 		$ids = $update->context_ids;
 
@@ -678,7 +676,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$responsibilities = [];
 		
 		if(is_array($buckets))
-		foreach($buckets as $bucket_id => $bucket) {
+		foreach(array_keys($buckets) as $bucket_id) {
 			$responsibilities[$bucket_id] = 50;
 		}
 		
@@ -725,7 +723,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			return false;
 		
 		if(is_array($members))
-		foreach($members as $worker_id => $member) {
+		foreach(array_keys($members) as $worker_id) {
 			$responsibilities[$worker_id] = 50;
 		}
 		
@@ -859,7 +857,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Group::getFields();
 
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Group', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Group', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"g.id as %s, ".

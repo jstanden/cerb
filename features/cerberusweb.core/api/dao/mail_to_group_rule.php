@@ -180,14 +180,15 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 			$object->pos = $row['pos'];
 			$object->created = $row['created'];
 			$object->name = $row['name'];
-			$criteria_ser = $row['criteria_ser'];
-			$actions_ser = $row['actions_ser'];
 			$object->is_sticky = $row['is_sticky'];
 			$object->sticky_order = $row['sticky_order'];
-
-			$object->criteria = (!empty($criteria_ser)) ? @unserialize($criteria_ser) : array();
-			$object->actions = (!empty($actions_ser)) ? @unserialize($actions_ser) : array();
-
+			
+			$criteria_ser = $row['criteria_ser'];
+			$object->criteria = (!empty($criteria_ser)) ? @unserialize($criteria_ser) : [];
+			
+			$actions_ser = $row['actions_ser'];
+			$object->actions = (!empty($actions_ser)) ? @unserialize($actions_ser) : [];
+			
 			$objects[$object->id] = $object;
 		}
 		
@@ -197,7 +198,8 @@ class DAO_MailToGroupRule extends Cerb_ORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = [$ids];
 		
 		if(empty($ids))
 			return;
@@ -237,13 +239,13 @@ class Model_MailToGroupRule {
 	public $pos = 0;
 	public $created = 0;
 	public $name = '';
-	public $criteria = array();
-	public $actions = array();
+	public $criteria = [];
+	public $actions = [];
 	public $is_sticky = 0;
 	public $sticky_order = 0;
 	
 	static function getMatches(Model_Address $fromAddress, CerberusParserMessage $message) {
-		$matches = array();
+		$matches = [];
 		$rules = DAO_MailToGroupRule::getAll();
 		$message_headers = $message->headers;
 		$custom_fields = DAO_CustomField::getAll();
@@ -258,6 +260,7 @@ class Model_MailToGroupRule {
 			$passed = 0;
 
 			// check criteria
+			if(is_array($rule->criteria))
 			foreach($rule->criteria as $crit_key => $crit) {
 				@$value = $crit['value'];
 							
