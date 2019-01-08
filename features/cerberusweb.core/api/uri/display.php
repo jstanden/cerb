@@ -1029,20 +1029,18 @@ class ChDisplayPage extends CerberusPageExtension {
 		// Make sure the current worker is the draft author
 		if(!empty($draft_id)) {
 			$visit = CerberusApplication::getVisit();
-			$valid_worker_ids = array($active_worker->id);
+			$valid_worker_ids = [$active_worker->id];
 			
 			if($visit->isImposter()) {
 				$valid_worker_ids[] = $visit->getImposter()->id;
 			}
 			
-			$draft = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s IN (%s)",
-				DAO_MailQueue::ID,
-				$draft_id,
-				DAO_MailQueue::WORKER_ID,
-				implode(',', $valid_worker_ids)
-			));
+			// If the given draft ID is invalid, ignore
+			if(false == ($draft = DAO_MailQueue::get($draft_id)))
+				return false;
 			
-			if(!isset($draft[$draft_id]))
+			// If the draft isn't owned by this worker, save a new one
+			if(!in_array($draft->worker_id, $valid_worker_ids))
 				$draft_id = null;
 		}
 		
