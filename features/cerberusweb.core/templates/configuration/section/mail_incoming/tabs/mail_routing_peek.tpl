@@ -20,7 +20,7 @@
 	{assign var=expanded value=true}
 {/if}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockDateTime',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockDateTime',false);"> <b>Current Date/Time</b></label><br>
-<table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockDateTime">
+<table width="100%" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockDateTime">
 	<tr>
 		<td valign="top">
 			{assign var=crit_dayofweek value=$rule->criteria.dayofweek}
@@ -78,20 +78,20 @@
 	{assign var=expanded value=true}
 {/if}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockMessage',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockMessage',false);"> <b>Message</b></label><br>
-<table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockMessage">
+<table width="100%" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockMessage">
 	<tr>
-		<td valign="top">
+		<td valign="top" width="1%" nowrap="nowrap">
 			{assign var=crit_tocc value=$rule->criteria.tocc}
 			<label><input type="checkbox" id="chkRuleTo" name="rules[]" value="tocc" {if !is_null($crit_tocc)}checked="checked"{/if}> To/Cc:</label>
 		</td>
-		<td valign="top">
-			<input type="text" name="value_tocc" size="45" value="{$crit_tocc.value}" value="{$tocc_list}" onchange="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
+		<td valign="top" width="99%">
+			<textarea name="value_tocc" onchange="document.getElementById('chkRuleTo').checked=((0==this.value.length)?false:true);" style="width:95%;height:3.5em;">{$crit_tocc.value}</textarea><br>
 			<i>Comma-delimited address patterns; only one e-mail must match.</i><br>
 			Example: support@example.com, support@*, *@example.com<br>
 		</td>
 	</tr>
 	<tr>
-		<td valign="top">
+		<td valign="top" width="1%" nowrap="nowrap">
 			{assign var=crit_from value=$rule->criteria.from}
 			<label><input type="checkbox" id="chkRuleFrom" name="rules[]" value="from" {if !is_null($crit_from)}checked="checked"{/if}> From:</label>
 		</td>
@@ -100,7 +100,7 @@
 		</td>
 	</tr>
 	<tr>
-		<td valign="top">
+		<td valign="top" width="1%" nowrap="nowrap">
 			{assign var=crit_subject value=$rule->criteria.subject}
 			<label><input type="checkbox" id="chkRuleSubject" name="rules[]" value="subject" {if !is_null($crit_subject)}checked="checked"{/if}> Subject:</label>
 		</td>
@@ -109,9 +109,9 @@
 		</td>
 	</tr>
 	<tr>
-		<td valign="top">
+		<td valign="top" width="1%" nowrap="nowrap">
 			{assign var=crit_body value=$rule->criteria.body}
-			<label><input type="checkbox" id="chkRuleBody" name="rules[]" value="body" {if !is_null($crit_body)}checked="checked"{/if}> Body Content:</label>
+			<label><input type="checkbox" id="chkRuleBody" name="rules[]" value="body" {if !is_null($crit_body)}checked="checked"{/if}> Content:</label>
 		</td>
 		<td valign="top">
 			<input type="text" name="value_body" size="45" value="{$crit_body.value}" onchange="document.getElementById('chkRuleBody').checked=((0==this.value.length)?false:true);" style="width:95%;"><br>
@@ -130,7 +130,7 @@
 	{/if}
 {/section}
 <label><input type="checkbox" {if $expanded}checked="checked"{/if} onclick="toggleDiv('divBlockHeaders',(this.checked?'block':'none'));if(!this.checked)checkAll('divBlockHeaders',false);"> <b>Message headers</b></label><br>
-<table width="500" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockHeaders">
+<table width="100%" style="margin-left:10px;display:{if $expanded}block{else}none{/if};" id="divBlockHeaders">
 	{section name=headers start=0 loop=5}
 	{assign var=headerx value='header'|cat:$smarty.section.headers.iteration}
 	{assign var=crit_headerx value=$rule->criteria.$headerx}
