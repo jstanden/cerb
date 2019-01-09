@@ -287,7 +287,10 @@ $(function() {
 		;
 	
 	$actions.find('button.cerb-button-reply')
-		.on('click', function() {
+		.on('click', function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
 			var evt = jQuery.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
@@ -300,7 +303,10 @@ $(function() {
 		;
 	
 	$actions.find('a.cerb-button-reply-quote')
-		.on('click', function() {
+		.on('click', function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
 			var evt = jQuery.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
@@ -313,7 +319,10 @@ $(function() {
 		;
 	
 	$actions.find('a.cerb-button-reply-only-these')
-		.on('click', function() {
+		.on('click', function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
 			var evt = jQuery.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
@@ -326,7 +335,10 @@ $(function() {
 		;
 	
 	$actions.find('a.cerb-button-reply-noquote')
-		.on('click', function() {
+		.on('click', function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
 			var evt = jQuery.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
@@ -339,7 +351,10 @@ $(function() {
 		;
 	
 	$actions.find('a.cerb-button-reply-forward')
-		.on('click', function() {
+		.on('click', function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
 			var evt = jQuery.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 1;
