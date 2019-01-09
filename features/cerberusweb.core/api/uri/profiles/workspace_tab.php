@@ -78,6 +78,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 				@$workspace_page_id = DevblocksPlatform::importGPC($_REQUEST['workspace_page_id'], 'integer', 0);
 
 				$index = 99;
+				$error = null;
 				
 				if(!$workspace_page_id || null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
 					throw new Exception_DevblocksAjaxValidationError("A valid workspace page is required.");

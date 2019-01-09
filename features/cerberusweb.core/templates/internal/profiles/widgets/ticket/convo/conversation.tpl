@@ -150,23 +150,23 @@ $(function() {
 		
 		{* Inline reply form *}
 		{if $mail_reply_format == 'inline'}
-			var params = {
-				'c': 'display',
-				'a': 'reply',
-				'forward': is_forward,
-				'draft_id': draft_id,
-				'reply_mode': reply_mode,
-				'reply_format': 'inline',
-				'is_confirmed': is_confirmed,
-				'timestamp': {time()},
-				'id': msgid
-			};
-			var url = $.param(params);
-			
 			var $reply = $('#reply' + msgid);
 			
 			// Prevent the reply form from rendering twice
 			if(0 == $reply.children().length) {
+				var params = {
+					'c': 'display',
+					'a': 'reply',
+					'forward': is_forward,
+					'draft_id': draft_id,
+					'reply_mode': reply_mode,
+					'reply_format': 'inline',
+					'is_confirmed': is_confirmed,
+					'timestamp': {time()},
+					'id': msgid
+				};
+				var url = $.param(params);
+				
 				genericAjaxGet(null, url, function(html) {
 					$reply.html(html);
 					$reply[0].scrollIntoView();

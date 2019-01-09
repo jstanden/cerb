@@ -127,7 +127,6 @@ class ChRest_Records extends Extension_RestController {
 	
 	private function _upsertContextRecord(DevblocksExtensionManifest $context) {
 		@$query = DevblocksPlatform::importGPC($_REQUEST['query'], 'string', '');
-		@$fields = DevblocksPlatform::importGPC($_REQUEST['fields'], 'array', []);
 		
 		if(empty($query))
 			$this->error(self::ERRNO_PARAM_REQUIRED, "The 'query' parameter is required.");
@@ -177,6 +176,8 @@ class ChRest_Records extends Extension_RestController {
 		// Fail of there's no DAO::create() method
 		if(!method_exists($dao_class, 'create'))
 			$this->error(self::ERRNO_NOT_IMPLEMENTED);
+		
+		$error = null;
 		
 		if(!$context_ext->getDaoFieldsFromKeysAndValues($fields, $dao_fields, $custom_fields, $error))
 			$this->error(self::ERRNO_PARAM_INVALID, $error);
@@ -230,6 +231,8 @@ class ChRest_Records extends Extension_RestController {
 		$dao_class = $context_ext->getDaoClass();
 		$dao_fields = $custom_fields = [];
 		
+		$error = null;
+		
 		if(!method_exists($dao_class, 'update'))
 			$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		
@@ -262,7 +265,6 @@ class ChRest_Records extends Extension_RestController {
 	
 	private function _deleteContextRecord(DevblocksExtensionManifest $context, array $stack) {
 		@$id = intval(array_shift($stack));
-		@$fields = DevblocksPlatform::importGPC($_REQUEST['fields'], 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -379,8 +381,6 @@ class ChRest_Records extends Extension_RestController {
 	}
 	
 	private function _getContextSearch(DevblocksExtensionManifest $context) { 
-		$worker = CerberusApplication::getActiveWorker();
-		
 		if(!$context->hasOption('search')) {
 			$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		}

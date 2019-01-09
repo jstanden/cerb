@@ -141,7 +141,6 @@ $(function() {
 				$widgets.each(function() {
 					if(!event_new_comment.isPropagationStopped()) {
 						var $widget = $(this);
-						console.log($widget);
 						$widget.triggerHandler(event_new_comment);
 					}
 				});
