@@ -45,6 +45,32 @@
 			</div>
 		</div>
 	</div>
+{elseif 'thirds' == $layout}
+	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--thirds" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="left" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--left" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.left item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+		
+		<div data-layout-zone="center" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--center" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.center item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+		
+		<div data-layout-zone="right" class="cerb-workspace-layout-zone cerb-workspace-layout-zone--right" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-workspace-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+			{foreach from=$zones.right item=widget name=widgets}
+				{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl" widget=$widget}
+			{/foreach}
+			</div>
+		</div>
+	</div>
 {else}
 	<div id="workspaceTab{$model->id}" class="cerb-workspace-layout cerb-workspace-layout--content" style="vertical-align:top;display:flex;flex-flow:row wrap;">
 		<div data-layout-zone="content" class="cerb-workspace-layout-zone" style="flex:1 1 100%;overflow-x:hidden;">

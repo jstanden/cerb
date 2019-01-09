@@ -172,6 +172,14 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 					'sidebar' => [],
 				];
 				break;
+				
+			case 'thirds':
+				$zones = [
+					'left' => [],
+					'center' => [],
+					'right' => [],
+				];
+				break;
 		}
 
 		// Sanitize zones
