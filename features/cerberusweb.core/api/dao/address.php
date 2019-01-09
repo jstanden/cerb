@@ -1353,9 +1353,9 @@ class Model_Address {
 			case 'first_name':
 				if(false == ($contact = $this->getContact()))
 					return '';
-					
-				error_log("The 'first_name' field on address records is deprecated. Use contacts instead.", E_USER_DEPRECATED);
-					
+				
+				//error_log("The 'first_name' field on address records is deprecated. Use contacts instead.", E_USER_DEPRECATED);
+				
 				return $contact->first_name;
 				break;
 				
@@ -1363,9 +1363,9 @@ class Model_Address {
 			case 'last_name':
 				if(false == ($contact = $this->getContact()))
 					return '';
-					
-				error_log("The 'last_name' field on address records is deprecated. Use contacts instead.", E_USER_DEPRECATED);
-					
+				
+				//error_log("The 'last_name' field on address records is deprecated. Use contacts instead.", E_USER_DEPRECATED);
+				
 				return $contact->last_name;
 				break;
 		}

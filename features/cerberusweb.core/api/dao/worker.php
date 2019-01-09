@@ -1790,7 +1790,7 @@ class Model_Worker {
 		switch($name) {
 			// [DEPRECATED] Added in 7.1
 			case 'email':
-				error_log("The 'email' field on worker records is deprecated. Use \$worker->getEmailString() instead.", E_USER_DEPRECATED);
+				//error_log("The 'email' field on worker records is deprecated. Use \$worker->getEmailString() instead.", E_USER_DEPRECATED);
 				
 				return $this->getEmailString();
 				break;
