@@ -367,10 +367,10 @@ class ChRest_Records extends Extension_RestController {
 		
 		if($show_results) {
 			$container['results'] = $objects;
-			$container['total'] = $total;
+			$container['total'] = intval($total);
 			$container['count'] = count($objects);
-			$container['page'] = $page;
-			$container['limit'] = $limit;
+			$container['page'] = intval($page);
+			$container['limit'] = intval($limit);
 		}
 		
 		if(!empty($subtotals)) {
