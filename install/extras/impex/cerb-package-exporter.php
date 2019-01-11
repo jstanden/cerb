@@ -35,6 +35,58 @@ namespace Cerb\Impex\Exporters {
 			return $this->_db;
 		}
 		
+		function mapGroupBucketIds($group_id, $bucket_id) {
+			return [
+				$group_id,
+				$bucket_id,
+			];
+			
+			/*
+			return [
+				'{{{default.group_id}}}',
+				'{{{default.bucket_id}}}',
+			];
+			*/
+		}
+		
+		function mapCustomFieldId($id) {
+			switch($id) {
+				case 180:
+					return $id;
+					
+				default:
+					return 0;
+			}
+			
+			return $id;
+			
+			/*
+			$map = [
+				2 => 1, // Field
+			];
+			
+			if(array_key_exists($id, $map))
+				return $map[$id];
+			
+			return null;
+			*/
+		}
+		
+		function mapWorkerId($id) {
+			return $id;
+			
+			/*
+			$map = [
+				2 => 1, // Worker
+			];
+			
+			if(array_key_exists($id, $map))
+				return $map[$id];
+			
+			return null;
+			*/
+		}
+		
 		function testConfig(array $config) {
 			$required_options = array(
 				'db_host',
@@ -77,12 +129,10 @@ namespace Cerb\Impex\Exporters {
 				
 				while($stmt->fetch()) {
 					if(0 == $count++ % 2000) {
-						$dir = sprintf(CerbImpex::getOption('output_dir') . '03-orgs-%06d/', ++$bins);
+						$dir = sprintf(CerbImpex::getOption('output_dir') . '01-orgs-%06d/', ++$bins);
 						if(!file_exists($dir))
 							mkdir($dir, 0700, true);
 					}
-					
-					// [TODO] Batch up 100 or so per package?
 					
 					$json_out = [
 						[
@@ -106,7 +156,7 @@ namespace Cerb\Impex\Exporters {
 							'name' => sprintf('Org #%d', $id),
 							'revision' => 1,
 							'requires' => [
-								'cerb_version' => '9.0.6',
+								'cerb_version' => '9.1.1',
 								'plugins' => [],
 							],
 							'configure' => [
@@ -140,14 +190,14 @@ namespace Cerb\Impex\Exporters {
 				die(sprintf("The 'storage_path' (%s) doesn't exist.\n", $storage_path));
 			
 			$sql = <<< SQL
-SELECT t.id, t.mask, t.subject, t.status_id, t.importance, t.created_date, t.updated_date, t.group_id, t.bucket_id, g.name, b.name, 
+SELECT t.id, t.mask, t.subject, t.status_id, t.importance, t.created_date, t.updated_date, t.owner_id, t.group_id, t.bucket_id, g.name, b.name, 
 (SELECT name FROM contact_org WHERE id = t.org_id) AS org_name, 
 (SELECT group_concat(address.email) FROM requester INNER JOIN address ON (address.id=requester.address_id) where requester.ticket_id=t.id) AS participants, 
-(SELECT group_concat(comment.id) FROM comment WHERE context = 'cerberusweb.contexts.ticket' AND context_id = t.id) AS comment_ids
+(SELECT group_concat(comment.id) FROM comment WHERE context = 'cerberusweb.contexts.ticket' AND context_id = t.id AND owner_context = 'cerberusweb.contexts.worker') AS comment_ids
 FROM ticket t 
 INNER JOIN worker_group g ON (t.group_id=g.id)
 INNER JOIN bucket b ON (t.bucket_id=b.id)
-WHERE status_id != 3
+WHERE status_id != 3 
 SQL;
 			
 			$stmt = $db->prepare($sql);
@@ -165,7 +215,23 @@ SQL;
 			];
 			
 			if($stmt->execute()) {
-				$stmt->bind_result($ticket_id, $mask, $subject, $status_id, $importance, $created_date, $updated_date, $group_id, $bucket_id, $group_name, $bucket_name, $org_name, $participants, $comment_ids);
+				$stmt->bind_result(
+					$ticket_id,
+					$mask,
+					$subject,
+					$status_id,
+					$importance,
+					$created_date,
+					$updated_date,
+					$owner_id,
+					$group_id,
+					$bucket_id,
+					$group_name,
+					$bucket_name,
+					$org_name,
+					$participants,
+					$comment_ids
+				);
 				
 				while($stmt->fetch()) {
 					if(0 == $count++ % 2000) {
@@ -178,16 +244,12 @@ SQL;
 					
 					$ticket_uid = sprintf('ticket_%d', $ticket_id);
 					
+					list($new_group_id, $new_bucket_id) = $this->mapGroupBucketIds($group_id, $bucket_id);
+					
 					$ticket_json = [
 						'uid' => $ticket_uid,
 						'_context' => 'ticket',
 						'mask' => $mask_prefix . $mask,
-						'group_id' => $group_id,
-						'group__label' => $group_name,
-						'bucket_id' => $bucket_id,
-						'bucket__label' => $bucket_name,
-						//'group_id' => '{{{default.group_id}}}',
-						//'bucket_id' => '{{{default.bucket_id}}}',
 						'subject' => $subject,
 						'importance' => $importance,
 						'status' => $statuses[$status_id],
@@ -196,8 +258,47 @@ SQL;
 						'participants' => $participants,
 					];
 					
+					if($new_group_id)
+						$ticket_json['group_id'] = $new_group_id;
+					
+					if($new_bucket_id)
+						$ticket_json['bucket_id'] = $new_bucket_id;
+					
+					if(false != ($new_owner_id = $this->mapWorkerId($owner_id)))
+						$ticket_json['owner_id'] = $new_owner_id;
+					
 					if($org_name)
 						$ticket_json['org'] = $org_name;
+					
+					// Ticket custom fields
+					
+					$sql_cfields = <<< SQL
+SELECT field_id, field_value FROM custom_field_stringvalue WHERE context = 'cerberusweb.contexts.ticket' AND context_id = $ticket_id 
+UNION ALL 
+SELECT field_id, field_value FROM custom_field_numbervalue WHERE context = 'cerberusweb.contexts.ticket' AND context_id = $ticket_id 
+UNION ALL 
+SELECT field_id, field_value FROM custom_field_clobvalue WHERE context = 'cerberusweb.contexts.ticket' AND context_id = $ticket_id 
+UNION ALL 
+SELECT field_id, field_value FROM custom_field_geovalue WHERE context = 'cerberusweb.contexts.ticket' AND context_id = $ticket_id
+SQL;
+					
+					$stmt_cfields = $db->prepare($sql_cfields);
+					
+					if($stmt_cfields->execute()) {
+						$stmt_cfields->bind_result(
+							$cfield_id,
+							$cfield_value
+						);
+						
+						while($stmt_cfields->fetch()) {
+							if(false == ($new_cfield_id = $this->mapCustomFieldId($cfield_id)))
+								continue;
+							
+							$ticket_json['custom_' . $new_cfield_id] = $cfield_value;
+						}
+					}
+					
+					// Write ticket JSON
 					
 					$json_out[] = $ticket_json;
 					unset($ticket_json);
@@ -205,7 +306,7 @@ SQL;
 					// Messages
 					
 					$sql_messages = <<< SQL
-SELECT m.id AS message_id, m.created_date, m.is_outgoing, m.response_time, m.hash_header_message_id, 
+SELECT m.id AS message_id, m.created_date, m.is_outgoing, m.worker_id, m.response_time, m.hash_header_message_id, 
 (SELECT email FROM address WHERE id = m.address_id) as sender, 
 (SELECT headers FROM message_headers WHERE message_id = m.id) as headers, 
 (SELECT data FROM storage_message_content WHERE chunk = 1 AND id = m.id) as content, 
@@ -219,7 +320,18 @@ SQL;
 					$stmt_msgs->attr_set(MYSQLI_STMT_ATTR_PREFETCH_ROWS, 100);
 					
 					if($stmt_msgs->execute()) {
-						$stmt_msgs->bind_result($message_id, $created_date, $is_outgoing, $response_time, $hash_header_message_id, $sender, $headers, $content, $attachment_ids);
+						$stmt_msgs->bind_result(
+							$message_id,
+							$created_date,
+							$is_outgoing,
+							$worker_id,
+							$response_time,
+							$hash_header_message_id,
+							$sender,
+							$headers,
+							$content,
+							$attachment_ids
+						);
 						
 						while($stmt_msgs->fetch()) {
 							$message_uid = sprintf("message_%d", $message_id);
@@ -272,6 +384,11 @@ SQL;
 								'content' => $content ? mb_convert_encoding($content, 'utf-8') : ' ',
 							];
 							
+							if($is_outgoing) {
+								if(false != ($new_worker_id = $this->mapWorkerId($worker_id)))
+									$message_json['worker_id'] = $new_worker_id;
+							}
+							
 							if($html_message_uid)
 								$message_json['html_attachment_id'] = '{{{uid.' . $html_message_uid . '}}}';
 							
@@ -284,46 +401,35 @@ SQL;
 					
 					// Comments
 					
-					/*
 					if(!empty($comment_ids)) {
-						$sql_comments = sprintf(
-							"SELECT c.id, c.created, c.comment, a.email as owner_email FROM comment AS c INNER JOIN address a on (c.owner_context_id=a.id) WHERE c.owner_context = 'cerberusweb.contexts.address' and c.id in (%s) ".
-							"UNION ALL ".
-							"SELECT c.id, c.created, c.comment, a.email as owner_email FROM comment AS c INNER JOIN worker w on (w.id=c.owner_context_id) INNER JOIN address a on (w.email_id=a.id) WHERE c.owner_context = 'cerberusweb.contexts.worker' and c.id in (%s) ".
-							"UNION ALL ".
-							"SELECT c.id, c.created, c.comment, '' as owner_email FROM comment AS c WHERE c.owner_context not in ('cerberusweb.contexts.address','cerberusweb.contexts.worker') and c.id in (%s) "
-							,
-							$comment_ids,
-							$comment_ids,
-							$comment_ids
-						);
-						
-						//$sql_comments = sprintf("SELECT created, comment, owner_context, owner_context_id FROM comment WHERE id IN (%s)", $comment_ids);
+						$sql_comments = sprintf("SELECT id, created, comment, owner_context_id AS worker_id FROM comment WHERE id IN (%s) AND owner_context = 'cerberusweb.contexts.worker'", $comment_ids);
 						$res = $db->query($sql_comments);
 						
 						if($res && $res instanceof \mysqli_result && $res->num_rows)
 						while($row = $res->fetch_assoc()) {
+							if(false == ($new_worker_id = $this->mapWorkerId($row['worker_id'])))
+								continue;
+							
 							$comment_json = [
 								'uid' => sprintf('comment_%d', $row['id']),
 								'_context' => 'comment',
 								'created' => $row['created'],
 								'target__context' => 'ticket',
-								'target_id' => '{{{' . $ticket_uid . '}}}',
+								'target_id' => '{{{uid.' . $ticket_uid . '}}}',
 								'author__context' => 'worker',
-								'author_id' => $row['owner_email'],
+								'author_id' => $new_worker_id,
 								'comment' => $row['comment'],
 							];
 							$json_out[] = $comment_json;
 						}
 					}
-					*/
 					
 					$package_json = [
 						'package' => [
 							'name' => sprintf('Ticket #%d', $ticket_id),
 							'revision' => 1,
 							'requires' => [
-								'cerb_version' => '9.0.6',
+								'cerb_version' => '9.1.1',
 								'plugins' => [],
 							],
 							'configure' => [
