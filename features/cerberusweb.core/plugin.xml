@@ -6915,6 +6915,16 @@
 		</extension>
 		
 		<extension point="cerberusweb.cron">
+			<id>cron.packages</id>
+			<name>Packages Importer</name>
+			<class>
+				<file>api/crons/packages.php</file>
+				<name>Cron_Packages</name>
+			</class>
+			<params />
+		</extension>
+		
+		<extension point="cerberusweb.cron">
 			<id>cron.reminders</id>
 			<name>Reminders</name>
 			<class>
