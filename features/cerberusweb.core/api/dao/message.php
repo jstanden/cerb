@@ -2513,7 +2513,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		
 		$keys['headers'] = [
 			'is_immutable' => false,
-			'is_required' => false,
+			'is_required' => true,
 			'notes' => 'Message headers',
 			'type' => 'string',
 		];
