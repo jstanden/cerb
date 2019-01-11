@@ -706,7 +706,7 @@ EOD;
 		
 		$out .= <<< EOD
 	
-### Workist Columns
+### Worklist Columns
 
 These columns are available on {$context_name} [worklists](/docs/worklists/):
 
