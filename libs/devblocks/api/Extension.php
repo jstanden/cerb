@@ -1802,7 +1802,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				$manifest->id = $event_id;
 				$manifest->plugin_id = 'cerberusweb.core';
 				$manifest->point = Extension_DevblocksEvent::POINT;
-				$manifest->name = 'Custom behavior on ' . DevblocksPlatform::strLower($custom_record->name);
+				$manifest->name = 'Record custom behavior on ' . DevblocksPlatform::strLower($custom_record->name);
 				$manifest->file = 'api/events/macro/abstract_custom_record_macro.php';
 				$manifest->class = 'Event_AbstractCustomRecord_' . $custom_record->id;
 				$manifest->params = [

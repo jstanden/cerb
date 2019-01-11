@@ -3758,7 +3758,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.address</id>
-			<name>Custom behavior on email address</name>
+			<name>Record custom behavior on email address</name>
 			<class>
 				<file>api/events/macro/address_macro.php</file>
 				<name>Event_AddressMacro</name>
@@ -3800,7 +3800,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.calendar</id>
-			<name>Custom behavior on calendar</name>
+			<name>Record custom behavior on calendar</name>
 			<class>
 				<file>api/events/macro/calendar_macro.php</file>
 				<name>Event_CalendarMacro</name>
@@ -3825,7 +3825,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.calendar_event</id>
-			<name>Custom behavior on calendar event</name>
+			<name>Record custom behavior on calendar event</name>
 			<class>
 				<file>api/events/macro/calendar_event_macro.php</file>
 				<name>Event_CalendarEventMacro</name>
@@ -3850,7 +3850,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.contact</id>
-			<name>Custom behavior on contact</name>
+			<name>Record custom behavior on contact</name>
 			<class>
 				<file>api/events/macro/contact_macro.php</file>
 				<name>Event_ContactMacro</name>
@@ -3875,7 +3875,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.group</id>
-			<name>Custom behavior on group</name>
+			<name>Record custom behavior on group</name>
 			<class>
 				<file>api/events/macro/group_macro.php</file>
 				<name>Event_GroupMacro</name>
@@ -3900,7 +3900,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.message</id>
-			<name>Custom behavior on message</name>
+			<name>Record custom behavior on message</name>
 			<class>
 				<file>api/events/macro/message_macro.php</file>
 				<name>Event_MessageMacro</name>
@@ -3925,7 +3925,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.notification</id>
-			<name>Custom behavior on notification</name>
+			<name>Record custom behavior on notification</name>
 			<class>
 				<file>api/events/macro/notification_macro.php</file>
 				<name>Event_NotificationMacro</name>
@@ -3950,7 +3950,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.org</id>
-			<name>Custom behavior on organization</name>
+			<name>Record custom behavior on organization</name>
 			<class>
 				<file>api/events/macro/org_macro.php</file>
 				<name>Event_OrgMacro</name>
@@ -3975,7 +3975,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.reminder</id>
-			<name>Custom behavior on reminder</name>
+			<name>Record custom behavior on reminder</name>
 			<class>
 				<file>api/events/macro/reminder_macro.php</file>
 				<name>Event_ReminderMacro</name>
@@ -4000,7 +4000,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.task</id>
-			<name>Custom behavior on task</name>
+			<name>Record custom behavior on task</name>
 			<class>
 				<file>api/events/macro/task_macro.php</file>
 				<name>Event_TaskMacro</name>
@@ -4025,7 +4025,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.ticket</id>
-			<name>Custom behavior on ticket</name>
+			<name>Record custom behavior on ticket</name>
 			<class>
 				<file>api/events/macro/ticket_macro.php</file>
 				<name>Event_TicketMacro</name>
@@ -4050,7 +4050,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.bot</id>
-			<name>Custom behavior on bot</name>
+			<name>Record custom behavior on bot</name>
 			<class>
 				<file>api/events/macro/bot_macro.php</file>
 				<name>Event_BotMacro</name>
@@ -4075,7 +4075,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.worker</id>
-			<name>Custom behavior on worker</name>
+			<name>Record custom behavior on worker</name>
 			<class>
 				<file>api/events/macro/worker_macro.php</file>
 				<name>Event_WorkerMacro</name>
