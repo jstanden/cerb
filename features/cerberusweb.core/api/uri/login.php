@@ -378,6 +378,7 @@ class Page_Login extends CerberusPageExtension {
 				
 			default:
 				@$otp = DevblocksPlatform::importGPC($_REQUEST['otp'], 'string', null);
+				@$remember_device = DevblocksPlatform::importGPC($_REQUEST['remember_device'], 'integer', 0);
 				
 				if($otp) {
 					// If verified
