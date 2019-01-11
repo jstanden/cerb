@@ -626,8 +626,13 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @param string $string
 	 * @return Model_Worker[]
 	 */
-	static function getByString($string) {
-		$workers = DAO_Worker::getAllActive();
+	static function getByString($string, $with_disabled=false) {
+		if($with_disabled) {
+			$workers = DAO_Worker::getAll();
+		} else {
+			$workers = DAO_Worker::getAllActive();
+		}
+		
 		$patterns = DevblocksPlatform::parseCsvString($string);
 		
 		$results = [];

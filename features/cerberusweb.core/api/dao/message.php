@@ -2525,6 +2525,13 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'type' => 'string',
 		];
 		
+		$keys['worker'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'The [worker](/docs/records/types/worker/) who sent the message (if any); alternative to `worker_id`',
+			'type' => 'string',
+		];
+		
 		$keys['hash_header_message_id']['notes'] = "A SHA-1 hash of the `Message-Id:` header; used for message threading";
 		$keys['html_attachment_id']['notes'] = "The [attachment](/docs/records/types/attachment/) ID containing the HTML message content";
 		$keys['is_broadcast']['notes'] = "Was this message sent using the broadcast feature?";
@@ -2563,6 +2570,19 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				}
 				
 				$out_fields[DAO_Message::ADDRESS_ID] = $address->id;
+				break;
+				
+			case 'worker':
+				if(
+					false == ($workers = DAO_Worker::getByString($value, true)) 
+					|| !is_array($workers) 
+					|| 1 != count($workers)) 
+				{
+					$error = sprintf("Failed to lookup worker: %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Message::WORKER_ID] = key($workers);
 				break;
 		}
 		
