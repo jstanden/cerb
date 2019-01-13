@@ -1258,6 +1258,8 @@ if(isset($columns['auth_extension_id'])) {
 	);
 	$db->ExecuteMaster($sql);
 	
+	$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mfa.totp.seed' AND value = ''");
+	
 	$sql = "UPDATE worker SET is_mfa_required=1 WHERE id IN (SELECT worker_id FROM worker_pref WHERE setting = 'mfa.totp.seed')";
 	$db->ExecuteMaster($sql);
 	
@@ -1409,6 +1411,12 @@ if($rs = $db->ExecuteMaster($sql)) {
 	
 	mysqli_free_result($rs);
 }
+
+// ===========================================================================
+// Disable the MFA requirement on any accounts without a 2FA seed
+
+$db->ExecuteMaster("DELETE FROM worker_pref WHERE setting = 'mfa.totp.seed' AND value = ''");
+$db->ExecuteMaster("UPDATE worker SET is_mfa_required = 0 WHERE id NOT IN (SELECT worker_id FROM worker_pref WHERE setting = 'mfa.totp.seed')");
 
 // ===========================================================================
 // Finish up
