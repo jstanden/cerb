@@ -88,11 +88,15 @@
 	{/if}
 	</td>
 {else}
-	{$field_ext = $col->getTypeExtension()}
-	{if $field_ext}
-		<td data-column="{$column}">
-			{$field_ext->renderValue($result.$column)}
-		</td>
+	{if $col && method_exists($col, 'getTypeExtension')}
+		{$field_ext = $col->getTypeExtension()}
+		{if $field_ext}
+			<td data-column="{$column}">
+				{$field_ext->renderValue($result.$column)}
+			</td>
+		{else}
+			<td data-column="{$column}"></td>
+		{/if}
 	{else}
 		<td data-column="{$column}"></td>
 	{/if}
