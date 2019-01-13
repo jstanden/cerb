@@ -3630,6 +3630,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$custom_fields =
 			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET) +
+			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ADDRESS) +
 			DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ORG)
 			;
 		$tpl->assign('custom_fields', $custom_fields);
