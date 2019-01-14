@@ -1,4 +1,4 @@
-<div style="float:right;">
+<div>
 	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
 </div>
 

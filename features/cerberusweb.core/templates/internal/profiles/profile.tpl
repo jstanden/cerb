@@ -3,16 +3,16 @@
 {$is_writeable = CerberusContexts::isWriteableByActor($page_context, $record, $active_worker)}
 {$tabset_id = "profile-tabs-{DevblocksPlatform::strAlphaNum($page_context,'','_')}"}
 
-{if $context_ext->hasOption('avatars')}
-<div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context={$context_ext->manifest->params.alias}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}" style="height:75px;width:75px;border-radius:5px;">
+{if $smarty.const.APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH}
+<div style="margin-bottom:5px;">
+	{$ctx = Extension_DevblocksContext::get($page_context)}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
 </div>
 {/if}
 
-{if $smarty.const.APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH}
-<div style="float:right">
-	{$ctx = Extension_DevblocksContext::get($page_context)}
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
+{if $context_ext->hasOption('avatars')}
+<div style="float:left;margin-right:10px;">
+	<img src="{devblocks_url}c=avatars&context={$context_ext->manifest->params.alias}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 {/if}
 

@@ -8,7 +8,7 @@
 	<input type="hidden" name="view_id" value="{$view->id}">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-	<div style="border:1px solid rgb(200,200,200);border-radius:10px;display:inline-block;">
+	<div style="border:1px solid rgb(200,200,200);border-radius:10px;">
 		<table cellpadding="0" cellspacing="0" width="100%">
 			<tr>
 				<td width="100%" valign="top">

@@ -24,11 +24,11 @@
 </div>
 </form>
 
-<div style="float:left;">
+<div>
 	<h2>Pages</h2>
 </div>
 
-<div style="float:right;">
+<div>
 	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
 </div>
 

@@ -1,12 +1,10 @@
-<div style="float:left;">
+<div>
 	<h2>{'translators.common'|devblocks_translate|capitalize}</h2>
 </div>
 
-<div style="float:right;">
+<div>
 	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
 </div>
-
-<br clear="all">
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">

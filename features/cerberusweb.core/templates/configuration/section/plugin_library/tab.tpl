@@ -1,8 +1,8 @@
-<div style="float:right;">
+<div>
 	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
 </div>
 
-<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
+<form action="{devblocks_url}{/devblocks_url}" style="margin:5px 0px 5px 0px;">
 	<button type="button" id="btnPluginLibrarySync"><span class="glyphicons glyphicons-refresh"></span></a> Download updates</button>
 </form>
 
