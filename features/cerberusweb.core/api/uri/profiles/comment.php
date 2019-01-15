@@ -63,6 +63,8 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array()), 'int');
 			@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
 			
+			$error = null;
+			
 			if(empty($id)) { // New
 				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
 				

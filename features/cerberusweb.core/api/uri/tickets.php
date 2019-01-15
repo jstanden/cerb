@@ -18,7 +18,7 @@
 class ChTicketsPage extends CerberusPageExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		
 		return true;
@@ -215,7 +215,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		$tpl = DevblocksPlatform::services()->template();
 
-		$visit = CerberusApplication::getVisit();
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		$tpl->assign('view', $view);
@@ -339,6 +338,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			// Only update fields that changed
 			$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
+			$error = null;
 			
 			if(!DAO_Ticket::validate($fields, $error, $id))
 				throw new Exception_DevblocksAjaxValidationError($error);
@@ -367,7 +367,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
 					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 				);
-				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+				DAO_Comment::create($fields, $also_notify_worker_ids);
 			}
 			
 			echo json_encode(array(
@@ -407,7 +407,6 @@ class ChTicketsPage extends CerberusPageExtension {
 				throw new Exception_DevblocksAjaxValidationError("You do not have permission to send mail.");
 			
 			@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
-			@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 	
 			// Destination
 			
@@ -429,11 +428,9 @@ class ChTicketsPage extends CerberusPageExtension {
 			
 			@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer',0);
 			@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
-			@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer',0);
 			
 			// Options
 			
-			@$options_dont_send = DevblocksPlatform::importGPC($_POST['options_dont_send'],'integer',0);
 			@$options_gpg_encrypt = DevblocksPlatform::importGPC(@$_POST['options_gpg_encrypt'],'integer',0);
 			
 			// Attachments
@@ -683,6 +680,7 @@ class ChTicketsPage extends CerberusPageExtension {
 		
 		foreach($lines_in as $line) {
 			$handled = false;
+			$matches = [];
 			
 			if(preg_match('/^\#([A-Za-z0-9_]+)(.*)$/', $line, $matches)) {
 				@$command = $matches[1];
@@ -789,7 +787,7 @@ class ChTicketsPage extends CerberusPageExtension {
 							DAO_Comment::CREATED => time()+2,
 							DAO_Comment::COMMENT => $comment,
 						);
-						$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+						DAO_Comment::create($fields, $also_notify_worker_ids);
 					}
 					break;
 		
@@ -830,12 +828,10 @@ class ChTicketsPage extends CerberusPageExtension {
 			return;
 		}
 		
-		$visit = CerberusApplication::getVisit(); /* @var $visit CerberusVisit */
-
-		$fields = array(
+		$fields = [
 			DAO_Ticket::GROUP_ID => $group_id,
 			DAO_Ticket::BUCKET_ID => $bucket_id,
-		);
+		];
 		
 		//====================================
 		// Undo functionality
