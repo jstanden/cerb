@@ -970,6 +970,7 @@ class SearchFields_Group extends DevblocksSearchFields {
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_MANAGER_SEARCH = '*_manager_search';
 	const VIRTUAL_MEMBER_SEARCH = '*_member_search';
 	
 	static private $_fields = null;
@@ -994,6 +995,11 @@ class SearchFields_Group extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_GROUP)), self::getPrimaryKey());
 				break;
 			
+			case self::VIRTUAL_MANAGER_SEARCH:
+				$sql = "SELECT DISTINCT wtg.group_id FROM worker_to_group wtg WHERE wtg.is_manager = 1 AND wtg.worker_id IN (%s)";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'g.id');
+				break;
+				
 			case self::VIRTUAL_MEMBER_SEARCH:
 				$sql = "SELECT DISTINCT wtg.group_id FROM worker_to_group wtg WHERE wtg.worker_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'g.id');
@@ -1092,6 +1098,7 @@ class SearchFields_Group extends DevblocksSearchFields {
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_MANAGER_SEARCH => new DevblocksSearchField(self::VIRTUAL_MANAGER_SEARCH, '*', 'manager_search', null, null, false),
 			self::VIRTUAL_MEMBER_SEARCH => new DevblocksSearchField(self::VIRTUAL_MEMBER_SEARCH, '*', 'member_search', null, null, false),
 		);
 		
@@ -1351,6 +1358,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		$this->addColumnsHidden(array(
 			SearchFields_Group::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Group::VIRTUAL_CONTEXT_LINK,
+			SearchFields_Group::VIRTUAL_MANAGER_SEARCH,
 			SearchFields_Group::VIRTUAL_MEMBER_SEARCH,
 		));
 		
@@ -1481,6 +1489,14 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_GROUP, 'q' => ''],
 					]
 				),
+			'manager' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_WORKER,
+					'options' => array('param_key' => SearchFields_Group::VIRTUAL_MANAGER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
 			'member' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_WORKER,
@@ -1560,6 +1576,10 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
 			
+			case 'manager':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Group::VIRTUAL_MANAGER_SEARCH);
+				break;
+				
 			case 'member':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Group::VIRTUAL_MEMBER_SEARCH);
 				break;
@@ -1614,6 +1634,13 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 				
 			case SearchFields_Group::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+				
+			case SearchFields_Group::VIRTUAL_MANAGER_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.manager')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 				
 			case SearchFields_Group::VIRTUAL_MEMBER_SEARCH:
