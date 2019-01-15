@@ -1370,6 +1370,13 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
 		$keys['content']['notes'] = "The body content of the draft message";
 		$keys['subject']['notes'] = "The subject line of the draft message";
 		$keys['to']['notes'] = "The `To:` line of the draft message";
@@ -1383,6 +1390,20 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+				
+			case 'params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_MailQueue::PARAMS_JSON] = $json;
 				break;
 		}
 		
