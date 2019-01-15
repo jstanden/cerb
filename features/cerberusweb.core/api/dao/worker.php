@@ -1362,6 +1362,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_GROUPS = '*_groups';
 	const VIRTUAL_GROUP_SEARCH = '*_group_search';
+	const VIRTUAL_GROUP_MANAGER_SEARCH = '*_group_manager_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_CALENDAR_AVAILABILITY = '*_calendar_availability';
 	const VIRTUAL_SESSION_ACTIVITY = '*_session_activity';
@@ -1411,6 +1412,11 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_GROUP_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_group WHERE group_id IN (%s)";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'w.id');
+				break;
+				
+			case self::VIRTUAL_GROUP_MANAGER_SEARCH:
+				$sql = "SELECT worker_id FROM worker_to_group WHERE is_manager = 1 AND group_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_GROUP, $sql, 'w.id');
 				break;
 				
@@ -1584,6 +1590,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null),
 			self::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_SEARCH, '*', 'group_search', DevblocksPlatform::translateCapitalized('common.groups'), null, false),
+			self::VIRTUAL_GROUP_MANAGER_SEARCH => new DevblocksSearchField(self::VIRTUAL_GROUP_MANAGER_SEARCH, '*', 'group_manager_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_CALENDAR_AVAILABILITY => new DevblocksSearchField(self::VIRTUAL_CALENDAR_AVAILABILITY, '*', 'calendar_availability', 'Calendar Availability', null),
 			self::VIRTUAL_SESSION_ACTIVITY => new DevblocksSearchField(self::VIRTUAL_SESSION_ACTIVITY, '*', 'session_activity', 'Last Activity', null),
@@ -2096,6 +2103,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_Worker::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Worker::VIRTUAL_GROUP_SEARCH,
+			SearchFields_Worker::VIRTUAL_GROUP_MANAGER_SEARCH,
 			SearchFields_Worker::VIRTUAL_ROLE_SEARCH,
 			SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY,
 			SearchFields_Worker::FULLTEXT_WORKER,
@@ -2352,6 +2360,14 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_GROUP, 'q' => ''],
 					]
 				),
+			'group.manager' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_GROUP_MANAGER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_GROUP, 'q' => ''],
+					]
+				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
@@ -2560,6 +2576,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_GROUP_SEARCH);
 				break;
 				
+			case 'group.manager':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_GROUP_MANAGER_SEARCH);
+				break;
+				
 			case 'isAvailable':
 				$param = DevblocksSearchCriteria::getDateParamFromTokens(SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY, $tokens);
 				$param->value[] = '1';
@@ -2639,6 +2659,13 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Worker::VIRTUAL_GROUP_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.group')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_GROUP_MANAGER_SEARCH:
+				echo sprintf("%s of <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.manager')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
