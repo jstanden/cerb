@@ -2904,13 +2904,16 @@ class ChInternalController extends DevblocksControllerExtension {
 			DAO_WorkspaceList::OPTIONS_JSON => json_encode($view->options),
 			DAO_WorkspaceList::PARAMS_EDITABLE_JSON => json_encode($view->getEditableParams()),
 			DAO_WorkspaceList::PARAMS_REQUIRED_JSON => json_encode($view->getParamsRequired()),
+			DAO_WorkspaceList::PARAMS_REQUIRED_QUERY => $view->getParamsRequiredQuery(),
 			DAO_WorkspaceList::RENDER_LIMIT => $view->renderLimit,
 			DAO_WorkspaceList::RENDER_SORT_JSON => json_encode($view->getSorts()),
 			DAO_WorkspaceList::RENDER_SUBTOTALS => $view->renderSubtotals,
 			DAO_WorkspaceList::WORKSPACE_TAB_ID => $workspace_tab_id,
 			DAO_WorkspaceList::WORKSPACE_TAB_POS => 99,
 		];
-		DAO_WorkspaceList::create($fields);
+		$new_id = DAO_WorkspaceList::create($fields);
+		
+		DAO_WorkerViewModel::deleteByViewId('cust_' . $new_id);
 
 		$view->render();
 	}
