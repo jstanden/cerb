@@ -34,7 +34,17 @@ $(function() {
 			var $this = $(this);
 			var preset = $this.attr('data-preset');
 			var $editor = $this.closest('.cerb-filter-editor');
-			$editor.find('input:text').val(preset);
+			$editor.find('input:text').val(preset).focus();
+		})
+	;
+	
+	$filter.find('input:text')
+		.on('keydown.dashboard-filters', null, 'return', function(e) {
+			$(this)
+				.closest('form')
+				.find('.cerb-filter-editor--save')
+				.click()
+			;
 		})
 	;
 });
