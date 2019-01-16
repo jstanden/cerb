@@ -87,6 +87,24 @@ namespace Cerb\Impex\Exporters {
 			*/
 		}
 		
+		function mapTimeTrackingActivityId($id) {
+			$id = intval($id);
+			
+			return $id;
+			
+			$map = [
+				1 => 1, // Development
+				2 => 2, // Troubleshooting
+				3 => 3, // Consulting
+				4 => 4, // Sales
+			];
+			
+			if(array_key_exists($id, $map))
+				return $map[$id];
+			
+			return 0;
+		}
+		
 		function testConfig(array $config) {
 			$required_options = array(
 				'db_host',
@@ -423,6 +441,72 @@ SQL;
 							$json_out[] = $comment_json;
 						}
 					}
+					
+					// Time Tracking
+					
+					$sql_timetracking = sprintf("SELECT id, time_actual_mins, log_date, worker_id, activity_id, is_closed, ".
+						"(SELECT group_concat(comment.id) FROM comment WHERE context = 'cerberusweb.contexts.timetracking' AND context_id = timetracking_entry.id AND owner_context = 'cerberusweb.contexts.worker') AS comment_ids ".
+						"FROM timetracking_entry ".
+						"INNER JOIN context_link ON (".
+							"context_link.to_context = 'cerberusweb.contexts.timetracking' ".
+							"AND context_link.to_context_id = timetracking_entry.id ".
+							"AND from_context = 'cerberusweb.contexts.ticket' ".
+							"AND from_context_id = %d".
+						")",
+						$ticket_id
+					);
+					
+					$res = $db->query($sql_timetracking);
+					
+					if($res && $res instanceof \mysqli_result && $res->num_rows)
+					while($row = $res->fetch_assoc()) {
+						if(false == ($new_worker_id = $this->mapWorkerId($row['worker_id'])))
+							continue;
+						
+						$time_uid = sprintf('timetracking_%d', $row['id']);
+						
+						$timetracking_json = [
+							'uid' => $time_uid,
+							'_context' => 'time_entry',
+							'log_date' => $row['log_date'],
+							'is_closed' => $row['is_closed'] ? 1 : 0,
+							'mins' => intval($row['time_actual_mins']),
+							'activity_id' => $this->mapTimeTrackingActivityId($row['activity_id']),
+							'worker_id' => $new_worker_id,
+							'links' => [
+								'ticket:' . '{{{uid.' . $ticket_uid . '}}}',
+							],
+						];
+						$json_out[] = $timetracking_json;
+						
+						$comment_ids = $row['comment_ids'];
+						
+						// Time tracking comments
+						if(!empty($comment_ids)) {
+							$sql_comments = sprintf("SELECT id, created, comment, owner_context_id AS worker_id FROM comment WHERE id IN (%s) AND owner_context = 'cerberusweb.contexts.worker'", $comment_ids);
+							$res = $db->query($sql_comments);
+							
+							if($res && $res instanceof \mysqli_result && $res->num_rows)
+							while($row = $res->fetch_assoc()) {
+								if(false == ($new_worker_id = $this->mapWorkerId($row['worker_id'])))
+									continue;
+								
+								$comment_json = [
+									'uid' => sprintf('comment_%d', $row['id']),
+									'_context' => 'comment',
+									'created' => $row['created'],
+									'target__context' => 'time_entry',
+									'target_id' => '{{{uid.' . $time_uid . '}}}',
+									'author__context' => 'worker',
+									'author_id' => $new_worker_id,
+									'comment' => $row['comment'],
+								];
+								$json_out[] = $comment_json;
+							}
+						}
+					}
+					
+					// Package
 					
 					$package_json = [
 						'package' => [
