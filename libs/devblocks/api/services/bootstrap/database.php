@@ -272,6 +272,9 @@ class _DevblocksDatabaseManager {
 		$this->_last_used_db = $db;
 
 		if(false === ($rs = mysqli_query($db, $sql))) {
+			$mysql_errno = mysqli_errno($db);
+			$mysql_error = mysqli_error($db);
+			
 			// If the DB is down, try to reconnect
 			if(!mysqli_ping($db)) {
 				error_log("The MySQL connection closed prematurely.");
@@ -296,8 +299,8 @@ class _DevblocksDatabaseManager {
 				
 			} else {
 				$error_msg = sprintf("[%d] %s ::SQL:: %s",
-					mysqli_errno($db),
-					mysqli_error($db),
+					$mysql_errno,
+					$mysql_error,
 					$sql
 				);
 				
