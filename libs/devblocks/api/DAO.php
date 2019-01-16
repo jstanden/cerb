@@ -749,11 +749,14 @@ abstract class DevblocksORMHelper {
 		));
 		
 		// Merge project_board owner
-		$db->ExecuteMaster(sprintf("UPDATE project_board SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
-			$to_id,
-			$db->qstr($context),
-			implode(',', $from_ids)
-		));
+		
+		if(false != ($plugin = DevblocksPlatform::getPlugin('cerb.project_boards')) && $plugin->enabled) {
+			$db->ExecuteMaster(sprintf("UPDATE project_board SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+				$to_id,
+				$db->qstr($context),
+				implode(',', $from_ids)
+			));
+		}
 		
 		// Merge snippet owner
 		$db->ExecuteMaster(sprintf("UPDATE snippet SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
