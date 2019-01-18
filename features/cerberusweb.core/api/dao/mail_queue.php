@@ -1462,9 +1462,14 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			SearchFields_MailQueue::TICKET_ID,
 		));
 		
-		$view->addParams(array(
-			SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
-		), true);
+		if($active_worker) {
+			$view->addParams([
+				SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
+			], true);
+			
+		} else {
+			$view->addParams([], true);
+		}
 		
 		$view->addParamsRequired(array(
 			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=',0),
