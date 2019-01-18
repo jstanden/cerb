@@ -1,9 +1,10 @@
 <?php
 class _DevblocksEventManager {
 	private static $instance = null;
+	private $_enabled = true;
 	
 	private function __construct() {}
-
+	
 	/**
 	 * @return _DevblocksEventManager
 	 */
@@ -14,7 +15,22 @@ class _DevblocksEventManager {
 		return self::$instance;
 	}
 	
+	function enable() {
+		$this->_enabled = true;
+	}
+	
+	function disable() {
+		$this->_enabled = false;
+	}
+	
+	function isEnabled() {
+		return $this->_enabled;
+	}
+	
 	function trigger(Model_DevblocksEvent $event) {
+		if(!$this->_enabled)
+			return;
+		
 		/*
 		 * [TODO] Look at the hash and spawn our listeners for this particular point
 		 */

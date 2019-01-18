@@ -2269,6 +2269,9 @@ class CerberusContexts {
 	static function checkpointChanges($context, $ids) {
 		if(php_sapi_name() == 'cli')
 			return;
+		
+		if(!DevblocksPlatform::services()->event()->isEnabled())
+			return;
 
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 		$actor = CerberusContexts::getCurrentActor();

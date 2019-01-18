@@ -196,6 +196,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @internal
 	 */
 	static function markContextChanged($context, $context_ids) {
+		// If event are disabled, skip.
+		if(!DevblocksPlatform::services()->event()->isEnabled())
+			return;
+		
 		if(!is_array($context_ids))
 			$context_ids = array($context_ids);
 
