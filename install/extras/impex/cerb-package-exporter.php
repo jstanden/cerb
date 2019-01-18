@@ -180,6 +180,9 @@ namespace Cerb\Impex\Exporters {
 							'configure' => [
 								'prompts' => [],
 								'placeholders' => [],
+								'options' => [
+									'disable_events' => true,
+								],
 							],
 						],
 						'records' => $json_out
@@ -519,6 +522,9 @@ SQL;
 							'configure' => [
 								'prompts' => [],
 								'placeholders' => [],
+								'options' => [
+									'disable_events' => true,
+								],
 							],
 						],
 						'records' => $json_out
