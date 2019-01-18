@@ -87,6 +87,8 @@ class Cerb_Packages {
 	}
 	
 	static function importFromJson($json, array $prompts=[], &$records_created=null) {
+		$event = DevblocksPlatform::services()->event();
+		
 		if(!is_array($json))
 			throw new Exception_DevblocksValidationError("Invalid package JSON");
 		
@@ -96,6 +98,12 @@ class Cerb_Packages {
 		@$configure = $json['package']['configure'];
 		@$config_prompts = $configure['prompts'];
 		@$config_placeholders = $configure['placeholders'];
+		$config_options = array_merge(
+			[
+				'disable_events' => false,
+			],
+			@$configure['options'] ?: []
+		);
 		
 		if(is_array($config_prompts) && $config_prompts) {
 			foreach($config_prompts as $config_prompt) {
@@ -148,6 +156,9 @@ class Cerb_Packages {
 		$uids = [];
 		$records_created = [];
 		
+		if($config_options['disable_events'])
+			$event->disable();
+		
 		self::_packageCreateCustomRecords($json, $uids, $records_created, $placeholders);
 		self::_packageValidate($json, $uids, $records_created, $placeholders);
 		self::_packageGenerateIds($json, $uids, $records_created, $placeholders);
@@ -155,6 +166,9 @@ class Cerb_Packages {
 		
 		// Flush the entire cache
 		DevblocksPlatform::services()->cache()->clean();
+		
+		if($config_options['disable_events'])
+			$event->enable();
 	}
 	
 	private static function _packageCreateCustomRecords(&$json, &$uids, &$records_created, &$placeholders) {
