@@ -629,6 +629,11 @@ class Model_WorkspaceTab {
 		if(false == (@$placeholder_prompts = yaml_parse($placeholder_prompts, -1)))
 			return [];
 		
+		$keys = array_map(function($prompt) { return $prompt['placeholder']; }, $placeholder_prompts);
+		
+		// Set placeholder names as keys
+		return array_combine($keys, $placeholder_prompts);
+		
 		// Handle PHP's single document YAML format
 		/*
 		if(
@@ -656,14 +661,57 @@ class Model_WorkspaceTab {
 		
 		$results = DAO_WorkerDashboardPref::get($this->id, $worker);
 		
+		// Set values based on prompts
+		
 		foreach($results as $result) {
-			$prefs[$result['pref_key']] = $result['pref_value'];
+			if(false == (@$prompt = $placeholder_prompts[$result['pref_key']]))
+				continue;
+			
+			switch($prompt['type']) {
+				case 'picklist':
+					if(@$prompt['params']['multiple']) {
+						$prefs[$result['pref_key']] = json_decode($result['pref_value'], true);
+						
+					} else {
+						$prefs[$result['pref_key']] = $result['pref_value'];
+					}
+					break;
+					
+				case 'chooser':
+				case 'date_range':
+				default:
+					$prefs[$result['pref_key']] = $result['pref_value'];
+					break;
+			}
 		}
 		
 		return $prefs;
 	}
 	
 	function setDashboardPrefsAsWorker(array $prefs, Model_Worker $worker) {
+		$placeholder_prompts = $this->getPlaceholderPrompts();
+		
+		foreach($prefs as $pref_key => $pref_value) {
+			if(false == (@$prompt = $placeholder_prompts[$pref_key]))
+				continue;
+			
+			switch($prompt['type']) {
+				case 'chooser':
+					$prefs[$pref_key] = implode(',', $pref_value);
+					break;
+					
+				case 'picklist':
+					if(@$prompt['params']['multiple']) {
+						$prefs[$pref_key] = json_encode($pref_value);
+					}
+					break;
+					
+				case 'date_range':
+				default:
+					break;
+			}
+		}
+		
 		DAO_WorkerDashboardPref::set($this->id, $prefs, $worker);
 	}
 	

@@ -975,6 +975,11 @@
 				<seg>D.O.B.</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.done">
+			<tuv xml:lang="en_US">
+				<seg>done</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.download">
 			<tuv xml:lang="en_US">
 				<seg>download</seg>

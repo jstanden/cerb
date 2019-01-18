@@ -12,8 +12,10 @@
 				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_chooser.tpl" prompt=$prompt}
 			{elseif $prompt.type == 'date_range'}
 				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_date_range.tpl" prompt=$prompt}
-			{elseif $prompt.type == 'picklist'}
-				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_picklist.tpl" prompt=$prompt}
+			{elseif $prompt.type == 'picklist' && !$prompt.params.multiple}
+				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_picklist_single.tpl" prompt=$prompt}
+			{elseif $prompt.type == 'picklist' && $prompt.params.multiple}
+				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_picklist_multiple.tpl" prompt=$prompt}
 			{/if}
 		{/foreach}
 		
