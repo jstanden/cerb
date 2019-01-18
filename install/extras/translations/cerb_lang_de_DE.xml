@@ -1818,16 +1818,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.jira_issue.jira_status_id">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.jira_issue.jira_type_id">
-			<tuv xml:lang="de_DE">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.jira_issue.jira_versions">
 			<tuv xml:lang="de_DE">
 				<seg/>
