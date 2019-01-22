@@ -175,7 +175,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 		// Reorder worklists, rename lists, on workspace
 		if(is_array($ids) && !empty($ids)) {
 			foreach($ids as $idx => $id) {
-				if(null == ($worklist = DAO_WorkspaceList::get($id)))
+				if(null == (DAO_WorkspaceList::get($id)))
 					continue;
 				
 				$worklist_name = $names[$idx];
@@ -293,7 +293,7 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 				DAO_WorkspaceList::WORKSPACE_TAB_ID => $tab->id,
 			];
 			
-			$worklist_id = DAO_WorkspaceList::create($fields);
+			DAO_WorkspaceList::create($fields);
 		}
 		
 		return true;
