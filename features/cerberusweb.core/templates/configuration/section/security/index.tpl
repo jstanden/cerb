@@ -50,7 +50,7 @@ $(function() {
 	var $frm = $('#frmSetupSecurity');
 	
 	$frm.find('BUTTON.submit')
-		$frm.click(function(e) {
+		.click(function(e) {
 			genericAjaxPost('frmSetupSecurity','',null,function(json) {
 				Devblocks.saveAjaxForm($frm);
 			});
