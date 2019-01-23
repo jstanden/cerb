@@ -562,10 +562,18 @@ class CerberusParserModel {
 		$model = clone $this; /* @var $model CerberusParserModel */
 		$group_id = 0;
 		
+		if(false == ($sender_address = $model->getSenderAddressModel())) {
+			$sender_address = new Model_Address();
+			$sender_address->email = 'missing-sender@example.com';
+		}
+		
+		if(false == ($sender_message = $model->getMessage()))
+			return null;
+		
 		// Routing new tickets
 		if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
-			$model->getSenderAddressModel(),
-			$model->getMessage()
+			$sender_address,
+			$sender_message
 		))) {
 			
 			// Update our model with the results of the routing rules
