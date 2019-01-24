@@ -4673,14 +4673,6 @@ For example: *receipt*</seg>
 			</tuv>
 		</tu>
 
-		<!-- Whos Online -->
-		
-		<tu tuid="whos_online.currently_active">
-			<tuv xml:lang="en_US">
-				<seg>Currently active:</seg>
-			</tuv>
-		</tu>
-
 		<!-- Worker -->
 		
 		<tu tuid="worker.at_mention_name">

@@ -23,10 +23,6 @@
 </div>
 {/if}
 	
-<div style="margin-top:10px;">
-	{include file="devblocks:cerberusweb.core::internal/whos_online.tpl"}
-</div>
-
 <script type="text/javascript">
 $(function() {
 	// Set the browser tab label to the record label

@@ -5145,11 +5145,6 @@ For example: *receipt*</seg>
 				<seg>Tweet</seg>
 			</tuv>
 		</tu>
-		<tu tuid="whos_online.currently_active">
-			<tuv xml:lang="en_GB">
-				<seg>Currently active:</seg>
-			</tuv>
-		</tu>
 		<tu tuid="worker.at_mention_name">
 			<tuv xml:lang="en_GB">
 				<seg>@Mention</seg>
