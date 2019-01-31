@@ -97,6 +97,7 @@ class _DevblocksTemplateBuilder {
 				'date',
 				'date_modify',
 				'default',
+				'e',
 				'escape',
 				'first',
 				'format',
