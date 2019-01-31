@@ -281,7 +281,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		
 		// Remove
 		if(is_array($links) && isset($links[$from_context_id]))
-		foreach($links[$from_context_id] as $link_id => $link) {
+		foreach(array_keys($links[$from_context_id]) as $link_id) {
 			if(false === array_search($link_id, $to_context_ids))
 				DAO_ContextLink::deleteLink($from_context, $from_context_id, $to_context, $link_id);
 		}

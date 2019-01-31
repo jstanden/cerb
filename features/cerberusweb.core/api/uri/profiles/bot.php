@@ -118,6 +118,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						DAO_Bot::PARAMS_JSON => json_encode($params),
 					);
 					
+					$error = null;
+					
 					if(!DAO_Bot::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
@@ -195,7 +197,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	
 	function showScheduledBehaviorsTabAction() {
 		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer',0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();

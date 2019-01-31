@@ -314,9 +314,8 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		if(false == ($im = @imagecreate(100, 100)))
 			DevblocksPlatform::dieWithHttpError(null, 500);
 			
-		$background_color = imagecolorallocate($im, $r_rand, $g_rand, $b_rand);
+		imagecolorallocate($im, $r_rand, $g_rand, $b_rand);
 		$text_color = imagecolorallocate($im, 255, 255, 255);
-		//imagerectangle($im, $x, $y, $x+$box_width, $y-$box_height, $text_color);
 		imagettftext($im, $font_size, 0, $x, $y, $text_color, $font, $text);
 		imagepng($im, null, 1);
 		imagedestroy($im);

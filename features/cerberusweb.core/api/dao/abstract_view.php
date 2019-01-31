@@ -4470,6 +4470,7 @@ class CerbQuickSearchLexer {
 				case 'T_QUOTED_TEXT':
 				case 'T_TEXT':
 					$v = $token->value;
+					$matches = [];
 					
 					if(preg_match('#^([\!\=\>\<]+)(.*)#', $v, $matches)) {
 						$oper_hint = trim($matches[1]);

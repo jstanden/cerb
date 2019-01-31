@@ -25,8 +25,6 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
 		
-		$tabs = DAO_WorkspaceTab::getByPage($context_id);
-		
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	

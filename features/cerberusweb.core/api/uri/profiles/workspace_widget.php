@@ -84,8 +84,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
 						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
 						
-						@$json = json_decode($import_json, true);
-						
 						if(
 							empty($import_json)
 							|| false == (@$widget_json = json_decode($import_json, true))
@@ -104,7 +102,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						@$name = $widget_json['widget']['label'] ?: 'New widget';
 						@$extension_id = $widget_json['widget']['extension_id'];
 						
-						if(empty($extension_id) || null == ($extension = Extension_WorkspaceWidget::get($extension_id)))
+						if(empty($extension_id) || null == (Extension_WorkspaceWidget::get($extension_id)))
 							throw new Exception_DevblocksAjaxValidationError("Invalid widget extension");
 						
 						$fields = [
@@ -116,6 +114,8 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 							DAO_WorkspaceWidget::ZONE => @$widget_json['widget']['zone'] ?: '',
 							DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget_json['widget']['params'])
 						];
+						
+						$error = null;
 						
 						if(!DAO_WorkspaceWidget::validate($fields, $error))
 							throw new Exception_DevblocksAjaxValidationError($error);
@@ -261,7 +261,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('widget', $widget);
 			
-			if(false == ($tab = $widget->getWorkspaceTab()))
+			if(false == ($widget->getWorkspaceTab()))
 				return;
 			
 			$tpl->assign('full', true);

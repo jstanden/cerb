@@ -80,7 +80,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						) {
 							throw new Exception_DevblocksAjaxValidationError("The JSON to import is invalid.", "import_json");
 						}
-			
+						
 						@$event_point = $json['behavior']['event']['key'];
 						
 						if(
@@ -128,7 +128,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 										continue;
 									
 									$ptr =& DevblocksPlatform::jsonGetPointerFromPath($json, $config_field['path']);
-									$ptr = $configure[$config_field_idx];
+									
+									if(!is_null($ptr))
+										$ptr = $configure[$config_field_idx];
 								}
 								
 							// If the worker hasn't been prompted, do that now
@@ -158,6 +160,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							DAO_TriggerEvent::IS_PRIVATE => @$json['behavior']['is_private'] ? 1 : 0,
 							DAO_TriggerEvent::UPDATED_AT => time(),
 						);
+						
+						$error = null;
 						
 						// Validate
 						if(!DAO_TriggerEvent::validate($fields, $error))
@@ -238,6 +242,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'], 'integer', 0);
 							@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
 							
+							$error = null;
+							
 							// Make sure the extension is valid
 							
 							if(false == ($bot = DAO_Bot::get($bot_id)))
@@ -290,13 +296,15 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							if(null == ($ext = $behavior->getEvent()))
 								throw new Exception_DevblocksAjaxValidationError("Invalid event.");
 							
+							$error = null;
+							
 							// Let the event validate the event params
 							if(false === $ext->prepareEventParams($behavior, $event_params, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
 								
 							// Handle deletes
 							if(is_array($behavior->variables))
-							foreach($behavior->variables as $var => $data) {
+							foreach(array_keys($behavior->variables) as $var) {
 								if(!isset($variables[$var])) {
 									DAO_DecisionNode::deleteTriggerVar($behavior->id, $var);
 								}
@@ -492,7 +500,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						continue;
 					
 					$ptr =& DevblocksPlatform::jsonGetPointerFromPath($json, $config_field['path']);
-					$ptr = $configure[$config_field_idx];
+					
+					if(!is_null($ptr))
+						$ptr = $configure[$config_field_idx];
 				}
 				
 			// If the worker hasn't been prompted, do that now

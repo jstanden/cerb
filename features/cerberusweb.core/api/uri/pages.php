@@ -18,7 +18,7 @@
 class Page_Custom extends CerberusPageExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		
 		return true;
@@ -548,6 +548,8 @@ class Page_Custom extends CerberusPageExtension {
 							DAO_WorkspacePage::OWNER_CONTEXT_ID => $owner_context_id,
 						];
 						
+						$error = null;
+						
 						if(!DAO_WorkspacePage::validate($fields, $error, null))
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
@@ -565,8 +567,7 @@ class Page_Custom extends CerberusPageExtension {
 						
 						// View marquee
 						if(!empty($id) && !empty($view_id)) {
-							if(!empty($view_id) && !empty($id))
-								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id);
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id);
 						}
 						
 						echo json_encode(array(
@@ -625,8 +626,7 @@ class Page_Custom extends CerberusPageExtension {
 							
 							// View marquee
 							if(!empty($id) && !empty($view_id)) {
-								if(!empty($view_id) && !empty($id))
-									C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id);
+								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id);
 							}
 							
 						} else {

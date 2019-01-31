@@ -42,7 +42,6 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-		
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CALENDAR)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
