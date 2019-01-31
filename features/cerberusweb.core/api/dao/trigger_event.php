@@ -2393,8 +2393,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			if(!($model instanceof Model_TriggerEvent) || false == ($event = $model->getEvent()))
 				return;
 			
-			if(false == ($va = $model->getBot()))
-				return;
+			if(false == ($bot = $model->getBot()))
+				$bot = new Model_Bot();
 			
 			$tpl->assign('behavior', $model);
 			$tpl->assign('event', $event->manifest);
