@@ -114,7 +114,7 @@ class Cerb_Packages {
 				
 				@$value = $prompts[$key];
 				
-				if(empty($value))
+				if(0 == strlen($value))
 					throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
 				
 				switch($config_prompt['type']) {
