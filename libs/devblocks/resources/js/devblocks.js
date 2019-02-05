@@ -326,7 +326,19 @@ function DevblocksClass() {
 			$frm.find('input:hidden[name=do_delete]').val('0');
 		}
 		
+		// Show a spinner
+		var $spinner = $('<span class="cerb-ajax-spinner"/>')
+			.css('zoom', '0.5')
+			.css('margin-right', '5px')
+			;
+		$spinner.insertBefore($button);
+		
+		$button.prop('disabled', true).fadeTo('fast', 0.5);
+		
 		genericAjaxPost($frm, '', '', function(e) {
+			$button.prop('disabled', false).fadeTo('fast', 1.0);
+			$spinner.remove();
+			
 			if(!(typeof e == 'object'))
 				return;
 			
