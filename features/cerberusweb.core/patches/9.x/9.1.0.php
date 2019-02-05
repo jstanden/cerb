@@ -7,7 +7,9 @@ $tables = $db->metaTables();
 // ===========================================================================
 // Test SPATIAL indexes
 
-if(false == $db->ExecuteMaster(sprintf("CREATE TABLE IF NOT EXISTS _installer_test_suite (id int) ENGINE=%s", APP_DB_ENGINE))) {
+$db->ExecuteMaster("DROP TABLE IF EXISTS _installer_test_suite");
+
+if(false == $db->ExecuteMaster(sprintf("CREATE TABLE _installer_test_suite (id int) ENGINE=%s", APP_DB_ENGINE))) {
 	echo "ERROR: Failed to create the `_installer_test_suite` table. "; 
 	return false;
 }
