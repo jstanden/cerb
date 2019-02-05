@@ -357,9 +357,8 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			if(null == ($fieldset = DAO_CustomFieldset::get($id)))
 				continue;
 			
-			foreach($fieldset->getCustomFields() as $field_id => $field) {
-				DAO_CustomField::delete($field_id);
-			}
+			$custom_fields = $fieldset->getCustomFields();
+			DAO_CustomField::delete(array_keys($custom_fields));
 		}
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM context_to_custom_fieldset WHERE custom_fieldset_id IN (%s)", $ids_list));
@@ -395,7 +394,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CustomFieldset::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CustomFieldset', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CustomFieldset', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"custom_fieldset.id as %s, ".
@@ -650,6 +649,7 @@ class Model_CustomFieldset {
 	}
 	
 	function getOwnerDictionary() {
+		$labels = $values = [];
 		CerberusContexts::getContext($this->owner_context, $this->owner_context_id, $labels, $values);
 		return new DevblocksDictionaryDelegate($values);
 	}
@@ -882,8 +882,6 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_CustomFieldset::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
@@ -1007,14 +1005,12 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		if(false == ($cfieldset = DAO_CustomFieldset::get($context_id)))
 			return null;
 			
-		$url_writer = DevblocksPlatform::services()->url();
-		
-		return array(
+		return [
 			'id' => $context_id,
 			'name' => $cfieldset->name,
 			'permalink' => '', //$url_writer->writeNoProxy('c=tasks&action=display&id='.$task->id, true),
 			'updated' => $cfieldset->updated_at,
-		);
+		];
 	}
 	
 	function getPropertyLabels(DevblocksDictionaryDelegate $dict) {

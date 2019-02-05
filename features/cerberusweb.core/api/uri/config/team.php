@@ -19,7 +19,6 @@ class PageSection_SetupTeam extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
-		$settings = DevblocksPlatform::services()->pluginSettings();
 		$response = DevblocksPlatform::getHttpResponse();
 		
 		$visit->set(ChConfigurationPage::ID, 'team');
@@ -35,7 +34,6 @@ class PageSection_SetupTeam extends Extension_PageSection {
 	
 	function saveSettingsJsonAction() {
 		try {
-			$translate = DevblocksPlatform::getTranslationService();
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)

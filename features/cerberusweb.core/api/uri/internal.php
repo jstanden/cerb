@@ -1838,11 +1838,11 @@ class ChInternalController extends DevblocksControllerExtension {
 			$tpl->assign('imagedata', $contents);
 		}
 
-		$suggested_photos = array();
+		$suggested_photos = [];
 		
 		// Suggest more extended content
 		
-		$defaults = array();
+		$defaults = [];
 		
 		$tokens = explode(' ', trim($defaults_string));
 		foreach($tokens as $token) {

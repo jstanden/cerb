@@ -62,13 +62,14 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 					'behaviors' => [],
 				];
 				
+				$error = null;
+				
 				// Behaviors
 				
 				$behaviors = DAO_TriggerEvent::getIds($behavior_ids);
 				
-				foreach($behaviors as $behavior_id => $behavior) {
+				foreach(array_keys($behaviors) as $behavior_id) {
 					$behavior_params = @$behaviors_params[$behavior_id] ?: [];
-					// [TODO] Validate
 					$params['behaviors'][$behavior_id] = $behavior_params;
 				}
 				

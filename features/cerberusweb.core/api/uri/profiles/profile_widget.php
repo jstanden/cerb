@@ -62,7 +62,7 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'integer', 0);
 						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
 						
-						@$json = json_decode($import_json, true);
+						$error = null;
 						
 						if(
 							empty($import_json)
@@ -122,6 +122,8 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'integer', 0);
 						@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 						@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
+						
+						$error = null;
 						
 						// [TODO] format params
 						

@@ -393,7 +393,6 @@ class Page_Custom extends CerberusPageExtension {
 	
 	function showWorkspaceTabAction() {
 		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$point = DevblocksPlatform::importGPC($_REQUEST['point'],'string', '');
 		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
 
 		$tpl = DevblocksPlatform::services()->template();

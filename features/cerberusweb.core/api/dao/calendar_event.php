@@ -298,7 +298,7 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_CalendarEvent::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CalendarEvent', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_CalendarEvent', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"calendar_event.id as %s, ".
@@ -839,7 +839,6 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			case SearchFields_CalendarEvent::CALENDAR_ID:
@@ -1002,7 +1001,6 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 	
 	function getMeta($context_id) {
 		$calendar_event = DAO_CalendarEvent::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($calendar_event->name);
