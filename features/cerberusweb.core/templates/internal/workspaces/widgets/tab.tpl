@@ -4,7 +4,7 @@
 	
 	<div style="display:inline-block;" class="cerb-no-print">
 		<button id="btnWorkspaceTabAddWidget{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="0" data-edit="tab:{$model->id}" data-width="75%"><span class="glyphicons glyphicons-circle-plus"></span> {'common.widget.add'|devblocks_translate|capitalize}</button>
-		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$model->id}" data-edit="true" data-width="75%"><span class="glyphicons glyphicons-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
+		<button id="btnWorkspaceTabEditDashboard{$model->id}" type="button"><span class="glyphicons glyphicons-edit"></span> {'common.dashboard.edit'|devblocks_translate|capitalize}</button>
 	</div>
 	{/if}
 </div>
@@ -240,9 +240,9 @@ $(function() {
 		;
 	
 	$edit_button
-		.cerbPeekTrigger()
-		.on('cerb-peek-saved', function(e) {
-			document.location.reload();
+		.on('click', function() {
+			var $workspace = $('#frmWorkspacePage{$model->workspace_page_id}');
+			$workspace.find('a.edit-tab').click();
 		})
 		;
 	{/if}
