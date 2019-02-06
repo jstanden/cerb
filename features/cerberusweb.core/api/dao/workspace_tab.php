@@ -1477,6 +1477,9 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			if(isset($model))
 				$tpl->assign('model', $model);
 			
+			if($context_id && !$model)
+				return;
+			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
@@ -1493,6 +1496,13 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 			// [TODO] Translate first
 			DevblocksPlatform::sortObjects($tab_extensions, 'params->[label]');
 			$tpl->assign('tab_extensions', $tab_extensions);
+			
+			// Library
+			
+			if(empty($context_id)) {
+				$packages = DAO_PackageLibrary::getByPoint('workspace_tab');
+				$tpl->assign('packages', $packages);
+			}
 			
 			// View
 			$tpl->assign('id', $context_id);

@@ -74,11 +74,29 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$mode = DevblocksPlatform::importGPC($_REQUEST['mode'], 'string', '');
 				@$workspace_page_id = DevblocksPlatform::importGPC($_REQUEST['workspace_page_id'], 'integer', 0);
-
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
+				
+				$mode = 'build';
+				
+				if(!$id && $package_uri) {
+					$mode = 'library';
+					
+				} else if (!$id && $import_json) {
+					$mode = 'import';
+				}
+				
 				$index = 99;
 				$error = null;
+				
+				if($id) {
+					if(false == ($workspace_tab = DAO_WorkspaceTab::get($id))) {
+						throw new Exception_DevblocksAjaxValidationError("Invalid workspace tab.");
+					} else {
+						$workspace_page_id = $workspace_tab->workspace_page_id;
+					}
+				}
 				
 				if(!$workspace_page_id || null == ($workspace_page = DAO_WorkspacePage::get($workspace_page_id)))
 					throw new Exception_DevblocksAjaxValidationError("A valid workspace page is required.");
@@ -89,13 +107,56 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 				if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 				
-				if($id)
-					$mode = 'build';
-				
 				switch($mode) {
-					case 'import':
-						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
 						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'workspace_tab')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						
+						$prompts['workspace_page_id'] = $workspace_page_id;
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_WorkspaceTab::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_tab = reset($records_created[Context_WorkspaceTab::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_TAB, $new_tab['id']);
+						
+						$tab_url = $url_writer->write(sprintf('ajax.php?c=pages&a=showWorkspaceTab&id=%d&_csrf_token=%s', $new_tab['id'], $_SESSION['csrf_token']));
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_tab['id'],
+							'page_id' => $workspace_page_id,
+							'label' => $new_tab['label'],
+							'tab_url' => $tab_url,
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+					
+					case 'import':
 						@$json = json_decode($import_json, true);
 						
 						if(
@@ -154,6 +215,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 							'tab_url' => $tab_url,
 							'view_id' => $view_id,
 						));
+						return;
 						break;
 						
 					case 'build':
@@ -161,13 +223,13 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
 						
 						if(empty($id)) { // New
-							$fields = array(
+							$fields = [
 								DAO_WorkspaceTab::EXTENSION_ID => $extension_id,
 								DAO_WorkspaceTab::NAME => $name,
 								DAO_WorkspaceTab::POS => 99,
 								DAO_WorkspaceTab::UPDATED_AT => time(),
 								DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $workspace_page_id,
-							);
+							];
 							
 							if(!DAO_WorkspaceTab::validate($fields, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
@@ -182,11 +244,10 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_TAB, $id);
 							
 						} else { // Edit
-							$fields = array(
+							$fields = [
 								DAO_WorkspaceTab::NAME => $name,
 								DAO_WorkspaceTab::UPDATED_AT => time(),
-								DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $workspace_page_id,
-							);
+							];
 							
 							if(!DAO_WorkspaceTab::validate($fields, $error, $id))
 								throw new Exception_DevblocksAjaxValidationError($error);
@@ -223,12 +284,12 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 							'tab_url' => $tab_url,
 							'view_id' => $view_id,
 						));
+						return;
 						break;
 				}
-				
-
-				return;
 			}
+			
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
@@ -244,7 +305,6 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 				'error' => 'An error occurred.',
 			));
 			return;
-			
 		}
 	}
 	
