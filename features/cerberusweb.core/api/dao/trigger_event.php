@@ -2361,6 +2361,12 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$variables_menu = Extension_DevblocksContext::getPlaceholderTree($variable_types, ':', '');
 			$tpl->assign('variables_menu', $variables_menu);
 			
+			// Library
+			if(!$context_id) {
+				$packages = DAO_PackageLibrary::getByPoint('behavior');
+				$tpl->assign('packages', $packages);
+			}
+			
 			$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/peek_edit.tpl');
 			
 		} else {

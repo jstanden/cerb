@@ -59,14 +59,78 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$mode = DevblocksPlatform::importGPC($_REQUEST['mode'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
 				
-				if($id)
-					$mode = 'build';
+				$mode = 'build';
+				
+				if(!$id && $package_uri) {
+					$mode = 'library';
+					
+				} elseif(!$id && $import_json) {
+					$mode = 'import';
+				}
 				
 				switch($mode) {
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'],'integer', 0);
+						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'behavior')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						// Verify the event can be owned by this context
+						
+						if(false == ($bot = DAO_Bot::get($bot_id))) {
+							throw new Exception_DevblocksAjaxValidationError("The destination bot doesn't exist.");
+						}
+						
+						// Does the worker have access to this bot?
+						if(
+							!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_BEHAVIOR)) 
+							|| !CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $active_worker)
+						) {
+							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+						}
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						$prompts['bot_id'] = $bot_id;
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_TriggerEvent::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_behavior = reset($records_created[Context_TriggerEvent::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BEHAVIOR, $new_behavior['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_behavior['id'],
+							'label' => $new_behavior['label'],
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+					
 					case 'import':
-						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
 						@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'],'integer', 0);
 						@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', []);
 						
@@ -100,6 +164,14 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						if(!$bot->canUseEvent($event_point))
 							throw new Exception_DevblocksAjaxValidationError("This bot can't listen for this event.");
+						
+						// Does the worker have access to this bot?
+						if(
+							!$active_worker->hasPriv(sprintf("contexts.%s.import", CerberusContexts::CONTEXT_BEHAVIOR)) 
+							|| !CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $active_worker)
+						) {
+							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.import'));
+						}
 						
 						// Verify that the active worker has access to make events for this context
 						
@@ -186,6 +258,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						DAO_TriggerEvent::update($behavior_id, array(
 							DAO_TriggerEvent::IS_DISABLED => @$json['behavior']['is_disabled'] ? 1 : 0,
 						));
+						
+						if(!empty($view_id) && !empty($behavior_id))
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BEHAVIOR, $behavior_id);
 						
 						echo json_encode(array(
 							'status' => true,
@@ -342,14 +417,17 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								'label' => $title,
 								'view_id' => $view_id,
 							));
+							return;
 						}
 						break;
 						
 					default:
-						throw new Exception_DevblocksAjaxValidationError("Choose build or import.");
+						throw new Exception_DevblocksAjaxValidationError("Choose library, build, or import.");
 						break;
 				}
 			}
+			
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
