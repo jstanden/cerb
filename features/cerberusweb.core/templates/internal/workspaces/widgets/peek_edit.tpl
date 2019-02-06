@@ -13,13 +13,24 @@
 
 <table cellspacing="0" cellpadding="2" border="0" width="98%">
 	{if !$model->id}
-	<tr>
-		<td width="100%" colspan="2">
-			<label><input type="radio" name="mode" value="build" checked="checked"> {'common.build'|devblocks_translate|capitalize}</label>
-			<label><input type="radio" name="mode" value="import"> {'common.import'|devblocks_translate|capitalize}</label>
-		</td>
-	</tr>
+	<tbody>
+		<tr>
+			<td width="100%" colspan="2">
+				{if $packages}<label><input type="radio" name="mode" value="library" checked="checked"> {'common.library'|devblocks_translate|capitalize}</label>{/if}
+				<label><input type="radio" name="mode" value="build" {if !$packages}checked="checked"{/if}> {'common.build'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="mode" value="import"> {'common.import'|devblocks_translate|capitalize}</label>
+			</td>
+		</tr>
+	</tbody>
 	{/if}
+	
+	<tbody class="package-library" style="{if !$packages || $model->id}display:none;{/if}">
+		<tr>
+			<td width="100%" colspan="2">
+				{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
+			</td>
+		</tr>
+	</tbody>
 	
 	<tbody class="widget-import" style="display:none;">
 		<tr>
@@ -29,7 +40,7 @@
 		</tr>
 	</tbody>
 	
-	<tbody class="widget-build">
+	<tbody class="widget-build" style="{if $packages && !$model->id}display:none;{/if};">
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
 			<td width="99%">
@@ -165,15 +176,24 @@ $(function() {
 			var $radio = $(this);
 			var mode = $radio.val();
 			
+			$frm.find('tbody.widget-build').hide();
+			$frm.find('tbody.widget-import').hide();
+			$frm.find('tbody.package-library').hide();
+			
 			if(mode == 'import') {
-				$frm.find('tbody.widget-build').hide();
 				$frm.find('tbody.widget-import').fadeIn();
+			} else if(mode == 'library') {
+				$frm.find('tbody.package-library')
+					.fadeIn()
+					;
 			} else {
-				$frm.find('tbody.widget-import').hide();
 				$frm.find('tbody.widget-build').fadeIn();
 			}
 		});
 		{/if}
+		
+		// Package Library
+		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 		
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();

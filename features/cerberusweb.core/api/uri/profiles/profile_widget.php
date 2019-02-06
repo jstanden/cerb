@@ -54,12 +54,68 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 				
 			} else {
 				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'integer', 0);
 				
-				@$mode = (!$id && $import_json) ? 'import' : 'build';
+				$mode = 'build';
+				
+				if(!$id && $import_json) {
+					$mode = 'import';
+					
+				} elseif (!$id && $package_uri) {
+					$mode = 'library';
+				}
 				
 				switch($mode) {
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						// Verify worker can edit this profile (is admin)
+						if(!$active_worker->is_superuser)
+							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'profile_widget' && !DevblocksPlatform::strStartsWith($package->point, 'profile_widget:'))
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						
+						$prompts['profile_tab_id'] = $profile_tab_id;
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_ProfileWidget::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_widget = reset($records_created[Context_ProfileWidget::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_WIDGET, $new_widget['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_widget['id'],
+							'label' => $new_widget['label'],
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+					
 					case 'import':
-						@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'integer', 0);
 						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
 						
 						$error = null;
@@ -119,7 +175,6 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 					case 'build':
 						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
-						@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'integer', 0);
 						@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 						@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
 						
@@ -159,7 +214,6 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 							$fields = array(
 								DAO_ProfileWidget::EXTENSION_PARAMS_JSON => json_encode($params),
 								DAO_ProfileWidget::NAME => $name,
-								DAO_ProfileWidget::PROFILE_TAB_ID => $profile_tab_id,
 								DAO_ProfileWidget::UPDATED_AT => time(),
 								DAO_ProfileWidget::WIDTH_UNITS => $width_units,
 							);
@@ -198,6 +252,8 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 						break;
 				}
 			}
+			
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
