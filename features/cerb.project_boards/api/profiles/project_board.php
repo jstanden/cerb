@@ -22,16 +22,15 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		@array_shift($stack); // profiles
 		@array_shift($stack); // project_board 
 		@$context_id = intval(array_shift($stack)); // 123
-
+		
 		$context = Context_ProjectBoard::ID;
 		
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -53,75 +52,130 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
 				
-				// Sanitize $add_contexts
-				if(isset($params['add_contexts'])) {
-					$contexts = Extension_DevblocksContext::getAll(false, 'links');
-					$params['add_contexts'] = array_intersect($params['add_contexts'], array_keys($contexts));
+				$mode = 'build';
+				
+				if(!$id && $package_uri)
+					$mode = 'library';
+				
+				switch($mode) {
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'project_board')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_ProjectBoard::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_board = reset($records_created[Context_ProjectBoard::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, Context_ProjectBoard::ID, $new_board['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_board['id'],
+							'label' => $new_board['label'],
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+						
+					case 'build':
+						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+						@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+						
+						// Sanitize $add_contexts
+						if(isset($params['add_contexts'])) {
+							$contexts = Extension_DevblocksContext::getAll(false, 'links');
+							$params['add_contexts'] = array_intersect($params['add_contexts'], array_keys($contexts));
+						}
+						
+						$params['card_queries'] = array_filter($params['card_queries'], function($value) {
+							return !empty($value);
+						});
+						
+						$params['card_templates'] = array_filter($params['card_templates'], function($value) {
+							return !empty($value);
+						});
+						
+						$error = null;
+						
+						if(empty($id)) { // New
+							
+							$fields = array(
+								DAO_ProjectBoard::UPDATED_AT => time(),
+								DAO_ProjectBoard::NAME => $name,
+								DAO_ProjectBoard::PARAMS_JSON => json_encode($params),
+							);
+							
+							if(!DAO_ProjectBoard::validate($fields, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_ProjectBoard::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							$id = DAO_ProjectBoard::create($fields);
+							DAO_ProjectBoard::onUpdateByActor($active_worker, $fields, $id);
+							
+							if(!empty($view_id) && !empty($id))
+								C4_AbstractView::setMarqueeContextCreated($view_id, Context_ProjectBoard::ID, $id);
+							
+						} else { // Edit
+							$fields = array(
+								DAO_ProjectBoard::UPDATED_AT => time(),
+								DAO_ProjectBoard::NAME => $name,
+								DAO_ProjectBoard::PARAMS_JSON => json_encode($params),
+							);
+							
+							if(!DAO_ProjectBoard::validate($fields, $error, $id))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_ProjectBoard::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							DAO_ProjectBoard::update($id, $fields);
+							DAO_ProjectBoard::onUpdateByActor($active_worker, $fields, $id);
+						}
+						
+						// Custom field saves
+						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						if(!DAO_CustomFieldValue::handleFormPost(Context_ProjectBoard::ID, $id, $field_ids, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						echo json_encode(array(
+							'status' => true,
+							'id' => $id,
+							'label' => $name,
+							'view_id' => $view_id,
+						));
+						return;
+						break;
 				}
-				
-				$params['card_queries'] = array_filter($params['card_queries'], function($value) {
-					return !empty($value);
-				});
-				
-				$params['card_templates'] = array_filter($params['card_templates'], function($value) {
-					return !empty($value);
-				});
-				
-				$error = null;
-				
-				if(empty($id)) { // New
-					
-					$fields = array(
-						DAO_ProjectBoard::UPDATED_AT => time(),
-						DAO_ProjectBoard::NAME => $name,
-						DAO_ProjectBoard::PARAMS_JSON => json_encode($params),
-					);
-					
-					if(!DAO_ProjectBoard::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_ProjectBoard::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					$id = DAO_ProjectBoard::create($fields);
-					DAO_ProjectBoard::onUpdateByActor($active_worker, $fields, $id);
-					
-					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, Context_ProjectBoard::ID, $id);
-					
-				} else { // Edit
-					$fields = array(
-						DAO_ProjectBoard::UPDATED_AT => time(),
-						DAO_ProjectBoard::NAME => $name,
-						DAO_ProjectBoard::PARAMS_JSON => json_encode($params),
-					);
-					
-					if(!DAO_ProjectBoard::validate($fields, $error, $id))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_ProjectBoard::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					DAO_ProjectBoard::update($id, $fields);
-					DAO_ProjectBoard::onUpdateByActor($active_worker, $fields, $id);
-				}
-				
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost(Context_ProjectBoard::ID, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'label' => $name,
-					'view_id' => $view_id,
-				));
-				return;
 			}
+			
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(

@@ -1233,6 +1233,12 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			// Library
+			if(!$context_id) {
+				$packages = DAO_PackageLibrary::getByPoint('project_board');
+				$tpl->assign('packages', $packages);
+			}
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
