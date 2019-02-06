@@ -1029,6 +1029,7 @@ class CerberusContexts {
 	const CONTEXT_NOTIFICATION= 'cerberusweb.contexts.notification';
 	const CONTEXT_OPPORTUNITY = 'cerberusweb.contexts.opportunity';
 	const CONTEXT_ORG = 'cerberusweb.contexts.org';
+	const CONTEXT_PACKAGE = 'cerberusweb.contexts.package.library';
 	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_PROFILE_TAB = 'cerberusweb.contexts.profile.tab';
 	const CONTEXT_PROFILE_WIDGET = 'cerberusweb.contexts.profile.widget';

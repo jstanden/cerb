@@ -254,6 +254,10 @@ class Controller_Avatars extends DevblocksControllerExtension {
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/va.png');
 				break;
 				
+			case CerberusContexts::CONTEXT_PACKAGE:
+				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/package.png');
+				break;
+				
 			case CerberusContexts::CONTEXT_GROUP:
 				$this->_renderFilePng(APP_PATH . '/features/cerberusweb.core/resources/images/avatars/convo.png');
 				break;

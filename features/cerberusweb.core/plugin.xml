@@ -69,6 +69,7 @@
 		
 		<patch version="9.0.0" revision="1313" file="patches/9.x/9.0.0.php" />
 		<patch version="9.1.0" revision="1326" file="patches/9.x/9.1.0.php" />
+		<patch version="9.2.0" revision="1327" file="patches/9.x/9.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -497,6 +498,14 @@
 		
 		<file path="api/dao/oauth_token.php">
 			<class name="DAO_OAuthToken" />
+		</file>
+		
+		<file path="api/dao/package_library.php">
+			<class name="Context_PackageLibrary" />
+			<class name="DAO_PackageLibrary" />
+			<class name="Model_PackageLibrary" />
+			<class name="SearchFields_PackageLibrary" />
+			<class name="View_PackageLibrary" />
 		</file>
 		
 		<file path="api/dao/plugin_library.php">
@@ -1304,6 +1313,49 @@
 						<data key="merge" />
 						<data key="update" />
 						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.package.library</id>
+			<name>Package</name>
+			<class>
+				<file>api/dao/package_library.php</file>
+				<name>Context_PackageLibrary</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="package" value="singular" />
+						<data key="packages" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="package" />
+				<param key="dao_class" value="DAO_PackageLibrary" />
+				<param key="view_class" value="View_PackageLibrary" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<!--<data key="custom_fields" />-->
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<!--<data key="snippets" />-->
+						<data key="va_variable" />
+						<!--<data key="watchers" />-->
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<!--<data key="export" />-->
+						<!--<data key="import" />-->
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -5972,6 +6024,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="org" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.package_library</id>
+				<name>Package Section</name>
+				<class>
+					<file>api/uri/profiles/package_library.php</file>
+					<name>PageSection_ProfilesPackageLibrary</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="package" />
 				</params>
 			</extension>
 

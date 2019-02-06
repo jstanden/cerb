@@ -1833,6 +1833,102 @@ div.cerb-uploads {
 	}
 }
 
+// Packages Library
+
+.package-library--container {
+	display:grid;
+	overflow-x:hidden;
+	
+	.package-library--package-chooser {
+		grid-column:1;
+		grid-row:1;
+		opacity:1;
+		transform:translateX(0%);
+		transition:opacity 0.3s, transform 0.8s;
+		
+		input.input_search {
+			width:100%;
+			border-radius:10px;
+			border:1px solid rgb(200,200,200);
+			box-sizing:border-box;
+		}
+		
+		.package-library--package-container {
+			margin:5px 0px 20px 0px;
+			border:1px solid rgb(240,240,240);
+			padding:5px;
+		}
+		
+		.package-library--package {
+			width:250px;
+			display:inline-block;
+			vertical-align:top;
+			border: 2px solid white;
+			padding:5px;
+			text-align:center;
+			cursor:pointer;
+			
+			.package-library--package-image {
+				height:135px;
+				width:240px;
+				background-color:white;
+				border:1px solid rgb(200,200,200);
+				margin-bottom:5px;
+			}
+			
+			.package-library--package-title {
+				font-size:16px;
+				line-height:1.1em;
+			}
+			
+			.package-library--package-description {
+				margin-top:5px;
+			}
+		}
+		
+		.package-library--package-selected {
+			border: 2px solid orange;
+			background-color: rgba(255,230,110,0.2);
+		}
+	}
+	
+	.package-library--package-info {
+		grid-column:1;
+		grid-row:1;
+		opacity:0;
+		transform:translateX(100%);
+		transition:opacity 0.3s, transform 0.8s;
+		
+		.package-library--package {
+			.package-library--package-title {
+				font-size:2em;
+			}
+			
+			.package-library--package-image {
+				display:inline-block;
+				height:135px;
+				width:240px;
+				background-color:white;
+				border:1px solid rgb(200,200,200);
+				margin-bottom:5px;
+			}
+			
+			.package-library--package-metadata {
+				vertical-align:top;
+				display:inline-block;
+				margin-left:10px;
+				
+				.package-library--package-description {
+				}
+				
+				.package-library--package-instructions {
+					margin-top:5px;
+				}
+			}
+		}
+	}
+}
+
 // jQuery overrides
 
 .ui-dialog .ui-dialog-titlebar-minmax {

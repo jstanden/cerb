@@ -1190,6 +1190,11 @@
 				<seg>Extension ID</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.extension.point">
+			<tuv xml:lang="en_US">
+				<seg>Extension Point</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.field">
 			<tuv xml:lang="en_US">
 				<seg>field</seg>
@@ -1743,6 +1748,11 @@
 				<seg>layout</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.library">
+			<tuv xml:lang="en_US">
+				<seg>library</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.limit">
 			<tuv xml:lang="en_US">
 				<seg>limit</seg>
@@ -1831,6 +1841,11 @@
 		<tu tuid="common.package">
 			<tuv xml:lang="en_US">
 				<seg>package</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.package.library">
+			<tuv xml:lang="en_US">
+				<seg>package library</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.packages">
@@ -1936,6 +1951,16 @@
 		<tu tuid="common.plural">
 			<tuv xml:lang="en_US">
 				<seg>plural</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.point.geo">
+			<tuv xml:lang="en_US">
+				<seg>point</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.points.geo">
+			<tuv xml:lang="en_US">
+				<seg>points</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.portal">
@@ -2599,6 +2624,11 @@
 				<seg>User Interface</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.uid">
+			<tuv xml:lang="en_US">
+				<seg>UID</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.unassign">
 			<tuv xml:lang="en_US">
 				<seg>Unassign</seg>
@@ -2697,6 +2727,11 @@
 		<tu tuid="common.verify">
 			<tuv xml:lang="en_US">
 				<seg>verify</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.version">
+			<tuv xml:lang="en_US">
+				<seg>version</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.visibility">
@@ -3024,7 +3059,7 @@
 			<tuv xml:lang="en_US">
 			<seg>Fingerprint</seg></tuv>
 		</tu>
-
+		
 		<!-- Plugin Library -->
 		
 		<tu tuid="dao.plugin_library.plugin_id">
