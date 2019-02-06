@@ -5350,15 +5350,28 @@
 			</extension>
 			
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.page.setup.import_package</id>
-				<name>Import Package Section</name>
+				<id>core.page.setup.package.import</id>
+				<name>Package Import Section</name>
 				<class>
-					<file>api/uri/config/import_package.php</file>
-					<name>PageSection_SetupImportPackage</name>
+					<file>api/uri/config/package_import.php</file>
+					<name>PageSection_SetupPackageImport</name>
 				</class>
 				<params>
 					<param key="page_id" value="core.page.configuration" />
-					<param key="uri" value="import_package" />
+					<param key="uri" value="package_import" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.package.library</id>
+				<name>Package Library Section</name>
+				<class>
+					<file>api/uri/config/package_library.php</file>
+					<name>PageSection_SetupPackageLibrary</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="package_library" />
 				</params>
 			</extension>
 			

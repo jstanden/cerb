@@ -15,14 +15,14 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
-class PageSection_SetupImportPackage extends Extension_PageSection {
+class PageSection_SetupPackageImport extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		
-		$visit->set(ChConfigurationPage::ID, 'import_package');
+		$visit->set(ChConfigurationPage::ID, 'package_import');
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/import_package/index.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/package_import/index.tpl');
 	}
 	
 	function importJsonAction() {
@@ -45,7 +45,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 				// If we should have, prompt for them
 				if($config_prompts) {
 					$tpl->assign('prompts', $config_prompts);
-					$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/prompts.tpl');
+					$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/package_import/prompts.tpl');
 					
 					echo json_encode([
 						'status' => false,
@@ -65,7 +65,7 @@ class PageSection_SetupImportPackage extends Extension_PageSection {
 			DevblocksPlatform::sortObjects($context_mfts, 'name', true);
 			$tpl->assign('context_mfts', $context_mfts);
 			
-			$results_html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/import_package/results.tpl');
+			$results_html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/package_import/results.tpl');
 			
 			echo json_encode([
 				'status' => true,
