@@ -1799,6 +1799,12 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			$datasource_extensions = Extension_CalendarDatasource::getAll(false);
 			$tpl->assign('datasource_extensions', $datasource_extensions);
 			
+			// Library
+			if(!$context_id) {
+				$packages = DAO_PackageLibrary::getByPoint('calendar');
+				$tpl->assign('packages', $packages);
+			}
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

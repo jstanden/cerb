@@ -10,14 +10,8 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+{if !$model->id}
 <table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:100%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
 	<tr>
 		<td width="1%" nowrap="nowrap" valign="top">
 			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
@@ -27,98 +21,139 @@
 		</td>
 	</tr>
 </table>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
-
-{* Datasources *}
-
-<fieldset class="peek">
-	<legend>Calendar Events</legend>
-
-	<b>Creating</b> events is 
-	<label><input type="radio" name="params[manual_disabled]" value="0" {if empty($model->params.manual_disabled)}checked="checked"{/if}> enabled</label>
-	<label><input type="radio" name="params[manual_disabled]" value="1" {if !empty($model->params.manual_disabled)}checked="checked"{/if}> disabled</label>
-	<br>
+<div class="cerb-tabs">
+	{if !$model->id && $packages}
+	<ul>
+		<li><a href="#calendar-library">{'common.library'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#calendar-builder">{'common.build'|devblocks_translate|capitalize}</a></li>
+	</ul>
+	{/if}
 	
-	<b>Synchronizing</b> events is 
-	<label><input type="radio" name="params[sync_enabled]" value="1" {if !empty($model->params.sync_enabled)}checked="checked"{/if}> enabled</label>
-	<label><input type="radio" name="params[sync_enabled]" value="0" {if empty($model->params.sync_enabled)}checked="checked"{/if}> disabled</label>
-	<br>
+	{if !$model->id && $packages}
+	<div id="calendar-library" class="package-library">
+		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
+	</div>
+	{/if}
 	
-	<b>Start weeks</b> on 
-	<label><input type="radio" name="params[start_on_mon]" value="0" {if empty($model->params.start_on_mon)}checked="checked"{/if}> Sunday</label>
-	<label><input type="radio" name="params[start_on_mon]" value="1" {if !empty($model->params.start_on_mon)}checked="checked"{/if}> Monday</label>
-	<br>
-
-	<b>Start times</b> are 
-	<label><input type="radio" name="params[hide_start_time]" value="0" {if empty($model->params.hide_start_time)}checked="checked"{/if}> visible</label>
-	<label><input type="radio" name="params[hide_start_time]" value="1" {if !empty($model->params.hide_start_time)}checked="checked"{/if}> hidden</label>
-	<br>
-	
-</fieldset>
-
-<fieldset class="calendar-events peek" style="{if !empty($model->params.manual_disabled)}display:none;{/if}">
-	<legend>Created Events</legend>
-	
-	<b>{'common.available'|devblocks_translate|capitalize}</b> events are 
-	<input type="text" name="params[color_available]" value="{$model->params.color_available|default:'#A0D95B'}" style="width:100%;" class="color-picker">
-	<br>
-	
-	<b>{'common.busy'|devblocks_translate|capitalize}</b> events are 
-	<input type="text" name="params[color_busy]" value="{$model->params.color_busy|default:'C8C8C8'}" style="width:100%;" class="color-picker">
-	<br>
-</fieldset>
-
-{section start=0 loop=5 name=series}
-{$series_idx = $smarty.section.series.index}
-{$series_prefix = "[series][{$series_idx}]"}
-
-<fieldset id="calendar{$model->id}Datasource{$series_idx}" class="sync-events peek" style="{if empty($model->params.sync_enabled)}display:none;{/if}">
-	<legend>Synchronize</legend>
-
-	<b>Events</b> from 
-	{$source = $model->params.series[{$series_idx}].datasource}
-	
-	<select name="params{$series_prefix}[datasource]" class="datasource-selector" params_prefix="{$series_prefix}">
-		<option value=""></option>
-		{foreach from=$datasource_extensions item=datasource_ext key=datasource_ext_id}
-		<option value="{$datasource_ext_id}" {if $datasource_ext_id==$source}selected="selected"{/if}>{$datasource_ext->name}</option>
-		{/foreach}
-	</select>
-
-	<div style="margin:2px 0px 0px 10px;" class="calendar-datasource-params">
-		{$datasource_extension = Extension_CalendarDatasource::get($source)}
-		{if !empty($datasource_extension) && method_exists($datasource_extension, 'renderConfig')}
-			{$datasource_extension->renderConfig($model, $model->params.series[{$series_idx}], $series_prefix)}
+	<div id="calendar-builder">
+		<table cellspacing="0" cellpadding="2" border="0" width="98%" style="margin-bottom:10px;">
+			<tbody>
+				<tr>
+					<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+					<td width="99%">
+						<input type="text" name="name" value="{$model->name}" style="width:100%;" autofocus="autofocus">
+					</td>
+				</tr>
+				
+				{if $model->id}
+				<tr>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+					</td>
+					<td width="99%">
+						{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+					</td>
+				</tr>
+				{/if}
+				
+				{if !empty($custom_fields)}
+					{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+				{/if}
+				
+				<tr>
+					<td colspan="2">
+						{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+						
+						{* Datasources *}
+						
+						<fieldset class="peek">
+							<legend>Calendar Events</legend>
+						
+							<b>Creating</b> events is 
+							<label><input type="radio" name="params[manual_disabled]" value="0" {if empty($model->params.manual_disabled)}checked="checked"{/if}> enabled</label>
+							<label><input type="radio" name="params[manual_disabled]" value="1" {if !empty($model->params.manual_disabled)}checked="checked"{/if}> disabled</label>
+							<br>
+							
+							<b>Synchronizing</b> events is 
+							<label><input type="radio" name="params[sync_enabled]" value="1" {if !empty($model->params.sync_enabled)}checked="checked"{/if}> enabled</label>
+							<label><input type="radio" name="params[sync_enabled]" value="0" {if empty($model->params.sync_enabled)}checked="checked"{/if}> disabled</label>
+							<br>
+							
+							<b>Start weeks</b> on 
+							<label><input type="radio" name="params[start_on_mon]" value="0" {if empty($model->params.start_on_mon)}checked="checked"{/if}> Sunday</label>
+							<label><input type="radio" name="params[start_on_mon]" value="1" {if !empty($model->params.start_on_mon)}checked="checked"{/if}> Monday</label>
+							<br>
+						
+							<b>Start times</b> are 
+							<label><input type="radio" name="params[hide_start_time]" value="0" {if empty($model->params.hide_start_time)}checked="checked"{/if}> visible</label>
+							<label><input type="radio" name="params[hide_start_time]" value="1" {if !empty($model->params.hide_start_time)}checked="checked"{/if}> hidden</label>
+							<br>
+							
+						</fieldset>
+						
+						<fieldset class="calendar-events peek" style="{if !empty($model->params.manual_disabled)}display:none;{/if}">
+							<legend>Created Events</legend>
+							
+							<b>{'common.available'|devblocks_translate|capitalize}</b> events are 
+							<input type="text" name="params[color_available]" value="{$model->params.color_available|default:'#A0D95B'}" style="width:100%;" class="color-picker">
+							<br>
+							
+							<b>{'common.busy'|devblocks_translate|capitalize}</b> events are 
+							<input type="text" name="params[color_busy]" value="{$model->params.color_busy|default:'C8C8C8'}" style="width:100%;" class="color-picker">
+							<br>
+						</fieldset>
+						
+						{section start=0 loop=5 name=series}
+						{$series_idx = $smarty.section.series.index}
+						{$series_prefix = "[series][{$series_idx}]"}
+						
+						<fieldset id="calendar{$model->id}Datasource{$series_idx}" class="sync-events peek" style="{if empty($model->params.sync_enabled)}display:none;{/if}">
+							<legend>Synchronize</legend>
+						
+							<b>Events</b> from 
+							{$source = $model->params.series[{$series_idx}].datasource}
+							
+							<select name="params{$series_prefix}[datasource]" class="datasource-selector" params_prefix="{$series_prefix}">
+								<option value=""></option>
+								{foreach from=$datasource_extensions item=datasource_ext key=datasource_ext_id}
+								<option value="{$datasource_ext_id}" {if $datasource_ext_id==$source}selected="selected"{/if}>{$datasource_ext->name}</option>
+								{/foreach}
+							</select>
+						
+							<div style="margin:2px 0px 0px 10px;" class="calendar-datasource-params">
+								{$datasource_extension = Extension_CalendarDatasource::get($source)}
+								{if !empty($datasource_extension) && method_exists($datasource_extension, 'renderConfig')}
+									{$datasource_extension->renderConfig($model, $model->params.series[{$series_idx}], $series_prefix)}
+								{/if}
+							</div>
+						</fieldset>
+						
+						{/section}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		
+		{if !empty($model->id)}
+		<fieldset style="display:none;" class="delete">
+			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+			
+			<div>
+				Are you sure you want to permanently delete this calendar?
+			</div>
+			
+			<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
+			<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
+		</fieldset>
 		{/if}
+		
+		<div class="buttons">
+			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		</div>
 	</div>
-</fieldset>
-
-{/section}
-
-{if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		Are you sure you want to permanently delete this calendar?
-	</div>
-	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
-{/if}
-
-<div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -136,6 +171,18 @@ $(function() {
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		
+		// Package Library
+		
+		{if !$model->id && $packages}
+			var $tabs = $popup.find('.cerb-tabs').tabs();
+			var $library_container = $tabs;
+			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
+			
+			$library_container.on('cerb-package-library-form-submit', function(e) {
+				$popup.find('button.submit').click();
+			});
+		{/if}
 		
 		// Owners
 		

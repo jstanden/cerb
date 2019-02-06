@@ -56,6 +56,13 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				return;
 				
 			} else {
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				
+				$mode = 'build';
+				
+				if(!$id && $package_uri)
+					$mode = 'library';
+				
 				// Owner
 				
 				@list($owner_context, $owner_context_id) = explode(':', $owner);
@@ -73,81 +80,136 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 						$owner_context_id = null;
 						break;
 				}
-
-				// Clean params
-				// [TODO] Move this
 				
-				if(isset($params['series']))
-				foreach($params['series'] as $series_idx => $series) {
-					if(isset($series['worklist_model_json'])) {
-						$series['worklist_model'] = json_decode($series['worklist_model_json'], true);
-						unset($series['worklist_model_json']);
-						$params['series'][$series_idx] = $series;
-					}
-				}
+				if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.owner'));
 				
-				// Model
-				
-				if(empty($id)) { // New
-					$fields = array(
-						DAO_Calendar::UPDATED_AT => time(),
-						DAO_Calendar::NAME => $name,
-						DAO_Calendar::OWNER_CONTEXT => $owner_context,
-						DAO_Calendar::OWNER_CONTEXT_ID => $owner_context_id,
-						DAO_Calendar::PARAMS_JSON => json_encode($params),
-					);
-					
-					if(!DAO_Calendar::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_Calendar::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(false == ($id = DAO_Calendar::create($fields)))
-						return new Exception_DevblocksAjaxValidationError("An unexpected error occurred while saving the record.");
-					
-					DAO_Calendar::onUpdateByActor($active_worker, $fields, $id);
-					
-					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR, $id);
-					
-				} else { // Edit
-					if(false == ($calendar = DAO_Calendar::get($id)))
+				switch($mode) {
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'calendar')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						
+						$prompts['owner_context'] = $owner_context;
+						$prompts['owner_context_id'] = $owner_context_id;
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_Calendar::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_calendar = reset($records_created[Context_Calendar::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, Context_Calendar::ID, $new_calendar['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_calendar['id'],
+							'label' => $new_calendar['label'],
+							'view_id' => $view_id,
+						]);
 						return;
-					
-					$fields = array(
-						DAO_Calendar::UPDATED_AT => time(),
-						DAO_Calendar::NAME => $name,
-						DAO_Calendar::OWNER_CONTEXT => $owner_context,
-						DAO_Calendar::OWNER_CONTEXT_ID => $owner_context_id,
-						DAO_Calendar::PARAMS_JSON => json_encode($params),
-					);
-					
-					$change_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar);
-					
-					if(!DAO_Calendar::validate($fields, $error, $id))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_Calendar::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					DAO_Calendar::update($id, $change_fields);
-					DAO_Calendar::onUpdateByActor($active_worker, $change_fields, $id);
+						break;
+						
+					case 'build':
+						$error = null;
+						
+						// Clean params
+						// [TODO] Move this
+						
+						if(isset($params['series']))
+						foreach($params['series'] as $series_idx => $series) {
+							if(isset($series['worklist_model_json'])) {
+								$series['worklist_model'] = json_decode($series['worklist_model_json'], true);
+								unset($series['worklist_model_json']);
+								$params['series'][$series_idx] = $series;
+							}
+						}
+						
+						// Model
+						
+						if(empty($id)) { // New
+							$fields = array(
+								DAO_Calendar::UPDATED_AT => time(),
+								DAO_Calendar::NAME => $name,
+								DAO_Calendar::OWNER_CONTEXT => $owner_context,
+								DAO_Calendar::OWNER_CONTEXT_ID => $owner_context_id,
+								DAO_Calendar::PARAMS_JSON => json_encode($params),
+							);
+							
+							if(!DAO_Calendar::validate($fields, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_Calendar::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(false == ($id = DAO_Calendar::create($fields)))
+								return new Exception_DevblocksAjaxValidationError("An unexpected error occurred while saving the record.");
+							
+							DAO_Calendar::onUpdateByActor($active_worker, $fields, $id);
+							
+							if(!empty($view_id) && !empty($id))
+								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CALENDAR, $id);
+							
+						} else { // Edit
+							if(false == ($calendar = DAO_Calendar::get($id)))
+								return;
+							
+							$fields = array(
+								DAO_Calendar::UPDATED_AT => time(),
+								DAO_Calendar::NAME => $name,
+								DAO_Calendar::OWNER_CONTEXT => $owner_context,
+								DAO_Calendar::OWNER_CONTEXT_ID => $owner_context_id,
+								DAO_Calendar::PARAMS_JSON => json_encode($params),
+							);
+							
+							$change_fields = Cerb_ORMHelper::uniqueFields($fields, $calendar);
+							
+							if(!DAO_Calendar::validate($fields, $error, $id))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_Calendar::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							DAO_Calendar::update($id, $change_fields);
+							DAO_Calendar::onUpdateByActor($active_worker, $change_fields, $id);
+						}
+						
+						// Custom field saves
+						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR, $id, $field_ids, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						echo json_encode(array(
+							'status' => true,
+							'id' => $id,
+							'label' => $name,
+							'view_id' => $view_id,
+						));
+						return;
 				}
-				
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CALENDAR, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
 			}
 			
-			echo json_encode(array(
-				'status' => true,
-				'id' => $id,
-				'label' => $name,
-				'view_id' => $view_id,
-			));
-			return;
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
