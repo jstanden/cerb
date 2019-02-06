@@ -625,6 +625,52 @@ class Model_ProjectBoardColumn {
 		
 		return $cards;
 	}
+	
+	function runDropActionsForCard($context, $context_id) {
+		if(!is_array($this->params))
+			return;
+		
+		// Trigger any built-in actions
+		if(array_key_exists('actions', $this->params)) {
+			// If the card is a task
+			if($context == CerberusContexts::CONTEXT_TASK) {
+				foreach($this->params['actions'] as $action => $action_params) {
+					switch($action) {
+						case 'task_status':
+							if(!array_key_exists('status_id', $action_params))
+								break;
+								
+							@$status_id = $action_params['status_id'];
+								
+							if(!in_array($status_id, [0,1,2]))
+								break;
+							
+							DAO_Task::update($context_id, [
+								DAO_Task::STATUS_ID => $status_id,
+							]);
+							break;
+					}
+				}
+			}
+		}
+		
+		// Setting links should trigger configured bot behaviors
+		if(array_key_exists('behaviors', $this->params)) {
+			@$behavior_params = $this->params['behaviors'];
+			$behaviors = DAO_TriggerEvent::getIds(array_keys($behavior_params));
+			
+			if(is_array($behaviors))
+			foreach($behaviors as $behavior) {
+				$event_ext = $behavior->getEvent();
+				
+				// Only run events for this context
+				if(@$event_ext->manifest->params['macro_context'] != $context)
+					continue;
+				
+				call_user_func([$event_ext->manifest->class, 'trigger'], $behavior->id, $context_id, @$behavior_params[$behavior->id] ?: []);
+			}
+		}
+	}
 };
 
 class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

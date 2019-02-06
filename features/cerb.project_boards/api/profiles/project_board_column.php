@@ -55,14 +55,24 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$board_id = DevblocksPlatform::importGPC($_REQUEST['board_id'], 'integer', 0);
+				@$actions = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['actions'], 'array', []), 'string');
+				@$actions_params = DevblocksPlatform::importGPC($_REQUEST['action_params'], 'array', []);
 				@$behavior_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['behavior_ids'], 'array', []), 'int');
 				@$behaviors_params = DevblocksPlatform::importGPC($_REQUEST['behavior_params'], 'array', []);
 				
 				$params = [
+					'actions' => [],
 					'behaviors' => [],
 				];
 				
 				$error = null;
+				
+				// Actions
+				
+				foreach($actions as $action) {
+					$action_params = @$actions_params[$action] ?: [];
+					$params['actions'][$action] = $action_params;
+				}
 				
 				// Behaviors
 				
