@@ -12,13 +12,7 @@
 
 	{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.create")}
 	<p>
-		New pages can be added by clicking on the <span class="glyphicons glyphicons-circle-plus"></span> icon in the <span class="help callout-worklist">Pages</span> list below.
-	</p>
-	{/if}
-	
-	{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.create")}
-	<p style="margin-top:10px;">
-		<button type="button" onclick="genericAjaxPopup('peek','c=pages&a=showPageWizardPopup&view_id={$view->id}',null,true,'50%');" style="font-weight:bold;">Help me create a page!</button>
+		New pages can be added by clicking on the <span class="help callout-worklist" style="cursor:pointer;" onclick="$('#viewpages a[title=Add]').click();"><span class="glyphicons glyphicons-circle-plus"></span></span> icon in the <b>Pages</b> list below.
 	</p>
 	{/if}
 </div>
