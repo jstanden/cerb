@@ -1375,6 +1375,12 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 			
 			$tpl->assign('page_extensions', $page_extensions);
 			
+			// Library
+			if(!$context_id) {
+				$packages = DAO_PackageLibrary::getByPoint('workspace_page');
+				$tpl->assign('packages', $packages);
+			}
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

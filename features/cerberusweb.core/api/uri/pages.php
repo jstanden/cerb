@@ -387,15 +387,84 @@ class Page_Custom extends CerberusPageExtension {
 				return;
 		
 			} else { // Create/Edit
-				@$mode = DevblocksPlatform::importGPC($_REQUEST['mode'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
 				
-				if($id)
-					$mode = 'build';
+				$mode = 'build';
+				
+				if(!$id && $package_uri) {
+					$mode = 'library';
+				} elseif (!$id && $import_json) {
+					$mode = 'import';
+				}
 				
 				switch($mode) {
-					case 'import':
-						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
 						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'workspace_page')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						// Owner
+						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+						
+						switch($owner_context) {
+							case CerberusContexts::CONTEXT_APPLICATION:
+							case CerberusContexts::CONTEXT_ROLE:
+							case CerberusContexts::CONTEXT_GROUP:
+							case CerberusContexts::CONTEXT_WORKER:
+								break;
+							
+							default:
+								$owner_context = null;
+								$owner_context_id = null;
+								break;
+						}
+						
+						if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
+							throw new Exception_DevblocksAjaxValidationError("You can't create pages with this owner.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+
+						$prompts['owner_context'] = $owner_context;
+						$prompts['owner_context_id'] = $owner_context_id;
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_WorkspacePage::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_page = reset($records_created[Context_WorkspacePage::ID]);
+						
+						// View marquee
+						if($new_page && $view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $new_page['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_page['id'],
+							'label' => $new_page['label'],
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+						
+					case 'import':
 						@$json = json_decode($import_json, true);
 						
 						if(empty($json) || !isset($json['page']))
@@ -460,6 +529,7 @@ class Page_Custom extends CerberusPageExtension {
 							'label' => $name,
 							'view_id' => $view_id,
 						));
+						return;
 						break;
 						
 					case 'build':
@@ -530,9 +600,12 @@ class Page_Custom extends CerberusPageExtension {
 							'label' => $name,
 							'view_id' => $view_id,
 						));
+						return;
 						break;
 				}
 			}
+			
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
@@ -548,7 +621,6 @@ class Page_Custom extends CerberusPageExtension {
 				'error' => 'An error occurred.',
 			));
 			return;
-			
 		}
 	}
 	
