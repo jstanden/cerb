@@ -307,6 +307,16 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: behavior is missing properties (%s)", implode(', ', array_keys($diff))));
 		}
 		
+		@$behavior_nodes = $json['behavior_nodes'];
+		
+		if(is_array($behavior_nodes))
+		foreach($behavior_nodes as $behavior_node) {
+			$keys_to_require = ['uid','behavior_id','parent_id','title'];
+			$diff = array_diff_key(array_flip($keys_to_require), $behavior_node);
+			if(count($diff))
+				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: behavior node is missing properties (%s)", implode(', ', array_keys($diff))));
+		}
+		
 		@$workspaces = $json['workspaces'];
 		
 		if(is_array($workspaces))
@@ -1078,6 +1088,34 @@ class Cerb_Packages {
 			$records_created[CerberusContexts::CONTEXT_BEHAVIOR][$uid] = [
 				'id' => $id,
 				'label' => $behavior['title'],
+			];
+		}
+		
+		@$behavior_nodes = $json['behavior_nodes'];
+		
+		if(is_array($behavior_nodes))
+		foreach($behavior_nodes as $behavior_node) {
+			$uid = $behavior_node['uid'];
+			
+			$error = null;
+
+			$behavior_id = @$behavior_node['behavior_id'];
+			$parent_id = @$behavior_node['parent_id'] ?: 0;
+			
+			unset($behavior_node['behavior_id']);
+			unset($behavior_node['parent_id']);
+			
+			if(false == ($node_id = DAO_TriggerEvent::recursiveImportDecisionNodes([$behavior_node], $behavior_id, $parent_id)))
+				throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
+			
+			if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE]))
+				$records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE] = [];
+			
+			$records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE][$uid] = [
+				'id' => $node_id,
+				'label' => $behavior_node['title'],
+				'behavior_id' => $behavior_id,
+				'parent_id' => $parent_id,
 			];
 		}
 		

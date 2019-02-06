@@ -171,6 +171,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			return;
 		
 		$pos = 0;
+		$id = null;
 		
 		foreach($nodes as $node) {
 			if(
@@ -191,12 +192,15 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			
 			$node_id = DAO_DecisionNode::create($fields);
 			
+			if(!$id)
+				$id = $node_id;
+			
 			if(isset($node['nodes']) && is_array($node['nodes']) && !empty($node['nodes']))
 				if(false == (self::recursiveImportDecisionNodes($node['nodes'], $behavior_id, $node_id)))
 					return false;
 		}
 		
-		return true;
+		return $id;
 	}
 	
 	/**
