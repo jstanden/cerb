@@ -1235,6 +1235,21 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			}
 			$tpl->assign('tab_manifests', $tab_manifests);
 			
+			// Library
+			
+			if(empty($context_id)) {
+				$package_points = ['profile_tab'];
+				
+				if($model->context) {
+					$profile_context_mft = $model->getContextExtension(false);
+					$context_aliases = Extension_DevblocksContext::getAliasesForContext($profile_context_mft);
+					$package_points[] = 'profile_tab:' . $context_aliases['uri'];
+				}
+				
+				$packages = DAO_PackageLibrary::getByPoint($package_points);
+				$tpl->assign('packages', $packages);
+			}
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

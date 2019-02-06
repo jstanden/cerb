@@ -53,63 +53,132 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-				@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
-				@$extension_params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
 				
-				if(empty($id)) { // New
-					$fields = array(
-						DAO_ProfileTab::CONTEXT => $context,
-						DAO_ProfileTab::EXTENSION_ID => $extension_id,
-						DAO_ProfileTab::EXTENSION_PARAMS_JSON => json_encode($extension_params),
-						DAO_ProfileTab::NAME => $name,
-						DAO_ProfileTab::UPDATED_AT => time(),
-					);
-					
-					if(!DAO_ProfileTab::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
+				$mode = 'build';
+				
+				if(!$id && $package_uri)
+					$mode = 'library';
+				
+				switch($mode) {
+					case 'library':
+						@$package_context = DevblocksPlatform::importGPC($_REQUEST['package_context'], 'string', '');
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
 						
-					if(!DAO_ProfileTab::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					$id = DAO_ProfileTab::create($fields);
-					DAO_ProfileTab::onUpdateByActor($active_worker, $id, $fields);
-					
-					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_TAB, $id);
-					
-				} else { // Edit
-					$fields = array(
-						DAO_ProfileTab::NAME => $name,
-						DAO_ProfileTab::EXTENSION_PARAMS_JSON => json_encode($extension_params),
-						DAO_ProfileTab::UPDATED_AT => time(),
-					);
-					
-					if(!DAO_ProfileTab::validate($fields, $error, $id))
-						throw new Exception_DevblocksAjaxValidationError($error);
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
 						
-					if(!DAO_ProfileTab::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					DAO_ProfileTab::update($id, $fields);
-					DAO_ProfileTab::onUpdateByActor($active_worker, $id, $fields);
-					
+						// Verify worker can edit this profile (is admin)
+						if(!$active_worker->is_superuser)
+							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if(false == ($package_context_mft = Extension_DevblocksContext::get($package_context, false))) {
+							/* @var $package_context_mft DevblocksExtensionManifest */
+							throw new Exception_DevblocksAjaxValidationError("Invalid profile type.");
+						}
+						
+						if($package->point != 'profile_tab' && !DevblocksPlatform::strStartsWith($package->point, 'profile_tab:'))
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						
+						$prompts['profile_context'] = @$package_context_mft->params['alias'];
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_ProfileWidget::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_tab = reset($records_created[Context_ProfileTab::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_TAB, $new_tab['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_tab['id'],
+							'label' => $new_tab['label'],
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+						
+					case 'build':
+						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+						@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
+						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+						@$extension_params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+						
+						$error = null;
+						
+						if(empty($id)) { // New
+							$fields = array(
+								DAO_ProfileTab::CONTEXT => $context,
+								DAO_ProfileTab::EXTENSION_ID => $extension_id,
+								DAO_ProfileTab::EXTENSION_PARAMS_JSON => json_encode($extension_params),
+								DAO_ProfileTab::NAME => $name,
+								DAO_ProfileTab::UPDATED_AT => time(),
+							);
+							
+							if(!DAO_ProfileTab::validate($fields, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+								
+							if(!DAO_ProfileTab::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							$id = DAO_ProfileTab::create($fields);
+							DAO_ProfileTab::onUpdateByActor($active_worker, $id, $fields);
+							
+							if(!empty($view_id) && !empty($id))
+								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_TAB, $id);
+							
+						} else { // Edit
+							$fields = array(
+								DAO_ProfileTab::NAME => $name,
+								DAO_ProfileTab::EXTENSION_PARAMS_JSON => json_encode($extension_params),
+								DAO_ProfileTab::UPDATED_AT => time(),
+							);
+							
+							if(!DAO_ProfileTab::validate($fields, $error, $id))
+								throw new Exception_DevblocksAjaxValidationError($error);
+								
+							if(!DAO_ProfileTab::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							DAO_ProfileTab::update($id, $fields);
+							DAO_ProfileTab::onUpdateByActor($active_worker, $id, $fields);
+							
+						}
+			
+						// Custom field saves
+						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_TAB, $id, $field_ids, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						echo json_encode(array(
+							'status' => true,
+							'id' => $id,
+							'label' => $name,
+							'view_id' => $view_id,
+						));
+						return;
+						break;
 				}
-	
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_TAB, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'label' => $name,
-					'view_id' => $view_id,
-				));
-				return;
 			}
+			
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
@@ -125,7 +194,6 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 				'error' => 'An error occurred.',
 			));
 			return;
-			
 		}
 	}
 	
