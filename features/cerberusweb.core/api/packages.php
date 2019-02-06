@@ -470,6 +470,16 @@ class Cerb_Packages {
 	private static function _packageGenerateIds(&$json, &$uids, &$records_created, &$placeholders) {
 		@$records = $json['records'];
 		
+		// Prepare the template builder
+		
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$lexer = array(
+			'tag_comment'   => array('{{#', '#}}'),
+			'tag_block'     => array('{{%', '%}}'),
+			'tag_variable'  => array('{{{', '}}}'),
+			'interpolation' => array('#{{', '}}'),
+		);
+		
 		if(is_array($records))
 		foreach($records as $record) {
 			$uid_record = $record['uid'];
@@ -566,6 +576,11 @@ class Cerb_Packages {
 		if(is_array($behaviors))
 		foreach($behaviors as $behavior) {
 			$uid = $behavior['uid'];
+			$bot_id = $behavior['bot_id'];
+			
+			// If the bot_id is a placeholder
+			if(preg_match('#\{\{[\#\%\{]#', $bot_id))
+				$behavior['bot_id'] = $tpl_builder->build($bot_id, $placeholders, $lexer);
 			
 			$behavior_id = DAO_TriggerEvent::create([
 				DAO_TriggerEvent::TITLE => $behavior['title'],
@@ -751,16 +766,6 @@ class Cerb_Packages {
 				}
 			}
 		}
-		
-		// Prepare the template builder
-		
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$lexer = array(
-			'tag_comment'   => array('{{#', '#}}'),
-			'tag_block'     => array('{{%', '%}}'),
-			'tag_variable'  => array('{{{', '}}}'),
-			'interpolation' => array('#{{', '}}'),
-		);
 		
 		// Add UID placeholders
 		$placeholders['uid'] = $uids;
