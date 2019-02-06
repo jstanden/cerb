@@ -88,9 +88,16 @@
 {if !$model->id}
 	<div class="cerb-tabs">
 		<ul>
+			{if $packages}<li><a href="#cerb-tab-widget-library">{'common.library'|devblocks_translate|capitalize}</a></li>{/if}
 			<li><a href="#cerb-tab-widget-build">{'common.build'|devblocks_translate|capitalize}</a></li>
 			<li><a href="#cerb-tab-widget-import">{'common.import'|devblocks_translate|capitalize}</a></li>
 		</ul>
+		
+		{if $packages}
+		<div id="cerb-tab-widget-library" class="package-library">
+			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
+		</div>
+		{/if}
 		
 		<div id="cerb-tab-widget-build">
 			{$smarty.capture.widget_build nofilter}
@@ -164,6 +171,9 @@ $(function() {
 			if(keycode == 27)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
+		
+		// Package Library
+		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 		
 		// Toolbar
 		var $toolbar = $popup.find('.cerb-placeholder-menu').detach();

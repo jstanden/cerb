@@ -1414,6 +1414,13 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			// Library
+			
+			if(empty($context_id)) {
+				$packages = DAO_PackageLibrary::getByPoint('workspace_widget');
+				$tpl->assign('packages', $packages);
+			}
+			
 			// Placeholder menu
 			
 			if(isset($model)) {

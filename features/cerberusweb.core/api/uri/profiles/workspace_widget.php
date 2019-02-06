@@ -74,16 +74,64 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$mode = DevblocksPlatform::importGPC($_REQUEST['mode'], 'string', '');
+				@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
 				
-				if($id)
-					$mode = 'build';
+				$mode = 'build';
+				
+				if(!$id && $package_uri) {
+					$mode = 'library';
+				} elseif (!$id && $import_json) {
+					$mode = 'import';
+				}
 				
 				switch($mode) {
-					case 'import':
-						@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
-						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
 						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'workspace_widget')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						
+						$prompts['workspace_tab_id'] = $workspace_tab_id;
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_WorkspaceWidget::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_widget = reset($records_created[Context_WorkspaceWidget::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $new_widget['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_widget['id'],
+							'label' => $new_widget['label'],
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+						
+					case 'import':
 						if(
 							empty($import_json)
 							|| false == (@$widget_json = json_decode($import_json, true))
@@ -140,7 +188,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 					
 					case 'build':
 						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-						@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
 						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
 						@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
 						
@@ -211,6 +258,8 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 				}
 			}
 			
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
 				'status' => false,
@@ -225,7 +274,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 				'error' => 'An error occurred.',
 			));
 			return;
-			
 		}
 	}
 	

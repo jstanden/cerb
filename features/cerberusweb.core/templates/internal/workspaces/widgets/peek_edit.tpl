@@ -1,6 +1,8 @@
 {$peek_context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET}
 {$form_id = uniqid()}
 {$widget_extension = $widget_extensions[$model->extension_id]}
+{$tab = $model->getWorkspaceTab()}
+
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -11,135 +13,157 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	{if !$model->id}
-	<tbody>
+{if !$model->id}
+	{if $tab}
+	<input type="hidden" name="workspace_tab_id" value="{$tab->id}">
+	{else}
+	<table cellspacing="0" cellpadding="2" border="0" width="98%">
 		<tr>
-			<td width="100%" colspan="2">
-				{if $packages}<label><input type="radio" name="mode" value="library" checked="checked"> {'common.library'|devblocks_translate|capitalize}</label>{/if}
-				<label><input type="radio" name="mode" value="build" {if !$packages}checked="checked"{/if}> {'common.build'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="mode" value="import"> {'common.import'|devblocks_translate|capitalize}</label>
+			<td width="1%" nowrap="nowrap" valign="top">
+				<b>{'dashboard'|devblocks_translate|capitalize}:</b>
 			</td>
-		</tr>
-	</tbody>
-	{/if}
-	
-	<tbody class="package-library" style="{if !$packages || $model->id}display:none;{/if}">
-		<tr>
-			<td width="100%" colspan="2">
-				{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
-			</td>
-		</tr>
-	</tbody>
-	
-	<tbody class="widget-import" style="display:none;">
-		<tr>
-			<td width="100%" colspan="2">
-				<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a dashboard widget in JSON format"></textarea>
-			</td>
-		</tr>
-	</tbody>
-	
-	<tbody class="widget-build" style="{if $packages && !$model->id}display:none;{/if};">
-		<tr>
-			<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
 			<td width="99%">
-				<input type="text" name="name" value="{$model->label}" style="width:98%;" autofocus="autofocus">
+				<button type="button" class="chooser-abstract" data-field-name="workspace_tab_id" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-single="true" data-query="type:&quot;core.workspace.tab.dashboard&quot;" data-autocomplete="type:&quot;core.workspace.tab.dashboard&quot;" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+				
+				<ul class="bubbles chooser-container">
+					{if $tab}
+						<li><input type="hidden" name="workspace_tab_id" value="{$tab->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$tab->id}">{$tab->name}</a></li>
+					{/if}
+				</ul>
 			</td>
 		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.type'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%" valign="top">
-				{if $model->id}
-					{$widget_extension = $model->getExtension()}
-					{$widget_extension->manifest->name}
-				{else}
-					<select name="extension_id">
-						<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
-						{foreach from=$widget_extensions item=widget_extension}
-						{if DevblocksPlatform::strStartsWith($widget_extension->name, '(Deprecated)')}
-						{else}
-						<option value="{$widget_extension->id}">{$widget_extension->name}</option>
-						{/if}
-						{/foreach}
-					</select>
-				{/if}
-			</td>
-		</tr>
-		
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.width'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%" valign="top">
-				{$widths = [4 => '100%', 3 => '75%', 2 => '50%', 1 => '25%']}
-				{$current_width = $model->width_units|default:2}
-				<select name="width_units">
-					{foreach from=$widths item=width_label key=width}
-					<option value="{$width}" {if $current_width == $width}selected="selected"{/if}>{$width_label}</option>
-					{/foreach}
-				</select>
-			</td>
-		</tr>
-	</tbody>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top">
-			<b>{'dashboard'|devblocks_translate|capitalize}:</b>
-		</td>
-		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="workspace_tab_id" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-single="true" data-query="type:&quot;core.workspace.tab.dashboard&quot;" data-autocomplete="type:&quot;core.workspace.tab.dashboard&quot;" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-				{$tab = $model->getWorkspaceTab()}
-				{if $tab}
-					<li><input type="hidden" name="workspace_tab_id" value="{$tab->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$tab->id}">{$tab->name}</a></li>
-				{/if}
-			</ul>
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+	</table>
 	{/if}
-</table>
-
-{* The rest of config comes from the widget *}
-<div class="cerb-widget-params">
-{$widget_extension = Extension_WorkspaceWidget::get($widget_extension->id, true)}
-{if $widget_extension && method_exists($widget_extension,'renderConfig')}
-{$widget_extension->renderConfig($model)}
 {/if}
-</div>
 
-<div class="cerb-placeholder-menu" style="display:none;">
-{include file="devblocks:cerberusweb.core::internal/workspaces/tabs/dashboard/toolbar.tpl"}
-</div>
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
-
-{if !empty($model->id)}
-<fieldset style="display:none;" class="delete">
-	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+<div class="cerb-tabs">
+	{if !$model->id}
+	<ul>
+		{if $packages}<li><a href="#widget-library">{'common.library'|devblocks_translate|capitalize}</a></li>{/if}
+		<li><a href="#widget-builder">{'common.build'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#widget-import">{'common.import'|devblocks_translate|capitalize}</a></li>
+	</ul>
+	{/if}
 	
-	<div>
-		Are you sure you want to permanently delete this workspace widget?
+	{if !$model->id && $packages}
+	<div id="widget-library" class="package-library">
+		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
 	</div>
+	{/if}
 	
-	<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
-{/if}
-
-<div class="status"></div>
-
-<div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $model->id}<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right" style="color:rgb(0,180,0);"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if !$model->id}
+	<div id="widget-import">
+		<textarea name="import_json" style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false" placeholder="Paste a dashboard widget in JSON format"></textarea>
+		
+		<div>
+			<button type="button" class="import"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.import'|devblocks_translate|capitalize}</button>
+		</div>
+	</div>
+	{/if}
+	
+	<div id="widget-builder">
+		<table cellspacing="0" cellpadding="2" border="0" width="98%">
+			<tbody>
+				<tr>
+					<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+					<td width="99%">
+						<input type="text" name="name" value="{$model->label}" style="width:98%;" autofocus="autofocus">
+					</td>
+				</tr>
+				
+				<tr>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<b>{'common.type'|devblocks_translate|capitalize}:</b>
+					</td>
+					<td width="99%" valign="top">
+						{if $model->id}
+							{$widget_extension = $model->getExtension()}
+							{$widget_extension->manifest->name}
+						{else}
+							<select name="extension_id">
+								<option value="">-- {'common.choose'|devblocks_translate|lower} --</option>
+								{foreach from=$widget_extensions item=widget_extension}
+								{if DevblocksPlatform::strStartsWith($widget_extension->name, '(Deprecated)')}
+								{else}
+								<option value="{$widget_extension->id}">{$widget_extension->name}</option>
+								{/if}
+								{/foreach}
+							</select>
+						{/if}
+					</td>
+				</tr>
+				
+				{if $model->id}
+				<tr>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<b>{'dashboard'|devblocks_translate|capitalize}:</b>
+					</td>
+					<td width="99%">
+						<button type="button" class="chooser-abstract" data-field-name="workspace_tab_id" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-single="true" data-query="type:&quot;core.workspace.tab.dashboard&quot;" data-autocomplete="type:&quot;core.workspace.tab.dashboard&quot;" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+						
+						<ul class="bubbles chooser-container">
+							{if $tab}
+								<li><input type="hidden" name="workspace_tab_id" value="{$tab->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKSPACE_TAB}" data-context-id="{$tab->id}">{$tab->name}</a></li>
+							{/if}
+						</ul>
+					</td>
+				</tr>
+				{/if}
+				
+				<tr>
+					<td width="1%" nowrap="nowrap" valign="top">
+						<b>{'common.width'|devblocks_translate|capitalize}:</b>
+					</td>
+					<td width="99%" valign="top">
+						{$widths = [4 => '100%', 3 => '75%', 2 => '50%', 1 => '25%']}
+						{$current_width = $model->width_units|default:2}
+						<select name="width_units">
+							{foreach from=$widths item=width_label key=width}
+							<option value="{$width}" {if $current_width == $width}selected="selected"{/if}>{$width_label}</option>
+							{/foreach}
+						</select>
+					</td>
+				</tr>
+			</tbody>
+			
+			{if !empty($custom_fields)}
+			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+			{/if}
+		</table>
+		
+		{* The rest of config comes from the widget *}
+		<div class="cerb-widget-params">
+		{$widget_extension = Extension_WorkspaceWidget::get($widget_extension->id, true)}
+		{if $widget_extension && method_exists($widget_extension,'renderConfig')}
+		{$widget_extension->renderConfig($model)}
+		{/if}
+		</div>
+		
+		<div class="cerb-placeholder-menu" style="display:none;">
+		{include file="devblocks:cerberusweb.core::internal/workspaces/tabs/dashboard/toolbar.tpl"}
+		</div>
+		
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+		
+		{if !empty($model->id)}
+		<fieldset style="display:none;" class="delete">
+			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
+			
+			<div>
+				Are you sure you want to permanently delete this workspace widget?
+			</div>
+			
+			<button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
+			<button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
+		</fieldset>
+		{/if}
+		
+		<div class="buttons" style="margin-top:10px;">
+			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if $model->id}<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right" style="color:rgb(0,180,0);"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>{/if}
+			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		</div>
+	</div>
 </div>
 
 </form>
@@ -155,6 +179,7 @@ $(function() {
 
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.import').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
@@ -170,30 +195,20 @@ $(function() {
 		var $toolbar = $popup.find('.cerb-placeholder-menu').detach();
 		var $params = $popup.find('.cerb-widget-params');
 		
-		// Mode toggle
-		{if !$model->id}
-		$popup.find('input:radio[name=mode]').change(function() {
-			var $radio = $(this);
-			var mode = $radio.val();
-			
-			$frm.find('tbody.widget-build').hide();
-			$frm.find('tbody.widget-import').hide();
-			$frm.find('tbody.package-library').hide();
-			
-			if(mode == 'import') {
-				$frm.find('tbody.widget-import').fadeIn();
-			} else if(mode == 'library') {
-				$frm.find('tbody.package-library')
-					.fadeIn()
-					;
-			} else {
-				$frm.find('tbody.widget-build').fadeIn();
-			}
-		});
-		{/if}
-		
 		// Package Library
-		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
+		
+		{if !$model->id}
+			var $tabs = $popup.find('.cerb-tabs').tabs();
+			
+			{if $packages}
+				var $library_container = $tabs;
+				{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
+				
+				$library_container.on('cerb-package-library-form-submit', function(e) {
+					$popup.find('button.submit').click();
+				});
+			{/if}
+		{/if}
 		
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
