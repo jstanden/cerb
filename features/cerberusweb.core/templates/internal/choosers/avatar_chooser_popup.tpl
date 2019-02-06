@@ -6,7 +6,7 @@
 			<canvas class="canvas-avatar" width="{$image_width}" height="{$image_height}" style="width:{$image_width}px;height:{$image_height}px;cursor:move;"></canvas>
 		</div>
 		<div style="margin-top:5px;">
-			<input type="text" name="bgcolor" value="#{sprintf('%02x%02x%02x',mt_rand(0,180),mt_rand(0,180),mt_rand(0,180))}" size="8" class="color-picker">
+			<input type="text" name="bgcolor" value="#ffffff" size="8" class="color-picker">
 		</div>
 		<input type="hidden" name="imagedata" class="canvas-avatar-imagedata">
 	</div>
@@ -80,6 +80,12 @@ $(function() {
 		
 		$monogram.find('button').click(function() {
 			var bgcolor = $bgcolor_well.val();
+			
+			if(bgcolor == '#ffffff') {
+				bgcolor = '#1e5271';
+				$bgcolor_well.minicolors('value', { color: bgcolor, opacity:0 });
+			}
+			
 			var txt = $monogram.find('input:text').val(); //.substring(0,3);
 			
 			var scale = 1.0;
@@ -252,7 +258,7 @@ $(function() {
 			scale = 1.0;
 			x = 0;
 			y = 0;
-			$bgcolor_well.minicolors('value', { color: 'rgb(255,255,255)', opacity:0 });
+			$bgcolor_well.minicolors('value', { color: '#ffffff', opacity:0 });
 			$(img).attr('src', '');
 			$canvas.trigger('avatar-redraw');
 		});
@@ -284,7 +290,7 @@ $(function() {
 				x = 0;
 				y = 0;
 				$(img).one('load', function() {
-					$bgcolor_well.minicolors('value', { color: 'rgb(255,255,255)', opacity:1 });
+					$bgcolor_well.minicolors('value', { color: '#ffffff', opacity:1 });
 					$canvas.trigger('avatar-redraw');
 				});
 				$(img).attr('src', json.imageData);
@@ -316,6 +322,7 @@ $(function() {
 					x = 0;
 					y = 0;
 					$(img).one('load', function() {
+						$bgcolor_well.minicolors('value', { color: '#ffffff', opacity:1 });
 						$canvas.trigger('avatar-redraw');
 					});
 					$(img).attr('src', e.target.result);
