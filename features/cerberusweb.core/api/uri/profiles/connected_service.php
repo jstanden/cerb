@@ -55,86 +55,140 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
-				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
-				@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
 				
-				$service = new Model_ConnectedService();
-				$service->id = 0;
-				$service->extension_id = $extension_id;
+				$mode = 'build';
 				
-				if(!$id) { // New
-					if(false == ($extension = Extension_ConnectedServiceProvider::get($extension_id)))
-						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
-					
-					$fields = array(
-						DAO_ConnectedService::EXTENSION_ID => $extension_id,
-						DAO_ConnectedService::NAME => $name,
-						DAO_ConnectedService::UPDATED_AT => time(),
-						DAO_ConnectedService::URI => $uri,
-					);
-					
-				} else { // Edit
-					if(false == ($service = DAO_ConnectedService::get($id)))
-						throw new Exception_DevblocksAjaxValidationError("Invalid record.");
-					
-					if(false == ($extension = $service->getExtension()))
-						throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
-					
-					$fields = array(
-						DAO_ConnectedService::NAME => $name,
-						DAO_ConnectedService::UPDATED_AT => time(),
-						DAO_ConnectedService::URI => $uri,
-					);
-				}
+				if(!$id && $package_uri)
+					$mode = 'library';
 				
-				$params = $service->decryptParams($active_worker) ?: [];
-				
-				if(false === ($extension->saveConfigForm($service, $params, $error)))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				if(!$id) { // New
-					if(!DAO_ConnectedService::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
+				switch($mode) {
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
 						
-					if(!DAO_ConnectedService::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					$id = DAO_ConnectedService::create($fields);
-					DAO_ConnectedService::onUpdateByActor($active_worker, $id, $fields);
-					
-					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CONNECTED_SERVICE, $id);
-					
-				} else { // Edit
-					if(!DAO_ConnectedService::validate($fields, $error, $id))
-						throw new Exception_DevblocksAjaxValidationError($error);
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
 						
-					if(!DAO_ConnectedService::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					DAO_ConnectedService::update($id, $fields);
-					DAO_ConnectedService::onUpdateByActor($active_worker, $id, $fields);
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'connected_service')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_ConnectedService::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_service = reset($records_created[Context_ConnectedService::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, Context_ConnectedService::ID, $new_service['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_service['id'],
+							'label' => $new_service['label'],
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+						
+					case 'build':
+						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+						@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+						@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'], 'string', '');
+						
+						$service = new Model_ConnectedService();
+						$service->id = 0;
+						$service->extension_id = $extension_id;
+						
+						if(!$id) { // New
+							if(false == ($extension = Extension_ConnectedServiceProvider::get($extension_id)))
+								throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
+							
+							$fields = array(
+								DAO_ConnectedService::EXTENSION_ID => $extension_id,
+								DAO_ConnectedService::NAME => $name,
+								DAO_ConnectedService::UPDATED_AT => time(),
+								DAO_ConnectedService::URI => $uri,
+							);
+							
+						} else { // Edit
+							if(false == ($service = DAO_ConnectedService::get($id)))
+								throw new Exception_DevblocksAjaxValidationError("Invalid record.");
+							
+							if(false == ($extension = $service->getExtension()))
+								throw new Exception_DevblocksAjaxValidationError("Invalid service provider.");
+							
+							$fields = array(
+								DAO_ConnectedService::NAME => $name,
+								DAO_ConnectedService::UPDATED_AT => time(),
+								DAO_ConnectedService::URI => $uri,
+							);
+						}
+						
+						$params = $service->decryptParams($active_worker) ?: [];
+						
+						if(false === ($extension->saveConfigForm($service, $params, $error)))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						if(!$id) { // New
+							if(!DAO_ConnectedService::validate($fields, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+								
+							if(!DAO_ConnectedService::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							$id = DAO_ConnectedService::create($fields);
+							DAO_ConnectedService::onUpdateByActor($active_worker, $id, $fields);
+							
+							if(!empty($view_id) && !empty($id))
+								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CONNECTED_SERVICE, $id);
+							
+						} else { // Edit
+							if(!DAO_ConnectedService::validate($fields, $error, $id))
+								throw new Exception_DevblocksAjaxValidationError($error);
+								
+							if(!DAO_ConnectedService::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							DAO_ConnectedService::update($id, $fields);
+							DAO_ConnectedService::onUpdateByActor($active_worker, $id, $fields);
+						}
+						
+						if($id) {
+							DAO_ConnectedService::setAndEncryptParams($id, $params);
+							
+							// Custom field saves
+							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_SERVICE, $id, $field_ids, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							echo json_encode(array(
+								'status' => true,
+								'id' => $id,
+								'label' => $name,
+								'view_id' => $view_id,
+							));
+							return;
+						}
+						break;
 				}
 				
-				if($id) {
-					DAO_ConnectedService::setAndEncryptParams($id, $params);
-					
-					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_CONNECTED_SERVICE, $id, $field_ids, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					echo json_encode(array(
-						'status' => true,
-						'id' => $id,
-						'label' => $name,
-						'view_id' => $view_id,
-					));
-				}
-				
-				return;
+				throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			}
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
@@ -151,7 +205,6 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				'error' => 'An error occurred.',
 			));
 			return;
-			
 		}
 	}
 	

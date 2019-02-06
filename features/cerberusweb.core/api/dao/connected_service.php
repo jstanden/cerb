@@ -1246,6 +1246,12 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			$params = $model->decryptParams($active_worker);
 			$tpl->assign('params', $params);
 			
+			// Library
+			if(!$context_id) {
+				$packages = DAO_PackageLibrary::getByPoint('connected_service');
+				$tpl->assign('packages', $packages);
+			}
+			
 			if(isset($model))
 				$tpl->assign('model', $model);
 			
