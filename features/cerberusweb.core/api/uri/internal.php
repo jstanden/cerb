@@ -1826,12 +1826,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$defaults_string = DevblocksPlatform::importGPC($_REQUEST['defaults'],'string','');
+		@$image_width = DevblocksPlatform::importGPC($_REQUEST['image_width'],'integer',100);
+		@$image_height = DevblocksPlatform::importGPC($_REQUEST['image_height'],'integer',100);
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
+		$tpl->assign('image_width', $image_width);
+		$tpl->assign('image_height', $image_height);
 
 		if(false != ($avatar = DAO_ContextAvatar::getByContext($context, $context_id))) {
 			$contents = 'data:' . $avatar->content_type . ';base64,' . base64_encode(Storage_ContextAvatar::get($avatar));

@@ -3,7 +3,7 @@
 <div>
 	<div style="float:left;">
 		<div style="margin:0;padding:0;border:1px solid rgb(230,230,230);display:inline-block;">
-			<canvas class="canvas-avatar" width="100" height="100" style="width:100px;height:100px;cursor:move;"></canvas>
+			<canvas class="canvas-avatar" width="{$image_width}" height="{$image_height}" style="width:{$image_width}px;height:{$image_height}px;cursor:move;"></canvas>
 		</div>
 		<div style="margin-top:5px;">
 			<input type="text" name="bgcolor" value="#{sprintf('%02x%02x%02x',mt_rand(0,180),mt_rand(0,180),mt_rand(0,180))}" size="8" class="color-picker">
@@ -86,13 +86,13 @@ $(function() {
 			x = 0;
 			y = 0;
 			
-			var $new_canvas = $('<canvas height="100" width="100"/>');
+			var $new_canvas = $('<canvas height="{$image_height}" width="{$image_width}"/>');
 			var new_canvas = $new_canvas.get(0);
 			var new_context = new_canvas.getContext('2d');
 			new_context.clearRect(0, 0, new_canvas.width, new_canvas.height);
 			
 			var height = 70;
-			var bounds = { width: 100 };
+			var bounds = { width: {$image_width} };
 			while(bounds.width > 95) {
 				var height = height - 5;
 				new_context.font = "Bold " + height + "pt Arial";
