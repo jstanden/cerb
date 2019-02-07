@@ -33,20 +33,20 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		
 		// varchar(255)
 		$validation
-			->addField(self::EXTENSION_ID)
+			->addField(self::EXTENSION_ID, DevblocksPlatform::translateCapitalized('common.type'))
 			->string()
 			->setRequired(true)
 			->setMaxLength(255)
 			;
 		// int(10) unsigned
 		$validation
-			->addField(self::ID)
+			->addField(self::ID, DevblocksPlatform::translate('common.id'))
 			->id()
 			->setEditable(false)
 			;
 		// varchar(255)
 		$validation
-			->addField(self::LABEL)
+			->addField(self::LABEL, DevblocksPlatform::translateCapitalized('common.name'))
 			->string()
 			->setRequired(true)
 			->setMaxLength(255)
@@ -78,7 +78,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			;
 		// int(10) unsigned
 		$validation
-			->addField(self::WORKSPACE_TAB_ID)
+			->addField(self::WORKSPACE_TAB_ID, DevblocksPlatform::translateCapitalized('dashboard'))
 			->id()
 			->setRequired(true)
 			->addValidator($validation->validators()->contextId(Context_WorkspaceTab::ID))
