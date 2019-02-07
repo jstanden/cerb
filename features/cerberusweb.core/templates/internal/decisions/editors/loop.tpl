@@ -72,7 +72,7 @@
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this loop?</legend>
 	<p>Are you sure you want to permanently delete this loop and its children?</p>
-	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionLoop{$id}','','c=internal&a=saveDecisionDeletePopup',function() { genericAjaxPopupDestroy('node_switch{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionLoop{$id}','','c=internal&a=saveDecisionDeletePopup',function() { genericAjaxPopupDestroy('node_loop{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"> {'common.yes'|devblocks_translate|capitalize}</button>
 	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
