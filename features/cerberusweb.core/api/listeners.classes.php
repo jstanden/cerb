@@ -1056,6 +1056,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		$this->_handleCronHeartbeatReopenTasks();
 		DAO_BotDatastore::maint();
 		DAO_BotInteractionProactive::maint();
+		Cerb_DevblocksSessionHandler::gc(0); // Purge inactive sessions
 	}
 	
 	private function _handleCronHeartbeatReopenTickets() {

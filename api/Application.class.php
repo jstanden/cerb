@@ -2838,18 +2838,23 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 	}
 
 	static function gc($maxlifetime) {
+		$db = DevblocksPlatform::services()->database();
+		
 		if(!self::isReady())
 			return false;
-
+		
+		// Clear abandoned unauthenticated sessions after 15 mins
+		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE user_id = 0 AND updated < %d", time()-900));
+		
 		// We ignore caller's $maxlifetime (session.gc_maxlifetime) on purpose.
 		// Look up Cerb's session max lifetime
 		$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
-
-		if(empty($maxlifetime))
+		
+		if(!$maxlifetime)
 			$maxlifetime = 86400;
-
-		$db = DevblocksPlatform::services()->database();
-		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE updated + %d < %d", $maxlifetime, time()));
+		
+		// Clear any remaining (authenticated) sessions older than the max idle lifetime
+		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE updated < %d",time()-$maxlifetime));
 		return true;
 	}
 
