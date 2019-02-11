@@ -2866,6 +2866,15 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 		return $db->GetArrayMaster("SELECT session_key, created, updated, user_id, user_ip, user_agent, refreshed_at, session_data FROM devblocks_session");
 	}
+	
+	static function getAllLoggedIn() {
+		$db = DevblocksPlatform::services()->database();
+
+		if(!self::isReady())
+			return false;
+
+		return $db->GetArrayMaster("SELECT session_key, created, updated, user_id, user_ip, user_agent, refreshed_at, session_data FROM devblocks_session WHERE user_id != 0");
+	}
 
 	static function destroyAll() {
 		$db = DevblocksPlatform::services()->database();

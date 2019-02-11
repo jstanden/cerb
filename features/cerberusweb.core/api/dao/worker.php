@@ -278,23 +278,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function getAllOnline($idle_limit=600, $idle_kick_limit=0) {
 		$session = DevblocksPlatform::services()->session();
 
-		$sessions = $session->getAll();
+		$sessions = Cerb_DevblocksSessionHandler::getAllLoggedIn();
 		$workers = DAO_Worker::getAll();
 		
 		if(!is_array($sessions) || empty($sessions))
 			return [];
 		
-		$sessions = array_filter($sessions, function($object) {
-			// Only worker-based sessions (no anonymous)
-			if(empty($object['user_id']))
-				return false;
-
-			return true;
-		});
-		
-		if(empty($sessions))
-			return [];
-
 		// Least idle sessions first
 		DevblocksPlatform::sortObjects($sessions, '[updated]', false);
 
