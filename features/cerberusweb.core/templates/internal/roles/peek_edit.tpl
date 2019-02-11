@@ -20,53 +20,50 @@
 		</tr>
 		
 		<tr>
-			<td width="1%" nowrap="nowrap" valign="top"><b>Apply to:</b></td>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.membership'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<label><input type="radio" name="who" value="all" {if empty($model->id) || $model->params.who=='all'}checked="checked"{/if}> {'common.everyone'|devblocks_translate|capitalize}</label><br>
-				
-				{if !empty($groups)}
-					{$role_is_groups = $model->params.who=='groups'}
-					<label><input type="radio" name="who" value="groups" {if $role_is_groups}checked="checked"{/if}> These groups:</label><br>
-					<div class="who_list" style="margin-left:10px;display:{if $role_is_groups}block{else}none{/if};" id="configAclWhoGroups">
-					{foreach from=$groups item=group key=group_id}
-						<label><input type="checkbox" name="group_ids[]" value="{$group_id}" {if $role_is_groups && in_array($group_id,$model->params.who_list)}checked="checked"{/if}> {$group->name}</label><br>
-					{/foreach}
-					</div>
-				{/if}
-				
-				{if !empty($workers)}
-					{$role_is_workers = $model->params.who=='workers'}
-					<label><input type="radio" name="who" value="workers" {if $role_is_workers}checked="checked"{/if}> These workers:</label><br>
-					<div class="who_list" style="margin-left:10px;display:{if $role_is_workers}block{else}none{/if};" id="configAclWhoWorkers">
-					{foreach from=$workers item=worker key=worker_id}
-						<label><input type="checkbox" name="worker_ids[]" value="{$worker_id}" {if $role_is_workers && in_array($worker_id,$model->params.who_list)}checked="checked"{/if}> {$worker->getName()}{if !empty($worker->title)} (<span style="color:rgb(0,120,0);">{$worker->title}</span>){/if}</label><br>
-					{/foreach}
-					</div>
-				{/if}
+				<div>
+					Grant role <b>privileges</b> to these workers:
+					<textarea name="member_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" class="cerb-query-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}">{$model->member_query_worker}</textarea>
+				</div>
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.ownership'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%">
+				<div>
+					Records owned by this role can be <b>edited</b> by these workers:
+					<textarea name="editor_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" class="cerb-query-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}">{$model->editor_query_worker}</textarea>
+				</div>
+
+				<div>
+					Records owned by this role are <b>visible</b> to these workers:
+					<textarea name="reader_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" class="cerb-query-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}">{$model->reader_query_worker}</textarea>
+				</div>
 			</td>
 		</tr>
 		
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.privileges'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<label><input type="radio" name="what" value="all" {if $model->params.what=='all'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.all'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="what" value="none" {if empty($model->id) || $model->params.what=='none'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.none'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="what" value="itemized" {if $model->params.what=='itemized'}checked="checked"{/if} onclick="$('#configAclItemized').show();"> Itemized:</label>
+				<label><input type="radio" name="privs_mode" value="all" {if $model->privs_mode=='all'}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.all'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="privs_mode" value="" {if empty($model->id) || !$model->privs_mode}checked="checked"{/if} onclick="$('#configAclItemized').hide();"> {'common.none'|devblocks_translate|capitalize}</label>
+				<label><input type="radio" name="privs_mode" value="itemized" {if $model->privs_mode=='itemized'}checked="checked"{/if} onclick="$('#configAclItemized').show();"> Itemized:</label>
 			</td>
 		</tr>
 	</table>
 </fieldset>
 
-<div id="configAclItemized" style="display:block;{if $model->params.what != 'itemized'}display:none;{/if}">
+<div id="configAclItemized" style="display:block;{if $model->privs_mode != 'itemized'}display:none;{/if}">
 	<ul>
-		<li><a href="#roleEditorPrivsGeneral">{'common.global'|devblocks_translate|capitalize}</a></li>
 		<li><a href="#roleEditorPrivsRecords">{'common.records'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#roleEditorPrivsPlugins">{'common.plugins'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#roleEditorPrivsOther">{'common.other'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	
-	<div id="roleEditorPrivsGeneral">
+	<div id="roleEditorPrivsOther">
 		<div style="margin-bottom:10px;">
-			<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsGeneral');">check all</a>
+			<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsOther');">check all</a>
 		</div>
 		
 		{foreach from=$core_acl item=section}
@@ -89,11 +86,32 @@
 			{/if}
 		{/foreach}
 		
+		{if $core_acl.privs}
 		<div style="margin-top:5px;margin-left:5px;">
 			{foreach from=$core_acl.privs item=priv key=priv_id}
 				<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
 			{/foreach}
 		</div>
+		{/if}
+		
+		{foreach from=$plugins_acl item=plugin key=plugin_id}
+			{if empty($plugin.privs)}
+			{else}
+			<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
+				<legend>
+					<label onclick="checkAll('privs{$plugin_id}');">
+					{$plugin.label}
+					</label>
+				</legend>
+				
+				<div id="privs{$plugin_id}" style="padding-left:10px">
+					{foreach from=$plugin.privs item=priv key=priv_id}
+						<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
+					{/foreach}
+				</div>
+			</fieldset>
+			{/if}
+		{/foreach}
 	</div>
 	
 	<div id="roleEditorPrivsRecords">
@@ -138,30 +156,6 @@
 	{/foreach}
 	</div>
 	</div>
-	
-	<div id="roleEditorPrivsPlugins">
-	<div style="margin-bottom:10px;">
-		<a href="javascript:;" style="font-size:90%;" onclick="checkAll('roleEditorPrivsPlugins');">check all</a>
-	</div>
-	{foreach from=$plugins_acl item=plugin key=plugin_id}
-		{if empty($plugin.privs)}
-		{else}
-		<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
-			<legend>
-				<label onclick="checkAll('privs{$plugin_id}');">
-				{$plugin.label}
-				</label>
-			</legend>
-			
-			<div id="privs{$plugin_id}" style="padding-left:10px">
-				{foreach from=$plugin.privs item=priv key=priv_id}
-					<label style=""><input type="checkbox" name="acl_privs[]" value="{$priv_id}" {if isset($role_privs.$priv_id)}checked{/if}> {$priv}</label><br>
-				{/foreach}
-			</div>
-		</fieldset>
-		{/if}
-	{/foreach}
-	</div>
 </div>
 
 {if !empty($custom_fields)}
@@ -204,8 +198,21 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'common.role'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
+		// Tabs
+		var $tabs = $('#configAclItemized').tabs();
+
+		$tabs.find('fieldset > legend').on('mousedown', function(e) {
+			e.preventDefault();
+		});
+		
+		// This prevents the popup from being stranded downward by the height of the roles popup after submit
+		var hide_tabs_on_submit = function(e) {
+			if(!e.error)
+				$tabs.hide();
+		};
+		
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.submit').click({ after: hide_tabs_on_submit }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
@@ -214,12 +221,13 @@ $(function() {
 		var $who_groups = $('#configAclWhoGroups');
 		var $who_workers = $('#configAclWhoWorkers');
 		
-		// Tabs
-		var $tabs = $('#configAclItemized').tabs();
+		// Query builders
 		
-		$tabs.find('fieldset > legend').on('mousedown', function(e) {
-			e.preventDefault();
-		});
+		$popup.find('.cerb-query-trigger')
+			.cerbQueryTrigger()
+			.on('cerb-query-saved', function(e) {
+			})
+		;
 		
 		$who.on('change', function(e) {
 			var $radio = $(this);

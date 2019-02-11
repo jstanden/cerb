@@ -65,6 +65,8 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 				@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'], 'string', '');
 				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 				
+				$error = null;
+				
 				if(empty($id)) { // New
 					@$role_privs = DevblocksPlatform::importGPC($_REQUEST['role_privs'], 'array', []);
 					
@@ -96,17 +98,19 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 							if(false == ($role = DAO_WorkerRole::get($role_id)))
 								continue;
 							
-							if(!isset($role->params['what']) || 'itemized' != $role->params['what'])
+							if('itemized' != $role->privs_mode)
 								continue;
 							
-							foreach($privs as $priv)
-								$role->privs[] = $priv_prefix . $priv;
+							$model_privs = $role->getPrivs();
 							
-							$role->privs = array_unique($role->privs);
-							sort($role->privs);
+							foreach($privs as $priv)
+								$model_privs[] = $priv_prefix . $priv;
+							
+							$model_privs = array_unique($model_privs);
+							sort($model_privs);
 							
 							DAO_WorkerRole::update($role_id, [
-								DAO_WorkerRole::PRIVS_JSON => json_encode($role->privs),
+								DAO_WorkerRole::PRIVS_JSON => json_encode($model_privs),
 							]);
 						}
 					}

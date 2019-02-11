@@ -17,8 +17,9 @@
 
 class DAO_WorkerRole extends Cerb_ORMHelper {
 	const ID = 'id';
+	const MEMBER_QUERY_WORKER = 'member_query_worker';
 	const NAME = 'name';
-	const PARAMS_JSON = 'params_json';
+	const PRIVS_MODE = 'privs_mode';
 	const PRIVS_JSON = 'privs_json';
 	const UPDATED_AT = 'updated_at';
 	
@@ -37,6 +38,11 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			->setEditable(false)
 			;
 		$validation
+			->addField(self::MEMBER_QUERY_WORKER)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField(self::NAME)
 			->string()
 			->setRequired(true)
@@ -45,6 +51,11 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			->addField(self::PARAMS_JSON)
 			->string()
 			->setMaxLength(16777215)
+		$validation
+			->addField(self::PRIVS_MODE)
+			->string()
+			->setMaxLength(16)
+			->setPossibleValues(['','all','itemized'])
 			;
 		$validation
 			->addField(self::PRIVS_JSON)
@@ -140,61 +151,157 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		return true;
 	}
 	
-	static function getRolesByWorker($worker_id, $nocache=false) {
-		$cache = DevblocksPlatform::services()->cache();
+	static function getByMember($worker_id) {
+		$role_data = DAO_WorkerRole::_getDataByWorker($worker_id);
 		
-		if($nocache || null === ($roles = $cache->load(self::_CACHE_WORKER_ROLES_PREFIX.$worker_id))) {
-			$worker = DAO_Worker::get($worker_id);
-			$memberships = $worker->getMemberships();
-			$all_roles = DAO_WorkerRole::getAll();
-			$roles = [];
-
-			foreach($all_roles as $role_id => $role) {
-				if(
-					// If this applies to everyone
-					'all' == $role->params['who'] ||
-					(
-						// ... or any group this worker is in
-						'groups' == $role->params['who'] &&
-						($in_groups = array_intersect(array_keys($memberships), $role->params['who_list'])) &&
-						!empty($in_groups)
-					) ||
-					(
-						// ... or this worker is on the list
-						'workers' == $role->params['who'] &&
-						in_array($worker_id, $role->params['who_list'])
-					)
-				) {
-					$roles[$role_id] = $role;
-				}
-			}
+		$role_data = array_filter($role_data, function($data) {
+			return @$data['is_member'] ? true : false;
+		});
+		
+		$role_ids = array_column($role_data, 'role_id');
+		return DAO_WorkerRole::getIds($role_ids);
+	}
+	
+	static function getRolesByWorker($worker_id) {
+		$role_data = DAO_WorkerRole::_getDataByWorker($worker_id);
+		
+		$role_ids = array_column($role_data, 'role_id');
+		return DAO_WorkerRole::getIds($role_ids);
+	}
+	
+	private static function _getDataByWorker($worker_id, $nocache=false) {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = self::_CACHE_WORKER_ROLES_PREFIX . $worker_id;
+		
+		if($nocache || null === ($role_data = $cache->load($cache_key))) {
+			$db = DevblocksPlatform::services()->database();
 			
-			if(!is_array($roles))
-				return false;
+			$sql = sprintf("SELECT role_id, is_member, is_editable, is_readable FROM worker_to_role WHERE worker_id = %d", $worker_id);
+			
+			$role_data = $db->GetArraySlave($sql);
+			
+			if(!is_array($role_data))
+				return [];
 
-			$cache->save($roles, self::_CACHE_WORKER_ROLES_PREFIX.$worker_id);
+			$cache->save($role_data, $cache_key);
 		}
 		
-		return $roles;
+		if(!is_array($role_data) || empty($role_data))
+			$role_data = [];
+		
+		return $role_data;
+	}
+	
+	/**
+	 * Efficiently update all role memberships/ownerships by finding distinct 
+	 * queries and running the results once
+	 * 
+	 * @param Model_WorkerRole|Model_WorkerRole[]|integer $roles
+	 * @return boolean
+	 */
+	static function updateRosters($roles=null) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$is_full_reload = false;
+		
+		if(is_null($roles)) {
+			$roles = DAO_WorkerRole::getAll();
+			$is_full_reload = true;
+		}
+		
+		if(is_numeric($roles)) {
+			if(false == ($role = DAO_WorkerRole::get($roles)))
+				return false;
+			$roles = [$role->id => $role];
+		}
+		
+		if($roles instanceof Model_WorkerRole)
+			$roles = [$roles->id => $roles];
+		
+		if(!is_array($roles))
+			return false;
+		
+		$role_arrays = DevblocksPlatform::objectsToArrays($roles);
+		
+		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_WORKER, true)))
+			return false;
+		
+		if(false == ($view = $context_ext->getTempView()))
+			return false;
+		
+		$query_cache = array_fill_keys(
+			array_unique(array_merge(
+				array_column($role_arrays, 'member_query_worker'), 
+				array_column($role_arrays, 'editor_query_worker'),
+				array_column($role_arrays, 'reader_query_worker')
+			)),
+			[]
+		);
+		
+		// Build a map of distinct queries and their results
+		foreach(array_keys($query_cache) as $query) {
+			$view->addParamsWithQuickSearch($query, true);
+			$view->renderLimit = -1;
+			$view->renderTotal = false;
+			$view->renderSubtotals = null;
+			
+			list($workers,) = $view->getData();
+			
+			$query_cache[$query] = array_keys($workers);
+		}
+		
+		// Clear existing role members/owners
+		if($is_full_reload) { // For everything
+			$db->ExecuteMaster('DELETE FROM worker_to_role');
+		} else { // For specific roles
+			$db->ExecuteMaster(sprintf('DELETE FROM worker_to_role WHERE role_id IN (%s)',
+				implode(',', array_keys($roles))
+			));
+		}
+		
+		foreach($roles as $role) {
+			$members = @$query_cache[$role->member_query_worker] ?: [];
+			$editors = @$query_cache[$role->editor_query_worker] ?: [];
+			$readers = @$query_cache[$role->reader_query_worker] ?: [];
+			
+			$insert_values = [];
+
+			$worker_ids = array_unique(array_merge($members, $editors, $readers));
+			
+			$members = array_flip($members);
+			$editors = array_flip($editors);
+			$readers = array_flip($readers);
+			
+			foreach($worker_ids as $worker_id) {
+				$insert_values[] = sprintf("(%d,%d,%d,%d,%d)",
+					$role->id,
+					$worker_id,
+					array_key_exists($worker_id, $members) ? 1 : 0,
+					array_key_exists($worker_id, $editors) ? 1 : 0,
+					array_key_exists($worker_id, $readers) ? 1 : 0
+				);
+			}
+			
+			$db->ExecuteMaster(sprintf("INSERT IGNORE INTO worker_to_role (role_id, worker_id, is_member, is_editable, is_readable) VALUES %s",
+				implode(',', $insert_values)
+			));
+		}
+		
+		// Clear role caches
+		self::clearWorkerCache();
 	}
 	
 	static function getCumulativePrivsByWorker($worker_id, $nocache=false) {
 		$cache = DevblocksPlatform::services()->cache();
 
 		if($nocache || null === ($privs = $cache->load(self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id))) {
-			if(false === ($worker = DAO_Worker::get($worker_id)))
-				return false;
-			
-			if(false === ($worker->getMemberships()))
-				return false;
-			
-			if(false === ($roles = DAO_WorkerRole::getRolesByWorker($worker_id)))
+			if(false === ($roles = DAO_WorkerRole::getByMember($worker_id)))
 				return false;
 			
 			$privs = [];
 			
 			foreach($roles as $role) {
-				switch($role->params['what']) {
+				switch($role->privs_mode) {
 					case 'all':
 						$privs = ['*' => []];
 						$cache->save($privs, self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
@@ -202,7 +309,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 						break;
 						
 					case 'itemized':
-						$role_privs = array_fill_keys($role->privs, []);
+						$role_privs = array_fill_keys($role->getPrivs(), []);
 						$privs = array_merge($privs, $role_privs);
 						break;
 				}
@@ -244,7 +351,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, params_json, privs_json, updated_at ".
+		$sql = "SELECT id, name, member_query_worker, editor_query_worker, reader_query_worker, privs_mode, updated_at ".
 			"FROM worker_role ".
 			$where_sql.
 			$sort_sql.
@@ -316,11 +423,10 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_WorkerRole();
 			$object->id = intval($row['id']);
+			$object->member_query_worker = $row['member_query_worker'];
 			$object->name = $row['name'];
+			$object->privs_mode = $row['privs_mode'];
 			$object->updated_at = intval($row['updated_at']);
-			
-			@$params = json_decode($row['params_json'], true) or [];
-			$object->params = $params;
 			
 			@$privs = json_decode($row['privs_json'], true) or [];
 			$object->privs = $privs;
@@ -346,6 +452,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		$ids_list = implode(',', $ids);
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM worker_role WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM worker_to_role WHERE role_id IN (%s)", $ids_list));
 
 		self::clearCache();
 		self::clearWorkerCache();
@@ -393,11 +500,13 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"worker_role.id as %s, ".
 			"worker_role.name as %s, ".
-			"worker_role.params_json as %s, ".
+			"worker_role.privs_mode as %s, ".
+			"worker_role.member_query_worker as %s, ".
 			"worker_role.updated_at as %s ",
 				SearchFields_WorkerRole::ID,
 				SearchFields_WorkerRole::NAME,
-				SearchFields_WorkerRole::PARAMS_JSON,
+				SearchFields_WorkerRole::PRIVS_MODE,
+				SearchFields_WorkerRole::MEMBER_QUERY_WORKER,
 				SearchFields_WorkerRole::UPDATED_AT
 			);
 			
@@ -485,41 +594,11 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 
 class Model_WorkerRole {
 	public $id;
+	public $member_query_worker = null;
 	public $name;
-	public $params = [];
-	public $privs = [];
+	public $privs_mode = '';
 	public $updated_at;
 	
-	function getWorkerIds() {
-		@$who = $this->params['who'];
-		@$who_list = $this->params['who_list'];
-		
-		switch($who) {
-			case 'all':
-				$workers = DAO_Worker::getAllActive();
-				return array_keys($workers);
-				break;
-				
-			case 'groups':
-				$groups = DAO_Group::getAll();
-				$ids = [];
-				
-				if(is_array($who_list))
-				foreach($who_list as $group_id) {
-					@$group = $groups[$group_id];
-					
-					if(!$group)
-						continue;
-					
-					$ids += array_keys($group->getMembers());
-				}
-				return $ids;
-				break;
-				
-			case 'workers':
-				if(is_array($who_list))
-					return $who_list;
-				break;
 		}
 		
 		return [];
@@ -528,8 +607,9 @@ class Model_WorkerRole {
 
 class SearchFields_WorkerRole extends DevblocksSearchFields {
 	const ID = 'w_id';
+	const MEMBER_QUERY_WORKER = 'w_member_query_worker';
+	const PRIVS_MODE = 'w_privs_mode';
 	const NAME = 'w_name';
-	const PARAMS_JSON = 'w_params_json';
 	const UPDATED_AT = 'w_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -543,12 +623,17 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('worker_role.id', self::ID),
+			CerberusContexts::CONTEXT_ROLE => new DevblocksSearchFieldContextKeys('worker_role.id', self::ID),
 		);
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_MEMBER_SEARCH:
+				$sql = "SELECT role_id FROM worker_to_role WHERE worker_id IN (%s)";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_role.id');
+				break;
+				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ROLE, self::getPrimaryKey());
 				break;
@@ -603,7 +688,9 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 		
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'worker_role', 'id', $translate->_('common.id'), null, true),
+			self::MEMBER_QUERY_WORKER => new DevblocksSearchField(self::MEMBER_QUERY_WORKER, 'worker_role', 'member_query_worker', $translate->_('dao.worker_role.member_query_workers'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'worker_role', 'name', $translate->_('common.name'), null, true),
+			self::PRIVS_MODE => new DevblocksSearchField(self::PRIVS_MODE, 'worker_role', 'privs_mode', $translate->_('dao.worker_role.privs_mode'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'worker_role', 'updated_at', $translate->_('common.updated'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -635,11 +722,12 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 
 		$this->view_columns = array(
 			SearchFields_WorkerRole::NAME,
+			SearchFields_WorkerRole::MEMBER_QUERY_WORKER,
+			SearchFields_WorkerRole::PRIVS_MODE,
 			SearchFields_WorkerRole::UPDATED_AT,
 		);
 
 		$this->addColumnsHidden(array(
-			SearchFields_WorkerRole::PARAMS_JSON,
 			SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK,
 			SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET,
 		));
@@ -681,6 +769,10 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 			$pass = false;
 			
 			switch($field_key) {
+				case SearchFields_WorkerRole::PRIVS_MODE:
+					$pass = true;
+					break;
+					
 				// Virtuals
 				case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
@@ -710,6 +802,10 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 			return [];
 		
 		switch($column) {
+			case SearchFields_WorkerRole::PRIVS_MODE:
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+				
 			case SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
@@ -759,6 +855,11 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WorkerRole::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
+			'privsMode' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_WorkerRole::PRIVS_MODE),
 				),
 		);
 		
@@ -845,7 +946,9 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 		$criteria = null;
 
 		switch($field) {
+			case SearchFields_WorkerRole::MEMBER_QUERY_WORKER:
 			case SearchFields_WorkerRole::NAME:
+			case SearchFields_WorkerRole::PRIVS_MODE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -983,6 +1086,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'member_query_worker' => $prefix.$translate->_('dao.worker_role.member_query_workers'),
+			'privs_mode' => $prefix.$translate->_('dao.worker_role.privs_mode'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
@@ -991,6 +1096,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'member_query_worker' => Model_CustomField::TYPE_SINGLE_LINE,
+			'privs_mode' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
@@ -1014,6 +1121,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$token_values['_label'] = $role->name;
 			$token_values['id'] = $role->id;
 			$token_values['name'] = $role->name;
+			$token_values['member_query_worker'] = $role->member_query_worker;
+			$token_values['privs_mode'] = $role->privs_mode;
 			$token_values['updated_at'] = $role->updated_at;
 			
 			// Custom fields
@@ -1032,6 +1141,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'id' => DAO_WorkerRole::ID,
 			'links' => '_links',
 			'name' => DAO_WorkerRole::NAME,
+			'privs_mode' => DAO_WorkerRole::PRIVS_MODE,
+			'editor_query_worker' => DAO_WorkerRole::EDITOR_QUERY_WORKER,
 			'updated_at' => DAO_WorkerRole::UPDATED_AT,
 		];
 	}
@@ -1053,20 +1164,6 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		switch(DevblocksPlatform::strLower($key)) {
 			case 'links':
 				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
-				
-			case 'params':
-				if(!is_array($value)) {
-					$error = 'must be an object.';
-					return false;
-				}
-				
-				if(false == ($json = json_encode($value))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields[DAO_WorkerRole::PARAMS_JSON] = $json;
 				break;
 		}
 		
@@ -1242,9 +1339,11 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(!isset($model))
+			if(!isset($model)) {
 				$model = new Model_WorkerRole();
-				
+				$model->member_query_worker = 'isDisabled:n';
+			}
+			
 			$plugins_acl = $this->_getPluginPrivileges();
 			
 			$core_acl = $plugins_acl['cerberusweb.core'];

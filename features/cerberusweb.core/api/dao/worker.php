@@ -928,6 +928,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$db->ExecuteMaster("DELETE FROM worker_to_group WHERE worker_id NOT IN (SELECT id FROM worker)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_group records.');
 		
+		$db->ExecuteMaster("DELETE FROM worker_to_role WHERE worker_id NOT IN (SELECT id FROM worker)");
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' worker_to_role records.');
+		
 		// Search indexes
 		if(isset($tables['fulltext_worker'])) {
 			$db->ExecuteMaster("DELETE FROM fulltext_worker WHERE id NOT IN (SELECT id FROM worker)");
@@ -958,7 +961,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 	}
 	
 	static function delete($id) {
-		if(empty($id)) return;
+		if(empty($id))
+			return;
 		
 		/* This event fires before the delete takes place in the db,
 		 * so we can denote what is actually changing against the db state
@@ -1005,6 +1009,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 
+		$sql = sprintf("DELETE FROM worker_to_role WHERE worker_id = %d", $id);
+		if(false == ($db->ExecuteMaster($sql)))
+			return false;
+
 		$sql = sprintf("DELETE FROM worker_to_bucket WHERE worker_id = %d", $id);
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
@@ -1039,6 +1047,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		self::clearCache();
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(DAO_Group::CACHE_ROSTERS);
+		DAO_WorkerRole::clearWorkerCache($id);
 	}
 	
 	static function hasAuth($worker_id) {
@@ -1810,7 +1819,7 @@ class Model_Worker {
 	}
 
 	function getRoles() {
-		return DAO_WorkerRole::getRolesByWorker($this->id);
+		return DAO_WorkerRole::getByMember($this->id);
 	}
 	
 	/**
@@ -2021,9 +2030,9 @@ class Model_Worker {
 	}
 	
 	function isRoleMember($role_id) {
-		$roles = $this->getRoles();
+		$roles = DAO_WorkerRole::getByMember($this->id);
 		
-		if(isset($roles[$role_id]))
+		if(array_key_exists($role_id, $roles))
 			return true;
 		
 		return false;

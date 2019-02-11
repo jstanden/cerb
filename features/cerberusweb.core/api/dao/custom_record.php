@@ -1268,7 +1268,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			if(empty($context_id)) {
 				$roles = DAO_WorkerRole::getAll();
 				$roles = array_filter($roles, function($role) { /* @var $role Model_WorkerRole */
-					return 'itemized' == @$role->params['what'];
+					return 'itemized' == $role->privs_mode;
 				});
 				$tpl->assign('roles', $roles);
 			}

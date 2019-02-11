@@ -61,6 +61,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 				<param key="options"/>

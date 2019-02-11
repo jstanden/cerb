@@ -69,7 +69,7 @@
 		
 		<patch version="9.0.0" revision="1313" file="patches/9.x/9.0.0.php" />
 		<patch version="9.1.0" revision="1326" file="patches/9.x/9.1.0.php" />
-		<patch version="9.2.0" revision="1327" file="patches/9.x/9.2.0.php" />
+		<patch version="9.2.0" revision="1328" file="patches/9.x/9.2.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -3593,6 +3593,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 			</params>
@@ -3673,6 +3674,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 			</params>
@@ -3705,6 +3707,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 			</params>
@@ -3737,6 +3740,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 			</params>
@@ -3769,6 +3773,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 			</params>
@@ -3785,6 +3790,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 			</params>
@@ -3844,6 +3850,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
@@ -4268,6 +4275,7 @@
 				<param key="contexts">
 					<value>
 						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
 			</params>

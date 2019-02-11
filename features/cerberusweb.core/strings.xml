@@ -1523,6 +1523,11 @@
 				<seg>Members</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.membership">
+			<tuv xml:lang="en_US">
+				<seg>membership</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.merge">
 			<tuv xml:lang="en_US">
 				<seg>merge</seg>
@@ -1703,6 +1708,11 @@
 				<seg>organizations</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.other">
+			<tuv xml:lang="en_US">
+				<seg>other</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.owner">
 			<tuv xml:lang="en_US">
 				<seg>owner</seg>
@@ -1711,6 +1721,11 @@
 		<tu tuid="common.owners">
 			<tuv xml:lang="en_US">
 				<seg>owners</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.ownership">
+			<tuv xml:lang="en_US">
+				<seg>ownership</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.label">
@@ -3144,6 +3159,29 @@
 			</tuv>
 		</tu>
 		
+		<!-- WorkerRole -->
+		
+		<tu tuid="dao.worker_role.privs_mode">
+			<tuv xml:lang="en_US">
+				<seg>Privileges Mode</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.worker_role.member_query_workers">
+			<tuv xml:lang="en_US">
+				<seg>Member Query</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.worker_role.editor_query_workers">
+			<tuv xml:lang="en_US">
+				<seg>Editor Query</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.worker_role.reader_query_workers">
+			<tuv xml:lang="en_US">
+				<seg>Reader Query</seg>
+			</tuv>
+		</tu>
+		
 		<!-- Success -->
 
 		<tu tuid="success.imported">
@@ -3178,6 +3216,16 @@
 		<tu tuid="error.core.no_acl.edit">
 			<tuv xml:lang="en_US">
 				<seg>You do not have permission to modify this record.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="error.core.no_acl.export">
+			<tuv xml:lang="en_US">
+				<seg>You do not have permission to export this record.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="error.core.no_acl.import">
+			<tuv xml:lang="en_US">
+				<seg>You do not have permission to import this record.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="error.core.no_acl.owner">
