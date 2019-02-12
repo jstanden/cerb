@@ -472,7 +472,9 @@ class DevblocksEventHelper {
 				
 				$possible_values = array_map('mb_strtolower', $custom_field->params['options']);
 				
-				if(false !== ($value_idx = array_search(DevblocksPlatform::strLower($value), $possible_values))) {
+				if(0 == strlen($value)) {
+					$value = '';
+				} else if(false !== ($value_idx = array_search(DevblocksPlatform::strLower($value), $possible_values))) {
 					$value = $custom_field->params['options'][$value_idx];
 				} else {
 					$out .= sprintf("[ERROR] The given value (%s) doesn't exist in the picklist. Ignoring.", $value);
