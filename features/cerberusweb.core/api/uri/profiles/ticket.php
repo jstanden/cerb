@@ -43,7 +43,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			return;
 
 		// Trigger ticket view event (before we load it, in case we change it)
-		Event_TicketViewedByWorker::trigger($ticket_id, $active_worker->id);
+		Event_TicketViewedByWorker::trigger($ticket->id, $active_worker->id);
 		
 		// Permissions
 		
