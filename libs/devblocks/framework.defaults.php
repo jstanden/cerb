@@ -8,7 +8,7 @@ if(!defined('APP_DB_PREFIX'))
 	define('APP_DB_PREFIX','');
 
 if(!defined('APP_DB_ENGINE'))
-	define('APP_DB_ENGINE','MyISAM');
+	define('APP_DB_ENGINE','InnoDB');
 
 if(!defined('APP_DB_ENGINE_FULLTEXT'))
 	define('APP_DB_ENGINE_FULLTEXT', APP_DB_ENGINE);
