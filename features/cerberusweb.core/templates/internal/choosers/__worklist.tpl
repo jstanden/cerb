@@ -7,7 +7,7 @@
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
 
 <form action="#" method="POST" id="chooser{$view->id}">
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Save Worklist</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Use this worklist</button>
 </form>
 
 <script type="text/javascript">
