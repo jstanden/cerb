@@ -3249,17 +3249,18 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			$node_id = array_pop($log);
 			
 			if(!empty($node_id) && false !== ($node = DAO_DecisionNode::get($node_id))) {
-				$output = array(
-					'action' => $node->title,
-					'title' => $all_actions[$token]['label'],
-					'content' => $out,
-				);
-				
-				
-				$previous_output = $dict->__simulator_output;
-				$previous_output[] = $output;
-				$dict->__simulator_output = $previous_output;
-				unset($out);
+				if(array_key_exists($token, $all_actions)) {
+					$output = array(
+						'action' => $node->title,
+						'title' => $all_actions[$token]['label'],
+						'content' => $out,
+					);
+					
+					$previous_output = $dict->__simulator_output;
+					$previous_output[] = $output;
+					$dict->__simulator_output = $previous_output;
+					unset($out);
+				}
 			}
 		}
 	}
