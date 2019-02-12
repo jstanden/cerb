@@ -19,8 +19,10 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	const ID = 'id';
 	const MEMBER_QUERY_WORKER = 'member_query_worker';
 	const NAME = 'name';
+	const EDITOR_QUERY_WORKER = 'editor_query_worker';
 	const PRIVS_MODE = 'privs_mode';
 	const PRIVS_JSON = 'privs_json';
+	const READER_QUERY_WORKER = 'reader_query_worker';
 	const UPDATED_AT = 'updated_at';
 	
 	const _CACHE_ROLES_ALL = 'ch_roles_all';
@@ -48,9 +50,10 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			->setRequired(true)
 			;
 		$validation
-			->addField(self::PARAMS_JSON)
+			->addField(self::EDITOR_QUERY_WORKER)
 			->string()
-			->setMaxLength(16777215)
+			->setMaxLength(65535)
+			;
 		$validation
 			->addField(self::PRIVS_MODE)
 			->string()
@@ -59,6 +62,11 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::PRIVS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
+			->addField(self::READER_QUERY_WORKER)
 			->string()
 			->setMaxLength(65535)
 			;
@@ -156,6 +164,28 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		
 		$role_data = array_filter($role_data, function($data) {
 			return @$data['is_member'] ? true : false;
+		});
+		
+		$role_ids = array_column($role_data, 'role_id');
+		return DAO_WorkerRole::getIds($role_ids);
+	}
+	
+	static function getEditableBy($worker_id) {
+		$role_data = DAO_WorkerRole::_getDataByWorker($worker_id);
+		
+		$role_data = array_filter($role_data, function($data) {
+			return @$data['is_editable'] ? true : false;
+		});
+		
+		$role_ids = array_column($role_data, 'role_id');
+		return DAO_WorkerRole::getIds($role_ids);
+	}
+	
+	static function getReadableBy($worker_id) {
+		$role_data = DAO_WorkerRole::_getDataByWorker($worker_id);
+		
+		$role_data = array_filter($role_data, function($data) {
+			return @$data['is_readable'] ? true : false;
 		});
 		
 		$role_ids = array_column($role_data, 'role_id');
@@ -425,7 +455,9 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->member_query_worker = $row['member_query_worker'];
 			$object->name = $row['name'];
+			$object->editor_query_worker = $row['editor_query_worker'];
 			$object->privs_mode = $row['privs_mode'];
+			$object->reader_query_worker = $row['reader_query_worker'];
 			$object->updated_at = intval($row['updated_at']);
 			
 			@$privs = json_decode($row['privs_json'], true) or [];
@@ -502,11 +534,15 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			"worker_role.name as %s, ".
 			"worker_role.privs_mode as %s, ".
 			"worker_role.member_query_worker as %s, ".
+			"worker_role.editor_query_worker as %s, ".
+			"worker_role.reader_query_worker as %s, ".
 			"worker_role.updated_at as %s ",
 				SearchFields_WorkerRole::ID,
 				SearchFields_WorkerRole::NAME,
 				SearchFields_WorkerRole::PRIVS_MODE,
 				SearchFields_WorkerRole::MEMBER_QUERY_WORKER,
+				SearchFields_WorkerRole::EDITOR_QUERY_WORKER,
+				SearchFields_WorkerRole::READER_QUERY_WORKER,
 				SearchFields_WorkerRole::UPDATED_AT
 			);
 			
@@ -596,7 +632,9 @@ class Model_WorkerRole {
 	public $id;
 	public $member_query_worker = null;
 	public $name;
+	public $editor_query_worker = null;
 	public $privs_mode = '';
+	public $reader_query_worker = null;
 	public $updated_at;
 	
 		}
@@ -608,7 +646,9 @@ class Model_WorkerRole {
 class SearchFields_WorkerRole extends DevblocksSearchFields {
 	const ID = 'w_id';
 	const MEMBER_QUERY_WORKER = 'w_member_query_worker';
+	const EDITOR_QUERY_WORKER = 'w_editor_query_worker';
 	const PRIVS_MODE = 'w_privs_mode';
+	const READER_QUERY_WORKER = 'w_reader_query_worker';
 	const NAME = 'w_name';
 	const UPDATED_AT = 'w_updated_at';
 
@@ -690,7 +730,9 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'worker_role', 'id', $translate->_('common.id'), null, true),
 			self::MEMBER_QUERY_WORKER => new DevblocksSearchField(self::MEMBER_QUERY_WORKER, 'worker_role', 'member_query_worker', $translate->_('dao.worker_role.member_query_workers'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'worker_role', 'name', $translate->_('common.name'), null, true),
+			self::EDITOR_QUERY_WORKER => new DevblocksSearchField(self::EDITOR_QUERY_WORKER, 'worker_role', 'editor_query_worker', $translate->_('dao.worker_role.editor_query_workers'), null, true),
 			self::PRIVS_MODE => new DevblocksSearchField(self::PRIVS_MODE, 'worker_role', 'privs_mode', $translate->_('dao.worker_role.privs_mode'), null, true),
+			self::READER_QUERY_WORKER => new DevblocksSearchField(self::READER_QUERY_WORKER, 'worker_role', 'reader_query_worker', $translate->_('dao.worker_role.reader_query_workers'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'worker_role', 'updated_at', $translate->_('common.updated'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -723,6 +765,8 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 		$this->view_columns = array(
 			SearchFields_WorkerRole::NAME,
 			SearchFields_WorkerRole::MEMBER_QUERY_WORKER,
+			SearchFields_WorkerRole::EDITOR_QUERY_WORKER,
+			SearchFields_WorkerRole::READER_QUERY_WORKER,
 			SearchFields_WorkerRole::PRIVS_MODE,
 			SearchFields_WorkerRole::UPDATED_AT,
 		);
@@ -948,7 +992,9 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($field) {
 			case SearchFields_WorkerRole::MEMBER_QUERY_WORKER:
 			case SearchFields_WorkerRole::NAME:
+			case SearchFields_WorkerRole::EDITOR_QUERY_WORKER:
 			case SearchFields_WorkerRole::PRIVS_MODE:
+			case SearchFields_WorkerRole::READER_QUERY_WORKER:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1087,7 +1133,9 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'member_query_worker' => $prefix.$translate->_('dao.worker_role.member_query_workers'),
+			'editor_query_worker' => $prefix.$translate->_('dao.worker_role.editor_query_workers'),
 			'privs_mode' => $prefix.$translate->_('dao.worker_role.privs_mode'),
+			'reader_query_worker' => $prefix.$translate->_('dao.worker_role.reader_query_workers'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
@@ -1097,7 +1145,9 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'member_query_worker' => Model_CustomField::TYPE_SINGLE_LINE,
+			'editor_query_worker' => Model_CustomField::TYPE_SINGLE_LINE,
 			'privs_mode' => Model_CustomField::TYPE_SINGLE_LINE,
+			'reader_query_worker' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
@@ -1122,7 +1172,9 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$token_values['id'] = $role->id;
 			$token_values['name'] = $role->name;
 			$token_values['member_query_worker'] = $role->member_query_worker;
+			$token_values['editor_query_worker'] = $role->editor_query_worker;
 			$token_values['privs_mode'] = $role->privs_mode;
+			$token_values['reader_query_worker'] = $role->reader_query_worker;
 			$token_values['updated_at'] = $role->updated_at;
 			
 			// Custom fields
@@ -1142,7 +1194,9 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'links' => '_links',
 			'name' => DAO_WorkerRole::NAME,
 			'privs_mode' => DAO_WorkerRole::PRIVS_MODE,
+			'member_query_worker' => DAO_WorkerRole::MEMBER_QUERY_WORKER,
 			'editor_query_worker' => DAO_WorkerRole::EDITOR_QUERY_WORKER,
+			'reader_query_worker' => DAO_WorkerRole::READER_QUERY_WORKER,
 			'updated_at' => DAO_WorkerRole::UPDATED_AT,
 		];
 	}
@@ -1342,6 +1396,8 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			if(!isset($model)) {
 				$model = new Model_WorkerRole();
 				$model->member_query_worker = 'isDisabled:n';
+				$model->reader_query_worker = 'isDisabled:n';
+				$model->editor_query_worker = 'isAdmin:y isDisabled:n';
 			}
 			
 			$plugins_acl = $this->_getPluginPrivileges();

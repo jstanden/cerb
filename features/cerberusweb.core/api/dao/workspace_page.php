@@ -243,7 +243,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		}
 
 		$memberships = $worker->getMemberships();
-		$roles = $worker->getRoles();
+		$roles = DAO_WorkerRole::getReadableBy($worker->id);
 		
 		$pages = [];
 		$all_pages = self::getAll();
@@ -1272,7 +1272,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		
 		if($active_worker && !$active_worker->is_superuser) {
 			$worker_group_ids = array_keys($active_worker->getMemberships());
-			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+			$worker_role_ids = array_keys(DAO_WorkerRole::getReadableBy($active_worker->id));
 			
 			// Restrict owners
 			
@@ -1316,7 +1316,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		
 		if($active_worker && !$active_worker->is_superuser) {
 			$worker_group_ids = array_keys($active_worker->getMemberships());
-			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+			$worker_role_ids = array_keys(DAO_WorkerRole::getReadableBy($active_worker->id));
 			
 			// Restrict owners
 			

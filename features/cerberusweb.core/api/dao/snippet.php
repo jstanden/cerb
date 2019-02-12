@@ -602,7 +602,7 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 				return '0';
 			
 			$worker_group_ids = array_keys(DAO_Group::getByMembers($actor_id));
-			$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($actor_id));
+			$worker_role_ids = array_keys(DAO_WorkerRole::getReadableBy($actor_id));
 			
 			$sql = sprintf(
 				"(".
@@ -1713,7 +1713,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			// Owner
 			$owners_menu = Extension_DevblocksContext::getOwnerTree();
 			$tpl->assign('owners_menu', $owners_menu);
-
+			
 			// Contexts
 			$contexts = Extension_DevblocksContext::getAll(false);
 			$tpl->assign('contexts', $contexts);

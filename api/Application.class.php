@@ -1363,7 +1363,14 @@ class CerberusContexts {
 			&& $actor->_context == CerberusContexts::CONTEXT_WORKER
 			&& $actor->id == $owner_context_id
 		) return true;
-
+		
+		// Workers can set roles when they're a role editor
+		if($owner_context == CerberusContexts::CONTEXT_ROLE && $actor->_context == CerberusContexts::CONTEXT_WORKER) {
+			$role_editors = DAO_WorkerRole::getEditableBy($actor->id);
+			if(array_key_exists($owner_context_id, $role_editors))
+				return true;
+		}
+		
 		return self::isWriteableByActor($owner_context, $owner_context_id, $actor);
 	}
 
@@ -1570,9 +1577,9 @@ class CerberusContexts {
 						break;
 					}
 
-					// Are we a member of the role?
+					// Can we read role content?
 					if($actor->_context == CerberusContexts::CONTEXT_WORKER) {
-						$roles = DAO_WorkerRole::getRolesByWorker($actor->id);
+						$roles = DAO_WorkerRole::getReadableBy($actor->id);
 						$is_readable = isset($roles[$dict->$owner_key_id]);
 						break;
 					}
@@ -1645,7 +1652,26 @@ class CerberusContexts {
 					$is_writeable = $allow_unassigned;
 					break;
 				
-				// Members can modify group-owned records
+				// Role owners can modify role-owned records
+				case CerberusContexts::CONTEXT_ROLE:
+					// Is the actor the same role?
+					if($actor->_context == CerberusContexts::CONTEXT_ROLE && $actor->id == $dict->$owner_key_id) {
+						$is_writeable = true;
+						break;
+					}
+					
+					// Are we an owner of the role?
+					if($actor->_context == CerberusContexts::CONTEXT_WORKER) {
+						$roles = DAO_WorkerRole::getEditableBy($actor->id);
+						
+						if(array_key_exists($dict->$owner_key_id, $roles)) {
+							$is_writeable = true;
+							break;
+						}
+					}
+					break;
+					
+				// Managers can modify group-owned records
 				case CerberusContexts::CONTEXT_GROUP:
 					// Is the actor the same group?
 					if($actor->_context == CerberusContexts::CONTEXT_GROUP && $actor->id == $dict->$owner_key_id) {

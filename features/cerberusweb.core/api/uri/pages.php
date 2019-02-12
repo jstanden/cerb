@@ -120,7 +120,7 @@ class Page_Custom extends CerberusPageExtension {
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id, $defaults))) {
 			if(!$active_worker->is_superuser) {
 				$worker_group_ids = array_keys($active_worker->getMemberships());
-				$worker_role_ids = array_keys(DAO_WorkerRole::getRolesByWorker($active_worker->id));
+				$worker_role_ids = array_keys(DAO_WorkerRole::getReadableBy($active_worker->id));
 				
 				// Restrict owners
 				

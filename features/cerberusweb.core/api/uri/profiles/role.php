@@ -55,6 +55,8 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$member_query_worker = DevblocksPlatform::importGPC($_REQUEST['member_query_worker'], 'string', '');
+				@$editor_query_worker = DevblocksPlatform::importGPC($_REQUEST['editor_query_worker'], 'string', '');
+				@$reader_query_worker = DevblocksPlatform::importGPC($_REQUEST['reader_query_worker'], 'string', '');
 				
 				@$privs_mode = DevblocksPlatform::importGPC($_REQUEST['privs_mode'],'string','');
 				@$acl_privs = DevblocksPlatform::importGPC($_REQUEST['acl_privs'],'array', []);
@@ -68,6 +70,8 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					$fields = array(
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::MEMBER_QUERY_WORKER => $member_query_worker,
+						DAO_WorkerRole::EDITOR_QUERY_WORKER => $editor_query_worker,
+						DAO_WorkerRole::READER_QUERY_WORKER => $reader_query_worker,
 						DAO_WorkerRole::PRIVS_MODE => $privs_mode,
 						DAO_WorkerRole::PRIVS_JSON => json_encode($acl_privs),
 						DAO_WorkerRole::UPDATED_AT => time(),
@@ -89,6 +93,8 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					$fields = array(
 						DAO_WorkerRole::NAME => $name,
 						DAO_WorkerRole::MEMBER_QUERY_WORKER => $member_query_worker,
+						DAO_WorkerRole::EDITOR_QUERY_WORKER => $editor_query_worker,
+						DAO_WorkerRole::READER_QUERY_WORKER => $reader_query_worker,
 						DAO_WorkerRole::PRIVS_MODE => $privs_mode,
 						DAO_WorkerRole::PRIVS_JSON => json_encode($acl_privs),
 						DAO_WorkerRole::UPDATED_AT => time(),

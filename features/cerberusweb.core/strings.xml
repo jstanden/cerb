@@ -2103,6 +2103,16 @@
 				<seg>queues</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.reader">
+			<tuv xml:lang="en_US">
+				<seg>reader</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.readers">
+			<tuv xml:lang="en_US">
+				<seg>readers</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.recipient">
 			<tuv xml:lang="en_US">
 				<seg>recipient</seg>
