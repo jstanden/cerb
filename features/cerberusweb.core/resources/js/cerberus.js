@@ -1084,8 +1084,10 @@ var ajax = new cAjaxCalls();
 				.css('color', 'rgb(100,100,100)')
 				.css('cursor', 'text')
 				.attr('readonly', 'readonly')
-				.attr('placeholder', '(click to edit)')
 			;
+			
+			if(null == $trigger.attr('placeholder'))
+				$trigger.attr('placeholder', '(click to edit)');
 			
 			// Context
 			
