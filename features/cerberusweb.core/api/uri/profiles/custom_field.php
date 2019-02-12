@@ -64,6 +64,8 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 				if(isset($params['options']))
 					$params['options'] = DevblocksPlatform::parseCrlfString($params['options']);
 				
+				$error = null;
+				
 				if(empty($id)) { // New
 					$fields = array(
 						DAO_CustomField::CONTEXT => $context,
@@ -109,7 +111,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 					if($custom_fieldset_id)
 						DAO_CustomFieldset::addByField($id);
 				}
-	
+				
 				echo json_encode(array(
 					'status' => true,
 					'id' => $id,

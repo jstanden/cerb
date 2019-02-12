@@ -223,8 +223,6 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -311,7 +309,7 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_EmailSignature::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_EmailSignature', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_EmailSignature', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"email_signature.id as %s, ".
@@ -796,7 +794,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			case SearchFields_EmailSignature::IS_DEFAULT:
@@ -811,8 +808,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK:
@@ -948,7 +943,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	
 	function getMeta($context_id) {
 		$email_signature = DAO_EmailSignature::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($email_signature->name);
@@ -972,7 +966,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::services()->url();
 		$list = [];
 		
 		list($results,) = DAO_EmailSignature::search(

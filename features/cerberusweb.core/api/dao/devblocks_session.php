@@ -253,7 +253,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksSession::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksSession', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksSession', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"devblocks_session.session_key as %s, ".
@@ -651,7 +651,6 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			case SearchFields_DevblocksSession::USER_ID:

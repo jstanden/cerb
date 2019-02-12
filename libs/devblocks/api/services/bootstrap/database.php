@@ -184,14 +184,14 @@ class _DevblocksDatabaseManager {
 		foreach($rs as $row) {
 			$field = $row['Field'];
 			
-			$columns[$field] = array(
+			$columns[$field] = [
 				'field' => $field,
 				'type' => $row['Type'],
 				'null' => $row['Null'],
 				'key' => $row['Key'],
 				'default' => $row['Default'],
 				'extra' => $row['Extra'],
-			);
+			];
 		}
 		
 		$sql = sprintf("SHOW INDEXES FROM %s", $table_name);
@@ -202,17 +202,17 @@ class _DevblocksDatabaseManager {
 			$column_name = $row['Column_name'];
 
 			if(!isset($indexes[$key_name]))
-				$indexes[$key_name] = array(
+				$indexes[$key_name] = [
 					'columns' => [],
-				);
+				];
 			
-			$indexes[$key_name]['columns'][$column_name] = array(
+			$indexes[$key_name]['columns'][$column_name] = [
 				'column_name' => $column_name,
 				'cardinality' => $row['Cardinality'],
 				'index_type' => $row['Index_type'],
 				'subpart' => $row['Sub_part'],
 				'unique' => empty($row['Non_unique']),
-			);
+			];
 		}
 		
 		return array(

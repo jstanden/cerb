@@ -39,7 +39,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Dictionary
 		
-		if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET, true)))
+		if(false == (Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET, true)))
 			return;
 
 		// Trigger ticket view event (before we load it, in case we change it)
@@ -181,6 +181,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
 		
+		$token_labels = $token_values = [];
+		
 		// Broadcast
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, null, $token_labels, $token_values);
 		
@@ -273,8 +275,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			}
 		}
 		
-		$data = array();
-		$ids = array();
+		$ids = [];
 		
 		switch($filter) {
 			case 'checks':

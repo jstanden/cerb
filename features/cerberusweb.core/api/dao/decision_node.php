@@ -309,7 +309,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DecisionNode::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DecisionNode', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DecisionNode', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"decision_node.id as %s, ".
@@ -577,7 +577,6 @@ class View_DecisionNode extends C4_AbstractView {
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:

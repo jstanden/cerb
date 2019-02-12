@@ -17,7 +17,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		
 		// varchar(255)
 		$validation
-			->addField(self::EXTENSION_ID)
+			->addField(self::EXTENSION_ID, DevblocksPlatform::translateCapitalized('common.type'))
 			->string()
 			->setMaxLength(255)
 			->setRequired(true)
@@ -32,13 +32,13 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			;
 		// int(10) unsigned
 		$validation
-			->addField(self::ID)
+			->addField(self::ID, DevblocksPlatform::translate('common.id'))
 			->id()
 			->setEditable(false)
 			;
 		// varchar(128)
 		$validation
-			->addField(self::NAME)
+			->addField(self::NAME, DevblocksPlatform::translateCapitalized('common.name'))
 			->string()
 			->setMaxLength(128)
 			->setRequired(true)
@@ -61,7 +61,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			;
 		// int(10) unsigned
 		$validation
-			->addField(self::WORKSPACE_PAGE_ID)
+			->addField(self::WORKSPACE_PAGE_ID, DevblocksPlatform::translateCapitalized('common.workspace.page'))
 			->id()
 			->setRequired(true)
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKSPACE_PAGE))

@@ -534,7 +534,10 @@ class _DevblocksValidationType {
 	}
 	
 	function canBeEmpty() {
-		return @$this->_data['not_empty'] ? false : true;
+		if(!array_key_exists('not_empty', $this->_data))
+			return true;
+		
+		return $this->_data['not_empty'] ? false : true;
 	}
 	
 	function setNotEmpty($bool) {
@@ -772,7 +775,7 @@ class _DevblocksValidationService {
 		if(isset($data['unique']) && $data['unique']) {
 			@$dao_class = $data['dao_class'];
 			
-			if(array_key_exists('not_empty', $data) && !$data['not_empty'] && 0 == strlen($value)) {
+			if($field->_type->canBeEmpty() && 0 == strlen($value)) {
 				// May be empty
 				
 			} else {
@@ -861,7 +864,9 @@ class _DevblocksValidationService {
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
 					}
 					
-					if(isset($data['possible_values']) && !in_array($value, $data['possible_values'])) {
+					@$possible_values = $data['possible_values'];
+					
+					if($possible_values && !in_array($value, $possible_values)) {
 						throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
 					}
 				}
@@ -888,7 +893,9 @@ class _DevblocksValidationService {
 							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
 						}
 						
-						if(isset($data['possible_values']) && !in_array($v, $data['possible_values'])) {
+						@$possible_values = $data['possible_values'];
+						
+						if($possible_values && !in_array($v, $possible_values)) {
 							throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
 						}
 					}

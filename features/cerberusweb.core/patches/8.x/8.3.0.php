@@ -30,7 +30,7 @@ if(!isset($tables['custom_fieldset'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('custom_fieldset');
+list($columns,) = $db->metaTable('custom_fieldset');
 
 if(!isset($columns['updated_at'])) {
 	$sql = 'ALTER TABLE custom_fieldset ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
@@ -47,7 +47,7 @@ if(!isset($tables['workspace_page'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('workspace_page');
+list($columns,) = $db->metaTable('workspace_page');
 
 if(!isset($columns['updated_at'])) {
 	$sql = 'ALTER TABLE workspace_page ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
@@ -64,7 +64,7 @@ if(!isset($tables['workspace_tab'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('workspace_tab');
+list($columns,) = $db->metaTable('workspace_tab');
 
 if(!isset($columns['updated_at'])) {
 	$sql = 'ALTER TABLE workspace_tab ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
@@ -81,7 +81,7 @@ if(!isset($tables['workspace_widget'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('workspace_widget');
+list($columns,) = $db->metaTable('workspace_widget');
 
 if(!isset($columns['updated_at'])) {
 	$sql = 'ALTER TABLE workspace_widget ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
@@ -98,7 +98,7 @@ if(!isset($tables['workspace_list'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('workspace_list');
+list($columns,) = $db->metaTable('workspace_list');
 
 if(!isset($columns['updated_at'])) {
 	$sql = 'ALTER TABLE workspace_list ADD COLUMN updated_at int(10) unsigned NOT NULL DEFAULT 0';
@@ -325,7 +325,7 @@ if(!isset($tables['custom_field_numbervalue'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('custom_field_numbervalue');
+list($columns,) = $db->metaTable('custom_field_numbervalue');
 
 if(@$columns['field_value'] && 0 != strcasecmp($columns['field_value']['type'], 'bigint(20)')) {
 	$db->ExecuteMaster("ALTER TABLE custom_field_numbervalue MODIFY COLUMN field_value BIGINT NOT NULL DEFAULT 0");
@@ -339,7 +339,7 @@ if(!isset($tables['community_tool'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('community_tool');
+list($columns,) = $db->metaTable('community_tool');
 
 if(!isset($columns['uri'])) {
 	$sql = "ALTER TABLE community_tool ADD COLUMN uri varchar(32) NOT NULL DEFAULT ''";
@@ -363,7 +363,7 @@ if(!isset($tables['worker_view_model'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('worker_view_model');
+list($columns,) = $db->metaTable('worker_view_model');
 
 if(!isset($columns['params_required_query'])) {
 	$sql = "ALTER TABLE worker_view_model ADD COLUMN params_required_query TEXT AFTER params_required_json";
@@ -383,7 +383,7 @@ if(!isset($tables['address'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('address');
+list($columns,) = $db->metaTable('address');
 
 if(!isset($columns['worker_id'])) {
 	$sql = 'ALTER TABLE address ADD COLUMN worker_id int(10) unsigned NOT NULL DEFAULT 0, ADD INDEX (worker_id)';
