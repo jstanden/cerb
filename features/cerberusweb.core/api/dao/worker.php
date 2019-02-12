@@ -2418,10 +2418,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Worker::LOCATION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'mentionName' => 
+			'mention' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Worker::AT_MENTION_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'options' => array('param_key' => SearchFields_Worker::AT_MENTION_NAME),
 				),
 			'mobile' => 
 				array(
@@ -2500,6 +2500,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'mentionName':
+				$field = 'mention';
+				break;
+				
 			case 'text':
 				if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
 					$oper = $value = null;
@@ -2592,13 +2596,11 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
-				
-				$search_fields = $this->getQuickSearchFields();
-				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
 		}
 		
-		return false;
+		$search_fields = $this->getQuickSearchFields();
+		return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 	}
 	
 	function render() {
