@@ -104,11 +104,19 @@ class _DevblocksValidationField {
 	 * 
 	 * @return _DevblocksValidationTypeString
 	 */
-	function string() {
+	function string($options = 0) {
+		$validation = DevblocksPlatform::services()->validation();
 		$this->_type = new _DevblocksValidationTypeString('string');
-		return $this->_type
-			->setMaxLength(255)
-			;
+		
+		// Default max length
+		$this->_type->setMaxLength(255);
+		
+		// If utf8mb4 is not enabled for this field, strip 4-byte chars
+		if(0 == $options & _DevblocksValidationService::STRING_UTF8MB4) {
+			$this->_type->addFormatter($validation->formatters()->stringWithoutEmoji());
+		}
+		
+		return $this->_type;
 	}
 	
 	/**
@@ -179,6 +187,16 @@ class _DevblocksFormatters {
 			
 			$error = "is not a valid context.";
 			return false;
+		};
+	}
+	
+	function stringWithoutEmoji() {
+		return function(&$value, &$error=null) {
+			if(DevblocksPlatform::services()->string()->has4ByteChars($value)) {
+				$value = DevblocksPlatform::services()->string()->strip4ByteChars($value);
+			}
+			
+			return true;
 		};
 	}
 }
@@ -672,6 +690,8 @@ class _DevblocksValidationTypeStringOrArray extends _DevblocksValidationType {
 }
 
 class _DevblocksValidationService {
+	const STRING_UTF8MB4 = 1;
+	
 	private $_fields = [];
 	
 	/**
