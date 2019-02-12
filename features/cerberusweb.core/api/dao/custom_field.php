@@ -734,8 +734,8 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		foreach(array_keys($values) as $field_id) {
 			if(
 				false == (@$custom_field = $custom_fields[$field_id]) 
-				|| array_key_exists($custom_field->custom_fieldset_id, $remove_fieldset_ids)) {
-				self::unsetFieldValue($context, $context_id, $field_id);
+				|| array_key_exists($custom_field->custom_fieldset_id, $remove_fieldset_ids)
+			) {
 				unset($values[$field_id]);
 			}
 		}
@@ -1362,19 +1362,42 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		return $results;
 	}
 	
-	public static function deleteByContextIds($context, $context_ids) {
+	// [TODO] Convert to extensions
+	public static function deleteByContextIds($context, $context_ids, $only_fieldset_ids=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(!is_array($context_ids)) $context_ids = array($context_ids);
-
-		$tables = ['custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue','custom_field_geovalue'];
+		if(!is_array($context_ids))
+			$context_ids = [$context_ids];
+		
+		if(!is_array($only_fieldset_ids))
+			$only_fieldset_ids = [$only_fieldset_ids];
+		
+		$tables = [
+			'custom_field_stringvalue',
+			'custom_field_clobvalue',
+			'custom_field_numbervalue',
+			'custom_field_geovalue',
+		];
+		
+		$sql_where = '';
+		
+		if($only_fieldset_ids) {
+			$only_fieldset_ids = DevblocksPlatform::sanitizeArray($only_fieldset_ids, 'int');
+			
+			if($only_fieldset_ids) {
+				$sql_where .= sprintf(" AND field_id IN (SELECT id FROM custom_field WHERE custom_fieldset_id IN (%s))",
+					implode(',', $db->qstrArray($only_fieldset_ids))
+				);
+			}
+		}
 		
 		if(!empty($context_ids))
 		foreach($tables as $table) {
-			$sql = sprintf("DELETE FROM %s WHERE context = %s AND context_id IN (%s)",
+			$sql = sprintf("DELETE FROM %s WHERE context = %s AND context_id IN (%s)%s",
 				$table,
 				$db->qstr($context),
-				implode(',', $context_ids)
+				implode(',', $context_ids),
+				$sql_where
 			);
 			if(false == ($db->ExecuteMaster($sql)))
 				return false;
@@ -1384,7 +1407,12 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	public static function deleteByFieldId($field_id) {
 		$db = DevblocksPlatform::services()->database();
 
-		$tables = ['custom_field_stringvalue','custom_field_clobvalue','custom_field_numbervalue','custom_field_geovalue'];
+		$tables = [
+			'custom_field_stringvalue',
+			'custom_field_clobvalue',
+			'custom_field_numbervalue',
+			'custom_field_geovalue',
+		];
 
 		foreach($tables as $table) {
 			$sql = sprintf("DELETE FROM %s WHERE field_id = %d",

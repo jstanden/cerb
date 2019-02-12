@@ -81,6 +81,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			$db->ExecuteMaster($sql);
 			return true;
 		}
+		
 		$ext_src_context = Extension_DevblocksContext::get($src_context);
 		$ext_dst_context = Extension_DevblocksContext::get($dst_context);
 		
@@ -503,6 +504,16 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		
 		if(false == $dst_context_meta)
 			@$dst_context_meta = $ext_dst_context->getMeta($dst_context_id);
+		
+		// If someone is unlinking a custom fieldset
+		if($src_context == Context_CustomFieldset::ID) {
+			DAO_CustomFieldset::removeFromContext($src_context_id, $dst_context, $dst_context_id);
+			return true;
+			
+		} elseif($dst_context == Context_CustomFieldset::ID) {
+			DAO_CustomFieldset::removeFromContext($dst_context_id, $src_context, $src_context_id);
+			return true;
+		}
 		
 		/*
 		 * Delete from source side

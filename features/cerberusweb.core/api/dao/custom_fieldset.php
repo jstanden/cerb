@@ -262,6 +262,9 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	static function removeFromContext($ids, $context, $context_id) {
 		$db = DevblocksPlatform::services()->database();
 		
+		if(!is_array($ids))
+			$ids = [$ids];
+		
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
 		if(empty($ids))
@@ -273,6 +276,9 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			implode(',', $ids)
 		);
 		$db->ExecuteMaster($sql);
+		
+		// Also remove values from these fieldsets
+		DAO_CustomFieldValue::deleteByContextIds($context, $context_id, $ids);
 	}
 	
 	static function getUsedByContext($context, $context_id) {
