@@ -178,7 +178,7 @@ class _DevblocksDatabaseManager {
 		$columns = [];
 		$indexes = [];
 		
-		$sql = sprintf("SHOW COLUMNS FROM %s", $table_name);
+		$sql = sprintf("SHOW FULL COLUMNS FROM %s", $table_name);
 		$rs = $this->GetArrayMaster($sql);
 		
 		foreach($rs as $row) {
@@ -187,6 +187,7 @@ class _DevblocksDatabaseManager {
 			$columns[$field] = [
 				'field' => $field,
 				'type' => $row['Type'],
+				'collation' => $row['Collation'],
 				'null' => $row['Null'],
 				'key' => $row['Key'],
 				'default' => $row['Default'],
