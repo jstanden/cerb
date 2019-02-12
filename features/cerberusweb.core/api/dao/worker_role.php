@@ -460,9 +460,6 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			$object->reader_query_worker = $row['reader_query_worker'];
 			$object->updated_at = intval($row['updated_at']);
 			
-			@$privs = json_decode($row['privs_json'], true) or [];
-			$object->privs = $privs;
-			
 			$objects[$object->id] = $object;
 		}
 		mysqli_free_result($rs);
@@ -637,9 +634,31 @@ class Model_WorkerRole {
 	public $reader_query_worker = null;
 	public $updated_at;
 	
+	private $_privs = null;
+	
+	function getPrivs() {
+		if(is_null($this->_privs)) {
+			$db = DevblocksPlatform::services()->database();
+			
+			$privs_json = $db->GetOneSlave(sprintf("SELECT privs_json FROM worker_role WHERE id = %d", $this->id));
+			
+			if(false == ($privs = json_decode($privs_json, true)))
+				return [];
+			
+			// Cache
+			$this->_privs = $privs;
 		}
 		
-		return [];
+		return $this->_privs;
+	}
+	
+	// Lazy load expensive fields
+	function __get($name) {
+		switch($name) {
+			case 'privs':
+				return $this->getPrivs();
+				break;
+		}
 	}
 };
 
@@ -1415,11 +1434,10 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			$workers = DAO_Worker::getAllActive();
 			$tpl->assign('workers', $workers);
 			
-			if(is_array($model->privs)) {
-				$role_privs = array_fill_keys($model->privs, []);
+			if(is_array($model->getPrivs())) {
+				$role_privs = array_fill_keys($model->getPrivs(), []);
 			} else {
 				$role_privs = [];
-				$model->privs = $role_privs;
 			}
 			
 			$tpl->assign('role_privs', $role_privs);
