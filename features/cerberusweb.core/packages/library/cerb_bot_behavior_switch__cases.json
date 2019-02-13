@@ -1,0 +1,110 @@
+{
+  "package": {
+    "name": "Bot Behavior Decision: Cases",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Multiple outcomes",
+      "uri": "cerb_bot_behavior_switch__cases",
+      "description": "A decision with multiple outcomes",
+      "point": "behavior_switch",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_cases",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "switch",
+      "title": "Outcome:",
+      "status": "live",
+      "nodes": [
+        {
+          "type": "outcome",
+          "title": "One",
+          "status": "live",
+          "params": {
+            "groups": [
+              {
+                "any": 0,
+                "conditions": [
+                  {
+                    "condition": "_custom_script",
+                    "tpl": "{# The first outcome conditions go here #}\r\n{% if true == true %}true{% endif %}",
+                    "oper": "is",
+                    "value": "true"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "outcome",
+          "title": "Two",
+          "status": "live",
+          "params": {
+            "groups": [
+              {
+                "any": 0,
+                "conditions": [
+                  {
+                    "condition": "_custom_script",
+                    "tpl": "{# The second outcome conditions go here #}\r\n{% if true == true %}true{% endif %}",
+                    "oper": "is",
+                    "value": "true"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "outcome",
+          "title": "(Default)",
+          "status": "live",
+          "params": {
+            "groups": [
+              {
+                "any": 0,
+                "conditions": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

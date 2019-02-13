@@ -1,0 +1,90 @@
+{
+  "package": {
+    "name": "Bot Behavior Decision: Yes/No",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Yes/No",
+      "uri": "cerb_bot_behavior_switch__yes_no",
+      "description": "A binary decision with 'yes' and 'no' outcomes",
+      "point": "behavior_switch",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_yes_no",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "switch",
+      "title": "Yes?",
+      "status": "live",
+      "nodes": [
+        {
+          "type": "outcome",
+          "title": "Yes",
+          "status": "live",
+          "params": {
+            "groups": [
+              {
+                "any": 0,
+                "conditions": [
+                  {
+                    "condition": "_custom_script",
+                    "tpl": "{# Your conditions go here #}\r\n{% if true == true %}true{% endif %}",
+                    "oper": "is",
+                    "value": "true"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "outcome",
+          "title": "No",
+          "status": "live",
+          "params": {
+            "groups": [
+              {
+                "any": 0,
+                "conditions": []
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
