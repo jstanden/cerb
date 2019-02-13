@@ -1,0 +1,60 @@
+{
+  "package": {
+    "name": "Salesforce Connected Service",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Salesforce",
+      "uri": "cerb_connected_service_salesforce",
+      "description": "Integration with Salesforce",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_salesforce",
+      "_context": "connected_service",
+      "name": "Salesforce",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://login.salesforce.com/services/oauth2/authorize",
+        "access_token_url": "https://login.salesforce.com/services/oauth2/token",
+        "resource_owner_url": "",
+        "scope": "api refresh_token",
+        "approval_prompt": "auto"
+      }
+    }
+  ]
+}

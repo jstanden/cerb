@@ -1,0 +1,62 @@
+{
+  "package": {
+    "name": "Connected Service: Facebook",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Facebook",
+      "uri": "cerb_connected_service_facebook",
+      "description": "Integration with Facebook",
+      "point": "connected_service",
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeAAAAEOCAMAAABmRDRVAAAAWlBMVEUAAAA9Wpg9Wpg9Wpg9Wpg9Wpg9Wpg9Wpg9Wpg9Wpg9Wpg9Wpg9Wpg9Wpj///+ercxug7LP1ub09fmSosVieatVb6Xn6/K3wtl6jrhJZJ6GmL/DzN/b4eyrt9LF5VE6AAAADXRSTlMAQBDQ8OCgkLiAaChQ3js3xAAABLhJREFUeNrs22tO3EAQRWFPBkICqfLbngfsf5uBAMH2DJq2JUvt2+fbwtGVyz86AwAAAAAAAAAAAAAAAAAAAAAAAFLwtNu8pwzfePxlEvaPPzJc+HNvMu5+Z5j4aVL2jFi6r9kdhYceTA4bHtiZIL7DX4TuqwF+mKQHbPaQQfTCenef4d3eNHFmfTBRuwwEToGJIjCB02CiCEzgNJgoAhM4DSaKwAROg4kiMIHTYKIITOA0mCgCEzgNJorABE6DiSIwgdNgoghM4DRY1IqizkcOxauj3ULg6AO3p5ey8u89l+VLXrd2HYHjDnzoOw+S23UEjjhw01fuTmDRwEXp7gRWDfyWl8CygdvSncC6gevKCawb+Hh2J3AmG7jpnMCvVAM3lRP4jWjgkzuB/9EM3DiBP0gGbioCf1IMfOycwJ8UA5dO4P8EA9dO4C96gVsn8IBe4JLAQ3KBD07gIbnAHYFH1AKfnMAjaoE7Ao+JBS6cwGNigXsCT2gFPjqBJ7QCnwg8pRX4TOAprcBO4CmpwAWBL0gFzgl8QSpw6aGe+7y4hteFUQeuPEhXtzYTgWMI3HqIqrb5CBxD4CJovo0tQOAYAtch+13Wl8AxBM79toMtQuAYAp/9ptKWIXAMgcv1BkzgbQSubCECbyNwbwsROIbAflNtCxF4G4ELW4jA2wjc2EIE3kZgW4rABE6FrY7AcxA4CIEJnApbHYHnIHAQAhM4FbY6As9B4CAEJnAqbHUEnoPAQQhM4FTY6gg8B4GDEJjAqbDVEXgOAgchMIFTYasj8BwEDkJgAv9l5+6WoohiKAoPzoAjuu0eFRV/3v81qQKKC6g0ycWu7j5Z3yusysnVSRfymhYkbqy8404BAr+Q11erWQECjxH4XgECjxFYEQIPEfifIgQeIvBFEQIPEXhShMAE7kIp2ww8K0JgAnehlG0GVojABO5COVsMfFGIwCME/qsQgUcIPClE4BECf1eIwCMEnhUi8AiBfyhE4BECK0bgAQJ/U4zAAwS+KEbgAQL/UozAAwSeFCPwAIH/KEbgAQLPihF4gMB3ihF4gMBaQOD9B/6pBQTef+CLFhB4/4H/awGB9x940gIC7z/wby0g8P4Dz1pA4P1/AL/XAgJzwqEL2RG4gsApBCZwF7IjcAWBUwhM4C5kR+AKAqcQmMBdyI7AFQROITCBu5AdgSsInEJgAnchOwJXEDiFwATuQnYEriBwCoEJ3IXsCFxB4BQCE7gL2RG4gsApBCZwF7IjcAWBUwhM4C5kR+AKAqcQmMBdyI7AFQROITCBu5AdgSsInEJgAnchOwJXEDiFwATuQnYEriBwCoEJ3IXsCFxB4BQCE7gL2RG4gsApBCZwF7IjcAWBUwhM4C5kR+AKAqcQmMBdyI7AFQROITCBu5AdgSsInEJgAnchOwJXEDiFwATuQnYEriBwCoEJ3IXsCFxB4BQCE7iLo9zWCfzhgEcf5bZK4OMBTz7LbJ3Anw54dpbXKoFPvNAvrmS1RmAGeBtb2BWYDfzKjXxWCXzkgd7EDLsCn+n72tW1LNYIfLo94K0vN9ey8wc+nW8ZXwAAAAAAAOChPTggAQAAABD0/3X0QwUAAAAAAACABSA2ZIpYKNwnAAAAAElFTkSuQmCC"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_facebook",
+      "_context": "connected_service",
+      "name": "Facebook",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://graph.facebook.com/oauth/authorize",
+        "access_token_url": "https://graph.facebook.com/oauth/access_token",
+        "resource_owner_url": "",
+        "scope": "public_profile,read_page_mailboxes,manage_pages,publish_pages",
+        "approval_prompt": "auto"
+      }
+    }
+  ]
+}

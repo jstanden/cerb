@@ -1,0 +1,69 @@
+{
+  "package": {
+    "name": "Connected Service: Google",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Google",
+      "uri": "cerb_connected_service_google",
+      "description": "Integration with Google",
+      "point": "connected_service",
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeAAAAEOCAMAAABmRDRVAAAC9FBMVEUAAAApVZU8eN0GDRQDAQAGBwWkLyU0qFMSCwgJCQQRCwYGBQPqQzUzplJBhfIVDwgFAwEUHAwODAUKHhgIGRQMExA0Gwb6uwXkQTNaQQIzqFPpQjRAhO7fPzIxn04umEqsMSYeZTF8IxtYGRNCEg4eCgXqQjTmQTMzplIwnEwcXS4bWitrHhcTQR9PFhELJhLqRTP7vATLOS0rjkXDNywng0CpMCUjdTl1IBlvHxhlHBYVRiJUGBIPNBkPMhgOIDQ3DwwvEAgnEAbsUS7vZCfoQTQypFAyolD0tgQvmks5d9TROy8sk0fMmAMohkK2MyizMignfz4fRHIYUCcXTiZbGRQSPB1FEw8RJj4NLxYMKhTZuBH5swhBhe/3nRDygBz2uATiQDPcPjHVPC/TPC8skUfHOCwqikS/Niq7NSmuMSYlfD2zhgOjLiQnVZKGJh6AJByCYQIVSSNjSgEXMVITKUgTKkZINgE9EA04qFBwrjozqFL5uwQ/gekxn07hQDI7etvYPTA5ddHVnwTQmwTBNis0bL8wZbElejy5igMtXqUlejwkdzohcDYfZzKNJx8aVil8IxsdQGsWSiRMFRBEMwENLBUGEBQ+qU5FqUtXq0SasirtugnzuwfrSzH6twb5rgr4pA7wcCL0ihg+f+TssQQ8fdzOOi40bsIqiUMqikTEkgO8jQO0MyguYakrXKCqgAOcLCKVKiGgeAOZKyKedgORKSCXcAIjSoN1VwIbOmRsUQIaOGAVSCJSPQFAMAFPqkhgrEF9rzWLsDCvtCK5tR7EthnNtxbjuQ73uwbepgQtlEg2b8cyabaheAOVKiEqWJqnfAMmUYuPagITKUYTKERSPQGnsyXtWitHpkjkWycxmVXgpwTgpwTZowQtgGQyZ7YuYKmRbQIkS4AZNlkyPA/qQzU0qFNChfT7vAVBhfM0pWBAieA0p1ZAh+g3noE2oHU/jNQ+jss9j8Y9kL88krU7lak6lqM6mJs4nIs2omw5mZRByyr9AAAA5nRSTlMAmOcXAQac/hEJDgT++f4TAiEMJh0ZKv7zTP369+rp26qHdU84Ffz19OOAeWNSRyz+/M7LyLimonBoXFhLQDwyLiUc/Pv38u7u3trZ0MC8uLWycmtmU0o+Ojcx/v37+/r18Obd29LMyMC9s62noJODendfV09MRT4y/v779/Lt7eLh1szHxcK0tK6oqKabkItxbWliRDY0Ff7+/v7+/v39/Pv6+uzj4tTGw8G5s6+qo6CampqWk5GMhGllYV9cRTL+/v7+/v7+/v7+1dTOuZ+enJqKg0lEQ/777ubj19bQwbqshoBWQkqaaskAAArrSURBVHja7N1LaxNRFAfwIyYS04GoYIyEQMhzE4KGEJLgIqkWhCLNJtSFqH1Q2mJpRcEshFK0iG5EqFufqAsVfD9QcO9GdCHiwuXB66dQVNSJ1slM5s7cW/6/r/BnztxzzmWGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKA/4cFoZrS465uV0U50cCPBmhDJ1BcezE6Nx7nL0FI5+aTabiBpXQU7hSczCYMt5CZm59ubCbQSSp9fHmIbErOpzACBDoIr56dy7ECsVW0SqC1bSMa4D8PnMwECRYVqM3Hu2zgyVtNoZYhdMpkKESglVL3FbsrPZQiUEb2fZ9dN1YMEKlgZMViK8VSYwG/pMsszNh8h8FEgXWK5xubxFPunWGL5FlN4F/ujMcLemKhvIvBa5FGOPTOFpsljgUKCvZSbw2nLS81p9lqiTuCRgVSefTAySOCF5jL7YwwPsRcKMfZNEksI2cJJ9tPSKIFMnQn2V24By2KJLgyx71oo07IMzLEKhnEHU47IDKshgRexDM1hVkW8RuC2TIIVUiBw164YKySJS/Iuq8dZIRuwPnRZzWCFbEAr7LILyHdNQ75rG+rz2lbPsUKQr9t2qXV+Rr4uyyjV/yJftzWVml8hX7dF1Jk/I18Jgqrsj5CvHGrsf5GvLBdYIUnMn93WUeB+zi93sT9yW2iC1YF83ZdkVxmLt6ZnK28ePHhTmV0ejhnI12cFdku8NJdKRzeSSbjRXkhOGNjv+6UZYzfkRxZGt9Cqsukntwzs930wUOb+Je7v2kiWBmutOPojr6W4X/lKsefCGqlNGcjXS80h7s9kNUS2dO7nka9nAtPcl3J6E9mWnR9Dvv+hzgm6XCRnQvMx5OuFSKKf4twm57KPcshXvkfs2GI1SH1pLCNf2Ro5dsioZKlfgdoY8pVrhh0aT5MbBlvIV6YiO9TKkksKeeQrTaDEjsRTLgYSHUa+srTZkViR3BRewPxZkhI7sdQg0ML2S+xAaSuBHk5f+cC2TeOj3bp4L8TlawbbM4IfTGrjtvjm+g57+eKL7NqIiu+u7rZTn/H86uOt+OHyNe5VCe9ffYQOi5+29Vqml3B+1shz8Z2NMh1D/6uT1+IPB/awpXiRQB8nhMm2Q5ZlOkWgkSOiy0GLMt3CQkAnkZPCxLJMj2cJNPJcmFiWaSNNoJN94l8OXuJVVAh0kt0p/unKKmV6EQVaLy9Et/+PtaoEWjkr/mm17cMkVgx6Ce4VXf4/1moTaOW9MLHql8oEenkqTKz6pRUCvZwSFg7uxgOssZCpSbIs05hx6Ga7sLbtkME/TOLWsm6eil4c3I0eWFOnxS/WZTqP/0PqZuD3JsnyNI0ptIZeCQum7QPucWjnhejdlY84YmnnsbDhLTkXXiffO4Ju+4QN28m59Z/l+4KrvH/ZK3p3eKPiAX8+TmAWETbcJtUDfkZgdlHYcFT5gM8QmB0TNpxQPuCbBGZHRe92blE+4C+YtHV5KHr3iZQP+PN+ApM7onf3NAj4JYHJKTtnLA0CxjG6yw07Yw4NAj5HYHJS9C6qQcBf2buPF6eiKAzgR2N4JkPUlEEcJCG7KYQgg8xCVHBhQwULwowIbsSF4sIGKoqo2BVR7LpzYUMFEVGw94pYEFGxc15i721jRX2ZlPvuK7kvfL8/IR+5uefcc28WEPwvkjEh4IGAUScZ9cmI608eCHg0gfFxHXEXvBCwjkJYulM52BMBRwkMbzeIW+yJgHsT/OdIRtwETwQ8jcAwFC3uiicCnkogGfA+BOw9CLjCYYmucJW3ybpBIFkm7fJEwNhFV3ijAyf+0q3Ku54IGI2Oyj5sQKvSwnFhxAsB+wgq+cA/i0e8KntkpytBRQ/dzSGQHpud4IGALxFIXw++54GAcTnJytWVoPoBXyWQv3x2RP2AMfie42jGhOvqB3yIQL7TMV/9gHGYZKUQ7tZe+YDRqcy1M2PCZNUD7oBGVq4DGRP2qh4wbq5Yegjt7G2/4gE/IJA+Ee68aTqnSNq6trJm6cImEuToNCYjZvMMZh5PZbAEVZILT92NOsY/hHzkvjm6IAzs5PNIaHm+NZ1/aSDXhbPim+gAQa4uYsvzH3VV5LZDurC5BK0Eu4ksz38dJrc91IXtIZB40//UdP5nbDtyl9/EJnoVQWvXM0VtOcEGKXLXFF0UZmZlbjeM2shGYzuRGPeLpFlVBK116p8p7PR6zjWJ3NS+K8Y5rJqQKeT8SY1bqQuQi4bp4oYRmJrqOHec80mSe9oNxE+wZZEC3cozGzivUJQEuL/F2tqOIK/F+c8WNC5gh3uf5DYdVbAza/SWGVzYCHLJVF0YnhIuLDimRHWUq1+MXOGfq4vrsI6ggL2tmlfruajtVVSC21toPDRbzNFizavy7aR9s3QUSfaYl7M8l1TTg5y329S8XYygoIPG5pWAUC9y2pMsVmi7RPobmlci4lFyVmyrrus4SbLJfkPzSkjCR07yb9PN6IqHoosKdzM0r4QMcvQznaibgH/jKGmxoXklZlyQHLMqq5uAB9BKWvNv8krcuPbkkCmjdVMGog9dyuCzG9i0QT5yxM2fp8Aogm31dDpLGBClEmTzxRbLbjtYxuyeZLspXXWT2hCU1FNjGaHhZLNVHXSTOuBasIjuLKcpQjbyT8zqZu0mENBSw3ISa8k2sW26aVnM6ohZxpJCK+2qUqZt1c27TCAkGmJZQ6Jkg8jEDrp5WdwpFJVkabXJIFnV4857vTV8ge0TqWN58eF+sqJ5OzN/Nv8V7oBfYHEptiJxuIpktYzX+KfXz3UjDFPaaihbkhgRkKvBh9bwH8/e6qZ0xSSHGbG+bE08GSaTgsMH8X9efDRVCD8mMGMEW1UzZFKQhAVSS2s5x6uXurCBeLVBup8lLzR0dTUJiK0en3fF+PpGeIeFEsmsWD+2gzZoRY8wFeZvGdGU0LiAFx/0X/AwlgNSGtsl3n3FiJ5hv3FNDvc6XL9sbIiL+yZUL82JEJi2nO1V0y8xbsiiH4ZsHzugVuPSROulLAZ1ZAQGsQqevdPxgL8zon1ZCZ9KLNMDsUBLStWwEorXS6PRo5TWwGp49haDdn8pvdGSUaKttRCTshb4x7EivowuUCFhkNKS6jpWRP56qStaWBalZ7Mi8tVLWTzIYVmvWlZF63rpGoFlI0Ositx6aTc2WHboMZNV8cxwvrQAf49UcQm/+PCvXroUJKi4hP/VS3PxIJZ9Uur8DvPX3/XSwGoC+4xU5ODhp2fvka/9eilTD/8am57rI7BXegCr435HArtVN7IqmlAfOSGwlJWgJdHfcEiDCuVSaDWBU3qW/3Ap3ovAOb4hXF6NuIPkrE5JjctoKa6oOG5knMsltJLAeb6hXB4XWwhcMWk2u09bgeXZNdVLNXZZoieBi0Ym2E2hJL6+LgvU17JrdqQJXBdrqmFXXEwRlEVLd40dFx+Oo4XyaXY64n71mLwqr+ahAgu1fLw4+C2/dFOIHRFvwLdXDdX1cbZd4yT89qrD32OIrSt1bRNOBVUTrk+wPbRxw3EpVEnNK+qsp9vYECZQVbvm5AAr6Q5CuupLr+zeV6omGj8C6XpEVfPK8XUsThuwbHi6E4GnVI9sKP1WIfdtbGoYiXtkntUp3HN1/fLujXXGxwu12gGNQ5fXT+qFK0YVo6pjLJpeu3ZtSzoa61hFAAAAAAAAAAAAAPC9PTgkAAAAABD0/7UjrAAAAAAAAAAAHAH4bOdVONPxHAAAAABJRU5ErkJggg=="
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Scope",
+          "key": "prompt_scope",
+          "params": {
+            "default": "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+            "placeholder": "(space-delimited scopes)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_google",
+      "_context": "connected_service",
+      "name": "Google",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
+        "access_token_url": "https://www.googleapis.com/oauth2/v4/token",
+        "resource_owner_url": "",
+        "scope": "{{{prompt_scope}}}",
+        "approval_prompt": "auto"
+      }
+    }
+  ]
+}

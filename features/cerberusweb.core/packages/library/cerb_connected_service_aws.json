@@ -1,0 +1,63 @@
+{
+  "package": {
+    "name": "Connected Service: Amazon Web Services",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Amazon Web Services",
+      "uri": "cerb_connected_service_aws",
+      "description": "Integration with Amazon Web Services",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Access Key",
+          "key": "prompt_access_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Access Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Secret Key",
+          "key": "prompt_secret_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Secret Key)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_aws",
+      "_context": "connected_service",
+      "name": "Amazon Web Services",
+      "extension_id": "cerb.service.provider.aws",
+      "params": {}
+    },
+    {
+      "uid": "account_aws",
+      "_context": "connected_account",
+      "name": "Amazon Web Services",
+      "service_id": "{{{uid.service_aws}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "params": {
+        "access_key": "{{{prompt_access_key}}}",
+        "secret_key": "{{{prompt_secret_key}}}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "package": {
+    "name": "Connected Service: GitLab",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "GitLab",
+      "uri": "cerb_connected_service_gitlab",
+      "description": "Integration with GitLab",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_gitlab",
+      "_context": "connected_service",
+      "name": "GitLab",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://gitlab.com/oauth/authorize",
+        "access_token_url": "https://gitlab.com/oauth/token",
+        "resource_owner_url": "",
+        "scope": "api read_user",
+        "approval_prompt": "auto"
+      }
+    }
+  ]
+}

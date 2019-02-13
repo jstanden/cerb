@@ -1,0 +1,69 @@
+{
+  "package": {
+    "name": "Connected Service: Slack",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Slack",
+      "uri": "cerb_connected_service_slack",
+      "description": "Integration with Slack",
+      "point": "connected_service",
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeAAAAEOCAMAAABmRDRVAAAAvVBMVEUAAAA2xfAutn3gHlrssi42xfAutn3gHlrssi42xfAutn3gHlrssi42xfAutn3gHlrssi42xfAutn3gHlrssi42xfAutn02xfAutn3gHlrssi42xfAutn3gHlrssi7gHlrssi42xfAutn3gHlrssi42xfAutn3gHlrssi42xfAutn3gHlrssi42xfAutn3gHlrssi42xfAutn3gHlrssi42xfAutn3gHlrssi7gHlrssi42xfAutn3gHlrssi5jJs41AAAAO3RSTlMAgICAgEBAQEDw8PDwoKCgoBAQEBC8u2BgYGAgICAgwMDg4ODg0NDQ0JCQkJAwMDAwUFBQUHBwcHCwsOHFvQcAAAm3SURBVHja7N3hiqMwFIbhY8FCBAULasH+UVCw0EILnT/n3P917e7M7mw7WjWjppn4PbfwotE09hAAAAAAAAAAAAAAAAB88G9hUjFzlSSeT9+w3aRpLSJ1Gr1tCaxyCRU/SLKYNOz2qTwIoiuBJWKv4DbV5DTS4RhIW7nZEVggU9xNeTGNsNsE0i3YE7xanvBzhU+DtqU8lx4IXipT3MujARv5gIvYSg0PCWPqsYtkyJHgZUIeVsU9fWsZFhG8SMhjVPRULYLC9sp4nJCeiGQcrMMvceKxbtTpTcY6ExgXFzyWyqnDIZCxSmx5mNfweAl1SOUTHqXtk7OOjFr2ogMbHqaFrKOgllL+wpO0jXLWk3VcwLiELdawnqRzBcYqbC3FmnJ6cBBNAYFBPuu6td6BNeGQh0ke87R7dCq6NgTmJKyNHoi2lMAc1neiO2fRR2BMzPp8urMVfdiuNMdnfd6Xcxx4yrIYAjsOgR2HwI5DYMchsONiBHYcAjsuQWC3eQjsNh+BHacQ2G0NArstR2DHhQjsthyBHdcgsNviAoHddkJgx2UI7LgQgR0XIrDjGgR2XKYQ2G15gsCOyxQCuy32CgR23CVUCOy497/0R2BA4DVAYMchsOMQ2HEI7DgEdhwCOw6BHYfAjkNgxyGw4xD4FWJ/Hq8LvNu+w3/itflewrMpkltuPPB2k8qndIPr/U7eKJ5blcUGAvdMIA6OmALwIQ95EcqLDQU+RNIpQmKiuOHFFBcTgXdHeeq4+uX4VPCSknjxwOdSepQrn4qX8cKq08KB95hs2SPkxanTooEjzNSa2nd64QUDR5ia1qNhI9RpscBHDNXqkbEhRbxQ4L1gwvRzuWJTknkD6w8gDtb4QpywObdFAqcYumTDDfoPFS8QeC+/4Sb9RKzYpGb+wLtANARr29Ly2Kx49sAbjD7sU7BZ3uyBS9FS0qpc2LBi7sBX0XSlNQnZtMvMgSO5g/2srxSb1swcOMAI8R4+G1fNG3iLQ3t9bmzevIHfRNsbrUfI5vmzBo5EsAjbsU35z2XWwClmxPepeKKXTz6rRVtN68HDLA8s30DrwcMQ+CfjYQj8k/38NViwBtv2FJ3Rnf3kwHiKti2wP3EjSgiBrf01uPWL8E60le3A+EXYor3ogh6UEy9AfEBu22N0SA+iiVvJeIi2bRG+0IOr6DrQPSzBFp2p/EPRF8G0lxx5h3OVlhyqZA7pi2haH/kDxypf/l3Sp5y+OEzrI//h+6QuuWKTQmqJJr3jyF/4eMWOV+GcaNIlXO7oEV6CR4z/Nceb+hH4laYFLle2Ahve7KioUz3hFQebHBbdpNWJOp0DGaduX3+4QVt09O5CT1xllOBMLThuN0JcsQkZPbUf2Xda4HqFC7DBwhn12H+zL6GvJXdpdaFe10D6lWfqgvvzSDfFS6pONOBcS590R5MCB2v6nkF3wPN0Ho2w6c8zKXC6ug2sDlnBywhzGuUQ6f+VqIxR/mLvDnSWhqEwDB8dOnTToSPqMAMUEohoUFFBk9P7vyyjiQp/odvZurq133MLL2u7bh1hPUEyJO7gKn6k5TUmfqzXua/llQV+gbz/vP5qtfGbJ59I6PPTt+cr33efyaiy7jcMznd9eHDPipcPnlEjzx++uv/L54dU6b7Jw8C/IQwAAAAAAAAAAAAA8J/s48iEKsWH6JcizqmR6Xg2smL8keBSeVxwBTI67Db8zyo7kNCXyVpZtDzNCf4otLqywHm04ruSrKTa5pNUWbecEfxSaHVkgfMdX5eVdfOqbqyRmKhcMLcKfEz4pohqGKnuLIMfqLU8wsD5dzbZ7KnCx63qUnqioGXMrQLvV2yWHMjoS6o6NqFw5RtuF3ifcKWCDGaqe9spBUrUlw19zQphXxS2JWMJU1+zw83xWV2HUdqKiEWaDwDJ/sb6KlWOjChAMbcM/J3r2tBVW+XMmIKTr1oGPnB9kdv7X906vGk4YqFWP5CSNHNlhEG6nTJhoVY/kIw0E+VSGtqW1o7bBc4TFin1C9it9xSUPGkZuGCZTL+A3UrDmoULbhl4wzIJ3ZEqx8J6svS9ZeCSpQ7aHodjPygk3DLwkaUybYR2jQISs1zLEWBFF9aqHmx2NBK1DbxisZzOTFU9uBVu5nvbwCwX05mxqgWTcEMLlms7xBfac0LHlhSOzX8IHGn70I5tKRwcYuCQltEI7DkE9tyGxTaDDxzSHLxgsUXrwOKdSqyiG8tYLLMaeKxqw6t3DRxZ7Gg1MCn3Qjrj0CBQbDfwVtWBveimEhZKyG7g98q1lEKSsVBmIbB4lYUpuLEDCx0sB3b/vPALBWXFIiuyHXik3FpTWCJhHeuBp6oOPA1281plklsJLF1m4aVKV+9VFmQ/8DRVVfBOpaPtygV1EJhOygzblK4OryRlJ4HphzLDwRVHg3RB3QSertVNGKDdnU/akZ3A8hPgOJfkYj8rI1uBBYWxh+WscEbWA5sLo6/Tebgg24Grv4OG+bch+ZfMVnvqODBNu11Lr4P/snC+45t2OVkPrPuyVp15H9wG1hVlZvhYrIPANB2lqhOTIG9/ryh3Cd+R7EqijgLrprOtsi19j7xn4mjBfy2imDRWA+vmpx9rZc1yFNQLOjXl8W85aewFNhvbgYlXwGJgGAwE9hwCew6BPYfAnkNgzyGw5xDYcwjsOQT2HAJ7DoE91+lHWLbLyQnPgkSGFfi3dBLYcc9+sRTYbD3CY7+ahhlYqTTwNyJrG2pg/MFzTcMNjIu4lgEHDvhgkcCgA4d99KSeYQdG4UoDDxz68aJqQw+sgj9gVGHwgQP8+1+RwQfGUtps+IEVNjxMPAiMlbSJB4FxCZv4EBizsIEPgcP6nreQD4HD+iK/kBeBQ/sesIQXgUP8nmhdXgQO6Z/p/rv/EhjblTf5ERirrJsQGBAYEDgcCOw5BPZcznIxnRnjNqnfWG5PZz5io6PfFixGF7BV2W8RSy3owhIPG3otZqkjXThhjdVvCQuVdGGOB/79tpOP0JeWeGWn10qWKeiOGV6667eMJVakWeO12V4rhRewZoYLuN92shlYt8QM3Gv5iiV/QKybpzh81mt72T2w7oTjo/1WcD0Z3TDBAfB+y7iODd20xQq637I6fXO6abpF337bcZUsJ4PpBAvofvvZzt2jMAgEARQe2IUVVrBYGwNmAwYMJF2KoDD3v1ZqEfG3mOJ9d3jta+LJibBnhGZbm3VZF2RV8WRlaNtixNEl2aD2Jfmallync/Hdykb3T8lO2LZvFXViaJLsUN9GhuDGhV+Ve1Xt8+CCHFD48fFi6Q8AAAAAAAAAV/sD7dg2raTaJ9MAAAAASUVORK5CYII=w"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Scope",
+          "key": "prompt_scope",
+          "params": {
+            "default": "channels:read chat:write:bot chat:write:user im:read im:write users:read users.profile:read",
+            "placeholder": "(space-delimited scopes)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_slack",
+      "_context": "connected_service",
+      "name": "Slack",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://slack.com/oauth/authorize",
+        "access_token_url": "https://slack.com/api/oauth.access",
+        "resource_owner_url": "",
+        "scope": "{{{prompt_scope}}}",
+        "approval_prompt": "auto"
+      }
+    }
+  ]
+}

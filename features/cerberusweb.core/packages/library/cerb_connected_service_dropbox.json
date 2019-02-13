@@ -1,0 +1,60 @@
+{
+  "package": {
+    "name": "Connected Service: Dropbox",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Dropbox",
+      "uri": "cerb_connected_service_dropbox",
+      "description": "Integration with Dropbox",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_dropbox",
+      "_context": "connected_service",
+      "name": "Dropbox",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://www.dropbox.com/oauth2/authorize",
+        "access_token_url": "https://api.dropboxapi.com/oauth2/token",
+        "resource_owner_url": "",
+        "scope": "",
+        "approval_prompt": ""
+      }
+    }
+  ]
+}

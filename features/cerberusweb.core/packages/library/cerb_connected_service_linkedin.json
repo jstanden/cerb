@@ -1,0 +1,69 @@
+{
+  "package": {
+    "name": "Connected Service: LinkedIn",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "LinkedIn",
+      "uri": "cerb_connected_service_linkedin",
+      "description": "Integration with LinkedIn",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Scope",
+          "key": "prompt_scope",
+          "params": {
+            "default": "r_basicprofile r_emailaddress rw_company_admin w_share",
+            "placeholder": "(space-delimited scopes)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_linkedin",
+      "_context": "connected_service",
+      "name": "LinkedIn",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://www.linkedin.com/oauth/v2/authorization",
+        "access_token_url": "https://www.linkedin.com/oauth/v2/accessToken",
+        "resource_owner_url": "",
+        "scope": "{{{prompt_scope}}}",
+        "approval_prompt": ""
+      }
+    }
+  ]
+}

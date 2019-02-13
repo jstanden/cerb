@@ -1,0 +1,60 @@
+{
+  "package": {
+    "name": "Connected Service: GitHub",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "GitHub",
+      "uri": "cerb_connected_service_github",
+      "description": "Integration with GitHub",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_github",
+      "_context": "connected_service",
+      "name": "GitHub",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://github.com/login/oauth/authorize",
+        "access_token_url": "https://github.com/login/oauth/access_token",
+        "resource_owner_url": "",
+        "scope": "user public_repo notifications",
+        "approval_prompt": "auto"
+      }
+    }
+  ]
+}

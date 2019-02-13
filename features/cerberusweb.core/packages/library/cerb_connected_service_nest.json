@@ -1,0 +1,60 @@
+{
+  "package": {
+    "name": "Connected Service: Nest",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Nest",
+      "uri": "cerb_connected_service_nest",
+      "description": "Integration with Nest",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Client ID",
+          "key": "prompt_client_id",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client ID)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Client Secret",
+          "key": "prompt_client_secret",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Client Secret)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_nest",
+      "_context": "connected_service",
+      "name": "Nest",
+      "extension_id": "cerb.service.provider.oauth2",
+      "params": {
+        "grant_type": "authorization_code",
+        "client_id": "{{{prompt_client_id}}}",
+        "client_secret": "{{{prompt_client_secret}}}",
+        "authorization_url": "https://home.nest.com/login/oauth2",
+        "access_token_url": "https://api.home.nest.com/oauth2/access_token",
+        "resource_owner_url": "",
+        "scope": "",
+        "approval_prompt": "auto"
+      }
+    }
+  ]
+}
