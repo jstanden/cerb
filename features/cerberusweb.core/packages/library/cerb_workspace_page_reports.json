@@ -1,0 +1,876 @@
+{
+  "package": {
+    "name": "Page Wizard: Reports",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Reports",
+      "uri": "cerb_workspace_page_reports",
+      "description": "A page with customizable reporting dashboards",
+      "point": "workspace_page",
+      "image": ""
+    },
+    "configure": {
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Owner Context:",
+          "key": "owner_context",
+          "hidden": true,
+          "params": {
+          }
+        },
+        {
+          "type": "text",
+          "label": "Owner Context ID:",
+          "key": "owner_context_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ],
+      "placeholders": [
+
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "workspace_reports",
+      "_context": "workspace_page",
+      "name": "Reports",
+      "owner__context": "{{{owner_context}}}",
+      "owner_id": "{{{owner_context_id}}}",
+      "extension_id": "core.workspace.page.workspace"
+    },
+    {
+      "uid": "workspace_tab_191",
+      "_context": "workspace_tab",
+      "name": "Created Tickets by Group",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: \"Date range:\"\ntype: date_range\ndefault: first day of this month -12 months\n---\nplaceholder: input_date_subtotal_by\nlabel: \"By:\"\ntype: picklist\ndefault: month\nparams:\n  options: [day, week, month, year]\n--- \nplaceholder: input_groups\nlabel: \"Groups:\"\ntype: chooser\ndefault:\nparams:\n  context: group\n  single: false"
+      }
+    },
+    {
+      "uid": "workspace_widget_359",
+      "_context": "workspace_widget",
+      "label": "Created Tickets by Group Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[created@{{input_date_subtotal_by}},group~10]\r\nquery:(\r\n\tcreated:\"{{input_date_range}}\"\r\n\t{% if input_groups %}\r\n\tgroup.id:[{{input_groups}}]\r\n\t{% endif %}\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_191}}}"
+    },
+    {
+      "uid": "workspace_widget_360",
+      "_context": "workspace_widget",
+      "label": "Created Tickets by Group",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[group~10]\r\nquery:(\r\n\tcreated:\"{{input_date_range}}\"\r\n\t{% if input_groups %}\r\n\tgroup.id:[{{input_groups}}]\r\n\t{% endif %}\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_191}}}"
+    },
+    {
+      "uid": "workspace_widget_361",
+      "_context": "workspace_widget",
+      "label": "Created Tickets",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.ticket",
+        "query_required": "created:\"{{input_date_range}}\"\r\n{% if input_groups %}\r\ngroup.id:[{{input_groups}}]\r\n{% endif %}\r\nsort:-created\r\nsubtotal:group.id",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_importance",
+          "t_last_wrote_address_id",
+          "t_created_date",
+          "t_updated_date",
+          "t_group_id",
+          "t_bucket_id",
+          "t_owner_id"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_191}}}"
+    },
+    {
+      "uid": "workspace_tab_192",
+      "_context": "workspace_tab",
+      "name": "Created Tickets by Org",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_orgs\nlabel: 'Orgs:'\ntype: chooser\ndefault: ~\nparams:\n  context: org\n  single: false"
+      }
+    },
+    {
+      "uid": "workspace_widget_365",
+      "_context": "workspace_widget",
+      "label": "Created Tickets by Organization Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[created@{{input_date_subtotal_by}},org~10]\r\nquery:(\r\n\tcreated:\"{{input_date_range}}\"\r\n\t{% if input_orgs %}\r\n\torg.id:[{{input_orgs}}]\r\n\t{% else %}\r\n\torg.id:!0\r\n\t{% endif %}\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "500",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_192}}}"
+    },
+    {
+      "uid": "workspace_widget_362",
+      "_context": "workspace_widget",
+      "label": "Created Tickets by Organization",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[org~25]\r\nquery:(\r\n\tcreated:\"{{input_date_range}}\" \r\n\t{% if input_orgs %}\r\n\torg.id:[{{input_orgs}}]\r\n\t{% else %}\r\n\torg.id:!0\r\n\t{% endif %}\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_192}}}"
+    },
+    {
+      "uid": "workspace_widget_363",
+      "_context": "workspace_widget",
+      "label": "Created Tickets by Organization",
+      "extension_id": "cerb.workspace.widget.chart.categories",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[org~10]\r\nquery:(\r\n\tcreated:\"{{input_date_range}}\"\r\n\t{% if input_orgs %}\r\n\torg.id:[{{input_orgs}}]\r\n\t{% else %}\r\n\torg.id:!0\r\n\t{% endif %}\r\n)\r\nformat:categories",
+        "cache_secs": "300",
+        "xaxis_format": "text",
+        "yaxis_format": "number",
+        "height": ""
+      },
+      "tab_id": "{{{uid.workspace_tab_192}}}"
+    },
+    {
+      "uid": "workspace_widget_364",
+      "_context": "workspace_widget",
+      "label": "Created Tickets by Organization",
+      "extension_id": "cerb.workspace.widget.chart.pie",
+      "pos": 4,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[org~10]\r\nquery:(\r\n\tcreated:\"{{input_date_range}}\"\r\n\t{% if input_orgs %}\r\n\torg.id:[{{input_orgs}}]\r\n\t{% else %}\r\n\torg.id:!0\r\n\t{% endif %}\r\n)\r\nformat:pie",
+        "cache_secs": "300",
+        "chart_as": "donut",
+        "height": "500",
+        "options": {
+          "show_legend": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_192}}}"
+    },
+    {
+      "uid": "workspace_widget_366",
+      "_context": "workspace_widget",
+      "label": "Created Tickets",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 5,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.ticket",
+        "query_required": "created:\"{{input_date_range}}\"\r\n{% if input_orgs %}\r\norg.id:[{{input_orgs}}]\r\n{% else %}\r\norg.id:!0\r\n{% endif %}\r\nsort:-created\r\nsubtotal:org.id",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_last_wrote_address_id",
+          "t_updated_date",
+          "t_group_id",
+          "t_bucket_id",
+          "t_org_id",
+          "t_owner_id"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_192}}}"
+    },
+    {
+      "uid": "workspace_tab_193",
+      "_context": "workspace_tab",
+      "name": "Closed Tickets by Group",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
+      }
+    },
+    {
+      "uid": "workspace_widget_367",
+      "_context": "workspace_widget",
+      "label": "Closed Tickets by Group Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[closed@{{input_date_subtotal_by}},group~50]\r\nquery:(\r\n\tstatus:c \r\n\tclosed:\"{{input_date_range}}\"\r\n\t{% if input_groups %}\r\n\tgroup.id:[{{input_groups}}]\r\n\t{% endif %}\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_193}}}"
+    },
+    {
+      "uid": "workspace_widget_368",
+      "_context": "workspace_widget",
+      "label": "Closed Tickets by Group",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:tickets\r\nby:[group~50]\r\nquery:(\r\n\tstatus:c \r\n\tclosed:\"{{input_date_range}}\"\r\n\t{% if input_groups %}\r\n\tgroup.id:[{{input_groups}}]\r\n\t{% endif %}\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_193}}}"
+    },
+    {
+      "uid": "workspace_widget_369",
+      "_context": "workspace_widget",
+      "label": "Closed Tickets",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.ticket",
+        "query_required": "status:c \r\ncreated:\"{{input_date_range}}\" \r\n{% if input_groups %}\r\ngroup.id:[{{input_groups}}]\r\n{% endif %}\r\nsort:-closed\r\nsubtotal:group.id",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_importance",
+          "t_last_wrote_address_id",
+          "t_closed_at",
+          "t_updated_date",
+          "t_group_id",
+          "t_bucket_id",
+          "t_owner_id"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_193}}}"
+    },
+    {
+      "uid": "workspace_tab_194",
+      "_context": "workspace_tab",
+      "name": "Worker Replies",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_workers\nlabel: 'Workers:'\ntype: chooser\ndefault: ~\nparams:\n  context: worker\n  single: false\n"
+      }
+    },
+    {
+      "uid": "workspace_widget_370",
+      "_context": "workspace_widget",
+      "label": "Replies by Worker Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[created@{{input_date_subtotal_by}},worker~20]\r\nquery:(\r\n\t{% if input_workers %}\r\n\tworker.id:[{{input_workers}}]\r\n\t{% else %}\r\n\tworker.id:!0 \r\n\t{% endif %}\r\n\tisOutgoing:y \r\n\tisBroadcast:n \r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "",
+        "options": {
+          "show_legend": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_194}}}"
+    },
+    {
+      "uid": "workspace_widget_371",
+      "_context": "workspace_widget",
+      "label": "Replies by Worker",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~50]\r\nquery:(\r\n\t{% if input_workers %}\r\n\tworker.id:[{{input_workers}}]\r\n\t{% else %}\r\n\tworker.id:!0 \r\n\t{% endif %}\r\n\tisOutgoing:y \r\n\tisBroadcast:n \r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_194}}}"
+    },
+    {
+      "uid": "workspace_widget_411",
+      "_context": "workspace_widget",
+      "label": "Average Response Time by Worker Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:avg\r\nby:[created@{{input_date_subtotal_by}},worker~20,responseTime]\r\nquery:(\r\n\tisOutgoing:y \r\n\t{% if input_workers %}\r\n\tworker.id:[{{input_workers}}]\r\n\t{% else %}\r\n\tworker.id:!0 \r\n\t{% endif %}\r\n\tisBroadcast:n \r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number.seconds",
+        "height": "",
+        "options": {
+          "show_legend": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_194}}}"
+    },
+    {
+      "uid": "workspace_widget_409",
+      "_context": "workspace_widget",
+      "label": "Average Response Time Per Worker",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 4,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:avg\r\nby:[worker~25,responseTime]\r\nquery:(\r\n\tisOutgoing:y \r\n\t{% if input_workers %}\r\n\tworker.id:[{{input_workers}}]\r\n\t{% else %}\r\n\tworker.id:!0 \r\n\t{% endif %}\r\n\tisBroadcast:n \r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_194}}}"
+    },
+    {
+      "uid": "workspace_widget_372",
+      "_context": "workspace_widget",
+      "label": "Worker Replies",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 5,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.message",
+        "query_required": "{% if input_workers %}\r\nworker.id:[{{input_workers}}]\r\n{% else %}\r\nworker.id:!0\r\n{% endif %}\r\nisOutgoing:y\r\nisBroadcast:n\r\ncreated:\"{{input_date_range}}\"",
+        "query": "subtotal:worker.id \r\nsort:-created",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "a_email",
+          "t_group_id",
+          "m_created_date",
+          "m_worker_id"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_194}}}"
+    },
+    {
+      "uid": "workspace_tab_195",
+      "_context": "workspace_tab",
+      "name": "Group Replies",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
+      }
+    },
+    {
+      "uid": "workspace_widget_373",
+      "_context": "workspace_widget",
+      "label": "Replies by Group Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[created@{{input_date_subtotal_by}},group~20]\r\nquery:(\r\n\t{% if input_groups %}\r\n\tticket:(group.id:[{{input_groups}}])\r\n\t{% endif %}\r\n\tworker.id:!0 \r\n\tisOutgoing:y \r\n\tisBroadcast:n \r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_195}}}"
+    },
+    {
+      "uid": "workspace_widget_374",
+      "_context": "workspace_widget",
+      "label": "Replies by Group",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:count\r\nby:[group~25]\r\nquery:(\r\n\t{% if input_groups %}\r\n\tticket:(group.id:[{{input_groups}}])\r\n\t{% endif %}\r\n\tworker.id:!0 \r\n\tisOutgoing:y \r\n\tisBroadcast:n \r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_195}}}"
+    },
+    {
+      "uid": "workspace_widget_410",
+      "_context": "workspace_widget",
+      "label": "Average Response Time by Groups",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nfunction:avg\r\nby:[created@{{input_date_subtotal_by}},ticket.group~20,responseTime]\r\nquery:(\r\n\tisOutgoing:y \r\n\t{% if input_groups %}\r\n\tticket:(group.id:[{{input_groups}}])\r\n\t{% endif %}\r\n\tisBroadcast:n \r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number.seconds",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_195}}}"
+    },
+    {
+      "uid": "workspace_tab_196",
+      "_context": "workspace_tab",
+      "name": "Groups Roster",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
+      }
+    },
+    {
+      "uid": "workspace_widget_375",
+      "_context": "workspace_widget",
+      "label": "Workers by Group",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.worker",
+        "query_required": "{% if input_groups %}\r\ngroup:(id:[{{input_groups}}])\r\n{% endif %}\r\nisDisabled:n\r\nsubtotal:group",
+        "query": "",
+        "render_limit": "15",
+        "header_color": "#6a87db",
+        "columns": [
+          "w_title",
+          "a_address_email",
+          "w_is_superuser",
+          "w_at_mention_name",
+          "w_language",
+          "w_timezone"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_196}}}"
+    },
+    {
+      "uid": "workspace_tab_198",
+      "_context": "workspace_tab",
+      "name": "Time Spent by Activity",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_activities\nlabel: 'Activities:'\ntype: chooser\ndefault: ~\nparams:\n  context: timetracking_activity\n  single: false\n"
+      }
+    },
+    {
+      "uid": "workspace_widget_381",
+      "_context": "workspace_widget",
+      "label": "Time Spent by Activity Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[created@{{input_date_subtotal_by}},activity,timeSpent]\r\nquery:(\r\n\t{% if input_activities %}\r\n\tactivity.id:[{{input_activities}}]\r\n\t{% endif %}\r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number.minutes",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_198}}}"
+    },
+    {
+      "uid": "workspace_widget_380",
+      "_context": "workspace_widget",
+      "label": "Total Time Spent by Activity",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[activity,timeSpent]\r\nquery:(\r\n\t{% if input_activities %}\r\n\tactivity.id:[{{input_activities}}]\r\n\t{% endif %}\r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_198}}}"
+    },
+    {
+      "uid": "workspace_widget_382",
+      "_context": "workspace_widget",
+      "label": "Time Spent",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.timetracking",
+        "query_required": "",
+        "query": "{% if input_activities %}\r\nactivity.id:[{{input_activities}}]\r\n{% endif %}\r\ncreated:\"{{input_date_range}}\" \r\nsubtotal:activity.id",
+        "render_limit": "15",
+        "header_color": "#6a87db",
+        "columns": [
+          "tt_log_date"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_198}}}"
+    },
+    {
+      "uid": "workspace_tab_199",
+      "_context": "workspace_tab",
+      "name": "Time Spent by Orgs",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_orgs\nlabel: 'Orgs:'\ntype: chooser\ndefault: ~\nparams:\n  context: org\n  single: false\n"
+      }
+    },
+    {
+      "uid": "workspace_widget_384",
+      "_context": "workspace_widget",
+      "label": "Time Spent by Org Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:timetracking\r\nfunction:sum\r\nby:[created@{{input_date_subtotal_by}},links.org~10,timeSpent]\r\nquery:(\r\n\t{% if input_orgs %}\r\n\tlinks.org:(id:[{{input_orgs}}])\r\n\t{% endif %}\r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number.minutes",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_199}}}"
+    },
+    {
+      "uid": "workspace_widget_383",
+      "_context": "workspace_widget",
+      "label": "Total Time Spent by Org",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[links.org,timeSpent]\r\nquery:(\r\n\t{% if input_orgs %}\r\n\tlinks.org:(id:[{{input_orgs}}])\r\n\t{% endif %}\r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_199}}}"
+    },
+    {
+      "uid": "workspace_widget_385",
+      "_context": "workspace_widget",
+      "label": "Time Spent",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.timetracking",
+        "query_required": "",
+        "query": "created:\"{{input_date_range}}\" \r\n{% if input_orgs %}\r\nlinks.org:(id:[{{input_orgs}}])\r\n{% else %}\r\nlinks:org\r\n{% endif %}\r\nsubtotal:links",
+        "render_limit": "15",
+        "header_color": "#6a87db",
+        "columns": [
+          "tt_log_date"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_199}}}"
+    },
+    {
+      "uid": "workspace_tab_200",
+      "_context": "workspace_tab",
+      "name": "Time Spent by Worker",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_workers\nlabel: 'Workers:'\ntype: chooser\ndefault: ~\nparams:\n  context: worker\n  single: false\n"
+      }
+    },
+    {
+      "uid": "workspace_widget_387",
+      "_context": "workspace_widget",
+      "label": "Time Spent by Worker Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[created@{{input_date_subtotal_by}},worker,timeSpent]\r\nquery:(\r\n\t{% if input_workers %}\r\n\tworker.id:[{{input_workers}}]\r\n\t{% endif %}\r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number.minutes",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_200}}}"
+    },
+    {
+      "uid": "workspace_widget_386",
+      "_context": "workspace_widget",
+      "label": "Total Time Spent by Workers",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nfunction:sum\r\nof:timetracking\r\nby:[worker,timeSpent]\r\nquery:(\r\n\t{% if input_workers %}\r\n\tworker.id:[{{input_workers}}]\r\n\t{% endif %}\r\n\tcreated:\"{{input_date_range}}\"\r\n)\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_200}}}"
+    },
+    {
+      "uid": "workspace_widget_388",
+      "_context": "workspace_widget",
+      "label": "Time Spent",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.timetracking",
+        "query_required": "",
+        "query": "{% if input_workers %}\r\nworker.id:[{{input_workers}}]\r\n{% endif %}\r\ncreated:\"{{input_date_range}}\" \r\nsubtotal:worker.id",
+        "render_limit": "15",
+        "header_color": "#6a87db",
+        "columns": [
+          "tt_log_date"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_200}}}"
+    },
+    {
+      "uid": "workspace_tab_201",
+      "_context": "workspace_tab",
+      "name": "Bot Usage",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": ""
+      }
+    },
+    {
+      "uid": "workspace_widget_389",
+      "_context": "workspace_widget",
+      "label": "Bot Behavior Usage Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:usage.behaviors\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_201}}}"
+    },
+    {
+      "uid": "workspace_widget_390",
+      "_context": "workspace_widget",
+      "label": "Bot Behavior Usage",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:usage.behaviors\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_201}}}"
+    },
+    {
+      "uid": "workspace_tab_202",
+      "_context": "workspace_tab",
+      "name": "Snippet Usage Over Time",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": ""
+      }
+    },
+    {
+      "uid": "workspace_widget_391",
+      "_context": "workspace_widget",
+      "label": "Snippet Usage Over Time",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:usage.snippets\r\nformat:timeseries",
+        "cache_secs": "300",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "",
+        "options": {
+          "show_legend": "1",
+          "show_points": "1"
+        }
+      },
+      "tab_id": "{{{uid.workspace_tab_202}}}"
+    },
+    {
+      "uid": "workspace_widget_392",
+      "_context": "workspace_widget",
+      "label": "Snippet Usage",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:usage.snippets\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_202}}}"
+    },
+    {
+      "uid": "workspace_tab_203",
+      "_context": "workspace_tab",
+      "name": "Failed Logins",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": "",
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -30 days\nparams: []\n"
+      }
+    },
+    {
+      "uid": "workspace_widget_393",
+      "_context": "workspace_widget",
+      "label": "Failed Logins",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.activity_log",
+        "query_required": "activity:worker.login.failed \r\ncreated:\"{{input_date_range}}\" \r\nsubtotal:target",
+        "query": "target:worker",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "c_created"
+        ]
+      },
+      "tab_id": "{{{uid.workspace_tab_203}}}"
+    },
+    {
+      "uid": "workspace_tab_204",
+      "_context": "workspace_tab",
+      "name": "Statistics",
+      "extension_id": "core.workspace.tab.dashboard",
+      "page_id": "{{{uid.workspace_reports}}}",
+      "params": {
+        "layout": ""
+      }
+    },
+    {
+      "uid": "workspace_widget_396",
+      "_context": "workspace_widget",
+      "label": "# Records",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 1,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.metrics\r\nvalues.attachments:(of:attachments query:())\r\nvalues.bots:(of:bots query:())\r\nvalues.behaviors:(of:behaviors query:())\r\nvalues.tickets:(of:tickets query:(status:!d))\r\nvalues.workers:(of:workers query:(isDisabled:n))\r\nvalues.pages:(of:pages query:())\r\nvalues.profile_widgets:(of:profile_widgets query:())\r\nvalues.workspace_widgets:(of:widgets query:())\r\nformat:table",
+        "cache_secs": "300"
+      },
+      "tab_id": "{{{uid.workspace_tab_204}}}"
+    }
+  ]
+}
