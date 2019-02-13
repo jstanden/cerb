@@ -3974,6 +3974,17 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'switch':
+				// Library
+				if(!$id) {
+					$library_sections = [
+						'behavior_switch',
+						'behavior_switch:' . $event->id,
+					];
+					
+					$packages = DAO_PackageLibrary::getByPoint($library_sections);
+					$tpl->assign('packages', $packages);
+				}
+				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/switch.tpl');
 				break;
 				
