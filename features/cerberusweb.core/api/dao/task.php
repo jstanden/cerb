@@ -1740,6 +1740,12 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			// Library
+			if(!$context_id) {
+				$packages = DAO_PackageLibrary::getByPoint('task');
+				$tpl->assign('packages', $packages);
+			}
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

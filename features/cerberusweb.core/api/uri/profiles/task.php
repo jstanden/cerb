@@ -52,115 +52,172 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				return;
 				
 			} else { // create/edit
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				
+				$mode = 'build';
+				$error = null;
+				
+				if(!$id && $package_uri)
+					$mode = 'library';
+				
+				switch($mode) {
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'task')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						
+						$prompts['current_worker_id'] = $active_worker->id;
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(CerberusContexts::CONTEXT_TASK, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_task = reset($records_created[CerberusContexts::CONTEXT_TASK]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TASK, $new_task['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_task['id'],
+							'label' => $new_task['label'],
+							'view_id' => $view_id,
+						]);
+						return;
+						break;
+						
+					case 'build':
+						// Load the existing model so we can detect changes
+						if($id && false == ($task = DAO_Task::get($id)))
+							throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
+						
+						$fields = [];
 			
-				// Load the existing model so we can detect changes
-				if($id && false == ($task = DAO_Task::get($id)))
-					throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
+						// Title
+						@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
+						
+						$fields[DAO_Task::TITLE] = $title;
+						
+						// Completed
+						@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
+						$status_id = DevblocksPlatform::intClamp($status_id, 0, 2);
+						$fields[DAO_Task::STATUS_ID] = $status_id;
+						
+						if($id && $task->status_id != $status_id) {
+							if(1 == $status_id) {
+								$fields[DAO_Task::COMPLETED_DATE] = time();
+							} else {
+								$fields[DAO_Task::COMPLETED_DATE] = 0;
+							}
+						}
+						
+						// Updated Date
+						$fields[DAO_Task::UPDATED_DATE] = time();
+						
+						// Reopen Date
+						@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
+						@$fields[DAO_Task::REOPEN_AT] = empty($reopen_at) ? 0 : intval(strtotime($reopen_at));
+						
+						// Due Date
+						@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
+						@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));
 				
-				$fields = [];
-	
-				// Title
-				@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
+						// Importance
+						@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
+						$fields[DAO_Task::IMPORTANCE] = $importance;
+						
+						// Owner
+						@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
+						$fields[DAO_Task::OWNER_ID] = $owner_id;
 				
-				$fields[DAO_Task::TITLE] = $title;
-				
-				// Completed
-				@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
-				$status_id = DevblocksPlatform::intClamp($status_id, 0, 2);
-				$fields[DAO_Task::STATUS_ID] = $status_id;
-				
-				if($id && $task->status_id != $status_id) {
-					if(1 == $status_id) {
-						$fields[DAO_Task::COMPLETED_DATE] = time();
-					} else {
-						$fields[DAO_Task::COMPLETED_DATE] = 0;
-					}
+						// Comment
+						@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
+			
+						// Save
+						if(!empty($id)) {
+							if(!DAO_Task::validate($fields, $error, $id))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_Task::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							DAO_Task::update($id, $fields);
+							DAO_Task::onUpdateByActor($active_worker, $fields, $id);
+							
+						} else {
+							if(!DAO_Task::validate($fields, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_Task::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(false == ($id = DAO_Task::create($fields)))
+								return false;
+							
+							DAO_Task::onUpdateByActor($active_worker, $fields, $id);
+							
+							// Watchers
+							@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
+							if(!empty($add_watcher_ids))
+								CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $add_watcher_ids);
+			
+							// View marquee
+							if(!empty($id) && !empty($view_id)) {
+								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TASK, $id);
+							}
+						}
+			
+						// Comments
+						if(!empty($comment) && !empty($id) && $active_worker->hasPriv(sprintf("contexts.%s.comment", CerberusContexts::CONTEXT_TASK))) {
+							$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+							
+							$fields = array(
+								DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
+								DAO_Comment::CONTEXT_ID => $id,
+								DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+								DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+								DAO_Comment::CREATED => time(),
+								DAO_Comment::COMMENT => $comment,
+							);
+							DAO_Comment::create($fields, $also_notify_worker_ids);
+						}
+						
+						// Custom field saves
+						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						echo json_encode(array(
+							'status' => true,
+							'id' => $id,
+							'label' => $title,
+							'view_id' => $view_id,
+						));
+						return;
+						break;
 				}
-				
-				// Updated Date
-				$fields[DAO_Task::UPDATED_DATE] = time();
-				
-				// Reopen Date
-				@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
-				@$fields[DAO_Task::REOPEN_AT] = empty($reopen_at) ? 0 : intval(strtotime($reopen_at));
-				
-				// Due Date
-				@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
-				@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));
-		
-				// Importance
-				@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
-				$fields[DAO_Task::IMPORTANCE] = $importance;
-				
-				// Owner
-				@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
-				$fields[DAO_Task::OWNER_ID] = $owner_id;
-		
-				// Comment
-				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
-	
-				// Save
-				if(!empty($id)) {
-					if(!DAO_Task::validate($fields, $error, $id))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_Task::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					DAO_Task::update($id, $fields);
-					DAO_Task::onUpdateByActor($active_worker, $fields, $id);
-					
-				} else {
-					if(!DAO_Task::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_Task::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(false == ($id = DAO_Task::create($fields)))
-						return false;
-					
-					DAO_Task::onUpdateByActor($active_worker, $fields, $id);
-					
-					// Watchers
-					@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
-					if(!empty($add_watcher_ids))
-						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $add_watcher_ids);
-	
-					// View marquee
-					if(!empty($id) && !empty($view_id)) {
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TASK, $id);
-					}
-				}
-	
-				// Comments
-				if(!empty($comment) && !empty($id) && $active_worker->hasPriv(sprintf("contexts.%s.comment", CerberusContexts::CONTEXT_TASK))) {
-					$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-					
-					$fields = array(
-						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TASK,
-						DAO_Comment::CONTEXT_ID => $id,
-						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-						DAO_Comment::CREATED => time(),
-						DAO_Comment::COMMENT => $comment,
-					);
-					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-				}
-				
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TASK, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'label' => $title,
-					'view_id' => $view_id,
-				));
-				return;
 			}
+			
+			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode(array(
@@ -176,7 +233,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				'error' => 'An error occurred.',
 			));
 			return;
-			
 		}
 	}
 	
