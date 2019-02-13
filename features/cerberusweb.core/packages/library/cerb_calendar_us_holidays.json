@@ -1,0 +1,137 @@
+{
+  "package": {
+    "name": "Calendar: U.S. Holidays",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "U.S. Holidays",
+      "uri": "cerb_calendar_us_holidays",
+      "description": "A calendar with recurring U.S. holidays",
+      "point": "calendar",
+      "image": ""
+    },
+    "configure": {
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Owner Context:",
+          "key": "owner_context",
+          "hidden": true,
+          "params": {
+          }
+        },
+        {
+          "type": "text",
+          "label": "Owner Context ID:",
+          "key": "owner_context_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ],
+      "placeholders": [
+
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "calendar_usholidays",
+      "_context": "calendar",
+      "name": "U.S. Holidays",
+      "owner__context": "{{{owner_context}}}",
+      "owner_id": "{{{owner_context_id}}}",
+      "params": {
+        "manual_disabled": "0",
+        "sync_enabled": "0",
+        "start_on_mon": "1",
+        "hide_start_time": "1",
+        "color_available": "#C5DCFA",
+        "color_busy": "#C5DCFA"
+      }
+    },
+    {
+      "uid": "calendar_event_newyears",
+      "_context": "calendar_recurring_event",
+      "calendar_id": "{{{uid.calendar_usholidays}}}",
+      "name": "New Year's Day",
+      "is_available": 0,
+      "tz": "America/Los_Angeles",
+      "event_start": "00:00:00",
+      "event_end": "23:59:59",
+      "recur_start": 0,
+      "recur_end": 0,
+      "patterns": "Jan 1"
+    },
+    {
+      "uid": "calendar_event_independence",
+      "_context": "calendar_recurring_event",
+      "calendar_id": "{{{uid.calendar_usholidays}}}",
+      "name": "Independence Day",
+      "is_available": 0,
+      "tz": "America/Los_Angeles",
+      "event_start": "00:00:00",
+      "event_end": "23:59:59",
+      "recur_start": 0,
+      "recur_end": 0,
+      "patterns": "July 4"
+    },
+    {
+      "uid": "calendar_event_labor",
+      "_context": "calendar_recurring_event",
+      "calendar_id": "{{{uid.calendar_usholidays}}}",
+      "name": "Labor Day",
+      "is_available": 0,
+      "tz": "America/Los_Angeles",
+      "event_start": "00:00:00",
+      "event_end": "23:59:59",
+      "recur_start": 0,
+      "recur_end": 0,
+      "patterns": "first Monday of September"
+    },
+    {
+      "uid": "calendar_event_christmas",
+      "_context": "calendar_recurring_event",
+      "calendar_id": "{{{uid.calendar_usholidays}}}",
+      "name": "Christmas",
+      "is_available": 0,
+      "tz": "America/Los_Angeles",
+      "event_start": "00:00:00",
+      "event_end": "23:59:59",
+      "recur_start": 0,
+      "recur_end": 0,
+      "patterns": "Dec 25"
+    },
+    {
+      "uid": "calendar_event_thanksgiving",
+      "_context": "calendar_recurring_event",
+      "calendar_id": "{{{uid.calendar_usholidays}}}",
+      "name": "Thanksgiving",
+      "is_available": 0,
+      "tz": "America/Los_Angeles",
+      "event_start": "00:00:00",
+      "event_end": "23:59:59",
+      "recur_start": 0,
+      "recur_end": 0,
+      "patterns": "fourth Thursday of November"
+    },
+    {
+      "uid": "calendar_event_newyears_eve",
+      "_context": "calendar_recurring_event",
+      "calendar_id": "{{{uid.calendar_usholidays}}}",
+      "name": "New Year's Eve",
+      "is_available": 0,
+      "tz": "America/Los_Angeles",
+      "event_start": "00:00:00",
+      "event_end": "23:59:59",
+      "recur_start": 0,
+      "recur_end": 0,
+      "patterns": "Dec 31"
+    }
+  ]
+}

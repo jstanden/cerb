@@ -1,0 +1,73 @@
+{
+  "package": {
+    "name": "Calendar: U.S. Holidays",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Work Schedule",
+      "uri": "cerb_calendar_work_schedule",
+      "description": "A calendar with a recurring work schedule",
+      "point": "calendar",
+      "image": ""
+    },
+    "configure": {
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Owner Context:",
+          "key": "owner_context",
+          "hidden": true,
+          "params": {
+          }
+        },
+        {
+          "type": "text",
+          "label": "Owner Context ID:",
+          "key": "owner_context_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ],
+      "placeholders": [
+
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "calendar_work_schedule",
+      "_context": "calendar",
+      "name": "Work Schedule",
+      "owner__context": "{{{owner_context}}}",
+      "owner_id": "{{{owner_context_id}}}",
+      "params": {
+        "manual_disabled": "0",
+        "sync_enabled": "1",
+        "start_on_mon": "1",
+        "hide_start_time": "1",
+        "color_available": "#A0D95B",
+        "color_busy": "#C8C8C8",
+        "series": []
+      }
+    },
+    {
+      "uid": "calendar_event_work",
+      "_context": "calendar_recurring_event",
+      "calendar_id": "{{{uid.calendar_work_schedule}}}",
+      "name": "Work (8a-6p)",
+      "is_available": 1,
+      "tz": "America/Los_Angeles",
+      "event_start": "08:00:00",
+      "event_end": "17:59:59",
+      "recur_start": 0,
+      "recur_end": 0,
+      "patterns": "weekdays"
+    }
+  ]
+}
