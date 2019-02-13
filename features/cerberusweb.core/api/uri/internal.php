@@ -3960,8 +3960,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('trigger', $trigger);
 		
 		$event = null;
-		if(!empty($trigger))
-			if(null == ($event = Extension_DevblocksEvent::get($trigger->event_point, true)))
+		
+		if($trigger)
+			if(null == ($event = $trigger->getEvent()))
 				return;
 
 		$tpl->assign('event', $event);
@@ -4027,8 +4028,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'action':
-				if(null != ($evt = $trigger->getEvent())) {
-					$actions = $evt->getActions($trigger);
+				if($event) {
+					$actions = $event->getActions($trigger);
 					$tpl->assign('actions', $actions);
 					
 					// [TODO] Cache this
@@ -4042,13 +4043,13 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->assign('actions_menu', $actions_menu);
 					
 					// Action labels
-					$labels = $evt->getLabels($trigger);
+					$labels = $event->getLabels($trigger);
 					$tpl->assign('labels', $labels);
 					
 					$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
 					$tpl->assign('placeholders', $placeholders);
 					
-					$values = $evt->getValues();
+					$values = $event->getValues();
 					$tpl->assign('values', $values);
 				}
 				
@@ -4058,6 +4059,17 @@ class ChInternalController extends DevblocksControllerExtension {
 				// Nonce scope
 				$nonce = uniqid();
 				$tpl->assign('nonce', $nonce);
+				
+				// Library
+				if(!$id) {
+					$library_sections = [
+						'behavior_action',
+						'behavior_action:' . $event->id,
+					];
+					
+					$packages = DAO_PackageLibrary::getByPoint($library_sections);
+					$tpl->assign('packages', $packages);
+				}
 				
 				// Template
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/action.tpl');

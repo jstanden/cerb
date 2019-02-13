@@ -1120,17 +1120,29 @@ class Cerb_Packages {
 			unset($behavior_node['behavior_id']);
 			unset($behavior_node['parent_id']);
 			
-			if(false == ($node_id = DAO_TriggerEvent::recursiveImportDecisionNodes([$behavior_node], $behavior_id, $parent_id)))
+			$pos = 0;
+			
+			if($parent_id) {
+				// If we have a parent, count its children and append
+				$pos = count(DAO_DecisionNode::getByTriggerParent($behavior_id, $parent_id));
+				
+			} else {
+				// Otherwise, count the behavior's children and append
+				$pos = count(DAO_DecisionNode::getByTriggerParent($behavior_id));
+			}
+			
+			if(false == ($node = DAO_TriggerEvent::recursiveImportDecisionNodes([$behavior_node], $behavior_id, $parent_id, $pos)))
 				throw new Exception_DevblocksValidationError('Failed to import behavior nodes');
 			
 			if(!isset($records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE]))
 				$records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE] = [];
 			
 			$records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE][$uid] = [
-				'id' => $node_id,
+				'id' => $node['id'],
 				'label' => $behavior_node['title'],
 				'behavior_id' => $behavior_id,
 				'parent_id' => $parent_id,
+				'type' => $node['type'],
 			];
 		}
 		

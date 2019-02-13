@@ -17,20 +17,20 @@
 		<li><hr></li>
 
 		{if !$node || in_array($node->node_type, ['subroutine','outcome','loop'])}
-		<li><a href="javascript:;" onclick="genericAjaxPopup('node_switch','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=switch',null,false,'50%');">Add Decision</a></li>
+		<li><a href="javascript:;" onclick="genericAjaxPopup('node_switch','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=switch',null,false,'75%');">Add Decision</a></li>
 		{/if}
 		
 		{if $node->node_type == 'switch'}
-		<li><a href="javascript:;" onclick="genericAjaxPopup('node_outcome','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=outcome',null,false,'50%');">Add Outcome</a></li>
+		<li><a href="javascript:;" onclick="genericAjaxPopup('node_outcome','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=outcome',null,false,'75%');">Add Outcome</a></li>
 		{/if}
 		
 		{if !$node || in_array($node->node_type, ['subroutine','outcome','loop'])}
-		<li><a href="javascript:;" onclick="genericAjaxPopup('node_action','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=action',null,false,'50%');">Add Actions</a></li>
-		<li><a href="javascript:;" onclick="genericAjaxPopup('node_loop','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=loop',null,false,'50%');">Add Loop</a></li>
+		<li><a href="javascript:;" onclick="genericAjaxPopup('node_action','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=action',null,false,'75%');">Add Actions</a></li>
+		<li><a href="javascript:;" onclick="genericAjaxPopup('node_loop','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=loop',null,false,'75%');">Add Loop</a></li>
 		{/if}
 		
 		{if !$node}
-		<li><a href="javascript:;" onclick="genericAjaxPopup('node_subroutine','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=subroutine',null,false,'50%');">Add Subroutine</a></li>
+		<li><a href="javascript:;" onclick="genericAjaxPopup('node_subroutine','c=internal&a=showDecisionPopup&parent_id={$node->id}&trigger_id={$trigger_id}&type=subroutine',null,false,'75%');">Add Subroutine</a></li>
 		{/if}
 	{/if}
 	

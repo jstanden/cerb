@@ -509,6 +509,10 @@ class Model_DecisionNode {
 	public $pos;
 	public $params_json;
 	public $params;
+	
+	function getNodes() {
+		return DAO_DecisionNode::getByTriggerParent($this->trigger_id, $this->id);
+	}
 };
 
 class View_DecisionNode extends C4_AbstractView {
