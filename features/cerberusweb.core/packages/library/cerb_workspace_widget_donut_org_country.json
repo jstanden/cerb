@@ -1,0 +1,57 @@
+{
+  "package": {
+    "name": "Donut: Top Countries by Orgs",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Donut: Top Countries by Orgs",
+      "uri": "cerb_workspace_widget_donut_org_country",
+      "description": "A donut chart of top countries by organizations with click-to-search",
+      "point": "workspace_widget",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_donut",
+      "_context": "workspace_widget",
+      "label": "Top 20 Countries by Orgs",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "cerb.workspace.widget.chart.pie",
+      "pos": 0,
+      "width_units": 2,
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:org\r\nby:[country~20]\r\nquery:()\r\nformat:pie",
+        "cache_secs": "",
+        "chart_as": "donut",
+        "height": "",
+        "options": {
+          "show_legend": "1"
+        }
+      }
+    }
+  ]
+}

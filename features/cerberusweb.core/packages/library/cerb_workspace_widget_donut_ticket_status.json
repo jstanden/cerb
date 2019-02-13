@@ -1,0 +1,57 @@
+{
+  "package": {
+    "name": "Donut: Tickets by Status",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Donut: Tickets by Status",
+      "uri": "cerb_workspace_widget_donut_ticket_status",
+      "description": "A data query driven donut chart visualization",
+      "point": "workspace_widget",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_donut",
+      "_context": "workspace_widget",
+      "label": "Tickets by Status",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "cerb.workspace.widget.chart.pie",
+      "pos": 0,
+      "width_units": 2,
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:ticket\r\nby:[status]\r\nquery:()\r\nformat:pie",
+        "cache_secs": "",
+        "chart_as": "donut",
+        "height": "",
+        "options": {
+          "show_legend": "1"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "package": {
+    "name": "Worklist: My tasks",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Worklist: My Tasks",
+      "uri": "cerb_workspace_widget_worklist_tasks_my",
+      "description": "A worklist of open tasks assigned to the current worker",
+      "point": "workspace_widget",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_my_tasks",
+      "_context": "workspace_widget",
+      "label": "My Tasks",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 0,
+      "width_units": 2,
+      "params": {
+        "context": "cerberusweb.contexts.task",
+        "query_required": "owner:me status:o",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_due_date",
+          "t_importance",
+          "t_updated_date"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "package": {
+    "name": "Worklist: Currently active workers",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Worklist: Currently Active Workers",
+      "uri": "cerb_workspace_widget_worklist_workers_currently_active",
+      "description": "A worklist of currently active workers",
+      "point": "workspace_widget",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_currently_active",
+      "_context": "workspace_widget",
+      "label": "Currently Active Workers",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 0,
+      "width_units": 2,
+      "params": {
+        "context": "cerberusweb.contexts.worker",
+        "query_required": "lastActivity:\"-30 mins\"",
+        "query": "",
+        "render_limit": "5",
+        "header_color": "#6a87db",
+        "columns": [
+          "w_title",
+          "a_address_email",
+          "w_is_superuser",
+          "w_at_mention_name",
+          "w_language",
+          "w_timezone"
+        ]
+      }
+    }
+  ]
+}

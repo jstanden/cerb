@@ -1,0 +1,62 @@
+{
+  "package": {
+    "name": "Worklist: Open Tickets",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Worklist: Open tickets",
+      "uri": "cerb_workspace_widget_worklist_tickets_open",
+      "description": "A worklist of open tickets",
+      "point": "workspace_widget",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_open_tickets",
+      "_context": "workspace_widget",
+      "label": "Open Tickets",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 0,
+      "width_units": 4,
+      "params": {
+        "context": "cerberusweb.contexts.ticket",
+        "query_required": "status:o",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_last_wrote_address_id",
+          "t_group_id",
+          "t_bucket_id",
+          "t_owner_id",
+          "t_updated_date"
+        ]
+      }
+    }
+  ]
+}

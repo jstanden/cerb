@@ -1,0 +1,60 @@
+{
+  "package": {
+    "name": "Worklist: My Reminders",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Worklist: My Reminders",
+      "uri": "cerb_workspace_widget_worklist_reminders_my",
+      "description": "A worklist of pending reminders for the current worker",
+      "point": "workspace_widget",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_my_reminders",
+      "_context": "workspace_widget",
+      "label": "My Reminders",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 0,
+      "width_units": 2,
+      "params": {
+        "context": "cerberusweb.contexts.reminder",
+        "query_required": "worker:me closed:n",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "r_name",
+          "r_remind_at",
+          "r_updated_at"
+        ]
+      }
+    }
+  ]
+}

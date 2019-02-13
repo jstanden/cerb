@@ -1,0 +1,53 @@
+{
+  "package": {
+    "name": "Clock",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Clock",
+      "uri": "cerb_workspace_widget_clock_los_angeles",
+      "description": "A clock widget with a configurable timezone",
+      "point": "workspace_widget",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_clock",
+      "_context": "workspace_widget",
+      "label": "Los Angeles",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "core.workspace.widget.clock",
+      "pos": 0,
+      "width_units": 1,
+      "params": {
+        "timezone": "America/Los_Angeles",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    }
+  ]
+}

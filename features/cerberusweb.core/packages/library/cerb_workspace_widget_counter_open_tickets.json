@@ -1,0 +1,57 @@
+{
+  "package": {
+    "name": "Counter: Open Tickets",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Counter: Open Tickets",
+      "uri": "cerb_workspace_widget_counter_open_tickets",
+      "description": "A counter widget displaying the current number of open tickets",
+      "point": "workspace_widget",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_counter",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "# Open Tickets",
+      "extension_id": "core.workspace.widget.counter",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "pos": 1,
+      "width_units": 1,
+      "zone": "left",
+      "params": {
+        "datasource": "cerb.workspace.widget.datasource.data_query",
+        "data_query": "type:worklist.metrics\r\nvalues.total:(\r\n  of:ticket\r\n  field:id\r\n  function:count\r\n  query:(\r\n    status:o\r\n  )\r\n)\r\nformat:table",
+        "metric_type": "number",
+        "metric_prefix": "",
+        "metric_suffix": "",
+        "color": "#34434e"
+      }
+    }
+  ]
+}

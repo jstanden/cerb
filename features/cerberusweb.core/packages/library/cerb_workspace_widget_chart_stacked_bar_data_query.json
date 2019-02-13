@@ -1,0 +1,61 @@
+{
+  "package": {
+    "name": "Chart: Bar (Stacked) Time Series",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Chart: Stacked Bar Time Series",
+      "uri": "cerb_workspace_widget_chart_stacked_bar_data_query",
+      "description": "A data query driven stacked bar chart visualization",
+      "point": "workspace_widget",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_bar_chart",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Stacked Bar Time Series",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:ticket\r\nby.count:[created@week,group~10]\r\nquery:(\r\n  created:\"first day of this month -1 month to now\"\r\n)\r\nformat:timeseries",
+        "cache_secs": "",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "",
+        "options": {
+          "show_legend": "1"
+        }
+      }
+    }
+  ]
+}

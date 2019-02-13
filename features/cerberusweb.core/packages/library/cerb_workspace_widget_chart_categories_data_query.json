@@ -1,0 +1,56 @@
+{
+  "package": {
+    "name": "Chart: Categories",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Chart: Categories",
+      "uri": "cerb_workspace_widget_chart_categories_data_query",
+      "description": "A data query driven categories visualization",
+      "point": "workspace_widget",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "widget_categories",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Categories",
+      "extension_id": "cerb.workspace.widget.chart.categories",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "pos": 1,
+      "width_units": 2,
+      "zone": "left",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~10,group~10]\r\nquery:(\r\n\tcreated:\"big bang to now\"\r\n\tworker:(isDisabled:n id:>0)\r\n\tisOutgoing:y\r\n\tisBroadcast:n\r\n)\r\nformat:categories",
+        "cache_secs": "",
+        "xaxis_format": "text",
+        "yaxis_format": "number",
+        "height": ""
+      }
+    }
+  ]
+}

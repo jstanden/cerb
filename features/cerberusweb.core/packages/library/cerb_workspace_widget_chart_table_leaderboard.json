@@ -1,0 +1,53 @@
+{
+  "package": {
+    "name": "Table: Leaderboard",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Table: Reply Leaderboard",
+      "uri": "cerb_workspace_widget_chart_table_leaderboard",
+      "description": "A table showing the workers with the most replies in a given date range",
+      "point": "workspace_widget",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "workspace_widget_leaderboard",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Reply Leaderboard (Top 10, All-Time)",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 1,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~10]\r\nquery:(\r\n\tcreated:\"big bang to now\"\r\n\tworker.id:!0\r\n\tisOutgoing:y\r\n\tisBroadcast:n\r\n)\r\nformat:table",
+        "cache_secs": ""
+      }
+    }
+  ]
+}
