@@ -10,7 +10,7 @@
 	<div style="float:left;">
 		<h2>{$page->name}</h2>
 	</div>
-
+	
 	<div style="float:right;">
 		<button class="add" type="button" page_id="{$page->id}" page_label="{$page->name|lower}" page_url="{devblocks_url}c=pages&page={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}">{if $in_menu}<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span>{else}<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span>{/if} Menu</button>
 	
@@ -40,181 +40,187 @@
 </div>
 
 <script type="text/javascript">
-	$(function() {
-		var $workspace = $('#frmWorkspacePage{$page->id}');
-		var $frm = $('form#frmWorkspacePage{$page->id}');
-		var $menu = $frm.find('ul.cerb-popupmenu');
+$(function() {
+	var $workspace = $('#frmWorkspacePage{$page->id}');
+	var $frm = $('form#frmWorkspacePage{$page->id}');
+	var $menu = $frm.find('ul.cerb-popupmenu');
+	
+	// Form
+	
+	$frm.find('.cerb-peek-trigger')
+		.cerbPeekTrigger()
+		;
+	
+	// Menu
+	
+	$menu
+		.hover(
+			function() {
+			},
+			function() {
+				$(this).hide();
+			}
+		)
+		;
+	
+	$menu.find('> li').click(function(e) {
+		if($(e.target).is('a'))
+			return;
 		
-		// Menu
+		e.stopPropagation();
+		$(this).find('> a').click();
+	});
+	
+	$menu.siblings('button.config-page').click(function(e) {
+		var $menu = $(this).siblings('ul.cerb-popupmenu');
+		$menu.toggle();
 		
-		$menu
-			.hover(
-				function() {
-				},
-				function() {
-					$(this).hide();
-				}
-			)
+		if($menu.is(':visible')) {
+			var $div = $menu.closest('div');
+			$menu.css('left', $div.position().left + $div.outerWidth() - $menu.outerWidth());
+		}
+	});
+	
+	// Edit workspace actions
+	
+	{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
+		// Edit page
+		$workspace.find('a.edit-page')
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved', function() {
+				window.location.href = '{devblocks_url}c=pages&id={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}';
+			})
+			.on('cerb-peek-deleted', function() {
+				window.location.href = '{devblocks_url}c=pages{/devblocks_url}';
+			})
 			;
 		
-		$menu.find('> li').click(function(e) {
-			if($(e.target).is('a'))
-				return;
-			
-			e.stopPropagation();
-			$(this).find('> a').click();
-		});
-		
-		$menu.siblings('button.config-page').click(function(e) {
-			var $menu = $(this).siblings('ul.cerb-popupmenu');
-			$menu.toggle();
-			
-			if($menu.is(':visible')) {
-				var $div = $menu.closest('div');
-				$menu.css('left', $div.position().left + $div.outerWidth() - $menu.outerWidth());
-			}
-		});
-		
-		// Edit workspace actions
-		
-		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
-			// Edit page
-			$workspace.find('a.edit-page')
-				.cerbPeekTrigger()
-				.on('cerb-peek-saved', function() {
-					window.location.href = '{devblocks_url}c=pages&id={$page->id}-{$page->name|devblocks_permalink}{/devblocks_url}';
-				})
-				.on('cerb-peek-deleted', function() {
-					window.location.href = '{devblocks_url}c=pages{/devblocks_url}';
-				})
-				;
-			
-			// Edit tab
-			$workspace.find('a.edit-tab')
-				.cerbPeekTrigger()
-				.on('cerb-peek-saved', function(e) {
-					e.stopPropagation();
-					
-					var $tabs = $("#pageTabs{$page->id}");
-					var $selected_tab = $tabs.find('li.ui-tabs-active').first();
-					
-					if(0 == $selected_tab.length)
-						return;
-					
-					var tab_id = $selected_tab.attr('tab_id');
-					
-					// On this page
-					if(e.page_id == {$page->id}) {
-						if(0 != $tabs) {
-							var selected_idx = $tabs.tabs('option','active');
-							$tabs.tabs('load', selected_idx);
-							
-							if(null != e.label) {
-								var $selected_tab = $tabs.find('> ul > li.ui-tabs-active');
-								$selected_tab.find('a').text(e.label);
-							}
-						}
+		// Edit tab
+		$workspace.find('a.edit-tab')
+			.cerbPeekTrigger()
+			.on('cerb-peek-saved', function(e) {
+				e.stopPropagation();
+				
+				var $tabs = $("#pageTabs{$page->id}");
+				var $selected_tab = $tabs.find('li.ui-tabs-active').first();
+				
+				if(0 == $selected_tab.length)
+					return;
+				
+				var tab_id = $selected_tab.attr('tab_id');
+				
+				// On this page
+				if(e.page_id == {$page->id}) {
+					if(0 != $tabs) {
+						var selected_idx = $tabs.tabs('option','active');
+						$tabs.tabs('load', selected_idx);
 						
-					} else { // If moved to another page, remove the tab
-						var evt = jQuery.Event('cerb-peek-deleted');
-						evt.id = e.id;
-						evt.label = e.label;
-						$(this).trigger(evt);
+						if(null != e.label) {
+							var $selected_tab = $tabs.find('> ul > li.ui-tabs-active');
+							$selected_tab.find('a').text(e.label);
+						}
 					}
 					
-				})
-				.on('cerb-peek-deleted', function(e) {
-					e.stopPropagation();
-					
-					var $tabs = $("#pageTabs{$page->id}");
-					var $selected_tab = $tabs.find('li.ui-tabs-active').first();
-					
-					if(0 == $selected_tab.length)
-						return;
-					
-					var tab_id = $selected_tab.attr('tab_id');
-					
-					if(0 != $tabs.length) {
-						var tab = $tabs.find('.ui-tabs-nav li:eq(' + $tabs.tabs('option','active') + ')').remove();
-						var panelId = tab.attr('aria-controls');
-						$('#' + panelId).remove();
-						$tabs.tabs('refresh');
-					}
-				})
-				;
-		{/if}
+				} else { // If moved to another page, remove the tab
+					var evt = jQuery.Event('cerb-peek-deleted');
+					evt.id = e.id;
+					evt.label = e.label;
+					$(this).trigger(evt);
+				}
+				
+			})
+			.on('cerb-peek-deleted', function(e) {
+				e.stopPropagation();
+				
+				var $tabs = $("#pageTabs{$page->id}");
+				var $selected_tab = $tabs.find('li.ui-tabs-active').first();
+				
+				if(0 == $selected_tab.length)
+					return;
+				
+				var tab_id = $selected_tab.attr('tab_id');
+				
+				if(0 != $tabs.length) {
+					var tab = $tabs.find('.ui-tabs-nav li:eq(' + $tabs.tabs('option','active') + ')').remove();
+					var panelId = tab.attr('aria-controls');
+					$('#' + panelId).remove();
+					$tabs.tabs('refresh');
+				}
+			})
+			;
+	{/if}
+	
+	// Export page
+	$workspace.find('a.export-page').click(function(e) {
+		e.stopPropagation();
+		genericAjaxPopup('peek','c=pages&a=showExportWorkspacePage&id={$page->id}',null,true,'600');
+	});
+	
+	// Export tab
+	$workspace.find('a.export-tab').click(function(e) {
+		e.stopPropagation();
 		
-		// Export page
-		$workspace.find('a.export-page').click(function(e) {
-			e.stopPropagation();
-			genericAjaxPopup('peek','c=pages&a=showExportWorkspacePage&id={$page->id}',null,true,'600');
-		});
+		var $tabs = $("#pageTabs{$page->id}");
+		var $selected_tab = $tabs.find('li.ui-tabs-active').first();
 		
-		// Export tab
-		$workspace.find('a.export-tab').click(function(e) {
-			e.stopPropagation();
-			
-			var $tabs = $("#pageTabs{$page->id}");
-			var $selected_tab = $tabs.find('li.ui-tabs-active').first();
-			
-			if(0 == $selected_tab.length)
-				return;
-			
-			var tab_id = $selected_tab.attr('tab_id');
-			
-			if(null == tab_id)
-				return;
-			
-			genericAjaxPopup('peek','c=pages&a=showExportWorkspaceTab&id=' + encodeURIComponent(tab_id),null,true,'600');
-		});
+		if(0 == $selected_tab.length)
+			return;
 		
-		// Add/Remove in menu
-		$workspace.find('button.add').click(function(e) {
-			var $this = $(this);
+		var tab_id = $selected_tab.attr('tab_id');
 		
-			var $menu = $('BODY UL.navmenu:first');
-			var $item = $menu.find('li.drag[page_id="'+$this.attr('page_id')+'"]');
+		if(null == tab_id)
+			return;
+		
+		genericAjaxPopup('peek','c=pages&a=showExportWorkspaceTab&id=' + encodeURIComponent(tab_id),null,true,'600');
+	});
+	
+	// Add/Remove in menu
+	$workspace.find('button.add').click(function(e) {
+		var $this = $(this);
+	
+		var $menu = $('BODY UL.navmenu:first');
+		var $item = $menu.find('li.drag[page_id="'+$this.attr('page_id')+'"]');
+		
+		// Remove
+		if($item.length > 0) {
+			// Is the page already in the menu?
+			$item.css('visibility','hidden');
 			
-			// Remove
 			if($item.length > 0) {
-				// Is the page already in the menu?
-				$item.css('visibility','hidden');
-				
-				if($item.length > 0) {
-					$item.effect('transfer', { to:$this, className:'effects-transfer' }, 500, function() {
-						$(this).remove();
-					});
-					
-					$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> Menu');
-				}
-				
-				genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
-				
-			// Add
-			} else {
-				var $li = $('<li class="drag"/>').attr('page_id',$this.attr('page_id'));
-				$li.append($('<a/>').attr('href',$this.attr('page_url')).text($this.attr('page_label')));
-				$li.css('visibility','hidden');
-				
-				var $marker = $menu.find('li.add');
-		
-				if(0 == $marker.length) {
-					$li.prependTo($menu);
-					
-				} else {
-					$li.insertBefore($marker);
-					
-				}
-				
-				$this.effect('transfer', { to:$li, className:'effects-transfer' }, 500, function() {
-					$li.css('visibility','visible');
+				$item.effect('transfer', { to:$this, className:'effects-transfer' }, 500, function() {
+					$(this).remove();
 				});
 				
-				$this.html('<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> Menu');
-		
-				genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
+				$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> Menu');
 			}
-		});
-		
+			
+			genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
+			
+		// Add
+		} else {
+			var $li = $('<li class="drag"/>').attr('page_id',$this.attr('page_id'));
+			$li.append($('<a/>').attr('href',$this.attr('page_url')).text($this.attr('page_label')));
+			$li.css('visibility','hidden');
+			
+			var $marker = $menu.find('li.add');
+	
+			if(0 == $marker.length) {
+				$li.prependTo($menu);
+				
+			} else {
+				$li.insertBefore($marker);
+				
+			}
+			
+			$this.effect('transfer', { to:$li, className:'effects-transfer' }, 500, function() {
+				$li.css('visibility','visible');
+			});
+			
+			$this.html('<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> Menu');
+	
+			genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
+		}
 	});
+	
+});
 </script>

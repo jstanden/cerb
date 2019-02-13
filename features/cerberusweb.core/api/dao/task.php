@@ -1545,7 +1545,9 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	}
 	
 	function getKeyToDaoFieldMap() {
-		return [
+		$map = parent::getKeyToDaoFieldMap();
+		
+		$map = array_merge($map, [
 			'created' => DAO_Task::CREATED_AT,
 			'completed' => DAO_Task::COMPLETED_DATE,
 			'due' => DAO_Task::DUE_DATE,
@@ -1557,7 +1559,9 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'status_id' => DAO_Task::STATUS_ID,
 			'title' => DAO_Task::TITLE,
 			'updated' => DAO_Task::UPDATED_DATE,
-		];
+		]);
+		
+		return $map;
 	}
 	
 	function getKeyMeta() {
