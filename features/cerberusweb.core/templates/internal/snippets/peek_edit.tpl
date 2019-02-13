@@ -10,48 +10,43 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
-	
-	<table cellpadding="2" cellspacing="0" border="0" width="100%">
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-			</td>
-			<td width="99%">
-				<input type="text" name="title" value="{$model->title}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" autofocus="autofocus"><br>
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
-			</td>
-			<td width="99%">
-				<select name="context">
-					<option value="" {if empty($model->id)}selected="selected"{/if}>Plaintext</option>
-					{foreach from=$contexts item=ctx key=k}
-					{if is_array($ctx->params.options.0) && isset($ctx->params.options.0.snippets)}
-					<option value="{$k}" {if $model->context==$k}selected="selected"{/if}>{$ctx->name}</option>
-					{/if}
-					{/foreach}
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%">
-				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
-			</td>
-		</tr>
-	</table>
-	
-	<b>{'common.content'|devblocks_translate|capitalize}:</b><br>
-	<textarea name="content" style="width:98%;height:200px;border:1px solid rgb(180,180,180);padding:2px;">{$model->content}</textarea>
-	<div class="toolbar"></div>
-	
-</fieldset>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
+		</td>
+		<td width="99%">
+			<input type="text" name="title" value="{$model->title}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" autofocus="autofocus"><br>
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
+		</td>
+		<td width="99%">
+			<select name="context">
+				<option value="" {if empty($model->id)}selected="selected"{/if}>Plaintext</option>
+				{foreach from=$contexts item=ctx key=k}
+				{if is_array($ctx->params.options.0) && isset($ctx->params.options.0.snippets)}
+				<option value="{$k}" {if $model->context==$k}selected="selected"{/if}>{$ctx->name}</option>
+				{/if}
+				{/foreach}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%">
+			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl"}
+		</td>
+	</tr>
+</table>
+
+<b>{'common.content'|devblocks_translate|capitalize}:</b><br>
+<textarea name="content" style="width:98%;height:200px;border:1px solid rgb(180,180,180);padding:2px;">{$model->content}</textarea>
+<div class="toolbar"></div>
 
 <fieldset class="peek placeholders" style="margin-top:10px;">
 	<legend>Prompted Placeholders</legend>
