@@ -223,7 +223,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * Efficiently update all role memberships/ownerships by finding distinct 
+	 * Efficiently update all role memberships/editorships by finding distinct 
 	 * queries and running the results once
 	 * 
 	 * @param Model_WorkerRole|Model_WorkerRole[]|integer $roles
@@ -280,7 +280,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			$query_cache[$query] = array_keys($workers);
 		}
 		
-		// Clear existing role members/owners
+		// Clear existing role members/editors
 		if($is_full_reload) { // For everything
 			$db->ExecuteMaster('DELETE FROM worker_to_role');
 		} else { // For specific roles
@@ -673,6 +673,9 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_EDITOR_SEARCH = '*_editor_search';
+	const VIRTUAL_READER_SEARCH = '*_reader_search';
+	const VIRTUAL_MEMBER_SEARCH = '*_member_search';
 	
 	static private $_fields = null;
 	
@@ -689,10 +692,20 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_MEMBER_SEARCH:
-				$sql = "SELECT role_id FROM worker_to_role WHERE worker_id IN (%s)";
+				$sql = "SELECT role_id FROM worker_to_role WHERE is_member = 1 AND worker_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_role.id');
 				break;
 				
+			case self::VIRTUAL_READER_SEARCH:
+				$sql = "SELECT role_id FROM worker_to_role WHERE is_readable = 1 AND worker_id IN (%s)";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_role.id');
+				break;
+				
+			case self::VIRTUAL_EDITOR_SEARCH:
+				$sql = "SELECT role_id FROM worker_to_role WHERE is_editable = 1 AND worker_id IN (%s)";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKER, $sql, 'worker_role.id');
+				break;
+			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ROLE, self::getPrimaryKey());
 				break;
@@ -756,6 +769,9 @@ class SearchFields_WorkerRole extends DevblocksSearchFields {
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_MEMBER_SEARCH => new DevblocksSearchField(self::VIRTUAL_MEMBER_SEARCH, '*', 'member_search', null, null),
+			self::VIRTUAL_EDITOR_SEARCH => new DevblocksSearchField(self::VIRTUAL_EDITOR_SEARCH, '*', 'editor_search', null, null),
+			self::VIRTUAL_READER_SEARCH => new DevblocksSearchField(self::VIRTUAL_READER_SEARCH, '*', 'reader_search', null, null),
 		);
 		
 		// Custom Fields
@@ -783,16 +799,18 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 
 		$this->view_columns = array(
 			SearchFields_WorkerRole::NAME,
+			SearchFields_WorkerRole::PRIVS_MODE,
 			SearchFields_WorkerRole::MEMBER_QUERY_WORKER,
 			SearchFields_WorkerRole::EDITOR_QUERY_WORKER,
-			SearchFields_WorkerRole::READER_QUERY_WORKER,
-			SearchFields_WorkerRole::PRIVS_MODE,
 			SearchFields_WorkerRole::UPDATED_AT,
 		);
 
 		$this->addColumnsHidden(array(
 			SearchFields_WorkerRole::VIRTUAL_CONTEXT_LINK,
+			SearchFields_WorkerRole::VIRTUAL_EDITOR_SEARCH,
 			SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET,
+			SearchFields_WorkerRole::VIRTUAL_MEMBER_SEARCH,
+			SearchFields_WorkerRole::VIRTUAL_READER_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -924,6 +942,30 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WorkerRole::PRIVS_MODE),
 				),
+			'member' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_WorkerRole::VIRTUAL_MEMBER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
+			'reader' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_WorkerRole::VIRTUAL_READER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
+			'editor' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_WorkerRole::VIRTUAL_EDITOR_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+					]
+				),
 		);
 		
 		// Add quick search links
@@ -948,6 +990,18 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+				
+			case 'member':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_WorkerRole::VIRTUAL_MEMBER_SEARCH);
+				break;
+				
+			case 'reader':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_WorkerRole::VIRTUAL_READER_SEARCH);
+				break;
+				
+			case 'editor':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_WorkerRole::VIRTUAL_EDITOR_SEARCH);
 				break;
 			
 			default:
@@ -997,6 +1051,27 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 				
 			case SearchFields_WorkerRole::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
+				break;
+				
+			case SearchFields_WorkerRole::VIRTUAL_MEMBER_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.member')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_WorkerRole::VIRTUAL_READER_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.reader')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_WorkerRole::VIRTUAL_EDITOR_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.editor')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 		}
 	}
