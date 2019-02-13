@@ -201,11 +201,6 @@ class CerberusParserModel {
 		// Remove tabs, returns, and linefeeds
 		$subject = str_replace(array("\t","\n","\r")," ",$subject);
 		
-		// Remove 4-byte Emoji?
-		if(DevblocksPlatform::services()->string()->has4ByteChars($subject)) {
-			$subject = DevblocksPlatform::services()->string()->strip4ByteChars($subject);
-		}
-		
 		// The subject can still end up empty after QP decode
 		if(0 == strlen(trim($subject)))
 			$subject = "(no subject)";

@@ -158,6 +158,20 @@ if(array_key_exists('params_json', $columns)) {
 }
 
 // ===========================================================================
+// Convert `ticket.subject` to utf8mb4
+
+if(!isset($tables['ticket']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('ticket');
+
+if('utf8_general_ci' == $columns['subject']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE ticket MODIFY COLUMN subject VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE ticket");
+	$db->ExecuteMaster("OPTIMIZE TABLE ticket");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

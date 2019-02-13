@@ -166,7 +166,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::SUBJECT)
-			->string()
+			->string($validation::STRING_UTF8MB4)
 			->setMaxLength(255)
 			->setRequired(true)
 			;
