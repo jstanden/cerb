@@ -1,0 +1,227 @@
+{
+  "package": {
+    "name": "Bot Interaction Template",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Chat bot for workers",
+      "uri": "cerb_bot_behavior_interaction_worker",
+      "description": "A template for building worker-based chat bot interactions",
+      "point": "behavior",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Bot",
+          "key": "bot_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.bot",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "behaviors": [
+    {
+      "uid": "behavior_convo",
+      "_context": "behavior",
+      "bot_id": "{{{bot_id}}}",
+      "title": "Conversation: Example Interaction",
+      "is_disabled": false,
+      "is_private": true,
+      "priority": 50,
+      "event": {
+        "key": "event.message.chat.worker",
+        "label": "Conversation with worker"
+      },
+      "nodes": [
+        {
+          "type": "action",
+          "title": "Hi!",
+          "status": "live",
+          "params": {
+            "actions": [
+              {
+                "action": "send_message",
+                "message": "Hi there!",
+                "format": "",
+                "delay_ms": "1000"
+              },
+              {
+                "action": "send_message",
+                "message": "You can customize this interaction to meet your needs.",
+                "format": "",
+                "delay_ms": "1000"
+              }
+            ]
+          }
+        },
+        {
+          "type": "action",
+          "title": "Ok!",
+          "status": "live",
+          "params": {
+            "actions": [
+              {
+                "action": "prompt_buttons",
+                "options": "Thanks!",
+                "color_from": "#4795f7",
+                "color_mid": "#4795f7",
+                "color_to": "#4795f7",
+                "style": "",
+                "var": "placeholder",
+                "var_format": "{{message}}",
+                "var_validate": ""
+              }
+            ]
+          }
+        },
+        {
+          "type": "action",
+          "title": "Close chat window",
+          "status": "live",
+          "params": {
+            "actions": [
+              {
+                "action": "window_close"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "uid": "behavior_get_interactions",
+      "_context": "behavior",
+      "bot_id": "{{{bot_id}}}",
+      "title": "Get interactions for worker",
+      "is_disabled": false,
+      "is_private": false,
+      "priority": 1,
+      "event": {
+        "key": "event.interactions.get.worker",
+        "label": "Conversation get interactions for worker",
+        "params": {
+          "listen_points": "global"
+        }
+      },
+      "nodes": [
+        {
+          "type": "switch",
+          "title": "Interaction point:",
+          "status": "live",
+          "nodes": [
+            {
+              "type": "outcome",
+              "title": "global",
+              "status": "live",
+              "params": {
+                "groups": [
+                  {
+                    "any": 0,
+                    "conditions": [
+                      {
+                        "condition": "point",
+                        "oper": "is",
+                        "value": "global"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "nodes": [
+                {
+                  "type": "action",
+                  "title": "Return interactions",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "return_interaction",
+                        "behavior_id": "{{{uid.behavior_handle_interaction}}}",
+                        "name": "Example interaction",
+                        "interaction": "example.interaction",
+                        "interaction_params_json": ""
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "uid": "behavior_handle_interaction",
+      "_context": "behavior",
+      "bot_id": "{{{bot_id}}}",
+      "title": "Handle interaction with worker",
+      "is_disabled": false,
+      "is_private": false,
+      "priority": 2,
+      "event": {
+        "key": "event.interaction.chat.worker",
+        "label": "Conversation handle interaction with worker"
+      },
+      "nodes": [
+        {
+          "type": "switch",
+          "title": "Interaction:",
+          "status": "live",
+          "nodes": [
+            {
+              "type": "outcome",
+              "title": "example.interaction",
+              "status": "live",
+              "params": {
+                "groups": [
+                  {
+                    "any": 0,
+                    "conditions": [
+                      {
+                        "condition": "interaction",
+                        "oper": "is",
+                        "value": "example.interaction"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "nodes": [
+                {
+                  "type": "action",
+                  "title": "Start conversation",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "switch_behavior",
+                        "return": "0",
+                        "behavior_id": "{{{uid.behavior_convo}}}",
+                        "var": "_behavior"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
