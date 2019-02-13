@@ -1,0 +1,65 @@
+{
+  "package": {
+    "name": "Profile Tab: Activity Log",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Activity Log",
+      "uri": "cerb_profile_tab__log",
+      "description": "A log of activity on this record",
+      "point": "profile_tab",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Profile Context",
+          "key": "profile_context",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+        "uid": "profile_tab_log",
+        "_context": "profile_tab",
+        "name": "Log",
+        "context": "{{{profile_context}}}",
+        "extension_id": "cerb.profile.tab.dashboard",
+        "extension_params": {
+        }
+    },
+    {
+        "uid": "widget_worklist_log",
+        "_context": "profile_widget",
+        "name": "Activity Log",
+        "extension_id": "cerb.profile.tab.widget.worklist",
+        "profile_tab_id": "{{{uid.profile_tab_log}}}",
+        "pos": 1,
+        "width_units": 1,
+        "zone": "",
+        "extension_params": {
+            "context": "cerberusweb.contexts.activity_log",
+            "query_required": "target.{{{profile_context}}}:(\r\n\tid:{{record_id}}\r\n)",
+            "query": "created:\"-30 days to now\" \r\nsort:-created \r\nsubtotal:activity",
+            "render_limit": "15",
+            "header_color": "#6a87db",
+            "columns": [
+                "c_created"
+            ]
+        }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "package": {
+    "name": "Profile Tab: Package Overview",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Overview",
+      "uri": "cerb_profile_tab_package_overview",
+      "description": "The default overview for package records",
+      "point": "profile_tab:package",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "profile_tab_overview",
+      "_context": "profile_tab",
+      "name": "Overview",
+      "context": "package",
+      "extension_id": "cerb.profile.tab.dashboard",
+      "extension_params": {
+        "layout": "sidebar_left"
+      }
+    },
+    {
+      "uid": "profile_widget_package_fields",
+      "_context": "profile_widget",
+      "name": "Package",
+      "extension_id": "cerb.profile.tab.widget.fields",
+      "profile_tab_id": "{{{uid.profile_tab_overview}}}",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "sidebar",
+      "extension_params": {
+        "context": "cerberusweb.contexts.package.library",
+        "context_id": "{{record_id}}",
+        "properties": [
+          [
+            "name",
+            "uri",
+            "description",
+            "point",
+            "updated"
+          ]
+        ],
+        "links": {
+          "show": "1"
+        },
+        "search": {
+          "context": [
+
+          ],
+          "label_singular": [
+
+          ],
+          "label_plural": [
+
+          ],
+          "query": [
+
+          ]
+        }
+      }
+    },
+    {
+      "uid": "profile_widget_comments",
+      "_context": "cerberusweb.contexts.profile.widget",
+      "name": "Discussion",
+      "extension_id": "cerb.profile.tab.widget.comments",
+      "profile_tab_id": "{{{uid.profile_tab_overview}}}",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "extension_params": {
+        "context": "cerberusweb.contexts.package.library",
+        "context_id": "{{record_id}}",
+        "height": ""
+      }
+    }
+  ]
+}
