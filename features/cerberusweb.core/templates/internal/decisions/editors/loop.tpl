@@ -1,86 +1,113 @@
-<form id="frmDecisionLoop{$id}" onsubmit="return false;">
-	<input type="hidden" name="c" value="internal">
-	<input type="hidden" name="a" value="">
-	{if isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
-	{if isset($parent_id)}<input type="hidden" name="parent_id" value="{$parent_id}">{/if}
-	{if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
-	{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
-	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+<div class="cerb-tabs">
+	{if !$id && $packages}
+	<ul>
+		<li><a href="#loop{$id}-library">{'common.library'|devblocks_translate|capitalize}</a></li>
+		<li><a href="#loop{$id}-build">{'common.build'|devblocks_translate|capitalize}</a></li>
+	</ul>
+	{/if}
 	
-	<fieldset>
-		<legend>Repeat this branch for each object in a list</legend>
-		A <b>loop</b> branch will repeat its decisions and actions for each object in a list.
-	</fieldset>
+	{if !$id && $packages}
+	<div id="loop{$id}-library" class="package-library">
+		<form id="frmDecisionLoop{$id}Library" onsubmit="return false;">
+		<input type="hidden" name="c" value="internal">
+		<input type="hidden" name="a" value="">
+		{if isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+		{if isset($parent_id)}<input type="hidden" name="parent_id" value="{$parent_id}">{/if}
+		{if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
+		{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
+		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
-	<b>{'common.title'|devblocks_translate|capitalize}:</b>
-	<div style="margin:0px 0px 10px 10px;">
-		<input type="text" name="title" value="{$model->title}" style="width:100%;" autofocus="autofocus" autocomplete="off" spellcheck="false">
+		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
+		</form>
 	</div>
+	{/if}
 	
-	<b>{'common.status'|devblocks_translate|capitalize}:</b>
-	<div style="margin:0px 0px 10px 10px;">
-		<label><input type="radio" name="status_id" value="0" {if !$model->status_id}checked="checked"{/if}> Live</label>
-		<label><input type="radio" name="status_id" value="2" {if 2 == $model->status_id}checked="checked"{/if}> Simulator only</label>
-		<label><input type="radio" name="status_id" value="1" {if 1 == $model->status_id}checked="checked"{/if}> Disabled</label>
-	</div>
-	
-	<b>For each object in this JSON array:</b>
-	<div style="margin:0px 0px 10px 10px;">
-		<textarea name="params[foreach_json]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:100%;height:200px;">{$model->params.foreach_json}</textarea>
-	</div>
-	
-	<div id="divDecisionLoopToolbar{$id}" style="display:none;">
-		<div class="tester"></div>
-	
-		<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
-		<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
-		
-		{$types = $values._types}
-		{function tree level=0}
-			{foreach from=$keys item=data key=idx}
-				{$type = $types.{$data->key}}
-				{if is_array($data->children) && !empty($data->children)}
-					<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
-						{if $data->key}
-							<div style="font-weight:bold;">{$data->l|capitalize}</div>
-						{else}
-							<div>{$idx|capitalize}</div>
+	<div id="loop{$id}-build">
+		<form id="frmDecisionLoop{$id}" onsubmit="return false;">
+			<input type="hidden" name="c" value="internal">
+			<input type="hidden" name="a" value="">
+			{if isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
+			{if isset($parent_id)}<input type="hidden" name="parent_id" value="{$parent_id}">{/if}
+			{if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
+			{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
+			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+			
+			<fieldset class="peek">
+				<legend>Repeat this branch for each object in a list</legend>
+				A <b>loop</b> branch will repeat its decisions and actions for each object in a list.
+			</fieldset>
+			
+			<b>{'common.title'|devblocks_translate|capitalize}:</b>
+			<div style="margin:0px 0px 10px 10px;">
+				<input type="text" name="title" value="{$model->title}" style="width:100%;" autofocus="autofocus" autocomplete="off" spellcheck="false">
+			</div>
+			
+			<b>{'common.status'|devblocks_translate|capitalize}:</b>
+			<div style="margin:0px 0px 10px 10px;">
+				<label><input type="radio" name="status_id" value="0" {if !$model->status_id}checked="checked"{/if}> Live</label>
+				<label><input type="radio" name="status_id" value="2" {if 2 == $model->status_id}checked="checked"{/if}> Simulator only</label>
+				<label><input type="radio" name="status_id" value="1" {if 1 == $model->status_id}checked="checked"{/if}> Disabled</label>
+			</div>
+			
+			<b>For each object in this JSON array:</b>
+			<div style="margin:0px 0px 10px 10px;">
+				<textarea name="params[foreach_json]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:100%;height:200px;">{$model->params.foreach_json}</textarea>
+			</div>
+			
+			<div id="divDecisionLoopToolbar{$id}" style="display:none;">
+				<div class="tester"></div>
+			
+				<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
+				<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
+				<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
+				
+				{$types = $values._types}
+				{function tree level=0}
+					{foreach from=$keys item=data key=idx}
+						{$type = $types.{$data->key}}
+						{if is_array($data->children) && !empty($data->children)}
+							<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
+								{if $data->key}
+									<div style="font-weight:bold;">{$data->l|capitalize}</div>
+								{else}
+									<div>{$idx|capitalize}</div>
+								{/if}
+								<ul>
+									{tree keys=$data->children level=$level+1}
+								</ul>
+							</li>
+						{elseif $data->key}
+							<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
 						{/if}
-						<ul>
-							{tree keys=$data->children level=$level+1}
-						</ul>
-					</li>
-				{elseif $data->key}
-					<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
-				{/if}
-			{/foreach}
-		{/function}
+					{/foreach}
+				{/function}
+				
+				<ul class="menu" style="width:150px;">
+				{tree keys=$placeholders}
+				</ul>
+			</div>
+			
+			<b>Set this object placeholder:</b>
+			<div style="margin:0px 0px 10px 10px;">
+				{literal}{{{/literal}<input type="text" name="params[as_placeholder]" value="{$model->params.as_placeholder}" size="32">{literal}}}{/literal}
+			</div>
+		</form>
 		
-		<ul class="menu" style="width:150px;">
-		{tree keys=$placeholders}
-		</ul>
+		{if isset($id)}
+		<fieldset class="delete" style="display:none;">
+			<legend>Delete this loop?</legend>
+			<p>Are you sure you want to permanently delete this loop and its children?</p>
+			<button type="button" class="green" onclick="genericAjaxPost('frmDecisionLoop{$id}','','c=internal&a=saveDecisionDeletePopup',function() { genericAjaxPopupDestroy('node_loop{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"> {'common.yes'|devblocks_translate|capitalize}</button>
+			<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
+		</fieldset>
+		{/if}
+		
+		<form class="toolbar">
+			<button type="button" onclick="genericAjaxPost('frmDecisionLoop{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_loop{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+			{if isset($id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		</form>
 	</div>
-	
-	<b>Set this object placeholder:</b>
-	<div style="margin:0px 0px 10px 10px;">
-		{literal}{{{/literal}<input type="text" name="params[as_placeholder]" value="{$model->params.as_placeholder}" size="32">{literal}}}{/literal}
-	</div>
-</form>
-
-{if isset($id)}
-<fieldset class="delete" style="display:none;">
-	<legend>Delete this loop?</legend>
-	<p>Are you sure you want to permanently delete this loop and its children?</p>
-	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionLoop{$id}','','c=internal&a=saveDecisionDeletePopup',function() { genericAjaxPopupDestroy('node_loop{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"> {'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
-</fieldset>
-{/if}
-
-<form class="toolbar">
-	<button type="button" onclick="genericAjaxPost('frmDecisionLoop{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_loop{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if isset($id)}<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
-</form>
+</div>
 
 <script type="text/javascript">
 $(function() {
@@ -97,6 +124,31 @@ $(function() {
 			if(keycode == 27)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
+		
+		// Package Library
+		
+		{if !$id && $packages}
+			var $tabs = $popup.find('.cerb-tabs').tabs();
+			var $library_container = $tabs;
+			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
+			
+			$library_container.on('cerb-package-library-form-submit', function(e) {
+				Devblocks.clearAlerts();
+				
+				genericAjaxPost('frmDecisionLoop{$id}Library','','c=internal&a=saveDecisionPopup', function(json) {
+					if(json.error) {
+						Devblocks.createAlertError(json.error);
+						
+					} else if (json.id && json.type) {
+						genericAjaxPopupDestroy('node_loop{$id}');
+						
+						genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}', function() {
+							genericAjaxPopup('node_' + json.type + json.id,'c=internal&a=showDecisionPopup&id=' + encodeURIComponent(json.id),null,false,'50%');
+						});
+					}
+				});
+			});
+		{/if}
 		
 		// Placeholder toolbar
 		

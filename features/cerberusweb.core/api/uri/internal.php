@@ -3989,16 +3989,27 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'loop':
-				if(null != ($evt = $trigger->getEvent())) {
+				if($event) {
 					// Action labels
-					$labels = $evt->getLabels($trigger);
+					$labels = $event->getLabels($trigger);
 					$tpl->assign('labels', $labels);
 					
 					$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
 					$tpl->assign('placeholders', $placeholders);
 					
-					$values = $evt->getValues();
+					$values = $event->getValues();
 					$tpl->assign('values', $values);
+					
+					// Library
+					if(!$id) {
+						$library_sections = [
+							'behavior_loop',
+							'behavior_loop:' . $event->id,
+						];
+						
+						$packages = DAO_PackageLibrary::getByPoint($library_sections);
+						$tpl->assign('packages', $packages);
+					}
 				}
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/loop.tpl');
