@@ -1,0 +1,105 @@
+{
+  "package": {
+    "name": "Project Board: Kanban Template",
+    "revision": 2019012601,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Kanban",
+      "uri": "cerb_project_board_kanban",
+      "description": "A three column task management board",
+      "point": "project_board",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Project Name:",
+          "key": "prompt_project_name",
+          "params": {
+            "default": "Kanban Project Board",
+            "placeholder": "(the name of your project board)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "card_task_instructions",
+      "_context": "task",
+      "title": "Example Task Card",
+      "importance": "50",
+      "status": "open"
+    },
+    {
+      "uid": "project_board_kanban",
+      "_context": "cerberusweb.contexts.project.board",
+      "name": "{{{prompt_project_name}}}",
+      "owner__context": "app",
+      "owner_id": "0",
+      "columns": [
+        "{{{uid.project_board_kanban_todo}}}",
+        "{{{uid.project_board_kanban_in_progress}}}",
+        "{{{uid.project_board_kanban_completed}}}"
+      ],
+      "params": {
+        "card_queries": {
+          "cerberusweb.contexts.task": "status:[o,w]"
+        },
+        "card_templates": {
+          "cerberusweb.contexts.task": "{% spaceless %}\n{% if is_completed %}\n<div style=\"font-size:120%;\">\n\t<span class=\"glyphicons glyphicons-circle-ok\" style=\"color:rgb(0,150,0);\"></span> Completed!\n</div>\n{% endif %}\n{% endspaceless %}"
+        },
+        "contexts": [
+          "cerberusweb.contexts.task"
+        ]
+      }
+    },
+    {
+      "uid": "project_board_kanban_todo",
+      "_context": "cerberusweb.contexts.project.board.column",
+      "name": "TODO",
+      "board_id": "{{{uid.project_board_kanban}}}",
+      "params": {
+      },
+      "cards": [
+        "task:{{{uid.card_task_instructions}}}"
+      ]
+    },
+    {
+      "uid": "project_board_kanban_in_progress",
+      "_context": "cerberusweb.contexts.project.board.column",
+      "name": "In Progress",
+      "board_id": "{{{uid.project_board_kanban}}}",
+      "params": {
+      },
+      "cards": [
+
+      ]
+    },
+    {
+      "uid": "project_board_kanban_completed",
+      "_context": "cerberusweb.contexts.project.board.column",
+      "name": "Completed!",
+      "board_id": "{{{uid.project_board_kanban}}}",
+      "params": {
+        "actions": {
+          "task_status": {
+            "status_id": "1"
+          }
+        }
+      },
+      "cards": [
+
+      ]
+    }
+  ]
+}
