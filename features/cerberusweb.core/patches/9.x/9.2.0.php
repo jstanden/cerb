@@ -172,6 +172,33 @@ if('utf8_general_ci' == $columns['subject']['collation']) {
 }
 
 // ===========================================================================
+// Convert `worker` table `location` and `title` to utf8mb4
+
+if(!isset($tables['worker']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('worker');
+
+$changes = [];
+
+if('utf8_general_ci' == $columns['location']['collation']) {
+	$changes[] = "ALTER TABLE worker MODIFY COLUMN location VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+}
+
+if('utf8_general_ci' == $columns['title']['collation']) {
+	$changes[] = "ALTER TABLE worker MODIFY COLUMN title VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
+}
+
+if($changes) {
+	foreach($changes as $sql) {
+		$db->ExecuteMaster($sql);
+	}
+	
+	$db->ExecuteMaster("REPAIR TABLE worker");
+	$db->ExecuteMaster("OPTIMIZE TABLE worker");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
