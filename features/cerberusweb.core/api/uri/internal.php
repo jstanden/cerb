@@ -4016,8 +4016,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				break;
 				
 			case 'outcome':
-				if(null != ($evt = $trigger->getEvent())) {
-					$conditions = $evt->getConditions($trigger);
+				if($event) {
+					$conditions = $event->getConditions($trigger);
 					$tpl->assign('conditions', $conditions);
 					
 					// [TODO] Cache this
@@ -4031,13 +4031,13 @@ class ChInternalController extends DevblocksControllerExtension {
 					$tpl->assign('conditions_menu', $conditions_menu);
 					
 					// Action labels
-					$labels = $evt->getLabels($trigger);
+					$labels = $event->getLabels($trigger);
 					$tpl->assign('labels', $labels);
 					
 					$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
 					$tpl->assign('placeholders', $placeholders);
 					
-					$values = $evt->getValues();
+					$values = $event->getValues();
 					$tpl->assign('values', $values);
 				}
 				
@@ -4461,120 +4461,211 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
 		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
 		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer', 0);
+		@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
 
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
-		// DAO
+		$mode = 'build';
 		
-		if(!empty($id)) { // Edit
-			if(null != ($model = DAO_DecisionNode::get($id))) {
-				$type = $model->node_type;
-				$trigger_id = $model->trigger_id;
-
-				// Security
+		if(!$id && $package_uri)
+			$mode = 'library';
 		
-				if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
-					return false;
+		switch($mode) {
+			case 'library':
+				@$behavior_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+				@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
+				@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+				@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
 				
-				if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
-					return false;
+				header('Content-Type: application/json; charset=utf-8');
 				
-				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::TITLE => $title,
-					DAO_DecisionNode::STATUS_ID => $status_id,
-				));
-			}
-			
-		} elseif(isset($_REQUEST['parent_id'])) { // Create
-			@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
-			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-			@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
-
-			// Security
-	
-			if(!empty($trigger_id)) {
-				if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
-					return false;
-				
-				if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
-					return false;
-			}
-			
-			$pos = $trigger->getNextPosByParent($parent_id);
-			
-			$id = DAO_DecisionNode::create(array(
-				DAO_DecisionNode::TITLE => $title,
-				DAO_DecisionNode::PARENT_ID => $parent_id,
-				DAO_DecisionNode::TRIGGER_ID => $trigger_id,
-				DAO_DecisionNode::NODE_TYPE => $type,
-				DAO_DecisionNode::STATUS_ID => $status_id,
-				DAO_DecisionNode::POS => $pos,
-				DAO_DecisionNode::PARAMS_JSON => '',
-			));
-			
-			if(false == $id)
-				return false;
-		}
-
-		// Type-specific properties
-		switch($type) {
-			case 'subroutine':
-				// Nothing
-				break;
-				
-			case 'switch':
-				// Nothing
-				break;
-				
-			case 'loop':
-				@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',array());
-				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::PARAMS_JSON => json_encode($params),
-				));
-				break;
-				
-			case 'outcome':
-				@$nodes = DevblocksPlatform::importGPC($_REQUEST['nodes'],'array',array());
-
-				$groups = array();
-				$group_key = null;
-				
-				foreach($nodes as $k) {
-					switch($k) {
-						case 'any':
-						case 'all':
-							$groups[] = array(
-								'any' => ($k=='any'?1:0),
-								'conditions' => array(),
-							);
-							end($groups);
-							$group_key = key($groups);
-							break;
-							
-						default:
-							if(!is_numeric($k))
-								continue;
-							
-							$condition = DevblocksPlatform::importGPC($_POST['condition'.$k],'array',array());
-							$groups[$group_key]['conditions'][] = $condition;
-							break;
+				try {
+					if(empty($package_uri))
+						throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+					
+					if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+						throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+					
+					// Verify the event can be owned by this context
+					
+					if(false == ($behavior = DAO_TriggerEvent::get($behavior_id))) {
+						throw new Exception_DevblocksAjaxValidationError("The destination behavior doesn't exist.");
 					}
+					
+					if(false == ($bot = $behavior->getBot())) {
+						throw new Exception_DevblocksAjaxValidationError("The destination bot doesn't exist.");
+					}
+					
+					if(!in_array($type, ['action', 'loop', 'switch']))
+						throw new Exception_DevblocksAjaxValidationError(sprintf("'%s' is not supported.", $type));
+					
+					$point_prefix = 'behavior_' . $type;
+					
+					if($package->point != $point_prefix && $package->point != $point_prefix . ':' . $behavior->event_point)
+						throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+					
+					// Does the worker have access to this bot?
+					if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.bot.update')
+						|| !CerberusContexts::isOwnableBy($bot->owner_context, $bot->owner_context_id, $active_worker)
+						)
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
+					$package_json = $package->getPackageJson();
+					$records_created = [];
+					
+					$prompts['behavior_id'] = $behavior_id;
+					$prompts['parent_id'] = $parent_id;
+					
+					CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+					
+					if(!array_key_exists(CerberusContexts::CONTEXT_BEHAVIOR_NODE, $records_created))
+						throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+					
+					$new_node = reset($records_created[CerberusContexts::CONTEXT_BEHAVIOR_NODE]);
+					
+					echo json_encode([
+						'status' => true,
+						'id' => $new_node['id'],
+						'label' => $new_node['label'],
+						'type' => $new_node['type'],
+					]);
+					
+				} catch(Exception_DevblocksAjaxValidationError $e) {
+					echo json_encode([
+						'status' => false,
+						'error' => $e->getMessage(),
+					]);
+					
+				} catch(Exception_DevblocksValidationError $e) {
+					echo json_encode([
+						'status' => false,
+						'error' => $e->getMessage(),
+					]);
+					
+				} catch (Exception $e) {
+					error_log($e->getMessage());
+					
+					echo json_encode([
+						'status' => false,
+						'error' => "An unexpected error occurred.",
+					]);
 				}
-				
-				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::PARAMS_JSON => json_encode(array('groups'=>$groups)),
-				));
 				break;
 				
-			case 'action':
-				@$action_ids = DevblocksPlatform::importGPC($_REQUEST['actions'],'array',array());
-				$params = array();
-				$params['actions'] = $this->_parseActions($action_ids, $_POST);
-				DAO_DecisionNode::update($id, array(
-					DAO_DecisionNode::PARAMS_JSON => json_encode($params),
-				));
+			case 'build':
+				
+				if(!empty($id)) { // Edit
+					if(null != ($model = DAO_DecisionNode::get($id))) {
+						$type = $model->node_type;
+						$trigger_id = $model->trigger_id;
+		
+						// Security
+				
+						if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+							return false;
+						
+						if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
+							return false;
+						
+						DAO_DecisionNode::update($id, array(
+							DAO_DecisionNode::TITLE => $title,
+							DAO_DecisionNode::STATUS_ID => $status_id,
+						));
+					}
+					
+				} elseif(isset($_REQUEST['parent_id'])) { // Create
+					@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
+					@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+					@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+					
+					// Security
+					
+					if(!empty($trigger_id)) {
+						if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+							return false;
+						
+						if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
+							return false;
+					}
+					
+					$pos = $trigger->getNextPosByParent($parent_id);
+					
+					$id = DAO_DecisionNode::create(array(
+						DAO_DecisionNode::TITLE => $title,
+						DAO_DecisionNode::PARENT_ID => $parent_id,
+						DAO_DecisionNode::TRIGGER_ID => $trigger_id,
+						DAO_DecisionNode::NODE_TYPE => $type,
+						DAO_DecisionNode::STATUS_ID => $status_id,
+						DAO_DecisionNode::POS => $pos,
+						DAO_DecisionNode::PARAMS_JSON => '',
+					));
+					
+					if(false == $id)
+						return false;
+				}
+		
+				// Type-specific properties
+				switch($type) {
+					case 'subroutine':
+						// Nothing
+						break;
+						
+					case 'switch':
+						// Nothing
+						break;
+						
+					case 'loop':
+						@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',array());
+						DAO_DecisionNode::update($id, array(
+							DAO_DecisionNode::PARAMS_JSON => json_encode($params),
+						));
+						break;
+						
+					case 'outcome':
+						@$nodes = DevblocksPlatform::importGPC($_REQUEST['nodes'],'array',array());
+						
+						$groups = [];
+						$group_key = null;
+						
+						foreach($nodes as $k) {
+							switch($k) {
+								case 'any':
+								case 'all':
+									$groups[] = array(
+										'any' => ($k=='any'?1:0),
+										'conditions' => array(),
+									);
+									end($groups);
+									$group_key = key($groups);
+									break;
+									
+								default:
+									if(!is_numeric($k))
+										continue;
+									
+									$condition = DevblocksPlatform::importGPC($_POST['condition'.$k],'array',array());
+									$groups[$group_key]['conditions'][] = $condition;
+									break;
+							}
+						}
+						
+						DAO_DecisionNode::update($id, array(
+							DAO_DecisionNode::PARAMS_JSON => json_encode(array('groups'=>$groups)),
+						));
+						break;
+						
+					case 'action':
+						@$action_ids = DevblocksPlatform::importGPC($_REQUEST['actions'],'array',array());
+						$params = [];
+						$params['actions'] = $this->_parseActions($action_ids, $_POST);
+						DAO_DecisionNode::update($id, array(
+							DAO_DecisionNode::PARAMS_JSON => json_encode($params),
+						));
+						break;
+				}
 				break;
 		}
+		
 	}
 	
 	private function _parseActions($action_ids, $scope) {
