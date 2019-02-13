@@ -677,6 +677,13 @@ class Model_WorkspacePage {
 	function getUsers() {
 		return DAO_WorkspacePage::getUsers($this->id);
 	}
+	
+	function getOwnerMeta() {
+		if(false == ($page_owner_context_ext = Extension_DevblocksContext::get($this->owner_context)))
+			return null;
+		
+		return $page_owner_context_ext->getMeta($this->owner_context_id);
+	}
 };
 
 class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickSearch, IAbstractView_Subtotals {
