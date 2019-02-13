@@ -1,0 +1,65 @@
+{
+  "package": {
+    "name": "Bot Behavior Action: Respond With Text",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Respond with text",
+      "uri": "cerb_bot_behavior_action_interaction_prompt",
+      "description": "Respond to the worker with a text-based chat message",
+      "point": "behavior_action:event.message.chat.worker",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_prompt",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Respond",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+            "action": "send_message",
+            "message": "This is a message",
+            "format": "",
+            "delay_ms": "1000"
+          }
+        ]
+      }
+    }
+  ]
+}

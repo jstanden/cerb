@@ -1,0 +1,66 @@
+{
+  "package": {
+    "name": "Bot Behavior Action: Search Records",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Search records",
+      "uri": "cerb_bot_behavior_action__records_search",
+      "description": "Search any record type with a query",
+      "point": "behavior_action",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_search_records",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Search records",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+            "action": "core.bot.action.record.search",
+            "context": "ticket",
+            "query": "status:o limit:25",
+            "expand": "custom_",
+            "object_placeholder": "_records"
+          }
+        ]
+      }
+    }
+  ]
+}

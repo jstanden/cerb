@@ -1,0 +1,75 @@
+{
+  "package": {
+    "name": "Bot Behavior Action: Start Conversation",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Start conversation",
+      "uri": "cerb_bot_behavior_action_interaction_start_convo",
+      "description": "Start a conversational behavior",
+      "point": "behavior_action:event.interaction.chat.worker",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        },
+        {
+          "type": "chooser",
+          "label": "Conversation Behavior",
+          "key": "convo_behavior_id",
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": "event:event.message.chat.worker"
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_start_convo",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Start convo: {{{convo_behavior__label}}}",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+            "action": "switch_behavior",
+            "return": "0",
+            "behavior_id": "{{{convo_behavior_id}}}",
+            "var": "_behavior"
+          }
+        ]
+      }
+    }
+  ]
+}

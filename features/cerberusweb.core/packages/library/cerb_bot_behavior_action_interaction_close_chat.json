@@ -1,0 +1,62 @@
+{
+  "package": {
+    "name": "Bot Behavior Action: Close Chat Window",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Close chat window",
+      "uri": "cerb_bot_behavior_action_interaction_close_chat",
+      "description": "Close the chat window",
+      "point": "behavior_action:event.message.chat.worker",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_close_chat",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Close chat window",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+            "action": "window_close"
+          }
+        ]
+      }
+    }
+  ]
+}

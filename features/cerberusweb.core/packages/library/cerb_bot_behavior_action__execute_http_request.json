@@ -1,0 +1,77 @@
+{
+  "package": {
+    "name": "Bot Behavior Node: Execute HTTP Request",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Execute HTTP request",
+      "uri": "cerb_bot_behavior_action__execute_http_request",
+      "description": "Make an HTTP request to an external API and process the response",
+      "point": "behavior_action",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_http_request",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Execute HTTP request",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+            "action": "core.va.action.http_request",
+            "http_verb": "get",
+            "http_url": "https://example.com/path/to/resource",
+            "http_headers": "",
+            "http_body": "",
+            "auth": "",
+            "auth_placeholder": "",
+            "run_in_simulator": "1",
+            "response_placeholder": "_http_response"
+          },
+          {
+            "action": "_set_custom_var",
+            "value": "{{_http_response.body}}",
+            "format": "json",
+            "is_simulator_only": "0",
+            "var": "http_response_body"
+          }
+        ]
+      }
+    }
+  ]
+}
