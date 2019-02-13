@@ -1472,7 +1472,7 @@ class DevblocksSearchCriteria {
 			
 		} else {
 			$active_worker = CerberusApplication::getActiveWorker();
-			$workers = DAO_Worker::getAllActive();
+			$workers = DAO_Worker::getAll();
 				
 			$worker_ids = [];
 			
