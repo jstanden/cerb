@@ -1,0 +1,52 @@
+{
+  "package": {
+    "name": "Profile: Ticket Participants",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Participants",
+      "uri": "cerb_profile_widget_ticket_participants",
+      "description": "A list of the participants on this ticket",
+      "point": "profile_widget:ticket",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Profile Dashboard",
+          "key": "profile_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.profile.tab",
+            "single": true,
+            "query": ""
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+        "uid": "widget_ticket_participiants",
+        "_context": "profile_widget",
+        "name": "Participants",
+        "profile_tab_id": "{{{profile_tab_id}}}",
+        "extension_id": "cerb.profile.tab.widget.html",
+        "pos": 0,
+        "width_units": 4,
+        "zone": "sidebar",
+        "extension_params": {
+            "template": "{% for address_id,address in record_requesters %}\r\n<div class=\"bubble\">\r\n\t{{cerb_avatar_image('address',address_id,0)}}\r\n\t<a href=\"javascript:;\" class=\"cerb-peek-trigger no-underline\" data-context=\"address\" data-context-id=\"{{address_id}}\">{{address.email}}</a>\r\n</div>\r\n{% endfor %}\r\n\r\n<script type=\"text/javascript\">\r\n$(function() {\r\n\tvar $widget = $('#profileWidget{{widget_id}}');\r\n\t\r\n\t$widget.find('.cerb-peek-trigger')\r\n\t\t.cerbPeekTrigger()\r\n\t\t;\r\n});\r\n</script>"
+        }
+	}
+  ]
+}
