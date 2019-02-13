@@ -230,8 +230,9 @@ class _DevblocksTemplateManager {
 			$string = substr($string, 0, $max_length);
 		
 		$lines = DevblocksPlatform::parseCrlfString($string, true);
-		$bins = array();
+		$bins = [];
 		$last_prefix = null;
+		$matches = [];
 		
 		// Sort lines into bins
 		foreach($lines as $i => $line) {
@@ -408,7 +409,7 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 		// Only check the DB if the template may be overridden
 		// [TODO] Alternatively, keep a cache of override paths
 		if(isset($plugin->manifest_cache['templates'])) {
-			foreach($plugin->manifest_cache['templates'] as $k => $v) {
+			foreach($plugin->manifest_cache['templates'] as $v) {
 				if(0 == strcasecmp($v['path'], $tpl_path)) {
 					// [TODO] Use cache
 					// Check if template is overloaded in DB/cache
@@ -441,7 +442,7 @@ class _DevblocksSmartyTemplateResource extends Smarty_Resource_Custom {
 	}
 	
 	protected function fetchTimestamp($name) {
-		list($plugin_id, $tag, $tpl_path) = explode(':',$name,3);
+		list($plugin_id, , $tpl_path) = explode(':',$name,3);
 		
 		if(empty($plugin_id) || empty($tpl_path))
 			return false;

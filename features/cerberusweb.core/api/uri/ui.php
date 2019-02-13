@@ -22,7 +22,7 @@ class Controller_UI extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		if(false == ($worker = CerberusApplication::getActiveWorker()))
+		if(false == (CerberusApplication::getActiveWorker()))
 			return;
 
 		$stack = $request->path;

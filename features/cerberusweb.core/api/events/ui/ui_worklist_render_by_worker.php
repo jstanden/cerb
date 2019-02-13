@@ -313,6 +313,7 @@ class Event_UiWorklistRenderByWorker extends Extension_DevblocksEvent {
 				$out = sprintf(">>> Executing jQuery script:\n\n%s\n",
 					$script
 				);
+				return $out;
 				break;
 		}
 	}

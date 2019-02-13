@@ -269,7 +269,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	}
 	
 	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=array()) {
-		if(false === ($ids = $this->_index($schema, $id, $doc, $attributes)))
+		if(false === ($this->_index($schema, $id, $doc, $attributes)))
 			return false;
 		
 		return true;
@@ -288,7 +288,7 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			$ids = array($ids);
 			
 		foreach($ids as $id) {
-			$result = mysqli_query($this->db, sprintf("DELETE FROM %s WHERE id = %d",
+			mysqli_query($this->db, sprintf("DELETE FROM %s WHERE id = %d",
 				$this->escapeNamespace($index_rt),
 				$id
 			));
@@ -335,7 +335,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		$out = DevblocksPlatform::curlExec($ch, true);
 		
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+		//$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 		
 		curl_close($ch);
 		
@@ -491,7 +491,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	}
 	
 	public function getIndexMeta(Extension_DevblocksSearchSchema $schema) {
-		@$index = $this->_config['index'];
+		//@$index = $this->_config['index'];
 		@$type = $schema->getNamespace();
 		
 		$count = $this->_getCount($type);
@@ -523,7 +523,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	
 	public function query(Extension_DevblocksSearchSchema $schema, $query, array $attributes=array(), $limit=null) {
 		@$type = $schema->getNamespace();
-		@$version = $this->_config['version'];
+		//@$version = $this->_config['version'];
 		
 		if(empty($type))
 			return false;
@@ -619,7 +619,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			$json = $this->_getSearch($type, $filtered_query, $max_results);
 			
 			@$took_ms = intval($json['took']);
-			@$total_hits = intval($json['hits']['total']);
+			//@$total_hits = intval($json['hits']['total']);
 			@$results_hits = intval(count($json['hits']['hits']));
 			
 			if($results_hits) {
@@ -704,13 +704,13 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 		
 		// Send to Elasticsearch
 		
-		$json = $this->_putRecord($type, $id, $doc);
+		$this->_putRecord($type, $id, $doc);
 		
 		return true;
 	}
 	
 	public function index(Extension_DevblocksSearchSchema $schema, $id, array $doc, array $attributes=[]) {
-		if(false === ($ids = $this->_index($schema, $id, $doc, $attributes)))
+		if(false === ($this->_index($schema, $id, $doc, $attributes)))
 			return false;
 		
 		return true;
@@ -735,7 +735,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 				$id
 			);
 			
-			$this->_execute('DELETE', $url, array(), DevblocksSearchEngineElasticSearch::WRITE_TIMEOUT_MS);
+			$this->_execute('DELETE', $url, [], DevblocksSearchEngineElasticSearch::WRITE_TIMEOUT_MS);
 		}
 		
 		return true;

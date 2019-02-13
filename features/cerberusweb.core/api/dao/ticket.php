@@ -2051,7 +2051,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				$query = $search->getQueryFromParam($param);
 				$attribs = [];
 				
-				if(isset($options['prefetch_sql'])) {
+				if(array_key_exists('prefetch_sql', $options)) {
 					$attribs['id'] = array(
 						'sql' => $options['prefetch_sql'],
 					);

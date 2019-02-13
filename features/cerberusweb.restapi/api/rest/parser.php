@@ -36,17 +36,14 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 			$this->error(self::ERRNO_CUSTOM, 'The MIME content of your message cannot be blank.');
 		
 		if(null == ($parser_msg = CerberusParser::parseMimeString($content))) {
-			@unlink($file);
 			$this->error(self::ERRNO_CUSTOM, "Your message mime could not be parsed (it's probably malformed).");
 		}
 		
 		if(null == ($ticket_id = CerberusParser::parseMessage($parser_msg))) {
-			@unlink($file);
 			$this->error(self::ERRNO_CUSTOM, "Your message content could not be parsed (it's probably malformed).");
 		}
 			
 		if(null == ($ticket = DAO_Ticket::get($ticket_id))) {
-			@unlink($file);
 			$this->error(self::ERRNO_CUSTOM, "Could not return a ticket object.");
 		}
 
@@ -55,8 +52,6 @@ class ChRest_Parser extends Extension_RestController { //implements IExtensionRe
 			'mask' => $ticket->mask,
 			'last_message_id' => $ticket->last_message_id,
 		);
-			
-		@unlink($file);
 		
 		$this->success($container);
 	}

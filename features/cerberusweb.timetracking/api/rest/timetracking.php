@@ -54,8 +54,6 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	private function getId($id) {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -140,9 +138,8 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	function getContext($model) {
-		$labels = array();
-		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_TIMETRACKING, $model, $labels, $values, null, true);
+		$labels = $values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_TIMETRACKING, $model, $labels, $values, null, true);
 
 		return $values;
 	}
@@ -221,8 +218,6 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 	}
 	
 	function postSearch() {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
@@ -325,14 +320,14 @@ class ChRest_TimeTracking extends Extension_RestController implements IExtension
 				// Verify that activity_id exists
 				case 'activity_id':
 					if(!empty($value))
-						if(false == ($activity = DAO_TimeTrackingActivity::get($value)))
+						if(false == (DAO_TimeTrackingActivity::get($value)))
 							$this->error(self::ERRNO_CUSTOM, sprintf("'%d' is not a valid %s.", $value, $postfield));
 					break;
 					
 				// Verify that worker_id exists
 				case 'worker_id':
 					if(!empty($value))
-						if(false == ($lookup = DAO_Worker::get($value)))
+						if(false == (DAO_Worker::get($value)))
 							$this->error(self::ERRNO_CUSTOM, sprintf("'%s' is not a valid worker id.", $postfield));
 					break;
 			}

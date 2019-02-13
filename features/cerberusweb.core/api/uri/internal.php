@@ -3327,7 +3327,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 		
 		foreach($dicts as $dict) {
-			$fields = array();
+			$fields = [];
 			
 			foreach($cursor['tokens'] as $token) {
 				$value = $dict->get($token);

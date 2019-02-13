@@ -357,7 +357,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				mysqli_real_escape_string($this->_master_db, $chunk),
 				$chunks
 			);
-			if(false === ($result = mysqli_query($this->_master_db, $sql))) {
+			if(false === (mysqli_query($this->_master_db, $sql))) {
 				// Rollback
 				$sql = sprintf("DELETE FROM storage_%s WHERE id = %d",
 					$this->escapeNamespace($namespace),
@@ -389,7 +389,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				mysqli_real_escape_string($this->_master_db, $chunk),
 				$chunks
 			);
-			if(false === ($result = mysqli_query($this->_master_db, $sql))) {
+			if(false === (mysqli_query($this->_master_db, $sql))) {
 				// Rollback
 				$sql = sprintf("DELETE FROM storage_%s WHERE id = %d",
 					$this->escapeNamespace($namespace),
@@ -594,7 +594,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		@$bucket = $this->_options['bucket'];
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
-		return false !== ($info = $this->_s3->getObjectInfo($bucket, $path));
+		return false !== ($this->_s3->getObjectInfo($bucket, $path));
 	}
 	
 	public function put($namespace, $id, $data) {
@@ -638,7 +638,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		if($fp && is_resource($fp)) {
 			// Use the filename rather than $fp because the S3 lib will fclose($fp)
 			$tmpfile = DevblocksPlatform::getTempFileInfo($fp);
-			if(false !== ($tmp = $this->_s3->getObject($bucket, $path, $tmpfile))) {
+			if(false !== ($this->_s3->getObject($bucket, $path, $tmpfile))) {
 				fseek($fp, 0);
 				return true;
 			}
@@ -653,8 +653,6 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function delete($namespace, $key) {
-		@$bucket = $this->_options['bucket'];
-		
 		// Queue up batch DELETEs
 		$profile_id = isset($this->_options['_profile_id']) ? $this->_options['_profile_id'] : 0;
 		DAO_DevblocksStorageQueue::enqueueDelete($namespace, $key, $this->manifest->id, $profile_id);
@@ -674,7 +672,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		// Handle the case where some objects fail to delete (e.g. AccessDenied)
 		
 		foreach($paths as $path) {
-			if(false === ($xml = $this->_s3->deleteObject($bucket, $path))) {
+			if(false === ($this->_s3->deleteObject($bucket, $path))) {
 				$errors[] = str_replace($path_prefix . $ns . '/', '', $path);
 			}
 		}

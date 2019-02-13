@@ -56,7 +56,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			
 			// Delete entries
 			if(!empty($id) && !empty($do_delete)) {
-				if(false == ($entry = DAO_TimeTrackingEntry::get($id)))
+				if(false == (DAO_TimeTrackingEntry::get($id)))
 					throw new Exception_DevblocksAjaxValidationError("Record not found.");
 				
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TIMETRACKING)))
@@ -71,6 +71,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				));
 				return;
 			}
+			
+			$error = null;
 			
 			// New or modify
 			$fields = array(
@@ -106,7 +108,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 					case CerberusContexts::CONTEXT_OPPORTUNITY:
 					case CerberusContexts::CONTEXT_TICKET:
 					case CerberusContexts::CONTEXT_TASK:
-						if(null != ($worker_address = $active_worker->getEmailModel())) {
+						if(null != ($active_worker->getEmailModel())) {
 							if(!empty($activity_id)) {
 								$activity = DAO_TimeTrackingActivity::get($activity_id);
 							}
@@ -226,7 +228,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 					DAO_Comment::CONTEXT_ID => $id,
 					DAO_Comment::CREATED => time(),
 				);
-				$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+				DAO_Comment::create($fields, $also_notify_worker_ids);
 			}
 			
 			$model = new Model_TimeTrackingEntry();

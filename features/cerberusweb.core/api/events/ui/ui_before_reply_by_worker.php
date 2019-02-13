@@ -64,12 +64,13 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 	function setEvent(Model_DevblocksEvent $event_model=null, Model_TriggerEvent $trigger=null) {
 		parent::setEvent($event_model, $trigger);
 		
+		$labels = $this->getLabels($trigger);
+		$values = $this->getValues();
+		
 		/**
 		 * Behavior
 		 */
-		
-		$merge_labels = array();
-		$merge_values = array();
+		$merge_labels = $merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -82,17 +83,13 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 				$values
 			);
 		
-		$labels = $this->getLabels($trigger);
-		$values = $this->getValues();
-		
 		// Add the worker_id
 		@$worker_id = $event_model->params['worker_id'];
 		
 		/**
 		 * Current worker
 		 */
-		$worker_labels = array();
-		$worker_values = array();
+		$worker_labels = $worker_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, 'Current Worker:', true);
 				
 			// Merge
@@ -179,6 +176,7 @@ class Event_MailBeforeUiReplyByWorker extends AbstractEvent_Message {
 				$out = sprintf(">>> Executing jQuery script:\n\n%s\n",
 					$script
 				);
+				return $out;
 				break;
 		}
 	}

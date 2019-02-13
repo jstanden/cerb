@@ -148,8 +148,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			if(false == ($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
 				continue;
 			
-			foreach($ids as $id)
-				DAO_Attachment::addLinks($link_context_ext->id, $link_id, $ids);
+			DAO_Attachment::addLinks($link_context_ext->id, $link_id, $ids);
 		}
 	}
 	
@@ -403,8 +402,6 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
 		$do = $update->actions;
 		$ids = $update->context_ids;
 
@@ -565,7 +562,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Attachment::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, array(), 'SearchFields_Attachment', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, array(), 'SearchFields_Attachment', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"a.id as %s, ".
@@ -1506,8 +1503,6 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_Attachment::VIRTUAL_BUNDLE_SEARCH:

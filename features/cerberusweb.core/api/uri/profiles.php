@@ -82,7 +82,7 @@ class Page_Profiles extends CerberusPageExtension {
 		if(!empty($path)) {
 			$tpl->assign('tab_selected', array_shift($path));
 		}
-
+		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/profile.tpl');

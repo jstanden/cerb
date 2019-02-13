@@ -265,8 +265,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return array();
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = array();
@@ -427,8 +425,6 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	}
 	
 	static function mergeIds($from_ids, $to_id) {
-		$db = DevblocksPlatform::services()->database();
-		
 		$context = self::_getContextName();
 		
 		if(empty($from_ids) || empty($to_id))
@@ -481,7 +477,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		
 		$fields = $search_class::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, $search_class, $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, $search_class, $sortBy);
 		
 		$table_name = self::_getTableName();
 		
@@ -1033,7 +1029,6 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -1044,8 +1039,6 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_AbstractCustomRecord::VIRTUAL_CONTEXT_LINK:
@@ -1205,7 +1198,6 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	function getMeta($context_id) {
 		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
 		$abstract_custom_record = $dao_class::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($abstract_custom_record->name);
@@ -1263,7 +1255,6 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		$dao_class = $custom_record->getDaoClass();
 		$model_class = $custom_record->getModelClass();
 		$context_name = self::_getContextName();
-		$table_name = self::_getTableName();
 		
 		// Polymorph
 		if(is_numeric($abstract_custom_record)) {
@@ -1625,6 +1616,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	function importSaveObject(array $fields, array $custom_fields, array $meta) {
 		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
 		$context = self::_getContextName();
+		$error = null;
 		
 		// If new...
 		if(!isset($meta['object_id']) || empty($meta['object_id'])) {

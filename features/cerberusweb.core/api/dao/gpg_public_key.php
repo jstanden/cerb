@@ -195,8 +195,6 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -286,7 +284,7 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_GpgPublicKey::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_GpgPublicKey', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_GpgPublicKey', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"gpg_public_key.id as %s, ".
@@ -715,7 +713,6 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -726,8 +723,6 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_GpgPublicKey::VIRTUAL_CONTEXT_LINK:
@@ -860,7 +855,6 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 	
 	function getMeta($context_id) {
 		$gpg_public_key = DAO_GpgPublicKey::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($gpg_public_key->name);

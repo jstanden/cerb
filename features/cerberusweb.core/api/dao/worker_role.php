@@ -192,13 +192,6 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		return DAO_WorkerRole::getIds($role_ids);
 	}
 	
-	static function getRolesByWorker($worker_id) {
-		$role_data = DAO_WorkerRole::_getDataByWorker($worker_id);
-		
-		$role_ids = array_column($role_data, 'role_id');
-		return DAO_WorkerRole::getIds($role_ids);
-	}
-	
 	private static function _getDataByWorker($worker_id, $nocache=false) {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = self::_CACHE_WORKER_ROLES_PREFIX . $worker_id;

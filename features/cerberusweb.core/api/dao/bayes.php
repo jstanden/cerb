@@ -65,7 +65,7 @@ class DAO_Bayes {
 		
 		// Insert new words
 		if(is_array($tmp))
-		foreach($tmp as $new_word => $v) {
+		foreach(array_keys($tmp) as $new_word) {
 			$sql = sprintf("INSERT INTO bayes_words (word) VALUES (%s)",
 				$db->qstr($new_word)
 			);
@@ -226,7 +226,7 @@ class CerberusBayes {
 		$words = self::_removeCommonWords($words);
 		
 		// Toss anything over/under the word length bounds
-		foreach($words as $k => $v) {
+		foreach(array_keys($words) as $k) {
 			$len = mb_strlen($k);
 			if($len < $min || $len > $max || is_numeric($k)) { // [TODO]: Make decision on !numeric?
 				unset($words[$k]); // toss
@@ -1031,7 +1031,7 @@ class CerberusBayes {
 		// Make a word list
 		$raw_words = array();
 		if(isset($spam_data['words']) && is_array($spam_data['words']))
-		foreach($spam_data['words'] as $k=>$v) { /* @var $v Model_BayesWord */
+		foreach($spam_data['words'] as $v) { /* @var $v Model_BayesWord */
 			$raw_words[] = $v->word;
 		}
 		

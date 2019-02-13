@@ -18,17 +18,13 @@
 class ChWelcomePage extends CerberusPageExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		return true;
 	}
 	
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
-		
-		$response = DevblocksPlatform::getHttpResponse();
-		$stack = $response->path;
-
 		$tpl->display('devblocks:cerberusweb.core::welcome/index.tpl');
 	}
 };

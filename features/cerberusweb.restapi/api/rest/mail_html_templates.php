@@ -34,7 +34,7 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 		@$action = array_shift($stack);
 		
 		if(is_numeric($action) && !empty($stack)) {
-			$id = intval($action);
+			//$id = intval($action);
 			$action = array_shift($stack);
 			
 			switch($action) {
@@ -63,7 +63,7 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 		if(!$worker->is_superuser)
 			$this->error(self::ERRNO_ACL);
 
-		if(null == ($template = DAO_MailHtmlTemplate::get($id)))
+		if(null == (DAO_MailHtmlTemplate::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid mail HTML template ID %d", $id));
 
 		DAO_MailHtmlTemplate::delete($id);
@@ -119,10 +119,8 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 	}
 
 	function getContext($model) {
-		$labels = array();
-		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $model, $labels, $values, null, true);
-
+		$labels = $values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $model, $labels, $values, null, true);
 		return $values;
 	}
 	
@@ -130,8 +128,8 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// ACL
-//		if(!$worker->hasPriv('...'))
-//			$this->error(self::ERRNO_ACL);
+		if(!Context_MailHtmlTemplate::isReadableByActor($id, $worker))
+			$this->error(self::ERRNO_ACL);
 
 		$container = $this->search(array(
 			array('id', '=', $id),
@@ -149,7 +147,7 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
 		
-		$params = array();
+		$params = [];
 		
 		// Sort
 		$sortBy = $this->translateToken($sortToken, 'search');
@@ -218,8 +216,6 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 	}
 	
 	function postSearch() {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		// ACL
 //		if(!$worker->hasPriv('core.addybook'))
 //			$this->error(self::ERRNO_ACL);
@@ -233,7 +229,7 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 		$worker = CerberusApplication::getActiveWorker();
 		
 		// Validate the ID
-		if(null == ($template = DAO_MailHtmlTemplate::get($id)))
+		if(null == (DAO_MailHtmlTemplate::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid mail HTML template ID '%d'", $id));
 			
 		// ACL
@@ -326,7 +322,7 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 		$this->_handleRequiredFields($reqfields, $fields);
 		
 		// Custom fields
-		$custom_fields = $this->_handleCustomFields($_POST);
+		$this->_handleCustomFields($_POST);
 		
 		// Create
 		if(false != ($id = DAO_MailHtmlTemplate::create($fields))) {
