@@ -158,6 +158,23 @@ if(array_key_exists('params_json', $columns)) {
 }
 
 // ===========================================================================
+// Convert `comment.comment` to utf8mb4
+
+if(!isset($tables['comment']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('comment');
+
+if(!array_key_exists('comment', $columns))
+	return FALSE;
+
+if('utf8_general_ci' == $columns['comment']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE comment MODIFY COLUMN comment MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE comment");
+	$db->ExecuteMaster("OPTIMIZE TABLE comment");
+}
+
+// ===========================================================================
 // Convert `ticket.subject` to utf8mb4
 
 if(!isset($tables['ticket']))

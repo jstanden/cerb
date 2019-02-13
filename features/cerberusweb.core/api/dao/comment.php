@@ -31,7 +31,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 		
 		$validation
 			->addField(self::COMMENT)
-			->string()
+			->string($validation::STRING_UTF8MB4)
 			->setMaxLength(65535)
 			->setRequired(true)
 			;
