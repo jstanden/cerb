@@ -1395,10 +1395,6 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
-				
 			case 'params':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

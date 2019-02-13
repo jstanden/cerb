@@ -2141,9 +2141,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				$out_fields[DAO_Group::_IMAGE] = $value;
 				break;
 			
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 				
 			case 'members':
 				$out_fields[DAO_Group::_MEMBERS] = json_encode($value);

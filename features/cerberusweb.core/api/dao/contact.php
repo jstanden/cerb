@@ -2142,9 +2142,6 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				$out_fields[DAO_Contact::PRIMARY_EMAIL_ID] = $address->id;
 				break;
 			
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 		}
 		
 		return true;

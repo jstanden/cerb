@@ -1228,9 +1228,6 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 				$out_fields[DAO_KbArticle::FORMAT] = $format_id;
 				break;
 				
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 		}
 		
 		return true;

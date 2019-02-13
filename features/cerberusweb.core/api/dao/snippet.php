@@ -1586,9 +1586,6 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 			
 			case 'placeholders':
 				if(!is_array($value)) {

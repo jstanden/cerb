@@ -1587,10 +1587,6 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
-			
 			case 'owner':
 				break;
 				

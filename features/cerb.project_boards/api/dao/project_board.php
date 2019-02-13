@@ -1091,10 +1091,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 				$out_fields[DAO_ProjectBoard::COLUMNS_JSON] = $json;
 				break;
 				
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
-				
 			case 'params':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

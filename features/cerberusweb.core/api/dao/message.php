@@ -2575,9 +2575,6 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				$out_fields[DAO_Message::_HEADERS] = $value;
 				break;
 				
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 				
 			case 'sender':
 				if(false == ($address = DAO_Address::lookupAddress($value, true))) {

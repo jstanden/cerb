@@ -3447,9 +3447,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 				$out_fields[DAO_Worker::_IMAGE] = $value;
 				break;
 				
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 				
 			case 'password':
 				$out_fields[DAO_Worker::_PASSWORD] = $value;

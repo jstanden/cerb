@@ -1272,9 +1272,6 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 				$out_fields[DAO_WorkspaceList::COLUMNS_JSON] = json_encode($value);
 				break;
 			
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 				
 			case 'options':
 				if(!is_array($value)) {

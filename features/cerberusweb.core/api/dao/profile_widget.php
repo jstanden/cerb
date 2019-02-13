@@ -1196,9 +1196,6 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 				$out_fields[DAO_ProfileWidget::EXTENSION_PARAMS_JSON] = $json;
 				break;
 			
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 		}
 		
 		return true;

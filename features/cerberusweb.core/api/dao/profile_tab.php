@@ -1077,9 +1077,6 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 				$out_fields[DAO_ProfileTab::EXTENSION_PARAMS_JSON] = $json;
 				break;
 			
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 		}
 		
 		return true;

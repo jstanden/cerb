@@ -1080,9 +1080,6 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 	// [TODO] Params?
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 		}
 		
 		return true;

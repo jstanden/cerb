@@ -1249,10 +1249,6 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 				$out_fields['_links'] = json_encode($links);
 				break;
 				
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
-			
 			case 'params':
 				if(!is_array($value)) {
 					$error = 'must be an object.';

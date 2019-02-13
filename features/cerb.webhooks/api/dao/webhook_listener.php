@@ -1085,10 +1085,6 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 				
 				$out_fields[DAO_WebhookListener::EXTENSION_PARAMS_JSON] = $json;
 				break;
-				
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 		}
 		
 		return true;

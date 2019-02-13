@@ -1232,9 +1232,6 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 			
 			case 'params':
 				if(!is_array($value)) {

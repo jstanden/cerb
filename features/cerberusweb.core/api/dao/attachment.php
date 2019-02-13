@@ -1917,10 +1917,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			case 'content':
 				$out_fields['_content'] = $value;
 				break;
-				
-			case 'links':
-				$this->_getDaoFieldsLinks($value, $out_fields, $error);
-				break;
 		}
 		
 		return true;
