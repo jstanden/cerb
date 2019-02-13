@@ -1,0 +1,116 @@
+{
+  "package": {
+    "name": "Bot Behavior Loop: Break",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Loop with break",
+      "uri": "cerb_bot_behavior_loop__break",
+      "description": "A loop that stops early if a certain condition is true",
+      "point": "behavior_loop",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_loop_break",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "loop",
+      "title": "Loop:",
+      "status": "live",
+      "params": {
+        "foreach_json": "[1,2,3,4,5]",
+        "as_placeholder": "_item"
+      },
+      "nodes": [
+        {
+          "type": "action",
+          "title": "Do something",
+          "status": "live",
+          "params": {
+            "actions": [
+
+            ]
+          }
+        },
+        {
+          "type": "switch",
+          "title": "Break?",
+          "status": "live",
+          "nodes": [
+            {
+              "type": "outcome",
+              "title": "Yes",
+              "status": "live",
+              "params": {
+                "groups": [
+                  {
+                    "any": 0,
+                    "conditions": [
+                      {
+                        "condition": "_custom_script",
+                        "tpl": "{# The loop will break when this condition is true. This example stops early on the third item. #}\r\n{{_item}}",
+                        "oper": "is",
+                        "value": "3"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "nodes": [
+                {
+                  "type": "action",
+                  "title": "Break",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "_set_custom_var",
+                        "value": "{# We clear the loop's remaining stack to exit #}\r\n[]",
+                        "format": "json",
+                        "is_simulator_only": "0",
+                        "var": "_item__stack"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

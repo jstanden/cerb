@@ -1,0 +1,96 @@
+{
+  "package": {
+    "name": "Bot Behavior Loop: Records",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Loop record search results",
+      "uri": "cerb_bot_behavior_loop__records",
+      "description": "Loop through results from a record search query",
+      "point": "behavior_loop",
+      "image": ""
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_search_records",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Search records",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+            "action": "core.bot.action.record.search",
+            "context": "ticket",
+            "query": "status:o sort:-updated limit:25",
+            "expand": "custom_, owner_, group_, bucket_, initial_message_sender_, latest_message_sender_",
+            "object_placeholder": "_records"
+          }
+        ]
+      }
+    },
+    {
+      "uid": "node_loop_records",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "loop",
+      "title": "Loop record search results",
+      "status": "live",
+      "params": {
+        "foreach_json": "{{_records|keys|json_encode}}",
+        "as_placeholder": "_record_id"
+      },
+      "nodes": [
+        {
+          "type": "action",
+          "title": "Do something",
+          "status": "live",
+          "params": {
+            "actions": [
+              {
+                "action": "_set_custom_var",
+                "value": "{# See: https://cerb.ai/docs/records/#record-types #}\r\n{% set record = _records[_record_id] %}\r\nSubject: {{record._label}}\r\nGroup: {{record.group__label}}\r\nBucket: {{record.bucket__label}}\r\nStatus: {{record.status}}\r\nOwner: {{record.owner__label}}\r\nFirst Wrote: {{record.initial_message_sender__label}}\r\nLast Wrote: {{record.latest_message_sender__label}}\r\nCreated: {{record.created|date_pretty}}\r\n",
+                "format": "",
+                "is_simulator_only": "0",
+                "var": "_placeholder"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
