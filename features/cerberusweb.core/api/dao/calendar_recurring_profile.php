@@ -84,6 +84,11 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			->addValidator($validation->validators()->timezone())
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

@@ -49,7 +49,11 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-		// 
+		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
 		$validation
 			->addField('_links')
 			->string()

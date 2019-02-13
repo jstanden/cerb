@@ -104,6 +104,11 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 			->uint(2)
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

@@ -55,6 +55,11 @@ class DAO_Classifier extends Cerb_ORMHelper {
 			->timestamp()
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

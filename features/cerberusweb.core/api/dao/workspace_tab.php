@@ -67,6 +67,11 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKSPACE_PAGE))
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

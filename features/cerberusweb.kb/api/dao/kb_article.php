@@ -70,6 +70,11 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			->string() // [TODO] test CSV ID list
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

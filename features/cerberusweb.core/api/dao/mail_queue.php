@@ -105,6 +105,11 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER))
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

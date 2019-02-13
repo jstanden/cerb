@@ -88,6 +88,11 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			->setMaxLength('32 bits')
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

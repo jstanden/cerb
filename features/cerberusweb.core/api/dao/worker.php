@@ -208,6 +208,11 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->setMinLength(8)
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

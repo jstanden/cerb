@@ -90,6 +90,11 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			->setMaxLength(255)
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

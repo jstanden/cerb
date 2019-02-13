@@ -49,6 +49,11 @@ class DAO_Reminder extends Cerb_ORMHelper {
 			->setRequired(true)
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

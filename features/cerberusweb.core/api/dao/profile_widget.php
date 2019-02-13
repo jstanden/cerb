@@ -62,6 +62,11 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			->string()
 			;
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)

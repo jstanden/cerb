@@ -73,6 +73,11 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 			;
 		
 		$validation
+			->addField('_fieldsets')
+			->string()
+			->setMaxLength(65535)
+			;
+		$validation
 			->addField('_links')
 			->string()
 			->setMaxLength(65535)
