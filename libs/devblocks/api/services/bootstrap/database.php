@@ -109,7 +109,16 @@ class _DevblocksDatabaseManager {
 			return false;
 		
 		// Set the character encoding for this connection
-		mysqli_set_charset($db, DB_CHARSET_CODE);
+		$charset = DB_CHARSET_CODE;
+		
+		// Upgrade utf8 to utf8mb4
+		switch(DevblocksPlatform::strLower($charset)) {
+			case 'utf8':
+				$charset = 'utf8mb4';
+				break;
+		}
+		
+		mysqli_set_charset($db, $charset);
 		
 		return $db;
 	}
