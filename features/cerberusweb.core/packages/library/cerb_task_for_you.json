@@ -1,0 +1,65 @@
+{
+  "package": {
+    "name": "Task for you",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "New task for you",
+      "uri": "cerb_task_for_you",
+      "description": "A new task assigned to you",
+      "point": "task",
+      "image": ""
+    },
+    "configure": {
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Current worker",
+          "key": "current_worker_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.worker",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Task name",
+          "key": "prompt_task_name",
+          "params": {
+            "default": "New task",
+            "placeholder": "(e.g. Prepare quarterly report)"
+          }
+        },
+        {
+          "type": "picklist",
+          "label": "Importance",
+          "key": "prompt_importance",
+          "params": {
+            "options": {"Low":25,"Normal":50,"High":75,"Urgent":100},
+            "default": "50"
+          }
+        }
+      ],
+      "placeholders": [
+
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "task_new",
+      "_context": "task",
+      "title": "{{{prompt_task_name}}}",
+      "owner_id": "{{{current_worker_id}}}",
+      "importance": "{{{prompt_importance}}}",
+      "status": "o"
+    }
+  ]
+}
