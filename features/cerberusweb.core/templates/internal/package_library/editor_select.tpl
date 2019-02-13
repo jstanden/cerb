@@ -1,7 +1,3 @@
-<div style="margin-bottom:10px;">
-	<button type="button" data-cerb-action="cancel">&laquo; {'common.library'|devblocks_translate|capitalize}</button>
-</div>
-
 <div class="package-library--package">
 	<input type="hidden" name="package" value="{$package->uri}">
 
@@ -17,9 +13,16 @@
 			{$package->description}
 		</div>
 		<div class="package-library--package-instructions">
-			[ instructions ]
+			{*[ instructions ]*}
 		</div>
 	</div>
+	
+	<div class="package-library--package-prompts">
+		{include file="devblocks:cerberusweb.core::configuration/section/package_import/prompts.tpl"}
+	</div>
+	
+	<div class="package-library--package-buttons">
+		<button type="button" data-cerb-action="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.create'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-action="cancel">{'common.cancel'|devblocks_translate|capitalize}</button>
+	</div>
 </div>
-
-{include file="devblocks:cerberusweb.core::configuration/section/package_import/prompts.tpl"}

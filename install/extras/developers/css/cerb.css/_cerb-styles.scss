@@ -1899,6 +1899,24 @@ div.cerb-uploads {
 		transform:translateX(100%);
 		transition:opacity 0.3s, transform 0.8s;
 		
+		.package-library--cancel {
+			position:relative;
+			
+			> div {
+				position:absolute;
+				right:0;
+				top:0;
+				cursor:pointer;
+				font-size:200%;
+				
+				span.glyphicons-circle-remove {
+					&:hover {
+						color: rgb(180,0,0);
+					}
+				}
+			}
+		}
+		
 		.package-library--package {
 			.package-library--package-title {
 				font-size:2em;

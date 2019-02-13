@@ -1832,6 +1832,19 @@ div.cerb-uploads p.failure {
   transform: translateX(100%);
   transition: opacity 0.3s, transform 0.8s;
 }
+.package-library--container .package-library--package-info .package-library--cancel {
+  position: relative;
+}
+.package-library--container .package-library--package-info .package-library--cancel > div {
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  font-size: 200%;
+}
+.package-library--container .package-library--package-info .package-library--cancel > div span.glyphicons-circle-remove:hover {
+  color: #b40000;
+}
 .package-library--container .package-library--package-info .package-library--package .package-library--package-title {
   font-size: 2em;
 }
