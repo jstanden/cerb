@@ -4,21 +4,21 @@
 	<name>Translation Editor</name>
 	<description>A GUI for translating the Cerb interface into other languages.  This adds a 'Translations' tab to Configuration.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.1.5</version>
+	<version>9.2.0</version>
 	<link>http://wiki.cerbweb.com/Features:Translation_Editor</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.1" max="9.1.99" />
+		<app_version min="9.2" max="9.2.99" />
 		<php_extension name="mbstring" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="8.1.0" />
+		<require plugin_id="cerberusweb.core" version="9.2.0" />
 	</dependencies>
 	
 	<!-- Exported Classes -->

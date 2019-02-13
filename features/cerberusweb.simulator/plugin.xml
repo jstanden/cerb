@@ -4,20 +4,20 @@
 	<name>Record Simulator</name>
 	<description>A tool that makes it easy to create batches of realistic sample tickets, tasks, and organizations; useful for evaluations, plugin development, and testing.  This adds a Simulator option to the Setup Plugins menu.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.1.5</version>
+	<version>9.2.0</version>
 	<link>http://wiki.cerbweb.com/Features:Ticket_Simulator</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.1" max="9.1.99" />
+		<app_version min="9.2" max="9.2.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="8.1.0" />
+		<require plugin_id="cerberusweb.core" version="9.2.0" />
 	</dependencies>
 
 	<!-- Extensions -->
