@@ -114,11 +114,11 @@ class Cerb_Packages {
 				
 				@$value = $prompts[$key];
 				
-				if(0 == strlen($value))
-					throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
-				
 				switch($config_prompt['type']) {
 					case 'chooser':
+						if(0 == strlen($value))
+							throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
+						
 						$placeholders[$key] = $value;
 						
 						// If the key ends with '_id', allow lazy loading of all context placeholders
@@ -131,7 +131,22 @@ class Cerb_Packages {
 						
 						break;
 						
+					case 'picklist':
+						@$options = $config_prompt['params']['options'];
+						
+						if(!is_array($options) || !in_array($value, $options))
+							throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
+						
+						if(@$config_prompt['params']['multiple']) {
+						} else {
+							$placeholders[$key] = $value;
+						}
+						break;
+						
 					case 'text':
+						if(0 == strlen($value))
+							throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
+						
 						$placeholders[$key] = $value;
 						break;
 				}
