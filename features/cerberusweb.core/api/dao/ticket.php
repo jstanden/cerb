@@ -1882,10 +1882,20 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$prefetch_sql = null;
 			
 			if(!empty($params)) {
+				$sort_by = 't.id';
+				
+				// Optimize index usage if we're already constraining by date
+				if(false !== stripos($where_sql, 't.updated_date')) {
+					$sort_by = 't.updated_date';
+				} else if(false !== stripos($where_sql, 't.created_date')) {
+					$sort_by = 't.created_date';
+				}
+				
 				$prefetch_sql = 
-					sprintf('SELECT message.id FROM message INNER JOIN (SELECT t.id %s%s ORDER BY id DESC LIMIT 20000) AS search ON (search.id=message.ticket_id)',
+					sprintf('SELECT message.id FROM message INNER JOIN (SELECT t.id %s%s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.ticket_id)',
 						$join_sql,
-						$where_sql
+						$where_sql,
+						$sort_by
 					);
 			}
 			
