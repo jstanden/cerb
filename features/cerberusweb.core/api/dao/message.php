@@ -566,10 +566,19 @@ class DAO_Message extends Cerb_ORMHelper {
 			$prefetch_sql = null;
 			
 			if(!empty($params)) {
+				$sort_by = 'm.id';
+				
+				// Optimize index usage if we're already constraining by date
+				if(false !== stripos($where_sql, 'created_date')) {
+					$sort_by = 'm.created_date';
+				}
+				
+				// We need this extra JOIN to be able to do the LIMIT (can't in subqueries)
 				$prefetch_sql = 
-					sprintf('SELECT message.id FROM message INNER JOIN (SELECT m.id %s%s ORDER BY id DESC LIMIT 20000) AS search ON (search.id=message.id)',
+					sprintf('SELECT message.id FROM message INNER JOIN (SELECT m.id %s%s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.id)',
 						$join_sql,
-						$where_sql
+						$where_sql,
+						$sort_by
 					);
 			}
 			
