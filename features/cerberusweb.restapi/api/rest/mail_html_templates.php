@@ -93,7 +93,6 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 			$tokens = array(
 				'fieldsets' => SearchFields_MailHtmlTemplate::VIRTUAL_HAS_FIELDSET,
 				'links' => SearchFields_MailHtmlTemplate::VIRTUAL_CONTEXT_LINK,
-				'watchers' => SearchFields_MailHtmlTemplate::VIRTUAL_WATCHERS,
 			);
 			
 			$tokens_cfields = $this->_handleSearchTokensCustomFields(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE);
@@ -110,7 +109,6 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 				'owner_context_id' => SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID,
 				'signature' => SearchFields_MailHtmlTemplate::SIGNATURE,
 				'updated_at' => SearchFields_MailHtmlTemplate::UPDATED_AT,
-				'watchers' => SearchFields_MailHtmlTemplate::VIRTUAL_WATCHERS,
 			);
 		}
 		
