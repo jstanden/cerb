@@ -912,19 +912,24 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$cache_ttl = 300;
 		$is_cached = true;
 		
-		if(isset($attributes['id']) && is_array($attributes['id']) && isset($attributes['id']['sql'])) {
-			$sql = sprintf("CREATE TEMPORARY TABLE %s (id int unsigned, content text) ENGINE=MyISAM SELECT id, content FROM fulltext_%s WHERE id IN (%s)",
-				$db->escape($temp_table),
-				$this->escapeNamespace($ns),
-				$attributes['id']['sql']
-			);
-			
+		if(array_key_exists('id', $attributes) && is_array($attributes['id']) && array_key_exists('sql', $attributes['id'])) {
 			$cache_key = sprintf("search:%s", sha1($ns.$escaped_query.$attributes['id']['sql'].json_encode($where_sql)));
 			
 			if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
 				$is_cached = false;
 				
+				// Without locks
+				$db->ExecuteSlave("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
+				
+				$sql = sprintf("CREATE TEMPORARY TABLE %s (id int unsigned, content text) ENGINE=MyISAM SELECT id, content FROM fulltext_%s WHERE id IN (%s)",
+					$db->escape($temp_table),
+					$this->escapeNamespace($ns),
+					$attributes['id']['sql']
+				);
 				$db->ExecuteSlave($sql);
+				
+				// Resume locking
+				$db->ExecuteSlave("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ");
 				
 				$sql = sprintf("SELECT id ".
 					"FROM %s ".
