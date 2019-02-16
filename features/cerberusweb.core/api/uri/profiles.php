@@ -2807,6 +2807,9 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		
 		$config_json['size'] = ['height' => $height ?: 320];
 		
+		if(false != ($chart_meta = @$results['_']))
+			$tpl->assign('chart_meta_json', json_encode($chart_meta));
+		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('yaxis_format', $yaxis_format);
 		$tpl->assign('widget', $model);

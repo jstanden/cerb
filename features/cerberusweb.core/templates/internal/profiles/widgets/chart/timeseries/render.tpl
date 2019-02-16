@@ -19,7 +19,44 @@ $(function() {
 		try {
 			var $widget = $('#widget{$widget->id}');
 			
+			var chart = null;
 			var config_json = {$config_json nofilter};
+			
+			{if $chart_meta_json}
+				var chart_meta = {$chart_meta_json nofilter};
+
+				if(chart_meta.series) {
+					config_json.data.onclick = function(d, i) {
+						try {
+							if(!config_json.data.json && !config_json.data.json)
+								return;
+							
+							if(!chart_meta.series[d.id])
+								return;
+							
+							var ts = config_json.data.json.ts[d.index];
+							var series_meta = chart_meta.series[d.id][ts];
+							
+							var $trigger = $('<div/>')
+								.attr('data-context', chart_meta.context)
+								.attr('data-query', series_meta.query)
+								.cerbSearchTrigger()
+								.on('cerb-search-opened', function(e) {
+									$(this).remove();
+								})
+								.click()
+								;
+							
+						} catch(e) {
+							if(console && console.error)
+								console.error(e);
+						}
+					};
+				}
+				
+			{else}
+				var chart_meta = {};
+			{/if}
 			
 			{if $is_date_formatted}
 				var shortEnglishHumanizer = humanizeDuration.humanizer({
@@ -56,7 +93,7 @@ $(function() {
 			config_json.axis.y.tick.format = d3.format(',');
 			{/if}
 			
-			var chart = c3.generate(config_json);
+			chart = c3.generate(config_json);
 		
 		} catch(e) {
 			console.error(e);
