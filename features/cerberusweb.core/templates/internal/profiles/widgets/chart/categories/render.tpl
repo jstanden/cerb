@@ -18,7 +18,46 @@ $(function() {
 		try {
 			var $widget = $('#widget{$widget->id}');
 			
+			var chart = null;
 			var config_json = {$config_json nofilter};
+			
+			{if $chart_meta_json}
+				var chart_meta = {$chart_meta_json nofilter};
+				
+				if(chart_meta.series) {
+					config_json.data.onclick = function(d) {
+						try {
+							if(!config_json.data.columns && !config_json.data.columns)
+								return;
+							
+							var series_key = config_json.data.columns[0][d.index + 1];
+							var series_meta = [];
+							
+							if(d.id == 'hits') {
+								series_meta = chart_meta.series[d.id][series_key];
+							} else {
+								series_meta = chart_meta.series[series_key][d.id];
+							}
+							
+							var $trigger = $('<div/>')
+								.attr('data-context', chart_meta.context)
+								.attr('data-query', series_meta.query)
+								.cerbSearchTrigger()
+								.on('cerb-search-opened', function(e) {
+									$(this).remove();
+								})
+								.click()
+								;
+							
+						} catch(e) {
+							if(console && console.error)
+								console.error(e);
+						}
+					};
+				}
+			{else}
+				var chart_meta = {};
+			{/if}
 			
 			{if $is_date_formatted}
 				var shortEnglishHumanizer = humanizeDuration.humanizer({
@@ -65,7 +104,7 @@ $(function() {
 			{else}
 			{/if}
 			
-			var chart = c3.generate(config_json);
+			chart = c3.generate(config_json);
 		
 		} catch(e) {
 			console.error(e);
