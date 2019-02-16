@@ -1668,8 +1668,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 				$height = 100 + (50 * @count($results['data'][0]));
 		}
 		
-		if($height)
-			$config_json['size'] = ['height' => $height];
+		$config_json['size'] = ['height' => $height ?: 320];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('xaxis_format', $xaxis_format);
@@ -1833,8 +1832,7 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 		
 		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
 		
-		if($height)
-			$config_json['size'] = ['height' => $height];
+		$config_json['size'] = ['height' => $height ?: 320];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $widget);
@@ -2003,8 +2001,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 				$config_json['data']['xs'][mb_substr($result[0],0,-2)] = $result[0];
 		}
 		
-		if($height)
-			$config_json['size'] = ['height' => $height];
+		$config_json['size'] = ['height' => $height ?: 320];
 		
 		if($xaxis_label)
 			$config_json['axis']['x']['label'] = $xaxis_label;
@@ -2408,8 +2405,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		if($yaxis_label)
 			$config_json['axis']['y']['label'] = $yaxis_label;
 		
-		if($height)
-			$config_json['size'] = ['height' => $height];
+		$config_json['size'] = ['height' => $height ?: 320];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('yaxis_format', $yaxis_format);

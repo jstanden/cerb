@@ -2413,8 +2413,7 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 				$height = 100 + (50 * @count($results['data'][0]));
 		}
 		
-		if($height)
-			$config_json['size'] = ['height' => $height];
+		$config_json['size'] = ['height' => $height ?: 320];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('xaxis_format', $xaxis_format);
@@ -2504,8 +2503,7 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		
 		$config_json['legend']['show']  = @$options['show_legend'] ? true : false;
 		
-		if($height)
-			$config_json['size'] = ['height' => $height];
+		$config_json['size'] = ['height' => $height ?: 320];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $model);
@@ -2600,8 +2598,7 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 		if($yaxis_label)
 			$config_json['axis']['y']['label'] = $yaxis_label;
 		
-		if($height)
-			$config_json['size'] = ['height' => $height];
+		$config_json['size'] = ['height' => $height ?: 320];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('xaxis_format', $xaxis_format);
@@ -2805,8 +2802,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		if($yaxis_label)
 			$config_json['axis']['y']['label'] = $yaxis_label;
 		
-		if($height)
-			$config_json['size'] = ['height' => $height];
+		$config_json['size'] = ['height' => $height ?: 320];
 		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('yaxis_format', $yaxis_format);
