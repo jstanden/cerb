@@ -2508,6 +2508,9 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		
 		$config_json['size'] = ['height' => $height ?: 320];
 		
+		if(false != ($chart_meta = @$results['_']))
+			$tpl->assign('chart_meta_json', json_encode($chart_meta));
+		
 		$tpl->assign('config_json', json_encode($config_json));
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/pie/render.tpl');

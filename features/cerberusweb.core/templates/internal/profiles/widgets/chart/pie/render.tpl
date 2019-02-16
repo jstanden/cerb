@@ -22,6 +22,38 @@ $(function() {
 				return d3.format(',')(value) + ' (' + d3.format('.1%')(ratio) + ')';
 			}
 			
+			{if $chart_meta_json}
+			try {
+				var chart_meta = {$chart_meta_json nofilter};
+				
+				function func_search_by_series(series_id) {
+					if(null == chart_meta.series[series_id])
+						return;
+					
+					var series_meta = chart_meta.series[series_id];
+					
+					if(series_meta.query) {
+						var $trigger = $('<div/>')
+							.attr('data-context', chart_meta.context)
+							.attr('data-query', series_meta.query)
+							.cerbSearchTrigger()
+							.on('cerb-search-opened', function(e) {
+								$(this).remove();
+							})
+							.click()
+							;
+					}
+				}
+				config_json.data.onclick = function(d) {
+					func_search_by_series(d.id);
+				};
+				
+			} catch(e) {
+				if(console && console.error)
+					console.error(e);
+			}
+			{/if}
+			
 			if(config_json && config_json.legend && config_json.legend.show) {
 				config_json.legend.show = false;
 				
@@ -43,7 +75,8 @@ $(function() {
 									chart.revert();
 								})
 								.on('click', function (result) {
-									//chart.toggle(result.id);
+									if(typeof func_search_by_series == "function")
+										func_search_by_series(result.id);
 								})
 								;
 							
