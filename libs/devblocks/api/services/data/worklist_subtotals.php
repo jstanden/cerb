@@ -256,6 +256,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		$labels = [];
+		$queries = [];
 		
 		foreach($chart_model['by'] as $by) {
 			$key_select = $by['key_select'];
@@ -270,9 +271,79 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					break;
 			}
 			
-			if(false !== ($by_labels = $search_class::getLabelsForKeyValues($key_select, $values))) {
+			if(false !== ($by_labels = $search_class::getLabelsForKeyValues($key_select, $values)))
 				$labels[$key_select] = $by_labels;
-				continue;
+			
+			foreach($values as $idx => $value) {
+				@$filter = $by['key_query_filter'] ?: ($by['key_query'] . ':%s');
+				
+				switch($by['type']) {
+					case 'context':
+						$query_value = $value;
+						$queries[$by['key_select']][$value] = sprintf($filter, $query_value);
+						break;
+					
+					case 'text':
+						if(array_key_exists('get_value_as_filter_callback',$by) && is_callable($by['get_value_as_filter_callback'])) {
+							$query_value = $by['get_value_as_filter_callback']($value);
+						} else {
+							$query_value = $value;
+						}
+						
+						if(array_key_exists('timestamp_step', $by)) {
+							$from_date = $to_date = $query_value;
+							
+							switch($by['timestamp_step']) {
+								case 'day':
+									$to_date .= ' 23:59:59';
+									break;
+								case 'week':
+								case 'week-mon':
+								case 'week-monday':
+									$to_date = date('Y-m-d', strtotime('+6 days', strtotime($to_date))) . ' 23:59:59';
+									break;
+								case 'week-sun':
+								case 'week-sunday':
+									$to_date = date('Y-m-d', strtotime('+6 days', strtotime($to_date))) . ' 23:59:59';
+									break;
+								case 'month':
+									$from_date .= '-01';
+									$to_date = date('Y-m-d', strtotime('last day of this month', strtotime($to_date))) . ' 23:59:59';
+									break;
+								case 'year':
+									$from_date .= '-01-01';
+									$to_date .= '-12-31 23:59:59';
+									break;
+							}
+							
+							$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+							
+						} else if(is_numeric($query_value)) {
+							$query_value = intval($query_value);
+						} else if(false !== strpos($query_value, ' ')) {
+							$query_value = '"' . $query_value . '"';
+						}
+						
+						$queries[$by['key_select']][$value] = sprintf($filter, $query_value);
+						break;
+					
+					case 'worker':
+					default:
+						if(array_key_exists('get_value_as_filter_callback',$by) && is_callable($by['get_value_as_filter_callback'])) {
+							$query_value = $by['get_value_as_filter_callback']($value);
+						} else {
+							$query_value = $value;
+						}
+						
+						if(is_numeric($query_value)) {
+							$query_value = intval($query_value);
+						} else if(false !== strpos($query_value, ' ')) {
+							$query_value = '"' . $query_value . '"';
+						}
+						
+						$queries[$by['key_select']][$value] = sprintf($filter, $query_value);
+						break;
+				}
 			}
 		}
 		
@@ -282,14 +353,22 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		foreach($rows as $row) {
 			$ptr =& $response['children'];
 			
+			if(@$chart_model['query']) {
+				$query = ['(' . $chart_model['query'] . ')'];
+			} else {
+				$query = [];
+			}
+			
 			foreach(array_slice(array_keys($row),1) as $k) {
 				$label = (array_key_exists($k, $labels) && array_key_exists($row[$k], $labels[$k])) ? $labels[$k][$row[$k]] : $row[$k];
+				$query[] = $queries[$k][$row[$k]];
 				
 				if(false === ($idx = array_search($label, array_column($ptr, 'name')))) {
 					$data = [
 						'name' => $label,
 						'value' => $row[$k],
 						'hits' => 0,
+						'query' => implode(' ', $query),
 					];
 					
 					$ptr[] = $data;
@@ -394,6 +473,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			'data' => $response, 
 			'_' => [
 				'type' => 'worklist.subtotals',
+				'context' => @$chart_model['context'],
 				'format' => 'tree',
 			]
 		];
@@ -405,6 +485,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		// Do we have nested data?
 		$nested = @$response['children'][0]['children'] ? true : false;
+		$series_meta = [];
 		
 		if($nested) {
 			$parents = [];
@@ -418,6 +499,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$output[0] = array_merge($output[0], $parents);
 			
 			foreach($response['children'] as $parent) {
+				$series_meta[$parent['name']] = [
+					'_key' => $parent['value'],
+					'_query' => $parent['query'],
+				];
+				
 				foreach($parent['children'] as $child) {
 					$xvalues[$child['name']] = array_fill_keys($parents, 0);
 				}
@@ -426,6 +512,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			foreach($response['children'] as $parent) {
 				foreach($parent['children'] as $child) {
 					$xvalues[$child['name']][$parent['name']] = $child['hits'];
+					$series_meta[$parent['name']][$child['name']] = [
+						'key' => $child['value'],
+						'query' => $child['query'],
+					];
 				}
 			}
 			
@@ -440,19 +530,28 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				['label'], ['hits']
 			];
 			
+			$series_meta['hits'] = [];
+			
 			foreach($response['children'] as $subtotal) {
 				$output[0][] = $subtotal['name'];
 				$output[1][] = $subtotal['hits'];
+				
+				$series_meta['hits'][$subtotal['name']] = [
+					'key' => $subtotal['value'],
+					'query' => $subtotal['query'],
+				];
 			}
 		}
 		
 		return ['data' => $output, '_' => [
 			'type' => 'worklist.subtotals',
+			'context' => @$chart_model['context'],
 			'stacked' => $nested,
 			'format' => 'categories',
 			'format_params' => [
 				'xaxis_key' => 'label',
-			]
+			],
+			'series' => $series_meta,
 		]];
 	}
 	
@@ -461,16 +560,24 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			return [];
 		
 		$output = [];
+		$series_meta = [];
 		
 		foreach($response['children'] as $subtotal) {
 			$output[] = [$subtotal['name'], $subtotal['hits']];
+			
+			$series_meta[$subtotal['name']] = [
+				'key' => $subtotal['value'],
+				'query' => @$subtotal['query'] ?: '',
+			];
 		}
 		
 		return [
 			'data' => $output,
 			'_' => [
 				'type' => 'worklist.subtotals',
+				'context' => @$chart_model['context'],
 				'format' => 'pie',
+				'series' => $series_meta,
 			]
 		];
 	}
@@ -630,6 +737,18 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					$row['count'] = $node['hits'];
 				}
 				
+				if(array_key_exists('query', $node)) {
+					$row['_types'] = [
+						'count' => [
+							'type' => DevblocksSearchCriteria::TYPE_SEARCH,
+							'options' => [
+								'context' => $chart_model['context'],
+								'query' => $node['query']
+							],
+						]
+					];
+				}
+				
 				$rows[] = $row;
 				return;
 			}
@@ -643,6 +762,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		return ['data' => $output, '_' => [
 			'type' => 'worklist.subtotals',
+			'context' => @$chart_model['context'],
 			'format' => 'table',
 		]];
 	}
@@ -660,6 +780,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		$output = [ 'ts' => array_map(function($d) { return strval($d); }, array_keys($x_series)) ];
 		
+		$series_meta = [];
+		
 		foreach($response['children'] as $date) {
 			if(!isset($date['children']))
 				continue;
@@ -669,6 +791,14 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					$output[$series['name']] = $x_series;
 				
 				$output[$series['name']][$date['name']] = $series['hits'];
+				
+				if(!array_key_exists($series['name'], $series_meta))
+					$series_meta[$series['name']] = array_fill_keys(array_keys($x_series), []);
+				
+				$series_meta[$series['name']][$date['name']] = [
+					'key' => $series['value'],
+					'query' => $series['query'],
+				];
 			}
 		}
 		
@@ -678,12 +808,14 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		
 		return ['data' => $output, '_' => [
 			'type' => 'worklist.subtotals',
+			'context' => @$chart_model['context'],
 			'format' => 'timeseries',
 			'format_params' => [
 				'xaxis_key' => 'ts',
 				'xaxis_step' => $xaxis_step,
 				'xaxis_format' => $xaxis_format,
 			],
+			'series' => $series_meta,
 		]];
 	}
 };
