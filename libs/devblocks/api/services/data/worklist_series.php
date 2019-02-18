@@ -224,7 +224,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			];
 			
 			// Add the unique x values
-			$x_domain += array_keys($series['data']);
+			$x_domain = array_unique(array_merge($x_domain, array_keys($series['data'])));
 		}
 		
 		// Make sure timestamps are strings (for c3.js)
@@ -278,8 +278,8 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		foreach($chart_model['series'] as $series) {
 			if(!isset($series['data']))
 				continue;
-				
-			$x_domain += array_keys($series['data']);
+			
+			$x_domain = array_unique(array_merge($x_domain, array_keys($series['data'])));
 		}
 		
 		// Make sure timestamps are strings (for c3.js)
