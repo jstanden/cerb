@@ -288,7 +288,6 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		];
 	}
 	
-	// [TODO] Lerp x-axis range
 	private function _formatDataAsTimeSeries(array $chart_model) {
 		// [TODO] Verify that 'x' is a date
 		
@@ -311,6 +310,8 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		$x_domain = array_map(function($v) { return strval($v); }, $x_domain);
 		
 		sort($x_domain);
+		
+		$x_domain = DevblocksPlatform::dateLerpArray($x_domain, $xaxis_step, $xaxis_format);
 		
 		$response = [
 			'ts' => $x_domain,
