@@ -3286,7 +3286,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			
 			if(is_array($cursor['tokens']))
 			foreach($cursor['tokens'] as $token) {
-				$csv_labels[] = $global_labels[$token];
+				$csv_labels[] = trim(@$global_labels[$token]);
 			}
 			
 			fputcsv($fp, $csv_labels);
@@ -3326,9 +3326,9 @@ class ChInternalController extends DevblocksControllerExtension {
 			$fields = array();
 			
 			foreach($cursor['tokens'] as $token) {
-				$value = $dict->$token;
+				$value = $dict->get($token);
 				
-				if($global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
+				if(@$global_types[$token] == Model_CustomField::TYPE_DATE && $cursor['format_timestamps']) {
 					if(empty($value)) {
 						$value = '';
 					} else if(is_numeric($value)) {
