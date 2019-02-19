@@ -13,6 +13,8 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
+			$oper = $value = null;
+			
 			if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = DevblocksPlatform::strLower($value);
@@ -59,6 +61,10 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 					} else if($series_field->key == 'field') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['field'] = $value;
+						
+					} else if($series_field->key == 'metric') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['metric'] = $value;
 						
 					} else if($series_field->key == 'query') {
 						$data_query = CerbQuickSearchLexer::getTokensAsQuery($series_field->tokens);
@@ -228,6 +234,25 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 							break;
 					}
 					break;
+			}
+			
+			// Metric expression?
+			if(array_key_exists('metric', $chart_model['values'][$series_idx])) {
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				$metric_template = sprintf('{{%s}}',
+					$chart_model['values'][$series_idx]['metric']
+				);
+				
+				$out = $tpl_builder->build($metric_template, [
+					'x' => $value,
+				]);
+				
+				if(false === $out || !is_numeric($out)) {
+					$value = 0;
+				} else {
+					$value = floatval($out);
+				}
 			}
 			
 			$chart_model['values'][$series_idx]['value'] = $value;
