@@ -60,9 +60,17 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['x'] = $value;
 						
+					} else if($series_field->key == 'x.metric') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['x_metric'] = $value;
+						
 					} else if($series_field->key == 'y') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$series_model['y'] = $value;
+						
+					} else if($series_field->key == 'y.metric') {
+						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
+						$series_model['y_metric'] = $value;
 						
 					} else if($series_field->key == 'query') {
 						$data_query = CerbQuickSearchLexer::getTokensAsQuery($series_field->tokens);
@@ -147,7 +155,49 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			
 			$x_labels = $search_class::getLabelsForKeyValues($series['x']['key_select'], array_column($results, 'x'));
 			$y_labels = $search_class::getLabelsForKeyValues($series['y']['key_select'], array_column($results, 'y'));
-
+			
+			// Metric expression?
+			if(array_key_exists('x_metric', $series) || array_key_exists('y_metric', $series)) {
+				$results = array_map(function($data) use ($series) {
+					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+					
+					if(array_key_exists('x_metric', $series)) {
+						$metric_template = sprintf('{{%s}}',
+							$series['x_metric']
+						);
+						
+						$out = $tpl_builder->build($metric_template, [
+							'x' => $data['x'],
+							'y' => $data['y'],
+						]);
+						
+						if(false === $out || !is_numeric($out)) {
+						} else {
+							$data['x'] = floatval($out);
+						}
+					}
+					
+					if(array_key_exists('y_metric', $series)) {
+						$metric_template = sprintf('{{%s}}',
+							$series['y_metric']
+						);
+						
+						$out = $tpl_builder->build($metric_template, [
+							'x' => $data['x'],
+							'y' => $data['y'],
+						]);
+						
+						if(false === $out || !is_numeric($out)) {
+						} else {
+							$data['y'] = floatval($out);
+						}
+					}
+					
+					return $data;
+					
+				}, $results);
+			}
+			
 			$chart_model['series'][$series_idx]['data'] = $results;
 			$chart_model['series'][$series_idx]['labels'] = ['x' => $x_labels, 'y' => $y_labels];
 		}
