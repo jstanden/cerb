@@ -620,6 +620,16 @@
 				<seg>close</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.closed">
+			<tuv xml:lang="en_US">
+				<seg>closed</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.closed.at">
+			<tuv xml:lang="en_US">
+				<seg>closed at</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.color">
 			<tuv xml:lang="en_US">
 				<seg>color</seg>

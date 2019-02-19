@@ -1334,6 +1334,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
+			'closed_at' => $prefix.$translate->_('common.closed.at'),
 			'created' => $prefix.$translate->_('common.created'),
 			'amount' => $prefix.$translate->_('crm.opportunity.amount'),
 			'amount__label' => $prefix.$translate->_('crm.opportunity.amount') . ' ' . $translate->_('common.label'),
@@ -1347,6 +1348,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'closed_at' => Model_CustomField::TYPE_DATE,
 			'created' => Model_CustomField::TYPE_DATE,
 			'amount' => Model_CustomField::TYPE_CURRENCY,
 			'amount__label' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1377,6 +1379,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 			$token_values['amount'] = $opp->currency_amount; //$opp->getAmountString(false); 
 			$token_values['amount__label'] = $opp->getAmountString();
 			$token_values['amount_currency_id'] = $opp->currency_id;
+			$token_values['closed_at'] = $opp->closed_date;
 			$token_values['created'] = $opp->created_date;
 			$token_values['id'] = $opp->id;
 			$token_values['is_closed'] = $opp->status_id != 0; // backwards compat
@@ -1427,6 +1430,7 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		return [
 			'amount' => DAO_CrmOpportunity::CURRENCY_AMOUNT,
 			'amount_currency_id' => DAO_CrmOpportunity::CURRENCY_ID,
+			'closed_at' => DAO_CrmOpportunity::CLOSED_DATE,
 			'created' => DAO_CrmOpportunity::CREATED_DATE,
 			'id' => DAO_CrmOpportunity::ID,
 			'links' => '_links',
