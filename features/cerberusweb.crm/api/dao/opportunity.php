@@ -1303,7 +1303,6 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 	function getDefaultProperties() {
 		return array(
 			'status',
-			'email__label',
 			'amount',
 			'created',
 			'updated',
@@ -1671,7 +1670,6 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		$keys = [
 			'amount',
 			'amount_currency__label',
-			'email__label',
 			'status',
 			'title',
 		];
