@@ -110,19 +110,10 @@
 			"uid": "role_everyone",
 			"_context": "role",
 			"name": "Everyone",
-			"params": {
-				"who": "all",
-				"what": "all"
-			}
-		},
-		{
-			"uid": "role_everyone",
-			"_context": "role",
-			"name": "Everyone",
-			"params": {
-				"who": "all",
-				"what": "all"
-			}
+			"privs_mode": "all",
+			"member_query_worker": "isDisabled:n",
+			"editor_query_worker": "isAdmin:y",
+			"reader_query_worker": "isDisabled:n"
 		},
 		{
 			"uid": "transport_null",
