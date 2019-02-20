@@ -666,7 +666,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					$value = [];
 					
 					if(!is_array($values))
-						$values = array($values);
+						$values = $values ? [$values] : [];
 
 					foreach($values as $v) {
 						$is_unset = ('-'==substr($v,0,1)) ? true : false;
@@ -858,22 +858,23 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					
 				case Model_CustomField::TYPE_FILES:
 					if(!is_array($value))
-						$value = array($value);
+						$value = $value ? [$value] : [];
 
 					if(!$delta) {
-						self::unsetFieldValue($context, $context_id, $field_id);
-					}
-					
-					// Protect from injection in cases where it's not desireable (controlled above)
-					foreach($value as $v) {
-						$is_unset = ('-'==substr($v,0,1)) ? true : false;
-						$v = ltrim($v,'+-');
-							
-						if($is_unset) {
-							if($delta)
-								self::unsetFieldValue($context, $context_id, $field_id, $v);
-						} else {
-							self::setFieldValue($context, $context_id, $field_id, $v, true);
+						self::setFieldValue($context, $context_id, $field_id, $value);
+						
+					} else {
+						// Protect from injection in cases where it's not desireable (controlled above)
+						foreach($value as $v) {
+							$is_unset = ('-'==substr($v,0,1)) ? true : false;
+							$v = ltrim($v,'+-');
+								
+							if($is_unset) {
+								if($delta)
+									self::unsetFieldValue($context, $context_id, $field_id, $v);
+							} else {
+								self::setFieldValue($context, $context_id, $field_id, $v, true);
+							}
 						}
 					}
 					break;
@@ -1029,6 +1030,13 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_WORKER:
 					$value = intval($value);
 					break;
+				case Model_CustomField::TYPE_FILES:
+					if(is_array($value)) {
+						$value = DevblocksPlatform::sanitizeArray($value, 'int');
+					} else {
+						$value = intval($value);
+					}
+					break;
 			}
 			
 			// Clear existing values (beats replace logic)
@@ -1036,7 +1044,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			
 			// Set values consistently
 			if(!is_array($value))
-				$value = [$value];
+				$value = $value ? [$value] : [];
 				
 			foreach($value as $v) {
 				$sql = sprintf("INSERT INTO %s (field_id, context, context_id, field_value) ".
@@ -1054,7 +1062,11 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			switch($field->type) {
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_FILES:
-					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
+					if($delta) {
+						DAO_Attachment::addLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
+					} else {
+						DAO_Attachment::setLinks(CerberusContexts::CONTEXT_CUSTOM_FIELD, $field_id, $value);
+					}
 					break;
 			}
 		}
@@ -1080,32 +1092,52 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				return FALSE;
 			
 			if(!is_array($value))
-				$value = array($value);
+				$value = $value ? [$value] : [];
 			
-			foreach($value as $v) {
-				// Delete all values or optionally a specific given value
-				$sql = sprintf("DELETE FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d %s",
+			// Delete all values
+			if(empty($value)) {
+				$sql = sprintf("DELETE FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d",
 					$table_name,
 					$context,
 					$context_id,
-					$field_id,
-					(!is_null($v) ? sprintf("AND field_value = %s ",$db->qstr($v)) : "")
+					$field_id
 				);
 				$db->ExecuteMaster($sql);
+				
+			// Delete specific given values
+			} else {
+				foreach($value as $v) {
+					$sql = sprintf("DELETE FROM %s WHERE context = '%s' AND context_id = %d AND field_id = %d AND field_value = %s",
+						$table_name,
+						$context,
+						$context_id,
+						$field_id,
+						$db->qstr($v)
+					);
+					$db->ExecuteMaster($sql);
+				}
 			}
 			
 			// We need to remove context links on file attachments
-			// [TODO] Optimize
 			switch($field->type) {
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_FILES:
-					$sql = sprintf("DELETE FROM context_link WHERE from_context = %s and from_context_id = %d AND to_context = %s AND to_context_id NOT IN (SELECT field_value FROM custom_field_numbervalue WHERE field_id = %d)",
-						$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELD),
-						$field_id,
-						$db->qstr(CerberusContexts::CONTEXT_ATTACHMENT),
-						$field_id
-					);
-					$db->ExecuteMaster($sql);
+					if(!empty($value)) {
+						$sql = sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id = %d AND attachment_id IN (%s)",
+							$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELD),
+							$field_id,
+							implode(',', $db->qstrArray($value))
+						);
+						$db->ExecuteMaster($sql);
+						
+					} else {
+						$sql = sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id = %d AND attachment_id NOT IN (SELECT field_value FROM custom_field_numbervalue WHERE field_id = %d)",
+							$db->qstr(CerberusContexts::CONTEXT_CUSTOM_FIELD),
+							$field_id,
+							$field_id
+						);
+						$db->ExecuteMaster($sql);
+					}
 					break;
 			}
 		}
