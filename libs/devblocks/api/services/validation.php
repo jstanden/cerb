@@ -235,11 +235,18 @@ class _DevblocksValidators {
 				return false;
 			}
 			
-			$ids = DevblocksPlatform::sanitizeArray($value, 'int');
+			$ids = array_filter(DevblocksPlatform::sanitizeArray($value, 'int'), function($v) {
+				return $v != 0;
+			});
 			
-			if(!$allow_empty && empty($ids)) {
-				$error = sprintf("must not be blank.");
-				return false;
+			if(empty($ids)) {
+				if($allow_empty) {
+					return true;
+					
+				} else {
+					$error = sprintf("must not be blank.");
+					return false;
+				}
 			}
 			
 			$models = CerberusContexts::getModels($context, $ids);
@@ -811,6 +818,9 @@ class _DevblocksValidationService {
 				$values = $value;
 				
 				foreach($values as $id) {
+					if(empty($id))
+						$id = 0;
+					
 					if(!is_numeric($id)) {
 						throw new Exception_DevblocksValidationError(sprintf("Value '%s' must be a number (%s: %s).", $field_label, gettype($id), $id));
 					}

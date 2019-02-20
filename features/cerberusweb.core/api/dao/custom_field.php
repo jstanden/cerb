@@ -859,7 +859,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_FILES:
 					if(!is_array($value))
 						$value = $value ? [$value] : [];
-
+						
 					if(!$delta) {
 						self::setFieldValue($context, $context_id, $field_id, $value);
 						
@@ -1032,7 +1032,9 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 				case Model_CustomField::TYPE_FILES:
 					if(is_array($value)) {
-						$value = DevblocksPlatform::sanitizeArray($value, 'int');
+						$value = array_filter(DevblocksPlatform::sanitizeArray($value, 'int'), function($v) {
+							return !empty($v);
+						});
 					} else {
 						$value = intval($value);
 					}
