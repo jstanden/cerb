@@ -1826,8 +1826,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		@$defaults_string = DevblocksPlatform::importGPC($_REQUEST['defaults'],'string','');
-		@$image_width = DevblocksPlatform::importGPC($_REQUEST['image_width'],'integer',100);
-		@$image_height = DevblocksPlatform::importGPC($_REQUEST['image_height'],'integer',100);
+		@$image_width = DevblocksPlatform::importGPC($_REQUEST['image_width'],'integer',0);
+		@$image_height = DevblocksPlatform::importGPC($_REQUEST['image_height'],'integer',0);
+		
+		if(empty($image_width))
+			$image_width = 100;
+		
+		if(empty($image_height))
+			$image_height = 100;
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		$tpl = DevblocksPlatform::services()->template();
