@@ -24,6 +24,130 @@ if(!isset($tables['package_library'])) {
 	
 	$tables['package_library'] = 'package_library';
 	
+	// ===========================================================================
+	// Load packages into library
+	
+	$packages = [
+		'cerb_bot_behavior_action__execute_http_request.json',
+		'cerb_bot_behavior_action__records_search.json',
+		'cerb_bot_behavior_action__set_placeholder.json',
+		'cerb_bot_behavior_action_interaction_close_chat.json',
+		'cerb_bot_behavior_action_interaction_prompt.json',
+		'cerb_bot_behavior_action_interaction_respond.json',
+		'cerb_bot_behavior_action_interaction_start_convo.json',
+		'cerb_bot_behavior_auto_reply.json',
+		'cerb_bot_behavior_interaction_worker.json',
+		'cerb_bot_behavior_loop__break.json',
+		'cerb_bot_behavior_loop__records.json',
+		'cerb_bot_behavior_switch__cases.json',
+		'cerb_bot_behavior_switch__yes_no.json',
+		'cerb_calendar_us_holidays.json',
+		'cerb_calendar_work_schedule.json',
+		'cerb_connected_service_aws.json',
+		'cerb_connected_service_dropbox.json',
+		'cerb_connected_service_facebook.json',
+		'cerb_connected_service_freshbooks_classic.json',
+		'cerb_connected_service_github.json',
+		'cerb_connected_service_gitlab.json',
+		'cerb_connected_service_google.json',
+		'cerb_connected_service_linkedin.json',
+		'cerb_connected_service_nest.json',
+		'cerb_connected_service_salesforce.json',
+		'cerb_connected_service_slack.json',
+		'cerb_connected_service_twilio.json',
+		'cerb_connected_service_twitter.json',
+		'cerb_profile_tab__log.json',
+		'cerb_profile_tab_package_overview.json',
+		'cerb_profile_tab_ticket_overview.json',
+		'cerb_profile_widget_ticket_owner.json',
+		'cerb_profile_widget_ticket_participants.json',
+		'cerb_project_board_kanban.json',
+		'cerb_task_for_you.json',
+		'cerb_workspace_page_home.json',
+		'cerb_workspace_page_mail.json',
+		'cerb_workspace_page_reports.json',
+		'cerb_workspace_tab_dashboard.json',
+		'cerb_workspace_widget_chart_categories_data_query.json',
+		'cerb_workspace_widget_chart_stacked_bar_data_query.json',
+		'cerb_workspace_widget_chart_table_leaderboard.json',
+		'cerb_workspace_widget_clock_los_angeles.json',
+		'cerb_workspace_widget_counter_avg_response_time.json',
+		'cerb_workspace_widget_counter_open_tickets.json',
+		'cerb_workspace_widget_donut_org_country.json',
+		'cerb_workspace_widget_donut_ticket_status.json',
+		'cerb_workspace_widget_map_usa.json',
+		'cerb_workspace_widget_map_world.json',
+		'cerb_workspace_widget_worklist_reminders_my.json',
+		'cerb_workspace_widget_worklist_tasks_my.json',
+		'cerb_workspace_widget_worklist_tickets_my.json',
+		'cerb_workspace_widget_worklist_tickets_open.json',
+		'cerb_workspace_widget_worklist_workers_currently_active.json',
+	];
+	
+	$storage = new DevblocksStorageEngineDisk();
+	$storage->setOptions([]);
+	
+	foreach($packages as $package) {
+		$package_json = file_get_contents(APP_PATH . '/features/cerberusweb.core/packages/library/' . $package);
+		
+		if(false === (@$package_data = json_decode($package_json, true)))
+			continue;
+		
+		if(false == (@$library_meta = $package_data['package']['library']))
+			continue;
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO package_library (uri, name, description, point, updated_at, package_json) ".
+			"VALUES (%s, %s, %s, %s, %d, %s) ".
+			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), uri=VALUES(uri), description=VALUES(description), point=VALUES(point), updated_at=VALUES(updated_at), package_json=VALUES(package_json)",
+			$db->qstr($library_meta['uri']),
+			$db->qstr($library_meta['name']),
+			$db->qstr($library_meta['description']),
+			$db->qstr($library_meta['point']),
+			time(),
+			$db->qstr($package_json)
+		));
+		
+		$package_id = $db->LastInsertId();
+		
+		// Package images
+		if(array_key_exists('image', $library_meta) && $library_meta['image']) {
+			$imagedata = $library_meta['image'];
+			
+			if(DevblocksPlatform::strStartsWith($imagedata,'data:image/png;base64,')) {
+				$content_type = 'image/png';
+				
+				// Decode it to binary
+				if(false !== ($imagedata = base64_decode(substr($imagedata, 22)))) {
+					$sql = sprintf("INSERT INTO context_avatar (context,context_id,content_type,is_approved,updated_at) ".
+						"VALUES (%s,%d,%s,%d,%d) ".
+						"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), context=VALUES(context), context_id=VALUES(context_id), is_approved=VALUES(is_approved), updated_at=VALUES(updated_at)",
+						$db->qstr('cerberusweb.contexts.package.library'),
+						$package_id,
+						$db->qstr($content_type),
+						1,
+						time()
+					);
+					$db->ExecuteMaster($sql);
+					
+					$storage_id = $db->LastInsertId();
+					
+					// Put in storage
+					$storage_key = $storage->put('context_avatar', $storage_id, $imagedata);
+					
+					// Update record key
+					$sql = sprintf("UPDATE context_avatar SET storage_extension = %s, storage_key = %s, storage_size = %d WHERE id = %d",
+						$db->qstr('devblocks.storage.engine.disk'),
+						$db->qstr($storage_key),
+						strlen($imagedata),
+						$storage_id
+					);
+					$db->ExecuteMaster($sql);
+				}
+			}
+		}
+	}
+}
+
 // ===========================================================================
 // Add `worker_to_role`
 
