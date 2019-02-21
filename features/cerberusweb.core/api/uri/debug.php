@@ -222,13 +222,15 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[PHP] OS: %s\n".
 					"[PHP] SAPI: %s\n".
 					"\n".
+					"[MySQL] Version: %s\n".
+					"\n".
 					"[php.ini] max_execution_time: %s\n".
 					"[php.ini] memory_limit: %s\n".
 					"[php.ini] file_uploads: %s\n".
 					"[php.ini] upload_max_filesize: %s\n".
 					"[php.ini] post_max_size: %s\n".
 					"\n".
-					"[PHP:Extension] MySQL: %s\n".
+					"[PHP:Extension] MySQLi: %s\n".
 					"[PHP:Extension] MailParse: %s\n".
 					"[PHP:Extension] cURL: %s\n".
 					"[PHP:Extension] IMAP: %s\n".
@@ -264,12 +266,13 @@ class ChDebugController extends DevblocksControllerExtension  {
 					PHP_VERSION,
 					PHP_OS . ' (' . php_uname() . ')',
 					php_sapi_name(),
+					mysqli_get_server_version($db->getMasterConnection()),
 					ini_get('max_execution_time'),
 					ini_get('memory_limit'),
 					ini_get('file_uploads'),
 					ini_get('upload_max_filesize'),
 					ini_get('post_max_size'),
-					(extension_loaded("mysql") ? 'YES' : 'NO'),
+					(extension_loaded("mysqli") ? 'YES' : 'NO'),
 					(extension_loaded("mailparse") ? 'YES' : 'NO'),
 					(extension_loaded("curl") ? 'YES' : 'NO'),
 					(extension_loaded("imap") ? 'YES' : 'NO'),
@@ -292,16 +295,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 					(extension_loaded("memcached") ? 'YES' : 'NO'),
 					(extension_loaded("redis") ? 'YES' : 'NO')
 				);
-				
-				if(!empty($settings)) {
-					$report_output .= sprintf(
-						"[Setting] HELPDESK_TITLE: %s\n".
-						"\n".
-						'%s',
-						$settings->get('cerberusweb.core',CerberusSettings::HELPDESK_TITLE,''),
-						''
-					);
-				}
 				
 				if(is_array($tables) && !empty($tables)) {
 					$report_output .= sprintf(
