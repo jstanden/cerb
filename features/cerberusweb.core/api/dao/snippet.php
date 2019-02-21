@@ -1660,8 +1660,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		$view->name = 'Snippets';
 		
 		// Restrict owners
-		$params_required = $view->getParamsFromQuickSearch('usableBy.worker:' . $active_worker->id);
-		$view->addParamsRequired($params_required, true);
+		$view->setParamsRequiredQuery('usableBy.worker:' . $active_worker->id);
 		
 		$view->renderSortBy = SearchFields_Snippet::USE_HISTORY_MINE;
 		$view->renderSortAsc = false;
