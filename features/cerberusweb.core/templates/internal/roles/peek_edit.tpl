@@ -20,6 +20,19 @@
 		</tr>
 		
 		<tr>
+			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.image'|devblocks_translate|capitalize}:</b></td>
+			<td width="99%" valign="top">
+				<div style="float:left;margin-right:5px;">
+					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=role&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="height:50px;width:50px;">
+				</div>
+				<div style="float:left;">
+					<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_ROLE}" data-context-id="{$model->id}">{'common.edit'|devblocks_translate|capitalize}</button>
+					<input type="hidden" name="avatar_image">
+				</div>
+			</td>
+		</tr>
+		
+		<tr>
 			<td width="1%" nowrap="nowrap" valign="top"><b>{'common.membership'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
 				<div>
@@ -220,6 +233,12 @@ $(function() {
 		var $who = $frm.find('input:radio[name=who]');
 		var $who_groups = $('#configAclWhoGroups');
 		var $who_workers = $('#configAclWhoWorkers');
+		
+		// Avatar chooser
+		
+		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
+		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
+		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 		
 		// Query builders
 		

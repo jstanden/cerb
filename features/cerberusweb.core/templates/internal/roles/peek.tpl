@@ -3,6 +3,9 @@
 {$is_writeable = Context_WorkerRole::isWriteableByActor($dict, $active_worker)}
 
 <div id="{$div_id}">
+	<div style="float:left;margin-right:10px;">
+		<img src="{devblocks_url}c=avatars&context=role&context_id={$dict->id}{/devblocks_url}?v={$dict->updated_at}" style="height:75px;width:75px;border-radius:5px;vertical-align:middle;">
+	</div>
 	
 	<div style="float:left;">
 		<h1>

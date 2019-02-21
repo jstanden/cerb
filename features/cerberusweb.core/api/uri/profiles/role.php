@@ -115,6 +115,10 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ROLE, $id, $field_ids, $error))
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
+				// Avatar image
+				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ROLE, $id, $avatar_image);
+				
 				// Clear cache
 				DAO_WorkerRole::updateRosters($id);
 				DAO_WorkerRole::clearCache();

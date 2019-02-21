@@ -39,6 +39,10 @@
 	{* Column Headers *}
 	<thead>
 	<tr>
+		<th class="no-sort" style="text-align:center;width:40px;padding-left:0;padding-right:0;" title="{'common.image'|devblocks_translate|capitalize}">
+			<span class="glyphicons glyphicons-camera" style="color:rgb(80,80,80);"></span>
+		</th>
+	
 		{foreach from=$view->view_columns item=header name=headers}
 			{* start table header, insert column title and link *}
 			<th class="{if $view->options.disable_sorting}no-sort{/if}">
@@ -68,6 +72,12 @@
 	{/if}
 	<tbody style="cursor:pointer;">
 		<tr class="{$tableRowClass}">
+			<td data-column="*_image" align="center" nowrap="nowrap" style="padding:5px;">
+				<div style="position:relative;">
+					<img src="{devblocks_url}c=avatars&context=role&context_id={$result.w_id}{/devblocks_url}?v={$result.w_updated_at}" style="height:32px;width:32px;border-radius:16px;vertical-align:middle;">
+				</div>
+			</td>
+		
 		{foreach from=$view->view_columns item=column name=columns}
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
