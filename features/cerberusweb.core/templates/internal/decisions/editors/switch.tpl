@@ -96,6 +96,8 @@ $(function() {
 				Devblocks.clearAlerts();
 				
 				genericAjaxPost('frmDecisionSwitch{$id}Library','','c=internal&a=saveDecisionPopup', function(json) {
+					$library_container.triggerHandler('cerb-package-library-form-submit--done');
+					
 					if(json.error) {
 						Devblocks.createAlertError(json.error);
 						

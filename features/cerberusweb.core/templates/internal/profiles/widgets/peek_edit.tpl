@@ -177,6 +177,10 @@ $(function() {
 				{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 				
 				$library_container.on('cerb-package-library-form-submit', function(e) {
+					$popup.one('peek_saved peek_error', function(e) {
+						$library_container.triggerHandler('cerb-package-library-form-submit--done');
+					});
+					
 					$popup.find('button.save').click();
 				});
 			{/if}
