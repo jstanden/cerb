@@ -42,6 +42,9 @@
 		<file path="api/services/data/bot_behavior.php">
 			<class name="_DevblocksDataProviderBotBehavior" />
 		</file>
+		<file path="api/services/data/sample_geopoints.php">
+			<class name="_DevblocksDataProviderSampleGeoPoints" />
+		</file>
 		<file path="api/services/data/sample_time_series.php">
 			<class name="_DevblocksDataProviderSampleTimeSeries" />
 		</file>

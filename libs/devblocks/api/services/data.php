@@ -48,6 +48,14 @@ class _DevblocksDataService {
 		$results = [];
 		
 		switch($chart_type) {
+			case 'sample.geo.points':
+				$provider = new _DevblocksDataProviderSampleGeoPoints();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
 			case 'sample.timeseries':
 				$provider = new _DevblocksDataProviderSampleTimeSeries();
 				
