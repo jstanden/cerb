@@ -1,22 +1,23 @@
 {$target_timestamp = $widget->params.target_timestamp}
 
-<div id="widget{$widget->id}_countdown" style="font-family:Arial,Helvetica;font-weight:bold;line-height:36px;font-size:32px;white-space:nowrap;color:{$widget->params.color|default:'#57970A'};text-align:center;">
+<div id="widget{$widget->id}_countdown" style="font-family:Arial,Helvetica;font-weight:bold;line-height:36px;font-size:32px;color:{$widget->params.color|default:'#57970A'};text-align:center;">
 	<span class="counter">{$label}</span>
 </div>
 
 <script type="text/javascript">
 $(function() {
 try {
-	var $widget = $('#workspaceWidget{$widget->id}');
+	var $widget = $('#widget{$widget->id}_countdown');
+	var $widget_container = $widget.closest('.cerb-workspace-widget');
 	
 	var tick = function() {
-		var $container = $('DIV#widget{$widget->id}_countdown');
+		var $widget = $('#widget{$widget->id}_countdown');
+		var $widget_container = $widget.closest('.cerb-workspace-widget');
 		
-		if($container.length == 0) {
+		if($widget_container.length == 0)
 			return;
-		}
 		
-		var $counter = $container.find('> span.counter');
+		var $counter = $widget.find('> span.counter');
 		
 		var now = Math.floor(new Date().getTime()/1000);
 		var then = {$target_timestamp};
@@ -68,33 +69,14 @@ try {
 		var label = outs.join(', ');
 		
 		$counter.text(label);
-		
-		// Auto-scale text
-
-		var container_width = $container.width();
-		
-		var counter_width = $counter.width();
-		
-		var old_font_size = parseInt($counter.css('fontSize'), 10);
-		var multiplier = (container_width / counter_width) * 0.9;
-		var font_size = parseInt(old_font_size * multiplier);
-		
-		if(font_size < 16)
-			font_size = 16;
-		
-		if(font_size > 36)
-			font_size = 36;
-
-		if(Math.abs(old_font_size - font_size) < 2)
-			return;
-		
-		$counter.css('fontSize', font_size);
 	};
 	
 	tick();
-	$widget.off('dashboard_heartbeat').on('dashboard_heartbeat', tick);
+	$widget_container.off('cerb-dashboard-heartbeat').on('cerb-dashboard-heartbeat', tick);
 	
 } catch(e) {
+	if(console && console.error)
+		console.error(e);
 }
 });
 </script>

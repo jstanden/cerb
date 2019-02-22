@@ -6,17 +6,19 @@
 <script type="text/javascript">
 $(function() {
 try {
-	var $widget = $('#workspaceWidget{$widget->id}');
+	var $widget = $('#widget{$widget->id}_clock');
+	var $widget_container = $widget.closest('.cerb-workspace-widget');
 	
 	var tick = function() {
-		var $container = $('DIV#widget{$widget->id}_clock');
+		var $widget = $('#widget{$widget->id}_clock');
+		var $widget_container = $widget.closest('.cerb-workspace-widget');
 		
-		if($container.length == 0) {
+		if($widget_container.length == 0) {
 			return;
 		}
 		
-		var $clock_date = $container.find('> div.date');
-		var $clock_time = $container.find('> div.time');
+		var $clock_date = $widget.find('> div.date');
+		var $clock_time = $widget.find('> div.time');
 		
 		// Convert time to UTC
 		var d = new Date();
@@ -46,9 +48,11 @@ try {
 	};
 	
 	tick();
-	$widget.off('dashboard_heartbeat').on('dashboard_heartbeat', tick);
+	$widget_container.off('cerb-dashboard-heartbeat').on('cerb-dashboard-heartbeat', tick);
 	
 } catch(e) {
+	if(console && console.error)
+		console.error(e);
 }
 });
 </script>

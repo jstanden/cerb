@@ -285,6 +285,24 @@ $(function() {
 		});
 	};
 	
+	clearInterval(window.dashboardTimer{$model->id});
+	
+	var tick = function() {
+		var $dashboard = $('#workspaceTab{$model->id}');
+		
+		if($dashboard.length == 0 || !$dashboard.is(':visible')) {
+			clearInterval(window.dashboardTimer{$model->id});
+			delete window.dashboardTimer{$model->id};
+			return;
+		}
+		
+		$dashboard.find('.cerb-workspace-widget').each(function() {
+			$(this).triggerHandler('cerb-dashboard-heartbeat');
+		});
+	};
+	
+	window.dashboardTimer{$model->id} = setInterval(tick, 1000);
+	
 	$container.triggerHandler('cerb-dashboard-refresh');
 });
 </script>
