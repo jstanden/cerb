@@ -2534,6 +2534,13 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'type' => 'string',
 		];
 		
+		$keys['ticket_mask'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'The parent [ticket](/docs/records/types/ticket/) mask; alternative to `ticket_id`',
+			'type' => 'string',
+		];
+		
 		$keys['worker'] = [
 			'is_immutable' => false,
 			'is_required' => false,
@@ -2579,6 +2586,15 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 				}
 				
 				$out_fields[DAO_Message::ADDRESS_ID] = $address->id;
+				break;
+				
+			case 'ticket_mask':
+				if(false == ($ticket = DAO_Ticket::getTicketByMask($value))) {
+					$error = sprintf("Failed to lookup ticket mask : %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Message::TICKET_ID] = $ticket->id;
 				break;
 				
 			case 'worker':
