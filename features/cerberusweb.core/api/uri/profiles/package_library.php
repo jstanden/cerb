@@ -226,7 +226,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=package_library', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=package', true),
 				);
 				$models[] = $model;
 				
@@ -238,7 +238,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=package_library&id=%d-%s", $row[SearchFields_PackageLibrary::ID], DevblocksPlatform::strToPermalink($row[SearchFields_PackageLibrary::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=package&id=%d-%s", $row[SearchFields_PackageLibrary::ID], DevblocksPlatform::strToPermalink($row[SearchFields_PackageLibrary::NAME])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
