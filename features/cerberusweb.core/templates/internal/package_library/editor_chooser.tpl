@@ -1,10 +1,8 @@
 <div class="package-library--container">
 	<div class="package-library--package-chooser">
-		{*
-		<input type="text" class="input_search" autofocus="autofocus">
-		*}
-		
 		<div class="package-library--package-container">
+			<input type="text" class="package-library--package-search input_search" spellcheck="false">
+			
 			{foreach from=$packages item=package}
 			<div class="package-library--package" data-cerb-package="{$package->uri}">
 				<div class="package-library--package-image">

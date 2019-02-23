@@ -1,5 +1,6 @@
 var $package_library = $library_container.find('.package-library');
 var $package_chooser = $package_library.find('.package-library--package-chooser');
+var $package_chooser_search = $package_library.find('.package-library--package-search');
 var $package_info = $package_library.find('.package-library--package-info');
 var $package_info_submit = null;
 var $package_spinner = $('<span class="cerb-ajax-spinner"/>').css('zoom','0.5').css('margin-right', '5px');
@@ -9,9 +10,33 @@ $package_chooser.on('cerb-enable', function(e) {
 		$package_info.empty();
 	});
 	
+	$package_chooser_search.focus().select();
+	
 	$package_chooser.css('max-height','').css('opacity',1).css('transform','translateX(0%)');
 	$package_info.css('opacity',0).css('transform','translateX(100%)');
 });
+
+var package_search_keyup = function(e) {
+	var term = $package_chooser_search.val();
+	
+	if(0 == term.length) {
+		$package_chooser_search.parent().find('.package-library--package').fadeIn();
+		return;
+	} else {
+		$package_chooser_search.parent().find('.package-library--package').hide();
+	}
+	
+	$package_chooser_search.parent().find('.package-library--package').each(function() {
+		var $package = $(this);
+		var package_text = $package.text().toLowerCase();
+		
+		if(package_text.indexOf(term) > -1) {
+			$package.fadeIn();
+		}
+	});
+};
+
+$package_chooser_search.on('keyup', $.debounce(250, package_search_keyup) );
 
 $package_info.on('cerb-enable', function(e) {
 	$package_info.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd', function() {
@@ -65,3 +90,7 @@ $package_info.on('click', function(e) {
 		return;
 	}
 });
+
+if($package_chooser_search.is(':visible')) {
+	$package_chooser_search.focus().select();
+}
