@@ -105,11 +105,17 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			foreach($subtotal_by as $idx => $by) {
 				// Handle limits and orders
 				@list($by, $limit) = explode('~', $by, 2);
-				@$limit_desc = DevblocksPlatform::strStartsWith($limit, '-') ? false : true;
-				@$limit = DevblocksPlatform::intClamp(abs($limit), 0, 250) ?: 25;
 				
 				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $subtotals_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey())))
 					continue;
+				
+				// If it's a date time-step, allow the full range
+				if(is_null($limit) && array_key_exists('timestamp_step', $subtotal_field)) {
+					$limit = '250';
+				}
+				
+				@$limit_desc = DevblocksPlatform::strStartsWith($limit, '-') ? false : true;
+				@$limit = DevblocksPlatform::intClamp(abs($limit), 0, 250) ?: 25;
 				
 				$subtotal_field['limit'] = $limit;
 				$subtotal_field['limit_desc'] = $limit_desc;
