@@ -340,6 +340,27 @@ if($changes) {
 }
 
 // ===========================================================================
+// Add `address.created_at`
+
+if(!isset($tables['worker']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('worker');
+
+$changes = [];
+
+if(!array_key_exists('created_at', $columns)) {
+	$changes[] = "ALTER TABLE address ADD COLUMN created_at INT UNSIGNED NOT NULL DEFAULT 0";
+	$changes[] = "UPDATE address SET created_at = updated WHERE created_at = 0";
+}
+
+if($changes) {
+	foreach($changes as $sql) {
+		$db->ExecuteMaster($sql);
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

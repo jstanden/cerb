@@ -18,6 +18,7 @@
 class DAO_Address extends Cerb_ORMHelper {
 	const CONTACT_ID = 'contact_id';
 	const CONTACT_ORG_ID = 'contact_org_id';
+	const CREATED_AT = 'created_at';
 	const EMAIL = 'email';
 	const HOST = 'host';
 	const ID = 'id';
@@ -46,6 +47,10 @@ class DAO_Address extends Cerb_ORMHelper {
 			->addField(self::CONTACT_ORG_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_ORG, true))
+			;
+		$validation
+			->addField(self::CREATED_AT)
+			->timestamp()
 			;
 		$validation
 			->addField(self::EMAIL)
@@ -127,6 +132,9 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = "INSERT INTO address () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
+		
+		if(!isset($fields[DAO_Address::CREATED_AT]))
+			$fields[DAO_Address::CREATED_AT] = time();
 		
 		self::update($id, $fields);
 		
@@ -472,7 +480,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, email, host, contact_id, contact_org_id, mail_transport_id, worker_id, num_spam, num_nonspam, is_banned, is_defunct, updated ".
+		$sql = "SELECT id, email, host, contact_id, contact_org_id, mail_transport_id, worker_id, num_spam, num_nonspam, is_banned, is_defunct, created_at, updated ".
 			"FROM address ".
 			$where_sql.
 			$sort_sql.
@@ -502,6 +510,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			$object->host = $row['host'];
 			$object->contact_id = intval($row['contact_id']);
 			$object->contact_org_id = intval($row['contact_org_id']);
+			$object->created_at = intval($row['created_at']);
 			$object->mail_transport_id = intval($row['mail_transport_id']);
 			$object->num_spam = intval($row['num_spam']);
 			$object->num_nonspam = intval($row['num_nonspam']);
@@ -806,6 +815,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			"a.host as %s, ".
 			"a.contact_id as %s, ".
 			"a.contact_org_id as %s, ".
+			"a.created_at as %s, ".
 			"a.mail_transport_id as %s, ".
 			"a.worker_id as %s, ".
 			"a.num_spam as %s, ".
@@ -818,6 +828,7 @@ class DAO_Address extends Cerb_ORMHelper {
 				SearchFields_Address::HOST,
 				SearchFields_Address::CONTACT_ID,
 				SearchFields_Address::CONTACT_ORG_ID,
+				SearchFields_Address::CREATED_AT,
 				SearchFields_Address::MAIL_TRANSPORT_ID,
 				SearchFields_Address::WORKER_ID,
 				SearchFields_Address::NUM_SPAM,
@@ -963,6 +974,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 	const HOST = 'a_host';
 	const CONTACT_ID = 'a_contact_id';
 	const CONTACT_ORG_ID = 'a_contact_org_id';
+	const CREATED_AT = 'a_created_at';
 	const MAIL_TRANSPORT_ID = 'a_mail_transport_id';
 	const NUM_SPAM = 'a_num_spam';
 	const NUM_NONSPAM = 'a_num_nonspam';
@@ -1135,6 +1147,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 			self::EMAIL => new DevblocksSearchField(self::EMAIL, 'a', 'email', $translate->_('common.email'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::HOST => new DevblocksSearchField(self::HOST, 'a', 'host', $translate->_('common.host'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CONTACT_ID => new DevblocksSearchField(self::CONTACT_ID, 'a', 'contact_id', $translate->_('common.contact'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'a', 'created_at', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::MAIL_TRANSPORT_ID => new DevblocksSearchField(self::MAIL_TRANSPORT_ID, 'a', 'mail_transport_id', $translate->_('common.email_transport'), Model_CustomField::TYPE_NUMBER, true),
 			self::NUM_SPAM => new DevblocksSearchField(self::NUM_SPAM, 'a', 'num_spam', $translate->_('address.num_spam'), Model_CustomField::TYPE_NUMBER, true),
 			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER, true),
@@ -1339,6 +1352,7 @@ class Model_Address {
 	public $id;
 	public $contact_id = 0;
 	public $contact_org_id = 0;
+	public $created_at = 0;
 	public $email = '';
 	public $host = '';
 	public $is_banned = 0;
@@ -1627,6 +1641,11 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CONTACT, 'q' => ''],
 					]
+				),
+			'created' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Address::CREATED_AT),
 				),
 			'email' =>
 				array(
@@ -1977,6 +1996,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
+			case SearchFields_Address::CREATED_AT:
 			case SearchFields_Address::UPDATED:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -2073,34 +2093,10 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			),
 		);
 		
-		$properties['org'] = array(
-			'label' => mb_ucfirst($translate->_('common.organization')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $model->contact_org_id,
-			'params' => array(
-				'context' => CerberusContexts::CONTEXT_ORG,
-			),
-		);
-		
-		$properties['org'] = array(
-			'label' => mb_ucfirst($translate->_('common.email_transport')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $model->mail_transport_id,
-			'params' => array(
-				'context' => CerberusContexts::CONTEXT_MAIL_TRANSPORT,
-			),
-		);
-		
-		$properties['num_spam'] = array(
-			'label' => mb_ucfirst($translate->_('address.num_spam')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $model->num_spam,
-		);
-		
-		$properties['num_nonspam'] = array(
-			'label' => mb_ucfirst($translate->_('address.num_nonspam')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $model->num_nonspam,
+		$properties['created'] = array(
+			'label' => mb_ucfirst($translate->_('common.created')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->created_at,
 		);
 		
 		$properties['is_banned'] = array(
@@ -2113,6 +2109,42 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'label' => mb_ucfirst($translate->_('address.is_defunct')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->is_defunct,
+		);
+		
+		$properties['mail_transport_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.email_transport')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->mail_transport_id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_MAIL_TRANSPORT,
+			),
+		);
+		
+		$properties['org'] = array(
+			'label' => mb_ucfirst($translate->_('common.organization')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->contact_org_id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_ORG,
+			),
+		);
+		
+		$properties['num_nonspam'] = array(
+			'label' => mb_ucfirst($translate->_('address.num_nonspam')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->num_nonspam,
+		);
+		
+		$properties['num_spam'] = array(
+			'label' => mb_ucfirst($translate->_('address.num_spam')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->num_spam,
+		);
+		
+		$properties['updated_at'] = array(
+			'label' => mb_ucfirst($translate->_('common.updated')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->updated,
 		);
 		
 		return $properties;
@@ -2170,6 +2202,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'num_spam',
 			'mail_transport__label',
 			'worker__label',
+			'created',
 			'updated',
 		];
 	}
@@ -2246,6 +2279,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'address' => $prefix.$translate->_('address.address'),
+			'created_at' => $prefix.$translate->_('common.created'),
 			'full_name' => $prefix.$translate->_('common.name.full'),
 			'is_banned' => $prefix.$translate->_('address.is_banned'),
 			'is_contact' => $prefix.$translate->_('address.is_contact'),
@@ -2261,6 +2295,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'address' => Model_CustomField::TYPE_SINGLE_LINE,
+			'created_at' => Model_CustomField::TYPE_DATE,
 			'full_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'is_banned' => Model_CustomField::TYPE_CHECKBOX,
 			'is_contact' => Model_CustomField::TYPE_CHECKBOX,
@@ -2292,6 +2327,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'address', $address->id), true) . '?v=' . $address->updated;
 			$token_values['id'] = $address->id;
 			$token_values['address'] = $address->email;
+			$token_values['created_at'] = $address->created_at;
 			$token_values['email'] = $address->email;
 			$token_values['host'] = $address->host;
 			$token_values['num_spam'] = $address->num_spam;
@@ -2397,6 +2433,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	function getKeyToDaoFieldMap() {
 		return [
 			'contact_id' => DAO_Address::CONTACT_ID,
+			'created_at' => DAO_Address::CREATED_AT,
 			'email' => DAO_Address::EMAIL,
 			'host' => DAO_Address::HOST,
 			'id' => DAO_Address::ID,
@@ -2690,6 +2727,11 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				'type' => 'ctx_' . CerberusContexts::CONTEXT_ORG,
 				'param' => SearchFields_Address::CONTACT_ORG_ID,
 			),
+			'created_at' => array(
+				'label' => DevblocksPlatform::translateCapitalized('common.created'),
+				'type' => Model_CustomField::TYPE_DATE,
+				'param' => SearchFields_Address::CREATED_AT,
+			),
 			'email' => array(
 				'label' => 'Email',
 				'type' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -2723,7 +2765,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				'param' => SearchFields_Address::NUM_SPAM,
 			),
 			'updated' => array(
-				'label' => 'Updated',
+				'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 				'type' => Model_CustomField::TYPE_DATE,
 				'param' => SearchFields_Address::UPDATED,
 			),

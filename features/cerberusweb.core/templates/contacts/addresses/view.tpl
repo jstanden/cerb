@@ -130,7 +130,7 @@
 					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$result.$column}">{$mail_transport->name}</a>
 					{/if}
 				</td>
-			{elseif $column=="a_updated"}
+			{elseif in_array($column, ["a_created_at","a_updated"])}
 			<td data-column="{$column}">
 				<abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
 			</td>
