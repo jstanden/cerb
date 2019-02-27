@@ -1485,6 +1485,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			
 			switch($field_key) {
 				// DAO
+				case SearchFields_KbArticle::CATEGORY_ID:
 				case SearchFields_KbArticle::FORMAT:
 				case SearchFields_KbArticle::TOP_CATEGORY_ID:
 					$pass = true;
@@ -1558,6 +1559,78 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		return $counts;
 	}
 	
+	protected function _getSubtotalDataForCategory() {
+		$db = DevblocksPlatform::services()->database();
+		
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		if(!method_exists('DAO_KbArticle','getSearchQueryComponents'))
+			return [];
+		
+		$query_parts = call_user_func_array(
+			['DAO_KbArticle', 'getSearchQueryComponents'],
+			[
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			]
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		
+		$sql = sprintf("SELECT COUNT(*) AS hits, kb_article_to_category.kb_category_id ".
+			"FROM kb_article_to_category ".
+			"WHERE kb_article_to_category.kb_article_id IN (".
+				"SELECT id ".
+				"%s ".
+				"%s".
+			") ".
+			"GROUP BY kb_article_to_category.kb_category_id",
+			$join_sql,
+			$where_sql
+		);
+		
+		$results = $db->GetArraySlave($sql);
+		
+		return $results;
+	}
+	
+	protected function _getSubtotalCountForCategory() {
+		$counts = [];
+		$results = $this->_getSubtotalDataForCategory();
+
+		$categories = DAO_KbCategory::getAll();
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			if(empty($result['hits']))
+				continue;
+			
+			if(!array_key_exists($result['kb_category_id'], $categories))
+				continue;
+			
+			$label = $categories[$result['kb_category_id']]->name;
+			$value = $result['kb_category_id'];
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $result['hits'],
+					'label' => $label,
+					'filter' =>
+						array(
+							'field' => SearchFields_KbArticle::CATEGORY_ID,
+							'oper' => DevblocksSearchCriteria::OPER_EQ,
+							'values' => array('options[]' => $value),
+						),
+					'children' => []
+				);
+		}
+		
+		return $counts;
+	}
 	
 	protected function _getSubtotalDataForCategoryTopic() {
 		$db = DevblocksPlatform::services()->database();
