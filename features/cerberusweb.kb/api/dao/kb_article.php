@@ -486,14 +486,6 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			
 		$join_sql = "FROM kb_article kb ";
 
-		// [JAS]: Dynamic table joins
-		if(isset($tables['katc'])) {
-			$select_sql .= sprintf(", katc.kb_top_category_id AS %s ",
-				SearchFields_KbArticle::TOP_CATEGORY_ID
-			);
-			$join_sql .= "LEFT JOIN kb_article_to_category katc ON (kb.id=katc.kb_article_id) ";
-		}
-		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
@@ -534,7 +526,8 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$select_sql.
 			$join_sql.
 			$where_sql.
-			$sort_sql;
+			$sort_sql
+			;
 		
 		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
 			return false;
@@ -548,7 +541,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$id = intval($row[SearchFields_KbArticle::ID]);
 			$results[$id] = $row;
 		}
-
+		
 		$total = count($results);
 		
 		if($withCounts) {
@@ -601,6 +594,70 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::CATEGORY_ID:
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_LT:
+					case DevblocksSearchCriteria::OPER_LTE:
+					case DevblocksSearchCriteria::OPER_GT:
+					case DevblocksSearchCriteria::OPER_GTE:
+					case DevblocksSearchCriteria::OPER_EQ:
+					case DevblocksSearchCriteria::OPER_NEQ:
+						$value = is_array($param->value) ? current($param->value) : $param->value;
+						
+						return sprintf("EXISTS (SELECT * FROM kb_article_to_category WHERE kb_article_to_category.kb_article_id=%s AND kb_article_to_category.kb_category_id %s %d)",
+							self::getPrimaryKey(),
+							Cerb_ORMHelper::escape($param->operator),
+							$value
+						);
+						break;
+						
+					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_NIN:
+						$values = !is_array($param->value) ? [$param->value] : $param->value;
+						$category_ids = DevblocksPlatform::sanitizeArray($values, 'integer');
+						
+						return sprintf("EXISTS (SELECT * FROM kb_article_to_category WHERE kb_article_to_category.kb_article_id=%s AND kb_article_to_category.kb_category_id %s (%s))",
+							self::getPrimaryKey(),
+							$param->operator == DevblocksSearchCriteria::OPER_NIN ? 'NOT IN' : 'IN',
+							implode(',', $category_ids)
+						);
+						break;
+				}
+				return 0;
+				break;
+				
+			case self::TOP_CATEGORY_ID:
+				switch($param->operator) {
+					case DevblocksSearchCriteria::OPER_LT:
+					case DevblocksSearchCriteria::OPER_LTE:
+					case DevblocksSearchCriteria::OPER_GT:
+					case DevblocksSearchCriteria::OPER_GTE:
+					case DevblocksSearchCriteria::OPER_EQ:
+					case DevblocksSearchCriteria::OPER_NEQ:
+						$value = is_array($param->value) ? current($param->value) : $param->value;
+						
+						return sprintf("EXISTS (SELECT * FROM kb_article_to_category WHERE kb_article_to_category.kb_article_id=%s AND kb_article_to_category.kb_top_category_id %s %d)",
+							self::getPrimaryKey(),
+							Cerb_ORMHelper::escape($param->operator),
+							$value
+						);
+						break;
+						
+					case DevblocksSearchCriteria::OPER_IN:
+					case DevblocksSearchCriteria::OPER_NIN:
+						$values = !is_array($param->value) ? [$param->value] : $param->value;
+						$category_ids = DevblocksPlatform::sanitizeArray($values, 'integer');
+						
+						return sprintf("EXISTS (SELECT * FROM kb_article_to_category WHERE kb_article_to_category.kb_article_id=%s AND kb_article_to_category.kb_top_category_id %s (%s))",
+							self::getPrimaryKey(),
+							$param->operator == DevblocksSearchCriteria::OPER_NIN ? 'NOT IN' : 'IN',
+							implode(',', $category_ids)
+						);
+						break;
+				}
+				return 0;
+				break;
+				
 			case self::FULLTEXT_ARTICLE_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_KbArticle::ID, self::getPrimaryKey());
 				break;
@@ -690,7 +747,7 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 			self::FORMAT => new DevblocksSearchField(self::FORMAT, 'kb', 'format', $translate->_('kb_article.format'), null, true),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'kb', 'content', $translate->_('kb_article.content'), null, true),
 			
-			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id', DevblocksPlatform::translateCapitalized('kb.common.knowledgebase_category'), Model_CustomField::TYPE_NUMBER, true),
+			self::CATEGORY_ID => new DevblocksSearchField(self::CATEGORY_ID, 'katc', 'kb_category_id', DevblocksPlatform::translateCapitalized('common.category'), Model_CustomField::TYPE_NUMBER, true),
 			self::TOP_CATEGORY_ID => new DevblocksSearchField(self::TOP_CATEGORY_ID, 'katc', 'kb_top_category_id', $translate->_('kb_article.topic'), null, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -1381,8 +1438,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			SearchFields_KbArticle::VIEWS,
 		);
 		$this->addColumnsHidden(array(
+			SearchFields_KbArticle::CATEGORY_ID,
 			SearchFields_KbArticle::CONTENT,
 			SearchFields_KbArticle::FULLTEXT_ARTICLE_CONTENT,
+			SearchFields_KbArticle::TOP_CATEGORY_ID,
 			SearchFields_KbArticle::VIRTUAL_CONTEXT_LINK,
 			SearchFields_KbArticle::VIRTUAL_HAS_FIELDSET,
 			SearchFields_KbArticle::VIRTUAL_WATCHERS,
@@ -1426,8 +1485,8 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			
 			switch($field_key) {
 				// DAO
-				case SearchFields_KbArticle::TOP_CATEGORY_ID:
 				case SearchFields_KbArticle::FORMAT:
+				case SearchFields_KbArticle::TOP_CATEGORY_ID:
 					$pass = true;
 					break;
 					
@@ -1461,11 +1520,11 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		
 		switch($column) {
 			case SearchFields_KbArticle::CATEGORY_ID:
+				return $this->_getSubtotalCountForCategory();
+				break;
+				
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
-				$label_map = function(array $values) use ($column) {
-					return SearchFields_KbArticle::getLabelsForKeyValues($column, $values);
-				};
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, 'in', 'options[]');
+				return $this->_getSubtotalCountForCategoryTopic();
 				break;
 				
 			case SearchFields_KbArticle::FORMAT:
@@ -1494,6 +1553,80 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				}
 				
 				break;
+		}
+		
+		return $counts;
+	}
+	
+	
+	protected function _getSubtotalDataForCategoryTopic() {
+		$db = DevblocksPlatform::services()->database();
+		
+		$columns = $this->view_columns;
+		$params = $this->getParams();
+		
+		if(!method_exists('DAO_KbArticle','getSearchQueryComponents'))
+			return [];
+		
+		$query_parts = call_user_func_array(
+			['DAO_KbArticle', 'getSearchQueryComponents'],
+			[
+				$columns,
+				$params,
+				$this->renderSortBy,
+				$this->renderSortAsc
+			]
+		);
+		
+		$join_sql = $query_parts['join'];
+		$where_sql = $query_parts['where'];
+		
+		$sql = sprintf("SELECT COUNT(*) AS hits, kb_article_to_category.kb_top_category_id ".
+			"FROM kb_article_to_category ".
+			"WHERE kb_article_to_category.kb_article_id IN (".
+				"SELECT id ".
+				"%s ".
+				"%s".
+			") ".
+			"GROUP BY kb_article_to_category.kb_top_category_id",
+			$join_sql,
+			$where_sql
+		);
+		
+		$results = $db->GetArraySlave($sql);
+		
+		return $results;
+	}
+	
+	protected function _getSubtotalCountForCategoryTopic() {
+		$counts = [];
+		$results = $this->_getSubtotalDataForCategoryTopic();
+
+		$categories = DAO_KbCategory::getAll();
+		
+		if(is_array($results))
+		foreach($results as $result) {
+			if(empty($result['hits']))
+				continue;
+			
+			if(!array_key_exists($result['kb_top_category_id'], $categories))
+				continue;
+			
+			$label = $categories[$result['kb_top_category_id']]->name;
+			$value = $result['kb_top_category_id'];
+			
+			if(!isset($counts[$label]))
+				$counts[$label] = array(
+					'hits' => $result['hits'],
+					'label' => $label,
+					'filter' =>
+						array(
+							'field' => SearchFields_KbArticle::TOP_CATEGORY_ID,
+							'oper' => DevblocksSearchCriteria::OPER_EQ,
+							'values' => array('options[]' => $value),
+						),
+					'children' => []
+				);
 		}
 		
 		return $counts;
@@ -1699,6 +1832,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 				
+			case SearchFields_KbArticle::CATEGORY_ID:
 			case SearchFields_KbArticle::TOP_CATEGORY_ID:
 				@$options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', []);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $options);

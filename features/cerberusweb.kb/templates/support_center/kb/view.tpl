@@ -81,17 +81,6 @@
 					&nbsp;
 				</td>
 				
-			{elseif $column=="katc_top_category_id"}
-				<td data-column="{$column}">
-					{if !empty($result.$column)}
-						{assign var=topic_id value=$result.$column}
-						{if isset($categories.$topic_id)}
-							{$categories.$topic_id->name}
-						{/if}
-					{/if}
-					&nbsp;
-				</td>
-				
 			{else}
 				<td data-column="{$column}">{$result.$column}</td>
 				
