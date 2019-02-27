@@ -11,7 +11,7 @@
 			</button>
 			
 			{foreach from=$prompt.params.options item=option key=option_key}
-				{if in_array($option, $prompt_value)}
+				{if is_array($prompt_value) && in_array($option, $prompt_value)}
 				<div class="bubble">
 					{if is_string($option_key)}
 						{$option_key}
@@ -28,7 +28,7 @@
 			{foreach from=$prompt.params.options item=option key=option_key}
 			<div>
 				<label>
-					<input type="checkbox" name="prompts[{$prompt.placeholder}][]" value="{$option}" {if in_array($option, $prompt_value)}checked="checked"{/if}>
+					<input type="checkbox" name="prompts[{$prompt.placeholder}][]" value="{$option}" {if is_array($prompt_value) && in_array($option, $prompt_value)}checked="checked"{/if}>
 					{if is_string($option_key)}
 						{$option_key}
 					{else}

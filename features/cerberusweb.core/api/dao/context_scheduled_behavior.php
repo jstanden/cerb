@@ -273,8 +273,6 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		if(!method_exists(get_called_class(), 'getWhere'))
 			return [];
 
-		$db = DevblocksPlatform::services()->database();
-
 		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 
 		$models = [];
@@ -425,7 +423,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextScheduledBehavior::getFields();
 
-		list($tables, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextScheduledBehavior', $sortBy);
+		list(, $wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextScheduledBehavior', $sortBy);
 
 		$select_sql = sprintf("SELECT ".
 			"context_scheduled_behavior.id as %s, ".
@@ -804,7 +802,7 @@ class Model_ContextScheduledBehavior {
 				case 'date':
 					// If we've passed the end date
 					$on = intval(@$end['options']['on']);
-					if($end['options']['on'] <= time()) {
+					if($on <= time()) {
 						// Don't repeat
 						return null;
 					}

@@ -431,6 +431,7 @@ class View_CerbPlugin extends C4_AbstractView implements IAbstractView_Subtotals
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = null;
 
 		if(!isset($fields[$column]))
 			return array();

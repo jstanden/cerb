@@ -105,16 +105,13 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	function getContext($model) {
-		$labels = array();
-		$values = array();
-		$context = CerberusContexts::getContext(CerberusContexts::CONTEXT_NOTIFICATION, $model, $labels, $values, null, true);
+		$labels = $values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_NOTIFICATION, $model, $labels, $values, null, true);
 
 		return $values;
 	}
 	
 	private function getId($id) {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		$container = $this->search(array(
 			array('id', '=', $id),
 		));
@@ -238,12 +235,6 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	function postSearch() {
-		$worker = CerberusApplication::getActiveWorker();
-		
-		// ACL
-//		if(!$worker->hasPriv('core.addybook'))
-//			$this->error(self::ERRNO_ACL);
-
 		$container = $this->_handlePostSearch();
 		
 		$this->success($container);
@@ -290,8 +281,6 @@ class ChRest_Notifications extends Extension_RestController implements IExtensio
 	}
 	
 	function postCreate() {
-		$worker = CerberusApplication::getActiveWorker();
-		
 		// ACL
 //		if(!$worker->is_superuser)
 //			$this->error(self::ERRNO_ACL);

@@ -55,7 +55,6 @@ class UmScKbRssController extends Extension_UmScRssController {
 XML;
 
 		$xml = new SimpleXMLElement($xmlstr);
-		$translate = DevblocksPlatform::getTranslationService();
 		$url = DevblocksPlatform::services()->url();
 
 		// Portal details
@@ -106,16 +105,16 @@ XML;
 			$escapedSubject = htmlspecialchars($article->title,null,LANG_CHARSET_CODE);
 			//filter out a couple non-UTF-8 characters (0xC and ESC)
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
-			$eTitle = $eItem->addChild('title', $escapedSubject);
+			$eItem->addChild('title', $escapedSubject);
 
 			$escapedDesc = htmlspecialchars($article->getContent(),null,LANG_CHARSET_CODE);
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
-			$eDesc = $eItem->addChild('description', $escapedDesc);
+			$eItem->addChild('description', $escapedDesc);
 
 			$link = $url->write('c=kb&a=article&id='.$article->id, true);
-			$eLink = $eItem->addChild('link', $link);
-				
-			$eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+			$eItem->addChild('link', $link);
+			
+			$eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
 			
 			$eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
 			$eGuid->addAttribute('isPermaLink', "false");
@@ -133,7 +132,6 @@ XML;
 XML;
 
 		$xml = new SimpleXMLElement($xmlstr);
-		$translate = DevblocksPlatform::getTranslationService();
 		$url = DevblocksPlatform::services()->url();
 
 		// Portal details
@@ -189,16 +187,16 @@ XML;
 			$escapedSubject = htmlspecialchars($article->title,null,LANG_CHARSET_CODE);
 			//filter out a couple non-UTF-8 characters (0xC and ESC)
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
-			$eTitle = $eItem->addChild('title', $escapedSubject);
+			$eItem->addChild('title', $escapedSubject);
 
 			$escapedDesc = htmlspecialchars($article->getContent(),null,LANG_CHARSET_CODE);
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
-			$eDesc = $eItem->addChild('description', $escapedDesc);
+			$eItem->addChild('description', $escapedDesc);
 
 			$link = $url->write('c=kb&a=article&id='.$article->id, true);
-			$eLink = $eItem->addChild('link', $link);
-				
-			$eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+			$eItem->addChild('link', $link);
+			
+			$eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
 			
 			$eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
 			$eGuid->addAttribute('isPermaLink', "false");
@@ -216,7 +214,6 @@ XML;
 XML;
 
 		$xml = new SimpleXMLElement($xmlstr);
-		$translate = DevblocksPlatform::getTranslationService();
 		$url = DevblocksPlatform::services()->url();
 
 		// Portal details
@@ -272,16 +269,16 @@ XML;
 			$escapedSubject = htmlspecialchars($article->title,null,LANG_CHARSET_CODE);
 			//filter out a couple non-UTF-8 characters (0xC and ESC)
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
-			$eTitle = $eItem->addChild('title', $escapedSubject);
+			$eItem->addChild('title', $escapedSubject);
 
 			$escapedDesc = htmlspecialchars($article->getContent(),null,LANG_CHARSET_CODE);
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
-			$eDesc = $eItem->addChild('description', $escapedDesc);
+			$eItem->addChild('description', $escapedDesc);
 
 			$link = $url->write('c=kb&a=article&id='.$article->id, true);
-			$eLink = $eItem->addChild('link', $link);
-				
-			$eDate = $eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
+			$eItem->addChild('link', $link);
+			
+			$eItem->addChild('pubDate', gmdate('D, d M Y H:i:s T', $created));
 			
 			$eGuid = $eItem->addChild('guid', md5($escapedSubject . $link . $created));
 			$eGuid->addAttribute('isPermaLink', "false");
