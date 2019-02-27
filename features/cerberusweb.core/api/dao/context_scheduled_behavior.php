@@ -646,7 +646,8 @@ class SearchFields_ContextScheduledBehavior extends DevblocksSearchFields {
 						Cerb_ORMHelper::escape($field_target_context->db_column),
 						Cerb_ORMHelper::escape($field_target_context_id->db_table),
 						Cerb_ORMHelper::escape($field_target_context_id->db_column)
-					)
+					),
+					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->link('on'),
 				];
 				break;
 		}

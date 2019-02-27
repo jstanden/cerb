@@ -275,17 +275,21 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$labels[$key_select] = $by_labels;
 			
 			foreach($values as $idx => $value) {
-				@$filter = $by['key_query_filter'] ?: ($by['key_query'] . ':%s');
+				@$filter = $by['key_query'] . ':%s';
 				
 				switch($by['type']) {
 					case 'context':
-						$query_value = $value;
+						if(array_key_exists('get_value_as_filter_callback',$by) && is_callable($by['get_value_as_filter_callback'])) {
+							$query_value = $by['get_value_as_filter_callback']($value, $filter);
+						} else {
+							$query_value = $value;
+						}
 						$queries[$by['key_select']][$value] = sprintf($filter, $query_value);
 						break;
 					
 					case 'text':
 						if(array_key_exists('get_value_as_filter_callback',$by) && is_callable($by['get_value_as_filter_callback'])) {
-							$query_value = $by['get_value_as_filter_callback']($value);
+							$query_value = $by['get_value_as_filter_callback']($value, $filter);
 						} else {
 							$query_value = $value;
 						}

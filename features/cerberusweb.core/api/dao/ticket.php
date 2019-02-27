@@ -2328,6 +2328,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 						Cerb_ORMHelper::escape($search_field->db_table),
 						Cerb_ORMHelper::escape($search_field->db_column)
 					),
+					'get_value_as_filter_callback' => function($value) {
+						$statuses = [0 => 'o', 1 => 'w', 2 => 'c', 3 => 'd'];
+						return @$statuses[$value];
+					}
 				];
 				break;
 		}

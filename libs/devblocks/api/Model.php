@@ -31,6 +31,46 @@ class DevblocksSearchFieldContextKeys {
 	}
 };
 
+class _DevblocksSearchGetValueAsFilterCallbackFactory {
+	function link($filter_key='owner') {
+		return function($value, &$filter) use ($filter_key) {
+			list($value_context, $value_context_id) = explode(':', $value, 2);
+			
+			if($value_context == CerberusContexts::CONTEXT_APPLICATION) {
+				$filter = $filter_key . ':%s';
+				$value = 'app';
+				return $value;
+			}
+			
+			if(false == ($value_context_mft = Extension_DevblocksContext::get($value_context, false)))
+				return '';
+			
+			$filter = sprintf('%s.%s:%%s', $filter_key, $value_context_mft->params['alias']);
+			$value = sprintf("(id:%d)", $value_context_id);
+			return $value;
+		};
+	}
+	
+	function linkType($filter_key='owner') {
+		return function($value, &$filter) use ($filter_key) {
+			$value_context = $value;
+			
+			if($value_context == CerberusContexts::CONTEXT_APPLICATION) {
+				$filter = $filter_key . ':%s';
+				$value = 'app';
+				return $value;
+			}
+			
+			if(false == ($value_context_mft = Extension_DevblocksContext::get($value_context, false)))
+				return '';
+			
+			$filter = sprintf('%s:%%s', $filter_key);
+			$value = $value_context_mft->params['alias'];
+			return $value;
+		};
+	}
+};
+
 interface IDevblocksSearchFields {
 	static function getFields();
 	static function getPrimaryKey();
@@ -41,6 +81,10 @@ interface IDevblocksSearchFields {
 }
 
 abstract class DevblocksSearchFields implements IDevblocksSearchFields {
+	static function getValueAsFilterCallback() {
+		return new _DevblocksSearchGetValueAsFilterCallbackFactory();
+	}
+	
 	static function getCustomFieldContextData($context) {
 		$map = static::getCustomFieldContextKeys();
 		
@@ -90,6 +134,22 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							)
 							: ''
 					),
+					'get_value_as_filter_callback' => function($value, &$filter) {
+						list($value_context, $value_context_id) = explode(':', $value, 2);
+						
+						if($value_context == CerberusContexts::CONTEXT_APPLICATION) {
+							$value = 'app';
+							return $value;
+						}
+						
+						if(false == ($value_context_mft = Extension_DevblocksContext::get($value_context, false)))
+							return '';
+						
+						$filter = sprintf('links.%s:%%s', $value_context_mft->params['alias']);
+						$value = sprintf("(id:%d)", $value_context_id);
+						
+						return $value;
+					}
 				];
 				
 			} else if(DevblocksPlatform::strStartsWith($search_key, '*_')) {

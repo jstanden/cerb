@@ -779,7 +779,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 				
 			case 'group':
 			case 'ticket.group':
-				$key = $key;
 				$search_key = $key;
 				$group_field = $search_fields[SearchFields_Message::TICKET_GROUP_ID];
 				
@@ -794,11 +793,14 @@ class SearchFields_Message extends DevblocksSearchFields {
 						Cerb_ORMHelper::escape($group_field->db_table),
 						Cerb_ORMHelper::escape($group_field->db_column)
 					),
+					'get_value_as_filter_callback' => function($value, &$filter) {
+						$filter = 'ticket:(group:(id:%s))';
+						return $value;
+					}
 				];
 				break;
 				
 			case 'ticket.mask':
-				$key = $key;
 				$search_key = $key;
 				$mask_field = $search_fields[SearchFields_Message::TICKET_MASK];
 				
@@ -810,6 +812,10 @@ class SearchFields_Message extends DevblocksSearchFields {
 						Cerb_ORMHelper::escape($mask_field->db_table),
 						Cerb_ORMHelper::escape($mask_field->db_column)
 					),
+					'get_value_as_filter_callback' => function($value, &$filter) {
+						$filter = 'ticket:(mask:%s)';
+						return $value;
+					}
 				];
 				break;
 				

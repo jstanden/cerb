@@ -618,7 +618,8 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 						Cerb_ORMHelper::escape($field_actor_context->db_column),
 						Cerb_ORMHelper::escape($field_actor_context_id->db_table),
 						Cerb_ORMHelper::escape($field_actor_context_id->db_column)
-					)
+					),
+					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->link('actor'),
 				];
 				break;
 				
@@ -632,7 +633,8 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 					'sql_select' => sprintf("%s.%s",
 						Cerb_ORMHelper::escape($search_field->db_table),
 						Cerb_ORMHelper::escape($search_field->db_column)
-					)
+					),
+					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->linkType('actor'),
 				];
 				break;
 				
@@ -649,7 +651,8 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 						Cerb_ORMHelper::escape($field_target_context->db_column),
 						Cerb_ORMHelper::escape($field_target_context_id->db_table),
 						Cerb_ORMHelper::escape($field_target_context_id->db_column)
-					)
+					),
+					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->link('target'),
 				];
 				break;
 				
@@ -663,7 +666,8 @@ class SearchFields_ContextActivityLog extends DevblocksSearchFields {
 					'sql_select' => sprintf("%s.%s",
 						Cerb_ORMHelper::escape($search_field->db_table),
 						Cerb_ORMHelper::escape($search_field->db_column)
-					)
+					),
+					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->linkType('target'),
 				];
 				break;
 		}
