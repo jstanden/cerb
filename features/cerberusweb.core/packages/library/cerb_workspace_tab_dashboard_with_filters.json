@@ -1,9 +1,9 @@
 {
   "package": {
     "library": {
-      "name": "Dashboard",
-      "uri": "cerb_workspace_tab_dashboard",
-      "description": "A dashboard with customizable widgets",
+      "name": "Dashboard with filters",
+      "uri": "cerb_workspace_tab_dashboard_with_filters",
+      "description": "A dashboard with customizable widgets that update from user-editable filters",
       "point": "workspace_tab",
       "image": "data:image/png;base64,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"
     },
@@ -34,7 +34,12 @@
           "label": "Layout:",
           "key": "prompt_layout",
           "params": {
-            "options": {"Open":"","Left Sidebar":"sidebar_left","Right Sidebar":"sidebar_right","3-Column":"thirds"},
+            "options": {
+              "Open": "",
+              "Left Sidebar": "sidebar_left",
+              "Right Sidebar": "sidebar_right",
+              "3-Column": "thirds"
+            },
             "default": ""
           }
         }
@@ -50,10 +55,32 @@
       "_context": "workspace_tab",
       "name": "{{{prompt_dashboard_name}}}",
       "page_id": "{{{workspace_page_id}}}",
-      "pos": 0,
       "extension_id": "core.workspace.tab.dashboard",
       "params": {
-        "layout": "{{{prompt_layout}}}"
+        "layout": "{{{prompt_layout}}}",
+        "placeholder_prompts": "---\r\nplaceholder: input_date_range\r\nlabel: \"Date range:\"\r\ntype: date_range\r\ndefault: first day of this month -12 months\r\n---\r\nplaceholder: input_date_subtotal_by\r\nlabel: \"By:\"\r\ntype: picklist\r\ndefault: month\r\nparams:\r\n  options: [day, week, month, year]\r\n---\r\nplaceholder: input_statuses\r\nlabel: \"Statuses:\"\r\ntype: picklist\r\ndefault: []\r\nparams:\r\n  multiple: true\r\n  options: [open, waiting, closed, deleted]\r\n---\r\nplaceholder: input_groups\r\nlabel: \"Groups:\"\r\ntype: chooser\r\ndefault:\r\nparams:\r\n  context: group\r\n  single: false"
+      }
+    },
+    {
+      "uid": "widget_example",
+      "_context": "workspace_widget",
+      "label": "Filtered Chart",
+      "extension_id": "cerb.workspace.widget.chart.timeseries",
+      "tab_id": "{{{uid.workspace_tab_dashboard}}}",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "data_query": "{# These placeholders are automatically set by the dashboard filters #}\r\n{# See: https://cerb.ai/guides/dashboards/filters/ #}\r\ntype:worklist.subtotals\r\nof:ticket\r\nby.count:[created@{{input_date_subtotal_by}},group~10]\r\nquery:(\r\n  created:\"{{input_date_range}}\"\r\n  {% if input_groups %}\r\n  group.id:[{{input_groups}}]\r\n  {% endif %}\r\n  {% if input_statuses %}\r\n  status:[{{input_statuses|join(',')}}]\r\n  {% endif %}\r\n)\r\nformat:timeseries",
+        "cache_secs": "",
+        "chart_as": "bar_stacked",
+        "xaxis_label": "",
+        "yaxis_label": "",
+        "yaxis_format": "number",
+        "height": "",
+        "options": {
+          "show_legend": "1"
+        }
       }
     }
   ]
