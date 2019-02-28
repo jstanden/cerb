@@ -3142,7 +3142,7 @@ class CerbLoginWorkerAuthState {
 	function setEmail($email) {
 		$url_writer = DevblocksPlatform::services()->url();
 		
-		$this->email = $email;
+		$this->email = DevblocksPlatform::strLower($email);
 		
 		// Set a cookie
 		setcookie(
