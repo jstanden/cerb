@@ -102,9 +102,15 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			@$search_key = $query_field['options']['param_key'];
 			@$search_field = $search_fields[$search_key]; /* @var $search_field DevblocksSearchField */
 			
+			// Default the bin on date-based fields
 			// Make sure the field is a date if we're binning
-			if($bin && $search_field->type != Model_CustomField::TYPE_DATE)
+			
+			if(in_array($search_field->type, [Model_CustomField::TYPE_DATE, DevblocksSearchCriteria::TYPE_DATE])) {
+				$bin = DevblocksPlatform::strLower($bin ?: 'month');
+				
+			} else {
 				$bin = null;
+			}
 			
 			if('*_context_link' == $search_key) {
 				@$link_context_alias = substr($key, 6);
@@ -167,116 +173,185 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				if($table == 'custom_field_geovalue')
 					$field_key = 'ST_ASTEXT(field_value) AS field_value';
 				
-				return [
-					'key_query' => $key,
-					'key_select' => $search_key,
-					'label' => $custom_field->name,
-					'type' => $custom_field->type,
-					'type_options' => $custom_field->params,
-					'sql_select' => sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
+				if(in_array($custom_field->type, [Model_CustomField::TYPE_DATE])) {
+					$sql_select_field = sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
 						$field_key,
 						Cerb_ORMHelper::escape($table),
 						Cerb_ORMHelper::qstr($custom_field->context),
 						$primary_key,
 						$custom_field->id
-					)
-				];
-				
-			} else {
-				$bin = DevblocksPlatform::strLower($bin);
-				
-				// Default the bin on date-based fields
-				if(!$bin && in_array($search_field->type, [Model_CustomField::TYPE_DATE, DevblocksSearchCriteria::TYPE_DATE]))
-					$bin = 'month';
-				
-				switch($bin) {
-					case 'week':
-					case 'week-mon':
-					case 'week-monday':
-						$ts_format = '%Y-%m-%d'; 
-						return [
-							'key_query' => $key,
-							'key_select' => $search_key,
-							'label' => $search_field->db_label,
-							'type' => DevblocksSearchCriteria::TYPE_TEXT,
-							'timestamp_step' => 'week',
-							'timestamp_format' => $ts_format,
-							'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), WEEKDAY(FROM_UNIXTIME(%s.%s))), %s)", // Monday
-								Cerb_ORMHelper::escape($search_field->db_table),
-								Cerb_ORMHelper::escape($search_field->db_column),
-								Cerb_ORMHelper::escape($search_field->db_table),
-								Cerb_ORMHelper::escape($search_field->db_column),
-								Cerb_ORMHelper::qstr($ts_format)
-							),
-						];
-						break;
-						
-					case 'week-sun':
-					case 'week-sunday':
-						$ts_format = '%Y-%m-%d'; 
-						return [
-							'key_query' => $key,
-							'key_select' => $search_key,
-							'label' => $search_field->db_label,
-							'type' => DevblocksSearchCriteria::TYPE_TEXT,
-							'timestamp_step' => 'week',
-							'timestamp_format' => $ts_format,
-							'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), DAYOFWEEK(FROM_UNIXTIME(%s.%s))-1), %s)", // Sunday
-								Cerb_ORMHelper::escape($search_field->db_table),
-								Cerb_ORMHelper::escape($search_field->db_column),
-								Cerb_ORMHelper::escape($search_field->db_table),
-								Cerb_ORMHelper::escape($search_field->db_column),
-								Cerb_ORMHelper::qstr($ts_format)
-							),
-						];
-						break;
-						
-					case 'day':
-					case 'month':
-					case 'year':
-						$date_format = [
-							'day' => '%Y-%m-%d',
-							'month' => '%Y-%m',
-							'year' => '%Y',
-						];
-						
-						$ts_format = $date_format[$bin];
-						
-						return [
-							'key_query' => $key,
-							'key_select' => $search_key,
-							'label' => $search_field->db_label,
-							'type' => DevblocksSearchCriteria::TYPE_TEXT,
-							'timestamp_step' => $bin,
-							'timestamp_format' => $ts_format,
-							'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), %s)",
-								Cerb_ORMHelper::escape($search_field->db_table),
-								Cerb_ORMHelper::escape($search_field->db_column),
-								Cerb_ORMHelper::qstr($ts_format)
-							),
-						];
-						break;
-						
-					default:
-						$meta = [
-							'key_query' => $key,
-							'key_select' => $search_key,
-							'label' => $search_field->db_label,
-							'sql_select' => sprintf("%s.%s",
-								Cerb_ORMHelper::escape($search_field->db_table),
-								Cerb_ORMHelper::escape($search_field->db_column)
-							),
-						];
-						
-						if(array_key_exists('type', $query_field))
-							$meta['type'] = $query_field['type'];
+					);
+					
+					switch($bin) {
+						case 'week':
+						case 'week-mon':
+						case 'week-monday':
+							$ts_format = '%Y-%m-%d';
 							
-						if(array_key_exists('type_options', $query_field))
-							$meta['type_options'] = $query_field['type_options'];
-						
-						return $meta;
-						break;
+							return [
+								'key_query' => $key,
+								'key_select' => $search_key,
+								'label' => $search_field->db_label,
+								'type' => DevblocksSearchCriteria::TYPE_TEXT,
+								'timestamp_step' => 'week',
+								'timestamp_format' => $ts_format,
+								'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s), WEEKDAY(FROM_UNIXTIME(%s))), %s)", // Monday
+									$sql_select_field,
+									$sql_select_field,
+									Cerb_ORMHelper::qstr($ts_format)
+								),
+							];
+							break;
+							
+						case 'week-sun':
+						case 'week-sunday':
+							$ts_format = '%Y-%m-%d';
+							return [
+								'key_query' => $key,
+								'key_select' => $search_key,
+								'label' => $search_field->db_label,
+								'type' => DevblocksSearchCriteria::TYPE_TEXT,
+								'timestamp_step' => 'week',
+								'timestamp_format' => $ts_format,
+								'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s), DAYOFWEEK(FROM_UNIXTIME(%s))-1), %s)", // Sunday
+									$sql_select_field,
+									$sql_select_field,
+									Cerb_ORMHelper::qstr($ts_format)
+								),
+							];
+							break;
+							
+						case 'day':
+						case 'month':
+						case 'year':
+							$date_format = [
+								'day' => '%Y-%m-%d',
+								'month' => '%Y-%m',
+								'year' => '%Y',
+							];
+							
+							$ts_format = $date_format[$bin];
+							
+							return [
+								'key_query' => $key,
+								'key_select' => $search_key,
+								'label' => $search_field->db_label,
+								'type' => DevblocksSearchCriteria::TYPE_TEXT,
+								'timestamp_step' => $bin,
+								'timestamp_format' => $ts_format,
+								'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s), %s)",
+									$sql_select_field,
+									Cerb_ORMHelper::qstr($ts_format)
+								),
+							];
+							break;
+					}
+					
+				} else {
+					return [
+						'key_query' => $key,
+						'key_select' => $search_key,
+						'label' => $custom_field->name,
+						'type' => $custom_field->type,
+						'type_options' => $custom_field->params,
+						'sql_select' => sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
+							$field_key,
+							Cerb_ORMHelper::escape($table),
+							Cerb_ORMHelper::qstr($custom_field->context),
+							$primary_key,
+							$custom_field->id
+						)
+					];
 				}
+			}
+			
+			switch($bin) {
+				case 'week':
+				case 'week-mon':
+				case 'week-monday':
+					$ts_format = '%Y-%m-%d'; 
+					return [
+						'key_query' => $key,
+						'key_select' => $search_key,
+						'label' => $search_field->db_label,
+						'type' => DevblocksSearchCriteria::TYPE_TEXT,
+						'timestamp_step' => 'week',
+						'timestamp_format' => $ts_format,
+						'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), WEEKDAY(FROM_UNIXTIME(%s.%s))), %s)", // Monday
+							Cerb_ORMHelper::escape($search_field->db_table),
+							Cerb_ORMHelper::escape($search_field->db_column),
+							Cerb_ORMHelper::escape($search_field->db_table),
+							Cerb_ORMHelper::escape($search_field->db_column),
+							Cerb_ORMHelper::qstr($ts_format)
+						),
+					];
+					break;
+					
+				case 'week-sun':
+				case 'week-sunday':
+					$ts_format = '%Y-%m-%d'; 
+					return [
+						'key_query' => $key,
+						'key_select' => $search_key,
+						'label' => $search_field->db_label,
+						'type' => DevblocksSearchCriteria::TYPE_TEXT,
+						'timestamp_step' => 'week',
+						'timestamp_format' => $ts_format,
+						'sql_select' => sprintf("DATE_FORMAT(SUBDATE(FROM_UNIXTIME(%s.%s), DAYOFWEEK(FROM_UNIXTIME(%s.%s))-1), %s)", // Sunday
+							Cerb_ORMHelper::escape($search_field->db_table),
+							Cerb_ORMHelper::escape($search_field->db_column),
+							Cerb_ORMHelper::escape($search_field->db_table),
+							Cerb_ORMHelper::escape($search_field->db_column),
+							Cerb_ORMHelper::qstr($ts_format)
+						),
+					];
+					break;
+					
+				case 'day':
+				case 'month':
+				case 'year':
+					$date_format = [
+						'day' => '%Y-%m-%d',
+						'month' => '%Y-%m',
+						'year' => '%Y',
+					];
+					
+					$ts_format = $date_format[$bin];
+					
+					return [
+						'key_query' => $key,
+						'key_select' => $search_key,
+						'label' => $search_field->db_label,
+						'type' => DevblocksSearchCriteria::TYPE_TEXT,
+						'timestamp_step' => $bin,
+						'timestamp_format' => $ts_format,
+						'sql_select' => sprintf("DATE_FORMAT(FROM_UNIXTIME(%s.%s), %s)",
+							Cerb_ORMHelper::escape($search_field->db_table),
+							Cerb_ORMHelper::escape($search_field->db_column),
+							Cerb_ORMHelper::qstr($ts_format)
+						),
+					];
+					break;
+					
+				default:
+					$meta = [
+						'key_query' => $key,
+						'key_select' => $search_key,
+						'label' => $search_field->db_label,
+						'sql_select' => sprintf("%s.%s",
+							Cerb_ORMHelper::escape($search_field->db_table),
+							Cerb_ORMHelper::escape($search_field->db_column)
+						),
+					];
+					
+					if(array_key_exists('type', $query_field))
+						$meta['type'] = $query_field['type'];
+						
+					if(array_key_exists('type_options', $query_field))
+						$meta['type_options'] = $query_field['type_options'];
+					
+					return $meta;
+					break;
 			}
 		}
 		
