@@ -115,7 +115,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					'type_options' => $custom_field->params,
 					'sql_select' => sprintf("(SELECT %s FROM %s WHERE context=%s AND context_id=%s AND field_id=%d LIMIT 1)",
 						$field_key,
-						$table,
+						Cerb_ORMHelper::escape($table),
 						Cerb_ORMHelper::qstr($custom_field->context),
 						$primary_key,
 						$custom_field->id
@@ -124,6 +124,11 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				
 			} else {
 				$bin = DevblocksPlatform::strLower($bin);
+				
+				// Default the bin on date-based fields
+				if(!$bin && in_array($search_field->type, [Model_CustomField::TYPE_DATE, DevblocksSearchCriteria::TYPE_DATE]))
+					$bin = 'month';
+				
 				switch($bin) {
 					case 'week':
 					case 'week-mon':
