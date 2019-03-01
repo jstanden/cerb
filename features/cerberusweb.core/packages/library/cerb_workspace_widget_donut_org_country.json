@@ -44,7 +44,7 @@
       "pos": 0,
       "width_units": 2,
       "params": {
-        "data_query": "type:worklist.subtotals\r\nof:org\r\nby:[country~20]\r\nquery:()\r\nformat:pie",
+        "data_query": "type:worklist.subtotals\r\nof:org\r\nby:[country~20]\r\nquery:(country:!\"\")\r\nformat:pie",
         "cache_secs": "",
         "chart_as": "donut",
         "height": "",
