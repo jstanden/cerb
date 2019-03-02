@@ -888,6 +888,10 @@
 			<class name="Event_MailBeforeUiReplyByWorker" />
 		</file>
 		
+		<file path="api/events/ui/ui_card_editor_opened_by_worker.php">
+			<class name="Event_UiCardEditorOpenedByWorker" />
+		</file>
+		
 		<file path="api/events/ui/ui_during_reply_by_worker.php">
 			<class name="Event_MailDuringUiReplyByWorker" />
 		</file>
@@ -4242,6 +4246,22 @@
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.ui.card.editor.opened.worker</id>
+			<name>[UI] Record editor opened</name>
+			<class>
+				<file>api/events/ui/ui_card_editor_opened_by_worker.php</file>
+				<name>Event_UiCardEditorOpenedByWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
 					</value>
 				</param>
 			</params>
