@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_OPPORTUNITY}
+{$peek_context_id = $opp->id}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formOppPeek" name="formOppPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -129,6 +130,9 @@ $(function() {
 			searchKey: '_index',
 			limit: 10
 		});
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

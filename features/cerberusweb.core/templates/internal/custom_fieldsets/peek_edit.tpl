@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET}
+{$peek_context_id = $model->id}
 {$is_writeable = !$model->id || Context_CustomFieldset::isWriteableByActor($model, $active_worker)}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
@@ -131,6 +132,9 @@ $(function() {
 				$ul.show();
 			}
 		});
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

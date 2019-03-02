@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}
+{$peek_context_id = $model->id}
 {$form_id = "frmCalendarPeek{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">
@@ -168,6 +169,9 @@ $(function() {
 		
 		// Focus
 		$popup.find('input:text[name=event_name]').focus();
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

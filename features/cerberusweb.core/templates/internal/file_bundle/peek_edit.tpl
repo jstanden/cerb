@@ -1,5 +1,6 @@
-{$frm_id = "form{uniqid()}"}
 {$peek_context = CerberusContexts::CONTEXT_FILE_BUNDLE}
+{$peek_context_id = $model->id}
+{$frm_id = "form{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
@@ -139,6 +140,9 @@ $(function() {
 		});
 		
 		$popup.find('input:text[name=name]').focus();
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });	
 </script>

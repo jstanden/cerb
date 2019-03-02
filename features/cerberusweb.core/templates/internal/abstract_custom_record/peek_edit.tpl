@@ -1,4 +1,5 @@
 {$peek_context = $custom_record->getContext()}
+{$peek_context_id = $model->id}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -158,6 +159,9 @@ $(function() {
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
 		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

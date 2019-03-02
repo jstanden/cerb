@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_TIMETRACKING}
+{$peek_context_id = $model->id}
 {$form_id = uniqid()}
 {if empty($workers)}{$workers = DAO_Worker::getAll()}{/if}
 
@@ -150,6 +151,9 @@ $(function() {
 			searchKey: '_index',
 			limit: 10
 		});
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

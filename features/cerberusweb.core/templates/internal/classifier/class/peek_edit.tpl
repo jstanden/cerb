@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS}
+{$peek_context_id = $model->id}
 {$frm_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$frm_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -91,6 +92,9 @@ $(function() {
 		// Triggers
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		$popup.find('.chooser-abstract').cerbChooserTrigger();
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

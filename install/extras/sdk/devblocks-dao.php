@@ -1405,6 +1405,7 @@ $(function() {
 <b>templates/<?php echo $table_name; ?>/peek_edit.tpl</b><br>
 <textarea style="width:98%;height:200px;">
 {$peek_context = '<?php echo $ctx_ext_id; ?>'}
+{$peek_context_id = $model->id}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -1483,6 +1484,9 @@ $(function() {
 			searchKey: '_index',
 			limit: 10
 		});
+
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

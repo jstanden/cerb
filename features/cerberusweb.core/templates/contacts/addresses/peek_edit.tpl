@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_ADDRESS}
+{$peek_context_id = $address->id}
 {$form_id = "formAddressPeek{uniqid()}"}
 <form action="#" method="POST" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -208,6 +209,9 @@ $(function() {
 		
 		// Search triggers
 		$popup.find('.cerb-search-trigger').cerbSearchTrigger();
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

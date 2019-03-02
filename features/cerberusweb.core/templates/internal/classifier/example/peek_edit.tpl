@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}
+{$peek_context_id = $model->id}
 <script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-core.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-classapplier.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 <script type="text/javascript" src="{devblocks_url}c=resource&p=devblocks.core&f=js/rangy/rangy-highlighter.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
@@ -232,6 +233,8 @@ $(function() {
 			})
 			;
 		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

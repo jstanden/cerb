@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET}
+{$peek_context_id = $model->id}
 {$form_id = uniqid()}
 {$widget_extension = $widget_extensions[$model->extension_id]}
 {$tab = $model->getWorkspaceTab()}
@@ -271,6 +272,9 @@ $(function() {
 				}
 			}
 		});
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_TASK}
+{$peek_context_id = $task->id}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formTaskPeek" name="formTaskPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -212,6 +213,9 @@ $(function() {
 		});
 
 		$popup.find('input.input_date').cerbDateInputHelper();
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

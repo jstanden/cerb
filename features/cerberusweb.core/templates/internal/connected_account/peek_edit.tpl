@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}
+{$peek_context_id = $service->id}
 {$service = $model->getService()}
 
 {$form_id = uniqid()}
@@ -134,6 +135,9 @@ $(function() {
 				$ul.show();
 			}
 		});
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 	
 	$frm.find('input:text:first').focus();

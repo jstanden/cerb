@@ -1,3 +1,5 @@
+{$peek_context = CerberusContexts::CONTEXT_WORKER}
+{$peek_context_id = $worker->id}
 {$form_id = "frmWorkerEdit{uniqid()}"}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
@@ -373,6 +375,9 @@ $(function() {
 			
 			$table.find('input:radio[value=' + value + ']').click();
 		});
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

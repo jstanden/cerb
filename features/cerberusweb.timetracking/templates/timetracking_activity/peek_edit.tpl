@@ -1,4 +1,5 @@
 {$peek_context = CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY}
+{$peek_context_id = $model->id}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -59,6 +60,9 @@ $(function() {
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		
+		// [UI] Editor behaviors
+		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>
