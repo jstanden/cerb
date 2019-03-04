@@ -23,13 +23,14 @@ class Event_AjaxHttpRequest extends AbstractEvent_AjaxHttpRequest {
 		$this->_event_id = static::ID;
 	}
 	
-	static function trigger($trigger_id, $http_request, $variables=[]) {
+	static function trigger($trigger_id, $http_request, $active_worker=null, $variables=[]) {
 		$events = DevblocksPlatform::services()->event();
 		return $events->trigger(
 			new Model_DevblocksEvent(
 				static::ID,
 				[
 					'http_request' => $http_request,
+					'current_worker' => $active_worker,
 					'_variables' => $variables,
 					'_whisper' => [
 						'_trigger_id' => [$trigger_id],

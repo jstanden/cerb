@@ -96,7 +96,7 @@ class Controller_UI extends DevblocksControllerExtension {
 			return;
 		}
 		
-		$dicts = Event_AjaxHttpRequest::trigger($behavior->id, $http_request, $variables);
+		$dicts = Event_AjaxHttpRequest::trigger($behavior->id, $http_request, $active_worker, $variables);
 		$dict = $dicts[$behavior->id];
 		
 		if(!($dict instanceof DevblocksDictionaryDelegate)) {

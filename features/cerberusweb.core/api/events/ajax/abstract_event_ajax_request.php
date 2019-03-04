@@ -23,6 +23,9 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger) {
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			$active_worker = new Model_Worker();
+		
 		$http_request = [
 			'body' => 'this is the body',
 			'client_ip' => DevblocksPlatform::getClientIp(),
@@ -36,6 +39,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 			$this->_event_id,
 			array(
 				'http_request' => $http_request,
+				'current_worker' => $active_worker,
 				'bot_id' => $trigger->bot_id,
 			)
 		);
@@ -62,6 +66,26 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
+		
+		// Current worker
+		
+		@$current_worker = $event_model->params['current_worker'];
+		
+		$merge_labels = [];
+		$merge_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $current_worker, $merge_labels, $merge_values, null, true);
+
+			// Merge
+			CerberusContexts::merge(
+				'current_worker_',
+				'',
+				$merge_labels,
+				$merge_values,
+				$labels,
+				$values
+			);
+		
+		// Request
 		
 		@$http_request = $event_model->params['http_request'];
 		
@@ -148,6 +172,10 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 				'label' => 'Bot Watchers',
 				'context' => CerberusContexts::CONTEXT_WORKER,
 				'is_multiple' => true,
+			),
+			'current_worker_id' => array(
+				'label' => 'Current Worker',
+				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
 		
@@ -394,6 +422,7 @@ abstract class AbstractEvent_AjaxHttpRequest extends Extension_DevblocksEvent {
 				break;
 
 			default:
+				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
