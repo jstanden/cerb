@@ -282,32 +282,26 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	 */
 	static function getIds($ids) {
 		if(!is_array($ids))
-			$ids = array($ids);
-
+			$ids = [$ids];
+		
+		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
+		
 		if(empty($ids))
 			return [];
-
-		if(!method_exists(get_called_class(), 'getWhere'))
-			return [];
-
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-
+		
+		$roles = DAO_WorkerRole::getAll();
+		$results = array_intersect_key($roles, array_flip($ids));
+		
 		$models = [];
-
-		$results = static::getWhere(sprintf("id IN (%s)",
-			implode(',', $ids)
-		));
-
+		
 		// Sort $models in the same order as $ids
 		foreach($ids as $id) {
 			if(isset($results[$id]))
 				$models[$id] = $results[$id];
 		}
-
-		unset($results);
-
+		
 		return $models;
-	}	
+	}
 	
 	/**
 	 * @param resource $rs
