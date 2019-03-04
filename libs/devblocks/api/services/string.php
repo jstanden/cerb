@@ -12,11 +12,11 @@ class _DevblocksStringService {
 	private function __construct() {}
 	
 	function base64UrlEncode($string) {
-		return strtr(base64_encode($string), '+/', '-_');
+		return strtr(base64_encode($string), ['+'=>'-', '/'=>'_', '='=>'']);
 	}
 	
 	function base64UrlDecode($string) {
-		return base64_decode(strtr($string,'-_','+/'));
+		return base64_decode(strtr($string, ['-'=>'+', '_'=>'/']));
 	}
 	
 	/*

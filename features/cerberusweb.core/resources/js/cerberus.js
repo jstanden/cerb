@@ -851,6 +851,8 @@ var ajax = new cAjaxCalls();
 					{ value: "base_convert", snippet: "base_convert(${1:16},${2:10})", meta: "filter" },
 					{ value: "base64_decode", meta: "filter" },
 					{ value: "base64_encode", meta: "filter" },
+					{ value: "base64url_decode", meta: "filter" },
+					{ value: "base64url_encode", meta: "filter" },
 					{ value: "batch(n,fill)", meta: "filter" },
 					{ value: "bytes_pretty()", snippet: "bytes_pretty(${1:2})", meta: "filter" },
 					{ value: "capitalize", meta: "filter" },

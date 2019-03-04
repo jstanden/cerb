@@ -72,6 +72,8 @@ class _DevblocksTemplateBuilder {
 				'base_convert',
 				'base64_encode',
 				'base64_decode',
+				'base64url_encode',
+				'base64url_decode',
 				'bytes_pretty',
 				'cerb_translate',
 				'context_name',
@@ -1058,6 +1060,8 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFilter('base_convert', [$this, 'filter_base_convert']),
 			new Twig_SimpleFilter('base64_encode', [$this, 'filter_base64_encode']),
 			new Twig_SimpleFilter('base64_decode', [$this, 'filter_base64_decode']),
+			new Twig_SimpleFilter('base64url_encode', [$this, 'filter_base64url_encode']),
+			new Twig_SimpleFilter('base64url_decode', [$this, 'filter_base64url_decode']),
 			new Twig_SimpleFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
 			new Twig_SimpleFilter('cerb_translate', [$this, 'filter_cerb_translate']),
 			new Twig_SimpleFilter('context_name', [$this, 'filter_context_name']),
@@ -1107,6 +1111,20 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			return '';
 		
 		return base64_decode($string);
+	}
+	
+	function filter_base64url_encode($string) {
+		if(!is_string($string))
+			return '';
+		
+		return DevblocksPlatform::services()->string()->base64UrlEncode($string);
+	}
+	
+	function filter_base64url_decode($string) {
+		if(!is_string($string))
+			return '';
+		
+		return DevblocksPlatform::services()->string()->base64UrlDecode($string);
 	}
 	
 	function filter_bytes_pretty($string, $precision='0') {
