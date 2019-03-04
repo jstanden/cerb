@@ -9,6 +9,8 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 	const TAG = 'tag';
 	const UPDATED_AT = 'updated_at';
 	
+	const _CACHE_ALL = 'saved_searches_all';
+	
 	private function __construct() {}
 	
 	static function getFields() {
@@ -132,6 +134,8 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_SAVED_SEARCH, $batch_ids);
 			}
 		}
+		
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -229,15 +233,15 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 	 * @return Model_ContextSavedSearch[]
 	 */
 	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::services()->cache();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
+		$cache = DevblocksPlatform::services()->cache();
+		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
 			$objects = self::getWhere(null, DAO_ContextSavedSearch::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
-			//if(!is_array($objects))
-			//	return false;
-				
-			//$cache->save($objects, self::_CACHE_ALL);
-		//}
+			if(!is_array($objects))
+				return false;
+			
+			$cache->save($objects, self::_CACHE_ALL);
+		}
 		
 		return $objects;
 	}
@@ -375,6 +379,8 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		
 		$db->ExecuteMaster(sprintf("DELETE FROM context_saved_search WHERE id IN (%s)", $ids_list));
 		
+		self::clearCache();
+		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
@@ -388,6 +394,11 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		);
 		
 		return true;
+	}
+	
+	static function clearCache() {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache->remove(self::_CACHE_ALL);
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
