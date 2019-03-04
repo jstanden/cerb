@@ -96,7 +96,7 @@ $(function() {
 
 		// Owner
 		
-		var $owners_menu = $popup.find('fieldset:first ul.owners-menu');
+		var $owners_menu = $popup.find('ul.owners-menu');
 		var $ul = $owners_menu.siblings('ul.chooser-container');
 		
 		$ul.on('bubble-remove', function(e, ui) {
