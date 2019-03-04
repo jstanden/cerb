@@ -1161,15 +1161,15 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
 	}
 	
-	function filter_hash_hmac($string, $key='', $algo='sha256') {
+	function filter_hash_hmac($string, $key='', $algo='sha256', $raw=false) {
 		if(!is_string($string) 
 			|| !is_string($key) 
 			|| !is_string($algo) 
 			|| empty($string)
 			)
 			return '';
-		
-		if(false == ($hash = hash_hmac($algo, $string, $key)))
+			
+		if(false == ($hash = hash_hmac($algo, $string, $key, $raw)))
 			return '';
 		
 		return $hash;
