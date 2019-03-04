@@ -253,7 +253,8 @@ class CerberusApplication extends DevblocksApplication {
 			$list[DevblocksPlatform::strLower($worker->at_mention_name)] = array(
 				'id' => $worker->id,
 				'name' => DevblocksPlatform::strEscapeHtml($worker->getName()),
-				'email' => DevblocksPlatform::strEscapeHtml($worker->getEmailString()),
+				'email_id' => $worker->email_id,
+				//'email' => DevblocksPlatform::strEscapeHtml($worker->getEmailString()),
 				'title' => DevblocksPlatform::strEscapeHtml($worker->title),
 				'at_mention' => DevblocksPlatform::strEscapeHtml($worker->at_mention_name),
 				'_index' => DevblocksPlatform::strEscapeHtml($worker->getName() . ' ' . $worker->at_mention_name),
