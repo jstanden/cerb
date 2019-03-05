@@ -1224,7 +1224,7 @@ class DevblocksSearchCriteria {
 	
 	public static function getBooleanParamFromTokens($field_key, $tokens) {
 		$oper = DevblocksSearchCriteria::OPER_EQ;
-		$value = true;
+		$value = '1';
 		
 		foreach($tokens as $token) {
 			switch($token->type) {
@@ -1235,7 +1235,7 @@ class DevblocksSearchCriteria {
 						|| $token->value == '0'
 					) {
 						$oper = DevblocksSearchCriteria::OPER_EQ_OR_NULL;
-						$value = false;
+						$value = '0';
 					}
 					break;
 			}
