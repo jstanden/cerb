@@ -242,7 +242,9 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 		if(!is_array($points))
 			$points = [$points];
 		
-		$results = self::getWhere(
+		$results = array_fill_keys($points, []);
+		
+		$packages = self::getWhere(
 			sprintf("%s IN (%s)",
 				Cerb_ORMHelper::escape(self::POINT),
 				implode(',', Cerb_ORMHelper::qstrArray($points))
@@ -252,8 +254,19 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 			0
 		);
 		
-		if(empty($results))
-			return [];
+		if(is_array($packages))
+		foreach($packages as $package) {
+			$results[$package->point][] = $package;
+		}
+		
+		unset($packages);
+		
+		// Remove points with no packages
+		$results = array_filter($results, function($packages) {
+			if(!empty($packages))
+				return true;
+			return false;
+		});
 		
 		return $results;
 	}

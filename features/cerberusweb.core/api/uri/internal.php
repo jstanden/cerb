@@ -3983,8 +3983,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				// Library
 				if(!$id) {
 					$library_sections = [
-						'behavior_switch',
 						'behavior_switch:' . $event->id,
+						'behavior_switch',
 					];
 					
 					$packages = DAO_PackageLibrary::getByPoint($library_sections);
@@ -4009,8 +4009,8 @@ class ChInternalController extends DevblocksControllerExtension {
 					// Library
 					if(!$id) {
 						$library_sections = [
-							'behavior_loop',
 							'behavior_loop:' . $event->id,
+							'behavior_loop',
 						];
 						
 						$packages = DAO_PackageLibrary::getByPoint($library_sections);
@@ -4091,8 +4091,8 @@ class ChInternalController extends DevblocksControllerExtension {
 				// Library
 				if(!$id) {
 					$library_sections = [
-						'behavior_action',
 						'behavior_action:' . $event->id,
+						'behavior_action',
 					];
 					
 					$packages = DAO_PackageLibrary::getByPoint($library_sections);

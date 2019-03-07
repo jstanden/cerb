@@ -1318,7 +1318,11 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 				if(empty($context_id)) {
 					$profile_context_mft = $profile_tab->getContextExtension(false);
 					$context_aliases = Extension_DevblocksContext::getAliasesForContext($profile_context_mft);
-					$packages = DAO_PackageLibrary::getByPoint(['profile_widget','profile_widget:' . $context_aliases['uri']]);
+					$packages = DAO_PackageLibrary::getByPoint([
+						'profile_widget:' . $context_aliases['uri'],
+						'profile_widget',
+						
+					]);
 					$tpl->assign('packages', $packages);
 				}
 			}
