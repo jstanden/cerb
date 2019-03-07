@@ -1336,7 +1336,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$this->name = DevblocksPlatform::translateCapitalized('common.connected_accounts');
 		
-		$params_req = [];
+		$required_query = '';
 		
 		if($active_worker && !$active_worker->is_superuser) {
 			$worker_group_ids = array_keys($active_worker->getManagerships());
@@ -1344,15 +1344,12 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			
 			// Restrict owners
 			
-			$params = $view->getParamsFromQuickSearch(sprintf('(owner.worker:(id:[%d]) OR owner.group:(id:[%s])',
+			$required_query .= sprintf('(owner.worker:(id:[%d]) OR owner.group:(id:[%s]) ',
 				$active_worker->id,
 				implode(',', $worker_group_ids)
-			));
-			
-			$params_req['_ownership'] = $params[0];
+			);
 		}
-		
-		$view->addParamsRequired($params_req, true);
+		$view->setParamsRequiredQuery($required_query);
 		
 		$view->renderSortBy = SearchFields_ConnectedAccount::NAME;
 		$view->renderSortAsc = true;
@@ -1373,7 +1370,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
 		$this->name = DevblocksPlatform::translateCapitalized('common.connected_accounts');
 		
-		$params_req = array();
+		$required_query = '';
 		
 		if($active_worker && !$active_worker->is_superuser) {
 			$worker_group_ids = array_keys($active_worker->getManagerships());
@@ -1381,21 +1378,22 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			
 			// Restrict owners
 			
-			$params = $view->getParamsFromQuickSearch(sprintf('(owner.worker:(id:[%d]) OR owner.group:(id:[%s])',
+			$required_query .= sprintf('(owner.worker:(id:[%d]) OR owner.group:(id:[%s]) ',
 				$active_worker->id,
 				implode(',', $worker_group_ids)
-			));
-			
-			$params_req['_ownership'] = $params[0];
-		}
-		
-		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		
-		$view->addParamsRequired($params_req, true);
+		if(!empty($context) && !empty($context_id)) {
+			$linked_context_mft = Extension_DevblocksContext::get($context, false);
+			
+			$required_query .= sprintf("links.%s:(id:%d) ",
+				$linked_context_mft->params['alias'],
+				$context_id
+			);
+		}
+		
+		$view->setParamsRequiredQuery($required_query);
 		
 		$view->renderTemplate = 'context';
 		return $view;
