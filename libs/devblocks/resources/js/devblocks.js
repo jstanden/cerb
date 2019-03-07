@@ -235,6 +235,10 @@ function DevblocksClass() {
 		return {
 			activate: function(event, ui) {
 				var tabsId = ui.newPanel.closest('.ui-tabs').attr('id');
+				
+				if(0 == tabsId.length)
+					return;
+				
 				var index = ui.newTab.index();
 				$this.setjQueryUiTabSelected(tabsId, index);
 			},
@@ -253,9 +257,19 @@ function DevblocksClass() {
 	
 	this.setjQueryUiTabSelected = function(tabsId, index) {
 		var selectedTabs = {};
+		var currentRevision = '1'; // Increment this to invalidate
 		
-		if(undefined != localStorage.selectedTabs)
+		if(undefined != localStorage.selectedTabs) {
 			selectedTabs = JSON.parse(localStorage.selectedTabs);
+			
+			var revision = selectedTabs['_revision'];
+			
+			if(undefined == revision || currentRevision != revision) {
+				selectedTabs = {'_revision': currentRevision};
+			}
+		} else {
+			selectedTabs = {'_revision': currentRevision };
+		}
 		
 		selectedTabs[tabsId] = index;
 		localStorage.selectedTabs = JSON.stringify(selectedTabs);
@@ -272,7 +286,7 @@ function DevblocksClass() {
 				if(undefined != localStorage.selectedTabs)
 					selectedTabs = JSON.parse(localStorage.selectedTabs);
 				
-				selectedTabs[tabsId] = $activeTab.index(); //$tabs.index($activeTab);
+				selectedTabs[tabsId] = $activeTab.index();
 				
 				try {
 					localStorage.selectedTabs = JSON.stringify(selectedTabs);
