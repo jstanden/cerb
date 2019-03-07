@@ -241,29 +241,7 @@ class DAO_Currency extends Cerb_ORMHelper {
 	 * @return Model_Currency[]
 	 */
 	static function getIds($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-
-		if(empty($ids))
-			return [];
-
-		if(!method_exists(get_called_class(), 'getWhere'))
-			return [];
-
-		$db = DevblocksPlatform::services()->database();
-
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-
-		$models = [];
-		$currencies = self::getAll();
-		
-		// Sort $models in the same order as $ids
-		foreach($ids as $id) {
-			if(isset($currencies[$id]))
-				$models[$id] = $currencies[$id];
-		}
-
-		return $models;
+		return parent::getIds($ids);
 	}
 	
 	/**

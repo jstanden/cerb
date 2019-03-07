@@ -272,21 +272,8 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_CommunityTool[]
 	 */
-	public static function getIds($ids=array()) {
-		if(!is_array($ids))
-			$ids = array($ids);
-		
-		$portals = self::getAll();
-		$ids = array_flip($ids);
-		
-		$portals = array_filter($portals, function($portal) use ($ids) {
-			if(isset($ids[$portal->id]))
-				return true;
-			
-			return false;
-		});
-		
-		return $portals;
+	static function getIds($ids) {
+		return parent::getIds($ids);
 	}
 	
 	/**

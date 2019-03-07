@@ -206,26 +206,8 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	 * @return Model_Bucket[]
 	 */
 	static function getIds($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-
-		if(empty($ids))
-			return array();
-		
-		$buckets = self::getAll();
-
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-
-		$models = array();
-
-		if(is_array($ids) && is_array($buckets))
-		foreach($ids as $id) {
-			if(isset($buckets[$id]))
-				$models[$id] = $buckets[$id];
-		}
-
-		return $models;
-	}	
+		return parent::getIds($ids);
+	}
 	
 	/**
 	 * 

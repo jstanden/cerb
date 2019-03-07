@@ -416,26 +416,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 	 * @return Model_WorkerRole[]
 	 */
 	static function getIds($ids) {
-		if(!is_array($ids))
-			$ids = [$ids];
-		
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-		
-		if(empty($ids))
-			return [];
-		
-		$roles = DAO_WorkerRole::getAll();
-		$results = array_intersect_key($roles, array_flip($ids));
-		
-		$models = [];
-		
-		// Sort $models in the same order as $ids
-		foreach($ids as $id) {
-			if(isset($results[$id]))
-				$models[$id] = $results[$id];
-		}
-		
-		return $models;
+		return parent::getIds($ids);
 	}
 	
 	/**

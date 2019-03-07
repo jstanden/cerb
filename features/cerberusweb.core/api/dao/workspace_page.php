@@ -314,24 +314,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	 * @return Model_WorkspacePage[]
 	 */
 	static function getIds($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-
-		if(empty($ids))
-			return [];
-
-		$objects = self::getAll();
-		$results = [];
-		
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-		
-		// Preserve ID order
-		foreach($ids as $id) {
-			if(isset($objects[$id]))
-				$results[$id] = $objects[$id];
-		}
-		
-		return $results;
+		return parent::getIds($ids);
 	}
 
 	/**

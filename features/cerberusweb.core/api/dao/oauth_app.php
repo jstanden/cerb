@@ -223,19 +223,7 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 	 * @return Model_OAuthApp[]
 	 */
 	static function getIds($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-
-		if(empty($ids))
-			return [];
-		
-		$objects = self::getAll();
-		
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-		
-		$models = array_intersect_key($objects, array_flip($ids));
-
-		return $models;
+		return parent::getIds($ids);
 	}
 	
 	/**

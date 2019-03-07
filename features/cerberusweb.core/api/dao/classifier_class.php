@@ -230,18 +230,7 @@ class DAO_ClassifierClass extends Cerb_ORMHelper {
 	 * @return Model_ClassifierClass[]
 	 */
 	static function getIds($ids) {
-		if(!is_array($ids))
-			$ids = [$ids];
-		
-		if(empty($ids))
-			return [];
-		
-		$classifications = DAO_ClassifierClass::getAll();
-		
-		if(empty($classifications))
-			return [];
-		
-		return array_intersect_key($classifications, array_flip($ids));
+		return parent::getIds($ids);
 	}
 	
 	static function getByClassifierId($classifier_id) {

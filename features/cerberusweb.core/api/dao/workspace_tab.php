@@ -264,17 +264,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	 * @return Model_WorkspaceTab[]
 	 */
 	static function getIds($ids) {
-		if(!is_array($ids))
-			$ids = array($ids);
-
-		if(empty($ids))
-			return [];
-
-		$ids = DevblocksPlatform::importVar($ids, 'array:integer');
-
-		$results = self::getAll();
-		
-		return array_intersect_key($results, array_flip($ids));
+		return parent::getIds($ids);
 	}
 	
 	/**
