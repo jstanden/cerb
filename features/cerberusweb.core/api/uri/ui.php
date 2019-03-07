@@ -44,17 +44,38 @@ class Controller_UI extends DevblocksControllerExtension {
 				break;
 		}
 	}
-
+	
+	function behaviorAction() {
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		array_shift($stack); // ui
+		array_shift($stack); // behavior
+		@$behavior_uri = array_shift($stack);
+		
+		if(!$behavior_uri || false == ($behavior = DAO_TriggerEvent::getByUri($behavior_uri))) {
+			http_response_code(503);
+			echo "<h1>503: Temporarily unavailable</h1>";
+			return;
+		}
+		
+		$this->_runBehavior($behavior);
+	}
+	
 	function ajaxBotBehaviorAction() {
 		@$behavior_id = DevblocksPlatform::importGPC($_REQUEST['behavior_id'], 'integer', 0);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$behavior_id || false == ($behavior = DAO_TriggerEvent::get($behavior_id))) {
 			http_response_code(503);
 			echo "<h1>503: Temporarily unavailable</h1>";
 			return;
 		}
+		
+		$this->_runBehavior($behavior);
+	}
+
+	private function _runBehavior(Model_TriggerEvent $behavior) {
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(false == ($bot = $behavior->getBot())) {
 			http_response_code(503);
