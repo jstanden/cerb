@@ -115,6 +115,13 @@
 				</tr>
 				
 				<tr>
+					<td width="1%" nowrap="nowrap"><b><abbr title="An optional unique alias for this behavior. Lowercase letters, numbers, and underscores.">{'common.uri'|devblocks_translate}</abbr>:</b></td>
+					<td width="99%">
+						<input type="text" name="uri" value="{$model->uri}" style="width:98%;" spellcheck="false">
+					</td>
+				</tr>
+				
+				<tr>
 					<td width="1%" nowrap="nowrap"><b>{'common.priority'|devblocks_translate|capitalize}:</b></td>
 					<td width="99%">
 						<input type="text" name="priority" value="{$model->priority|default:50}" placeholder="50" maxlength="2" style="width:50px" autocomplete="off" spellcheck="false">

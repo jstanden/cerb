@@ -364,6 +364,18 @@ if($changes) {
 }
 
 // ===========================================================================
+// Add `uri` to trigger_event
+
+if(!isset($tables['trigger_event']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('trigger_event');
+
+if(!array_key_exists('uri', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE trigger_event ADD COLUMN uri VARCHAR(255) DEFAULT ''");
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

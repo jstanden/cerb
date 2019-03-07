@@ -273,6 +273,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 					case 'build':
 						@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
+						@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'],'string', '');
 						@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
 						@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer', 0);
 						@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer', 0);
@@ -338,6 +339,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								DAO_TriggerEvent::BOT_ID => $bot_id,
 								DAO_TriggerEvent::EVENT_POINT => $event_point,
 								DAO_TriggerEvent::TITLE => $title,
+								DAO_TriggerEvent::URI => $uri,
 								DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
 								DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 								DAO_TriggerEvent::PRIORITY => $priority,
@@ -387,6 +389,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							
 							$fields = [
 								DAO_TriggerEvent::TITLE => $title,
+								DAO_TriggerEvent::URI => $uri,
 								DAO_TriggerEvent::IS_DISABLED => !empty($is_disabled) ? 1 : 0,
 								DAO_TriggerEvent::IS_PRIVATE => !empty($is_private) ? 1 : 0,
 								DAO_TriggerEvent::PRIORITY => $priority,

@@ -25,6 +25,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	const PRIORITY = 'priority';
 	const TITLE = 'title';
 	const UPDATED_AT = 'updated_at';
+	const URI = 'uri';
 	const VARIABLES_JSON = 'variables_json';
 	
 	const CACHE_ALL = 'cerberus_cache_behavior_all';
@@ -94,6 +95,26 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
+			;
+		// varchar(255)
+		$validation
+			->addField(self::URI)
+			->string()
+			->setUnique(get_class())
+			->setNotEmpty(false)
+			->addValidator(function($string, &$error=null) {
+				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum(DevblocksPlatform::strLower($string), '_'))) {
+					$error = "may only contain lowercase letters, numbers, and underscores";
+					return false;
+				}
+				
+				if(strlen($string) > 128) {
+					$error = "must be shorter than 128 characters.";
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		// text
 		$validation
@@ -355,6 +376,33 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 	
 	/**
+	 * 
+	 * @param string $uri
+	 * @param boolean $with_disabled
+	 */
+	static function getByUri($uri, $with_disabled=false) {
+		if(empty($uri))
+			return null;
+		
+		$behaviors = self::getAll();
+		
+		$behaviors = array_filter($behaviors, function($behavior) use ($with_disabled, $uri) {
+			if(!$with_disabled && $behavior->isDisabled())
+				return false;
+			
+			if($behavior->uri && $behavior->uri == $uri)
+				return true;
+			
+			return false;
+		});
+		
+		if(!empty($behaviors))
+			return reset($behaviors);
+		
+		return null;
+	}
+	
+	/**
 	 * @param integer $id
 	 * @return Model_TriggerEvent
 	 */
@@ -405,7 +453,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, is_disabled, is_private, event_point, bot_id, priority, event_params_json, updated_at, variables_json ".
+		$sql = "SELECT id, title, uri, is_disabled, is_private, event_point, bot_id, priority, event_params_json, updated_at, variables_json ".
 			"FROM trigger_event ".
 			$where_sql.
 			$sort_sql.
@@ -435,6 +483,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			$object = new Model_TriggerEvent();
 			$object->id = intval($row['id']);
 			$object->title = $row['title'];
+			$object->uri = $row['uri'];
 			$object->is_disabled = intval($row['is_disabled']);
 			$object->is_private = intval($row['is_private']);
 			$object->priority = intval($row['priority']);
@@ -526,6 +575,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"trigger_event.id as %s, ".
 			"trigger_event.title as %s, ".
+			"trigger_event.uri as %s, ".
 			"trigger_event.is_disabled as %s, ".
 			"trigger_event.is_private as %s, ".
 			"trigger_event.priority as %s, ".
@@ -534,6 +584,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			"trigger_event.event_point as %s ",
 				SearchFields_TriggerEvent::ID,
 				SearchFields_TriggerEvent::TITLE,
+				SearchFields_TriggerEvent::URI,
 				SearchFields_TriggerEvent::IS_DISABLED,
 				SearchFields_TriggerEvent::IS_PRIVATE,
 				SearchFields_TriggerEvent::PRIORITY,
@@ -652,6 +703,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const PRIORITY = 't_priority';
 	const BOT_ID = 't_bot_id';
 	const EVENT_POINT = 't_event_point';
+	const URI = 't_uri';
 	const UPDATED_AT = 't_updated_at';
 	
 	const VIRTUAL_BOT_SEARCH = '*_bot_search';
@@ -781,6 +833,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'trigger_event', 'id', $translate->_('common.id'), null, true),
 			self::TITLE => new DevblocksSearchField(self::TITLE, 'trigger_event', 'title', $translate->_('common.title'), null, true),
+			self::URI => new DevblocksSearchField(self::URI, 'trigger_event', 'uri', $translate->_('common.uri'), null, true),
 			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'trigger_event', 'is_disabled', $translate->_('dao.trigger_event.is_disabled'), null, true),
 			self::IS_PRIVATE => new DevblocksSearchField(self::IS_PRIVATE, 'trigger_event', 'is_private', $translate->_('common.is_private'), null, true),
 			self::PRIORITY => new DevblocksSearchField(self::PRIORITY, 'trigger_event', 'priority', $translate->_('common.priority'), null, true),
@@ -808,15 +861,16 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 };
 
 class Model_TriggerEvent {
+	public $bot_id;
+	public $event_params = [];
+	public $event_point;
 	public $id;
-	public $title;
 	public $is_disabled;
 	public $is_private;
 	public $priority;
-	public $event_point;
-	public $bot_id;
+	public $title;
 	public $updated_at;
-	public $event_params = [];
+	public $uri;
 	public $variables = [];
 	
 	private $_nodes = [];
@@ -1522,6 +1576,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		$this->view_columns = array(
 			SearchFields_TriggerEvent::EVENT_POINT,
 			SearchFields_TriggerEvent::BOT_ID,
+			SearchFields_TriggerEvent::URI,
 			SearchFields_TriggerEvent::PRIORITY,
 			SearchFields_TriggerEvent::UPDATED_AT,
 		);
@@ -1722,6 +1777,11 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_TriggerEvent::UPDATED_AT),
 				),
+			'uri' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_TriggerEvent::URI),
+				),
 			'usableBy.bot' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -1890,6 +1950,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 
 		switch($field) {
 			case SearchFields_TriggerEvent::TITLE:
+			case SearchFields_TriggerEvent::URI:
 			case SearchFields_TriggerEvent::EVENT_POINT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
@@ -2043,7 +2104,9 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$trigger_event = DAO_TriggerEvent::get($context_id);
 		
 		$url = $this->profileGetUrl($context_id);
-		$friendly = DevblocksPlatform::strToPermalink($trigger_event->title);
+		$label = $trigger_event->uri ?: $trigger_event->title;
+		
+		$friendly = DevblocksPlatform::strToPermalink($label);
 		
 		if(!empty($friendly))
 			$url .= '-' . $friendly;
@@ -2060,6 +2123,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		return array(
 			'bot__label',
 			'id',
+			'uri',
 			'priority',
 			'updated_at',
 			'is_disabled',
@@ -2095,6 +2159,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'name' => $prefix.$translate->_('common.name'),
 			'priority' => $prefix.$translate->_('common.priority'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'uri' => $prefix.$translate->_('common.uri'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
 		
@@ -2109,6 +2174,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'priority' => Model_CustomField::TYPE_NUMBER,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'uri' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
@@ -2136,6 +2202,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$token_values['name'] = $trigger_event->title;
 			$token_values['priority'] = $trigger_event->priority;
 			$token_values['updated_at'] = $trigger_event->updated_at;
+			$token_values['uri'] = $trigger_event->uri;
 			
 			$token_values['bot_id'] = $trigger_event->bot_id;
 			
@@ -2179,6 +2246,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'name' => DAO_TriggerEvent::TITLE,
 			'priority' => DAO_TriggerEvent::PRIORITY,
 			'updated_at' => DAO_TriggerEvent::UPDATED_AT,
+			'uri' => DAO_TriggerEvent::URI,
 		];
 	}
 	
