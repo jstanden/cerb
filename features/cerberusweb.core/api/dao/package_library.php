@@ -3,6 +3,7 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 	const DESCRIPTION = 'description';
 	const ID = 'id';
 	const NAME = 'name';
+	const INSTRUCTIONS = 'instructions';
 	const PACKAGE_JSON = 'package_json';
 	const POINT = 'point';
 	const URI = 'uri';
@@ -28,6 +29,12 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setRequired(true)
+			;
+		
+		$validation
+			->addField(self::INSTRUCTIONS)
+			->string()
+			->setMaxLength('16 bits')
 			;
 		
 		$validation
@@ -554,6 +561,19 @@ class Model_PackageLibrary {
 	public $description;
 	public $point;
 	public $updated_at;
+	
+	function getInstructions() {
+		$db = DevblocksPlatform::services()->database();
+		
+		return $db->GetOneSlave(sprintf("SELECT instructions FROM package_library WHERE id = %d",
+			$this->id
+		));
+	}
+	
+	function getInstructionsAsHtml() {
+		$html = DevblocksPlatform::parseMarkdown($this->getInstructions());
+		return DevblocksPlatform::purifyHTML($html, true, true);
+	}
 	
 	function getPackageJson() {
 		$db = DevblocksPlatform::services()->database();

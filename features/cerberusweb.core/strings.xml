@@ -1388,6 +1388,11 @@
 				<seg>inboxes</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.instructions">
+			<tuv xml:lang="en_US">
+				<seg>instructions</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.interaction">
 			<tuv xml:lang="en_US">
 				<seg>interaction</seg>

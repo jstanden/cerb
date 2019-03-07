@@ -60,6 +60,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$point = DevblocksPlatform::importGPC($_REQUEST['point'], 'string', '');
 				@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'], 'string', '');
+				@$instructions = DevblocksPlatform::importGPC($_REQUEST['instructions'], 'string', '');
 				@$package_json = DevblocksPlatform::importGPC($_REQUEST['package_json'], 'string', '');
 				@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 				
@@ -78,6 +79,9 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 						if(!$description && array_key_exists('description', $package_library_meta))
 							@$description = $package_library_meta['description'];
 						
+						if(!$instructions && array_key_exists('instructions', $package_library_meta))
+							@$instructions = $package_library_meta['instructions'];
+						
 						if(!$point && array_key_exists('point', $package_library_meta))
 							@$point = $package_library_meta['point'];
 						
@@ -90,6 +94,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 					
 					$fields = array(
 						DAO_PackageLibrary::DESCRIPTION => $description,
+						DAO_PackageLibrary::INSTRUCTIONS => $instructions,
 						DAO_PackageLibrary::NAME => $name,
 						DAO_PackageLibrary::PACKAGE_JSON => $package_json,
 						DAO_PackageLibrary::POINT => $point,
@@ -112,6 +117,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				} else { // Edit
 					$fields = array(
 						DAO_PackageLibrary::DESCRIPTION => $description,
+						DAO_PackageLibrary::INSTRUCTIONS => $instructions,
 						DAO_PackageLibrary::NAME => $name,
 						DAO_PackageLibrary::PACKAGE_JSON => $package_json,
 						DAO_PackageLibrary::POINT => $point,

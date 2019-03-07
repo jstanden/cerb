@@ -1,6 +1,6 @@
 <div class="package-library--package">
 	<input type="hidden" name="package" value="{$package->uri}">
-
+	
 	<div class="package-library--package-image">
 		<img src="{devblocks_url}c=avatars&ctx=package&id={$package->id}{/devblocks_url}?v={$package->updated_at}" width="240" height="135">
 	</div>
@@ -13,7 +13,7 @@
 			{$package->description}
 		</div>
 		<div class="package-library--package-instructions">
-			{*[ instructions ]*}
+			{$package->getInstructionsAsHtml() nofilter}
 		</div>
 	</div>
 	

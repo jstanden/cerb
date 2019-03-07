@@ -59,7 +59,12 @@
 </table>
 
 <div style="margin-top:10px;">
-	<b>{'common.package'|devblocks_translate|capitalize}</b> (JSON): {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/packages/"}<br>
+	<b>{'common.instructions'|devblocks_translate|capitalize}:</b> (Markdown)<br>
+	<textarea name="instructions" class="cerb-code-editor" data-editor-mode="ace/mode/markdown">{if $model}{$model->getInstructions()}{/if}</textarea>
+</div>
+
+<div style="margin-top:10px;">
+	<b>{'common.package'|devblocks_translate|capitalize}:</b> (JSON) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/packages/"}<br>
 	<textarea name="package_json" class="cerb-code-editor" data-editor-mode="ace/mode/json">{if $model}{$model->getPackageJson()}{/if}</textarea>
 </div>
 

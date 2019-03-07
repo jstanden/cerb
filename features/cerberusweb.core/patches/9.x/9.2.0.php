@@ -12,6 +12,7 @@ if(!isset($tables['package_library'])) {
 		`uri` VARCHAR(255) NOT NULL DEFAULT '',
 		`name` VARCHAR(255) NOT NULL DEFAULT '',
 		`description` VARCHAR(255) NOT NULL DEFAULT '',
+		`instructions` TEXT,
 		`point` VARCHAR(255) NOT NULL DEFAULT '',
 		`updated_at` INT UNSIGNED NOT NULL DEFAULT 0,
 		`package_json` MEDIUMTEXT,
@@ -97,12 +98,13 @@ if(!isset($tables['package_library'])) {
 		if(false == (@$library_meta = $package_data['package']['library']))
 			continue;
 		
-		$db->ExecuteMaster(sprintf("INSERT INTO package_library (uri, name, description, point, updated_at, package_json) ".
-			"VALUES (%s, %s, %s, %s, %d, %s) ".
-			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), uri=VALUES(uri), description=VALUES(description), point=VALUES(point), updated_at=VALUES(updated_at), package_json=VALUES(package_json)",
+		$db->ExecuteMaster(sprintf("INSERT INTO package_library (uri, name, description, instructions, point, updated_at, package_json) ".
+			"VALUES (%s, %s, %s, %s, %s, %d, %s) ".
+			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), uri=VALUES(uri), description=VALUES(description), instructions=VALUES(instructions), point=VALUES(point), updated_at=VALUES(updated_at), package_json=VALUES(package_json)",
 			$db->qstr($library_meta['uri']),
 			$db->qstr($library_meta['name']),
 			$db->qstr($library_meta['description']),
+			$db->qstr(@$library_meta['instructions']),
 			$db->qstr($library_meta['point']),
 			time(),
 			$db->qstr($package_json)
