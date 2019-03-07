@@ -3347,20 +3347,18 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			
 			$ids = DevblocksPlatform::importVar($ids, 'array:integer');
 			
-			$models = [];
-			
 			$results = static::getWhere(sprintf("id IN (%s)",
 				implode(',', $ids)
 			));
 		}
 		
+		$models = [];
+		
 		// Sort $models in the same order as $ids
 		foreach($ids as $id) {
-			if(isset($results[$id]))
+			if(array_key_exists($id, $results))
 				$models[$id] = $results[$id];
 		}
-		
-		unset($results);
 		
 		return $models;
 	}
