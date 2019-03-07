@@ -36,29 +36,42 @@ namespace Cerb\Impex\Exporters {
 		}
 		
 		function mapGroupBucketIds($group_id, $bucket_id) {
+			$group_id = intval($group_id);
+			$bucket_id = intval($bucket_id);
+			
 			return [
 				$group_id,
 				$bucket_id,
 			];
 			
-			/*
+			$map = [
+				1 => [1,1], // Support
+				2 => [2,2], // Sales
+				3 => [3,3], // Developer
+				24 => [4,4], // Billing
+			];
+			
+			if(array_key_exists($group_id, $map))
+				return $map[$group_id];
+			
 			return [
 				'{{{default.group_id}}}',
 				'{{{default.bucket_id}}}',
 			];
-			*/
 		}
 		
 		function mapCustomFieldId($id) {
+			$id = intval($id);
+			
+			return $id;
+			
 			switch($id) {
 				case 180:
-					return $id;
+					return 14;
 					
 				default:
 					return 0;
 			}
-			
-			return $id;
 			
 			/*
 			$map = [
@@ -73,18 +86,20 @@ namespace Cerb\Impex\Exporters {
 		}
 		
 		function mapWorkerId($id) {
+			$id = intval($id);
+			
 			return $id;
 			
-			/*
 			$map = [
-				2 => 1, // Worker
+				1 => 2, // Kina
+				2 => 3, // Milo
+				10 => 1, // Jeff
 			];
 			
 			if(array_key_exists($id, $map))
 				return $map[$id];
 			
 			return null;
-			*/
 		}
 		
 		function mapTimeTrackingActivityId($id) {
@@ -128,7 +143,123 @@ namespace Cerb\Impex\Exporters {
 				
 			// [TODO] Check the table schemas + Cerb version
 			
+			/*
+			if(false == (@$storage_path = $this->_config['storage_path']))
+				die("The 'storage_path' configuration setting is required.\n");
+			
+			// Sanitize the path
+			$storage_path = rtrim($storage_path, '\\/') . '/';
+			
+			if(!file_exists($storage_path))
+				die(sprintf("The 'storage_path' (%s) doesn't exist.\n", $storage_path));
+			*/
+			
 			return true;
+		}
+		
+		private function _exportWorkers() {
+			$db = $this->_getDatabase();
+			
+			if(false == (@$storage_path = $this->_config['storage_path']))
+				die("The 'storage_path' configuration setting is required.\n");
+			
+			// Sanitize the path
+			$storage_path = rtrim($storage_path, '\\/') . '/';
+			
+			if(!file_exists($storage_path))
+				die(sprintf("The 'storage_path' (%s) doesn't exist.\n", $storage_path));
+			
+			$sql = "SELECT id, first_name, last_name, title, at_mention_name, dob, gender, is_disabled, language, location, mobile, phone, time_format, timezone, ".
+				"(SELECT email FROM address WHERE id = worker.email_id) AS email, ".
+				"(SELECT storage_key FROM context_avatar WHERE context = 'cerberusweb.contexts.worker' AND context_id = worker.id) AS image_storage_key ".
+				"FROM worker"
+			;
+			
+			$stmt = $db->prepare($sql);
+			$stmt->attr_set(MYSQLI_STMT_ATTR_CURSOR_TYPE, MYSQLI_CURSOR_TYPE_READ_ONLY);
+			$stmt->attr_set(MYSQLI_STMT_ATTR_PREFETCH_ROWS, 1000);
+			
+			$count = 0;
+			$bins = 0;
+			
+			if($stmt->execute()) {
+				$stmt->bind_result($id, $first_name, $last_name, $title, $at_mention_name, $dob, $gender, $is_disabled, $language, $location, $mobile, $phone, $time_format, $timezone, $email, $image_storage_key);
+				
+				while($stmt->fetch()) {
+					if(0 == $count++ % 2000) {
+						$dir = sprintf(CerbImpex::getOption('output_dir') . '01-workers-%06d/', ++$bins);
+						if(!file_exists($dir))
+							mkdir($dir, 0700, true);
+					}
+					
+					$worker_json = [
+						'uid' => sprintf('worker_%d', $id),
+						'_context' => 'worker',
+						'first_name' => $first_name,
+						'last_name' => $last_name,
+						'email' => $email,
+						'title' => $title,
+						'language' => $language,
+						'timezone' => $timezone,
+					];
+					
+					if($dob)
+						$worker_json['dob'] = $dob;
+					
+					if($gender)
+						$worker_json['gender'] = $gender;
+					
+					if($is_disabled)
+						$worker_json['is_disabled'] = 1;
+					
+					if($location)
+						$worker_json['location'] = $location;
+					
+					if($mobile)
+						$worker_json['mobile'] = $mobile;
+					
+					if($phone)
+						$worker_json['phone'] = $phone;
+					
+					if($time_format)
+						$worker_json['time_format'] = $time_format;
+					
+					// Profile pictures from storage?
+					if($image_storage_key) {
+						$file_path = $storage_path . 'context_avatar/' . $image_storage_key;
+						
+						if(file_exists($file_path) && is_readable($file_path)) {
+							$worker_json['image'] = sprintf('data:%s;base64,', 'image/png') . base64_encode(file_get_contents($file_path));
+						}
+					}
+					
+					$json_out = [$worker_json];
+					
+					$package_json = [
+						'package' => [
+							'name' => sprintf('Worker #%d', $id),
+							'revision' => 1,
+							'requires' => [
+								'cerb_version' => '9.1.1',
+								'plugins' => [],
+							],
+							'configure' => [
+								'prompts' => [],
+								'placeholders' => [],
+								'options' => [
+									'disable_events' => true,
+								],
+							],
+						],
+						'records' => $json_out
+					];
+					
+					echo sprintf("Writing %s%09d.json\n", $dir, $id);
+					file_put_contents(sprintf("%s%09d.json", $dir, $id), json_encode($package_json, JSON_PRETTY_PRINT | JSON_PARTIAL_OUTPUT_ON_ERROR));
+				}
+			}
+			
+			$stmt->close();
 		}
 		
 		private function _exportOrgs() {
@@ -147,7 +278,7 @@ namespace Cerb\Impex\Exporters {
 				
 				while($stmt->fetch()) {
 					if(0 == $count++ % 2000) {
-						$dir = sprintf(CerbImpex::getOption('output_dir') . '01-orgs-%06d/', ++$bins);
+						$dir = sprintf(CerbImpex::getOption('output_dir') . '02-orgs-%06d/', ++$bins);
 						if(!file_exists($dir))
 							mkdir($dir, 0700, true);
 					}
@@ -211,14 +342,23 @@ namespace Cerb\Impex\Exporters {
 				die(sprintf("The 'storage_path' (%s) doesn't exist.\n", $storage_path));
 			
 			$sql = <<< SQL
-SELECT t.id, t.mask, t.subject, t.status_id, t.importance, t.created_date, t.updated_date, t.owner_id, t.group_id, t.bucket_id, g.name, b.name, 
-(SELECT name FROM contact_org WHERE id = t.org_id) AS org_name, 
+SELECT t.id, t.mask, t.subject, t.status_id, t.importance, t.created_date, t.updated_date, t.owner_id, t.group_id, t.bucket_id, o.name AS org_name, 
 (SELECT group_concat(address.email) FROM requester INNER JOIN address ON (address.id=requester.address_id) where requester.ticket_id=t.id) AS participants, 
-(SELECT group_concat(comment.id) FROM comment WHERE context = 'cerberusweb.contexts.ticket' AND context_id = t.id AND owner_context = 'cerberusweb.contexts.worker') AS comment_ids
+GROUP_CONCAT(cfields.field_id) AS cfield_ids, 
+(SELECT group_concat(comment.id) FROM comment WHERE context = 'cerberusweb.contexts.ticket' AND context_id = t.id AND owner_context = 'cerberusweb.contexts.worker') AS comment_ids 
 FROM ticket t 
-INNER JOIN worker_group g ON (t.group_id=g.id)
-INNER JOIN bucket b ON (t.bucket_id=b.id)
-WHERE status_id != 3 
+LEFT JOIN (
+SELECT field_id, context_id, field_value FROM custom_field_stringvalue WHERE context = 'cerberusweb.contexts.ticket' 
+UNION ALL 
+SELECT field_id, context_id, field_value FROM custom_field_numbervalue WHERE context = 'cerberusweb.contexts.ticket' 
+UNION ALL 
+SELECT field_id, context_id, field_value FROM custom_field_clobvalue WHERE context = 'cerberusweb.contexts.ticket' 
+) AS cfields ON (cfields.context_id=t.id) 
+LEFT JOIN contact_org o ON (o.id=t.org_id) 
+WHERE 1
+AND t.status_id != 3
+GROUP BY t.id 
+ORDER BY t.id DESC
 SQL;
 			
 			$stmt = $db->prepare($sql);
@@ -247,16 +387,15 @@ SQL;
 					$owner_id,
 					$group_id,
 					$bucket_id,
-					$group_name,
-					$bucket_name,
 					$org_name,
 					$participants,
+					$cfield_ids,
 					$comment_ids
 				);
 				
 				while($stmt->fetch()) {
-					if(0 == $count++ % 2000) {
-						$dir = sprintf(CerbImpex::getOption('output_dir') . '02-tickets-%06d/', ++$bins);
+					if(0 == $count++ % 2500) {
+						$dir = sprintf(CerbImpex::getOption('output_dir') . '03-tickets-%06d/', ++$bins);
 						if(!file_exists($dir))
 							mkdir($dir, 0700, true);
 					}
@@ -271,7 +410,7 @@ SQL;
 						'uid' => $ticket_uid,
 						'_context' => 'ticket',
 						'mask' => $mask_prefix . $mask,
-						'subject' => $subject,
+						'subject' => $subject ?: '(no subject)',
 						'importance' => $importance,
 						'status' => $statuses[$status_id],
 						'created' => $created_date,
@@ -293,7 +432,8 @@ SQL;
 					
 					// Ticket custom fields
 					
-					$sql_cfields = <<< SQL
+					if($cfield_ids) {
+						$sql_cfields = <<< SQL
 SELECT field_id, field_value FROM custom_field_stringvalue WHERE context = 'cerberusweb.contexts.ticket' AND context_id = $ticket_id 
 UNION ALL 
 SELECT field_id, field_value FROM custom_field_numbervalue WHERE context = 'cerberusweb.contexts.ticket' AND context_id = $ticket_id 
@@ -303,19 +443,30 @@ UNION ALL
 SELECT field_id, field_value FROM custom_field_geovalue WHERE context = 'cerberusweb.contexts.ticket' AND context_id = $ticket_id
 SQL;
 					
-					$stmt_cfields = $db->prepare($sql_cfields);
-					
-					if($stmt_cfields->execute()) {
-						$stmt_cfields->bind_result(
-							$cfield_id,
-							$cfield_value
-						);
+						$stmt_cfields = $db->prepare($sql_cfields);
 						
-						while($stmt_cfields->fetch()) {
-							if(false == ($new_cfield_id = $this->mapCustomFieldId($cfield_id)))
-								continue;
+						if($stmt_cfields->execute()) {
+							$stmt_cfields->bind_result(
+								$cfield_id,
+								$cfield_value
+							);
 							
-							$ticket_json['custom_' . $new_cfield_id] = $cfield_value;
+							while($stmt_cfields->fetch()) {
+								if(false == ($new_cfield_id = $this->mapCustomFieldId($cfield_id)))
+									continue;
+								
+								// If multi-value, append to an array
+								if(array_key_exists('custom_' . $new_cfield_id, $ticket_json)) {
+									if(!is_array($ticket_json['custom_' . $new_cfield_id])) {
+										$ticket_json['custom_' . $new_cfield_id] = [$ticket_json['custom_' . $new_cfield_id]];
+									}
+									
+									$ticket_json['custom_' . $new_cfield_id][] = $cfield_value;
+									
+								} else {
+									$ticket_json['custom_' . $new_cfield_id] = $cfield_value;
+								}
+							}
 						}
 					}
 					
@@ -376,7 +527,7 @@ SQL;
 										$attachment_json = [
 											'uid' => $attachment_uid,
 											'_context' => 'attachment',
-											'name' => $row['name'],
+											'name' => @$row['name'] ?: 'untitled',
 											'mime_type' => $row['mime_type'],
 											'attach' => [
 												'message:{{{uid.' . $message_uid . '}}}',
@@ -543,7 +694,8 @@ SQL;
 		}
 		
 		function export() {
-			$this->_exportOrgs();
+			//$this->_exportWorkers();
+			//$this->_exportOrgs();
 			$this->_exportTickets();
 		}
 	}
@@ -564,6 +716,7 @@ class CerbImpex {
 		$options = getopt('c:o:', array(
 			'config:',
 			'output:',
+			'test',
 			'help'
 		));
 		
@@ -598,21 +751,30 @@ class CerbImpex {
 				die("[ERROR] Invalid exporter class.\n");
 			
 		// Check for options
-		if(false == (@$options = $config['exporter']['options']) || !is_array($options))
+		if(false == (@$exporter_options = $config['exporter']['options']) || !is_array($exporter_options))
 			die("[ERROR] Config: ['exporter']['options'] is required.\n");
 		
-		if(false == ($exporter = new $exporter_class($options)))
+		if(false == ($exporter = new $exporter_class($exporter_options)))
 			die("[ERROR] Failed to load the exporter class.\n");
 		
 		self::$_exporter = $exporter;
 		self::$_options = array(
 			'output_dir' => $output_dir,
 		);
+		
+		if(array_key_exists('test', $options)) {
+			if(true === self::$_exporter->testConfig($exporter_options)) {
+				echo "OK\n";
+			}
+			exit;
+		}
+		
 		return true;
 	}
 	
-	private function _printHelp() {
+	static private function _printHelp() {
 		echo 'Usage: php ' . basename(__FILE__) . ' -c <config.json> [options]' . PHP_EOL;
+		
 		echo <<< EOF
 --help
 	Show available options.
@@ -620,6 +782,8 @@ class CerbImpex {
 	The configuration file to use.
 -o, --output <dir>
 	The output directory for writing the export.
+--test
+	Test the configuration.
 
 EOF;
 	}
@@ -646,5 +810,8 @@ EOF;
 date_default_timezone_set('GMT');
 
 CerbImpex::init();
+
+// [TODO] Register callbacks for ID mapping
+
 CerbImpEx::export();
 }
