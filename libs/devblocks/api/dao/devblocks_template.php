@@ -129,11 +129,11 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 		$update->markInProgress();
 		
 		$change_fields = [];
-		$custom_fields = [];
+		//$custom_fields = [];
 		$deleted = false;
 
 		if(is_array($do))
-		foreach($do as $k => $v) {
+		foreach(array_keys($do) as $k) {
 			switch($k) {
 				case 'deleted':
 					$deleted = true;
@@ -141,7 +141,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 				default:
 					// Custom fields
 					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
-						$custom_fields[substr($k,3)] = $v;
+						//$custom_fields[substr($k,3)] = $v;
 					}
 					break;
 			}
@@ -268,7 +268,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_DevblocksTemplate::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksTemplate', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksTemplate', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"devblocks_template.id as %s, ".
@@ -612,7 +612,6 @@ class View_DevblocksTemplate extends C4_AbstractView implements IAbstractView_Qu
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:

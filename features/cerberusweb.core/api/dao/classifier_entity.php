@@ -308,7 +308,7 @@ class DAO_ClassifierEntity extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ClassifierEntity::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ClassifierEntity', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ClassifierEntity', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"classifier_entity.id as %s, ".
@@ -739,7 +739,6 @@ class View_ClassifierEntity extends C4_AbstractView implements IAbstractView_Sub
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -750,8 +749,6 @@ class View_ClassifierEntity extends C4_AbstractView implements IAbstractView_Sub
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_ClassifierEntity::VIRTUAL_CONTEXT_LINK:
@@ -869,7 +866,6 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 	
 	function getMeta($context_id) {
 		$classifier_entity = DAO_ClassifierEntity::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($classifier_entity->name);

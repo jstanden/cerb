@@ -313,7 +313,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ClassifierExample::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ClassifierExample', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ClassifierExample', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"classifier_example.id as %s, ".
@@ -833,8 +833,6 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
 		
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		switch($key) {
 			case SearchFields_ClassifierExample::VIRTUAL_CLASSIFIER_CLASS_SEARCH:
 				echo sprintf("Classification matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
@@ -961,7 +959,6 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 	
 	function getMeta($context_id) {
 		$classifier_example = DAO_ClassifierExample::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($classifier_example->expression);

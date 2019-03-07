@@ -324,7 +324,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 				break;
 		}
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Classifier', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Classifier', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"classifier.id as %s, ".
@@ -826,7 +826,6 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
 			default:
@@ -837,8 +836,6 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
@@ -981,7 +978,6 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 	
 	function getMeta($context_id) {
 		$classifier = DAO_Classifier::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($classifier->name);
@@ -1006,8 +1002,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function autocomplete($term, $query=null) {
-		$url_writer = DevblocksPlatform::services()->url();
-		$list = array();
+		$list = [];
 		
 		list($results,) = DAO_Classifier::search(
 			array(),

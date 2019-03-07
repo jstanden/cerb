@@ -523,7 +523,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_Bucket::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Bucket', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Bucket', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"bucket.id as %s, ".
@@ -824,7 +824,6 @@ class Model_Bucket {
 		
 		// Cascade to group
 		if(empty($from_id) && false != ($group = $this->getGroup())) {
-			$default_bucket = DAO_Bucket::getDefaultForGroup($this->group_id);
 			$from_id = $group->getReplyFrom();
 		}
 		
@@ -905,8 +904,6 @@ class Model_Bucket {
 	}
 	
 	public function getReplyHtmlTemplate() {
-		$default_bucket = DAO_Bucket::getDefaultForGroup($this->group_id);
-		
 		// Check bucket first
 		$html_template_id = $this->reply_html_template_id;
 		
@@ -1007,7 +1004,6 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function getMeta($context_id) {
 		$bucket = DAO_Bucket::get($context_id);
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($bucket->name);
@@ -1780,8 +1776,6 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 	function renderVirtualCriteria($param) {
 		$key = $param->field;
-		
-		$translate = DevblocksPlatform::getTranslationService();
 		
 		switch($key) {
 			case SearchFields_Bucket::VIRTUAL_CONTEXT_LINK:

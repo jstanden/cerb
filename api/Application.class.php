@@ -227,7 +227,7 @@ class CerberusApplication extends DevblocksApplication {
 	static function getAtMentionsWorkerDictionaryJson($with_searches=true) {
 		$workers = DAO_Worker::getAllActive();
 		$list = [];
-
+		
 		if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
 			$searches = DAO_ContextSavedSearch::getUsableByActor($active_worker, CerberusContexts::CONTEXT_WORKER);
 
@@ -245,16 +245,15 @@ class CerberusApplication extends DevblocksApplication {
 				);
 			}
 		}
-
+		
 		foreach($workers as $worker) {
 			if(empty($worker->at_mention_name))
 				continue;
-
+			
 			$list[DevblocksPlatform::strLower($worker->at_mention_name)] = array(
 				'id' => $worker->id,
 				'name' => DevblocksPlatform::strEscapeHtml($worker->getName()),
 				'email_id' => $worker->email_id,
-				//'email' => DevblocksPlatform::strEscapeHtml($worker->getEmailString()),
 				'title' => DevblocksPlatform::strEscapeHtml($worker->title),
 				'at_mention' => DevblocksPlatform::strEscapeHtml($worker->at_mention_name),
 				'_index' => DevblocksPlatform::strEscapeHtml($worker->getName() . ' ' . $worker->at_mention_name),
@@ -3360,9 +3359,9 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			if(isset($results[$id]))
 				$models[$id] = $results[$id];
 		}
-
+		
 		unset($results);
-
+		
 		return $models;
 	}
 
