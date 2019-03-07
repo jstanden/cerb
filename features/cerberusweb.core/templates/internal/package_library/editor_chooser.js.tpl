@@ -40,7 +40,13 @@ $package_chooser_search.on('keyup', $.debounce(250, package_search_keyup) );
 
 $package_info.on('cerb-enable', function(e) {
 	$package_info.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd', function() {
-		$package_info.find('input:text').first().focus().select();
+		var $inputs = $package_info.find('input:text,select');
+		
+		if(0 == $inputs.length) {
+			$(window).scrollTop($package_info.scrollTop());
+		} else {
+			$inputs.first().focus().select();
+		}
 	});
 	
 	$package_chooser.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd', function() {
