@@ -1918,30 +1918,30 @@ div.cerb-uploads {
 		}
 		
 		.package-library--package {
+			.package-library--package-image {
+				float:left;
+				background-color:white;
+				border:1px solid rgb(200,200,200);
+				margin:0 10px 10px 0;
+			}
+			
 			.package-library--package-title {
 				font-size:2em;
 			}
 			
-			.package-library--package-image {
-				display:inline-block;
-				height:135px;
-				width:240px;
-				background-color:white;
-				border:1px solid rgb(200,200,200);
-				margin-bottom:5px;
+			.package-library--package-description {
+			}
+			
+			.package-library--package-instructions {
+				margin-top:5px;
+				clear:both;
 			}
 			
 			.package-library--package-metadata {
 				vertical-align:top;
-				display:inline-block;
+				display:block;
 				margin-left:10px;
 				
-				.package-library--package-description {
-				}
-				
-				.package-library--package-instructions {
-					margin-top:5px;
-				}
 			}
 		}
 	}
