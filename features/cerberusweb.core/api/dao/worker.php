@@ -1514,6 +1514,29 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
+			case 'group':
+				$key_select = 'wtg_' . uniqid();
+				
+				return [
+					'key_query' => $key,
+					'key_select' => $key_select,
+					'label' => DevblocksPlatform::translateCapitalized('common.group'),
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'sql_select' => sprintf("`%s`.group_id",
+						Cerb_ORMHelper::escape($key_select)
+					),
+					'sql_join' => sprintf("INNER JOIN worker_to_group AS `%s` ON (`%s`.worker_id = %s)",
+						Cerb_ORMHelper::escape($key_select),
+						Cerb_ORMHelper::escape($key_select),
+						$primary_key
+					),
+					'get_value_as_filter_callback' => function($value, &$filter) {
+						$filter = 'group:(id:%s)';
+						return $value;
+					}
+				];
+				break;
+			
 			case 'lang':
 				$key = 'language';
 				break;
@@ -1523,6 +1546,12 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	}
 	
 	static function getLabelsForKeyValues($key, $values) {
+		if(DevblocksPlatform::strStartsWith($key, 'wtg_')) {
+			$models = DAO_Group::getIds($values);
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_GROUP);
+			return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
+		}
+		
 		switch($key) {
 			case SearchFields_Worker::GENDER:
 				$label_map = [
