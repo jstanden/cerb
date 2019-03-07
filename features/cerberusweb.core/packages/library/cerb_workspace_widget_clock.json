@@ -39,6 +39,7 @@
             "default": "los_angeles",
             "options": {
               "Berlin": "berlin",
+              "Denver": "denver",
               "Johannesburg": "johannesburg",
               "Kolkata": "kolkata",
               "London": "london",
@@ -48,7 +49,8 @@
               "Sao Paulo": "sao_paulo",
               "Shanghai": "shanghai",
               "Sydney": "sydney",
-              "Tokyo": "tokyo"
+              "Tokyo": "tokyo",
+              "Winnipeg": "winnipeg"
             }
           }
         }
@@ -67,6 +69,21 @@
       "width_units": 1,
       "params": {
         "timezone": "Europe/Berlin",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "widget_clock_denver",
+      "_context": "workspace_widget",
+      "_exclude": "{{% if prompt_timezone != 'denver' %}}true{{% endif %}}",
+      "label": "Denver",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "core.workspace.widget.clock",
+      "pos": 0,
+      "width_units": 1,
+      "params": {
+        "timezone": "America/Denver",
         "format": "0",
         "color": "#007cbd"
       }
@@ -217,6 +234,21 @@
       "width_units": 1,
       "params": {
         "timezone": "Asia/Tokyo",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "widget_clock_winnipeg",
+      "_context": "workspace_widget",
+      "_exclude": "{{% if prompt_timezone != 'winnipeg' %}}true{{% endif %}}",
+      "label": "Winnipeg",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "core.workspace.widget.clock",
+      "pos": 0,
+      "width_units": 1,
+      "params": {
+        "timezone": "America/Winnipeg",
         "format": "0",
         "color": "#007cbd"
       }
