@@ -1,5 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_TASK}
 {$peek_context_id = $task->id}
+{$tabset_id = "peek-editor-{DevblocksPlatform::strAlphaNum($peek_context,'','_')}"}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formTaskPeek" name="formTaskPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
@@ -11,7 +12,7 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<div class="cerb-tabs">
+<div id="{$tabset_id}" class="cerb-tabs">
 	{if !$task->id && $packages}
 	<ul>
 		<li><a href="#task-library">{'common.library'|devblocks_translate|capitalize}</a></li>
@@ -153,7 +154,11 @@ $(function() {
 		// Package Library
 		
 		{if !$task->id && $packages}
-			var $tabs = $popup.find('.cerb-tabs').tabs();
+			var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+			tabOptions.active = Devblocks.getjQueryUiTabSelected('{$tabset_id}');
+			
+			var $tabs = $popup.find('.cerb-tabs').tabs(tabOptions);
+			
 			var $library_container = $tabs;
 			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 			
