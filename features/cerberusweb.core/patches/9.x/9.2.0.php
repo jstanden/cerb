@@ -63,7 +63,7 @@ if(!isset($tables['package_library'])) {
 		'cerb_profile_widget_ticket_owner.json',
 		'cerb_profile_widget_ticket_participants.json',
 		'cerb_project_board_kanban.json',
-		'cerb_task_for_you.json',
+		'cerb_task_for_me.json',
 		'cerb_workspace_page_home.json',
 		'cerb_workspace_page_mail.json',
 		'cerb_workspace_page_reports.json',
@@ -113,7 +113,7 @@ if(!isset($tables['package_library'])) {
 		$package_id = $db->LastInsertId();
 		
 		// Package images
-		if(array_key_exists('image', $library_meta) && $library_meta['image']) {
+		if($package_id && array_key_exists('image', $library_meta) && $library_meta['image']) {
 			$imagedata = $library_meta['image'];
 			
 			if(DevblocksPlatform::strStartsWith($imagedata,'data:image/png;base64,')) {

@@ -10,7 +10,7 @@
     },
     "library": {
       "name": "Auto-Reply",
-      "uri": "cerb_bot_behavior_autoreply",
+      "uri": "cerb_bot_behavior_auto_reply",
       "description": "A behavior that automatically replies to new messages",
       "point": "behavior",
       "image": ""
