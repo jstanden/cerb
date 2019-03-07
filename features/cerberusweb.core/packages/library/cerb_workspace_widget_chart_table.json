@@ -1,0 +1,112 @@
+{
+  "package": {
+    "name": "Table",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Table",
+      "uri": "cerb_workspace_widget_chart_table",
+      "description": "Tabular results from a data query",
+      "point": "workspace_widget",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Dashboard",
+          "key": "workspace_tab_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.tab",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "picklist",
+          "label": "Dataset:",
+          "key": "prompt_dataset",
+          "params": {
+            "options": {
+              "Bot Behaviors by Event": "behaviors_by_event",
+              "Tickets by Status": "tickets_by_status",
+              "Worker Reply Leaderboard": "worker_reply_leaderboard",
+              "Workers By Group": "workers_by_group"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "workspace_widget_behaviors_by_event",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "_exclude": "{{% if prompt_dataset != 'behaviors_by_event' %}}true{{% endif %}}",
+      "label": "Bot Behaviors by Event",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 1,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:behavior\r\nby.count:[event~100]\r\nquery:()\r\nformat:table",
+        "cache_secs": ""
+      }
+    },
+    {
+      "uid": "workspace_widget_workers_by_group",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "_exclude": "{{% if prompt_dataset != 'workers_by_group' %}}true{{% endif %}}",
+      "label": "Workers By Group",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 1,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:worker\r\nby.count:[group~100]\r\nquery:()\r\nformat:table",
+        "cache_secs": ""
+      }
+    },
+    {
+      "uid": "workspace_widget_worker_leaderboard",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "_exclude": "{{% if prompt_dataset != 'worker_reply_leaderboard' %}}true{{% endif %}}",
+      "label": "Reply Leaderboard (Top 10, All-Time)",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 1,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~10]\r\nquery:(\r\n\tcreated:\"big bang to now\"\r\n\tworker.id:!0\r\n\tisOutgoing:y\r\n\tisBroadcast:n\r\n)\r\nformat:table",
+        "cache_secs": ""
+      }
+    },
+    {
+      "uid": "workspace_widget_tickets_by_status",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "_exclude": "{{% if prompt_dataset != 'tickets_by_status' %}}true{{% endif %}}",
+      "label": "Tickets by Status",
+      "tab_id": "{{{workspace_tab_id}}}",
+      "extension_id": "cerb.workspace.widget.chart.table",
+      "pos": 1,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "data_query": "type:worklist.subtotals\r\nof:ticket\r\nby:[status]\r\nquery:()\r\nformat:table",
+        "cache_secs": ""
+      }
+    }
+  ]
+}
