@@ -1,0 +1,176 @@
+{
+  "package": {
+    "library": {
+      "name": "World Clocks",
+      "uri": "cerb_workspace_tab_world_clocks",
+      "description": "A dashboard with world clocks across major timezones",
+      "point": "workspace_tab",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Workspace Page",
+          "key": "workspace_page_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.workspace.page",
+            "single": true,
+            "query": ""
+          }
+        }
+      ],
+      "placeholders": [
+
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "workspace_tab_clocks",
+      "_context": "workspace_tab",
+      "name": "World Clocks",
+      "page_id": "{{{workspace_page_id}}}",
+      "extension_id": "core.workspace.tab.dashboard",
+      "params": {
+        "layout": ""
+      }
+    },
+    {
+      "uid": "clock_los_angeles",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Los Angeles",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 1,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "America/Los_Angeles",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "clock_denver",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Denver",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 2,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "America/Denver",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "clock_winnipeg",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Winnipeg",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 3,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "America/Winnipeg",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "clock_new_york",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "New York",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 4,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "America/New_York",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "clock_london",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "London",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 5,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "Europe/London",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "clock_berlin",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Berlin",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 6,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "Europe/Berlin",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "clock_johannesburg",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Johannesburg",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 7,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "Africa/Johannesburg",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "clock_moscow",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Moscow",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 8,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "Europe/Moscow",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    },
+    {
+      "uid": "clock_sydney",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "label": "Sydney",
+      "extension_id": "core.workspace.widget.clock",
+      "tab_id": "{{{uid.workspace_tab_clocks}}}",
+      "pos": 9,
+      "width_units": 1,
+      "zone": "content",
+      "params": {
+        "timezone": "Australia/Sydney",
+        "format": "0",
+        "color": "#007cbd"
+      }
+    }
+  ]
+}

@@ -69,6 +69,7 @@ if(!isset($tables['package_library'])) {
 		'cerb_workspace_page_reports.json',
 		'cerb_workspace_tab_dashboard.json',
 		'cerb_workspace_tab_dashboard_with_filters.json',
+		'cerb_workspace_tab_world_clocks.json',
 		'cerb_workspace_widget_chart_categories.json',
 		'cerb_workspace_widget_chart_table.json',
 		'cerb_workspace_widget_chart_time_series.json',
