@@ -141,8 +141,7 @@ $(function() {
 		
 		var $frm = $popup.find('form');
 		
-		var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
-		var $tabs = $('#configCardTabs{$div_id}').tabs(tabOptions);
+		var $tabs = $('#configCardTabs{$div_id}').tabs();
 		
 		// Tab: Displayed Fields
 		
