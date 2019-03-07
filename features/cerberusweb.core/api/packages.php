@@ -175,6 +175,7 @@ class Cerb_Packages {
 			$event->disable();
 		
 		self::_packageCreateCustomRecords($json, $uids, $records_created, $placeholders);
+		self::_packageFilterExcluded($json, $uids, $records_created, $placeholders);
 		self::_packageValidate($json, $uids, $records_created, $placeholders);
 		self::_packageGenerateIds($json, $uids, $records_created, $placeholders);
 		self::_packageImport($json, $uids, $records_created);
@@ -205,8 +206,44 @@ class Cerb_Packages {
 			'records' => $custom_records,
 		];
 		
+		self::_packageFilterExcluded($custom_records_json, $uids, $records_created, $placeholders);
 		self::_packageValidate($custom_records_json, $uids, $records_created, $placeholders);
 		self::_packageGenerateIds($custom_records_json, $uids, $records_created, $placeholders);
+	}
+	
+	private static function _packageFilterExcluded(&$json, &$uids, &$records_created, &$placeholders) {
+		// Prepare the template builder
+		
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$lexer = array(
+			'tag_comment'   => array('{{#', '#}}'),
+			'tag_block'     => array('{{%', '%}}'),
+			'tag_variable'  => array('{{{', '}}}'),
+			'interpolation' => array('#{{', '}}'),
+		);
+		
+		foreach($json as $object_type => $objects) {
+			if($object_type == 'package')
+				continue;
+			
+			if(is_array($objects))
+			foreach($objects as $record_idx => $record) {
+				@$uid_record = $record['uid'];
+				
+				if(!array_key_exists('_exclude', $record))
+					continue;
+				
+				$exclude_template = $record['_exclude'];
+				unset($json[$object_type][$record_idx]['_exclude']);
+				
+				if(false === ($result = $tpl_builder->build($exclude_template, $placeholders, $lexer)))
+					throw new Exception_DevblocksValidationError(sprintf("Invalid _exclude template: record (%s) %s", $uid_record, implode(',', $tpl_builder->getErrors())));
+				
+				// If the template is true, remove this package record from processing
+				if($result)
+					unset($json[$object_type][$record_idx]);
+			}
+		}
 	}
 	
 	private static function _packageValidate(&$json, &$uids, &$records_created, &$placeholders) {
