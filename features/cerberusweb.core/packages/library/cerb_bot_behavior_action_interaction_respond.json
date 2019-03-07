@@ -54,7 +54,7 @@
         "actions": [
           {
             "action": "send_message",
-            "message": "This is a message",
+            "message": "Hello, {{worker_first_name}}!",
             "format": "",
             "delay_ms": "1000"
           }
