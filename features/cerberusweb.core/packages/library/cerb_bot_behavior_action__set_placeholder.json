@@ -38,6 +38,14 @@
           "hidden": true,
           "params": {
           }
+        },
+        {
+          "type": "text",
+          "label": "Placeholder Name:",
+          "key": "prompt_placeholder_name",
+          "params": {
+            "default": "placeholder_name"
+          }
         }
       ]
     }
@@ -57,7 +65,7 @@
             "value": "This is the placeholder value",
             "format": "",
             "is_simulator_only": "0",
-            "var": "placeholder_name"
+            "var": "{{{prompt_placeholder_name}}}"
           }
         ]
       }
