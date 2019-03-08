@@ -1377,7 +1377,7 @@ class Context_Notification extends Extension_DevblocksContext {
 		$keys['event_json']['type'] = "object";
 		$keys['event_json']['notes'] = "A key/value object of notification properties";
 		$keys['is_read']['notes'] = "Has this been read by the worker?";
-		$keys['target__context']['notes'] = "The [record type](/docs/records/#record-types) of the target record";
+		$keys['target__context']['notes'] = "The [record type](/docs/records/types/) of the target record";
 		$keys['target_id']['notes'] = "The ID of the target record";
 		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who received the notification";
 		

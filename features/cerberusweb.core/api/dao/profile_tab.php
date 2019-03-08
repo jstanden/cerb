@@ -1035,7 +1035,7 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			'type' => 'object',
 		];
 		
-		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) to add the profile tab to";
+		$keys['context']['notes'] = "The [record type](/docs/records/types/) to add the profile tab to";
 		$keys['extension_id']['notes'] = "[Profile Tab Type](/docs/plugins/extensions/points/cerb.profile.tab/)";
 		
 		return $keys;

@@ -1210,7 +1210,7 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
-		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) of the worklist";
+		$keys['context']['notes'] = "The [record type](/docs/records/types/) of the worklist";
 		$keys['params_required_query']['notes'] = "The [search query](/docs/search/) for required filters";
 		$keys['pos']['notes'] = "The order of the worklist on the workspace tab; `0` is first";
 		$keys['render_limit']['notes'] = "The number of records per page";

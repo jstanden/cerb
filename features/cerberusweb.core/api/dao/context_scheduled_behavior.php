@@ -1365,7 +1365,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		
 		$keys['behavior_id']['notes'] = "The ID of the [behavior](/docs/records/types/behavior/) to be scheduled";
 		$keys['run_date']['notes'] = "The date/time to run the scheduled behavior";
-		$keys['target__context']['notes'] = "The [record type](/docs/records/#record-types) of the target record to run the behavior against";
+		$keys['target__context']['notes'] = "The [record type](/docs/records/types/) of the target record to run the behavior against";
 		$keys['target_id']['notes'] = "The ID of the target record";
 		
 		return $keys;

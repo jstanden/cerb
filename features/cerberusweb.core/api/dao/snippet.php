@@ -1577,7 +1577,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		];
 		
 		$keys['content']['notes'] = "The [template](/docs/bots/scripting/) of the snippet";
-		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) to add the profile tab to";
+		$keys['context']['notes'] = "The [record type](/docs/records/types/) to add the profile tab to";
 		$keys['title']['notes'] = "The name of the snippet";
 		$keys['total_uses']['notes'] = "The total number of times this snippet has been used by all workers";
 		

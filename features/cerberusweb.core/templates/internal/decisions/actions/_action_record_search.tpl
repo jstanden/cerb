@@ -1,4 +1,4 @@
-<b>{'common.context'|devblocks_translate|capitalize}:</b> <i>(e.g. "ticket")</i> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/records/#record-types"}
+<b>{'common.context'|devblocks_translate|capitalize}:</b> <i>(e.g. "ticket")</i> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/records/types/"}
 <div style="margin-left:10px;margin-bottom:10px;">
 	<input type="text" name="{$namePrefix}[context]" class="placeholders" spellcheck="false" style="width:100%;" value="{$params.context}" placeholder="e.g. ticket">
 </div>

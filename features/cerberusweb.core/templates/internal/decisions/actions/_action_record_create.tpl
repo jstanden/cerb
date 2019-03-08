@@ -1,9 +1,9 @@
-<b>{'common.context'|devblocks_translate|capitalize}:</b> <i>(e.g. "ticket")</i> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/records/#record-types"}
+<b>{'common.context'|devblocks_translate|capitalize}:</b> <i>(e.g. "ticket")</i> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/records/types/"}
 <div style="margin-left:10px;margin-bottom:10px;">
 	<input type="text" name="{$namePrefix}[context]" class="placeholders" spellcheck="false" style="width:100%;" value="{$params.context}" placeholder="e.g. ticket">
 </div>
 
-<b>{'common.changeset'|devblocks_translate|capitalize}:</b> (Records API JSON) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/records/#record-types"}
+<b>{'common.changeset'|devblocks_translate|capitalize}:</b> (Records API JSON) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/records/types/"}
 <div style="margin-left:10px;margin-bottom:10px;">
 	<textarea name="{$namePrefix}[changeset_json]" class="placeholders" spellcheck="false" rows="5" style="width:100%;">{$params.changeset_json}</textarea>
 </div>

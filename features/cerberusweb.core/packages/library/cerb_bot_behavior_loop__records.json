@@ -82,7 +82,7 @@
             "actions": [
               {
                 "action": "_set_custom_var",
-                "value": "{# See: https://cerb.ai/docs/records/#record-types #}\r\n{% set record = _records[_record_id] %}\r\nSubject: {{record._label}}\r\nGroup: {{record.group__label}}\r\nBucket: {{record.bucket__label}}\r\nStatus: {{record.status}}\r\nOwner: {{record.owner__label}}\r\nFirst Wrote: {{record.initial_message_sender__label}}\r\nLast Wrote: {{record.latest_message_sender__label}}\r\nCreated: {{record.created|date_pretty}}\r\n",
+                "value": "{# See: https://cerb.ai/docs/records/types/ #}\r\n{% set record = _records[_record_id] %}\r\nSubject: {{record._label}}\r\nGroup: {{record.group__label}}\r\nBucket: {{record.bucket__label}}\r\nStatus: {{record.status}}\r\nOwner: {{record.owner__label}}\r\nFirst Wrote: {{record.initial_message_sender__label}}\r\nLast Wrote: {{record.latest_message_sender__label}}\r\nCreated: {{record.created|date_pretty}}\r\n",
                 "format": "",
                 "is_simulator_only": "0",
                 "var": "_placeholder"

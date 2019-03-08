@@ -1106,7 +1106,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
-		$keys['context']['notes'] = "The [record type](/docs/records/#record-types) of this search query; e.g. `ticket`";
+		$keys['context']['notes'] = "The [record type](/docs/records/types/) of this search query; e.g. `ticket`";
 		$keys['query']['notes'] = "The [search query](/docs/search/); e.g. `status:o`";
 		$keys['tag']['notes'] = "A human-friendly nickname for this search (e.g. `open_tickets`)";
 		

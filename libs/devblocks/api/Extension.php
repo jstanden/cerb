@@ -809,7 +809,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		if(array_key_exists('owner__context', $keys)) {
 			$aliases = Extension_DevblocksContext::getAliasesForContext($this->manifest);
-			$keys['owner__context']['notes'] = "The [record type](/docs/records/#record-types) of this " . $aliases['singular'] . "'s owner: `app`, `role`, `group`, or `worker`";
+			$keys['owner__context']['notes'] = "The [record type](/docs/records/types/) of this " . $aliases['singular'] . "'s owner: `app`, `role`, `group`, or `worker`";
 		}
 		if(array_key_exists('owner_id', $keys)) {
 			$aliases = Extension_DevblocksContext::getAliasesForContext($this->manifest);
