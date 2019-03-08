@@ -323,7 +323,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							$query_value = '"' . $from_date . ' to ' . $to_date . '"';
 							
 						} else if(is_numeric($query_value)) {
-							$query_value = intval($query_value);
+							if(false !== strpos($query_value, '.')) {
+								$query_value = floatval($query_value);
+							} else {
+								$query_value = intval($query_value);
+							}
 						} else if(false !== strpos($query_value, ' ')) {
 							$query_value = '"' . $query_value . '"';
 						}
@@ -340,7 +344,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 						}
 						
 						if(is_numeric($query_value)) {
-							$query_value = intval($query_value);
+							if(false !== strpos($query_value, '.')) {
+								$query_value = floatval($query_value);
+							} else {
+								$query_value = intval($query_value);
+							}
 						} else if(false !== strpos($query_value, ' ')) {
 							$query_value = '"' . $query_value . '"';
 						}
