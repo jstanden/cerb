@@ -56,42 +56,42 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$description = DevblocksPlatform::importGPC($_REQUEST['description'], 'string', '');
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$point = DevblocksPlatform::importGPC($_REQUEST['point'], 'string', '');
-				@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'], 'string', '');
-				@$instructions = DevblocksPlatform::importGPC($_REQUEST['instructions'], 'string', '');
 				@$package_json = DevblocksPlatform::importGPC($_REQUEST['package_json'], 'string', '');
-				@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 				
 				$error = null;
 				
+				if(false == ($package = json_decode($package_json, true)) || !array_key_exists('package', $package))
+					throw new Exception_DevblocksAjaxValidationError("Invalid package JSON.");
+				
+				if(false == (@$package_library_meta = $package['package']['library']))
+					throw new Exception_DevblocksAjaxValidationError("Missing package library JSON.");
+				
+				$name = '';
+				$description = '';
+				$instructions = '';
+				$point = '';
+				$uri = '';
+				$avatar_image = '';
+				
+				if(!$name && array_key_exists('name', $package_library_meta))
+					@$name = $package_library_meta['name'];
+				
+				if(!$description && array_key_exists('description', $package_library_meta))
+					@$description = $package_library_meta['description'];
+				
+				if(!$instructions && array_key_exists('instructions', $package_library_meta))
+					@$instructions = $package_library_meta['instructions'];
+				
+				if(!$point && array_key_exists('point', $package_library_meta))
+					@$point = $package_library_meta['point'];
+				
+				if(!$uri && array_key_exists('uri', $package_library_meta))
+					@$uri = $package_library_meta['uri'];
+				
+				if(!$avatar_image && array_key_exists('image', $package_library_meta))
+					@$avatar_image = $package_library_meta['image'];
+				
 				if(empty($id)) { // New
-					if(false == ($package = json_decode($package_json, true)) || !array_key_exists('package', $package))
-						throw new Exception_DevblocksAjaxValidationError("Invalid package JSON.");
-					
-					@$package_library_meta = $package['package']['library'] ?: [];
-					
-					if($package_library_meta) {
-						if(!$name && array_key_exists('name', $package_library_meta))
-							@$name = $package_library_meta['name'];
-						
-						if(!$description && array_key_exists('description', $package_library_meta))
-							@$description = $package_library_meta['description'];
-						
-						if(!$instructions && array_key_exists('instructions', $package_library_meta))
-							@$instructions = $package_library_meta['instructions'];
-						
-						if(!$point && array_key_exists('point', $package_library_meta))
-							@$point = $package_library_meta['point'];
-						
-						if(!$uri && array_key_exists('uri', $package_library_meta))
-							@$uri = $package_library_meta['uri'];
-						
-						if(!$avatar_image && array_key_exists('image', $package_library_meta))
-							@$avatar_image = $package_library_meta['image'];
-					}
-					
 					$fields = array(
 						DAO_PackageLibrary::DESCRIPTION => $description,
 						DAO_PackageLibrary::INSTRUCTIONS => $instructions,

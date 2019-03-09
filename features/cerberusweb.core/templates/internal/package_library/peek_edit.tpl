@@ -11,62 +11,46 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellspacing="0" cellpadding="2" border="0" width="98%">
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.description'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="description" value="{$model->description}" style="width:98%;">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b><abbr title="A unique name for this package. Letters, numbers, and underscores.">{'common.uri'|devblocks_translate}</abbr>:</b></td>
-		<td width="99%">
-			<input type="text" name="uri" value="{$model->uri}" style="width:98%;" spellcheck="false">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.extension.point'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%">
-			<input type="text" name="point" value="{$model->point}" style="width:98%;" spellcheck="false">
-		</td>
-	</tr>
-	
-	<tr>
-		<td width="1%" nowrap="nowrap" valign="top"><b>{'common.image'|devblocks_translate|capitalize}:</b></td>
-		<td width="99%" valign="top">
-			<div style="float:left;margin-right:5px;border:1px solid rgb(200,200,200);">
-				<img class="cerb-avatar" src="{devblocks_url}c=avatars&context=package&context_id={$model->id}{/devblocks_url}?v={$model->updated_at}" style="width:480px;height:270px;border-radius:0;margin:0;">
-			</div>
-			<div style="float:left;">
-				<button type="button" class="cerb-avatar-chooser" data-context="{CerberusContexts::CONTEXT_PACKAGE}" data-context-id="{$model->id}" data-image-width="480" data-image-height="270" data-create-defaults="">{'common.edit'|devblocks_translate|capitalize}</button>
-				<input type="hidden" name="avatar_image">
-			</div>
-		</td>
-	</tr>
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-	{/if}
-</table>
+{if !$model->id}
+<div class="help-box">
+	<h1>Building packages</h1>
+	Learn how to create packages in the <a href="https://cerb.ai/docs/packages/" target="_blank">documentation</a>.
+</div>
+{/if}
 
-<div style="margin-top:10px;">
-	<b>{'common.instructions'|devblocks_translate|capitalize}:</b> (Markdown)<br>
-	<textarea name="instructions" class="cerb-code-editor" data-editor-mode="ace/mode/markdown">{if $model}{$model->getInstructions()}{/if}</textarea>
+<div>
+	<b>{'common.package'|devblocks_translate|capitalize}:</b> (JSON) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/packages/"}
+	<textarea name="package_json" class="cerb-code-editor" data-editor-mode="ace/mode/json">{if $model}{$model->getPackageJson()}{else}{literal}{
+  "package": {
+    "name": "Package Name",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "{/literal}{$smarty.const.APP_VERSION}{literal}",
+      "plugins": [
+      ]
+    },
+    "library": {
+      "name": "",
+      "uri": "",
+      "description": "",
+      "point": "",
+      "image": "data:image/png;base64,"
+    },
+    "configure": {
+      "placeholders": [
+      ],
+      "prompts": [
+      ]
+    }
+  },
+  "records": [
+  ]
+}{/literal}{/if}</textarea>
 </div>
 
-<div style="margin-top:10px;">
-	<b>{'common.package'|devblocks_translate|capitalize}:</b> (JSON) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/packages/"}<br>
-	<textarea name="package_json" class="cerb-code-editor" data-editor-mode="ace/mode/json">{if $model}{$model->getPackageJson()}{/if}</textarea>
-</div>
+{if !empty($custom_fields)}
+{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
@@ -100,9 +84,6 @@ $(function() {
 		$popup.dialog('option','title',"{'common.package'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 		
-		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
-		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
-
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
@@ -111,11 +92,6 @@ $(function() {
 		$popup.find('.cerb-code-editor')
 			.cerbCodeEditor()
 			;
-		
-		// Avatar
-		
-		// [TODO] Default size
-		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 		
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
