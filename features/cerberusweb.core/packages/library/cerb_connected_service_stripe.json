@@ -1,0 +1,68 @@
+{
+  "package": {
+    "name": "Stripe Connected Service",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Stripe",
+      "uri": "cerb_connected_service_stripe",
+      "description": "Integration with Stripe",
+      "instructions": "# Instructions\r\n\r\n* See [**Cerb + Stripe**](https://cerb.ai/guides/integrations/stripe/)\r\n* Enter the Publishable Key and Secret Key below",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Publishable Key",
+          "key": "prompt_publishable_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Publishable Key)"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Secret Key",
+          "key": "prompt_secret_key",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Secret Key)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_stripe",
+      "_context": "connected_service",
+      "name": "Stripe",
+      "extension_id": "cerb.service.provider.http.basic",
+      "params": {
+        "base_url": "https://api.stripe.com/"
+      }
+    },
+    {
+      "uid": "account_stripe",
+      "_context": "connected_account",
+      "name": "Stripe",
+      "service_id": "{{{uid.service_stripe}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "params": {
+        "username": "{{{prompt_publishable_key}}}",
+        "password": "{{{prompt_secret_key}}}"
+      }
+    }
+  ]
+}

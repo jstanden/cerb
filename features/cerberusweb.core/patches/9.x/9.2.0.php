@@ -55,6 +55,7 @@ if(!isset($tables['package_library'])) {
 		'cerb_connected_service_nest.json',
 		'cerb_connected_service_salesforce.json',
 		'cerb_connected_service_slack.json',
+		'cerb_connected_service_stripe.json',
 		'cerb_connected_service_twilio.json',
 		'cerb_connected_service_twitter.json',
 		'cerb_profile_tab__log.json',
