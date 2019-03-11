@@ -341,10 +341,10 @@ if($changes) {
 // ===========================================================================
 // Add `address.created_at`
 
-if(!isset($tables['worker']))
+if(!isset($tables['address']))
 	return FALSE;
 
-list($columns,) = $db->metaTable('worker');
+list($columns,) = $db->metaTable('address');
 
 $changes = [];
 
