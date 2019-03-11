@@ -221,6 +221,11 @@ if(array_key_exists('params_json', $columns)) {
 		switch(@$params['who']) {
 			case 'all':
 				$member_query = 'isDisabled:n';
+				
+				$db->ExecuteMaster(sprintf("INSERT IGNORE INTO worker_to_role (worker_id, role_id, is_member, is_editable, is_readable) ".
+					"SELECT id, %d, 1, 0, 1 FROM worker WHERE is_disabled = 0",
+					$role['id']
+				));
 				break;
 				
 			case 'workers':
@@ -240,6 +245,12 @@ if(array_key_exists('params_json', $columns)) {
 					
 					$member_query .= 'id:' . json_encode($worker_ids);
 				}
+				
+				$db->ExecuteMaster(sprintf("INSERT IGNORE INTO worker_to_role (worker_id, role_id, is_member, is_editable, is_readable) ".
+					"SELECT id, %d, 1, 0, 1 FROM worker WHERE id IN (%s)",
+					$role['id'],
+					implode(',', $who_list)
+				));
 				break;
 				
 			case 'groups':
@@ -251,8 +262,18 @@ if(array_key_exists('params_json', $columns)) {
 					$member_query = sprintf('group:(name:[%s])', implode(',', array_map(function($name) {
 						return '"' . str_replace('"','', $name) . '"';
 					}, $in_groups)));
+				
+				// Member/read by group members
+				$db->ExecuteMaster(sprintf("INSERT IGNORE INTO worker_to_role (worker_id, role_id, is_member, is_editable, is_readable) ".
+					"SELECT id, %d, 1, 0, 1 FROM worker WHERE id IN (SELECT DISTINCT wtg.worker_id FROM worker_to_group wtg WHERE wtg.group_id IN (%s))",
+					$role['id'],
+					implode(',', $who_list)
+				));
 				break;
 		}
+		
+		// Editable by all admins
+		$db->ExecuteMaster("UPDATE worker_to_role SET is_editable = 1 WHERE worker_id IN (SELECT id FROM worker WHERE is_superuser = 1 AND is_disabled = 0)");
 		
 		$db->ExecuteMaster(sprintf("UPDATE worker_role SET privs_mode = %s, member_query_worker = %s, reader_query_worker = %s WHERE id = %d",
 			$db->qstr($privs_mode),
