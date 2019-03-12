@@ -164,6 +164,10 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function onUpdateByActor($actor, $fields, $id) {
+		DAO_WorkerRole::updateRosters($id);
+	}
+	
 	static function getByMember($worker_id) {
 		$role_data = DAO_WorkerRole::_getDataByWorker($worker_id);
 		

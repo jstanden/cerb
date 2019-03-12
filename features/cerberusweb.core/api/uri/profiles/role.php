@@ -119,10 +119,6 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
 				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ROLE, $id, $avatar_image);
 				
-				// Clear cache
-				DAO_WorkerRole::updateRosters($id);
-				DAO_WorkerRole::clearCache();
-				
 				echo json_encode(array(
 					'status' => true,
 					'id' => $id,
