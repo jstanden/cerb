@@ -788,7 +788,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @param integer $id
 	 */
 	static public function onUpdateByActor($actor, $fields, $id) {
-		return;
+		// Rebuild all role rosters
+		DAO_WorkerRole::updateRosters();
 	}
 	
 	/**
