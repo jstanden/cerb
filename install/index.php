@@ -858,15 +858,6 @@ switch($step) {
 			if($optional_packages && is_array($optional_packages)) {
 				foreach($optional_packages as $package) {
 					switch($package) {
-						case 'autoreply_bot':
-							$prompts = [
-								'org_name' => $setup_defaults['org_name'],
-							];
-							$json = file_get_contents(APP_PATH . '/install/packages/autoreply_bot_package.json');
-							$results = [];
-							CerberusApplication::packages()->import($json, $prompts, $results);
-							break;
-							
 						case 'chat_bot':
 							$prompts = [];
 							$json = file_get_contents(APP_PATH . '/install/packages/chat_bot_package.json');

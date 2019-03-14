@@ -37,15 +37,6 @@
 <div style="margin:5px 0px 0px 5px;">
 	<div style="margin-bottom:5px;">
 		<label>
-			<input type="checkbox" name="optional_packages[]" value="autoreply_bot"> <b>Auto-Reply Bot</b>
-			<div style="margin-left:25px;">
-				Automatically send a confirmation receipt back to the sender for each new conversation.
-			</div>
-		</label>
-	</div>
-	
-	<div style="margin-bottom:5px;">
-		<label>
 			<input type="checkbox" name="optional_packages[]" value="chat_bot"> <b>Chat Bot</b>
 			<div style="margin-left:25px;">
 				A preconfigured bot with some helpful text-based conversational interactions.
