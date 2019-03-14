@@ -117,7 +117,7 @@
 				<tr>
 					<td width="1%" nowrap="nowrap"><b><abbr title="An optional unique alias for this behavior. Lowercase letters, numbers, and underscores.">{'common.uri'|devblocks_translate}</abbr>:</b></td>
 					<td width="99%">
-						<input type="text" name="uri" value="{$model->uri}" style="width:98%;" spellcheck="false">
+						<input type="text" name="uri" value="{$model->uri}" style="width:98%;" placeholder="(optional)" spellcheck="false">
 					</td>
 				</tr>
 				
