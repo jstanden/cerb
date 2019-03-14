@@ -843,6 +843,7 @@ class Cerb_Packages {
 			'bucket_id' => $default_group ? $default_group->getDefaultBucket()->id : 0,
 			'replyto_id' => $default_replyto ? $default_replyto->id : 0,
 			'replyto_email' => $default_replyto ? $default_replyto->email : 0,
+			'mail_transport_id' => $default_replyto ? $default_replyto->mail_transport_id : 0,
 		];
 		
 		// Recursively rebuild the package and run the template builder when necessary for a key/value.
