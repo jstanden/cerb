@@ -65,6 +65,7 @@ if(!isset($tables['package_library'])) {
 		'cerb_profile_widget_ticket_participants.json',
 		'cerb_project_board_kanban.json',
 		'cerb_task_for_me.json',
+		'cerb_workspace_page_empty.json',
 		'cerb_workspace_page_home.json',
 		'cerb_workspace_page_mail.json',
 		'cerb_workspace_page_reports.json',

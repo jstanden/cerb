@@ -1,0 +1,61 @@
+{
+  "package": {
+    "name": "Page Wizard: Empty Workspace",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Empty Workspace",
+      "uri": "cerb_workspace_page_empty",
+      "description": "A blank canvas constrained only by your imagination",
+      "point": "workspace_page",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Owner Context:",
+          "key": "owner_context",
+          "hidden": true,
+          "params": {
+          }
+        },
+        {
+          "type": "text",
+          "label": "Owner Context ID:",
+          "key": "owner_context_id",
+          "hidden": true,
+          "params": {
+          }
+        },
+        {
+          "type": "text",
+          "label": "Workspace Name:",
+          "key": "prompt_workspace_name",
+          "params": {
+            "default": "Workspace",
+            "placeholder": "(the name of your workspace)"
+          }
+        }
+      ],
+      "placeholders": [
+
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "workspace_empty",
+      "_context": "workspace_page",
+      "name": "{{{prompt_workspace_name}}}",
+      "owner__context": "{{{owner_context}}}",
+      "owner_id": "{{{owner_context_id}}}",
+      "extension_id": "core.workspace.page.workspace"
+    }
+  ]
+}
