@@ -1,6 +1,8 @@
 <?php
 class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidgetDatasource {
 	private function _getSeriesIdxFromPrefix($params_prefix) {
+		$matches = [];
+		
 		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
 			return $matches[1];
 		}
@@ -26,7 +28,7 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 			(!is_null($series_idx) ? intval($series_idx) : '')
 		);
 		
-		$view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id);
+		Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id);
 		
 		// Worklists
 		
@@ -176,6 +178,8 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 
 class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidgetDatasource {
 	private function _getSeriesIdxFromPrefix($params_prefix) {
+		$matches = [];
+		
 		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
 			return $matches[1];
 		}
@@ -201,7 +205,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 			(!is_null($series_idx) ? intval($series_idx) : '')
 		);
 		
-		$view = Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id);
+		Extension_WorkspaceWidget::getViewFromParams($widget, $params, $view_id);
 		
 		// Worklists
 		
@@ -267,7 +271,6 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 		
 		$fields = $view->getFields();
 		$xaxis_field = null;
-		$xaxis_field_type = null;
 		
 		switch($params['xaxis_field']) {
 			case '_id':
@@ -451,7 +454,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 
 					$array = array();
 					
-					foreach($results as $k => $v) {
+					foreach($results as $v) {
 						$array[$v['histo']] = $v['hits'];
 					}
 					
@@ -738,7 +741,7 @@ class WorkspaceWidgetDatasource_BotBehavior extends Extension_WorkspaceWidgetDat
 		
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		
-		$result = $widget_behavior->runDecisionTree($dict, false, $event);
+		$widget_behavior->runDecisionTree($dict, false, $event);
 		
 		$metric_value = 0;
 		
@@ -785,7 +788,7 @@ class WorkspaceWidgetDatasource_URL extends Extension_WorkspaceWidgetDatasource 
 			$info = curl_getinfo($ch);
 			
 			//@$status = $info['http_code'];
-			@$content_type = DevblocksPlatform::strLower($info['content_type']);
+			//@$content_type = DevblocksPlatform::strLower($info['content_type']);
 			
 			$data = array(
 				'raw_data' => $raw_data,
