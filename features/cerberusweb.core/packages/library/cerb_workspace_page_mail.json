@@ -13,7 +13,7 @@
       "uri": "cerb_workspace_page_mail",
       "description": "A page for mail processing with open tickets, sent messages, and drafts",
       "point": "workspace_page",
-      "image": ""
+      "image": "data:image/png;base64,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"
     },
     "configure": {
       "prompts": [
@@ -96,16 +96,17 @@
           "columns": [
             "t_last_wrote_address_id",
             "t_importance",
-            "t_updated_date",
             "t_group_id",
             "t_bucket_id",
-            "t_owner_id"
+            "t_org_id",
+            "t_owner_id",
+            "t_updated_date"
           ],
           "params": [
 
           ],
           "params_required_query": "status:[o] inGroupsOf:me",
-          "limit": 10,
+          "limit": 15,
           "sort_by": "t_updated_date",
           "sort_asc": false,
           "subtotals": "t_group_id",
@@ -120,7 +121,7 @@
       "tab_id": "{{{uid.workspace_tab_sent}}}",
       "pos": 1,
       "view": {
-        "title": "My sent messages",
+        "title": "Sent messages",
         "model": {
           "options": {
             "header_color": "#6a87db"
@@ -134,11 +135,11 @@
           "params": [
 
           ],
-          "params_required_query": "worker.id:me isOutgoing:y",
-          "limit": 10,
+          "params_required_query": "worker.id:!0 isOutgoing:y",
+          "limit": 15,
           "sort_by": "m_created_date",
           "sort_asc": false,
-          "subtotals": "",
+          "subtotals": "m_worker_id",
           "context": "cerberusweb.contexts.message"
         }
       }
@@ -165,7 +166,7 @@
 
           ],
           "params_required_query": "worker.id:{{current_worker_id}}",
-          "limit": 10,
+          "limit": 15,
           "sort_by": "m_updated",
           "sort_asc": false,
           "subtotals": "",
