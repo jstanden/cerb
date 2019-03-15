@@ -2,6 +2,8 @@
 $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
+$revision = $db->GetOneMaster("SELECT revision FROM cerb_patch_history WHERE plugin_id = 'cerberusweb.core'");
+
 // ===========================================================================
 // Add `package_library`
 
@@ -83,69 +85,21 @@ if(!isset($tables['package_library'])) {
 		'cerb_workspace_widget_worklist.json',
 	];
 	
-	$storage = new DevblocksStorageEngineDisk();
-	$storage->setOptions([]);
+	CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
+}
+
+// ===========================================================================
+// Update package library
+
+if($revision >= 1331 && $revision < 1332) {
+	$packages = [
+		'cerb_workspace_page_empty.json',
+		'cerb_workspace_page_home.json',
+		'cerb_workspace_page_mail.json',
+		'cerb_workspace_page_reports.json',
+	];
 	
-	foreach($packages as $package) {
-		$package_json = file_get_contents(APP_PATH . '/features/cerberusweb.core/packages/library/' . $package);
-		
-		if(false === (@$package_data = json_decode($package_json, true)))
-			continue;
-		
-		if(false == (@$library_meta = $package_data['package']['library']))
-			continue;
-		
-		$db->ExecuteMaster(sprintf("INSERT INTO package_library (uri, name, description, instructions, point, updated_at, package_json) ".
-			"VALUES (%s, %s, %s, %s, %s, %d, %s) ".
-			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), uri=VALUES(uri), description=VALUES(description), instructions=VALUES(instructions), point=VALUES(point), updated_at=VALUES(updated_at), package_json=VALUES(package_json)",
-			$db->qstr($library_meta['uri']),
-			$db->qstr($library_meta['name']),
-			$db->qstr($library_meta['description']),
-			$db->qstr(@$library_meta['instructions']),
-			$db->qstr($library_meta['point']),
-			time(),
-			$db->qstr($package_json)
-		));
-		
-		$package_id = $db->LastInsertId();
-		
-		// Package images
-		if($package_id && array_key_exists('image', $library_meta) && $library_meta['image']) {
-			$imagedata = $library_meta['image'];
-			
-			if(DevblocksPlatform::strStartsWith($imagedata,'data:image/png;base64,')) {
-				$content_type = 'image/png';
-				
-				// Decode it to binary
-				if(false !== ($imagedata = base64_decode(substr($imagedata, 22)))) {
-					$sql = sprintf("INSERT INTO context_avatar (context,context_id,content_type,is_approved,updated_at) ".
-						"VALUES (%s,%d,%s,%d,%d) ".
-						"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), context=VALUES(context), context_id=VALUES(context_id), is_approved=VALUES(is_approved), updated_at=VALUES(updated_at)",
-						$db->qstr('cerberusweb.contexts.package.library'),
-						$package_id,
-						$db->qstr($content_type),
-						1,
-						time()
-					);
-					$db->ExecuteMaster($sql);
-					
-					$storage_id = $db->LastInsertId();
-					
-					// Put in storage
-					$storage_key = $storage->put('context_avatar', $storage_id, $imagedata);
-					
-					// Update record key
-					$sql = sprintf("UPDATE context_avatar SET storage_extension = %s, storage_key = %s, storage_size = %d WHERE id = %d",
-						$db->qstr('devblocks.storage.engine.disk'),
-						$db->qstr($storage_key),
-						strlen($imagedata),
-						$storage_id
-					);
-					$db->ExecuteMaster($sql);
-				}
-			}
-		}
-	}
+	CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
 }
 
 // ===========================================================================
