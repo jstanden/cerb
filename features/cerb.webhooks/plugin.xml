@@ -4,7 +4,7 @@
 	<name>Webhooks</name>
 	<description>This plugin enables Cerb to catch webhooks and execute bot behaviors in response.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.2.0</version>
+	<version>9.2.1</version>
 	<link>http://cerbweb.com/book/latest/developer_guide/plugins/plugin.xml</link>
 	<image>plugin.png</image>
 
