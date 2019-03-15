@@ -518,8 +518,11 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
 		
-		$db->ExecuteMaster("DELETE FROM notification WHERE is_read = 1");
-		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' notification records.');
+		// [TODO] Make this configurable
+		$purge_before_ts = strtotime('today -7 days');
+		
+		$db->ExecuteMaster(sprintf("DELETE FROM notification WHERE is_read = 1 AND created_date < %d", $purge_before_ts));
+		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' read notification records.');
 		
 		// Fire event
 		$eventMgr = DevblocksPlatform::services()->event();
