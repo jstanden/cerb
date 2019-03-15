@@ -1,18 +1,17 @@
 <?php
 $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
-$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : '';
 
 // ===========================================================================
 // Expand the description column on the plugin table
 
-list($columns, $indexes) = $db->metaTable($prefix.'plugin');
+list($columns,) = $db->metaTable('cerb_plugin');
 
 if(!isset($columns['description']))
 	return FALSE;
 
 if(substr(mb_strtolower($columns['description']['type']),0,7) == 'varchar') {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin MODIFY COLUMN description TEXT");
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin MODIFY COLUMN description TEXT");
 }
 
 // ===========================================================================

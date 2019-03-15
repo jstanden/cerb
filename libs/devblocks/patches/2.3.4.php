@@ -1,7 +1,7 @@
 <?php
 $db = DevblocksPlatform::services()->database();
+$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
-$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : '';
 
 // ===========================================================================
 // Increase `devblocks_session.user_ip` length
@@ -11,7 +11,7 @@ if(!isset($tables['devblocks_session'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('devblocks_session');
+list($columns,) = $db->metaTable('devblocks_session');
 
 $changes = array();
 

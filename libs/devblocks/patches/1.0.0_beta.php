@@ -2,44 +2,42 @@
 $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
-$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-
 // `plugin` ========================
-list($columns, $indexes) = $db->metaTable($prefix.'plugin');
+list($columns,) = $db->metaTable('cerb_plugin');
 
 if(!isset($columns['file'])) {
-	$sql = "ALTER TABLE ${prefix}plugin ADD COLUMN file VARCHAR(128) DEFAULT '' NOT NULL";
+	$sql = "ALTER TABLE cerb_plugin ADD COLUMN file VARCHAR(128) DEFAULT '' NOT NULL";
 	$db->ExecuteMaster($sql);
 }
 
 if(!isset($columns['class'])) {
-	$sql = "ALTER TABLE ${prefix}plugin ADD COLUMN class VARCHAR(128) DEFAULT '' NOT NULL";
+	$sql = "ALTER TABLE cerb_plugin ADD COLUMN class VARCHAR(128) DEFAULT '' NOT NULL";
 	$db->ExecuteMaster($sql);
 }
 
 if(!isset($columns['link'])) {
-	$sql = "ALTER TABLE ${prefix}plugin ADD COLUMN link VARCHAR(128) DEFAULT '' NOT NULL";
+	$sql = "ALTER TABLE cerb_plugin ADD COLUMN link VARCHAR(128) DEFAULT '' NOT NULL";
 	$db->ExecuteMaster($sql);
 }
 
 if(isset($columns['is_configurable'])) {
-	$sql = "ALTER TABLE ${prefix}plugin DROP COLUMN is_configurable";
+	$sql = "ALTER TABLE cerb_plugin DROP COLUMN is_configurable";
 	$db->ExecuteMaster($sql);
 }
 
 // `property_store` ========================
-list($columns, $indexes) = $db->metaTable($prefix.'property_store');
+list($columns,) = $db->metaTable('cerb_property_store');
 
 if(isset($columns['value']) && 0==strcasecmp('varchar',substr($columns['value']['type'],0,7))) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}property_store CHANGE COLUMN value value_old VARCHAR(255) DEFAULT '' NOT NULL");
-	$db->ExecuteMaster("ALTER TABLE ${prefix}property_store ADD COLUMN value MEDIUMBLOB");
+	$db->ExecuteMaster("ALTER TABLE cerb_property_store CHANGE COLUMN value value_old VARCHAR(255) DEFAULT '' NOT NULL");
+	$db->ExecuteMaster("ALTER TABLE cerb_property_store ADD COLUMN value MEDIUMBLOB");
 	
-	$sql = "SELECT extension_id, instance_id, property, value_old FROM ${prefix}property_store ";
+	$sql = "SELECT extension_id, instance_id, property, value_old FROM cerb_property_store ";
 	$rs = $db->GetArrayMaster($sql);
 	
 	foreach($rs as $row) {
 		$sql = sprintf(
-			"UPDATE ${prefix}property_store ".
+			"UPDATE cerb_property_store ".
 			"SET value=%s ".
 			"WHERE extension_id = %s ".
 			"AND instance_id = %s ".
@@ -51,7 +49,7 @@ if(isset($columns['value']) && 0==strcasecmp('varchar',substr($columns['value'][
 		);
 	}
 	
-	$db->ExecuteMaster("ALTER TABLE ${prefix}property_store DROP COLUMN value_old");
+	$db->ExecuteMaster("ALTER TABLE cerb_property_store DROP COLUMN value_old");
 }
 
 // `translation` ========================
@@ -74,9 +72,9 @@ if(!isset($tables['translation'])) {
 // ============================================================================
 // ACL privileges from plugins
 
-if(!isset($tables[$prefix.'acl'])) {
+if(!isset($tables['cerb_acl'])) {
 	$sql = sprintf("
-		CREATE TABLE IF NOT EXISTS ${prefix}acl (
+		CREATE TABLE IF NOT EXISTS cerb_acl (
 			id VARCHAR(255) DEFAULT '' NOT NULL,
 			plugin_id VARCHAR(255) DEFAULT '' NOT NULL,
 			label VARCHAR(255) DEFAULT '' NOT NULL,

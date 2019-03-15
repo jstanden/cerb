@@ -4,9 +4,6 @@
 if(!defined('APP_DB_PCONNECT'))
 	define('APP_DB_PCONNECT',false);
 
-if(!defined('APP_DB_PREFIX'))
-	define('APP_DB_PREFIX','');
-
 if(!defined('APP_DB_ENGINE'))
 	define('APP_DB_ENGINE','InnoDB');
 

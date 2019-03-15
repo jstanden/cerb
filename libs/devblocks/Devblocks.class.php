@@ -2645,16 +2645,12 @@ class DevblocksPlatform extends DevblocksEngine {
 			
 			$extensions = array();
 			
-			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-			
 			$sql = sprintf("SELECT e.id , e.plugin_id, e.point, e.pos, e.name , e.file , e.class, e.params ".
-				"FROM %sextension e ".
-				"INNER JOIN %splugin p ON (e.plugin_id=p.id) ".
+				"FROM cerb_extension e ".
+				"INNER JOIN cerb_plugin p ON (e.plugin_id=p.id) ".
 				"WHERE 1 ".
 				"%s ".
 				"ORDER BY e.plugin_id ASC, e.pos ASC",
-					$prefix,
-					$prefix,
 					($with_disabled ? '' : 'AND p.enabled = 1')
 				);
 			
@@ -2745,16 +2741,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_null($db)) return;
 
 		//$plugins = self::getPluginRegistry();
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 
-		$sql = sprintf("SELECT a.id, a.plugin_id, a.label ".
-			"FROM %sacl a ".
-			"INNER JOIN %splugin p ON (a.plugin_id=p.id) ".
+		$sql = "SELECT a.id, a.plugin_id, a.label ".
+			"FROM cerb_acl a ".
+			"INNER JOIN cerb_plugin p ON (a.plugin_id=p.id) ".
 			"WHERE p.enabled = 1 ".
-			"ORDER BY a.plugin_id, a.id ASC",
-			$prefix,
-			$prefix
-		);
+			"ORDER BY a.plugin_id, a.id ASC"
+			;
 		
 		if(false == ($results = $db->GetArrayMaster($sql)))
 			return false;
@@ -2818,15 +2811,12 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(false == ($db = DevblocksPlatform::services()->database()) || DevblocksPlatform::isDatabaseEmpty())
 			return;
 			
-		$plugins = array();
+		$plugins = [];
 			
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-
-		$sql = sprintf("SELECT p.* ".
-			"FROM %splugin p ".
-			"ORDER BY p.enabled DESC, p.name ASC ",
-			$prefix
-		);
+		$sql = "SELECT p.* ".
+			"FROM cerb_plugin p ".
+			"ORDER BY p.enabled DESC, p.name ASC "
+			;
 		$results = $db->GetArrayMaster($sql);
 
 		foreach($results as $row) {
@@ -2850,10 +2840,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				$plugins[$plugin->id] = $plugin;
 		}
 
-		$sql = sprintf("SELECT p.id, p.name, p.params, p.plugin_id ".
-			"FROM %sevent_point p ",
-			$prefix
-		);
+		$sql = "SELECT p.id, p.name, p.params, p.plugin_id ".
+			"FROM cerb_event_point p "
+			;
 		$results = $db->GetArrayMaster($sql);
 
 		foreach($results as $row) {

@@ -2,38 +2,36 @@
 $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
-$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-
 // ============================================================================
 // Drop deprecated acl.is_default
 
-list($columns, $indexes) = $db->metaTable($prefix.'acl');
+list($columns,) = $db->metaTable('cerb_acl');
 
 if(isset($columns['is_default'])) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}acl DROP COLUMN is_default");
+	$db->ExecuteMaster("ALTER TABLE cerb_acl DROP COLUMN is_default");
 }
 
 // ============================================================================
 // Classloading cache from plugin manifests
 
-if(!isset($tables[$prefix.'class_loader'])) {
+if(!isset($tables['cerb_class_loader'])) {
 	$sql = sprintf("
-		CREATE TABLE IF NOT EXISTS ${prefix}class_loader (
+		CREATE TABLE IF NOT EXISTS cerb_class_loader (
 			class VARCHAR(255) DEFAULT '' NOT NULL,
 			plugin_id VARCHAR(255) DEFAULT '' NOT NULL,
 			rel_path VARCHAR(255) DEFAULT '' NOT NULL,
 			PRIMARY KEY (class)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql);	
+	$db->ExecuteMaster($sql);
 }
 
 // ============================================================================
 // Front controller cache from plugin manifests
 
-if(!isset($tables[$prefix.'uri_routing'])) {
+if(!isset($tables['cerb_uri_routing'])) {
 	$sql = sprintf("
-		CREATE TABLE IF NOT EXISTS ${prefix}uri_routing (
+		CREATE TABLE IF NOT EXISTS cerb_uri_routing (
 			uri VARCHAR(255) DEFAULT '' NOT NULL,
 			plugin_id VARCHAR(255) DEFAULT '' NOT NULL,
 			controller_id VARCHAR(255) DEFAULT '' NOT NULL,

@@ -1,12 +1,12 @@
 <?php
 $db = DevblocksPlatform::services()->database();
+$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
-$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : '';
 
 // ===========================================================================
 // Drop unused extension_point table
 
-$table = $prefix.'extension_point';
+$table = 'cerb_extension_point';
 
 if(isset($tables[$table])) {
 	$sql = sprintf("DROP TABLE %s", $table);
@@ -17,7 +17,7 @@ if(isset($tables[$table])) {
 // ===========================================================================
 // Drop unused uri_routing table
 
-$table = $prefix.'uri_routing';
+$table = 'cerb_uri_routing';
 
 if(isset($tables[$table])) {
 	$sql = sprintf("DROP TABLE %s", $table);
@@ -33,7 +33,7 @@ if(!isset($tables['devblocks_setting'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('devblocks_setting');
+list($columns,) = $db->metaTable('devblocks_setting');
 
 $changes = array();
 

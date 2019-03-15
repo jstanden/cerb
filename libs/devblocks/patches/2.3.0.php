@@ -1,12 +1,12 @@
 <?php
 $db = DevblocksPlatform::services()->database();
+$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
-$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : '';
 
 // ===========================================================================
 // Convert the translation strings to 'text'
 
-list($columns, $indexes) = $db->metaTable('translation');
+list($columns,) = $db->metaTable('translation');
 
 if(!isset($columns['string_default']) || !isset($columns['string_override']))
 	return FALSE;
@@ -20,15 +20,15 @@ if(mb_strtolower($columns['string_override']['type']) == 'longtext')
 // ===========================================================================
 // Fix the `cerb_plugin` version field
 
-if(!isset($tables[$prefix.'plugin'])) {
+if(!isset($tables['cerb_plugin'])) {
 	$logger->error("The 'cerb_plugin' table does not exist.");
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable($prefix.'plugin');
+list($columns,) = $db->metaTable('cerb_plugin');
 
 if(isset($columns['version']) && 0 != strcasecmp('int',substr($columns['version']['type'], 0, 3))) {
-	$db->ExecuteMaster(sprintf("ALTER TABLE %splugin MODIFY COLUMN version INT UNSIGNED NOT NULL DEFAULT 0", $prefix));
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin MODIFY COLUMN version INT UNSIGNED NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================
@@ -39,7 +39,7 @@ if(!isset($tables['translation'])) {
 	return FALSE;
 }
 
-list($columns, $indexes) = $db->metaTable('translation');
+list($columns,) = $db->metaTable('translation');
 
 if(isset($columns['string_default']) && 'NO' == $columns['string_default']['null']) {
 	$db->ExecuteMaster("ALTER TABLE translation MODIFY COLUMN string_default TEXT");

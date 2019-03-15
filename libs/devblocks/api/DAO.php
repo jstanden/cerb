@@ -921,17 +921,15 @@ class DAO_Platform extends DevblocksORMHelper {
 	
 	static function cleanupPluginTables() {
 		$db = DevblocksPlatform::services()->database();
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 
 		/*
 		 * Make sure this uses the DB directly and not the registry, since
 		 * that automatically filters out bad rows and we'd never purge them.
 		 */
-		$sql = sprintf("SELECT p.* ".
-			"FROM %splugin p ".
-			"ORDER BY p.enabled DESC, p.name ASC ",
-			$prefix
-		);
+		$sql = "SELECT p.* ".
+			"FROM cerb_plugin p ".
+			"ORDER BY p.enabled DESC, p.name ASC "
+			;
 		$results = $db->GetArrayMaster($sql);
 
 		foreach($results as $row) {
@@ -951,18 +949,15 @@ class DAO_Platform extends DevblocksORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
 		
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-		
-		$db->ExecuteMaster(sprintf("DELETE FROM %1\$sextension WHERE plugin_id NOT IN (SELECT id FROM %1\$splugin)", $prefix));
+		$db->ExecuteMaster("DELETE FROM cerb_extension WHERE plugin_id NOT IN (SELECT id FROM cerb_plugin)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' orphaned extensions.');
 		
-		$db->ExecuteMaster(sprintf("DELETE FROM %1\$sproperty_store WHERE extension_id NOT IN (SELECT id FROM %1\$sextension)", $prefix));
+		$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE extension_id NOT IN (SELECT id FROM cerb_extension)");
 		$logger->info('[Maint] Purged ' . $db->Affected_Rows() . ' orphaned extension properties.');
 	}
 	
 	static function updatePlugin($id, $fields) {
 		$db = DevblocksPlatform::services()->database();
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		$sets = [];
 		
 		if(!is_array($fields) || empty($fields) || empty($id))
@@ -975,8 +970,7 @@ class DAO_Platform extends DevblocksORMHelper {
 			);
 		}
 			
-		$sql = sprintf("UPDATE %splugin SET %s WHERE id = %s",
-			$prefix,
+		$sql = sprintf("UPDATE cerb_plugin SET %s WHERE id = %s",
 			implode(', ', $sets),
 			$db->qstr($id)
 		);
@@ -985,18 +979,15 @@ class DAO_Platform extends DevblocksORMHelper {
 	
 	static function deleteExtension($extension_id) {
 		$db = DevblocksPlatform::services()->database();
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
 		// Nuke cached extension manifest
-		$sql = sprintf("DELETE FROM %sextension WHERE id = %s",
-			$prefix,
+		$sql = sprintf("DELETE FROM cerb_extension WHERE id = %s",
 			$db->qstr($extension_id)
 		);
 		$db->ExecuteMaster($sql);
 		
 		// Nuke cached extension properties
-		$sql = sprintf("DELETE FROM %sproperty_store WHERE extension_id = %s",
-			$prefix,
+		$sql = sprintf("DELETE FROM cerb_property_store WHERE extension_id = %s",
 			$db->qstr($extension_id)
 		);
 		$db->ExecuteMaster($sql);
@@ -1013,11 +1004,8 @@ class DAO_Platform extends DevblocksORMHelper {
 			return false;
 		
 		$db = DevblocksPlatform::services()->database();
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
-		// [JAS]: [TODO] Does the GTE below do what we need with the primary key mucking up redundant patches?
-		$sql = sprintf("SELECT run_date FROM %spatch_history WHERE plugin_id = %s AND revision >= %d",
-			$prefix,
+		$sql = sprintf("SELECT run_date FROM cerb_patch_history WHERE plugin_id = %s AND revision >= %d",
 			$db->qstr($plugin_id),
 			$revision
 		);
@@ -1034,9 +1022,8 @@ class DAO_Platform extends DevblocksORMHelper {
 	 */
 	static function setPatchRan($plugin_id,$revision) {
 		$db = DevblocksPlatform::services()->database();
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		
-		$sql = sprintf("REPLACE INTO ${prefix}patch_history (plugin_id, revision, run_date) ".
+		$sql = sprintf("REPLACE INTO cerb_patch_history (plugin_id, revision, run_date) ".
 			"VALUES (%s, %d, %d)",
 			$db->qstr($plugin_id),
 			$revision,
@@ -1054,10 +1041,9 @@ class DAO_Platform extends DevblocksORMHelper {
 		
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		$class_loader_map = [];
 		
-		$sql = sprintf("SELECT class, plugin_id, rel_path FROM %sclass_loader ORDER BY plugin_id", $prefix);
+		$sql = "SELECT class, plugin_id, rel_path FROM cerb_class_loader ORDER BY plugin_id";
 		$results = $db->GetArrayMaster($sql);
 		
 		foreach($results as $row) {
@@ -1207,7 +1193,6 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		
 		if(null == ($params = $cache->load(self::_CACHE_ALL))) {
 			$db = DevblocksPlatform::services()->database();
-			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 			$params = [];
 			
 			// Add manifest params as our initial params
@@ -1218,10 +1203,9 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 			
 			// Now load the DB params on top of them
 			
-			$sql = sprintf("SELECT extension_id, property, value ".
-				"FROM %sproperty_store ",
-				$prefix
-			);
+			$sql = "SELECT extension_id, property, value ".
+				"FROM cerb_property_store "
+				;
 			
 			if(false == ($results = $db->GetArrayMaster($sql)))
 				return false;
@@ -1242,7 +1226,6 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 		
 		if(null === ($params = $cache->load($cache_key))) {
 			$db = DevblocksPlatform::services()->database();
-			$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 			$params = [];
 			
 			if(false != ($extension = DevblocksPlatform::getExtension($extension_id, false, true))) {
@@ -1250,9 +1233,8 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 			}
 			
 			$sql = sprintf("SELECT property, value ".
-				"FROM %sproperty_store ".
+				"FROM cerb_property_store ".
 				"WHERE extension_id = %s",
-				$prefix,
 				$db->qstr($extension_id)
 			);
 			
@@ -1276,11 +1258,10 @@ class DAO_DevblocksExtensionPropertyStore extends DevblocksORMHelper {
 	
 	static function put($extension_id, $key, $value) {
 		$db = DevblocksPlatform::services()->database();
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
 		$cache_key = self::_getCacheKey($extension_id);
 
 		$db->ExecuteMaster(sprintf(
-			"REPLACE INTO ${prefix}property_store (extension_id, property, value) ".
+			"REPLACE INTO cerb_property_store (extension_id, property, value) ".
 			"VALUES (%s,%s,%s)",
 			$db->qstr($extension_id),
 			$db->qstr($key),

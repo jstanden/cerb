@@ -67,8 +67,6 @@ abstract class DevblocksEngine {
 		if(false === ($plugin = @simplexml_load_file($manifest_file)))
 			return NULL;
 		
-		$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-		
 		// Make the plugin path relative
 		if(DevblocksPlatform::strStartsWith($plugin_path, APP_STORAGE_PATH)) {
 			$rel_dir = 'storage/' . trim(substr($plugin_path, strlen(APP_STORAGE_PATH)), '/');
@@ -195,16 +193,16 @@ abstract class DevblocksEngine {
 		if(null == ($db = DevblocksPlatform::services()->database()) || DevblocksPlatform::isDatabaseEmpty())
 			return $manifest;
 
-		list($columns,) = $db->metaTable($prefix . 'plugin');
+		list($columns,) = $db->metaTable('cerb_plugin');
 
 		// If this is a 4.x upgrade
 		if(!isset($columns['version']))
 			return $manifest;
 
 		// Persist manifest
-		if($db->GetOneMaster(sprintf("SELECT id FROM ${prefix}plugin WHERE id = %s", $db->qstr($manifest->id)))) { // update
+		if($db->GetOneMaster(sprintf("SELECT id FROM cerb_plugin WHERE id = %s", $db->qstr($manifest->id)))) { // update
 			$db->ExecuteMaster(sprintf(
-				"UPDATE ${prefix}plugin ".
+				"UPDATE cerb_plugin ".
 				"SET name=%s,description=%s,author=%s,version=%s,link=%s,dir=%s,manifest_cache_json=%s ".
 				"WHERE id=%s",
 				$db->qstr($manifest->name),
@@ -220,7 +218,7 @@ abstract class DevblocksEngine {
 		} else { // insert
 			$enabled = (in_array($manifest->id, array('devblocks.core', 'cerberusweb.core')) ? 1 : 0);
 			$db->ExecuteMaster(sprintf(
-				"INSERT INTO ${prefix}plugin (id,enabled,name,description,author,version,link,dir,manifest_cache_json) ".
+				"INSERT INTO cerb_plugin (id,enabled,name,description,author,version,link,dir,manifest_cache_json) ".
 				"VALUES (%s,%d,%s,%s,%s,%s,%s,%s,%s)",
 				$db->qstr($manifest->id),
 				$enabled,
@@ -371,7 +369,7 @@ abstract class DevblocksEngine {
 		if(is_array($manifest->extensions))
 		foreach($manifest->extensions as $pos => $extension) { /* @var $extension DevblocksExtensionManifest */
 			$db->ExecuteMaster(sprintf(
-				"REPLACE INTO ${prefix}extension (id,plugin_id,point,pos,name,file,class,params) ".
+				"REPLACE INTO cerb_extension (id,plugin_id,point,pos,name,file,class,params) ".
 				"VALUES (%s,%s,%s,%d,%s,%s,%s,%s)",
 				$db->qstr($extension->id),
 				$db->qstr($extension->plugin_id),
@@ -390,8 +388,7 @@ abstract class DevblocksEngine {
 		 * Compare our loaded XML manifest to the DB manifest cache and invalidate
 		 * the cache for extensions that are no longer in the XML.
 		 */
-		$sql = sprintf("SELECT id FROM %sextension WHERE plugin_id = %s",
-			$prefix,
+		$sql = sprintf("SELECT id FROM cerb_extension WHERE plugin_id = %s",
 			$db->qstr($plugin->id)
 		);
 		$results = $db->GetArrayMaster($sql);
@@ -403,13 +400,13 @@ abstract class DevblocksEngine {
 		}
 
 		// Class loader cache
-		$db->ExecuteMaster(sprintf("DELETE FROM %sclass_loader WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
+		$db->ExecuteMaster(sprintf("DELETE FROM cerb_class_loader WHERE plugin_id = %s",$db->qstr($plugin->id)));
 		if(is_array($manifest->class_loader))
 		foreach($manifest->class_loader as $file_path => $classes) {
 			if(is_array($classes) && !empty($classes))
 			foreach($classes as $class)
 			$db->ExecuteMaster(sprintf(
-				"REPLACE INTO ${prefix}class_loader (class,plugin_id,rel_path) ".
+				"REPLACE INTO cerb_class_loader (class,plugin_id,rel_path) ".
 				"VALUES (%s,%s,%s)",
 				$db->qstr($class),
 				$db->qstr($manifest->id),
@@ -418,11 +415,11 @@ abstract class DevblocksEngine {
 		}
 
 		// ACL caching
-		$db->ExecuteMaster(sprintf("DELETE FROM %sacl WHERE plugin_id = %s",$prefix,$db->qstr($plugin->id)));
+		$db->ExecuteMaster(sprintf("DELETE FROM cerb_acl WHERE plugin_id = %s",$db->qstr($plugin->id)));
 		if(is_array($manifest->acl_privs))
 		foreach($manifest->acl_privs as $priv) { /* @var $priv DevblocksAclPrivilege */
 			$db->ExecuteMaster(sprintf(
-				"REPLACE INTO ${prefix}acl (id,plugin_id,label) ".
+				"REPLACE INTO cerb_acl (id,plugin_id,label) ".
 				"VALUES (%s,%s,%s)",
 				$db->qstr($priv->id),
 				$db->qstr($priv->plugin_id),
@@ -434,7 +431,7 @@ abstract class DevblocksEngine {
 		if(is_array($manifest->event_points))
 		foreach($manifest->event_points as $event) { /* @var $event DevblocksEventPoint */
 			$db->ExecuteMaster(sprintf(
-				"REPLACE INTO ${prefix}event_point (id,plugin_id,name,params) ".
+				"REPLACE INTO cerb_event_point (id,plugin_id,name,params) ".
 				"VALUES (%s,%s,%s,%s)",
 				$db->qstr($event->id),
 				$db->qstr($event->plugin_id),

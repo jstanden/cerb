@@ -1,16 +1,15 @@
 <?php
 $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
-$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : '';
 
-list($columns, $indexes) = $db->metaTable($prefix.'plugin');
+list($columns,) = $db->metaTable('cerb_plugin');
 
 if(isset($columns['revision'])) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin DROP COLUMN revision");
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin DROP COLUMN revision");
 }
 
 if(!isset($columns['version'])) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin ADD COLUMN version SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER `author`");
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin ADD COLUMN version SMALLINT UNSIGNED NOT NULL DEFAULT 0 AFTER `author`");
 }
 
 // ============================================================================
@@ -25,7 +24,7 @@ if(!isset($tables['devblocks_registry'])) {
 			PRIMARY KEY (entry_key)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql);	
+	$db->ExecuteMaster($sql);
 }
 
 return TRUE;

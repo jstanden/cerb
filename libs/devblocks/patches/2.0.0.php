@@ -2,40 +2,38 @@
 $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
-$prefix = (APP_DB_PREFIX != '') ? APP_DB_PREFIX.'_' : ''; // [TODO] Cleanup
-
 // ============================================================================
 // property_store updates
 
-list($columns, $indexes) = $db->metaTable($prefix.'property_store');
+list($columns,) = $db->metaTable('cerb_property_store');
 
 // Fix blob encoding
 if(isset($columns['value'])) {
 	if(0 == strcasecmp('mediumblob',$columns['value']['type'])) {
-		$sql = sprintf("ALTER TABLE ${prefix}property_store CHANGE COLUMN value value TEXT");
+		$sql = sprintf("ALTER TABLE cerb_property_store CHANGE COLUMN value value TEXT");
 		$db->ExecuteMaster($sql);
 	}
 }
 
 // Drop instance ID
 if(isset($columns['instance_id'])) {
-	$db->ExecuteMaster("DELETE FROM ${prefix}property_store WHERE instance_id > 0");
-	$db->ExecuteMaster("ALTER TABLE ${prefix}property_store DROP COLUMN instance_id");
+	$db->ExecuteMaster("DELETE FROM cerb_property_store WHERE instance_id > 0");
+	$db->ExecuteMaster("ALTER TABLE cerb_property_store DROP COLUMN instance_id");
 }
 
 // ============================================================================
 // plugin updates
 
-list($columns, $indexes) = $db->metaTable($prefix.'plugin');
+list($columns,) = $db->metaTable('cerb_plugin');
 
 // Drop 'file'
 if(isset($columns['file'])) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin DROP COLUMN file");
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin DROP COLUMN file");
 }
 
 // Drop 'class'
 if(isset($columns['class'])) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin DROP COLUMN class");
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin DROP COLUMN class");
 }
 
 // ============================================================================
@@ -68,11 +66,11 @@ if(!isset($tables['devblocks_template'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql);	
+	$db->ExecuteMaster($sql);
 }
 
 // Update key
-list($columns, $indexes) = $db->metaTable('devblocks_template');
+list($columns,) = $db->metaTable('devblocks_template');
 
 if(isset($columns['id']) 
 	&& ('int(10) unsigned' != $columns['id']['type'] 
@@ -84,21 +82,21 @@ if(isset($columns['id'])
 // ===========================================================================
 // Add 'template' manifests to 'plugin'
 
-list($columns, $indexes) = $db->metaTable($prefix.'plugin');
+list($columns,) = $db->metaTable('cerb_plugin');
 
 if(!isset($columns['templates_json'])) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin ADD COLUMN templates_json MEDIUMTEXT");
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin ADD COLUMN templates_json MEDIUMTEXT");
 }
 
 // ============================================================================
 // Extension updates
 
-list($columns, $indexes) = $db->metaTable($prefix.'extension');
+list($columns,) = $db->metaTable('cerb_extension');
 
 // Fix blob encoding
 if(isset($columns['params'])) {
 	if(0==strcasecmp('mediumblob',$columns['params']['type'])) {
-		$sql = sprintf("ALTER TABLE ${prefix}extension CHANGE COLUMN params params TEXT");
+		$sql = sprintf("ALTER TABLE cerb_extension CHANGE COLUMN params params TEXT");
 		$db->ExecuteMaster($sql);
 	}
 }
@@ -106,9 +104,9 @@ if(isset($columns['params'])) {
 // ============================================================================
 // Drop ADODB sessions
 
-if(isset($tables[$prefix.'session'])) {
-	$db->ExecuteMaster("DROP TABLE ${prefix}session");
-	unset($tables[$prefix.'session']);	
+if(isset($tables['cerb_session'])) {
+	$db->ExecuteMaster("DROP TABLE cerb_session");
+	unset($tables['cerb_session']);	
 }
 
 // ============================================================================
@@ -132,18 +130,18 @@ if(!isset($tables['devblocks_session'])) {
 // ============================================================================
 // Fix BLOBs
 
-list($columns, $indexes) = $db->metaTable('devblocks_session');
+list($columns,) = $db->metaTable('devblocks_session');
 
 if(isset($columns['session_data']) && 
 	0 != strcasecmp('mediumtext', $columns['session_data']['type'])) {
 		$db->ExecuteMaster('ALTER TABLE devblocks_session MODIFY COLUMN session_data MEDIUMTEXT');		
 }
 
-list($columns, $indexes) = $db->metaTable($prefix.'event_point');
+list($columns,) = $db->metaTable('cerb_event_point');
 
 if(isset($columns['params'])
 	&& 0 != strcasecmp('mediumtext',$columns['params']['type'])) {
-		$db->ExecuteMaster("ALTER TABLE ${prefix}event_point MODIFY COLUMN params MEDIUMTEXT");
+		$db->ExecuteMaster("ALTER TABLE cerb_event_point MODIFY COLUMN params MEDIUMTEXT");
 }
 
 // ============================================================================
@@ -166,15 +164,13 @@ if(!isset($tables['devblocks_storage_profile'])) {
 // ============================================================================
 // Force enable 'devblocks.core' plugin
 
-$sql = sprintf("UPDATE %splugin SET enabled=1 WHERE id='devblocks.core'",
-	$prefix
-);
+$sql = "UPDATE cerb_plugin SET enabled=1 WHERE id='devblocks.core'";
 $db->ExecuteMaster($sql) or die($db->ErrorMsg());
 
 // ============================================================================
 // Resize 'devblocks_setting' values
 
-list($columns, $indexes) = $db->metaTable('devblocks_setting');
+list($columns,) = $db->metaTable('devblocks_setting');
 
 if(isset($columns['value'])
 	&& 0 != strcasecmp('text',$columns['value']['type'])) {
@@ -184,14 +180,14 @@ if(isset($columns['value'])
 // ===========================================================================
 // Drop templates_json and move to manifest_cache_json
 
-list($columns, $indexes) = $db->metaTable($prefix.'plugin');
+list($columns,) = $db->metaTable('cerb_plugin');
 
 if(isset($columns['templates_json'])) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin DROP COLUMN templates_json");
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin DROP COLUMN templates_json");
 }
 
 if(!isset($columns['manifest_cache_json'])) {
-	$db->ExecuteMaster("ALTER TABLE ${prefix}plugin ADD COLUMN manifest_cache_json MEDIUMTEXT");
+	$db->ExecuteMaster("ALTER TABLE cerb_plugin ADD COLUMN manifest_cache_json MEDIUMTEXT");
 }
 
 return TRUE;
