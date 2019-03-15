@@ -223,7 +223,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				}
 				
 				if($existing_worker && $existing_worker->calendar_id != $calendar_id)
-					DAO_Worker::update([DAO_Worker::CALENDAR_ID => $calendar_id]);
+					DAO_Worker::update($id, [DAO_Worker::CALENDAR_ID => $calendar_id]);
 				
 				// Update group memberships
 				if(is_array($group_memberships))
