@@ -58,7 +58,7 @@
       "extension_id": "core.workspace.tab.dashboard",
       "params": {
         "layout": "{{{prompt_layout}}}",
-        "placeholder_prompts": "---\r\nplaceholder: input_date_range\r\nlabel: \"Date range:\"\r\ntype: date_range\r\ndefault: first day of this month -12 months\r\n---\r\nplaceholder: input_date_subtotal_by\r\nlabel: \"By:\"\r\ntype: picklist\r\ndefault: month\r\nparams:\r\n  options: [day, week, month, year]\r\n---\r\nplaceholder: input_statuses\r\nlabel: \"Statuses:\"\r\ntype: picklist\r\ndefault: []\r\nparams:\r\n  multiple: true\r\n  options: [open, waiting, closed, deleted]\r\n---\r\nplaceholder: input_groups\r\nlabel: \"Groups:\"\r\ntype: chooser\r\ndefault:\r\nparams:\r\n  context: group\r\n  single: false"
+        "placeholder_prompts": "---\r\nplaceholder: input_date_range\r\nlabel: \"Date range:\"\r\ntype: date_range\r\ndefault: today -1 week\r\n---\r\nplaceholder: input_date_subtotal_by\r\nlabel: \"By:\"\r\ntype: picklist\r\ndefault: day\r\nparams:\r\n  options: [day, week, month, year]\r\n---\r\nplaceholder: input_statuses\r\nlabel: \"Statuses:\"\r\ntype: picklist\r\ndefault: []\r\nparams:\r\n  multiple: true\r\n  options: [open, waiting, closed, deleted]\r\n---\r\nplaceholder: input_groups\r\nlabel: \"Groups:\"\r\ntype: chooser\r\ndefault:\r\nparams:\r\n  context: group\r\n  single: false"
       }
     },
     {

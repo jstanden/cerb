@@ -56,7 +56,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: \"Date range:\"\ntype: date_range\ndefault: first day of this month -12 months\n---\nplaceholder: input_date_subtotal_by\nlabel: \"By:\"\ntype: picklist\ndefault: month\nparams:\n  options: [day, week, month, year]\n--- \nplaceholder: input_groups\nlabel: \"Groups:\"\ntype: chooser\ndefault:\nparams:\n  context: group\n  single: false"
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: \"Date range:\"\ntype: date_range\ndefault: today -1 week\n---\nplaceholder: input_date_subtotal_by\nlabel: \"By:\"\ntype: picklist\ndefault: day\nparams:\n  options: [day, week, month, year]\n--- \nplaceholder: input_groups\nlabel: \"Groups:\"\ntype: chooser\ndefault:\nparams:\n  context: group\n  single: false"
       }
     },
     {
@@ -130,7 +130,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_orgs\nlabel: 'Orgs:'\ntype: chooser\ndefault: ~\nparams:\n  context: org\n  single: false"
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_orgs\nlabel: 'Orgs:'\ntype: chooser\ndefault: ~\nparams:\n  context: org\n  single: false"
       }
     },
     {
@@ -239,7 +239,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
       }
     },
     {
@@ -313,7 +313,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_workers\nlabel: 'Workers:'\ntype: chooser\ndefault: ~\nparams:\n  context: worker\n  single: false\n"
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_workers\nlabel: 'Workers:'\ntype: chooser\ndefault: ~\nparams:\n  context: worker\n  single: false\n"
       }
     },
     {
@@ -419,7 +419,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
       }
     },
     {
@@ -526,7 +526,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_activities\nlabel: 'Activities:'\ntype: chooser\ndefault: ~\nparams:\n  context: timetracking_activity\n  single: false\n"
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_activities\nlabel: 'Activities:'\ntype: chooser\ndefault: ~\nparams:\n  context: timetracking_activity\n  single: false\n"
       }
     },
     {
@@ -594,7 +594,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_orgs\nlabel: 'Orgs:'\ntype: chooser\ndefault: ~\nparams:\n  context: org\n  single: false\n"
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_orgs\nlabel: 'Orgs:'\ntype: chooser\ndefault: ~\nparams:\n  context: org\n  single: false\n"
       }
     },
     {
@@ -662,7 +662,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: first day of this month -12 months\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: month\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_workers\nlabel: 'Workers:'\ntype: chooser\ndefault: ~\nparams:\n  context: worker\n  single: false\n"
+        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_workers\nlabel: 'Workers:'\ntype: chooser\ndefault: ~\nparams:\n  context: worker\n  single: false\n"
       }
     },
     {
