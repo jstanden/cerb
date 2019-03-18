@@ -676,9 +676,22 @@ class WorkspaceWidgetDatasource_DataQueryMetric extends Extension_WorkspaceWidge
 	
 	function getData(Model_WorkspaceWidget $widget, array $params=[], $params_prefix=null) {
 		$data = DevblocksPlatform::services()->data();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$query = DevblocksPlatform::importGPC($params['data_query'], 'string', '');
+		@$data_query = DevblocksPlatform::importGPC($params['data_query'], 'string', '');
+		
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		]);
+		
+		$widget->_loadDashboardPrefsForWorker($active_worker, $dict);
+		
+		$query = $tpl_builder->build($data_query, $dict);
 		
 		if(false === ($results = $data->executeQuery($query)))
 			return [];
