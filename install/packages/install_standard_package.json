@@ -112,7 +112,16 @@
 			"name": "Everyone",
 			"privs_mode": "all",
 			"member_query_worker": "isDisabled:n",
-			"editor_query_worker": "isAdmin:y",
+			"editor_query_worker": "isAdmin:y isDisabled:n",
+			"reader_query_worker": "isDisabled:n"
+		},
+		{
+			"uid": "role_admins",
+			"_context": "role",
+			"name": "Admins",
+			"privs_mode": "all",
+			"member_query_worker": "isAdmin:y isDisabled:n",
+			"editor_query_worker": "isAdmin:y isDisabled:n",
 			"reader_query_worker": "isDisabled:n"
 		},
 		{
@@ -431,7 +440,7 @@
 			"title": "Create a mail workspace",
 			"importance": "50",
 			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"glyphicons glyphicons-chevron-down\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon in the top navigation bar.</li>\n<li>Click <b>Help me create a page!</b> at the top.</li>\n<li>Click <b>Mail</b>.</li>\n<li>Click <b>Save Changes</b>.</li>\n</ol>"
+			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"glyphicons glyphicons-chevron-down\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon in the top navigation bar.</li>\n<li>Click <b>(+)</b> above the worklist.</li>\n<li>Click <b>Mail</b>.</li>\n<li>Click <b>Create</b>.</li>\n</ol>"
 		},
 		{
 			"uid": "card_task_010",
