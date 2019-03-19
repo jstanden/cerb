@@ -842,8 +842,8 @@ switch($step) {
 			$records_created = [];
 			
 			switch($package) {
-				case 'tour':
-					$json = file_get_contents(APP_PATH . '/install/packages/install_tour_package.json');
+				case 'demo':
+					$json = file_get_contents(APP_PATH . '/install/packages/install_demo_package.json');
 					$prompts = $setup_defaults;
 					CerberusApplication::packages()->import($json, $prompts, $records_created);
 					break;

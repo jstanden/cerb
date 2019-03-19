@@ -24,7 +24,7 @@
 	
 	<div style="margin-bottom:5px;">
 		<label>
-			<input type="radio" name="package" value="tour" {if $package=="tour"}checked="checked"{/if}> <b>Demo</b>
+			<input type="radio" name="package" value="demo" {if $package=="demo"}checked="checked"{/if}> <b>Demo</b>
 			<div style="margin-left:25px;">
 				Cerb will be configured for demonstration, development, and testing.
 			</div>
