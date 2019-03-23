@@ -1,0 +1,63 @@
+{
+  "package": {
+    "name": "Bot Action: Execute jQuery Script",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Execute jQuery script",
+      "uri": "cerb_bot_behavior_action_ui_execute_jquery_script",
+      "description": "Run an arbitrary jQuery script to modify the interface or attach event listeners",
+      "point": "behavior_action:event.mail.compose.pre.ui.worker",
+      "image": "data:image/png;base64,"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_jquery_script",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Execute jQuery script",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+            "action": "exec_jquery",
+            "jquery_script": "var $frm = $('#{{scope.form_id}}');\r\nvar $select_group = $frm.find('select[name=group_id]');\r\n\r\n// Enter your jQuery script here\r\n"
+          }
+        ]
+      }
+    }
+  ]
+}
