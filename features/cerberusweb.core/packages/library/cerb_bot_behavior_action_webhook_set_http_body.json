@@ -1,0 +1,63 @@
+{
+  "package": {
+    "name": "Bot Action: Set HTTP Body",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Respond with HTTP body",
+      "uri": "cerb_bot_behavior_action_webhook_set_http_body",
+      "description": "Set an arbitrary HTTP response body",
+      "point": "behavior_action:event.webhook.received",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_jquery_script",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Set HTTP response body",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+           "action": "set_http_body",
+           "value": "{% set json = {\r\n\t\"status\": true,\r\n} %}\r\n{{json|json_encode|json_pretty}}"
+          }
+        ]
+      }
+    }
+  ]
+}
