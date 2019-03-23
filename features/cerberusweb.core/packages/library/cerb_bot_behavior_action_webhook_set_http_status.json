@@ -1,0 +1,63 @@
+{
+  "package": {
+    "name": "Bot Action: Set HTTP Status",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Respond with HTTP status",
+      "uri": "cerb_bot_behavior_action_webhook_set_http_status",
+      "description": "Set an arbitrary HTTP response status code",
+      "point": "behavior_action:event.webhook.received",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_jquery_script",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Set HTTP response status code",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+           "action": "set_http_status",
+           "value": "200"
+          }
+        ]
+      }
+    }
+  ]
+}
