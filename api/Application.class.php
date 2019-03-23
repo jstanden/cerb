@@ -1428,8 +1428,11 @@ class CerberusContexts {
 			} else {
 				return false;
 			}
+			
+			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
+				return false;
 
-			switch($context) {
+			switch($context_ext->id) {
 				case CerberusContexts::CONTEXT_APPLICATION:
 				case CerberusContexts::CONTEXT_ADDRESS:
 				case CerberusContexts::CONTEXT_CONTACT:
@@ -1438,7 +1441,7 @@ class CerberusContexts {
 				case CerberusContexts::CONTEXT_ROLE:
 				case CerberusContexts::CONTEXT_BOT:
 				case CerberusContexts::CONTEXT_WORKER:
-					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$context_id => $context_id], $context);
+					$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$context_id => $context_id], $context_ext->id);
 
 					if(isset($dicts[$context_id])) {
 						return $dicts[$context_id];
@@ -1512,21 +1515,21 @@ class CerberusContexts {
 	}
 
 	public static function isReadableByActor($context, $models, $actor) {
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return self::denyEverything($models);
-
+		
 		return $context_ext::isReadableByActor($models, $actor);
 	}
 
 	public static function isWriteableByActor($context, $models, $actor) {
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return self::denyEverything($models);
 
 		return $context_ext::isWriteableByActor($models, $actor);
 	}
 	
 	public static function isDeleteableByActor($context, $models, $actor) {
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return self::denyEverything($models);
 		
 		if(method_exists(get_class($context_ext), 'isDeleteableByActor')) {
