@@ -127,6 +127,7 @@ class _DevblocksTemplateBuilder {
 			];
 			
 			$functions = [
+				'array_column',
 				'array_combine',
 				'array_diff',
 				'array_intersect',
@@ -742,6 +743,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFunctions() {
 		return array(
+			new Twig_SimpleFunction('array_column', [$this, 'function_array_column']),
 			new Twig_SimpleFunction('array_combine', [$this, 'function_array_combine']),
 			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
 			new Twig_SimpleFunction('array_intersect', [$this, 'function_array_intersect']),
@@ -770,6 +772,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('xml_xpath_ns', [$this, 'function_xml_xpath_ns']),
 			new Twig_SimpleFunction('xml_xpath', [$this, 'function_xml_xpath']),
 		);
+	}
+	
+	function function_array_column($array, $column_key, $index_key=null) {
+		if(!is_array($array) || !is_string($column_key))
+			return;
+		
+		return array_column($array, $column_key, $index_key);
 	}
 	
 	function function_array_combine($keys, $values) {

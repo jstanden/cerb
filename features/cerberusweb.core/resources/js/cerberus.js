@@ -910,6 +910,7 @@ var ajax = new cAjaxCalls();
 				];
 				
 				var twig_functions = [
+					{ value: "array_column(array,column_key,index_key)", meta: "function" },
 					{ value: "array_combine(keys,values)", meta: "function" },
 					{ value: "array_diff(array1,array2)", meta: "function" },
 					{ value: "array_intersect(array1,array2)", meta: "function" },
