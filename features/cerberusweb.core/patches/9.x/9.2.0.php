@@ -97,7 +97,7 @@ if(!isset($tables['package_library'])) {
 // ===========================================================================
 // Update package library
 
-if($revision >= 1331 && $revision < 1332) {
+if($revision >= 1330 && $revision < 1332) {
 	$packages = [
 		'cerb_bot_behavior_action__exit.json',
 		'cerb_bot_behavior_action_ui_execute_jquery_script.json',
