@@ -1,0 +1,64 @@
+{
+  "package": {
+    "name": "Bot Action: Set HTTP header",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Respond with HTTP header",
+      "uri": "cerb_bot_behavior_action_webhook_set_http_header",
+      "description": "Set an arbitrary HTTP response header",
+      "point": "behavior_action:event.webhook.received",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [
+
+      ],
+      "prompts": [
+        {
+          "type": "chooser",
+          "label": "Behavior",
+          "key": "behavior_id",
+          "hidden": true,
+          "params": {
+            "context": "cerberusweb.contexts.behavior",
+            "single": true,
+            "query": ""
+          }
+        },
+        {
+          "type": "text",
+          "label": "Parent ID",
+          "key": "parent_id",
+          "hidden": true,
+          "params": {
+          }
+        }
+      ]
+    }
+  },
+  "behavior_nodes": [
+    {
+      "uid": "node_jquery_script",
+      "behavior_id": "{{{behavior_id}}}",
+      "parent_id": "{{{parent_id}}}",
+      "type": "action",
+      "title": "Set HTTP response headers",
+      "status": "live",
+      "params": {
+        "actions": [
+          {
+           "action": "set_http_header",
+           "name": "Content-Type",
+           "value": "application/json"
+          }
+        ]
+      }
+    }
+  ]
+}
