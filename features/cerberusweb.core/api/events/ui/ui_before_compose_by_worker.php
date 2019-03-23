@@ -211,7 +211,7 @@ class Event_MailBeforeUiComposeByWorker extends Extension_DevblocksEvent {
 			case 'exec_jquery':
 				$default_jquery =
 					"var \$frm = \$('#{{scope.form_id}}');\n".
-					"var \$select_group = \$frm.find('select[name=group_id]);\n".
+					"var \$select_group = \$frm.find('select[name=group_id]');\n".
 					"\n".
 					"// Enter your jQuery script here\n".
 					"";
