@@ -74,7 +74,10 @@ class _DevblocksHttpService {
 			
 		} catch (\GuzzleHttp\Exception\RequestException $e) {
 			$error = $e->getMessage();
-			$status_code = $e->getResponse()->getStatusCode();
+			
+			if(null != ($response = $e->getResponse()))
+				$status_code = $response->getStatusCode();
+			
 			return false;
 		}
 	}
