@@ -32,6 +32,7 @@ if(!isset($tables['package_library'])) {
 	
 	$packages = [
 		'cerb_bot_behavior_action__execute_http_request.json',
+		'cerb_bot_behavior_action__exit.json',
 		'cerb_bot_behavior_action__records_search.json',
 		'cerb_bot_behavior_action__set_placeholder.json',
 		'cerb_bot_behavior_action_interaction_close_chat.json',
@@ -93,6 +94,7 @@ if(!isset($tables['package_library'])) {
 
 if($revision >= 1331 && $revision < 1332) {
 	$packages = [
+		'cerb_bot_behavior_action__exit.json',
 		'cerb_workspace_page_empty.json',
 		'cerb_workspace_page_home.json',
 		'cerb_workspace_page_mail.json',
