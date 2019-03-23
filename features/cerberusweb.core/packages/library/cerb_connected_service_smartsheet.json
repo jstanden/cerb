@@ -1,0 +1,56 @@
+{
+  "package": {
+    "name": "Connected Service: Smartsheet",
+    "revision": 1,
+    "requires": {
+      "cerb_version": "9.2.0",
+      "plugins": [
+
+      ]
+    },
+    "library": {
+      "name": "Smartsheet",
+      "uri": "cerb_connected_service_smartsheet",
+      "description": "Integration with Smartsheet",
+      "instructions": "# Instructions\r\n\r\n* See [**Cerb + Smartsheet**](https://cerb.ai/guides/integrations/smartsheet/)\r\n* Enter the Access Token below",
+      "point": "connected_service",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "placeholders": [],
+      "prompts": [
+        {
+          "type": "text",
+          "label": "Access Tokn",
+          "key": "prompt_access_token",
+          "params": {
+            "default": "",
+            "placeholder": "(paste your Access Token)"
+          }
+        }
+      ]
+    }
+  },
+  "records": [
+    {
+      "uid": "service_smartsheet",
+      "_context": "connected_service",
+      "name": "Smartsheet",
+      "extension_id": "cerb.service.provider.token.bearer",
+      "params": {
+        "token_name": "Bearer"
+      }
+    },
+    {
+      "uid": "account_smartsheet",
+      "_context": "connected_account",
+      "name": "Smartsheet",
+      "service_id": "{{{uid.service_smartsheet}}}",
+      "owner__context": "cerberusweb.contexts.app",
+      "owner_id": "0",
+      "params": {
+        "token": "{{{prompt_access_token}}}"
+      }
+    }
+  ]
+}
