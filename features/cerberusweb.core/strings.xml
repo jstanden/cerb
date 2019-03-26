@@ -2238,6 +2238,16 @@
 				<seg>responsibilities</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.result">
+			<tuv xml:lang="en_US">
+				<seg>result</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.results">
+			<tuv xml:lang="en_US">
+				<seg>results</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.retry">
 			<tuv xml:lang="en_US">
 				<seg>retry</seg>
