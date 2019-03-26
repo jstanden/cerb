@@ -57,12 +57,15 @@ class DevblocksEventHelper {
 		return $context_to_macros;
 	}
 	
-	public static function getRelativeDateUsingCalendar($calendar_id, $rel_date) {
-		$today = strtotime('today', time());
+	public static function getRelativeDateUsingCalendar($calendar_id, $rel_date, $now=null) {
+		if(is_null($now))
+			$now = time();
+		
+		$today = strtotime('today', $now);
 		
 		if(empty($calendar_id) || false == ($calendar = DAO_Calendar::get($calendar_id))) {
 			// Fallback to plain 24-hour time
-			$value = strtotime($rel_date);
+			$value = strtotime($rel_date, $now);
 			
 		} else {
 			/*
@@ -75,7 +78,7 @@ class DevblocksEventHelper {
 			// [TODO] Do we have enough available time to schedule this?
 			// 	We should be able to lazy append events + availability as we go
 			
-			$value = $availability->scheduleInRelativeTime(time(), $rel_date);
+			$value = $availability->scheduleInRelativeTime($now, $rel_date);
 		}
 		
 		return $value;
@@ -510,8 +513,9 @@ class DevblocksEventHelper {
 					case 'calendar':
 						@$calendar_id = $params['calendar_id'];
 						@$rel_date = $params['calendar_reldate'];
-
-						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
+						
+						$rel_now = $dict->get('_current_time', time());
+						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 						
 						if(false !== $value)
 							$dict->$token = $value;
@@ -710,8 +714,9 @@ class DevblocksEventHelper {
 					case 'calendar':
 						@$calendar_id = $params['calendar_id'];
 						@$rel_date = $params['calendar_reldate'];
-
-						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
+						
+						$rel_now = $dict->get('_current_time', time());
+						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 						
 						break;
 						
@@ -1047,13 +1052,14 @@ class DevblocksEventHelper {
 	
 	static function runActionSetDate($token, $params, DevblocksDictionaryDelegate $dict) {
 		@$mode = $params['mode'];
-				
+		
 		switch($mode) {
 			case 'calendar':
 				@$calendar_id = $params['calendar_id'];
 				@$rel_date = $params['calendar_reldate'];
-
-				$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
+				
+				$rel_now = $dict->get('_current_time', time());
+				$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 				
 				if(false !== $value)
 					$dict->$token = $value;
@@ -1288,7 +1294,8 @@ class DevblocksEventHelper {
 						@$calendar_id = $params['calendar_id'];
 						@$rel_date = $params['calendar_reldate'];
 						
-						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
+						$rel_now = $dict->get('_current_time', time());
+						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 						
 						if(false !== $value)
 							$dict->$token = $value;
