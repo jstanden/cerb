@@ -1299,12 +1299,15 @@ class Cerb_Packages {
 			$uid = $calendar['uid'];
 			$id = $uids[$uid];
 			
+			$owner_context = @$calendar['owner__context'] ?: CerberusContexts::CONTEXT_APPLICATION;
+			$owner_context_id = @$calendar['owner_id'] ?: 0;
+			
 			DAO_Calendar::update($id, [
 				DAO_Calendar::NAME => $calendar['name'],
 				DAO_Calendar::PARAMS_JSON => isset($calendar['params']) ? json_encode($calendar['params']) : '',
 				DAO_Calendar::UPDATED_AT => time(),
-				DAO_Calendar::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-				DAO_Calendar::OWNER_CONTEXT_ID => 0,
+				DAO_Calendar::OWNER_CONTEXT => $owner_context,
+				DAO_Calendar::OWNER_CONTEXT_ID => $owner_context_id,
 			]);
 			
 			if(!isset($records_created[CerberusContexts::CONTEXT_CALENDAR]))
