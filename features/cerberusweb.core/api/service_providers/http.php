@@ -23,6 +23,14 @@ class ServiceProvider_HttpBasic extends Extension_ConnectedServiceProvider {
 			->setRequired(true)
 			;
 		
+		// [TODO] Each line should validate as a URL prefix
+		$validation
+			->addField('url_whitelist','URL whitelist')
+			->string()
+			->setMaxLength(65536)
+			->setNotEmpty(false)
+			;
+		
 		if(false == $validation->validateAll($edit_params, $error))
 			return false;
 		
@@ -78,13 +86,29 @@ class ServiceProvider_HttpBasic extends Extension_ConnectedServiceProvider {
 		if(!array_key_exists('base_url', $service_params))
 			return false;
 		
-		$service_host = parse_url($service_params['base_url'], PHP_URL_HOST);
 		$request_host = $request->getUri()->getHost();
 		
 		// [TODO] Require SSL?
 		
-		if(0 != strcasecmp($service_host, $request_host))
+		// Check whitelisted URL prefixes
+		
+		$whitelisted_urls = DevblocksPlatform::parseCrlfString(@$service_params['url_whitelist']);
+		array_unshift($whitelisted_urls, $service_params['base_url']);
+		
+		$is_allowed = false;
+		
+		foreach($whitelisted_urls as $whitelisted_url) {
+			$service_host = parse_url($whitelisted_url, PHP_URL_HOST);
+			
+			if(0 == strcasecmp($service_host, $request_host)) {
+				$is_allowed = true;
+				break;
+			}
+		}
+		
+		if(!$is_allowed) {
 			return false;
+		}
 		
 		// [TODO] Return errors
 		

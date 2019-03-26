@@ -47,7 +47,8 @@
       "name": "Twilio",
       "extension_id": "cerb.service.provider.http.basic",
       "params": {
-        "base_url": "https://api.twilio.com/"
+        "base_url": "https://api.twilio.com/",
+        "url_whitelist": "https://lookups.twilio.com/\r\n"
       }
     },
     {
