@@ -36,7 +36,7 @@ Click on the <span class="glyphicons glyphicons-circle-plus"></span> icon below 
 <input type="hidden" name="context_id" value="{$view_context}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="trigger_event">
+<input type="hidden" name="section" value="behavior">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">

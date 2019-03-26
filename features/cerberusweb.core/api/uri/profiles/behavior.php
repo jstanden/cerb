@@ -652,7 +652,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					'created' => time(),
 //					'worker_id' => $active_worker->id,
 					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=trigger_event', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=behavior', true),
 				);
 				$models[] = $model;
 				
@@ -664,7 +664,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=trigger_event&id=%d-%s", $row[SearchFields_TriggerEvent::ID], DevblocksPlatform::strToPermalink($row[SearchFields_TriggerEvent::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=behavior&id=%d-%s", $row[SearchFields_TriggerEvent::ID], DevblocksPlatform::strToPermalink($row[SearchFields_TriggerEvent::TITLE])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
