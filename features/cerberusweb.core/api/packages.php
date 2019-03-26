@@ -1349,12 +1349,15 @@ class Cerb_Packages {
 			$id = $uids[$uid];
 			$classifier_id = $id;
 			
+			$owner_context = @$classifier['owner__context'] ?: CerberusContexts::CONTEXT_APPLICATION;
+			$owner_context_id = @$classifier['owner_id'] ?: 0;
+			
 			DAO_Classifier::update($id, [
 				DAO_Classifier::NAME => $classifier['name'],
 				DAO_Classifier::PARAMS_JSON => isset($classifier['params']) ? json_encode($classifier['params']) : '',
 				DAO_Classifier::UPDATED_AT => time(),
-				DAO_Classifier::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-				DAO_Classifier::OWNER_CONTEXT_ID => 0,
+				DAO_Classifier::OWNER_CONTEXT => $owner_context,
+				DAO_Classifier::OWNER_CONTEXT_ID => $owner_context_id,
 			]);
 			
 			if(!isset($records_created[CerberusContexts::CONTEXT_CLASSIFIER]))
