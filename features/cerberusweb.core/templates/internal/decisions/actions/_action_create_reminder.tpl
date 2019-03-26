@@ -87,6 +87,9 @@ $(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 	
 	var $behaviors = $action.find('div.behaviors');
+
+	// Peeks
+	$behaviors.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
 	// Abstract delete
 	$behaviors.on('click', 'span.glyphicons-circle-remove', function(e) {
@@ -114,8 +117,6 @@ $(function() {
 			var single = $trigger.attr('data-single') != null ? '1' : '';
 			var width = $(window).width()-100;
 			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&qr=' + encodeURIComponent(qr) + '&single=' + encodeURIComponent(single),null,true,width);
-			
-			$behaviors.find('.cerb-peek-trigger').cerbPeekTrigger();
 			
 			$chooser.one('chooser_save', function(event) {
 				for(value in event.values) {
