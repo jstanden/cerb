@@ -1028,8 +1028,13 @@ class Cerb_Packages {
 			$uid = $bot['uid'];
 			$id = $uids[$uid];
 			
+			$owner_context = @$bot['owner']['context'] ?: CerberusContexts::CONTEXT_APPLICATION;
+			$owner_context_id = @$bot['owner']['id'] ?: 0;
+			
 			DAO_Bot::update($id, [
 				DAO_Bot::NAME => $bot['name'],
+				DAO_Bot::OWNER_CONTEXT => $owner_context,
+				DAO_Bot::OWNER_CONTEXT_ID => $owner_context_id,
 				DAO_Bot::IS_DISABLED => @$bot['is_disabled'] ? 1 : 0,
 				DAO_Bot::CREATED_AT => time(),
 				DAO_Bot::UPDATED_AT => time(),
