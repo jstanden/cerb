@@ -2969,7 +2969,7 @@ class DevblocksPlatform extends DevblocksEngine {
 					break;
 					
 				default:
-					continue;
+					continue 2;
 			}
 			
 			if(is_dir($scan_path)) {

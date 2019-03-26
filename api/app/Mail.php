@@ -1154,7 +1154,7 @@ class CerberusMail {
 								
 							} else {
 								if($header instanceof Swift_Mime_Headers_IdentificationHeader)
-									continue;
+									continue 2;
 								
 								$header->setValue($header_val);
 							}

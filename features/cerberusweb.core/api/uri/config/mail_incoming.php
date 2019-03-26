@@ -314,7 +314,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 						$field_id = intval(substr($rule,3));
 						
 						if(!isset($custom_fields[$field_id]))
-							continue;
+							continue 2;
 
 						switch($custom_fields[$field_id]->type) {
 							case Model_CustomField::TYPE_SINGLE_LINE:
@@ -365,7 +365,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 						}
 						
 					} else {
-						continue;
+						continue 2;
 					}
 					
 					break;
@@ -398,7 +398,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 						@$custom_field = $custom_fields[$field_id];
 						
 						if(!$custom_field)
-							continue;
+							continue 2;
 
 						$action = [];
 						
@@ -440,7 +440,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 						}
 						
 					} else {
-						continue;
+						continue 2;
 					}
 					break;
 			}

@@ -4848,10 +4848,10 @@ class DevblocksEventHelper {
 						@$worker_id = $dict->$to;
 						
 						if(empty($worker_id))
-							continue;
+							continue 2;
 						
 						if(null == ($worker = DAO_Worker::get($dict->$to)))
-							continue;
+							continue 2;
 						
 						$to_list[$worker->getEmailString()] = $worker;
 						break;

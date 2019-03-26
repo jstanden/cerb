@@ -417,7 +417,7 @@ class Model_MailToGroupRule {
 
 							// Make sure it exists
 							if(null == (@$field = $custom_fields[$field_id]))
-								continue;
+								continue 2;
 
 							// Lazy values loader
 							$field_values = array();
@@ -441,7 +441,7 @@ class Model_MailToGroupRule {
 							
 							// No values, default.
 							if(!isset($field_values[$field_id]))
-								continue;
+								continue 2;
 							
 							// Type sensitive value comparisons
 							switch($field->type) {

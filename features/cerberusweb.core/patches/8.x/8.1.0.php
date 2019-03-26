@@ -192,7 +192,7 @@ if(isset($tables['worker_role_acl'])) {
 					$privs[] = 'contexts.cerberusweb.contexts.kb_category.create';
 					$privs[] = 'contexts.cerberusweb.contexts.kb_category.update';
 					$privs[] = 'contexts.cerberusweb.contexts.kb_category.delete';
-					continue;
+					continue 2;
 					break;
 			}
 			

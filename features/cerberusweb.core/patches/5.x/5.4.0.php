@@ -184,7 +184,7 @@ if(!isset($columns['reply_address_id'])) {
 				$address_id = $db->GetOneMaster(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($row['value'])));
 				
 				if(empty($address_id))
-					continue;
+					continue 2;
 				
 				$db->ExecuteMaster(sprintf("UPDATE team SET reply_address_id = %d WHERE id = %d",
 					$address_id,

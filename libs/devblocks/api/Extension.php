@@ -2097,8 +2097,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						break;
 
 					default:
-						continue;
-						break;
+						continue 2;
 				}
 			}
 		}

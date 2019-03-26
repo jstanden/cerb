@@ -4647,7 +4647,7 @@ class ChInternalController extends DevblocksControllerExtension {
 									
 								default:
 									if(!is_numeric($k))
-										continue;
+										continue 2;
 									
 									$condition = DevblocksPlatform::importGPC($_POST['condition'.$k],'array',array());
 									$groups[$group_key]['conditions'][] = $condition;
