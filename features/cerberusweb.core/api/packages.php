@@ -1271,13 +1271,16 @@ class Cerb_Packages {
 			$uid = $saved_search['uid'];
 			$id = $uids[$uid];
 			
+			$owner_context = @$saved_search['owner__context'] ?: CerberusContexts::CONTEXT_APPLICATION;
+			$owner_context_id = @$saved_search['owner_id'] ?: 0;
+			
 			DAO_ContextSavedSearch::update($id, [
 				DAO_ContextSavedSearch::NAME => $saved_search['name'],
 				DAO_ContextSavedSearch::CONTEXT => $saved_search['context'],
 				DAO_ContextSavedSearch::TAG => $saved_search['tag'],
 				DAO_ContextSavedSearch::QUERY => $saved_search['query'],
-				DAO_ContextSavedSearch::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-				DAO_ContextSavedSearch::OWNER_CONTEXT_ID => 0,
+				DAO_ContextSavedSearch::OWNER_CONTEXT => $owner_context,
+				DAO_ContextSavedSearch::OWNER_CONTEXT_ID => $owner_context_id,
 			]);
 			
 			if(!isset($records_created[CerberusContexts::CONTEXT_SAVED_SEARCH]))
