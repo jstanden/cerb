@@ -1,0 +1,372 @@
+{
+  "package": {
+    "library": {
+      "name": "Twilio Bot",
+      "uri": "cerb_bot_twilio",
+      "description": "A bot demonstrating integration between Cerb and Twilio",
+      "instructions": "# Instructions\r\n\r\n* See [**Twilio Bot**](https://cerb.ai/packages/twilio-bot/)\r\n",
+      "point": "bot",
+      "image": "data:image/png;base64,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"
+    },
+    "configure": {
+      "prompts": [
+      {
+        "type": "text",
+        "label": "Owner context",
+        "key": "prompt_owner_context",
+        "hidden": true,
+        "params": {}
+      },
+      {
+        "type": "text",
+        "label": "Owner context ID",
+        "key": "prompt_owner_context_id",
+        "hidden": true,
+        "params": {}
+      },
+        {
+          "type": "chooser",
+          "label": "Twilio account:",
+          "key": "twilio_account_id",
+          "params": {
+            "context": "cerberusweb.contexts.connected_account",
+            "single": true,
+            "query": "name:twilio"
+          }
+        },
+        {
+          "type": "text",
+          "label": "Account SID:",
+          "key": "account_sid",
+          "params": {
+          }
+        },
+        {
+          "type": "text",
+          "label": "Default responder phone number:",
+          "key": "default_from",
+          "params": {
+          }
+        }
+      ],
+      "placeholders": [
+        {
+          "type": "random",
+          "key": "webhook_guid",
+          "params": {
+            "length": 40
+          }
+        }
+      ]
+    }
+  },
+  "bots": [
+    {
+      "uid": "bot_twilio",
+      "name": "Twilio Bot",
+      "owner": {
+        "context": "{{{prompt_owner_context}}}",
+        "id": "{{{prompt_owner_context_id}}}"
+      },
+      "is_disabled": false,
+      "params": {
+        "config": {
+          "account_sid": "{{{account_sid}}}",
+          "default_from": "{{{default_from}}}"
+        },
+        "events": {
+          "mode": "all",
+          "items": [
+
+          ]
+        },
+        "actions": {
+          "mode": "all",
+          "items": [
+
+          ]
+        }
+      },
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAABHPGVmAAAAq1BMVEX////yL0b//f7yM0nzRFn4hpPzOU/94OT93OD7w8n4i5j80tf5naj4j5z2bH32Znf1YnT0TmH0S1/0R1zzNk3/+/v/+fn+6+7+5+n8zdP6tL36sbn5oaz4k5/3d4b1XW/zQFX+9ff+8/T+6uz95Of81dr7xcz7ucH6tr76q7T5l6L3gI73fIv2dIP1WWv0VGj+7O792d77vsb6qLH3foz2aXn0UmX+7e/zPVLh7snxAAADlElEQVRo3qxW2XaqQBCcYRMRFBI0ARTjFvd9Sf7/y+7hJsr0dENYrNfmUNNbdbGiGJtB2Ldi1zMMz42tfhiYY/ZMTKPNKyfwuommTyFQWo7Hc+A5LaUmxcHGKeCE7EMNinfd54Xg6+8VKd50lReGqr9VoBitDF4KxmpUtt2hxktDC0uNQMPlleA2iqfR93lF+P2CyXxdeQ1cv4pwzDReC9rsb46Tz2vCP/3FMc/ZjY9bJ7bsKLKtuHP7yNmZeT5HM4vjZb04SIqzWL9ksTTzOAKfZhiYjIQ5oHn8IJvD/OYEhk0lZ9ybQ07g28wUK0px9yh1VOI9pcwZUtYj3qRFSoHljTQi/x6jsCakdVzwNhOCvWYEIpxywAojwKWOCE1Eyt4uZRTGbaT9DVRX1BBdKXkddNQW+Q99LsFipWFxCX3pmhty25QKxmYtFwxe/q3cD6WSfZL7shWjLSm4G7FKGO04REsIdiS5FdNUpk37Mlgce2h5j4vBxW5OFbHskjh3MhNRP8Ukh3fmZVek6C7v/xuKz/1Us1KJMwera4lFnAr2WCyM1c0csfghjJDd66UcbVjGxmN1YVnaKUvPg1W5C6UNyYViDWRJ/uXvycI7EAoGIzb7AeRuC/1Asuf8BBwkpUJfYPberz3hAMf0cxfr8vv/GcKa67IHjjAyA89CiZgcY5UEVkTABKmg5L2sjtgcY5cEdkTAFrqC69WAN0RYrQ1lEZIAZTc2wvrC25KM5BmOCRQ0DIUxhRPYsqyhPKNfiS4jpixVEqDMWSy6HkSvAYfFUoCJAB9QZsthKeAHGmMTeA6B1+EYlyRwIQLAOcEjOZH+dAIaSDidIAkEhHcC6nmC/NLdhZZsyWV00tMAsYQ2UbrCOiwfgOJiA0JbG1e6pBrswRU+FGIiFWx+D8ylYk0YAEz1yvaQU0JDnBM1TAOhKo4cclg60G6Y2ApfbUd9pAmcutl5cDvYEaxgEwzYPozJwnKN2+Y8kwOz8+ZmuNYClIoaGQNub8iehBCqBGpsbeDB+FetHdgADMIwENx/a1YAEl2cCSq1JcT/Jg8hr4t8ePILk8NIxgoZkGTUk0uLXL9ikSArEVnuyJoqFm4SHUgIEnGOBFMSsQUsINhDAByCogRUI3hQgE6CbAV8FhhdCAGiNoSkEbpJiDOhAOdlZo+WzRDMdVWeI/1L9YW0IsZnpSSzHPNa88kuLN1Wr3aUyDrqcAepXmBt8Bq5hwAAAABJRU5ErkJggg==",
+      "behaviors": [
+        {
+          "uid": "behavior_lookup_number",
+          "title": "Look up a number",
+          "is_disabled": false,
+          "is_private": true,
+          "priority": 50,
+          "event": {
+            "key": "event.macro.bot",
+            "label": "Custom behavior on bot"
+          },
+          "variables": {
+            "var_phone_number": {
+              "key": "var_phone_number",
+              "label": "Phone Number",
+              "type": "S",
+              "is_private": "0",
+              "params": {
+                "widget": "single"
+              }
+            }
+          },
+          "nodes": [
+            {
+              "type": "action",
+              "title": "Look up number via API",
+              "status": "live",
+              "params": {
+                "actions": [
+                  {
+                    "action": "core.va.action.http_request",
+                    "http_verb": "get",
+                    "http_url": "https://lookups.twilio.com/v1/PhoneNumbers/{{var_phone_number|url_encode}}?Type=carrier&Type=caller-name",
+                    "http_headers": "",
+                    "http_body": "",
+                    "auth": "connected_account",
+                    "auth_connected_account_id": "{{{twilio_account_id}}}",
+                    "options": {
+                      "raw_response_body": "1"
+                    },
+                    "run_in_simulator": "1",
+                    "response_placeholder": "_http_response"
+                  },
+                  {
+                    "action": "_set_custom_var",
+                    "value": "{{_http_response.body|json_pretty}}",
+                    "format": "json",
+                    "is_simulator_only": "0",
+                    "var": "response"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "uid": "behavior_webhook_received",
+          "title": "Respond to Twilio SMS webhook",
+          "is_disabled": false,
+          "is_private": false,
+          "priority": 50,
+          "event": {
+            "key": "event.webhook.received",
+            "label": "Webhook received"
+          },
+          "nodes": [
+            {
+              "type": "switch",
+              "title": "Command:",
+              "status": "live",
+              "nodes": [
+                {
+                  "type": "outcome",
+                  "title": "HELP",
+                  "status": "live",
+                  "params": {
+                    "groups": [
+                      {
+                        "any": 0,
+                        "conditions": [
+                          {
+                            "condition": "http_param",
+                            "name": "body",
+                            "oper": "is",
+                            "value": "help"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "action",
+                      "title": "Respond",
+                      "status": "live",
+                      "params": {
+                        "actions": [
+                          {
+                            "action": "set_http_body",
+                            "value": "{% set msg = \"You can say:\\n* HELP\\n* LOGO\\n* LINK\\n\" %}\r\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Response>\r\n    <Message>{{msg|escape}}</Message>\r\n</Response>"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "outcome",
+                  "title": "LOGO",
+                  "status": "live",
+                  "params": {
+                    "groups": [
+                      {
+                        "any": 0,
+                        "conditions": [
+                          {
+                            "condition": "http_param",
+                            "name": "body",
+                            "oper": "is",
+                            "value": "logo"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "action",
+                      "title": "Respond",
+                      "status": "live",
+                      "params": {
+                        "actions": [
+                          {
+                            "action": "set_http_body",
+                            "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Response>\r\n    <Message>\r\n    \tHere's the Cerb logo:\r\n    </Message>\r\n    <Message>\r\n    \t<Media>https://cerb.ai/assets/images/home/cerby.png</Media>\r\n    </Message>\r\n</Response>"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "outcome",
+                  "title": "LINK",
+                  "status": "live",
+                  "params": {
+                    "groups": [
+                      {
+                        "any": 0,
+                        "conditions": [
+                          {
+                            "condition": "http_param",
+                            "name": "body",
+                            "oper": "is",
+                            "value": "link"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "action",
+                      "title": "Respond",
+                      "status": "live",
+                      "params": {
+                        "actions": [
+                          {
+                            "action": "set_http_body",
+                            "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Response>\r\n    <Message>\r\n    \tVisit https://cerb.ai/ for more info.\r\n    </Message>\r\n</Response>"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "outcome",
+                  "title": "(default)",
+                  "status": "live",
+                  "params": {
+                    "groups": [
+                      {
+                        "any": 0,
+                        "conditions": [
+
+                        ]
+                      }
+                    ]
+                  },
+                  "nodes": [
+                    {
+                      "type": "action",
+                      "title": "Respond",
+                      "status": "live",
+                      "params": {
+                        "actions": [
+                          {
+                            "action": "set_http_body",
+                            "value": "{% set msg = \"Hi \" ~ http_params.from ~ \"! You said: \" ~ http_params.body %}\r\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Response>\r\n    <Message>{{msg|escape}}</Message>\r\n</Response>"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "uid": "behavior_send_sms",
+          "title": "Send SMS message",
+          "is_disabled": false,
+          "is_private": true,
+          "priority": 50,
+          "event": {
+            "key": "event.macro.bot",
+            "label": "Custom behavior on bot"
+          },
+          "variables": {
+            "var_to": {
+              "key": "var_to",
+              "label": "To",
+              "type": "S",
+              "is_private": "0",
+              "params": {
+                "widget": "single"
+              }
+            },
+            "var_body": {
+              "key": "var_body",
+              "label": "Body",
+              "type": "S",
+              "is_private": "0",
+              "params": {
+                "widget": "multiple"
+              }
+            }
+          },
+          "nodes": [
+            {
+              "type": "action",
+              "title": "Send message via API",
+              "status": "live",
+              "params": {
+                "actions": [
+                  {
+                    "action": "core.va.action.http_request",
+                    "http_verb": "post",
+                    "http_url": "https://api.twilio.com/2010-04-01/Accounts/{{behavior_bot_config.account_sid}}/Messages",
+                    "http_headers": "",
+                    "http_body": "{% set params = {\r\n\t\"To\": var_to,\r\n\t\"From\": behavior_bot_config.default_from,\r\n\t\"Body\": var_body\r\n} %}\r\n{{params|url_encode}}",
+                    "auth": "connected_account",
+                    "auth_connected_account_id": "{{{twilio_account_id}}}",
+                    "options": {
+                      "raw_response_body": "1"
+                    },
+                    "run_in_simulator": "1",
+                    "response_placeholder": "_http_response"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "uid": "webhook_twilio_bot",
+      "_context": "webhook_listener",
+      "name": "Twilio SMS Received",
+      "guid": "{{{webhook_guid|lower}}}",
+      "extension_id": "cerb.webhooks.listener.engine.va",
+      "extension_params": {
+        "behavior_id": "{{{uid.behavior_webhook_received}}}"
+      }
+    }
+  ]
+}
