@@ -1571,6 +1571,12 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 			DevblocksPlatform::sortObjects($action_extensions, 'params->[label]');
 			$tpl->assign('action_extensions', $action_extensions);
 			
+			// Library
+			if(!$context_id) {
+				$packages = DAO_PackageLibrary::getByPoint('bot');
+				$tpl->assign('packages', $packages);
+			}
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

@@ -54,128 +54,218 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$at_mention_name = DevblocksPlatform::importGPC($_REQUEST['at_mention_name'], 'string', '');
-				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
-				@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
-				@$allowed_events = DevblocksPlatform::importGPC($_REQUEST['allowed_events'], 'string', '');
-				@$itemized_events = DevblocksPlatform::importGPC($_REQUEST['itemized_events'], 'array', array());
-				@$allowed_actions = DevblocksPlatform::importGPC($_REQUEST['allowed_actions'], 'string', '');
-				@$itemized_actions = DevblocksPlatform::importGPC($_REQUEST['itemized_actions'], 'array', array());
-				@$config_json = DevblocksPlatform::importGPC($_REQUEST['config_json'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
 				
-				$is_disabled = DevblocksPlatform::intClamp($is_disabled, 0, 1);
+				$mode = 'build';
 				
-				// Owner
-			
-				$owner_ctx = '';
-				@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+				if(!$id && $package_uri) {
+					$mode = 'library';
+					
+				} elseif(!$id && $import_json) {
+					$mode = 'import';
+				}
 				
-				// Make sure we're given a valid ctx
-				
-				switch($owner_ctx) {
-					case CerberusContexts::CONTEXT_APPLICATION:
-					case CerberusContexts::CONTEXT_ROLE:
-					case CerberusContexts::CONTEXT_GROUP:
-					case CerberusContexts::CONTEXT_WORKER:
+				switch($mode) {
+					case 'library':
+						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+						
+						if(empty($package_uri))
+							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+						
+						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+						
+						if($package->point != 'bot')
+							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+						
+						// Owner
+					
+						$owner_ctx = '';
+						@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+						
+						// Make sure we're given a valid ctx
+						
+						switch($owner_ctx) {
+							case CerberusContexts::CONTEXT_APPLICATION:
+							case CerberusContexts::CONTEXT_ROLE:
+							case CerberusContexts::CONTEXT_GROUP:
+							case CerberusContexts::CONTEXT_WORKER:
+								break;
+								
+							default:
+								$owner_ctx = null;
+						}
+						
+						if(empty($owner_ctx))
+							throw new Exception_DevblocksAjaxValidationError("A valid 'Owner' is required.");
+						
+						// Does the worker have access to this bot?
+						if(
+							!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_BOT)) 
+							|| !CerberusContexts::isOwnableBy($owner_ctx, $owner_ctx_id, $active_worker)
+						) {
+							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+						}
+						
+						$package_json = $package->getPackageJson();
+						$records_created = [];
+						$prompts['prompt_owner_context'] = $owner_ctx;
+						$prompts['prompt_owner_context_id'] = $owner_ctx_id;
+						
+						try {
+							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+							
+						} catch(Exception_DevblocksValidationError $e) {
+							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+							
+						} catch (Exception $e) {
+							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+						}
+						
+						if(!array_key_exists(Context_Bot::ID, $records_created))
+							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+						
+						$new_bot = reset($records_created[Context_Bot::ID]);
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BOT, $new_bot['id']);
+						
+						echo json_encode([
+							'status' => true,
+							'id' => $new_bot['id'],
+							'label' => $new_bot['label'],
+							'view_id' => $view_id,
+						]);
+						return;
 						break;
 						
-					default:
-						$owner_ctx = null;
+					case 'build':
+						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+						@$at_mention_name = DevblocksPlatform::importGPC($_REQUEST['at_mention_name'], 'string', '');
+						@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+						@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
+						@$allowed_events = DevblocksPlatform::importGPC($_REQUEST['allowed_events'], 'string', '');
+						@$itemized_events = DevblocksPlatform::importGPC($_REQUEST['itemized_events'], 'array', array());
+						@$allowed_actions = DevblocksPlatform::importGPC($_REQUEST['allowed_actions'], 'string', '');
+						@$itemized_actions = DevblocksPlatform::importGPC($_REQUEST['itemized_actions'], 'array', array());
+						@$config_json = DevblocksPlatform::importGPC($_REQUEST['config_json'], 'string', '');
+						
+						$is_disabled = DevblocksPlatform::intClamp($is_disabled, 0, 1);
+						
+						// Owner
+					
+						$owner_ctx = '';
+						@list($owner_ctx, $owner_ctx_id) = explode(':', $owner, 2);
+						
+						// Make sure we're given a valid ctx
+						
+						switch($owner_ctx) {
+							case CerberusContexts::CONTEXT_APPLICATION:
+							case CerberusContexts::CONTEXT_ROLE:
+							case CerberusContexts::CONTEXT_GROUP:
+							case CerberusContexts::CONTEXT_WORKER:
+								break;
+								
+							default:
+								$owner_ctx = null;
+						}
+						
+						if(empty($owner_ctx))
+							throw new Exception_DevblocksAjaxValidationError("A valid 'Owner' is required.");
+						
+						// Permissions
+						
+						$params = array(
+							'config' => json_decode($config_json, true),
+							'events' => array(
+								'mode' => $allowed_events,
+								'items' => $itemized_events,
+							),
+							'actions' => array(
+								'mode' => $allowed_actions,
+								'items' => $itemized_actions,
+							),
+						);
+						
+						// Create or update
+						
+						if(empty($id)) { // New
+							if(!$active_worker->is_superuser)
+								throw new Exception_DevblocksAjaxValidationError("Only admins can create new bots.");
+							
+							$fields = array(
+								DAO_Bot::CREATED_AT => time(),
+								DAO_Bot::UPDATED_AT => time(),
+								DAO_Bot::NAME => $name,
+								DAO_Bot::AT_MENTION_NAME => $at_mention_name,
+								DAO_Bot::IS_DISABLED => $is_disabled,
+								DAO_Bot::OWNER_CONTEXT => $owner_ctx,
+								DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
+								DAO_Bot::PARAMS_JSON => json_encode($params),
+							);
+							
+							$error = null;
+							
+							if(!DAO_Bot::validate($fields, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_Bot::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(false == ($id = DAO_Bot::create($fields)))
+								throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
+							
+							DAO_Bot::onUpdateByActor($active_worker, $fields, $id);
+							
+							if(!empty($view_id) && !empty($id))
+								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BOT, $id);
+							
+						} else { // Edit
+							if(!$active_worker->is_superuser)
+								throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
+							
+							$fields = array(
+								DAO_Bot::UPDATED_AT => time(),
+								DAO_Bot::NAME => $name,
+								DAO_Bot::AT_MENTION_NAME => $at_mention_name,
+								DAO_Bot::IS_DISABLED => $is_disabled,
+								DAO_Bot::OWNER_CONTEXT => $owner_ctx,
+								DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
+								DAO_Bot::PARAMS_JSON => json_encode($params),
+							);
+							
+							if(!DAO_Bot::validate($fields, $error, $id))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if(!DAO_Bot::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							DAO_Bot::update($id, $fields);
+							DAO_Bot::onUpdateByActor($active_worker, $fields, $id);
+						}
+			
+						if($id) {
+							// Custom field saves
+							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BOT, $id, $field_ids, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							// Avatar image
+							@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+							DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $avatar_image);
+						}
+						
+						echo json_encode(array(
+							'status' => true,
+							'id' => $id,
+							'label' => $name,
+							'view_id' => $view_id,
+						));
+						return;
+						break;
 				}
-				
-				if(empty($owner_ctx))
-					throw new Exception_DevblocksAjaxValidationError("A valid 'Owner' is required.");
-				
-				// Permissions
-				
-				$params = array(
-					'config' => json_decode($config_json, true),
-					'events' => array(
-						'mode' => $allowed_events,
-						'items' => $itemized_events,
-					),
-					'actions' => array(
-						'mode' => $allowed_actions,
-						'items' => $itemized_actions,
-					),
-				);
-				
-				// Create or update
-				
-				if(empty($id)) { // New
-					if(!$active_worker->is_superuser)
-						throw new Exception_DevblocksAjaxValidationError("Only admins can create new bots.");
-					
-					$fields = array(
-						DAO_Bot::CREATED_AT => time(),
-						DAO_Bot::UPDATED_AT => time(),
-						DAO_Bot::NAME => $name,
-						DAO_Bot::AT_MENTION_NAME => $at_mention_name,
-						DAO_Bot::IS_DISABLED => $is_disabled,
-						DAO_Bot::OWNER_CONTEXT => $owner_ctx,
-						DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
-						DAO_Bot::PARAMS_JSON => json_encode($params),
-					);
-					
-					$error = null;
-					
-					if(!DAO_Bot::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_Bot::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(false == ($id = DAO_Bot::create($fields)))
-						throw new Exception_DevblocksAjaxValidationError("Failed to create a new record.");
-					
-					DAO_Bot::onUpdateByActor($active_worker, $fields, $id);
-					
-					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BOT, $id);
-					
-				} else { // Edit
-					if(!$active_worker->is_superuser)
-						throw new Exception_DevblocksAjaxValidationError("You do not have permission to modify this record.");
-					
-					$fields = array(
-						DAO_Bot::UPDATED_AT => time(),
-						DAO_Bot::NAME => $name,
-						DAO_Bot::AT_MENTION_NAME => $at_mention_name,
-						DAO_Bot::IS_DISABLED => $is_disabled,
-						DAO_Bot::OWNER_CONTEXT => $owner_ctx,
-						DAO_Bot::OWNER_CONTEXT_ID => $owner_ctx_id,
-						DAO_Bot::PARAMS_JSON => json_encode($params),
-					);
-					
-					if(!DAO_Bot::validate($fields, $error, $id))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_Bot::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					DAO_Bot::update($id, $fields);
-					DAO_Bot::onUpdateByActor($active_worker, $fields, $id);
-				}
-	
-				if($id) {
-					// Custom field saves
-					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_BOT, $id, $field_ids, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
-					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $avatar_image);
-				}
-				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'label' => $name,
-					'view_id' => $view_id,
-				));
-				return;
 			}
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
