@@ -104,11 +104,20 @@ if($revision >= 1330 && $revision < 1332) {
 		'cerb_bot_behavior_action_webhook_set_http_body.json',
 		'cerb_bot_behavior_action_webhook_set_http_header.json',
 		'cerb_bot_behavior_action_webhook_set_http_status.json',
+		'cerb_bot_behavior_interaction_worker.json',
 		'cerb_connected_service_smartsheet.json',
 		'cerb_workspace_page_empty.json',
 		'cerb_workspace_page_home.json',
 		'cerb_workspace_page_mail.json',
 		'cerb_workspace_page_reports.json',
+	];
+	
+	CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
+}
+
+if($revision >= 1332 && $revision < 1333) {
+	$packages = [
+		'cerb_bot_behavior_interaction_worker.json',
 	];
 	
 	CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');

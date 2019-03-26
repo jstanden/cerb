@@ -36,10 +36,10 @@
   },
   "behaviors": [
     {
-      "uid": "behavior_convo",
+      "uid": "behavior_convo_global",
       "_context": "behavior",
       "bot_id": "{{{bot_id}}}",
-      "title": "Conversation: Example Interaction",
+      "title": "Convo: Example global interaction",
       "is_disabled": false,
       "is_private": true,
       "priority": 50,
@@ -104,6 +104,197 @@
       ]
     },
     {
+      "uid": "behavior_convo_record",
+      "_context": "behavior",
+      "bot_id": "{{{bot_id}}}",
+      "title": "Convo: Example record interaction",
+      "is_disabled": false,
+      "is_private": true,
+      "priority": 50,
+      "event": {
+        "key": "event.message.chat.worker",
+        "label": "Conversation with worker"
+      },
+      "nodes": [
+        {
+          "type": "action",
+          "title": "Load record",
+          "status": "live",
+          "params": {
+            "actions": [
+              {
+                "action": "core.bot.action.record.retrieve",
+                "context": "{{interaction_params['record-context']}}",
+                "id": "{{interaction_params['record-id']}}",
+                "object_placeholder": "record"
+              }
+            ]
+          }
+        },
+        {
+          "type": "action",
+          "title": "Hi!",
+          "status": "live",
+          "params": {
+            "actions": [
+              {
+                "action": "send_message",
+                "message": "Hello, {{worker_first_name}}!",
+                "format": "",
+                "delay_ms": "1000"
+              }
+            ]
+          }
+        },
+        {
+          "type": "switch",
+          "title": "Found record?",
+          "status": "live",
+          "nodes": [
+            {
+              "type": "outcome",
+              "title": "Yes",
+              "status": "live",
+              "params": {
+                "groups": [
+                  {
+                    "any": 0,
+                    "conditions": [
+                      {
+                        "condition": "_custom_script",
+                        "tpl": "{% if record.id is not empty %}true{% endif %}",
+                        "oper": "is",
+                        "value": "true"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "nodes": [
+                {
+                  "type": "action",
+                  "title": "Respond",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "send_message",
+                        "message": "You clicked on {{record._context|context_name(\"singular\")}} #**{{record.id}}**: **{{record._label}}**",
+                        "format": "markdown",
+                        "delay_ms": "1000"
+                      },
+                      {
+                        "action": "send_message",
+                        "message": "You can customize this interaction to meet your needs.",
+                        "format": "",
+                        "delay_ms": "1000"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "action",
+                  "title": "Ok!",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "prompt_buttons",
+                        "options": "Thanks!",
+                        "color_from": "#4795f7",
+                        "color_mid": "#4795f7",
+                        "color_to": "#4795f7",
+                        "style": "",
+                        "var": "placeholder",
+                        "var_format": "{{message}}",
+                        "var_validate": ""
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "action",
+                  "title": "Close chat window",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "window_close"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "outcome",
+              "title": "No",
+              "status": "live",
+              "params": {
+                "groups": [
+                  {
+                    "any": 0,
+                    "conditions": [
+
+                    ]
+                  }
+                ]
+              },
+              "nodes": [
+                {
+                  "type": "action",
+                  "title": "Respond",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "send_message",
+                        "message": "Sorry, I couldn't find the record you're looking for.",
+                        "format": "",
+                        "delay_ms": "1000"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "action",
+                  "title": "Ok!",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "prompt_buttons",
+                        "options": "Thanks!",
+                        "color_from": "#4795f7",
+                        "color_mid": "#4795f7",
+                        "color_to": "#4795f7",
+                        "style": "",
+                        "var": "placeholder",
+                        "var_format": "{{message}}",
+                        "var_validate": ""
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "action",
+                  "title": "Close chat window",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "window_close"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "uid": "behavior_get_interactions",
       "_context": "behavior",
       "bot_id": "{{{bot_id}}}",
@@ -115,7 +306,7 @@
         "key": "event.interactions.get.worker",
         "label": "Conversation get interactions for worker",
         "params": {
-          "listen_points": "global"
+          "listen_points": "global\r\nrecord:cerberusweb.contexts.ticket"
         }
       },
       "nodes": [
@@ -152,9 +343,46 @@
                       {
                         "action": "return_interaction",
                         "behavior_id": "{{{uid.behavior_handle_interaction}}}",
-                        "name": "Example interaction",
-                        "interaction": "example.interaction",
+                        "name": "Example global interaction",
+                        "interaction": "example.interaction.global",
                         "interaction_params_json": ""
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "outcome",
+              "title": "record:ticket",
+              "status": "live",
+              "params": {
+                "groups": [
+                  {
+                    "any": 0,
+                    "conditions": [
+                      {
+                        "condition": "point",
+                        "oper": "is",
+                        "value": "record:cerberusweb.contexts.ticket"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "nodes": [
+                {
+                  "type": "action",
+                  "title": "Return interactions",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "return_interaction",
+                        "behavior_id": "{{{uid.behavior_handle_interaction}}}",
+                        "name": "Example record interaction",
+                        "interaction": "example.interaction.record",
+                        "interaction_params_json": "{% set params = {\r\n  \"record-id\": point_params.id,\r\n  \"record-context\": point_params._context,\r\n} %}\r\n{{params|json_encode}}"
                       }
                     ]
                   }
@@ -185,7 +413,7 @@
           "nodes": [
             {
               "type": "outcome",
-              "title": "example.interaction",
+              "title": "example.interaction.global",
               "status": "live",
               "params": {
                 "groups": [
@@ -195,7 +423,7 @@
                       {
                         "condition": "interaction",
                         "oper": "is",
-                        "value": "example.interaction"
+                        "value": "example.interaction.global"
                       }
                     ]
                   }
@@ -211,7 +439,43 @@
                       {
                         "action": "switch_behavior",
                         "return": "0",
-                        "behavior_id": "{{{uid.behavior_convo}}}",
+                        "behavior_id": "{{{uid.behavior_convo_global}}}",
+                        "var": "_behavior"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "outcome",
+              "title": "example.interaction.record",
+              "status": "live",
+              "params": {
+                "groups": [
+                  {
+                    "any": 0,
+                    "conditions": [
+                      {
+                        "condition": "interaction",
+                        "oper": "is",
+                        "value": "example.interaction.record"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "nodes": [
+                {
+                  "type": "action",
+                  "title": "Start conversation",
+                  "status": "live",
+                  "params": {
+                    "actions": [
+                      {
+                        "action": "switch_behavior",
+                        "return": "0",
+                        "behavior_id": "{{{uid.behavior_convo_record}}}",
                         "var": "_behavior"
                       }
                     ]
