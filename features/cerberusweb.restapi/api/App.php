@@ -134,19 +134,23 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		$string_to_sign_prefix = "$verb\n$header_date\n$url_path\n$url_query\n$this->_payload";
 
 		if(!$this->_validateRfcDate($header_date)) {
+			http_response_code(401);
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid timestamp)"));
 		}
 
 		// Worker-level auth
 		if(null == ($credential = DAO_WebApiCredentials::getByAccessKey($auth_access_key))) {
+			http_response_code(401);
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: access key)"));
 		}
 
 		if(null == (@$worker = DAO_Worker::get($credential->worker_id))) {
+			http_response_code(401);
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: worker)"));
 		}
 		
 		if($worker->is_disabled) {
+			http_response_code(401);
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: worker account is disabled)"));
 		}
 
@@ -155,6 +159,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		$compare_hash = md5($string_to_sign);
 
 		if(0 != strcmp($auth_signature, $compare_hash)) {
+			http_response_code(401);
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (Invalid credentials: checksum)"));
 		}
 
@@ -167,11 +172,12 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		@$allowed_paths = $credential->params['allowed_paths'];
 
 		if(empty($allowed_paths)) {
+			http_response_code(401);
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (This path is prohibited)"));
 		}
-
+		
 		$permitted = false;
-
+		
 		foreach($allowed_paths as $allowed_path) {
 			$pattern = DevblocksPlatform::strToRegExp($allowed_path);
 			if(preg_match($pattern, $requested_path)) {
@@ -181,6 +187,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		}
 
 		if(!$permitted) {
+			http_response_code(401);
 			Plugin_RestAPI::render(array('__status'=>'error', 'message'=>"Access denied! (You are not authorized to make this request)"));
 		}
 		
@@ -302,8 +309,10 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		$error = null;
 		
 		if(false == ($worker = $this->_getAuthorizedWorker($request, $error))) {
-			if(empty($error))
+			if(empty($error)) {
+				http_response_code(401);
 				$error = 'Unauthorized request';
+			}
 			
 			Plugin_RestAPI::render(array('__status'=>'error', 'message' => $error));
 		}
