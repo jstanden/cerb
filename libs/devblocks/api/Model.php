@@ -247,6 +247,26 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							break;
 					}
 					
+				} else if (in_array($custom_field->type, [Model_CustomField::TYPE_MULTI_CHECKBOX])) {
+					return [
+						'key_query' => $key,
+						'key_select' => $search_key,
+						'label' => $custom_field->name,
+						'type' => $custom_field->type,
+						'type_options' => $custom_field->params,
+						'sql_select' => sprintf("%s.field_value", $field_key),
+						'sql_join' => sprintf("INNER JOIN %s AS %s ON (%s.context=%s AND %s.context_id = %s AND %s.field_id = %d)",
+							Cerb_ORMHelper::escape($table),
+							$field_key,
+							$field_key,
+							Cerb_ORMHelper::qstr($custom_field->context),
+							$field_key,
+							$primary_key,
+							$field_key,
+							$custom_field->id
+						),
+					];
+					
 				} else {
 					return [
 						'key_query' => $key,
