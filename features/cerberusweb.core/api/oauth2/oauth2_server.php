@@ -21,8 +21,13 @@ use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
+use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\Grant\AbstractGrant;
+use League\OAuth2\Server\ResponseTypes\BearerTokenResponse;
+use GuzzleHttp\Psr7\Response;
 
 class Cerb_OAuth2Provider extends AbstractProvider {
 	use BearerAuthorizationTrait;
@@ -364,5 +369,56 @@ class Cerb_OAuth2ClientRespository implements ClientRepositoryInterface {
 		$client->setRedirectUris($oauth_client->callback_url);
 		
 		return $client;
+	}
+};
+
+class Cerb_OAuth2GrantManual extends AbstractGrant {
+	public function __construct() {
+		$this->setClientRepository(new Cerb_OAuth2ClientRespository());
+		$this->setAuthCodeRepository(new Cerb_OAuth2AuthCodeRepository());
+		$this->setAccessTokenRepository(new Cerb_OAuth2AccessTokenRepository());
+		$this->setRefreshTokenRepository(new Cerb_OAuth2RefreshTokenRepository());
+		$this->setScopeRepository(new Cerb_OAuth2ScopeRepository());
+	}
+	
+	public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, \DateInterval $accessTokenTTL) {}
+	public function getIdentifier() {}
+	
+	public function generateBearerToken(Model_OAuthApp $oauth2_app, $actor_identifier, array $scopes=[]) {
+		// [TODO] From app
+		$accessTokenTTL = \DateInterval::createFromDateString('1 hour');
+		$refreshTokenTTL = \DateInterval::createFromDateString('1 month');
+		
+		$encrypt = DevblocksPlatform::services()->encryption();
+		
+		$this->setRefreshTokenTTL($refreshTokenTTL);
+		
+		$client = $this->clientRepository->getClientEntity($oauth2_app->client_id, null, $oauth2_app->client_secret, true);
+
+		$accessToken = $this->issueAccessToken($accessTokenTTL, $client, $actor_identifier);
+		
+		foreach($scopes as $scope_identifier) {
+			$scope = $this->scopeRepository->getScopeEntityByIdentifier($scope_identifier);
+			$accessToken->addScope($scope);
+		}
+		
+		$refreshToken = $this->issueRefreshToken($accessToken);
+		
+		$encryptionKey = $encrypt->getSystemKey();
+		$encryptionKey = \Defuse\Crypto\Key::loadFromAsciiSafeString($encryptionKey);
+		
+		$response_type = new BearerTokenResponse();
+		$response_type->setAccessToken($accessToken);
+		$response_type->setRefreshToken($refreshToken);
+		$response_type->setPrivateKey(DevblocksPlatform::services()->oauth()->getServerPrivateKey());
+		$response_type->setEncryptionKey($encryptionKey);
+		
+		$response = new Response();
+		$response = $response_type->generateHttpResponse($response);
+		
+		$response->getBody()->rewind();
+		$json = $response->getBody()->getContents();
+		
+		return json_decode($json, true);
 	}
 };
