@@ -376,7 +376,7 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContextBulkUpdate::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextBulkUpdate', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContextBulkUpdate', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"context_bulk_update.id as %s, ".
