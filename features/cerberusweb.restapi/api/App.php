@@ -231,6 +231,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 				return $worker;
 			
 		} catch (\League\OAuth2\Server\Exception\OAuthServerException $e) {
+			http_response_code($e->getHttpStatusCode());
 			$error = $e->getMessage();
 			
 		} catch (Exception $e) {

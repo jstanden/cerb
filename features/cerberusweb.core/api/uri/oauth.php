@@ -181,6 +181,8 @@ class Controller_OAuth extends DevblocksControllerExtension {
 					
 					$http_response = $server->respondToAccessTokenRequest($http_request, $http_response);
 					
+					http_response_code($http_response->getStatusCode());
+					
 					foreach($http_response->getHeaders() as $key => $value) {
 						header(sprintf("%s: %s", $key, implode(',', $value)));
 					}
