@@ -33,8 +33,8 @@
 		{$seq = null}
 		{if $model && isset($model->params.actions) && is_array($model->params.actions)}
 		{foreach from=$model->params.actions item=params key=seq}
-		<fieldset id="action{$seq}_{$nonce}">
-			<legend style="cursor:move;">
+		<fieldset id="action{$seq}_{$nonce}" class="cerb-bot-action">
+			<legend class="cerb-bot-action--title" style="cursor:move;">
 				<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
 				{if $actions[$params.action]}
 					{$actions[$params.action].label}
@@ -246,7 +246,7 @@ $(function() {
 		});
 
 		$popup.find('#frmDecisionAction{$id}Action DIV.actions')
-			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
+			.sortable({ 'items':'fieldset.cerb-bot-action', 'placeholder':'ui-state-highlight', 'handle':'legend.cerb-bot-action--title' })
 		;
 
 		// Placeholders
@@ -395,8 +395,8 @@ $(function() {
 					if(null == seq)
 						seq = 0;
 					
-					var $container = $('<fieldset/>').attr('id','action' + seq + '_{$nonce}');
-					$container.prepend('<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + label + '</legend>');
+					var $container = $('<fieldset/>').attr('id','action' + seq + '_{$nonce}').addClass('cerb-bot-action');
+					$container.prepend('<legend class="cerb-bot-action--title" style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + label + '</legend>');
 					$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 					$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
 					$ul.append($container);
