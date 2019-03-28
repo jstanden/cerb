@@ -49,7 +49,6 @@
 <script type="text/javascript">
 $(function() {
 	var $menu = $('UL.navmenu');
-	var is_dragging_page = false;
 
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 	
@@ -57,18 +56,15 @@ $(function() {
 	$menu.sortable({
 		items:'> li.drag',
 		distance: 20,
-		start:function(e) {
-			is_dragging_page = true;
-		},
 		stop:function(e) {
+			e.stopPropagation();
+			
 			$pages = $(this).find('li.drag[page_id]');
 			page_ids = $pages.map(function(e) {
 				return $(this).attr('page_id');
 			}).get().join(',');
 
-			genericAjaxGet('', 'c=pages&a=setPageOrder&pages=' + page_ids, function() { 
-				is_dragging_page = false;
-			});
+			genericAjaxGet('', 'c=pages&a=setPageOrder&pages=' + page_ids); 
 		}
 	});
 	
@@ -92,9 +88,6 @@ $(function() {
 
 	// Allow clicking anywhere in the menu item cell
 	$menu.find('> li').click(function(e) {
-		if(is_dragging_page)
-			return false;
-		
 		if(!$(e.target).is('li'))
 			return;
 		
@@ -104,13 +97,6 @@ $(function() {
 			window.location.href = $link.attr('href');
 	});
 
-	$menu.find('> li a').click(function(e) {
-		if(is_dragging_page)
-			return false;
-		
-		return true;
-	});
-	
 	var $search_button = $menu.find('> LI A.submenu');
 	var $search_menu = $search_button.next('ul.cerb-popupmenu');
 	var $show_all = $search_menu.find('a.cerb-show-all');
