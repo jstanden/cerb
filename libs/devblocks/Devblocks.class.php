@@ -2012,26 +2012,14 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(strlen($string) > 100000)
 			return $string;
 		
-		return preg_replace_callback('@([^\s]+){0,1}(https?://(.*?))((?:[>"\.\?,\)]{0,1}(\s|$))|(&(?:quot|gt);))@i', function($matches) {
-			$prefix = $matches[1];
-			$url = $matches[2];
-			$suffix = $matches[4];
-			
-			// Fix unbalanced terminators
-			switch($suffix) {
-				case ')':
-					if($prefix != '(') {
-						$url .= $suffix;
-						$suffix = '';
-					}
-					break;
-			}
-			
-			return sprintf('%s<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>%s',
-				$prefix,
+		$string = html_entity_decode($string, ENT_COMPAT, LANG_CHARSET_CODE);
+		
+		// See: https://daringfireball.net/2010/07/improved_regex_for_matching_urls
+		return preg_replace_callback('@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@', function($matches) {
+			$url = $matches[0];
+			return sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 				$url,
-				$url,
-				$suffix
+				$url
 			);
 		}, $string);
 	}
