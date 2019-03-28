@@ -10,8 +10,9 @@
 	{if is_array($menu) && !empty($menu)}
 	{foreach from=$menu item=workspace_page_id}
 		{$workspace_page = $workspace_pages.$workspace_page_id}
+		{$is_selected = $page->id=='core.page.pages' && isset($response_path[1]) && intval($response_path[1])==$workspace_page->id}
 		{if $workspace_page}
-		<li class="{if $page->id=='core.page.pages' && isset($response_path[1]) && intval($response_path[1])==$workspace_page->id}selected{/if} drag" page_id="{$workspace_page->id}">
+		<li class="{if $is_selected}selected{/if} drag" page_id="{$workspace_page->id}" style="position:relative;">
 			<a href="{devblocks_url}c=pages&page={$workspace_page->id}-{$workspace_page->name|devblocks_permalink}{/devblocks_url}">{$workspace_page->name|lower}</a>
 		</li>
 		{/if}
@@ -50,6 +51,9 @@ $(function() {
 	var $menu = $('UL.navmenu');
 	var is_dragging_page = false;
 
+	{$user_agent = DevblocksPlatform::getClientUserAgent()}
+	
+	{if $user_agent && 0 != strcasecmp($user_agent.platform, 'Android')}
 	$menu.sortable({
 		items:'> li.drag',
 		distance: 20,
@@ -67,6 +71,24 @@ $(function() {
 			});
 		}
 	});
+	
+	$menu
+		.find('> li.drag')
+		.hoverIntent({
+			sensitivity:10,
+			interval:750,
+			timeout:250,
+			over:function(e) {
+				$(this).css('cursor', 'move');
+				$(this).children().css('cursor', 'move');
+			},
+			out:function(e) {
+				$(this).css('cursor', 'pointer');
+				$(this).children().css('cursor', 'pointer');
+			}
+		})
+		;
+	{/if}
 
 	// Allow clicking anywhere in the menu item cell
 	$menu.find('> li').click(function(e) {
@@ -75,9 +97,9 @@ $(function() {
 		
 		if(!$(e.target).is('li'))
 			return;
-
+		
 		$link = $(this).find('> a');
-
+		
 		if($link.length > 0)
 			window.location.href = $link.attr('href');
 	});

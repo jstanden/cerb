@@ -13,7 +13,11 @@
 		
 		{foreach from=$page_tabs item=tab}
 			{$tabs[] = "{$tab->name|lower|devblocks_permalink}"}
-			<li class="drag" tab_id="{$tab->id}"><a href="{devblocks_url}ajax.php?c=pages&a=showWorkspaceTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">{$tab->name}</a></li>
+			<li class="drag" tab_id="{$tab->id}">
+				<a href="{devblocks_url}ajax.php?c=pages&a=showWorkspaceTab&point={$point}&id={$tab->id}&request={$response_uri|escape:'url'}{/devblocks_url}">
+					{$tab->name}
+				</a>
+			</li>
 		{/foreach}
 
 		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
@@ -59,6 +63,25 @@ $(function() {
 	
 	var tabs = $tabs.tabs(tabOptions);
 	
+	{$user_agent = DevblocksPlatform::getClientUserAgent()}
+	
+	{if $user_agent && 0 != strcasecmp($user_agent.platform, 'Android')}
+	$tabs.find('ul')
+		.find('> li.drag')
+		.hoverIntent({
+			interval:750,
+			timeout:250,
+			over:function(e) {
+				$(this).css('cursor', 'move');
+				$(this).children().css('cursor', 'move');
+			},
+			out:function() {
+				$(this).css('cursor', 'pointer');
+				$(this).children().css('cursor', 'pointer');
+			}
+		})
+		;
+	
 	$tabs.find('> ul').sortable({
 		items:'> li.drag',
 		distance: 20,
@@ -73,6 +96,7 @@ $(function() {
 			genericAjaxGet('', 'c=pages&a=setTabOrder&page_id={$page->id}&tabs=' + page_tab_ids);
 		}
 	});
+	{/if}
 	
 	$tabs.on('tabsactivate', function(e, ui) {
 		var tab_id = $(ui.newTab).attr('tab_id');

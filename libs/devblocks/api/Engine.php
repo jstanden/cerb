@@ -474,9 +474,19 @@ abstract class DevblocksEngine {
 		return false;
 	}
 	
+	static private $_user_agent = null;
+	
 	static function getClientUserAgent() {
-		require_once(DEVBLOCKS_PATH . 'libs/user_agent_parser.php');
-		return parse_user_agent();
+		if(is_null(self::$_user_agent)) {
+			require_once(DEVBLOCKS_PATH . 'libs/user_agent_parser.php');
+			
+			try {
+				if(false != ($user_agent = parse_user_agent()))
+					self::$_user_agent = $user_agent;
+				
+			} catch(Exception $e) {}
+		}
+		return self::$_user_agent;
 	}
 	
 	static function getHostname() {

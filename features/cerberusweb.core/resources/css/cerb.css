@@ -610,6 +610,7 @@ UL.navmenu > LI {
   margin: 0px;
   min-height: 16px;
   cursor: pointer;
+  white-space: nowrap;
 }
 UL.navmenu > LI A {
   color: #505050;
