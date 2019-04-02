@@ -625,7 +625,7 @@ abstract class DevblocksEngine {
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
 				@$origin = DevblocksPlatform::strLower($_SERVER['HTTP_ORIGIN']);
 				@$referer = DevblocksPlatform::strLower($_SERVER['HTTP_REFERER']);
-				@$verb = DevblocksPlatform::strLower($_SERVER['REQUEST_METHOD']);
+				//@$verb = DevblocksPlatform::strLower($_SERVER['REQUEST_METHOD']);
 				
 				// Normalize the scheme and host (e.g. ignore /index.php/)
 				$base_url_parts = parse_url($url_writer->write('', true));

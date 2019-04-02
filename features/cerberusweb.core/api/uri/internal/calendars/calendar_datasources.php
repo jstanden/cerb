@@ -1,6 +1,8 @@
 <?php
 class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
 	private function _getSeriesIdxFromPrefix($params_prefix) {
+		$matches = [];
+		
 		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
 			return $matches[1];
 		}
@@ -35,7 +37,7 @@ class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
 	function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from, $date_range_to) {
 		$calendar_events = array();
 
-		@$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
+		//@$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
 
 		if(false == ($sync_calendar = DAO_Calendar::get($params['sync_calendar_id'])))
 			return $calendar_events;
@@ -58,6 +60,8 @@ class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
 
 class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 	private function _getSeriesIdxFromPrefix($params_prefix) {
+		$matches = [];
+		
 		if(!empty($params_prefix) && preg_match("#\[series\]\[(\d+)\]#", $params_prefix, $matches) && count($matches) == 2) {
 			return $matches[1];
 		}
@@ -87,7 +91,9 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 					if(null != ($view = new $view_class))
 						$tpl->assign('ctx_fields', $view->getFields());
 				}
-
+				
+				$labels = $values = [];
+				
 				CerberusContexts::getContext($ctx->id, null, $labels, $values, null, true);
 				$tpl->assign('placeholders', $labels);
 			}
@@ -98,7 +104,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		@$worklist_view_id = sprintf("calendar%d_worklist%d", $calendar->id, $series_idx);
 		@$worklist_model = $params['worklist_model'];
 		
-		$worklist_view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $worklist_view_id);
+		C4_AbstractViewLoader::unserializeViewFromAbstractJson($worklist_model, $worklist_view_id);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/worklist/config.tpl');
 	}
@@ -171,13 +177,15 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 					if(empty($template))
 						$template = '{{_label}}';
 					
-					list($results, $count) = $view->getData();
+					list($results,) = $view->getData();
 
 					if(is_array($results))
 					foreach($results as $id => $row) {
 						$ts_offset = @$params['field_start_date_offset'] ?: 'now';
 						$ts = strtotime($ts_offset, $row[$field_start_date]);
-
+						
+						$labels = $values = [];
+						
 						// [TODO] This should be more efficient
 						// [TODO] It can be with the new lazy loader (we can preload the requested tokens)
 						CerberusContexts::getContext($context_ext->id, $id, $labels, $values);
