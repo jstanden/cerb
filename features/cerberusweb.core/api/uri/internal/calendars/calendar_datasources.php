@@ -164,6 +164,10 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 						'filter_range_end' // $params['field_end_date']
 					);
 					
+					$view->view_columns = array_unique([
+						$field_start_date,
+						$field_end_date
+					]);
 					$view->renderPage = 0;
 					$view->renderLimit = -1;
 					$view->setAutoPersist(false);
