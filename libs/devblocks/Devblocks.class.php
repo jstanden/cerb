@@ -2007,21 +2007,35 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function strToHyperlinks($string) {
+	static function strToHyperlinks($string, $as_html=true) {
 		// Bail out if we're asked to auto-hyperlink a huge block of text
 		if(strlen($string) > 100000)
 			return $string;
 		
-		$string = html_entity_decode($string, ENT_COMPAT, LANG_CHARSET_CODE);
+		$replacements = [];
+		
+		if($as_html)
+			$string = html_entity_decode($string, ENT_COMPAT, LANG_CHARSET_CODE);
 		
 		// See: https://daringfireball.net/2010/07/improved_regex_for_matching_urls
-		return preg_replace_callback('@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@', function($matches) {
+		$out = preg_replace_callback('@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@', function($matches) use ($as_html, &$replacements) {
+			$token = sprintf('{{{URL_%d}}}', count($replacements));
 			$url = $matches[0];
-			return sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-				$url,
-				$url
+			
+			$replacements[$token] = sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+				$as_html ? htmlentities($url, ENT_COMPAT, LANG_CHARSET_CODE) : $url,
+				$as_html ? htmlentities($url, ENT_COMPAT, LANG_CHARSET_CODE) : $url
 			);
+			
+			return $token;
 		}, $string);
+		
+		if($as_html)
+			$out = htmlentities($out, ENT_COMPAT, LANG_CHARSET_CODE);
+		
+		$out = str_replace(array_keys($replacements), $replacements, $out);
+		
+		return $out;
 	}
 	
 	/**
