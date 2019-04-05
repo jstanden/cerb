@@ -2015,7 +2015,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$replacements = [];
 		
 		if($as_html)
-			$string = html_entity_decode($string, ENT_COMPAT, LANG_CHARSET_CODE);
+			$string = html_entity_decode($string, ENT_QUOTES, LANG_CHARSET_CODE);
 		
 		// See: https://daringfireball.net/2010/07/improved_regex_for_matching_urls
 		$out = preg_replace_callback('@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@', function($matches) use ($as_html, &$replacements) {
@@ -2023,15 +2023,15 @@ class DevblocksPlatform extends DevblocksEngine {
 			$url = $matches[0];
 			
 			$replacements[$token] = sprintf('<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-				$as_html ? htmlentities($url, ENT_COMPAT, LANG_CHARSET_CODE) : $url,
-				$as_html ? htmlentities($url, ENT_COMPAT, LANG_CHARSET_CODE) : $url
+				$as_html ? htmlentities($url, ENT_QUOTES, LANG_CHARSET_CODE) : $url,
+				$as_html ? htmlentities($url, ENT_QUOTES, LANG_CHARSET_CODE) : $url
 			);
 			
 			return $token;
 		}, $string);
 		
 		if($as_html)
-			$out = htmlentities($out, ENT_COMPAT, LANG_CHARSET_CODE);
+			$out = htmlentities($out, ENT_QUOTES, LANG_CHARSET_CODE);
 		
 		$out = str_replace(array_keys($replacements), $replacements, $out);
 		
