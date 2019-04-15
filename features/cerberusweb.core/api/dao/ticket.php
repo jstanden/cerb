@@ -3137,7 +3137,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 			'bucket.id' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_BUCKET,
+					],
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_BUCKET_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_BUCKET, 'q' => ''],
@@ -3190,7 +3193,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				),
 			'id' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_TICKET,
+					],
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],

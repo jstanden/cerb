@@ -56,6 +56,8 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$path = DevblocksPlatform::importGPC($_REQUEST['path'], 'string', '');
 				
+				$error = null;
+				
 				if(empty($id)) { // New
 					@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
 					
@@ -202,7 +204,6 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 	
 	function handleProfileTabActionAction() {
 		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'string', '');
 		@$tab_action = DevblocksPlatform::importGPC($_REQUEST['tab_action'], 'string', '');
 		
 		if(false == ($portal = DAO_CommunityTool::get($portal_id)))

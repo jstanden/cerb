@@ -354,7 +354,7 @@ class ChRest_Records extends Extension_RestController {
 		$objects = [];
 		
 		if($show_results) {
-			$objects = array();
+			$objects = [];
 			
 			$models = CerberusContexts::getModels($context->id, array_keys($results));
 			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context->id);

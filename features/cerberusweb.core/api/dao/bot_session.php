@@ -30,6 +30,8 @@ class DAO_BotSession extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
+		// [TODO] Use random_bytes()
+		
 		$session_id = sha1(json_encode($fields) . time() . uniqid(null, true));
 		
 		$sql = sprintf("INSERT INTO bot_session (session_id) VALUES (%s)",
@@ -243,7 +245,7 @@ class DAO_BotSession extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_BotSession::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_BotSession', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_BotSession', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"bot_session.session_id as %s, ".

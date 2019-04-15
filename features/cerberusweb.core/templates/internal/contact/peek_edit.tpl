@@ -134,7 +134,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{'common.dob'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			<input type="text" name="dob" value="{if $model->dob}{$model->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false">
+			<input type="text" name="dob" value="{if $model->dob}{$model->dob}{/if}" style="width:98%;" autocomplete="off" spellcheck="false" placeholder="YYYY-MM-DD">
 		</td>
 	</tr>
 	

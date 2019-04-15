@@ -64,7 +64,9 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
-				<param key="options"/>
+				<param key="options">
+					<data key="resumable" />
+				</param>
 			</params>
 		</extension>
 		
@@ -84,7 +86,9 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
-				<param key="options"/>
+				<param key="options">
+					<data key="resumable" />
+				</param>
 			</params>
 		</extension>
 	
