@@ -155,14 +155,16 @@ class ChPortalHelper {
 			self::$_session_id = $session_id;
 		}
 		
+		$cache_key = sha1($session_id.':'.$portal->id);
+		
 		// Did we cache the lookup?
-		if(!isset(self::$_sessions_cache[$session_id])) {
-			$session = DAO_CommunitySession::get($session_id);
+		if(!array_key_exists($cache_key, self::$_sessions_cache)) {
+			$session = DAO_CommunitySession::get($session_id, $portal->id);
 		
 			// Cache it
-			self::$_sessions_cache[$session_id] = $session;
+			self::$_sessions_cache[$cache_key] = $session;
 		}
-			
-		return self::$_sessions_cache[$session_id];
+		
+		return self::$_sessions_cache[$cache_key];
 	}
 };

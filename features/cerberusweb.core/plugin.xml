@@ -248,13 +248,16 @@
 		
 		<file path="api/dao/community_portal.php">
 			<class name="Context_CommunityTool" />
-			<class name="DAO_CommunitySession" />
 			<class name="DAO_CommunityTool" />
 			<class name="DAO_CommunityToolProperty" />
-			<class name="Model_CommunitySession" />
 			<class name="Model_CommunityTool" />
 			<class name="SearchFields_CommunityTool" />
 			<class name="View_CommunityPortal" />
+		</file>
+		
+		<file path="api/dao/community_session.php">
+			<class name="DAO_CommunitySession" />
+			<class name="Model_CommunitySession" />
 		</file>
 		
 		<file path="api/dao/confirmation_code.php">
