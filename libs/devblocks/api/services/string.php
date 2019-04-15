@@ -34,4 +34,8 @@ class _DevblocksStringService {
 			return strlen($match[0]) >= 4 ? null : $match[0];
 		}, $string);
 	}
+	
+	function yamlParse($yaml_string) {
+		return yaml_parse($yaml_string, -1);
+	}
 }
