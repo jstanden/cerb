@@ -12,47 +12,43 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek cfield-props">
-	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
-	
-	<table cellpadding="2" cellspacing="0" border="0" width="100%">
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
-			</td>
-			<td width="99%">
-				<input type="text" name="name" value="{$model->name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;"><br>
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
-			</td>
-			<td width="99%">
-				{if !empty($model->id)}
-					<input type="hidden" name="context" value="{$model->context}">
-					{if $contexts.{$model->context}}
-						{$contexts.{$model->context}->name}
-					{/if}
-				{else}
-				<select name="context">
-					{foreach from=$contexts item=ctx key=k}
-					<option value="{$k}" {if $model->context==$k}selected="selected"{/if}>{$ctx->name}</option>
-					{/foreach}
-				</select>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
+		</td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;"><br>
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.type'|devblocks_translate|capitalize}:</b><br>
+		</td>
+		<td width="99%">
+			{if !empty($model->id)}
+				<input type="hidden" name="context" value="{$model->context}">
+				{if $contexts.{$model->context}}
+					{$contexts.{$model->context}->name}
 				{/if}
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" valign="top">
-				<b>{'common.owner'|devblocks_translate|capitalize}:</b>
-			</td>
-			<td width="99%">
-				{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl" model=$model}
-			</td>
-		</tr>
-	</table>
-</fieldset>
+			{else}
+			<select name="context">
+				{foreach from=$contexts item=ctx key=k}
+				<option value="{$k}" {if $model->context==$k}selected="selected"{/if}>{$ctx->name}</option>
+				{/foreach}
+			</select>
+			{/if}
+		</td>
+	</tr>
+	<tr>
+		<td width="1%" nowrap="nowrap" valign="top">
+			<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+		</td>
+		<td width="99%">
+			{include file="devblocks:cerberusweb.core::internal/peek/menu_actor_owner.tpl" model=$model}
+		</td>
+	</tr>
+</table>
 
 {if !empty($model->id) && $is_writeable}
 <fieldset class="delete" style="display:none;">
@@ -64,9 +60,7 @@
 </fieldset>
 {/if}
 
-<div class="status"></div>
-
-<div class="buttons">
+<div class="buttons" style="margin-top:10px;">
 {if $active_worker->hasPriv("contexts.{$peek_context}.update") && (empty($model->id) || $is_writeable)}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 {/if}
