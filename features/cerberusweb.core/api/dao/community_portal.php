@@ -672,6 +672,10 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 		return $props;
 	}
 	
+	static function getJson($tool_code, $key, $default=null) {
+		return self::get($tool_code, $key, $default, true);
+	}
+	
 	static function get($tool_code, $key, $default=null, $json_decode=false) {
 		$props = self::getAllByTool($tool_code);
 		@$val = $props[$key];
@@ -685,6 +689,10 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 			$val = $default;
 		
 		return $val;
+	}
+	
+	static function setJson($tool_code, $key, $value) {
+		self::set($tool_code, $key, $value, true);
 	}
 	
 	static function set($tool_code, $key, $value, $json_encode=false) {
