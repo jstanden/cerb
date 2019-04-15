@@ -62,6 +62,7 @@
 		"donatj/phpuseragentparser": "^1.0",
 		"twig/twig" : "dev-3.8.0-cerb",
 		"singpolyma/openpgp-php": "0.6.0",
+		"steverhoades/oauth2-openid-connect-server": "^1.0",
 		"horde/imap-client": "dev-2.30.6-cerb",
 		"ramsey/uuid": "^4.1",
 		"enshrined/svg-sanitize": "^0.15"
