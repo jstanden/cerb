@@ -360,9 +360,7 @@
 	</tr>
 	<tr>
 		<td id="reply{$message->id}_buttons">
-			<div class="status"></div>
-		
-			<button type="button" class="send split-left" onclick="$(this).closest('td').find('ul li:first a').click();" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.send_message'|devblocks_translate}{/if}</button><!--
+			<button type="button" class="send split-left" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.send_message'|devblocks_translate}{/if}</button><!--
 			--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
 			<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
 				<li><a href="javascript:;" class="send">{if $is_forward}{'display.ui.forward'|devblocks_translate}{else}{'display.ui.send_message'|devblocks_translate}{/if}</a></li>
@@ -399,31 +397,6 @@ $(function() {
 		{else}
 		genericAjaxPopupClose($popup);
 		{/if}
-	});
-	
-	$reply.find('button.discard').on('click', function(e) {
-		e.stopPropagation();
-		
-		window.onbeforeunload = null;
-		
-		if(confirm('Are you sure you want to discard this reply?')) {
-			if(null != draftAutoSaveInterval) { 
-				clearTimeout(draftAutoSaveInterval);
-				draftAutoSaveInterval = null; 
-			}
-			
-			var draft_id = $frm2.find('input:hidden[name=draft_id]').val();
-			
-			genericAjaxGet(
-				'',
-				'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id=' + escape(draft_id),
-				function(o) { 
-					$('#draft'+escape(draft_id)).remove();
-					
-					$reply.triggerHandler('cerb-reply--close');
-				}
-			);
-		}
 	});
 	
 	var onReplyFormInit = function() {
@@ -861,10 +834,44 @@ $(function() {
 		
 		var $buttons = $('#reply{$message->id}_buttons');
 		
+		$buttons.find('button.send').on('click', function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
+			$buttons.find('a.send').click();
+		});
+		
+		$buttons.find('button.discard').on('click', function(e) {
+			e.stopPropagation();
+			
+			window.onbeforeunload = null;
+			
+			if(confirm('Are you sure you want to discard this reply?')) {
+				if(null != draftAutoSaveInterval) { 
+					clearTimeout(draftAutoSaveInterval);
+					draftAutoSaveInterval = null; 
+				}
+				
+				var draft_id = $frm2.find('input:hidden[name=draft_id]').val();
+				
+				genericAjaxGet(
+					'',
+					'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id=' + escape(draft_id),
+					function(o) { 
+						$('#draft'+escape(draft_id)).remove();
+						
+						$reply.triggerHandler('cerb-reply--close');
+					}
+				);
+			}
+		});
+		
 		$buttons.find('a.send').click(function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
 			var $button = $(this);
 			var $status = $frm2.find('div.status').html('').hide();
-			$status.text('').hide();
 			
 			// Validate via Ajax before sending
 			genericAjaxPost($frm2, '', 'c=display&a=validateReplyJson', function(json) {
@@ -895,6 +902,9 @@ $(function() {
 		});
 		
 		$buttons.find('a.save').on('click', function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
 			var $button = $(this);
 			
 			// Stop draft auto-save
@@ -918,7 +928,10 @@ $(function() {
 			});
 		});
 		
-		$buttons.find('a.draft').click(function() {
+		$buttons.find('a.draft').click(function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+			
 			// Stop the draft auto-save
 			if(null != draftAutoSaveInterval) {
 				clearTimeout(draftAutoSaveInterval);
