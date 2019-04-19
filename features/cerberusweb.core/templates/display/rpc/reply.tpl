@@ -871,7 +871,10 @@ $(function() {
 				return;
 			
 			var $button = $(this);
-			var $status = $frm2.find('div.status').html('').hide();
+
+			Devblocks.clearAlerts();
+			showLoadingPanel();
+			$button.closest('td').hide();
 			
 			// Validate via Ajax before sending
 			genericAjaxPost($frm2, '', 'c=display&a=validateReplyJson', function(json) {
@@ -881,10 +884,7 @@ $(function() {
 						draftAutoSaveInterval = null;
 					}
 					
-					showLoadingPanel();
-					
 					$frm2.find('input:hidden[name=reply_mode]').val('');
-					$button.closest('td').hide();
 					
 					genericAjaxPost($frm2, '', null, function() {
 						hideLoadingPanel();
@@ -896,7 +896,9 @@ $(function() {
 					});
 					
 				} else {
-					$status.text(json.message).addClass('error').fadeIn();
+					Devblocks.createAlertError(json.message);
+					hideLoadingPanel();
+					$button.closest('td').show();
 				}
 			});
 		});
