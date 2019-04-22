@@ -2545,6 +2545,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							break;
 
 						case Model_CustomField::TYPE_NUMBER:
+						case 'id':
 						case 'time_mins':
 						case 'time_secs':
 							$not = (substr($params['oper'],0,1) == '!');
