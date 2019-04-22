@@ -375,24 +375,17 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$label = (array_key_exists($k, $labels) && array_key_exists($row[$k], $labels[$k])) ? $labels[$k][$row[$k]] : $row[$k];
 				$query[] = $queries[$k][$row[$k]];
 				
-				if(false === ($idx = array_search($label, array_column($ptr, 'name')))) {
-					$data = [
-						'name' => $label,
-						'value' => $row[$k],
-						'hits' => 0,
-						'query' => implode(' ', $query),
-					];
-					
-					$ptr[] = $data;
-					end($ptr);
-					$ptr =& $ptr[key($ptr)];
-					
-				} else {
-					$ptr =& $ptr[$idx];
-				}
+				$data = [
+					'name' => $label,
+					'value' => $row[$k],
+					'hits' => $row['hits'],
+					'query' => implode(' ', $query),
+				];
 				
-				$ptr['hits'] += $row['hits'];
-				
+				$ptr[] = $data;
+				end($ptr);
+				$ptr =& $ptr[key($ptr)];
+					
 				if($k != $last_k) {
 					if(!array_key_exists('children', $ptr))
 						$ptr['children'] = [];
