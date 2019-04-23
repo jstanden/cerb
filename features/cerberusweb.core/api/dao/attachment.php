@@ -84,7 +84,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField('_content')
-			->string()
+			->string($validation::STRING_UTF8MB4)
 			->setMaxLength('32 bits')
 			;
 		$validation
