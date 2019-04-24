@@ -296,7 +296,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	function renderWidgetAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'bool', false);
-		@$refresh_options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', []);
 		
 		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
 			return;
@@ -316,7 +315,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/render.tpl');
 			
 		} else {
-			$extension->render($widget, $refresh_options);
+			$extension->render($widget);
 		}
 	}
 	

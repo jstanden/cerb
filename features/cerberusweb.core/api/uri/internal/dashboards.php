@@ -551,7 +551,7 @@ class WorkspaceWidget_BehaviorTree extends Extension_WorkspaceWidget {
 class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 	const ID = 'cerb.workspace.widget.record.fields';
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		@$target_context = $widget->params['context'];
 		@$target_context_id = $widget->params['context_id'];
 		
@@ -933,7 +933,7 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 };
 
 class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -1177,7 +1177,7 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 };
 
 class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 
 		@$timezone = $widget->params['timezone'];
@@ -1318,7 +1318,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 		return true;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 
 		if(false == ($this->_loadData($widget))) {
@@ -1456,7 +1456,7 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 };
 
 class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 
 		if(!isset($widget->params['target_timestamp'])) {
@@ -1593,7 +1593,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 		return $results;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
@@ -1786,7 +1786,7 @@ class WorkspaceWidget_ChartPie extends Extension_WorkspaceWidget implements ICer
 		return $results;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', null);
@@ -1957,7 +1957,7 @@ class WorkspaceWidget_ChartScatterplot extends Extension_WorkspaceWidget impleme
 		return $results;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		@$xaxis_format = DevblocksPlatform::importGPC($widget->params['xaxis_format'], 'string', '');
 		@$xaxis_label = DevblocksPlatform::importGPC($widget->params['xaxis_label'], 'string', '');
 		@$yaxis_format = DevblocksPlatform::importGPC($widget->params['yaxis_format'], 'string', '');
@@ -2157,7 +2157,7 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 		return $results;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$error = null;
@@ -2299,7 +2299,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		return $results;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		@$chart_as = DevblocksPlatform::importGPC($widget->params['chart_as'], 'string', 'line');
@@ -2612,7 +2612,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 		return true;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		if(false == ($this->_loadData($widget))) {
@@ -2941,7 +2941,7 @@ class WorkspaceWidget_ChartLegacy extends Extension_WorkspaceWidget implements I
 };
 
 class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$view_id = sprintf("widget%d_worklist", $widget->id);
 
 		if(null == ($view = self::getViewFromParams($widget, $widget->params, $view_id)))
@@ -3227,7 +3227,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		return $view;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$view = $this->getView($widget);
@@ -3448,7 +3448,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 };
 
 class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		if(false == ($widget->getWorkspacePage()))
 			return;
 		
@@ -3520,7 +3520,7 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 };
 
 class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$data = DevblocksPlatform::services()->data();
@@ -3650,7 +3650,7 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 		return true;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 
 		if(false == $this->_loadData($widget)) {
@@ -3848,7 +3848,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 		return true;
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 
 		if(false == ($this->_loadData($widget))) {

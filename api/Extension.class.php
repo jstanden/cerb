@@ -415,7 +415,7 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 		return $extensions;
 	}
 	
-	abstract function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]);
+	abstract function render(Model_ProfileWidget $model, $context, $context_id);
 	abstract function renderConfig(Model_ProfileWidget $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }
 	
@@ -730,7 +730,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 		return null;
 	}
 	
-	abstract function render(Model_WorkspaceWidget $widget, $refresh_options=[]);
+	abstract function render(Model_WorkspaceWidget $widget);
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 	

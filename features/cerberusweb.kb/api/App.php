@@ -126,7 +126,7 @@ class ChKbPage extends CerberusPageExtension {
 };
 
 class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		@$root_category_id = intval($widget->params['topic_id']);
 		
 		$this->_renderCategory($root_category_id, $widget);
@@ -324,7 +324,7 @@ class ProfileWidget_KbArticle extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		

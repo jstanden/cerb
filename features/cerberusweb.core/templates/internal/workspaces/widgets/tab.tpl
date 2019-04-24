@@ -259,7 +259,7 @@ $(function() {
 			;
 		
 		if(typeof refresh_options == 'object')
-			request_url += '&' + $.param({ 'options': refresh_options });
+			request_url += '&' + $.param(refresh_options);
 		
 		genericAjaxGet('', request_url, function(html) {
 			if(0 == html.length) {

@@ -6,7 +6,7 @@ class ProfileWidget_ProjectBoard extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -83,7 +83,7 @@ class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_WorkspaceWidget $widget, $refresh_options=[]) {
+	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		

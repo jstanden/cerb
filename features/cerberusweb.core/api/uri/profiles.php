@@ -397,7 +397,6 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
 		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'bool', false);
-		@$refresh_options = DevblocksPlatform::importGPC($_REQUEST['options'], 'array', []);
 		
 		if(false == ($widget = DAO_ProfileWidget::get($id)))
 			return;
@@ -420,7 +419,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl');
 			
 		} else {
-			$extension->render($widget, $context, $context_id, $refresh_options);
+			$extension->render($widget, $context, $context_id);
 		}
 	}
 	
@@ -1058,7 +1057,7 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		@$view_context = $model->extension_params['context'];
 		@$query = $model->extension_params['query'];
 		@$query_required = $model->extension_params['query_required'];
@@ -1205,7 +1204,7 @@ class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1298,7 +1297,7 @@ class ProfileWidget_TicketSpamAnalysis extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		if(0 != strcasecmp($context, CerberusContexts::CONTEXT_TICKET))
 			return;
 		
@@ -1338,7 +1337,7 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		switch($context) {
@@ -1481,7 +1480,7 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -1628,7 +1627,7 @@ class ProfileWidget_BehaviorTree extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -1706,7 +1705,7 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
@@ -1826,7 +1825,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		@$target_context = $model->extension_params['context'];
 		@$target_context_id = $model->extension_params['context_id'];
 		
@@ -2123,15 +2122,20 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('widget', $model);
 		
 		// [TODO] Handle focus?
 		
-		$refresh_options['comments_mode'] = DevblocksPlatform::importVar(@$model->extension_params['comments_mode'], 'int', 0);
+		$display_options = [];
 		
-		$this->_showConversationAction($context_id, $refresh_options);
+		if(array_key_exists('expand_all', $_REQUEST))
+			$display_options['expand_all'] = DevblocksPlatform::importGPC($_REQUEST['expand_all'], 'bit', 0);
+		
+		$display_options['comments_mode'] = DevblocksPlatform::importVar(@$model->extension_params['comments_mode'], 'int', 0);
+		
+		$this->_showConversationAction($context_id, $display_options);
 	}
 	
 	private function _showConversationAction($id, $display_options=[]) {
@@ -2333,7 +2337,7 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', 'label');
 		@$yaxis_format = DevblocksPlatform::importGPC($model->extension_params['yaxis_format'], 'string', 'label');
@@ -2457,7 +2461,7 @@ class ProfileWidget_ChartPie extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$data = DevblocksPlatform::services()->data();
@@ -2548,7 +2552,7 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$xaxis_label = DevblocksPlatform::importGPC($model->extension_params['xaxis_label'], 'string', '');
 		@$xaxis_format = DevblocksPlatform::importGPC($model->extension_params['xaxis_format'], 'string', '');
@@ -2639,7 +2643,7 @@ class ProfileWidget_ChartScatterplot extends Extension_ProfileWidget {
 }
 
 class ProfileWidget_ChartTable extends Extension_ProfileWidget {
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$data = DevblocksPlatform::services()->data();
@@ -2697,7 +2701,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', 'line');
 		@$options = DevblocksPlatform::importGPC($model->extension_params['options'], 'array', []);
@@ -2845,7 +2849,7 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 }
 
 class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$data = DevblocksPlatform::services()->data();
@@ -2914,7 +2918,7 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', '');
 		@$cache_ttl = DevblocksPlatform::importGPC($model->extension_params['cache_ttl'], 'integer', 0);
 		@$cache_by_worker = DevblocksPlatform::importGPC($model->extension_params['cache_by_worker'], 'integer', 0);
@@ -3019,7 +3023,7 @@ class ProfileWidget_CustomHtml extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		@$template = $model->extension_params['template'];
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -3057,7 +3061,7 @@ class ProfileWidget_Comments extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
-	function render(Model_ProfileWidget $model, $context, $context_id, $refresh_options=[]) {
+	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		// [TODO] Translate 'context' and 'context_id' settings (may not be this record)
