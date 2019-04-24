@@ -6617,7 +6617,7 @@
 			<id>core.workspace.tab.dashboard</id>
 			<name>Dashboard</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/tabs/dashboard.php</file>
 				<name>WorkspaceTab_Dashboards</name>
 			</class>
 			<params>
@@ -6629,7 +6629,7 @@
 			<id>core.workspace.tab.worklists</id>
 			<name>Worklists</name>
 			<class>
-				<file>api/uri/internal/workspaces.php</file>
+				<file>api/workspaces/tabs/worklists.php</file>
 				<name>WorkspaceTab_Worklists</name>
 			</class>
 			<params>
