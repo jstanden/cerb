@@ -6387,7 +6387,7 @@
 			<id>cerb.profile.tab.widget.behavior.tree</id>
 			<name>Behavior Tree</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/behavior_tree.php</file>
 				<name>ProfileWidget_BehaviorTree</name>
 			</class>
 			<params>
@@ -6398,7 +6398,7 @@
 			<id>cerb.profile.tab.widget.calendar</id>
 			<name>Calendar</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/calendar.php</file>
 				<name>ProfileWidget_Calendar</name>
 			</class>
 			<params>
@@ -6409,7 +6409,7 @@
 			<id>cerb.profile.tab.widget.calendar.availability</id>
 			<name>Calendar Availability</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/calendar_availability.php</file>
 				<name>ProfileWidget_CalendarAvailability</name>
 			</class>
 			<params>
@@ -6420,7 +6420,7 @@
 			<id>cerb.profile.tab.widget.chart.categories</id>
 			<name>Chart: Categories</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/chart_categories.php</file>
 				<name>ProfileWidget_ChartCategories</name>
 			</class>
 			<params>
@@ -6431,7 +6431,7 @@
 			<id>cerb.profile.tab.widget.chart.pie</id>
 			<name>Chart: Pie</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/chart_pie.php</file>
 				<name>ProfileWidget_ChartPie</name>
 			</class>
 			<params>
@@ -6442,7 +6442,7 @@
 			<id>cerb.profile.tab.widget.chart.scatterplot</id>
 			<name>Chart: Scatterplot</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/chart_scatterplot.php</file>
 				<name>ProfileWidget_ChartScatterplot</name>
 			</class>
 			<params>
@@ -6453,7 +6453,7 @@
 			<id>cerb.profile.tab.widget.chart.table</id>
 			<name>Chart: Table</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/chart_table.php</file>
 				<name>ProfileWidget_ChartTable</name>
 			</class>
 			<params>
@@ -6464,7 +6464,7 @@
 			<id>cerb.profile.tab.widget.chart.time_series</id>
 			<name>Chart: Time Series</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/chart_time_series.php</file>
 				<name>ProfileWidget_ChartTimeSeries</name>
 			</class>
 			<params>
@@ -6475,7 +6475,7 @@
 			<id>cerb.profile.tab.widget.comments</id>
 			<name>Comments</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/comments.php</file>
 				<name>ProfileWidget_Comments</name>
 			</class>
 			<params>
@@ -6486,7 +6486,7 @@
 			<id>cerb.profile.tab.widget.bot</id>
 			<name>Custom</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/bot_behavior.php</file>
 				<name>ProfileWidget_BotBehavior</name>
 			</class>
 			<params>
@@ -6497,7 +6497,7 @@
 			<id>cerb.profile.tab.widget.html</id>
 			<name>HTML/Javascript</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/html_javascript.php</file>
 				<name>ProfileWidget_CustomHtml</name>
 			</class>
 			<params>
@@ -6508,7 +6508,7 @@
 			<id>cerb.profile.tab.widget.map.geopoints</id>
 			<name>Map: Geo Points</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/map_geo_points.php</file>
 				<name>ProfileWidget_MapGeoPoints</name>
 			</class>
 			<params>
@@ -6519,7 +6519,7 @@
 			<id>cerb.profile.tab.widget.fields</id>
 			<name>Record Fields</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/record_fields.php</file>
 				<name>ProfileWidget_Fields</name>
 			</class>
 			<params>
@@ -6530,7 +6530,7 @@
 			<id>cerb.profile.tab.widget.responsibilities</id>
 			<name>Responsibilities</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/responsibilities.php</file>
 				<name>ProfileWidget_Responsibilities</name>
 			</class>
 			<params>
@@ -6547,7 +6547,7 @@
 			<id>cerb.profile.tab.widget.ticket.convo</id>
 			<name>Ticket Conversation</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/ticket/conversation.php</file>
 				<name>ProfileWidget_TicketConvo</name>
 			</class>
 			<params>
@@ -6563,7 +6563,7 @@
 			<id>cerb.profile.tab.widget.ticket.spam_analysis</id>
 			<name>Ticket Spam Analysis</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/ticket/spam_analysis.php</file>
 				<name>ProfileWidget_TicketSpamAnalysis</name>
 			</class>
 			<params>
@@ -6579,7 +6579,7 @@
 			<id>cerb.profile.tab.widget.visualization</id>
 			<name>Data Query Visualization</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/data_query_visualization.php</file>
 				<name>ProfileWidget_Visualization</name>
 			</class>
 			<params>
@@ -6590,7 +6590,7 @@
 			<id>cerb.profile.tab.widget.worklist</id>
 			<name>Worklist</name>
 			<class>
-				<file>api/uri/profiles.php</file>
+				<file>api/profiles/widgets/worklist.php</file>
 				<name>ProfileWidget_Worklist</name>
 			</class>
 			<params>
