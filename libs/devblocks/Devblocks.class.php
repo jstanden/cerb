@@ -38,6 +38,14 @@ class _DevblocksServices {
 	
 	/**
 	 * 
+	 * @return _DevblocksCaptchaService
+	 */
+	function captcha() {
+		return _DevblocksCaptchaService::getInstance();
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksClassLoadManager
 	 */
 	function classloader() {

@@ -164,6 +164,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/bayes_classifier.php', array(
 			'_DevblocksBayesClassifierService',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/captcha.php', [
+			'_DevblocksCaptchaService',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/data.php', array(
 			'_DevblocksDataService',
 		));
