@@ -6643,7 +6643,7 @@
 			<id>core.workspace.widget.bot</id>
 			<name>Bot Custom Widget</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/bot_behavior.php</file>
 				<name>WorkspaceWidget_BotBehavior</name>
 			</class>
 			<params>
@@ -6654,7 +6654,7 @@
 			<id>cerb.workspace.widget.behavior.tree</id>
 			<name>Bot Behavior Tree</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/behavior_tree.php</file>
 				<name>WorkspaceWidget_BehaviorTree</name>
 			</class>
 			<params>
@@ -6665,7 +6665,7 @@
 			<id>core.workspace.widget.gauge</id>
 			<name>Gauge</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/gauge.php</file>
 				<name>WorkspaceWidget_Gauge</name>
 			</class>
 			<params>
@@ -6676,7 +6676,7 @@
 			<id>core.workspace.widget.calendar</id>
 			<name>Calendar</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/calendar.php</file>
 				<name>WorkspaceWidget_Calendar</name>
 			</class>
 			<params>
@@ -6687,7 +6687,7 @@
 			<id>cerb.workspace.widget.chart.categories</id>
 			<name>Chart: Categories</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/chart_categories.php</file>
 				<name>WorkspaceWidget_ChartCategories</name>
 			</class>
 			<params>
@@ -6698,7 +6698,7 @@
 			<id>cerb.workspace.widget.map.geopoints</id>
 			<name>Map: Geo Points</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/map_geo_points.php</file>
 				<name>WorkspaceWidget_MapGeoPoints</name>
 			</class>
 			<params>
@@ -6709,7 +6709,7 @@
 			<id>cerb.workspace.widget.chart.pie</id>
 			<name>Chart: Pie</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/chart_pie.php</file>
 				<name>WorkspaceWidget_ChartPie</name>
 			</class>
 			<params>
@@ -6720,7 +6720,7 @@
 			<id>cerb.workspace.widget.chart.scatterplot</id>
 			<name>Chart: Scatterplot</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/chart_scatterplot.php</file>
 				<name>WorkspaceWidget_ChartScatterplot</name>
 			</class>
 			<params>
@@ -6731,7 +6731,7 @@
 			<id>cerb.workspace.widget.chart.table</id>
 			<name>Chart: Table</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/chart_table.php</file>
 				<name>WorkspaceWidget_ChartTable</name>
 			</class>
 			<params>
@@ -6742,7 +6742,7 @@
 			<id>cerb.workspace.widget.chart.timeseries</id>
 			<name>Chart: Time Series</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/chart_time_series.php</file>
 				<name>WorkspaceWidget_ChartTimeSeries</name>
 			</class>
 			<params>
@@ -6753,7 +6753,7 @@
 			<id>core.workspace.widget.chart</id>
 			<name>(Deprecated) Line/Bar Chart</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/deprecated/chart.php</file>
 				<name>WorkspaceWidget_ChartLegacy</name>
 			</class>
 			<params>
@@ -6764,7 +6764,7 @@
 			<id>core.workspace.widget.clock</id>
 			<name>Clock</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/clock.php</file>
 				<name>WorkspaceWidget_Clock</name>
 			</class>
 			<params>
@@ -6775,7 +6775,7 @@
 			<id>core.workspace.widget.countdown</id>
 			<name>Countdown</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/countdown.php</file>
 				<name>WorkspaceWidget_Countdown</name>
 			</class>
 			<params>
@@ -6786,7 +6786,7 @@
 			<id>core.workspace.widget.counter</id>
 			<name>Counter</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/counter.php</file>
 				<name>WorkspaceWidget_Counter</name>
 			</class>
 			<params>
@@ -6797,7 +6797,7 @@
 			<id>core.workspace.widget.custom_html</id>
 			<name>(Deprecated) HTML/Javascript</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/deprecated/html_javascript.php</file>
 				<name>WorkspaceWidget_CustomHtml</name>
 			</class>
 			<params>
@@ -6808,7 +6808,7 @@
 			<id>core.workspace.widget.pie_chart</id>
 			<name>(Deprecated) Pie Chart</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/deprecated/pie.php</file>
 				<name>WorkspaceWidget_PieChart</name>
 			</class>
 			<params>
@@ -6819,7 +6819,7 @@
 			<id>core.workspace.widget.record.fields</id>
 			<name>Record Fields</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/record_fields.php</file>
 				<name>WorkspaceWidget_RecordFields</name>
 			</class>
 			<params>
@@ -6830,7 +6830,7 @@
 			<id>core.workspace.widget.scatterplot</id>
 			<name>(Deprecated) Scatterplot</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/deprecated/scatterplot.php</file>
 				<name>WorkspaceWidget_Scatterplot</name>
 			</class>
 			<params>
@@ -6841,7 +6841,7 @@
 			<id>core.workspace.widget.subtotals</id>
 			<name>(Deprecated) Subtotals</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/deprecated/subtotals.php</file>
 				<name>WorkspaceWidget_Subtotals</name>
 			</class>
 			<params>
@@ -6852,7 +6852,7 @@
 			<id>core.workspace.widget.worklist</id>
 			<name>Worklist</name>
 			<class>
-				<file>api/uri/internal/dashboards.php</file>
+				<file>api/workspaces/widgets/worklist.php</file>
 				<name>WorkspaceWidget_Worklist</name>
 			</class>
 			<params>
