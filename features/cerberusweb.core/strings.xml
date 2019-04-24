@@ -3711,12 +3711,12 @@
 		</tu>
 		<tu tuid="header.signoff">
 			<tuv xml:lang="en_US">
-				<seg>Log off</seg>
+				<seg>Log out</seg>
 			</tuv>
 		</tu>
 		<tu tuid="header.signoff.all.my">
 			<tuv xml:lang="en_US">
-				<seg>Log off (all my sessions)</seg>
+				<seg>Log out (all my sessions)</seg>
 			</tuv>
 		</tu>
 		<tu tuid="header.signon">

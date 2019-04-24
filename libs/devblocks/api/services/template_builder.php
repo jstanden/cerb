@@ -658,7 +658,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 
 		// Get the list of embedded contexts
 		$contexts = $first_dict->getContextsForName($token);
-
+		
 		foreach($contexts as $context_prefix => $context_data) {
 			// The top-level context is always loaded
 			if(empty($context_prefix))

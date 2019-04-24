@@ -102,7 +102,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			if(!is_array($group_by))
 				$group_by = [$group_by];
 				
-			foreach($subtotal_by as $idx => $by) {
+			foreach($subtotal_by as $by) {
 				// Handle limits and orders
 				@list($by, $limit) = explode('~', $by, 2);
 				
@@ -274,7 +274,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			if(false !== ($by_labels = $search_class::getLabelsForKeyValues($key_select, $values)))
 				$labels[$key_select] = $by_labels;
 			
-			foreach($values as $idx => $value) {
+			foreach($values as $value) {
 				@$filter = $by['key_query'] . ':%s';
 				
 				switch($by['type']) {

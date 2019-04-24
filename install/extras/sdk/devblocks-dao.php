@@ -17,6 +17,8 @@ updated_at int(10) unsigned NOT NULL DEFAULT '0',
 ";
 
 foreach($tables as $table_name => $field_strs) {
+	echo '<h1>', $table_name, '</h1>';
+	
 	// Class
 	$class_name = str_replace ( ' ', '', ucwords ( str_replace ( '_', ' ', $table_name ) ) );
 	$object_name = ucwords ( str_replace ( '_', ' ', $table_name ) );
@@ -46,7 +48,7 @@ foreach($tables as $table_name => $field_strs) {
 	// Contexts
 	
 	$ctx_var_model = $table_name;
-	$ctx_ext_id = sprintf ( "cerberusweb.contexts.%s", strtolower ( str_replace ( '_', '.', $table_name ) ) );
+	$ctx_ext_id = sprintf ( "cerb.contexts.%s", strtolower ( str_replace ( '_', '.', $table_name ) ) );
 	?>
 
 <h2>DAO</h2>

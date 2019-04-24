@@ -471,7 +471,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 }
 
 class ProfileTab_PortalConfigure extends Extension_ProfileTab {
-	const ID = 'cerb.profile.tab.portal.configure';
+	const ID = 'cerb.profile.tab.portal.config';
 
 	function __construct($manifest=null) {
 		parent::__construct($manifest);

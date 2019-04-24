@@ -225,7 +225,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 
 		// If we found a hit on a ticket record, return the ID
 		if(!empty($ticket_id)) {
-			return $ticket_id;
+			return intval($ticket_id);
 			
 		// Check if this mask was previously forwarded elsewhere
 		} else {
@@ -235,7 +235,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$ticket_id = $db->GetOneSlave($sql);
 			
 			if(!empty($ticket_id))
-				return $ticket_id;
+				return intval($ticket_id);
 		}
 
 		// No match

@@ -1137,6 +1137,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		
 		// Token values
 		if(null != $article) {
+			$token_values['_loaded'] = true;
 			$token_values['_label'] = $article->title;
 			$token_values['content'] = $article->getContent();
 			$token_values['format'] = $article->format;
@@ -1153,7 +1154,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d-%s",$article->id, DevblocksPlatform::strToPermalink($article->title)), true);
 		}
 		
-		return TRUE;
+		return true;
 	}
 	
 	function getKeyToDaoFieldMap() {
@@ -1257,7 +1258,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 					}
 				}
 				break;
-			
+				
 			case 'watchers':
 				$watchers = array(
 					$token => CerberusContexts::getWatchers($context, $context_id, true),

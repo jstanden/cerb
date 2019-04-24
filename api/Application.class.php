@@ -1252,7 +1252,7 @@ class CerberusContexts {
 
 		// Pop the stack
 		array_pop(self::$_stack);
-
+		
 		return null;
 	}
 
@@ -3304,7 +3304,6 @@ class CerbLoginWorkerAuthState {
 	function wasConsentAsked() {
 		return $this->was_consent_asked;
 	}
-	
 };
 
 class Cerb_ORMHelper extends DevblocksORMHelper {

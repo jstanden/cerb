@@ -4451,13 +4451,13 @@ class ChInternalController extends DevblocksControllerExtension {
 		$tpl->assign('variable_types', $variable_types);
 
 		// New variable
-		$var = array(
+		$var = [
 			'key' => '',
 			'type' => $type,
 			'label' => 'New Variable',
 			'is_private' => 1,
-			'params' => array(),
-		);
+			'params' => [],
+		];
 		$tpl->assign('var', $var);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/editors/trigger_variable.tpl');

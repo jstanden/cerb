@@ -177,7 +177,6 @@ class _DevblocksUrlManager {
 		if($check_proxy) {
 			@$proxyssl = $_SERVER['HTTP_DEVBLOCKSPROXYSSL'];
 			@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
-			@$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'];
 			
 			if($proxyhost)
 				return $proxyssl;
