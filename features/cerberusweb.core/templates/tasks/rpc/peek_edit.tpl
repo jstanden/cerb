@@ -63,7 +63,7 @@
 				<td width="100%">
 					<div class="cerb-delta-slider-container" style="margin-left:10px;">
 					<input type="hidden" name="importance" value="{$task->importance|default:0}">
-						<div class="cerb-delta-slider {if $task->importance < 50}cerb-slider-green{elseif $task->importance > 50}cerb-slider-red{else}cerb-slider-gray{/if}">
+						<div class="cerb-delta-slider {if $task->importance < 50}cerb-slider-green{elseif $task->importance > 50}cerb-slider-red{else}cerb-slider-gray{/if}" title="{$task->importance}">
 							<span class="cerb-delta-slider-midpoint"></span>
 						</div>
 					</div>
@@ -197,6 +197,8 @@ $(function() {
 						$this.addClass('cerb-slider-gray');
 						$this.slider('option', 'range', false);
 					}
+					
+					$this.attr('title', ui.value);
 				},
 				stop: function(event, ui) {
 					$input.val(ui.value);
