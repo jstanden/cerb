@@ -2,7 +2,7 @@
 class _DevblocksRegistryManager {
 	static $_instance = null;
 	
-	private $_registry = array();
+	private $_registry = [];
 	
 	static function getInstance() {
 		if(null == self::$_instance) {
@@ -59,7 +59,7 @@ class _DevblocksRegistryManager {
 	}
 	
 	private function _initIfEmpty($key, $value=null, $as=DevblocksRegistryEntry::TYPE_STRING) {
-		if(null != (@$var = $this->_registry[$key]))
+		if(array_key_exists($key, $this->_registry))
 			return true;
 		
 		// Lazy load from DB
@@ -78,9 +78,15 @@ class _DevblocksRegistryManager {
 		return true;
 	}
 	
-	public function persist($key, $bool=true) {
+	public function persist($key, $bool=true, $expires_at=0) {
 		if(isset($this->_registry[$key])) {
 			$this->_registry[$key]->ephemeral = !$bool;
+			
+			if($bool) {
+				$this->_registry[$key]->expires_at = $expires_at;
+			} else {
+				$this->_registry[$key]->expires_at = null;
+			}
 		}
 	}
 	
@@ -88,7 +94,7 @@ class _DevblocksRegistryManager {
 		//var_dump($this->_registry);
 
 		// Only persist non-ephemeral, 'dirty' variables
-		foreach($this->_registry as $k => $var) { /* @var $var DevblocksRegistryEntry */
+		foreach($this->_registry as $var) { /* @var $var DevblocksRegistryEntry */
 			if($var->ephemeral || !$var->dirty)
 				continue;
 
@@ -101,7 +107,7 @@ class _DevblocksRegistryManager {
 				}
 			}
 			
-			DAO_DevblocksRegistry::set($var->key, $var->value, $var->as, $var->delta);
+			DAO_DevblocksRegistry::set($var->key, $var->value, $var->as, $var->expires_at, $var->delta);
 		}
 	}
 	
@@ -130,16 +136,18 @@ class DevblocksRegistryEntry {
 	public $as = null;
 	public $delta = null;
 	public $ephemeral = null;
+	public $expires_at = 0;
 	public $dirty = false;
 	public $loaded = false;
 	
-	public function __construct($key, $value=null, $as=null, $ephemeral=false, $delta=false) {
+	public function __construct($key, $value=null, $as=null, $ephemeral=false, $delta=false, $expires_at=0) {
 		$this->key = $key;
 		$this->initial_value = null;
 		$this->value = $value;
 		$this->as = $as;
 		$this->delta = $delta;
 		$this->ephemeral = $ephemeral;
+		$this->expires_at = 0;
 	}
 	
 	public function increment($by, $min=0, $max=PHP_INT_MAX, $wrap=true) {
@@ -176,6 +184,7 @@ class DAO_DevblocksRegistry extends DevblocksORMHelper {
 	const ENTRY_KEY = 'entry_key';
 	const ENTRY_TYPE = 'entry_type';
 	const ENTRY_VALUE = 'entry_value';
+	const ENTRY_EXPIRES_AT = 'entry_expires_at';
 	
 	private function __construct() {}
 
@@ -200,6 +209,11 @@ class DAO_DevblocksRegistry extends DevblocksORMHelper {
 			->string()
 			->setMaxLength(65535)
 			;
+		// timestamp
+		$validation
+			->addField(self::ENTRY_EXPIRES_AT)
+			->timestamp()
+			;
 
 		return $validation->getFields();
 	}
@@ -207,7 +221,7 @@ class DAO_DevblocksRegistry extends DevblocksORMHelper {
 	public static function get($key) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$row = $db->GetRowMaster(sprintf("SELECT entry_key, entry_type, entry_value FROM devblocks_registry WHERE entry_key = %s",
+		$row = $db->GetRowMaster(sprintf("SELECT entry_key, entry_type, entry_value, entry_expires_at FROM devblocks_registry WHERE entry_key = %s",
 			$db->qstr($key)
 		));
 		
@@ -218,17 +232,19 @@ class DAO_DevblocksRegistry extends DevblocksORMHelper {
 		$object->entry_key = $row['entry_key'];
 		$object->entry_type = $row['entry_type'];
 		$object->entry_value = $row['entry_value'];
+		$object->entry_expires_at = intval($row['entry_expires_at']);
 		
 		return $object;
 	}
 	
-	public static function set($key, $value, $as=DevblocksRegistryEntry::TYPE_STRING, $delta=false) {
+	public static function set($key, $value, $as=DevblocksRegistryEntry::TYPE_STRING, $expires_at=0, $delta=false) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if($delta && $as == DevblocksRegistryEntry::TYPE_NUMBER) {
 			// Delta update if the row exists
-			$db->ExecuteMaster(sprintf("UPDATE devblocks_registry SET entry_value = entry_value + %d WHERE entry_key = %s",
+			$db->ExecuteMaster(sprintf("UPDATE devblocks_registry SET entry_value = entry_value + %d, entry_expires_at=%d WHERE entry_key = %s",
 				$value,
+				$expires_at,
 				$db->qstr($key)
 			));
 			
@@ -236,25 +252,39 @@ class DAO_DevblocksRegistry extends DevblocksORMHelper {
 			
 			// Othewise, create it
 			if(empty($result)) {
-				$db->ExecuteMaster(sprintf("INSERT INTO devblocks_registry (entry_key, entry_type, entry_value) VALUES (%s, %s, %s)",
+				$db->ExecuteMaster(sprintf("INSERT INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, %s, %s, %d)",
 					$db->qstr($key),
 					$db->qstr($as),
-					$db->qstr($value)
+					$db->qstr($value),
+					$expires_at
 				));
 			}
 			
 		} else {
-			$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value) VALUES (%s, %s, %s)",
+			$db->ExecuteMaster(sprintf("REPLACE INTO devblocks_registry (entry_key, entry_type, entry_value, entry_expires_at) VALUES (%s, %s, %s, %d)",
 				$db->qstr($key),
 				$db->qstr($as),
-				$db->qstr($value)
+				$db->qstr($value),
+				$expires_at
 			));
 		}
+	}
+	
+	public static function maint() {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("DELETE FROM devblocks_registry WHERE entry_expires_at BETWEEN 1 AND %d",
+			time()
+		);
+		$db->ExecuteMaster($sql);
+		
+		return true;
 	}
 };
 
 class Model_DevblocksRegistry {
-	public $entry_key;
-	public $entry_type;
-	public $entry_value;
+	public $entry_key = null;
+	public $entry_type = null;
+	public $entry_value = null;
+	public $entry_expires_at = 0;
 };

@@ -3124,10 +3124,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		return _DevblocksEventManager::getInstance();
 	}
 	
-	static function setRegistryKey($key, $value, $as=DevblocksRegistryEntry::TYPE_STRING, $persist=false) {
+	static function setRegistryKey($key, $value, $as=DevblocksRegistryEntry::TYPE_STRING, $persist=false, $expires_at=0) {
 		$registry = DevblocksPlatform::services()->registry();
 		$registry->set($key, $value, $as);
-		$registry->persist($key, $persist);
+		$registry->persist($key, $persist, $expires_at);
 	}
 	
 	static function getRegistryKey($key, $as=DevblocksRegistryEntry::TYPE_STRING, $default=null) {
