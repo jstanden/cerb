@@ -94,8 +94,8 @@
 		<td width="0%" nowrap="nowrap" valign="middle">{'common.importance'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
 			<div class="cerb-delta-slider-container">
-			<input type="hidden" name="importance" value="{$ticket->importance|default:0}">
-				<div class="cerb-delta-slider {if $ticket->importance < 50}cerb-slider-green{elseif $ticket->importance > 50}cerb-slider-red{else}cerb-slider-gray{/if}">
+				<input type="hidden" name="importance" value="{$ticket->importance|default:0}">
+				<div class="cerb-delta-slider {if $ticket->importance < 50}cerb-slider-green{elseif $ticket->importance > 50}cerb-slider-red{else}cerb-slider-gray{/if}" title="{$ticket->importance}">
 					<span class="cerb-delta-slider-midpoint"></span>
 				</div>
 			</div>
@@ -203,6 +203,8 @@ $(function() {
 						$this.addClass('cerb-slider-gray');
 						$this.slider('option', 'range', false);
 					}
+					
+					$this.attr('title', ui.value);
 				},
 				stop: function(event, ui) {
 					$input.val(ui.value);
