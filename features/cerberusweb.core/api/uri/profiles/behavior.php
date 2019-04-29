@@ -308,7 +308,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								'key' => $key,
 								'label' => $v,
 								'type' => $var_types[$idx],
-								'is_private' => $var_is_private[$idx],
+								'is_private' => $var_is_private[$idx] ? true : false,
 								'params' => $var_params,
 							);
 						}
