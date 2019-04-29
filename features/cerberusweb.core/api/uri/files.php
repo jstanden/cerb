@@ -28,8 +28,6 @@ class ChFilesController extends DevblocksControllerExtension {
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		$stack = $request->path; // URLS like: /files/10000/plaintext.txt
 		array_shift($stack); // files
 		$file_id = array_shift($stack); // 123
@@ -43,22 +41,22 @@ class ChFilesController extends DevblocksControllerExtension {
 		
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
-			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 		
 		if(empty($file_id) || empty($file_name))
-			DevblocksPlatform::dieWithHttpError($translate->_('files.not_found'), 404);
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('files.not_found'), 404);
 		
 		if(false == ($file = DAO_Attachment::get($file_id)))
-			DevblocksPlatform::dieWithHttpError($translate->_('files.not_found'), 404);
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('files.not_found'), 404);
 		
 		if(!Context_Attachment::isDownloadableByActor($file, $active_worker))
-			DevblocksPlatform::dieWithHttpError($translate->_('common.access_denied'), 403);
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 		
 		if(false === ($fp = DevblocksPlatform::getTempFile()))
-			DevblocksPlatform::dieWithHttpError($translate->_('files.error_temp_open'), 500);
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('files.error_temp_open'), 500);
 		
 		if(false === $file->getFileContents($fp))
-			DevblocksPlatform::dieWithHttpError($translate->_('files.error_resource_read'), 500);
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('files.error_resource_read'), 500);
 			
 		$file_stats = fstat($fp);
 		$mime_type = DevblocksPlatform::strLower($file->mime_type);
