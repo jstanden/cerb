@@ -35,7 +35,12 @@ class _DevblocksStringService {
 		}, $string);
 	}
 	
-	function yamlParse($yaml_string) {
-		return yaml_parse($yaml_string, -1);
+	function yamlParse($yaml_string, $pos=-1) {
+		$docs = yaml_parse($yaml_string, $pos);
+		
+		if(array_key_exists(0, $docs) && !$docs[0])
+			return [];
+		
+		return $docs;
 	}
 }
