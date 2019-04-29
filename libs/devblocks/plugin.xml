@@ -64,6 +64,9 @@
 		<file path="api/services/data/worklist_metrics.php">
 			<class name="_DevblocksDataProviderWorklistMetrics" />
 		</file>
+		<file path="api/services/data/worklist_records.php">
+			<class name="_DevblocksDataProviderWorklistRecords" />
+		</file>
 		<file path="api/services/data/worklist_series.php">
 			<class name="_DevblocksDataProviderWorklistSeries" />
 		</file>

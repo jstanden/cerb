@@ -104,6 +104,14 @@ class _DevblocksDataService {
 				
 				break;
 				
+			case 'worklist.records':
+				$provider = new _DevblocksDataProviderWorklistRecords();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
 			case 'worklist.series':
 				$provider = new _DevblocksDataProviderWorklistSeries();
 				
