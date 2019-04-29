@@ -1099,6 +1099,8 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return int|false
 	 */
 	static function strBitsToInt($bits) {
+		$is_negative = false;
+		
 		// Handle int param
 		if(is_numeric($bits)) {
 			$bits = intval($bits);
@@ -1139,16 +1141,23 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		@$bits = intval($bits);
 		
-		// Handle negatives
-		if($bits < 1)
-			return 0;
+		if($bits < 0) {
+			$is_negative = true;
+			$bits = abs($bits);
+		}
 		
 		// 32-bit overflow?
 		$max_bits = (PHP_INT_SIZE * 8)-1; // PHP ints are always signed
 		if($bits > $max_bits)
 			$bits = $max_bits;
 		
-		return pow(2, $bits);
+		$int = pow(2, $bits);
+		
+		if($is_negative) {
+			$int *= -1;
+		}
+		
+		return $int;
 	}
 	
 	/**

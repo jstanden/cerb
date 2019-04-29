@@ -1157,6 +1157,16 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$actual = DevblocksPlatform::strBitsToInt('2 bytes');
 		$this->assertEquals($expected, $actual);
 
+		// Test negative bits as number
+		$expected = -128;
+		$actual = DevblocksPlatform::strBitsToInt(-7);
+		$this->assertEquals($expected, $actual);
+		
+		// Test negative bits as string
+		$expected = -65536;
+		$actual = DevblocksPlatform::strBitsToInt('-2 bytes');
+		$this->assertEquals($expected, $actual);
+		
 		// Test 32-bit overflow
 		if(4 == PHP_INT_SIZE) {
 			$expected = pow(2,31);
@@ -1170,14 +1180,14 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 			$this->assertEquals($expected, $actual);
 		}
 		
-		// Test negative bits as number
-		$expected = 0;
-		$actual = DevblocksPlatform::strBitsToInt(-8);
-		$this->assertEquals($expected, $actual);
-		
 		// Test overflow on PHP_INT_MAX
 		$expected = PHP_INT_MAX;
 		$actual = DevblocksPlatform::strBitsToInt(512);
+		$this->assertEquals($expected, $actual);
+		
+		// Test underflow on PHP_INT_MIN
+		$expected = PHP_INT_MIN;
+		$actual = DevblocksPlatform::strBitsToInt(-512);
 		$this->assertEquals($expected, $actual);
 	}
 	
