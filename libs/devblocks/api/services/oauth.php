@@ -43,7 +43,7 @@ class _DevblocksOAuthService {
 	
 	private function _generateAndSaveKeys($key_options = ['digest_alg' => 'sha512', 'private_key_bits' => 4096, 'private_key_type' => OPENSSL_KEYTYPE_RSA]) {
 		$key_path = APP_STORAGE_PATH . '/keys/';
-		$key_pair = $this->_generateKeyPair($key_options);
+		$key_pair = DevblocksPlatform::services()->encryption()->generateRsaKeyPair($key_options);
 		
 		if(!file_exists($key_path))
 			mkdir($key_path, 0770);
@@ -55,21 +55,6 @@ class _DevblocksOAuthService {
 		file_put_contents($public_key_file, $key_pair['public']);
 		chmod($private_key_file, 0660);
 		chmod($public_key_file, 0660);
-	}
-	
-	private function _generateKeyPair($key_options = ['digest_alg' => 'sha512', 'private_key_bits' => 4096, 'private_key_type' => OPENSSL_KEYTYPE_RSA]) {
-		$res = openssl_pkey_new($key_options);
-		
-		$key_private = null;
-		
-		openssl_pkey_export($res, $key_private);
-		
-		$key_public = openssl_pkey_get_details($res)['key'];
-		
-		return [
-			'private' => $key_private,
-			'public' => $key_public,
-		];
 	}
 }
 
