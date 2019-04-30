@@ -896,7 +896,7 @@ class Model_KbArticle {
 		
 		switch($this->format) {
 			case self::FORMAT_HTML:
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$tpl_builder = _DevblocksTemplateBuilder::newInstance();
 				$html = $tpl_builder->build($this->content, []);
 				break;
 				
@@ -905,7 +905,7 @@ class Model_KbArticle {
 				break;
 				
 			case self::FORMAT_MARKDOWN:
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$tpl_builder = _DevblocksTemplateBuilder::newInstance();
 				$html = DevblocksPlatform::parseMarkdown($tpl_builder->build($this->content, []));
 				break;
 		}

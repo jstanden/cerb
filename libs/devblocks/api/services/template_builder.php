@@ -192,6 +192,10 @@ class _DevblocksTemplateBuilder {
 		}
 		return $instance;
 	}
+	
+	static function newInstance() {
+		return new _DevblocksTemplateBuilder();
+	}
 
 	/**
 	 * @return Twig_Environment
