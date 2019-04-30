@@ -1127,7 +1127,7 @@ class CerberusContexts {
 						$parent = null;
 					
 					// Hash with the parent we're loading from
-					$hash = sha1($context.':'.$parent.':'.$prefix);
+					$hash = sha1($context.':'.$parent.':'.json_encode($prefix));
 					$cache_key = sprintf("cerb:ctx:%s", $hash);
 					$cache_local = true;
 					
@@ -1138,7 +1138,7 @@ class CerberusContexts {
 						$labels = $data['labels'];
 						$values = $data['values'];
 						unset($data);
-	
+						
 					// Cache miss
 					} else {
 						$ctx->getContext(null, $labels, $values, $prefix);
