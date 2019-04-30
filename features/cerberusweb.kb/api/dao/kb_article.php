@@ -115,7 +115,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
-		$sql = "SELECT id, title, views, updated, format, content ".
+		$sql = "SELECT id, title, views, updated, format ".
 			"FROM kb_article ".
 			$where_sql.
 			$sort_sql.
@@ -135,6 +135,11 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		return parent::getIds($ids);
 	}
 	
+	static function getContent($id) {
+		$db = DevblocksPlatform::services()->database();
+		return $db->GetOneSlave(sprintf("SELECT content FROM kb_article WHERE id = %d", $id));
+	}
+	
 	/**
 	 *
 	 * @param resource $rs
@@ -152,7 +157,6 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$object->updated = $row['updated'];
 			$object->views = $row['views'];
 			$object->format = $row['format'];
-			$object->content = $row['content'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -884,7 +888,7 @@ class Model_KbArticle {
 	const FORMAT_HTML = 1;
 	const FORMAT_MARKDOWN = 2;
 	
-	public $content = '';
+	private $_content = null;
 	public $format = 0;
 	public $id = 0;
 	public $title = '';
@@ -911,6 +915,21 @@ class Model_KbArticle {
 		}
 		
 		return $html;
+	}
+	
+	// Lazy load content
+	function __get($name) {
+		switch($name) {
+			case 'content':
+				if(is_null($this->_content)) {
+					$this->_content = DAO_KbArticle::getContent($this->id);
+				}
+				
+				return $this->_content;
+				break;
+		}
+		
+		return null;
 	}
 	
 	function getCustomFields() {
