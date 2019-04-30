@@ -237,8 +237,8 @@ abstract class DevblocksORMHelper {
 					$validation
 						->addField($field_id, $custom_field_label)
 						->number()
-						->setMin(0)
-						->setMax('32 bits')
+						->setMin('-63 bits')
+						->setMax('63 bits')
 					;
 					break;
 				case Model_CustomField::TYPE_SINGLE_LINE:

@@ -823,11 +823,11 @@ class _DevblocksValidationService {
 				
 				if($data) {
 					if(isset($data['min']) && $value < $data['min']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be >= %u (%u)", $field_label, $data['min'], $value));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be >= %d (%d)", $field_label, $data['min'], $value));
 					}
 					
 					if(isset($data['max']) && $value > $data['max']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be <= %u (%u)", $field_label, $data['max'], $value));
+						throw new Exception_DevblocksValidationError(sprintf("'%s' must be <= %d (%d)", $field_label, $data['max'], $value));
 					}
 				}
 				break;
