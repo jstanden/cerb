@@ -82,6 +82,7 @@ class _DevblocksTemplateBuilder {
 				'json_pretty',
 				'md5',
 				'parse_emails',
+				'permalink',
 				'quote',
 				'regexp',
 				'secs_pretty',
@@ -1083,6 +1084,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFilter('json_pretty', [$this, 'filter_json_pretty']),
 			new Twig_SimpleFilter('md5', [$this, 'filter_md5']),
 			new Twig_SimpleFilter('parse_emails', [$this, 'filter_parse_emails']),
+			new Twig_SimpleFilter('permalink', [$this, 'filter_permalink']),
 			new Twig_SimpleFilter('quote', [$this, 'filter_quote']),
 			new Twig_SimpleFilter('regexp', [$this, 'filter_regexp']),
 			new Twig_SimpleFilter('secs_pretty', [$this, 'filter_secs_pretty']),
@@ -1208,6 +1210,13 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		
 		$results = CerberusMail::parseRfcAddresses($string);
 		return $results;
+	}
+	
+	function filter_permalink($string, $spaces_as='-') {
+		if(!is_string($string))
+			return '';
+		
+		return DevblocksPlatform::strToPermalink($string, $spaces_as);
 	}
 	
 	function filter_quote($string, $wrap_to=76) {
