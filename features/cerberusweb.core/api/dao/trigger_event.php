@@ -2218,9 +2218,14 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			
 			$token_values['bot_id'] = $trigger_event->bot_id;
 			
+			// Friendly names
+			
 			if(null != ($event = $trigger_event->getEvent())) {
 				$token_values['event_point_name'] = $event->manifest->name;
 			}
+			
+			// Variables
+			$token_values['variables'] = $trigger_event->variables;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($trigger_event, $token_values);
