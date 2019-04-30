@@ -31,6 +31,8 @@
 			{/if}
 		{elseif $var.type == Model_CustomField::TYPE_NUMBER}
 		<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
+		{elseif $var.type == Model_CustomField::TYPE_LINK}
+			<input type="text" name="{$field_name}[{$var.key}]" value="{$variable_values.$var_key}" style="width:98%;" {if $with_placeholders}class="placeholders"{/if}>
 		{elseif $var.type == Model_CustomField::TYPE_CHECKBOX}
 			{if $with_placeholders}
 				<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" class="{if $with_placeholders}placeholders {/if}">{$variable_values.$var_key}</textarea>

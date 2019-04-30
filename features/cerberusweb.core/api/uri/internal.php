@@ -4449,7 +4449,14 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$variable_types = DAO_TriggerEvent::getVariableTypes();
 		$tpl->assign('variable_types', $variable_types);
-
+		
+		switch($type) {
+			case Model_CustomField::TYPE_LINK:
+				$context_mfts = Extension_DevblocksContext::getAll(false, ['va_variable']);
+				$tpl->assign('context_mfts', $context_mfts);
+				break;
+		}
+		
 		// New variable
 		$var = [
 			'key' => '',

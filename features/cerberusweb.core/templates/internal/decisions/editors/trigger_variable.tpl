@@ -33,6 +33,15 @@
 					<textarea name="var_params{$seq}[options]" rows="5" cols="45" style="width:100%;" placeholder="Enter one option per line">
 {$var.params.options}</textarea>
 				</div>
+				{elseif $var.type == Model_CustomField::TYPE_LINK}
+				<div>
+					Type: 
+					<select name="var_params{$seq}[context]">
+						{foreach from=$context_mfts item=context_mft}
+						<option value="{$context_mft->id}" {if $var.params.context==$context_mft->id}selected="selected"{/if}>{$context_mft->name}</option>
+						{/foreach}
+					</select>
+				</div>
 				{elseif $var.type == Model_CustomField::TYPE_NUMBER}
 				{elseif $var.type == Model_CustomField::TYPE_DATE}
 				{elseif $var.type == Model_CustomField::TYPE_CHECKBOX}

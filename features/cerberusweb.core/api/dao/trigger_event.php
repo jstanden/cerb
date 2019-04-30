@@ -425,6 +425,7 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			Model_CustomField::TYPE_NUMBER => 'Number',
 			'contexts' => 'List:(Mixed Records)',
 			Model_CustomField::TYPE_DROPDOWN => 'Picklist',
+			Model_CustomField::TYPE_LINK => 'Record ID',
 			Model_CustomField::TYPE_SINGLE_LINE => 'Text',
 			Model_CustomField::TYPE_WORKER => 'Worker',
 			Model_CustomField::TYPE_CHECKBOX => 'Yes/No',
@@ -947,9 +948,20 @@ class Model_TriggerEvent {
 				
 			case Model_CustomField::TYPE_CURRENCY:
 			case Model_CustomField::TYPE_DECIMAL:
-			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_NUMBER:
 				settype($value, 'integer');
+				break;
+				
+			case Model_CustomField::TYPE_LINK:
+				@$context = DevblocksPlatform::importVar($var['params']['context'], 'string', null);
+				
+				settype($value, 'integer');
+				
+				if($context && DevblocksPlatform::strEndsWith($var['key'], '_id')) {
+					$ctx_key = mb_substr($var['key'], 0, -3) . '__context';
+					$dict->set($ctx_key, $context);
+				}
+				
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
@@ -2431,6 +2443,9 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			
 			$variables_menu = Extension_DevblocksContext::getPlaceholderTree($variable_types, ':', '');
 			$tpl->assign('variables_menu', $variables_menu);
+			
+			$context_mfts = Extension_DevblocksContext::getAll(false, ['va_variable']);
+			$tpl->assign('context_mfts', $context_mfts);
 			
 			// Library
 			if(!$context_id) {
