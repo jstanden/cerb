@@ -621,6 +621,8 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 			return [];
 		}
 		
+		$was_stack_max_empty_depth = CerberusContexts::setStackMaxEmptyDepth(1);
+		
 		foreach($models as $model_id => $model) {
 			$labels = $values = [];
 			
@@ -639,6 +641,8 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		foreach($keys as $key) {
 			DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $key);
 		}
+		
+		CerberusContexts::setStackMaxEmptyDepth($was_stack_max_empty_depth);
 		
 		return $dicts;
 	}
