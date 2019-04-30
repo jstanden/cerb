@@ -1656,4 +1656,17 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testUrlWriter() {
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		$as_string_uri = $url_writer->write('c=controller&a=action');
+		$as_string_slashes = $url_writer->write('/controller/action');
+		$as_array = $url_writer->write(['controller','action']);
+		
+		// Test that string and array invocation are equivalent
+		$this->assertEquals($as_string_uri, $as_array);
+		
+		// Test that string and array invocation are equivalent
+		$this->assertEquals($as_string_uri, $as_string_slashes);
+	}
 }

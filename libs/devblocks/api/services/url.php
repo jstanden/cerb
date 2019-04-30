@@ -69,8 +69,33 @@ class _DevblocksUrlManager {
 		return $this->write($sQuery, $full, false);
 	}
 	
+	function arrayToQuery(array $args) {
+		// Handle indexed arrays
+		$arg_keys = array_map(function($p) {
+			if(is_numeric($p)) {
+				if(0 == $p)
+					return 'c';
+				else
+					return 'arg' . $p;
+			} else {
+				return $p;
+			}
+		}, array_keys($args));
+		
+		$query = http_build_query(array_combine($arg_keys, $args));
+		return $query;
+	}
+	
 	function write($sQuery='',$full=false,$check_proxy=true) {
+		if(is_array($sQuery)) {
+			$sQuery = $this->arrayToQuery($sQuery);
+			
+		} elseif(DevblocksPlatform::strStartsWith($sQuery, '/')) {
+			$sQuery = $this->arrayToQuery(explode('/', trim($sQuery,'/')));
+		}
+		
 		$args = $this->parseQueryString($sQuery);
+
 		$c = @$args['c'];
 		
 		$proxyssl = null;
