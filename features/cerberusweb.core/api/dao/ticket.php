@@ -2326,6 +2326,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				$search_field = $search_fields[$search_key];
 				
 				return [
+					'label' => DevblocksPlatform::translateCapitalized('common.status'),
 					'key_query' => $key,
 					'key_select' => $search_key,
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,

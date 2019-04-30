@@ -1397,6 +1397,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		
 		foreach($xml->body->tu as $tu) { /* @var $tu SimpleXMLElement */
 			$msgid = DevblocksPlatform::strLower((string) $tu['tuid']);
+			
 			foreach($tu->tuv as $tuv) { /* @var $tuv SimpleXMLElement */
 				$attribs = $tuv->attributes($namespaces['xml']);
 				$lang = (string) $attribs['lang'];

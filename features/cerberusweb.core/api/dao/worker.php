@@ -3238,7 +3238,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	function getContext($worker, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Worker:';
-			
+		
 		$translate = DevblocksPlatform::getTranslationService();
 		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_WORKER);

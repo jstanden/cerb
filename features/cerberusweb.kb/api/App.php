@@ -43,7 +43,7 @@
 class ChKbPage extends CerberusPageExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		return true;
 	}
@@ -156,7 +156,7 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 		@$topic_id = intval($params['topic_id']);
 		
 		// Make sure it's a valid topic
-		if(false == ($topic = DAO_KbCategory::get($topic_id)))
+		if(false == (DAO_KbCategory::get($topic_id)))
 			$params['topic_id'] = 0;
 		
 		DAO_WorkspaceWidget::update($widget->id, [
@@ -176,7 +176,6 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 	
 	private function _renderCategory($category_id=0, Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$tpl->assign('widget', $widget);
@@ -255,7 +254,7 @@ class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
 class ChKbAjaxController extends DevblocksControllerExtension {
 	function isVisible() {
 		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
+		if(null == (CerberusApplication::getActiveWorker()))
 			return false;
 		return true;
 	}
@@ -268,7 +267,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			return;
 		
 		$path = $request->path;
-		$controller = array_shift($path); // timetracking
 
 		@$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
 

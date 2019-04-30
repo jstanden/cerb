@@ -17,13 +17,14 @@
 
 class Controller_UI extends DevblocksControllerExtension {
 	const ID = 'core.controller.ui';
-
+	
 	/*
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		if(false == (CerberusApplication::getActiveWorker()))
-			return;
+		// Security
+		if(null == (CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 
 		$stack = $request->path;
 		array_shift($stack); // internal

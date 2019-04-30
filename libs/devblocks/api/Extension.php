@@ -3802,7 +3802,7 @@ class DevblocksHttpResponse extends DevblocksHttpIO {
 	/**
 	 * @param array $path
 	 */
-	function __construct($path, $query=[]) {
+	function __construct($path=[], $query=[]) {
 		parent::__construct($path, $query);
 	}
 };

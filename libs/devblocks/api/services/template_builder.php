@@ -365,13 +365,13 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		$contexts = [];
 		
 		// Match our root context
-		if(isset($this->_dictionary['_context'])) {
-			$contexts[''] = array(
+		if(array_key_exists('_context', $this->_dictionary)) {
+			$contexts[''] = [
 				'key' => '_context',
 				'prefix' => '',
 				'context' => $this->_dictionary['_context'],
 				'len' => 0,
-			);
+			];
 		}
 		
 		// Find the embedded contexts for each token
@@ -447,10 +447,9 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 			// Push the context into the stack so we can track ancestry
 			CerberusContexts::pushStack($context_data['context']);
 			
-			if(empty($loaded_values))
+			if(!is_array($loaded_values))
 				continue;
 			
-			if(is_array($loaded_values))
 			foreach($loaded_values as $k => $v) {
 				$new_key = $context_data['prefix'] . $k;
 				
@@ -479,8 +478,10 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 			$this->clearCaches();
 		
 		if(is_array($contexts))
-		for($n=0; $n < count($contexts); $n++)
+		foreach($contexts as $n) {
 			CerberusContexts::popStack();
+			$n;
+		}
 		
 		if(!$this->exists($name)) {
 			// If the key isn't found and we invalidated the cache, recurse
@@ -503,7 +504,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 	}
 	
 	public function exists($name) {
-		return isset($this->_dictionary[$name]);
+		return array_key_exists($name, $this->_dictionary);
 	}
 	
 	public function delegateUndefinedVariable($name) {

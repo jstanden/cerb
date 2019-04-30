@@ -113,7 +113,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 				continue;
 			
 			// Make changes
-			parent::_update($batch_ids, 'devblocks_session', $fields);
+			parent::_update($batch_ids, 'devblocks_session', $fields, 'session_id');
 		}
 	}
 	
