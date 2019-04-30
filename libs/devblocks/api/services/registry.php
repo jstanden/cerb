@@ -97,7 +97,7 @@ class _DevblocksRegistryManager {
 		foreach($this->_registry as $var) { /* @var $var DevblocksRegistryEntry */
 			if($var->ephemeral || !$var->dirty)
 				continue;
-
+			
 			if($var->delta) {
 				// If we've been adding to an initial value, find the delta
 				if(!empty($var->initial_value)) {
@@ -121,6 +121,13 @@ class _DevblocksRegistryManager {
 	public function increment($key, $by, $min=0, $max=PHP_INT_MAX, $wrap=true) {
 		$this->_initIfEmpty($key, 0, DevblocksRegistryEntry::TYPE_NUMBER);
 		$this->_registry[$key]->increment($by, $min, $max, $wrap);
+	}
+	
+	public function delete($key) {
+		if(array_key_exists($key, $this->_registry)) {
+			DAO_DevblocksRegistry::delete($key);
+			unset($this->_registry[$key]);
+		}
 	}
 };
 
@@ -268,6 +275,14 @@ class DAO_DevblocksRegistry extends DevblocksORMHelper {
 				$expires_at
 			));
 		}
+	}
+	
+	public static function delete($key) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_registry WHERE entry_key = %s",
+			$db->qstr($key)
+		));
 	}
 	
 	public static function maint() {
