@@ -2601,7 +2601,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @param string $point
 	 * @return DevblocksExtensionManifest[]
 	 */
-	static function getExtensions($point, $as_instances=false) {
+	static function getExtensions($point, $as_instances=false, $sorted=true) {
 		$results = array();
 		$extensions = DevblocksPlatform::getExtensionRegistry();
 
@@ -2612,10 +2612,12 @@ class DevblocksPlatform extends DevblocksEngine {
 			}
 		}
 		
-		if($as_instances)
-			DevblocksPlatform::sortObjects($results, 'manifest->name');
-		else
-			DevblocksPlatform::sortObjects($results, 'name');
+		if($sorted) {
+			if($as_instances)
+				DevblocksPlatform::sortObjects($results, 'manifest->name');
+			else
+				DevblocksPlatform::sortObjects($results, 'name');
+		}
 		
 		return $results;
 	}

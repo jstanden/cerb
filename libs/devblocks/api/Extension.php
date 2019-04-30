@@ -239,7 +239,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @return Extension_DevblocksContext[]
 	 */
 	public static function getAll($as_instances=false, $with_options=null) {
-		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances);
+		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances, false);
 		
 		if(
 			class_exists('DAO_CustomRecord', true)
@@ -3833,7 +3833,7 @@ class _DevblocksSortHelper {
 		foreach($props as $prop) {
 			$is_index = false;
 
-			if(DevblocksPlatform::strStartsWith($prop, '[')) {
+			if('[' == $prop[0]) {
 				$is_index = true;
 				$prop = trim($prop,'[]');
 			}
