@@ -146,12 +146,12 @@ class Controller_OAuth extends DevblocksControllerExtension {
 						}
 					}
 					
-					// Destroy the login state
-					$login_state->destroy();
-					
 					// If we have a legit session
 					$auth_request->setUser(new Cerb_OAuth2UserEntity($auth_worker));
 					$auth_request->setAuthorizationApproved($login_state->isConsentGiven());
+					
+					// Destroy the login state
+					$login_state->destroy();
 					
 					$http_response = $server->completeAuthorizationRequest($auth_request, $http_response);
 					$header_location = $http_response->getHeader('Location')[0];
