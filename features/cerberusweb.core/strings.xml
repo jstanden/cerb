@@ -1538,6 +1538,16 @@
 				<seg>ID</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.identity">
+			<tuv xml:lang="en_US">
+				<seg>identity</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.identities">
+			<tuv xml:lang="en_US">
+				<seg>identities</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.image">
 			<tuv xml:lang="en_US">
 				<seg>image</seg>
@@ -3583,6 +3593,45 @@
 			<tuv xml:lang="en_US">
 				<seg>User Agent</seg>
 			</tuv>
+		</tu>
+		
+		<!-- Identity -->
+		
+		<tu tuid='dao.identity.given_name'>
+			<tuv xml:lang="en_US">
+			<seg>Given Name</seg></tuv>
+		</tu>
+		<tu tuid='dao.identity.family_name'>
+			<tuv xml:lang="en_US">
+			<seg>Family Name</seg></tuv>
+		</tu>
+		<tu tuid='dao.identity.middle_name'>
+			<tuv xml:lang="en_US">
+			<seg>Middle Name</seg></tuv>
+		</tu>
+		<tu tuid='dao.identity.nickname'>
+			<tuv xml:lang="en_US">
+			<seg>Nickname</seg></tuv>
+		</tu>
+		<tu tuid='dao.identity.email_verified'>
+			<tuv xml:lang="en_US">
+			<seg>Email Is Verified</seg></tuv>
+		</tu>
+		<tu tuid='dao.identity.zoneinfo'>
+			<tuv xml:lang="en_US">
+			<seg>Zoneinfo</seg></tuv>
+		</tu>
+		<tu tuid='dao.identity.locale'>
+			<tuv xml:lang="en_US">
+			<seg>Locale</seg></tuv>
+		</tu>
+		<tu tuid='dao.identity.phone_number_verified'>
+			<tuv xml:lang="en_US">
+			<seg>Phone Is Verified</seg></tuv>
+		</tu>
+		<tu tuid='dao.identity.address'>
+			<tuv xml:lang="en_US">
+			<seg>Address</seg></tuv>
 		</tu>
 		
 		<!-- Mailbox -->

@@ -949,6 +949,7 @@ class CerberusContexts {
 	const CONTEXT_FILE_BUNDLE = 'cerberusweb.contexts.file_bundle';
 	const CONTEXT_GPG_PUBLIC_KEY = 'cerberusweb.contexts.gpg_public_key';
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
+	const CONTEXT_IDENTITY = 'cerb.contexts.identity';
 	const CONTEXT_KB_ARTICLE = 'cerberusweb.contexts.kb_article';
 	const CONTEXT_KB_CATEGORY = 'cerberusweb.contexts.kb_category';
 	const CONTEXT_MAIL_TRANSPORT = 'cerberusweb.contexts.mail.transport';

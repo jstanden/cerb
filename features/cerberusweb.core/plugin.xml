@@ -532,6 +532,14 @@
 			<class name="Model_GroupMember" />
 		</file>
 		
+		<file path="api/dao/identity.php">
+			<class name="Context_Identity" />
+			<class name="DAO_Identity" />
+			<class name="Model_Identity" />
+			<class name="SearchFields_Identity" />
+			<class name="View_Identity" />
+		</file>
+		
 		<file path="api/dao/mail_failed.php">
 			<class name="SearchFields_MailParseFail" />
 			<class name="View_MailParseFail" />
@@ -3001,6 +3009,52 @@
 						<data key="comment" />
 						<data key="export" />
 						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerb.contexts.identity</id>
+			<name>Identity</name>
+			<class>
+				<file>api/dao/identity.php</file>
+				<name>Context_Identity</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="identity" value="singular" />
+						<data key="identities" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="identity" />
+				<param key="dao_class" value="DAO_Identity" />
+				<param key="view_class" value="View_Identity" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>
@@ -7845,6 +7899,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="html_template" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.identity</id>
+				<name>Identity Section</name>
+				<class>
+					<file>api/uri/profiles/identity.php</file>
+					<name>PageSection_ProfilesIdentity</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="identity" />
 				</params>
 			</extension>
 			
