@@ -2,6 +2,7 @@
 class DAO_CommunitySession extends Cerb_ORMHelper {
 	const CREATED = 'created';
 	const CSRF_TOKEN = 'csrf_token';
+	const IDENTITY_ID = 'identity_id';
 	const PORTAL_ID = 'portal_id';
 	const PROPERTIES = 'properties';
 	const SESSION_ID = 'session_id';
@@ -19,6 +20,11 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CSRF_TOKEN)
 			->string()
+			;
+		$validation
+			->addField(self::IDENTITY_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_IDENTITY, true))
 			;
 		$validation
 			->addField(self::PORTAL_ID)
@@ -65,7 +71,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 	static public function get($session_id, $portal_id) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = sprintf("SELECT session_id, portal_id, created, updated, csrf_token, properties ".
+		$sql = sprintf("SELECT session_id, portal_id, identity_id, created, updated, csrf_token, properties ".
 			"FROM community_session ".
 			"WHERE session_id = %s ".
 			"AND portal_id = %d ",
@@ -80,6 +86,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 		} else {
 			$session = new Model_CommunitySession();
 			$session->session_id = $row['session_id'];
+			$session->identity_id = intval($row['identity_id']);
 			$session->portal_id = intval($row['portal_id']);
 			$session->created = intval($row['created']);
 			$session->updated = intval($row['updated']);
@@ -125,21 +132,23 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 	 * @param integer $portal_id
 	 * @return Model_CommunitySession
 	 */
-	static private function create($session_id, $portal_id) {
+	static private function create($session_id, $portal_id, $identity_id=0) {
 		$db = DevblocksPlatform::services()->database();
 
 		$session = new Model_CommunitySession();
 		$session->session_id = $session_id;
+		$session->identity_id = $identity_id;
 		$session->portal_id = $portal_id;
 		$session->created = time();
 		$session->updated = time();
 		$session->csrf_token = CerberusApplication::generatePassword(128);
 		$session->nonce = sha1($session->csrf_token);
 		
-		$sql = sprintf("INSERT INTO community_session (session_id, portal_id, created, updated, csrf_token, properties) ".
-			"VALUES (%s, %d, %d, %d, %s, '')",
+		$sql = sprintf("INSERT INTO community_session (session_id, portal_id, identity_id, created, updated, csrf_token, properties) ".
+			"VALUES (%s, %d, %d, %d, %d, %s, '')",
 			$db->qstr($session->session_id),
 			$session->portal_id,
+			$session->identity_id,
 			$session->created,
 			$session->updated,
 			$db->qstr($session->csrf_token)
@@ -149,6 +158,16 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 		self::gc(); // garbage collection
 		
 		return $session;
+	}
+	
+	static function updateIdentityId($session_id, $portal_id, $identity_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$db->ExecuteMaster(sprintf("UPDATE community_session SET identity_id = %d WHERE portal_id = %d AND session_id = %s",
+			$identity_id,
+			$portal_id,
+			$db->qstr($session_id)
+		));
 	}
 	
 	static private function gc() {
@@ -162,6 +181,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 
 class Model_CommunitySession {
 	public $session_id = '';
+	public $identity_id = 0;
 	public $portal_id = 0;
 	public $created = 0;
 	public $updated = 0;
@@ -170,6 +190,26 @@ class Model_CommunitySession {
 	
 	private $_properties = [];
 	private $_active_contact = null;
+	private $_identity = null;
+	
+	function setIdentity(Model_Identity $identity) {
+		$this->_identity = $identity;
+		$this->identity_id = $identity->id;
+		
+		DAO_CommunitySession::updateIdentityId($this->session_id, $this->portal_id, $identity->id);
+	}
+	
+	function getIdentity() {
+		if(!is_null($this->_identity))
+			return $this->_identity;
+		
+		if($this->identity_id 
+			&& false != ($identity = DAO_Identity::get($this->identity_id))) {
+				$this->_identity = $identity;
+		}
+		
+		return $this->_identity;
+	}
 
 	function getActiveContact() : ?Model_Contact {
 		if(is_null($this->_active_contact)) {
