@@ -123,5 +123,16 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
+	function custom() {
+		return function($column, $sheet_dict) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			@$template = $column['params']['template'];
+			
+			$value = $tpl_builder->build($template, $sheet_dict);
+			
+			return DevblocksPlatform::purifyHTML($value, false, true);
+		};
+	}
+	
 	}
 }
