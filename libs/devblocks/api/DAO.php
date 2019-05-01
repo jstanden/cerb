@@ -105,13 +105,13 @@ abstract class DevblocksORMHelper {
 			if(in_array($field_key, $excludes))
 				continue;
 			
-			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field _DevblocksValidationField */
+			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field DevblocksValidationField */
 				$error = sprintf("'%s' is not a valid field.", $field_key);
 				return false;
 			}
 			
 			try {
-				$validation->validate($field, $value, ['id' => $id]);
+				$validation->validate($field, $value, ['id' => $id, 'fields' => $fields]);
 				
 			} catch (Exception_DevblocksValidationError $e) {
 				$error = $e->getMessage();
@@ -273,7 +273,7 @@ abstract class DevblocksORMHelper {
 		
 		if(is_array($fields))
 		foreach($fields as $field_key => $value) {
-			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field _DevblocksValidationField */
+			if(false == (@$field = $valid_fields[$field_key])) { /* @var $field DevblocksValidationField */
 				$error = sprintf("'%s' is not a valid custom field.", $field_key);
 				return false;
 			}

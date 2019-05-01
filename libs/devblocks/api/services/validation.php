@@ -1,7 +1,7 @@
 <?php
 class Exception_DevblocksValidationError extends Exception_Devblocks {};
 
-class _DevblocksValidationField {
+class DevblocksValidationField {
 	public $_name = null;
 	public $_label = null;
 	public $_type = null;
@@ -529,6 +529,15 @@ class _DevblocksValidationType {
 	function setUnique($dao_class) {
 		$this->_data['unique'] = true;
 		$this->_data['dao_class'] = $dao_class;
+		unset($this->_data['callback']);
+		$this->setNotEmpty(true);
+		return $this;
+	}
+	
+	function setUniqueCallback(callable $callback) {
+		$this->_data['unique'] = true;
+		$this->_data['callback'] = $callback;
+		unset($this->_data['dao_class']);
 		$this->setNotEmpty(true);
 		return $this;
 	}
@@ -700,15 +709,15 @@ class _DevblocksValidationService {
 	/**
 	 * 
 	 * @param string $name
-	 * @return _DevblocksValidationField
+	 * @return DevblocksValidationField
 	 */
 	function addField($name, $label=null) {
-		$this->_fields[$name] = new _DevblocksValidationField($name, $label);
+		$this->_fields[$name] = new DevblocksValidationField($name, $label);
 		return $this->_fields[$name];
 	}
 	
 	/*
-	 * @return _DevblocksValidationField[]
+	 * @return DevblocksValidationField[]
 	 */
 	function getFields() {
 		return $this->_fields;
@@ -729,7 +738,7 @@ class _DevblocksValidationService {
 	}
 	
 	// (ip, email, phone, etc)
-	function validate(_DevblocksValidationField $field, &$value, $scope=[]) {
+	function validate(DevblocksValidationField $field, &$value, $scope=[]) {
 		$field_name = $field->_name;
 		$field_label = $field->_label;
 		
@@ -773,23 +782,33 @@ class _DevblocksValidationService {
 		
 		// [TODO] This would have trouble if we were bulk updating a unique field
 		if(isset($data['unique']) && $data['unique']) {
-			@$dao_class = $data['dao_class'];
-			
 			if($field->_type->canBeEmpty() && 0 == strlen($value)) {
 				// May be empty
 				
 			} else {
-				if(empty($dao_class))
-					throw new Exception_DevblocksValidationError("'%s' has an invalid unique constraint.", $field_label);
+				@$dao_class = $data['dao_class'];
+				@$callback = $data['callback'];
 				
-				if(isset($scope['id'])) {
-					$results = $dao_class::getWhere(sprintf("%s = %s AND id != %d", $dao_class::escape($field_name), $dao_class::qstr($value), $scope['id']), null, null, 1);
+				if($dao_class) {
+					if(isset($scope['id'])) {
+						$results = $dao_class::getWhere(sprintf("%s = %s AND id != %d", $dao_class::escape($field_name), $dao_class::qstr($value), $scope['id']), null, null, 1);
+					} else {
+						$results = $dao_class::getWhere(sprintf("%s = %s", $dao_class::escape($field_name), $dao_class::qstr($value)), null, null, 1);
+					}
+					
+					if(!empty($results)) {
+						throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_label, $value));
+					}
+					
+				} elseif(is_callable($callback)) {
+					$error = null;
+					
+					if(!$callback($field, $value, $scope, $error)) {
+						throw new Exception_DevblocksValidationError($error);
+					}
+					
 				} else {
-					$results = $dao_class::getWhere(sprintf("%s = %s", $dao_class::escape($field_name), $dao_class::qstr($value)), null, null, 1);
-				}
-				
-				if(!empty($results)) {
-					throw new Exception_DevblocksValidationError(sprintf("A record already exists with this '%s' (%s). It must be unique.", $field_label, $value));
+					throw new Exception_DevblocksValidationError("'%s' has an invalid unique constraint.", $field_label);
 				}
 			}
 		}

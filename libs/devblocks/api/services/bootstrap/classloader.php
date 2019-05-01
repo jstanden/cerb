@@ -257,8 +257,9 @@ class _DevblocksClassLoadManager {
 			'_DevblocksUrlManager',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/validation.php', array(
-			'Exception_DevblocksValidationError',
 			'_DevblocksValidationService',
+			'DevblocksValidationField',
+			'Exception_DevblocksValidationError',
 		));
 		
 		return true;
