@@ -505,6 +505,16 @@
 				<seg>busy</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.button">
+			<tuv xml:lang="en_US">
+				<seg>button</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.buttons">
+			<tuv xml:lang="en_US">
+				<seg>buttons</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.cache">
 			<tuv xml:lang="en_US">
 				<seg>cache</seg>
@@ -1100,6 +1110,11 @@
 				<seg>error</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.errors">
+			<tuv xml:lang="en_US">
+				<seg>errors</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.event">
 			<tuv xml:lang="en_US">
 				<seg>event</seg>
@@ -1263,6 +1278,11 @@
 		<tu tuid="common.gender">
 			<tuv xml:lang="en_US">
 				<seg>gender</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.gender.decline">
+			<tuv xml:lang="en_US">
+				<seg>decline to state</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.gender.female">
@@ -1538,6 +1558,11 @@
 				<seg>membership</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.menu">
+			<tuv xml:lang="en_US">
+				<seg>menu</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.merge">
 			<tuv xml:lang="en_US">
 				<seg>merge</seg>
@@ -1696,6 +1721,11 @@
 		<tu tuid="common.or">
 			<tuv xml:lang="en_US">
 				<seg>or</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.orientation">
+			<tuv xml:lang="en_US">
+				<seg>orientation</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.original">
@@ -2507,6 +2537,11 @@
 		<tu tuid="common.storage">
 			<tuv xml:lang="en_US">
 				<seg>storage</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.style">
+			<tuv xml:lang="en_US">
+				<seg>style</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.subcategory">
