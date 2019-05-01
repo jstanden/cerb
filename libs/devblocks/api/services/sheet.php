@@ -143,5 +143,41 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
+	function link() {
+		return function($column, $sheet_dict) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			@$href_template = $column['params']['href'];
+			@$text_template = $column['params']['text'];
+			
+			$href = $tpl_builder->build($href_template, $sheet_dict);
+			$value = '';
+			
+			if($text_template) {
+				$text = $tpl_builder->build($text_template, $sheet_dict);
+			} else {
+				$text = $sheet_dict->get($column['key']);
+			}
+			
+			$url = '';
+			
+			if(DevblocksPlatform::strStartsWith($href, ['http:','https:'])) {
+				$url = $href;
+			} else if(DevblocksPlatform::strStartsWith($href, '/')) {
+				$href = trim($href, '/\\');
+				$url = DevblocksPlatform::services()->url()->write(explode('/', $href), true);
+			}
+			
+			if($url) {
+				$value = sprintf('<a href="%s">%s</a>',
+					$url,
+					DevblocksPlatform::strEscapeHtml($text)
+				);
+			}
+			
+			return $value;
+		};
+	}
+	
 	}
 }
