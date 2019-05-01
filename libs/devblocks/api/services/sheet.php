@@ -238,5 +238,15 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
+	function text() {
+		return function($column, $sheet_dict) {
+			if(array_key_exists('value_key', $column)) {
+				$value = $sheet_dict->get($column['value_key']);
+			} else {
+				$value = $sheet_dict->get($column['key']);
+			}
+			
+			return DevblocksPlatform::strEscapeHtml($value);
+		};
 	}
 }
