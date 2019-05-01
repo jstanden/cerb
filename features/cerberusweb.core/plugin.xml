@@ -3776,6 +3776,26 @@
 		</extension>
 		
 		<extension point="devblocks.event">
+			<id>event.form.interaction.worker</id>
+			<name>Form interaction</name>
+			<class>
+				<file>api/events/form_interaction/form_interaction_worker.php</file>
+				<name>Event_FormInteractionWorker</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+					</value>
+				</param>
+				<param key="options">
+					<data key="resumable" />
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
 			<id>event.ticket.viewed.worker</id>
 			<name>After ticket profile viewed by a worker</name>
 			<class>

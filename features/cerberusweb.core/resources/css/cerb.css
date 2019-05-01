@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
  * cerb.css
  *
@@ -2077,6 +2078,96 @@ UL.ui-menu li.ui-state-focus {
 }
 .bot-chat-window BUTTON.bot-chat-button-image:hover {
   opacity: 0.8;
+}
+
+.cerb-form-builder H1,
+.cerb-form-builder H2,
+.cerb-form-builder H3,
+.cerb-form-builder H4,
+.cerb-form-builder H5,
+.cerb-form-builder H6 {
+  color: inherit;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0.5em 0;
+  padding: 0;
+}
+.cerb-form-builder H1 {
+  font-size: 1.9em;
+}
+.cerb-form-builder H2 {
+  font-size: 1.75em;
+}
+.cerb-form-builder H3 {
+  font-size: 1.6em;
+}
+.cerb-form-builder H4 {
+  font-size: 1.45em;
+}
+.cerb-form-builder H5 {
+  font-size: 1.3em;
+}
+.cerb-form-builder H6 {
+  font-size: 1.15em;
+}
+.cerb-form-builder .cerb-button {
+  background: none;
+  background-color: #1283e1;
+  color: white;
+  height: unset;
+  font-size: 1.1em;
+  border-radius: 50px;
+  padding: 10px;
+}
+.cerb-form-builder .cerb-form-builder-continue::after {
+  content: "⟶";
+}
+.cerb-form-builder .cerb-form-builder-reset {
+  background-color: #e6e6e6;
+}
+.cerb-form-builder .cerb-form-builder-reset::after {
+  color: black;
+  content: "⟲";
+}
+.cerb-form-builder .cerb-form-builder-response-text P {
+  margin: 0;
+  padding: 0;
+}
+.cerb-form-builder .cerb-form-builder-prompt-text INPUT[type=text],
+.cerb-form-builder .cerb-form-builder-prompt-captcha INPUT[type=text],
+.cerb-form-builder .cerb-form-builder-prompt-text TEXTAREA {
+  width: 100%;
+  border: 1px solid gainsboro;
+}
+.cerb-form-builder .cerb-data-table {
+  width: 100%;
+}
+.cerb-form-builder .cerb-data-table tr td {
+  padding: 5px;
+}
+.cerb-form-builder .cerb-data-table tr:nth-child(odd) th {
+  font-weight: bold;
+  font-size: 1.25em;
+  text-align: left;
+  padding: 5px;
+}
+.cerb-form-builder .cerb-data-table tr:nth-child(odd) td {
+  background-color: whitesmoke;
+}
+.cerb-form-builder .cerb-form-builder-error {
+  background-color: #fff0f0;
+  color: #c80000;
+  padding: 15px;
+}
+.cerb-form-builder .cerb-form-builder-error > H1 {
+  margin: 0;
+  color: #c80000;
+}
+.cerb-form-builder .cerb-form-builder-error > P {
+  margin: 0;
+  padding: 0;
+  color: inherit;
 }
 
 div.cerb-board div.cerb-board-columns {
