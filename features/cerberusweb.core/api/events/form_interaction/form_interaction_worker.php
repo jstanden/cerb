@@ -197,6 +197,8 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				'prompt_captcha' => array('label' => 'Form prompt with CAPTCHA challenge'),
 				'prompt_checkboxes' => array('label' => 'Form prompt with multiple choices'),
 				'prompt_radios' => array('label' => 'Form prompt with single choice'),
+				'prompt_text' => array('label' => 'Form prompt with text'),
+				
 			)
 			;
 		
@@ -244,6 +246,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 			case 'prompt_radios':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_radios.tpl');
+				break;
+				
+			case 'prompt_text':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_text.tpl');
 				break;
 				
 		}
@@ -294,6 +300,17 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$out = sprintf(">>> Prompting with radio buttons\nLabel: %s\nOptions: %s\n",
 					$label,
 					$options
+				);
+				break;
+				
+			case 'prompt_text':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$label = $tpl_builder->build($params['label'], $dict);
+				$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+				
+				$out = sprintf(">>> Prompting with text input\nLabel: %s\nPlaceholder: %s\n",
+					$label,
+					$placeholder
 				);
 				break;
 				
@@ -408,6 +425,34 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				];
 				break;
 				
+			case 'prompt_text':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$label = $tpl_builder->build($params['label'], $dict);
+				@$placeholder = $tpl_builder->build($params['placeholder'], $dict);
+				@$default = $tpl_builder->build($params['default'], $dict);
+				@$mode = $params['mode'];
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
+				
+				$actions[] = [
+					'_action' => 'prompt.text',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
+					'label' => $label,
+					'placeholder' => $placeholder,
+					'default' => $default,
+					'mode' => $mode,
+				];
+				break;
+			
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
