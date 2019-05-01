@@ -179,5 +179,25 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
+	function searchButton() {
+		return function($column, $sheet_dict) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			@$context_alias = $column['params']['context'] ?: $sheet_dict->get($column['params']['context_key']);
+			@$query = $column['params']['query'];
+			
+			if(false == ($query = $tpl_builder->build($query, $sheet_dict)))
+				return;
+			
+			if(!$context_alias || false == ($context_ext = Extension_DevblocksContext::getByAlias($context_alias, true)))
+				return;
+			
+			return sprintf('<button type="button" class="cerb-search-trigger" data-context="%s" data-query="%s"><span class="glyphicons glyphicons-search"></span></button>',
+				DevblocksPlatform::strEscapeHtml($context_ext->id),
+				DevblocksPlatform::strEscapeHtml($query)
+			);
+		};
+	}
+	
 	}
 }
