@@ -199,5 +199,44 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
+	function slider() {
+		return function($column, $sheet_dict) {
+			$value_min = @$column['params']['min'] ?: 0;
+			$value_max = @$column['params']['max'] ?: 100;
+			$value_mid = ($value_max + $value_min)/2;
+			
+			if(array_key_exists('value', $column['params'])) {
+				$value = $column['params']['value'];
+				
+			} else if(array_key_exists('value_key', $column['params'])) {
+				$value = $sheet_dict->get($column['params']['value_key']);
+				
+			} else {
+				$value = $sheet_dict->get($column['key']);
+			}
+			
+			if($value > $value_mid) {
+				$color = 'rgb(230,70,70)';
+			} else if($value < $value_mid) {
+				$color = 'rgb(0,200,0)';
+			} else {
+				$color = 'rgb(175,175,175)';
+			}
+			
+			return sprintf(
+				'<div title="%d" style="width:60px;height:8px;background-color:rgb(220,220,220);border-radius:8px;text-align:center;">'.
+					'<div style="position:relative;margin-left:5px;width:50px;height:8px;">'.
+						'<div style="position:absolute;margin-left:-5px;top:-1px;left:%d%%;width:10px;height:10px;border-radius:10px;background-color:%s;"></div>'.
+					'</div>'.
+				'</div>',
+				$value,
+				($value/$value_max)*100,
+				DevblocksPlatform::strEscapeHtml($color)
+			);
+			
+			return $value;
+		};
+	}
+	
 	}
 }
