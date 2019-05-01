@@ -540,6 +540,14 @@
 			<class name="View_Identity" />
 		</file>
 		
+		<file path="api/dao/identity_pool.php">
+			<class name="Context_IdentityPool" />
+			<class name="DAO_IdentityPool" />
+			<class name="Model_IdentityPool" />
+			<class name="SearchFields_IdentityPool" />
+			<class name="View_IdentityPool" />
+		</file>
+		
 		<file path="api/dao/mail_failed.php">
 			<class name="SearchFields_MailParseFail" />
 			<class name="View_MailParseFail" />
@@ -3047,6 +3055,51 @@
 				<param key="acl">
 					<value>
 						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.context">
+			<id>cerb.contexts.identity.pool</id>
+			<name>Identity Pool</name>
+			<class>
+				<file>api/dao/identity_pool.php</file>
+				<name>Context_IdentityPool</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="identity pool" value="singular" />
+						<data key="identity pools" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="identity_pool" />
+				<param key="dao_class" value="DAO_IdentityPool" />
+				<param key="view_class" value="View_IdentityPool" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
 						<data key="comment" />
 						<data key="create" />
 						<data key="delete" />
@@ -7912,6 +7965,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="identity" />
+				</params>
+			</extension>
+			
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.identity_pool</id>
+				<name>Identity Pool Section</name>
+				<class>
+					<file>api/uri/profiles/identity_pool.php</file>
+					<name>PageSection_ProfilesIdentityPool</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="identity_pool" />
 				</params>
 			</extension>
 			

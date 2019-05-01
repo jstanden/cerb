@@ -1548,6 +1548,16 @@
 				<seg>identities</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.identity.pool">
+			<tuv xml:lang="en_US">
+				<seg>identity pool</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.identity.pools">
+			<tuv xml:lang="en_US">
+				<seg>identity pools</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.image">
 			<tuv xml:lang="en_US">
 				<seg>image</seg>
