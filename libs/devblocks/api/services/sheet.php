@@ -134,5 +134,14 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
+	function date() {
+		return function($column, $sheet_dict) {
+			$value = $sheet_dict->get($column['key']);
+			$value = DevblocksPlatform::strPrettyTime($value);
+			
+			return DevblocksPlatform::strEscapeHtml($value);
+		};
+	}
+	
 	}
 }
