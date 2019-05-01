@@ -6873,6 +6873,17 @@
 		</extension>
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.sheet</id>
+			<name>Sheet</name>
+			<class>
+				<file>api/workspaces/widgets/sheet.php</file>
+				<name>WorkspaceWidget_Sheet</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.subtotals</id>
 			<name>(Deprecated) Subtotals</name>
 			<class>
