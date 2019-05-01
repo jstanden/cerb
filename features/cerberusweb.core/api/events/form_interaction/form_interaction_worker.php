@@ -199,6 +199,8 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				'prompt_radios' => array('label' => 'Form prompt with single choice'),
 				'prompt_text' => array('label' => 'Form prompt with text'),
 				
+				'prompt_submit' => array('label' => 'Form prompt with submit'),
+				
 			)
 			;
 		
@@ -252,6 +254,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_text.tpl');
 				break;
 				
+			case 'prompt_submit':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/action_prompt_submit.tpl');
+				break;
+			
 		}
 		
 		$tpl->clearAssign('params');
@@ -312,6 +318,9 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					$label,
 					$placeholder
 				);
+				break;
+				
+			case 'prompt_submit':
 				break;
 				
 			case 'send_email':
@@ -453,6 +462,17 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				];
 				break;
 			
+			case 'prompt_submit':
+				$actions =& $dict->_actions;
+				
+				$actions[] = array(
+					'_action' => 'prompt.submit',
+					'_trigger_id' => $trigger->id,
+				);
+				
+				$dict->__exit = 'suspend';
+				break;
+				
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;

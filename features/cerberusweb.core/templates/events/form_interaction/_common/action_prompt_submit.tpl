@@ -1,0 +1,1 @@
+(This action has no configuration options)
