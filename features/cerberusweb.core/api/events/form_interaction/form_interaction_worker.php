@@ -201,6 +201,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				'prompt_submit' => array('label' => 'Form prompt with submit'),
 				
+				'respond_sheet' => array('label' => 'Form display sheet'),
 			)
 			;
 		
@@ -258,6 +259,9 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/action_prompt_submit.tpl');
 				break;
 			
+			case 'respond_sheet':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/responses/action_respond_sheet.tpl');
+				break;
 		}
 		
 		$tpl->clearAssign('params');
@@ -327,6 +331,13 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 			
+			case 'respond_sheet':
+				//$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				//$query = $tpl_builder->build($params['data_query'], $dict);
+				
+				$out = sprintf(">>> Sending sheet as response\n"
+				);
+				break;
 		}
 		
 		return $out;
@@ -477,6 +488,21 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 			
+			case 'respond_sheet':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$data_query = $tpl_builder->build($params['data_query'], $dict);
+				
+				$sheet_yaml = $params['sheet_yaml'];
+				
+				$actions[] = array(
+					'_action' => 'respond.sheet',
+					'_trigger_id' => $trigger->id,
+					'data_query' => $data_query,
+					'sheet_yaml' => $sheet_yaml,
+				);
+				break;
 		}
 	}
 };
