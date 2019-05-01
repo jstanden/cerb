@@ -195,6 +195,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				'send_email' => array('label' => 'Send email'),
 				
 				'prompt_captcha' => array('label' => 'Form prompt with CAPTCHA challenge'),
+				'prompt_checkboxes' => array('label' => 'Form prompt with multiple choices'),
 			)
 			;
 		
@@ -236,6 +237,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_captcha.tpl');
 				break;
 				
+			case 'prompt_checkboxes':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_checkboxes.tpl');
+				break;
+				
 		}
 		
 		$tpl->clearAssign('params');
@@ -263,6 +268,17 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 			
 			case 'prompt_captcha':
 				$out = ">>> Prompting with CAPTCHA challenge\n";
+				break;
+				
+			case 'prompt_checkboxes':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$label = $tpl_builder->build($params['label'], $dict);
+				$options = $tpl_builder->build($params['options'], $dict);
+				
+				$out = sprintf(">>> Prompting with checkboxes\nLabel: %s\nOptions: %s\n",
+					$label,
+					$options
+				);
 				break;
 				
 			case 'send_email':
@@ -319,6 +335,30 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 						'var' => $var,
 					],
 					'label' => $label,
+				];
+				break;
+				
+			case 'prompt_checkboxes':
+				$actions =& $dict->_actions;
+				
+				assert($actions);
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$label = $tpl_builder->build($params['label'], $dict);
+				@$options = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['options'], $dict));
+				@$var = $params['var'];
+				@$var_validate = $params['var_validate'];
+				
+				$actions[] = [
+					'_action' => 'prompt.checkboxes',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'validate' => $var_validate,
+					],
+					'label' => $label,
+					'options' => $options,
 				];
 				break;
 				
