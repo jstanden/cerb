@@ -201,7 +201,8 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				'prompt_submit' => array('label' => 'Form prompt with submit'),
 				
-				'respond_sheet' => array('label' => 'Form display sheet'),
+				'respond_sheet' => array('label' => 'Form respond with sheet'),
+				'respond_text' => array('label' => 'Form respond with text'),
 			)
 			;
 		
@@ -259,6 +260,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/action_prompt_submit.tpl');
 				break;
 			
+			case 'respond_text':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/responses/action_respond_text.tpl');
+				break;
+				
 			case 'respond_sheet':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/responses/action_respond_sheet.tpl');
 				break;
@@ -331,6 +336,16 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 			
+			case 'respond_text':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$content = $tpl_builder->build($params['message'], $dict);
+				
+				$out = sprintf(">>> Sending response text\n".
+					"%s\n",
+					$content
+				);
+				break;
+				
 			case 'respond_sheet':
 				//$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				//$query = $tpl_builder->build($params['data_query'], $dict);
@@ -488,6 +503,35 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
 			
+			case 'respond_text':
+				$actions =& $dict->_actions;
+				
+				@$format = $params['format'];
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$content = $tpl_builder->build($params['message'], $dict);
+				
+				switch($format) {
+					case 'html':
+						break;
+						
+					case 'markdown':
+						$content = DevblocksPlatform::parseMarkdown($content);
+						break;
+					
+					default:
+						$format = '';
+						break;
+				}
+				
+				$actions[] = array(
+					'_action' => 'respond.text',
+					'_trigger_id' => $trigger->id,
+					'message' => $content,
+					'format' => $format,
+				);
+				break;
+				
 			case 'respond_sheet':
 				$actions =& $dict->_actions;
 				
