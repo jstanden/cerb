@@ -325,6 +325,8 @@ class ChRest_Records extends Extension_RestController {
 		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
 		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
 		
+		$limit = DevblocksPlatform::intClamp($limit, 1, 500);
+		
 		$params = [];
 		
 		// Search
