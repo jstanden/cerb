@@ -6568,6 +6568,17 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.sheet</id>
+			<name>Sheet</name>
+			<class>
+				<file>api/profiles/widgets/sheet.php</file>
+				<name>ProfileWidget_Sheet</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.ticket.convo</id>
 			<name>Ticket Conversation</name>
 			<class>
