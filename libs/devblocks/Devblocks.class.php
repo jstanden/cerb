@@ -193,6 +193,14 @@ class _DevblocksServices {
 	
 	/**
 	 * 
+	 * @return _DevblocksSheetService
+	 */
+	function sheet() {
+		return _DevblocksSheetService::getInstance();
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksStringService
 	 */
 	function string() {
