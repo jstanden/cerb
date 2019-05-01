@@ -194,6 +194,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				'create_ticket' => array('label' =>'Create ticket'),
 				'send_email' => array('label' => 'Send email'),
 				
+				'prompt_captcha' => array('label' => 'Form prompt with CAPTCHA challenge'),
 			)
 			;
 		
@@ -231,6 +232,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
 			
+			case 'prompt_captcha':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_captcha.tpl');
+				break;
+				
 		}
 		
 		$tpl->clearAssign('params');
@@ -256,6 +261,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'worker_id');
 				break;
 			
+			case 'prompt_captcha':
+				$out = ">>> Prompting with CAPTCHA challenge\n";
+				break;
+				
 			case 'send_email':
 				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
@@ -283,6 +292,36 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionCreateTicket($params, $dict);
 				break;
 			
+			case 'prompt_captcha':
+				$actions =& $dict->_actions;
+				
+				assert($actions);
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$var = $params['var'];
+				
+				$label = 'Please prove you are not a robot:';
+				
+				// Generate random code
+				$otp_key = $var . '__otp';
+				$otp = $dict->get($otp_key);
+				
+				if(!$otp) {
+					$otp = CerberusApplication::generatePassword(4);
+					$dict->set($otp_key, $otp);
+				}
+				
+				$actions[] = [
+					'_action' => 'prompt.captcha',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+					],
+					'label' => $label,
+				];
+				break;
+				
 			case 'send_email':
 				DevblocksEventHelper::runActionSendEmail($params, $dict);
 				break;
