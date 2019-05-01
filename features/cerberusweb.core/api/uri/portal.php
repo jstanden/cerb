@@ -156,7 +156,7 @@ class ChPortalHelper {
 			@$session_id = DevblocksPlatform::importGPC($_COOKIE[$cookie_name],'string','');
 			
 			if(empty($session_id)) {
-				$session_id = sha1(DevblocksPlatform::getClientIp() . self::getCode() . uniqid());
+				$session_id = sha1(DevblocksPlatform::getClientIp() . $portal->code . random_bytes(32));
 				setcookie($cookie_name, $session_id, 0, '/', null, $url_writer->isSSL(), true);
 			}
 			
