@@ -779,6 +779,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			'count' => $this->_getCount($schema),
 			'max_id' => $this->_getMaxId($schema),
 			'is_indexed_externally' => false,
+			'is_count_approximate' => true,
 		);
 	}
 	
@@ -801,7 +802,12 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		return intval($db->GetOneSlave(sprintf("SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns))));
+		$row = $db->GetRowSlave(sprintf("EXPLAIN SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns)));
+		
+		if(array_key_exists('rows', $row))
+			return intval($row['rows']);
+		
+		return 0;
 	}
 	
 	public function getQuickSearchExamples(Extension_DevblocksSearchSchema $schema) {

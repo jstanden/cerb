@@ -10,6 +10,7 @@
 	{$schema_meta = $schema->getIndexMeta()}
 	<div>
 		{if $schema_meta.count}
+		{if $schema_meta.is_count_approximate}~{/if}
 		<b>{$schema_meta.count|number_format}</b> records indexed in <b>{$engine->manifest->name}</b>.
 		{else}
 		Records indexed in <b>{$engine->manifest->name}</b>.
