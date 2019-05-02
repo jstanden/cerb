@@ -8629,6 +8629,19 @@
 			</params>
 		</extension>
 		
+		<!-- Portals -->
+		
+		<extension point="cerb.portal">
+			<id>cerb.portal.builder</id>
+			<name>Builder</name>
+			<class>
+				<file>api/portals/builder.php</file>
+				<name>Portal_Builder</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Workspace Pages -->
 		
 		<extension point="cerberusweb.ui.workspace.page">
