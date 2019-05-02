@@ -96,6 +96,8 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 						break;
 				}
 				
+				$error = null;
+				
 				if(empty($id)) { // New
 					$fields = array(
 						DAO_CustomFieldset::NAME => $name,

@@ -2383,6 +2383,17 @@ abstract class Extension_PortalPage extends DevblocksExtension {
 	}
 }
 
+abstract class Extension_PortalWidget extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.portal.widget';
+	
+	abstract function renderConfig(Model_PortalWidget $model);
+	function saveConfig(array $fields, $id, &$error=null) { return true; }
+	
+	abstract function render(Model_PortalWidget $widget, DevblocksDictionaryDelegate $dict);
+}
+
 abstract class Extension_ConnectedServiceProvider extends DevblocksExtension {
 	use DevblocksExtensionGetterTrait;
 	
