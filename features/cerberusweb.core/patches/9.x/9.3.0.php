@@ -4,6 +4,17 @@ $tables = $db->metaTables();
 $revision = $db->GetOneMaster("SELECT revision FROM cerb_patch_history WHERE plugin_id = 'cerberusweb.core'");
 
 // ===========================================================================
+// Update package library
+
+if($revision < 1341) { // 9.2.x -> 9.3
+	$packages = [
+		'cerb_profile_widget_ticket_participants.json',
+	];
+	
+	CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
+}
+
+// ===========================================================================
 // Add `portal_id` to `community_session`
 
 list($columns,) = $db->metaTable('community_session');
