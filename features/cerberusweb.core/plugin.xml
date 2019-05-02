@@ -6518,6 +6518,17 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.form_interaction</id>
+			<name>Form Interaction</name>
+			<class>
+				<file>api/profiles/widgets/form_interaction.php</file>
+				<name>ProfileWidget_FormInteraction</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.html</id>
 			<name>HTML/Javascript</name>
 			<class>
