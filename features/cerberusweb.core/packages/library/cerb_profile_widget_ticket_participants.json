@@ -49,6 +49,6 @@
             "cache_secs": "0",
             "sheet_kata": "layout:\n  style: table\n  headings@bool: no\n  paging@bool: yes\n\ncolumns:\n  card/id:\n    label: Email\n    params:\n      image@bool: yes\n      bold@bool: yes\n"
         }
-	}
+    }
   ]
 }
