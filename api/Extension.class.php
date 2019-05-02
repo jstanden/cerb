@@ -2348,6 +2348,41 @@ abstract class Extension_CommunityPortal extends DevblocksExtension implements D
 	}
 };
 
+class Extension_PortalPageRenderer {
+	private $_callback_renderer = null;
+	
+	function __construct(callable $func) {
+		$this->setRendererCallback($func);
+	}
+	
+	function setRendererCallback(callable $func) {
+		$this->_callback_renderer = $func;
+	}
+	
+	function render() {
+		if(is_callable($this->_callback_renderer))
+			call_user_func($this->_callback_renderer);
+	}
+}
+
+abstract class Extension_PortalPage extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.portal.page';
+	
+	abstract function render(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response);
+	abstract function renderConfig(Model_PortalPage $model);
+	function saveConfig(array $fields, $id, &$error=null) { return true; }
+	
+	static function renderBareLayout($page, $portal, $renderer) {
+		$portal->getExtension()->renderBareLayout($page, $portal, $renderer);
+	}
+	
+	static function renderDefaultLayout($page, $portal, $renderer) {
+		$portal->getExtension()->renderDefaultLayout($page, $portal, $renderer);
+	}
+}
+
 abstract class Extension_ConnectedServiceProvider extends DevblocksExtension {
 	use DevblocksExtensionGetterTrait;
 	
