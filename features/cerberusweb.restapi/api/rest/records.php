@@ -349,18 +349,16 @@ class ChRest_Records extends Extension_RestController {
 		if(!empty($subtotals))
 			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
 		
+		$objects = [];
+		
 		if($show_results) {
 			$objects = array();
 			
 			$models = CerberusContexts::getModels($context->id, array_keys($results));
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context->id);
 			
-			unset($results);
-			
-			foreach($models as $id => $model) {
-				$labels = $values = [];
-				CerberusContexts::getContext($context->id, $model, $labels, $values, null, true);
-				$objects[$id] = $values;
-			}
+			foreach($dicts as $dict_id => $dict)
+				$objects[$dict_id] = $dict->getDictionary('', false);
 		}
 		
 		$container = [];
