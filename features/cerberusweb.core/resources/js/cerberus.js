@@ -1024,6 +1024,10 @@ var ajax = new cAjaxCalls();
 				aceOptions.enableLiveAutocompletion = [autocompleterTwig];
 			}
 			
+			if(mode == 'ace/mode/yaml') {
+				aceOptions.useSoftTabs = true;
+			}
+			
 			editor.setOptions(aceOptions);
 		});
 	};
