@@ -2000,6 +2000,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_MESSAGE_FIRST_SEARCH = '*_message_first_search';
+	const VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH = '*_message_first_outgoing_search';
 	const VIRTUAL_MESSAGE_LAST_SEARCH = '*_message_last_search';
 	const VIRTUAL_MESSAGES_SEARCH = '*_messages_search';
 	const VIRTUAL_ORG_SEARCH = '*_org_search';
@@ -2143,6 +2144,10 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_MESSAGE_FIRST_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT id FROM message WHERE id IN (%s)', 't.first_message_id');
+				break;
+				
+			case self::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT id FROM message WHERE id IN (%s)', 't.first_outgoing_message_id');
 				break;
 				
 			case self::VIRTUAL_MESSAGE_LAST_SEARCH:
@@ -2456,6 +2461,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH, '*', 'message_first_search', null, null, false),
+			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH, '*', 'message_first_outgoing_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_MESSAGE_LAST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGE_LAST_SEARCH, '*', 'message_last_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH, '*', 'messages_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_SEARCH, '*', 'org_search', null, null, false),
@@ -2715,6 +2721,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH,
+			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGE_LAST_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH,
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID,
@@ -3229,6 +3236,14 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_MESSAGE],
 					)
 				),
+			'messages.firstOutgoing' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [],
+					'examples' => array(
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_MESSAGE],
+					)
+				),
 			'messages.last' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -3468,6 +3483,10 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case 'messages.first':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH);
+				break;
+				
+			case 'messages.firstOutgoing':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH);
 				break;
 				
 			case 'messages.last':
@@ -3715,6 +3734,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH:
 				echo sprintf("First message matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH:
+				echo sprintf("First outgoing message matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
