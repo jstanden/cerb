@@ -753,7 +753,7 @@ var ajax = new cAjaxCalls();
 	
 	$.fn.cerbCodeEditor = function(options) {
 		var langTools = ace.require("ace/ext/language_tools");
-	
+		
 		return this.each(function(iteration) {
 			var $this = $(this);
 			
@@ -762,6 +762,18 @@ var ajax = new cAjaxCalls();
 			
 			var mode = $this.attr('data-editor-mode');
 			var withTwigAutocompletion = $this.is('.placeholders');
+			
+			var aceOptions = {
+				showLineNumbers: true,
+				wrap: true,
+				enableBasicAutocompletion: [],
+				enableLiveAutocompletion: [],
+				enableSnippets: false,
+				tabSize: 2,
+				useSoftTabs: false,
+				minLines: 2,
+				maxLines: 20
+			};
 			
 			if(null == mode)
 				mode = 'ace/mode/twig';
@@ -810,17 +822,6 @@ var ajax = new cAjaxCalls();
 				$editor.trigger('cerb.update');
 			});
 			
-			editor.setOptions({
-				showLineNumbers: true,
-				wrap: true,
-				enableBasicAutocompletion: true,
-				enableSnippets: false,
-				enableLiveAutocompletion: true,
-				tabSize: 2,
-				useSoftTabs: false,
-				minLines: 2,
-				maxLines: 20
-			});	
 			
 			if(withTwigAutocompletion) {
 				var twig_snippets = [
@@ -946,7 +947,7 @@ var ajax = new cAjaxCalls();
 					{ value: "xml_path_ns(xml,prefix,ns)", meta: "function" },
 				];
 				
-				var autocompleter = {
+				var autocompleterTwig = {
 					insertMatch: function(editor, data) {
 						delete data.completer;
 						editor.completer.insertMatch(data);
@@ -956,7 +957,7 @@ var ajax = new cAjaxCalls();
 						
 						if(token == null) {
 							callback(null, twig_snippets.map(function(c) {
-								c.completer = autocompleter;
+								c.completer = autocompleterTwig;
 								return c;
 							}));
 							return;
@@ -967,7 +968,7 @@ var ajax = new cAjaxCalls();
 							
 							if(prevToken && prevToken.type == 'meta.tag.twig') {
 								callback(null, twig_tags.map(function(c) {
-									c.completer = autocompleter;
+									c.completer = autocompleterTwig;
 									return c;
 								}));
 								return;
@@ -975,7 +976,7 @@ var ajax = new cAjaxCalls();
 							
 							if(prevToken && prevToken.type == 'keyword.operator.twig') {
 								callback(null, twig_functions.map(function(c) {
-									c.completer = autocompleter;
+									c.completer = autocompleterTwig;
 									return c;
 								}));
 								return;
@@ -983,7 +984,7 @@ var ajax = new cAjaxCalls();
 							
 							if(prevToken && prevToken.type == 'keyword.operator.other' && prevToken.value == '|') {
 								callback(null, twig_filters.map(function(c) {
-									c.completer = autocompleter;
+									c.completer = autocompleterTwig;
 									return c;
 								}));
 								return;
@@ -993,7 +994,7 @@ var ajax = new cAjaxCalls();
 						if(token.type == 'meta.tag.twig') {
 							var results = [].concat(twig_tags).concat(twig_functions);
 							callback(null, results.map(function(c) {
-								c.completer = autocompleter;
+								c.completer = autocompleterTwig;
 								return c;
 							}));
 							return;
@@ -1001,7 +1002,7 @@ var ajax = new cAjaxCalls();
 						
 						if(token.type == 'keyword.operator.other' && token.value == '|') {
 							callback(null, twig_filters.map(function(c) {
-								c.completer = autocompleter;
+								c.completer = autocompleterTwig;
 								return c;
 							}));
 							return;
@@ -1009,7 +1010,7 @@ var ajax = new cAjaxCalls();
 						
 						if(token.type == 'variable.other.readwrite.local.twig') {
 							callback(null, twig_functions.map(function(c) {
-								c.completer = autocompleter;
+								c.completer = autocompleterTwig;
 								return c;
 							}));
 							return;
@@ -1019,8 +1020,11 @@ var ajax = new cAjaxCalls();
 					}
 				};
 				
-				langTools.addCompleter(autocompleter);
+				aceOptions.enableBasicAutocompletion = [autocompleterTwig];
+				aceOptions.enableLiveAutocompletion = [autocompleterTwig];
 			}
+			
+			editor.setOptions(aceOptions);
 		});
 	};
 	
