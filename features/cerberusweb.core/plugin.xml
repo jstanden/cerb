@@ -8655,6 +8655,17 @@
 			</params>
 		</extension>
 		
+		<extension point="cerb.portal.page">
+			<id>cerb.portal.page.text</id>
+			<name>Text</name>
+			<class>
+				<file>api/portals/pages/text.php</file>
+				<name>PortalPage_Text</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Workspace Pages -->
 		
 		<extension point="cerberusweb.ui.workspace.page">
