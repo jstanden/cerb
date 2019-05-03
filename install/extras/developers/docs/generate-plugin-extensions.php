@@ -41,8 +41,20 @@ $extension_point_meta = [
 		'extensible' => true,
 		],
 	'cerb.portal' => [
-		'label' => 'Community Portal Type',
+		'label' => 'Portal',
 		'class' => 'Extension_CommunityPortal',
+		'examples' => [],
+		'extensible' => true,
+		],
+	'cerb.portal.page' => [
+		'label' => 'Portal Page',
+		'class' => 'Extension_PortalPage',
+		'examples' => [],
+		'extensible' => true,
+		],
+	'cerb.portal.widget' => [
+		'label' => 'Portal Widget',
+		'class' => 'Extension_PortalWidget',
 		'examples' => [],
 		'extensible' => true,
 		],
