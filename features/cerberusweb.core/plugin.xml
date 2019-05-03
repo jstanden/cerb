@@ -8666,6 +8666,19 @@
 			</params>
 		</extension>
 		
+		<!-- Portal Widgets -->
+		
+		<extension point="cerb.portal.widget">
+			<id>cerb.portal.widget.text</id>
+			<name>Text</name>
+			<class>
+				<file>api/portals/widgets/text.php</file>
+				<name>PortalWidget_Text</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Workspace Pages -->
 		
 		<extension point="cerberusweb.ui.workspace.page">
