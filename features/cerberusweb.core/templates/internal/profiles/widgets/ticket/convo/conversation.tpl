@@ -119,6 +119,7 @@ $(function() {
 		;
 	
 	// Listen for new comments
+	{if 1 != $comments_mode}
 	$parent
 		.on('cerb_profile_comment_created.widget{$widget->id}', function(e) {
 			if(e.comment_id && e.comment_html) {
@@ -129,6 +130,7 @@ $(function() {
 			}
 		})
 		;
+	{/if}
 	
 	$widget.on('cerb_reply', function(e) {
 		e.preventDefault();

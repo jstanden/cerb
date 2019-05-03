@@ -2129,13 +2129,17 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		// [TODO] Handle focus?
 		
+		$refresh_options['comments_mode'] = DevblocksPlatform::importVar(@$model->extension_params['comments_mode'], 'int', 0);
+		
 		$this->_showConversationAction($context_id, $refresh_options);
 	}
 	
 	private function _showConversationAction($id, $display_options=[]) {
 		@$expand_all = DevblocksPlatform::importVar($display_options['expand_all'], 'bit', 0);
+		@$comments_mode = DevblocksPlatform::importVar($display_options['comments_mode'], 'int', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('comments_mode', $comments_mode);
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -2227,14 +2231,28 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 
 		// Comments
 		
-		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $id);
-		arsort($comments);
-		$tpl->assign('comments', $comments);
-		
-		// build a chrono index of comments
-		foreach($comments as $comment_id => $comment) { /* @var $comment Model_Comment */
-			$key = $comment->created . '_c' . $comment_id;
-			$convo_timeline[$key] = array('c',$comment_id);
+		// If we're not hiding them
+		if(1 != $comments_mode) {
+			$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $id);
+			$tpl->assign('comments', $comments);
+			
+			if($comments) {
+				$pin_ts = null;
+				
+				if(2 == $comments_mode) {
+					$pin_ts = max(array_column(DevblocksPlatform::objectsToArrays($comments), 'created'));
+				}
+				
+				// build a chrono index of comments
+				foreach($comments as $comment_id => $comment) { /* @var $comment Model_Comment */
+					if($pin_ts && $comment->created == $pin_ts) {
+						$key = time() . '_c' . $comment_id;
+					} else {
+						$key = $comment->created . '_c' . $comment_id;
+					}
+					$convo_timeline[$key] = array('c',$comment_id);
+				}
+			}
 		}
 		
 		// Thread drafts into conversation
@@ -2304,7 +2322,7 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('widget', $model);
 		
-		//$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/config.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/config.tpl');
 	}
 }
 
