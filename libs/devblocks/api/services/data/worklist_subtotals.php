@@ -67,6 +67,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$data_query = substr($data_query, 1, -1);
 				$chart_model['query'] = $data_query;
 				
+			} else if(in_array($field->key, ['query.require','query.required'])) {
+				$data_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
+				$data_query = substr($data_query, 1, -1);
+				$chart_model['query_required'] = $data_query;
+				
 			} else {
 				$error = sprintf("The parameter '%s' is unknown.", $field->key);
 				return false;
@@ -91,6 +96,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$search_class = $subtotals_context->getSearchClass();
 		$view = $subtotals_context->getTempView();
 		
+		$view->addParamsRequiredWithQuickSearch(@$chart_model['query_required']);
 		$view->addParamsWithQuickSearch(@$chart_model['query']);
 		
 		$query_fields = $view->getQuickSearchFields();

@@ -31,7 +31,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
 				$chart_model['expand'] = $value;
 			
-			} else if($field->key == 'query.require') {
+			} else if(in_array($field->key, ['query.require','query.required'])) {
 				$data_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$data_query = substr($data_query, 1, -1);
 				$chart_model['query_required'] = $data_query;
