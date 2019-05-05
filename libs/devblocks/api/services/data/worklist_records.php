@@ -18,7 +18,9 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 
-			if($field->key == 'of') {
+			if($field->key == 'type') {
+				// Do nothing
+			} else if($field->key == 'of') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				if(false == ($context = Extension_DevblocksContext::getByAlias($value, true)))
 					continue;
@@ -46,6 +48,10 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = $value;
+				
+			} else {
+				$error = sprintf("The parameter '%s' is unknown.", $field->key);
+				return false;
 			}
 		}
 		

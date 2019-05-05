@@ -12,7 +12,12 @@ class _DevblocksDataProviderSampleXy extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
+			$oper = $value = null;
+			
+			if(in_array($field->key, ['type', 'format'])) {
+				// Do nothing
+				
+			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$series_query = substr($series_query, 1, -1);
 				
@@ -57,12 +62,16 @@ class _DevblocksDataProviderSampleXy extends _DevblocksDataProvider {
 				}
 				
 				$chart_model['series'][] = $series_model;
+				
+			} else {
+				$error = sprintf("The parameter '%s' is unknown.", $field->key);
+				return false;
 			}
 		}
 		
 		$data = [];
 		
-		foreach($chart_model['series'] as $idx => $series) {
+		foreach($chart_model['series'] as $series) {
 			$x_values = [$series['label'] . '_x'];
 			$y_values = [$series['label']];
 			

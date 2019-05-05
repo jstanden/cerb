@@ -4,10 +4,10 @@ class _DevblocksDataProviderSampleTimeSeries extends _DevblocksDataProvider {
 		
 		$chart_model = [
 			'type' => 'sample.timeseries',
-			'format' => 'timeseries',
 			'x.count' => '12',
 			'x.unit' => 'months',
 			'series' => [],
+			'format' => 'timeseries',
 		];
 		
 		foreach($chart_fields as $field) {
@@ -16,7 +16,14 @@ class _DevblocksDataProviderSampleTimeSeries extends _DevblocksDataProvider {
 			
 			$oper = $value = null;
 			
-			if($field->key == 'x.count') {
+			if($field->key == 'type') {
+				// Do nothing
+				
+			} else if($field->key == 'format') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['format'] = $value;
+				
+			} else if($field->key == 'x.count') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['x.count'] = intval($value);
 				
@@ -57,6 +64,10 @@ class _DevblocksDataProviderSampleTimeSeries extends _DevblocksDataProvider {
 				}
 				
 				$chart_model['series'][] = $series_model;
+				
+			} else {
+				$error = sprintf("The parameter '%s' is unknown.", $field->key);
+				return false;
 			}
 		}
 		

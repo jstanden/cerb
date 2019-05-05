@@ -15,7 +15,10 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			
 			$oper = $value = null;
 			
-			if($field->key == 'format') {
+			if($field->key == 'type') {
+				// Do nothing
+				
+			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = DevblocksPlatform::strLower($value);
 				
@@ -70,6 +73,10 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 						$data_query = CerbQuickSearchLexer::getTokensAsQuery($series_field->tokens);
 						$data_query = substr($data_query, 1, -1);
 						$series_model['query'] = $data_query;
+						
+					} else {
+						$error = sprintf("The series parameter '%s' is unknown.", $series_field->key);
+						return false;
 					}
 				}
 				
@@ -136,6 +143,10 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 					
 					$chart_model['values'][] = $series;
 				}
+				
+			} else {
+				$error = sprintf("The parameter '%s' is unknown.", $field->key);
+				return false;
 			}
 		}
 		

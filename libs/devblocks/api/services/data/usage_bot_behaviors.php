@@ -7,6 +7,8 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
+			$oper = null;
+			
 			if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $format);
 			}
@@ -15,21 +17,35 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 		switch($format) {
 			default:
 			case 'table':
-				return $this->_formatDataAsTable($chart_fields);
+				return $this->_formatDataAsTable($chart_fields, $error);
 				break;
 				
 			case 'timeseries':
-				return $this->_formatDataAsTimeSeries($chart_fields);
+				return $this->_formatDataAsTimeSeries($chart_fields, $error);
 				break;
 		}
 	}
 	
-	private function _formatDataAsTable(array $chart_fields=[]) {
+	private function _formatDataAsTable(array $chart_fields=[], &$error=null) {
+		/*
 		$chart_model = [
 			'type' => 'usage.behaviors',
-			'format' => 'timeseries',
-			'ids' => [],
+			'format' => 'table',
 		];
+		*/
+		
+		foreach($chart_fields as $field) {
+			if(!($field instanceof DevblocksSearchCriteria))
+				continue;
+			
+			if(in_array($field->key, ['type', 'format'])) {
+				// Do nothing
+				
+			} else {
+				$error = sprintf("The parameter '%s' is unknown.", $field->key);
+				return false;
+			}
+		}
 		
 		// [TODO] bot.id
 		// [TODO] Sort
@@ -151,7 +167,7 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 		];
 	}
 	
-	private function _formatDataAsTimeSeries(array $chart_fields=[]) {
+	private function _formatDataAsTimeSeries(array $chart_fields=[], &$error=null) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$chart_model = [
@@ -164,9 +180,18 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if($field->key == 'ids') {
-				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $ids);
-				$chart_model['ids'] = $ids;
+			$oper = $value = null;
+			
+			if(in_array($field->key, ['type', 'format'])) {
+				// Do nothing
+				
+			} else if($field->key == 'ids') {
+				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+				$chart_model['ids'] = $value;
+				
+			} else {
+				$error = sprintf("The parameter '%s' is unknown.", $field->key);
+				return false;
 			}
 		}
 		

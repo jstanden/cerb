@@ -16,7 +16,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if($field->key == 'function') {
+			if($field->key == 'type') {
+				// Do nothing
+				
+			} else if($field->key == 'function') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['function'] = DevblocksPlatform::strLower($value);
 				
@@ -63,6 +66,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$data_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$data_query = substr($data_query, 1, -1);
 				$chart_model['query'] = $data_query;
+				
+			} else {
+				$error = sprintf("The parameter '%s' is unknown.", $field->key);
+				return false;
 			}
 		}
 		

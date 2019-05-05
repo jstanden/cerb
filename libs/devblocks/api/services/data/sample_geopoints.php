@@ -10,7 +10,9 @@ class _DevblocksDataProviderSampleGeoPoints extends _DevblocksDataProvider {
 			if(!($field instanceof DevblocksSearchCriteria))
 				continue;
 			
-			if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
+			if($field->key == 'type') {
+				// Do nothing
+			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$series_query = substr($series_query, 1, -1);
 				
@@ -56,6 +58,13 @@ class _DevblocksDataProviderSampleGeoPoints extends _DevblocksDataProvider {
 					
 					$geometries[] = $geometry;
 				}
+				
+			} else if($field->key == 'format') {
+				// Always GeoJSON
+				
+			} else {
+				$error = sprintf("The parameter '%s' is unknown.", $field->key);
+				return false;
 			}
 		}
 		
