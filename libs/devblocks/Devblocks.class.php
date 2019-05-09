@@ -2043,6 +2043,9 @@ class DevblocksPlatform extends DevblocksEngine {
 			return $token;
 		}, $string);
 		
+		if(is_null($out))
+			$out = $string;
+		
 		if($as_html)
 			$out = htmlentities($out, ENT_QUOTES, LANG_CHARSET_CODE);
 		
