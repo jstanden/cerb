@@ -1583,6 +1583,36 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$expected = '<a href="http://www.example.com" target="_blank" rel="noopener noreferrer">http://www.example.com</a>';
 		$actual = DevblocksPlatform::strToHyperlinks('http://www.example.com');
 		$this->assertEquals($expected, $actual);
+		
+		// No protocol
+		$expected = '<a href="http://www.example.com" target="_blank" rel="noopener noreferrer">www.example.com</a>';
+		$actual = DevblocksPlatform::strToHyperlinks('www.example.com');
+		$this->assertEquals($expected, $actual);
+		
+		// Test with angle brackets
+		$expected = '&lt;<a href="http://www.example.com" target="_blank" rel="noopener noreferrer">http://www.example.com</a>&gt;';
+		$actual = DevblocksPlatform::strToHyperlinks('<http://www.example.com>');
+		$this->assertEquals($expected, $actual);
+		
+		// Markdown formatted links (label and link match)
+		$expected = '|<a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a>';
+		$actual = DevblocksPlatform::strToHyperlinks('|[http://example.com](http://example.com/)');
+		$this->assertEquals($expected, $actual);
+		
+		// Markdown formatted links with text labels
+		$expected = 'some text &lt;<a href="http://example.com/" target="_blank" rel="noopener noreferrer">http://example.com/</a>&gt;';
+		$actual = DevblocksPlatform::strToHyperlinks('[some text](http://example.com/)');
+		$this->assertEquals($expected, $actual);
+		
+		// Not a protocol
+		$expected = 'You can use the messages.first:(content) filter';
+		$actual = DevblocksPlatform::strToHyperlinks('You can use the messages.first:(content) filter');
+		$this->assertEquals($expected, $actual);
+		
+		// Not a protocol
+		$expected = 'You can use the worker.id:me filter';
+		$actual = DevblocksPlatform::strToHyperlinks('You can use the worker.id:me filter');
+		$this->assertEquals($expected, $actual);
 	}
 	
 	public function testStrToPermalink() {
