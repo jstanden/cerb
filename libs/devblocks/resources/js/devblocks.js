@@ -1019,35 +1019,44 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	var frm = null;
 	var div = null;
 	
-	// Polymorph form
-	if(formRef instanceof jQuery)
-		frm = formRef;
-	else if(typeof formRef=="string" && formRef.length > 0)
-		frm = $('#'+formRef);
-	
 	// Polymorph div
 	if(divRef instanceof jQuery)
 		div = divRef;
 	else if(typeof divRef=="string" && divRef.length > 0)
 		div = $('#'+divRef);
 	
-	if(null == frm)
-		return;
-	
 	// Allow custom options
 	if(null == options)
 		options = { };
 	
 	options.type = 'POST';
-	options.data = $(frm).serialize();
 	options.url = DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
 	options.cache = false;
+	
+	// Handle formData
+	if(formRef instanceof FormData) {
+		options.processData = false;
+		options.contentType = false;
+		options.data = formRef;
+		
+	} else {
+		// Polymorph form
+		if(formRef instanceof jQuery)
+			frm = formRef;
+		else if(typeof formRef=="string" && formRef.length > 0)
+			frm = $('#'+formRef);
+		
+		if(null == frm)
+			return;
+		
+		options.data = $(frm).serialize();
+	}
 	
 	if(null != div) {
 		div.fadeTo("fast", 0.2);
 		
 		options.success = function(html) {
-			if(null != div) {
+			if(null != div && div instanceof jQuery) {
 				div.html(html);
 				div.fadeTo("fast", 1.0);
 				
