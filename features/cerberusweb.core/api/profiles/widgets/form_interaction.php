@@ -52,18 +52,17 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		if(false ==  ($interactions_yaml = $tpl_builder->build($interactions_yaml, $dict)))
 			return false;
 		
-		if(false == ($interactions = DevblocksPlatform::services()->string()->yamlParse($interactions_yaml)))
+		if(false == ($interactions = DevblocksPlatform::services()->string()->yamlParse($interactions_yaml, 0)))
 			return false;
+		
+		if(!array_key_exists('behaviors', $interactions))
+			return [];
 		
 		$results = [];
 		
-		foreach($interactions as $idx => $interaction) {
-			if(!array_key_exists('behavior', $interaction)) {
-				unset($interactions[$idx]);
-				continue;
-			}
+		foreach($interactions['behaviors'] as $interaction) {
 			
-			$results[$interaction['behavior']['label']] = $interaction;
+			$results[$interaction['label']] = $interaction;
 		}
 		
 		return $results;
@@ -105,19 +104,19 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 				if(false == (@$interaction = $interactions[$interaction_key]))
 					return;
 				
-				if(!array_key_exists('id', $interaction['behavior']))
+				if(!array_key_exists('id', $interaction))
 					return;
 				
-				if(is_numeric($interaction['behavior']['id'])) {
-					$interaction_behavior = DAO_TriggerEvent::get($interaction['behavior']['id']);
+				if(is_numeric($interaction['id'])) {
+					$interaction_behavior = DAO_TriggerEvent::get($interaction['id']);
 				} else {
-					$interaction_behavior = DAO_TriggerEvent::getByUri($interaction['behavior']['id']);
+					$interaction_behavior = DAO_TriggerEvent::getByUri($interaction['id']);
 				}
 				
 				if(!$interaction_behavior)
 					return;
 				
-				$interaction_behavior_vars = @$interaction['behavior']['inputs'] ?: [];
+				$interaction_behavior_vars = @$interaction['inputs'] ?: [];
 				
 				if($interaction_behavior->event_point == Event_FormInteractionWorker::ID) {
 					if(false == ($bot_session = $this->_startFormSession($widget, $dict, $interaction_behavior, $interaction_behavior_vars)))
