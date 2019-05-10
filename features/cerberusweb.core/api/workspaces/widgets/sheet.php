@@ -72,6 +72,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 				$sheets->addType('search_button', $sheets->types()->searchButton());
 				$sheets->addType('slider', $sheets->types()->slider());
 				$sheets->addType('text', $sheets->types()->text());
+				$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
 				$sheets->setDefaultType('text');
 				
 				$sheet_dicts = $results['data'];

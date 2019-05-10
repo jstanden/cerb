@@ -249,4 +249,30 @@ class _DevblocksSheetServiceTypes {
 			return DevblocksPlatform::strEscapeHtml($value);
 		};
 	}
+	
+	function timeElapsed() {
+		return function($column, $sheet_dict) {
+			@$column_params = $column['params'] ?: [];
+			
+			@$precision = $column_params['precision'] ?: 2;
+			
+			if(!array_key_exists('params', $column)) {
+				$value = $sheet_dict->get($column['key']);
+				
+			} else {
+				if(array_key_exists('value_key', $column_params)) {
+					$value = $sheet_dict->get($column_params['value_key']);
+				} else if(array_key_exists('value', $column_params)) {
+					$value = $column_params['value'];
+				} else {
+					$value = $sheet_dict->get($column['key']);
+				}
+			}
+			
+			if(empty($value))
+				return '';
+			
+			return DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value, $precision));
+		};
+	}
 }
