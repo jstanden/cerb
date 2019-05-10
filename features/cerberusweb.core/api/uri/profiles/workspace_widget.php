@@ -388,12 +388,17 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 		@$template_key = DevblocksPlatform::importGPC($_REQUEST['template_key'], 'string', '');
 		@$index = DevblocksPlatform::importGPC($_REQUEST['index'], 'integer', 0);
+		@$format = DevblocksPlatform::importGPC($_REQUEST['format'], 'string', '');
+		
+		@$placeholders_yaml = DevblocksPlatform::importVar($params['placeholder_simulator_yaml'], 'string', '');
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$template = null;
+		
+		$placeholders = DevblocksPlatform::services()->string()->yamlParse($placeholders_yaml, 0);
 
 		if(DevblocksPlatform::strStartsWith($template_key, 'params[')) {
 			$template_key = trim(substr($template_key, 6),'[]');
@@ -416,6 +421,11 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 		]);
 		
+		if(is_array($placeholders))
+		foreach($placeholders as $placeholder_key => $placeholder_value) {
+			$dict->set($placeholder_key, $placeholder_value);
+		}
+		
 		$success = false;
 		$output = '';
 		
@@ -430,9 +440,19 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			$output = $out;
 		}
 		
-		$tpl->assign('success', $success);
-		$tpl->assign('output', $output);
-		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+		if('json' == $format) {
+			header('Content-Type: application/json; charset=utf-8');
+			
+			echo json_encode([
+				'status' => $success,
+				'response' => $output,
+			]);
+			
+		} else {
+			$tpl->assign('success', $success);
+			$tpl->assign('output', $output);
+			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+		}
 	}
 	
 	function exportWidgetAction() {
