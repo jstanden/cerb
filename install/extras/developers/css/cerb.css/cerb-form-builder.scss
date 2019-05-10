@@ -83,18 +83,18 @@
 			padding: 5px;
 		}
 		
-		tr:nth-child(odd) th {
+		th {
 			font-weight: bold;
 			font-size: 1.25em;
 			text-align: left;
 			padding: 5px;
 		}
 		
-		tr:nth-child(odd) td {
+		tbody:nth-child(even) tr td {
 			background-color: whitesmoke;
 		}
 	}
-	
+
 	.cerb-form-builder-error {
 		background-color: rgb(255, 240, 240);
 		color: rgb(200,0,0);

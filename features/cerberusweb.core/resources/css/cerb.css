@@ -672,6 +672,27 @@ DIV.dashboard-widget DIV.updated {
   display: none;
 }
 
+.cerb-data-sheet .cerb-data-sheet--fieldset > TBODY:nth-child(even) TD {
+  background-color: whitesmoke;
+}
+.cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field-label {
+  font-weight: bold;
+}
+.cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field-title {
+  font-weight: bold;
+}
+.cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field TD {
+  padding: 2px 5px;
+}
+.cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field TD:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
+.cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field TD:last-child {
+  word-break: break-word;
+  white-space: normal;
+}
+
 TABLE.worklist {
   background-color: #6487e1;
   -webkit-border-radius: 5px 5px 0px 0px;
@@ -2146,13 +2167,13 @@ UL.ui-menu li.ui-state-focus {
 .cerb-form-builder .cerb-data-table tr td {
   padding: 5px;
 }
-.cerb-form-builder .cerb-data-table tr:nth-child(odd) th {
+.cerb-form-builder .cerb-data-table th {
   font-weight: bold;
   font-size: 1.25em;
   text-align: left;
   padding: 5px;
 }
-.cerb-form-builder .cerb-data-table tr:nth-child(odd) td {
+.cerb-form-builder .cerb-data-table tbody:nth-child(even) tr td {
   background-color: whitesmoke;
 }
 .cerb-form-builder .cerb-form-builder-error {
@@ -2265,16 +2286,16 @@ div.cerb-board div.cerb-board-column div.cerb-board-card div.cerb-board-card-typ
   text-transform: uppercase;
 }
 
-TABLE.cerb-widget-data-table tr td {
-  padding: 5px;
-}
-TABLE.cerb-widget-data-table tr:nth-child(odd) th {
+TABLE.cerb-widget-data-table th {
   font-weight: bold;
   font-size: 1.25em;
   text-align: left;
+  padding: 0px 5px 5px 5px;
+}
+TABLE.cerb-widget-data-table td {
   padding: 5px;
 }
-TABLE.cerb-widget-data-table tr:nth-child(odd) td {
+TABLE.cerb-widget-data-table tbody:nth-child(even) tr td {
   background-color: whitesmoke;
 }
 

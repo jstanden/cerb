@@ -11,6 +11,7 @@
 		{* Subtotals *}
 		{/if}
 		
+		<tbody>
 		<tr>
 		{$is_group_ended = false}
 		{foreach from=$results.data.columns key=column_key item=column name=columns}
@@ -95,6 +96,7 @@
 			</td>
 		{/foreach}
 		</tr>
+		</tbody>
 		
 		{$last_row = $row}
 	{/foreach}
