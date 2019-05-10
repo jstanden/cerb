@@ -335,9 +335,14 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
 		@$template_key = DevblocksPlatform::importGPC($_REQUEST['template_key'], 'string', '');
 		@$index = DevblocksPlatform::importGPC($_REQUEST['index'], 'integer', 0);
+		@$format = DevblocksPlatform::importGPC($_REQUEST['format'], 'string', '');
+		
+		@$placeholders_yaml = DevblocksPlatform::importVar($params['placeholder_simulator_yaml'], 'string', '');
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
+		
+		$placeholders = DevblocksPlatform::services()->string()->yamlParse($placeholders_yaml, 0);
 		
 		$template = null;
 
@@ -358,6 +363,11 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		if(false == $template)
 			return;
 		
+		if(!$profile_tab_id && $id) {
+			if(false != ($profile_widget = DAO_ProfileWidget::get($id))) 
+				$profile_tab_id = $profile_widget->profile_tab_id;
+		}
+		
 		if(false == ($profile_tab = DAO_ProfileTab::get($profile_tab_id)))
 			return;
 		
@@ -370,6 +380,11 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 			'widget_id' => $id,
 			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
 		]);
+		
+		if(is_array($placeholders))
+		foreach($placeholders as $placeholder_key => $placeholder_value) {
+			$dict->set($placeholder_key, $placeholder_value);
+		}
 		
 		$success = false;
 		$output = '';
@@ -385,9 +400,19 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 			$output = $out;
 		}
 		
-		$tpl->assign('success', $success);
-		$tpl->assign('output', $output);
-		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+		if('json' == $format) {
+			header('Content-Type: application/json; charset=utf-8');
+			
+			echo json_encode([
+				'status' => $success,
+				'response' => $output,
+			]);
+			
+		} else {
+			$tpl->assign('success', $success);
+			$tpl->assign('output', $output);
+			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+		}
 	}
 	
 	function exportWidgetAction() {
