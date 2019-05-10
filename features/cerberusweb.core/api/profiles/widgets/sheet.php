@@ -77,13 +77,14 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 				
 				$sheet_dicts = $results['data'];
 				
+				$layout = $sheets->getLayout($sheet);
+				$tpl->assign('layout', $layout);
+				
 				$rows = $sheets->getRows($sheet, $sheet_dicts);
 				$tpl->assign('rows', $rows);
 				
-				$columns = $sheet['columns'];
+				$columns = $sheets->getColumns($sheet);
 				$tpl->assign('columns', $columns);
-				
-				$tpl->assign('show_headings', (!array_key_exists('show_headings', $sheet) || $sheet['show_headings']) ? true : false);
 				
 				@$paging = $results['_']['paging'];
 				
@@ -93,7 +94,12 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 				
 				$tpl->assign('widget_ext', $this);
 				$tpl->assign('widget', $model);
-				$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/render.tpl');
+				
+				if($layout['style'] == 'fieldsets') {
+					$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/render_fieldsets.tpl');
+				} else {
+					$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/render.tpl');
+				}
 				break;
 		}
 	}

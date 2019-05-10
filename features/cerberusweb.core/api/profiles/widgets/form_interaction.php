@@ -482,13 +482,23 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 					
 					$sheet_dicts = $results['data'];
 					
+					$layout = $sheets->getLayout($sheet);
+					$tpl->assign('layout', $layout);
+					
 					$rows = $sheets->getRows($sheet, $sheet_dicts);
 					$tpl->assign('rows', $rows);
 					
-					$columns = $sheet['columns'];
+					$columns = $sheets->getColumns($sheet);
 					$tpl->assign('columns', $columns);
 					
-					$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/responses/respond_sheet.tpl');
+					if(array_key_exists('_', $results) && array_key_exists('paging', $results['_']))
+						$tpl->assign('paging', $results['_']['paging']);
+					
+					if($layout['style'] == 'fieldsets') {
+						$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/responses/respond_sheet_fieldsets.tpl');
+					} else {
+						$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/responses/respond_sheet.tpl');
+					}
 					break;
 					
 				default:
