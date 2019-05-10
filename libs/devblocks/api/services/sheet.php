@@ -13,6 +13,10 @@ class _DevblocksSheetService {
 		return self::$_instance;
 	}
 	
+	/**
+	 * 
+	 * @return _DevblocksSheetService
+	 */
 	function newInstance() {
 		return new _DevblocksSheetService();
 	}
@@ -22,7 +26,9 @@ class _DevblocksSheetService {
 	}
 	
 	function parseYaml($yaml, &$error=null) {
-		$sheet = DevblocksPlatform::services()->string()->yamlParse($yaml, 0);
+		if(false === ($sheet = DevblocksPlatform::services()->string()->yamlParse($yaml, 0, $error)))
+			return false;
+		
 		return $sheet;
 	}
 	
