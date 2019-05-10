@@ -44,9 +44,53 @@ class _DevblocksSheetService {
 		return $this->_type_funcs;
 	}
 	
+	function getLayout(array $sheet) {
+		$layout = [
+			'style' => 'table',
+			'headings' => true,
+			'paging' => true,
+			'title_column' => '',
+		];
+		
+		if(array_key_exists('layout', $sheet) && is_array($sheet['layout'])) {
+			if(array_key_exists('headings', $sheet['layout']))
+				$layout['headings'] = $sheet['layout']['headings'];
+			
+			if(array_key_exists('paging', $sheet['layout']))
+				$layout['paging'] = $sheet['layout']['paging'];
+			
+			if(array_key_exists('style', $sheet['layout']))
+				$layout['style'] = $sheet['layout']['style'];
+			
+			if(array_key_exists('title_column', $sheet['layout'])) {
+				$columns = $this->getColumns($sheet);
+				
+				if(array_key_exists($sheet['layout']['title_column'], $columns))
+					$layout['title_column'] = $sheet['layout']['title_column'];
+			}
+		}
+		
+		return $layout;
+	}
+	
+	function getColumns(array $sheet) {
+		if(!array_key_exists('columns', $sheet))
+			return [];
+		
+		$columns = $sheet['columns'];
+		$column_keys = array_column($columns, 'key');
+		
+		foreach($columns as $column_key => $column) {
+			if(!array_key_exists('label', $column))
+				$columns[$column_key]['label'] = DevblocksPlatform::strTitleCase(trim(str_replace('_', ' ', $column['key'])));
+		}
+		
+		return array_combine($column_keys, $columns);
+	}
+	
 	function getRows(array $sheet, array $sheet_dicts) {
 		// Sanitize
-		$columns = $sheet['columns'];
+		$columns = $this->getColumns($sheet);
 		
 		$rows = [];
 		
