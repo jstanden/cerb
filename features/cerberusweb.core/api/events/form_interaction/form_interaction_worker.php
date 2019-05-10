@@ -211,6 +211,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	
 	function renderActionExtension($token, $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!is_array($params))
+			$params = [];
+		
 		$tpl->assign('params', $params);
 
 		if(!is_null($seq))
@@ -265,6 +269,16 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				break;
 				
 			case 'respond_sheet':
+				if(!array_key_exists('data_query', $params))
+					$params['data_query'] = "type:worklist.records\nof:tickets\nquery.required:(\n)\nquery:(\n)\nexpand:[custom_]\nformat:dictionaries";
+					
+				if(!array_key_exists('placeholder_simulator_yaml', $params))
+					$params['placeholder_simulator_yaml'] = "# key: value\n";
+				
+				if(!array_key_exists('sheet_yaml', $params))
+					$params['sheet_yaml'] = "layout:\n  style: table # [table,fieldsets]\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- key: id\n- key: _label\n  type: card\n  label: Name";
+				
+				$tpl->assign('params', $params);
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/responses/action_respond_sheet.tpl');
 				break;
 		}

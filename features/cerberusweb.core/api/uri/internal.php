@@ -4774,12 +4774,16 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function testDecisionEventSnippetsAction() {
 		@$prefix = DevblocksPlatform::importGPC($_REQUEST['prefix'],'string','');
+		@$response_format = DevblocksPlatform::importGPC($_REQUEST['format'],'string','');
 		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
-
+		
+		@$placeholders_yaml = DevblocksPlatform::importVar($_REQUEST[$prefix]['placeholder_simulator_yaml'], 'string', '');
+		$placeholders = DevblocksPlatform::services()->string()->yamlParse($placeholders_yaml, 0);
+		
 		$content = '';
 		
-		if(is_array($_REQUEST['field'])) {
-			@$fields = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
+		if(array_key_exists('field', $_REQUEST) && is_array($_REQUEST['field'])) {
+			@$fields = DevblocksPlatform::importGPC($_REQUEST['field'],'array',[]);
 		
 			if(is_array($fields))
 			foreach($fields as $field) {
@@ -4795,11 +4799,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
-			
+		
 		$event = $trigger->getEvent();
 		$event_model = $event->generateSampleEventModel($trigger);
 		$event->setEvent($event_model, $trigger);
 		$values = $event->getValues();
+		
+		if(is_array($placeholders))
+		foreach($placeholders as $placeholder_key => $placeholder_value) {
+			$values[$placeholder_key] = $placeholder_value;
+		}
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
@@ -4874,9 +4883,19 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 		}
 
-		$tpl->assign('success', $success);
-		$tpl->assign('output', $output);
-		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+		if('json' == $response_format) {
+			header('Content-Type: application/json; charset=utf-8');
+			
+			echo json_encode([
+				'status' => $success ? true : false,
+				'response' => $output
+			]);
+			
+		} else {
+			$tpl->assign('success', $success);
+			$tpl->assign('output', $output);
+			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+		}
 	}
 	
 	// Utils
