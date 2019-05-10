@@ -517,6 +517,11 @@ class SearchFields_ProfileWidget extends DevblocksSearchFields {
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 				break;
 				
+			case SearchFields_ProfileWidget::EXTENSION_ID:
+				$extension = Extension_ProfileWidget::getAll(false);
+				return array_column(DevblocksPlatform::objectsToArrays($extension), 'name', 'id');
+				break;
+				
 			case SearchFields_ProfileWidget::WIDTH_UNITS:
 				$label_map = [
 					1 => '25%',
@@ -661,6 +666,7 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			
 			switch($field_key) {
 				// Fields
+				case SearchFields_ProfileWidget::EXTENSION_ID:
 				case SearchFields_ProfileWidget::PROFILE_TAB_ID:
 					$pass = true;
 					break;
@@ -694,6 +700,7 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 			return [];
 		
 		switch($column) {
+			case SearchFields_ProfileWidget::EXTENSION_ID:
 			case SearchFields_ProfileWidget::PROFILE_TAB_ID:
 				$label_map = function(array $values) use ($column) {
 					return SearchFields_ProfileWidget::getLabelsForKeyValues($column, $values);
@@ -771,6 +778,12 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_PROFILE_TAB, 'q' => ''],
 					]
+				),
+			'type' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_ProfileWidget::EXTENSION_ID),
+					// [TODO] Examples
 				),
 			'updated' => 
 				array(
@@ -853,6 +866,7 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_ProfileWidget::EXTENSION_ID:
 			case SearchFields_ProfileWidget::PROFILE_TAB_ID:
 			case SearchFields_ProfileWidget::WIDTH_UNITS:
 				$label_map = SearchFields_ProfileWidget::getLabelsForKeyValues($field, $values);
