@@ -45,6 +45,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
 				$chart_model['by'] = $value;
 				
+			} else if($field->key == 'expand') {
+				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+				$chart_model['expand'] = $value;
+				
 			} else if(DevblocksPlatform::strStartsWith($field->key, 'group.')) {
 				CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
 				$chart_model['group'] = $value;
@@ -460,6 +464,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				return $this->_formatDataAsCategories($response, $chart_model);
 				break;
 				
+			case 'dictionaries':
+				return $this->_formatDataAsDictionaries($response, $chart_model);
+				break;
+				
 			case 'pie':
 				return $this->_formatDataAsPie($response, $chart_model);
 				break;
@@ -570,6 +578,167 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				'xaxis_key' => 'label',
 			],
 			'series' => $series_meta,
+		]];
+	}
+	
+	function _formatDataAsDictionaries($response, array $chart_model=[]) {
+		if(!isset($response['children']))
+			return [];
+		
+		$rows = [];
+		
+		$output = [
+			'columns' => [],
+			'rows' => &$rows,
+		];
+		
+		foreach($chart_model['by'] as $by) {
+			$label = null;
+			@$type = $by['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
+			
+			switch($type) {
+				case DevblocksSearchCriteria::TYPE_CONTEXT:
+					$type_options = [];
+					
+					if(array_key_exists('type_options', $by)) {
+						if(array_key_exists('context', $by['type_options']))
+							$type_options['context'] = $by['type_options']['context'];
+						
+						if(array_key_exists('context_key', $by['type_options']))
+							$type_options['context_key'] = $by['type_options']['context_key'];
+					
+						@$type_options['context_id_key'] = $by['type_options']['context_id_key'] ?: $by['key_query'];
+						
+					} else {
+						@$type_options['context_key'] = $by['key_query'] . '__context';
+						@$type_options['context_id_key'] = $by['key_query'];
+					}
+					
+					$output['columns'][$by['key_query'] . '_label'] = [
+						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'type' => $type,
+						'type_options' => $type_options,
+					];
+					break;
+					
+				case DevblocksSearchCriteria::TYPE_WORKER:
+					$output['columns'][$by['key_query'] . '_label'] = [
+						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'type' => $type,
+						'type_options' => [
+							'context_id_key' => $by['key_query'],
+						]
+					];
+					break;
+				
+				default:
+					$output['columns'][$by['key_query']] = [
+						'label' => $label . DevblocksPlatform::strTitleCase(@$by['label'] ?: $by['key_query']),
+						'type' => $type,
+					];
+					break;
+			}
+		}
+		
+		// If we're counting, add a 'Count' column to the end
+		if(in_array($chart_model['function'],['','count'])) {
+			$output['columns']['count'] = [
+				'label' => DevblocksPlatform::translateCapitalized('common.count'),
+				'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+			];
+		}
+		
+		$rows = [];
+		$recurse = null;
+		
+		// Build a table recursively from the tree
+		$recurse = function($node, $depth=0, $parents=[]) use (&$recurse, $chart_model, &$rows) {
+			if(array_key_exists('name', $node))
+				$parents[] = &$node;
+			
+			// If this is a leaf
+			if(!array_key_exists('children', $node)) {
+				$row = [];
+				
+				foreach($chart_model['by'] as $column_index => $column) {
+					$key_prefix = str_replace('.', '_', $column['key_query']);
+					@$type = $column['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
+					
+					if($column_index == $depth) {
+						$value = $node['hits'];
+						
+					} else {
+						if(array_key_exists($column_index, $parents))
+							$value = $parents[$column_index]['name'];
+					}
+					
+					switch($type) {
+						case DevblocksSearchCriteria::TYPE_CONTEXT:
+							$value = $parents[$column_index]['value'];
+							
+							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
+								$key_prefix = substr($key_prefix, 0, -3);
+							}
+							
+							if(!array_key_exists('type_options', $column)) {
+								if(false !== (strpos($value,':'))) {
+									@list($context, $context_id) = explode(':', $value, 2);
+									$row[$key_prefix . '__context'] = $context;
+									$row[$key_prefix . '_id'] = $context_id;
+									$row[$key_prefix . '__label'] = $parents[$column_index]['name'];
+								}
+							} else {
+								$row[$key_prefix . '_id'] = $value;
+								$row[$key_prefix . '__context'] = $column['type_options']['context'];
+								$row[$key_prefix . '__label'] = $parents[$column_index]['name'];
+							}
+							
+							break;
+							
+						case DevblocksSearchCriteria::TYPE_WORKER:
+							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
+								$key_prefix = substr($key_prefix, 0, -3);
+							}
+							
+							$row[$key_prefix . '__context'] = CerberusContexts::CONTEXT_WORKER;
+							$row[$key_prefix . '__label'] = $parents[$column_index]['name'];
+							$row[$key_prefix . '_id'] = $parents[$column_index]['value'];
+							break;
+							
+						default:
+							$row[$key_prefix] = $value;
+							break;
+					}
+				}
+				
+				if(in_array($chart_model['function'], ['','count'])) {
+					$row['count'] = $node['hits'];
+				}
+				
+				if(array_key_exists('query', $node)) {
+					$row['count_query_context'] = $chart_model['context'];
+					$row['count_query'] = $node['query'];
+				}
+				
+				$rows[] = DevblocksDictionaryDelegate::instance($row);
+				return;
+			}
+			
+			foreach($node['children'] as $child) {
+				$recurse($child, $depth+1, $parents);
+			}
+		};
+		
+		$recurse($response, 0);
+		
+		if(array_key_exists('expand', $chart_model))
+		foreach($chart_model['expand'] as $expand_token)
+			DevblocksDictionaryDelegate::bulkLazyLoad($output['rows'], $expand_token, true);
+		
+		return ['data' => $output['rows'], '_' => [
+			'type' => 'worklist.subtotals',
+			'context' => @$chart_model['context'],
+			'format' => 'dictionaries',
 		]];
 	}
 	
