@@ -2044,6 +2044,11 @@ class DevblocksPlatform extends DevblocksEngine {
 		// See: https://gist.github.com/gruber/249502#gistcomment-1328838
 		// Gruber2/cscott
 		$out = preg_replace_callback('/\b((?:[a-z][\w\-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]|\((?:[^\s()<>]|(?:\([^\s()<>]+\)))*\))+(?:\((?:[^\s()<>]|(?:\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))/i', function($matches) use ($as_html, &$replacements) {
+			// Ignore if it contains a : but not ://
+			if(false !== strpos($matches[1], ':') && false === strpos($matches[1], '://')) {
+				return $matches[1];
+			}
+			
 			$token = sprintf('{{{URL_%d}}}', count($replacements));
 			$url = $url_label = $matches[0];
 			
