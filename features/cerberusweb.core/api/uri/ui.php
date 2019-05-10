@@ -149,4 +149,71 @@ class Controller_UI extends DevblocksControllerExtension {
 			echo $dict->_http_response_body;
 		}
 	}
+	
+	function sheetAction() {
+		@$data_query = DevblocksPlatform::importGPC($_REQUEST['data_query'], 'string', '');
+		@$sheet_yaml = DevblocksPlatform::importGPC($_REQUEST['sheet_yaml'], 'string', '');
+		@$types = DevblocksPlatform::importGPC($_REQUEST['types'], 'array', []);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$data = DevblocksPlatform::services()->data();
+		$sheets = DevblocksPlatform::services()->sheet()->newInstance();
+		$error = null;
+		
+		if(false == ($results = $data->executeQuery($data_query, $error))) {
+			echo $error;
+			return;
+		}
+		
+		if(false == ($sheet = $sheets->parseYaml($sheet_yaml, $error))) {
+			$tpl->assign('success', false);
+			$tpl->assign('output', $error);
+			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
+			return;
+		}
+		
+		if(in_array('card', $types))
+			$sheets->addType('card', $sheets->types()->card());
+		
+		if(in_array('custom', $types))
+			$sheets->addType('custom', $sheets->types()->custom());
+		
+		if(in_array('date', $types))
+			$sheets->addType('date', $sheets->types()->date());
+		
+		if(in_array('link', $types))
+			$sheets->addType('link', $sheets->types()->link());
+		
+		if(in_array('search', $types))
+			$sheets->addType('search', $sheets->types()->search());
+		
+		if(in_array('search_button', $types))
+			$sheets->addType('search_button', $sheets->types()->searchButton());
+		
+		if(in_array('slider', $types))
+			$sheets->addType('slider', $sheets->types()->slider());
+		
+		if(in_array('time_elapsed', $types))
+			$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
+		
+		$sheets->addType('text', $sheets->types()->text());
+		$sheets->setDefaultType('text');
+		
+		$layout = $sheets->getLayout($sheet);
+		$columns = $sheets->getColumns($sheet);
+		$rows = $sheets->getRows($sheet, $results['data']);
+		
+		$tpl->assign('layout', $layout);
+		$tpl->assign('columns', $columns);
+		$tpl->assign('rows', $rows);
+		
+		if($layout['paging'] && array_key_exists('paging', $results['_']))
+			$tpl->assign('paging', $results['_']['paging']);
+		
+		if('fieldsets' == $layout['style']) {
+			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl');
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render.tpl');
+		}
+	}
 };
