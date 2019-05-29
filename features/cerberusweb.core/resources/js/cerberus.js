@@ -761,7 +761,7 @@ var ajax = new cAjaxCalls();
 				return;
 			
 			var mode = $this.attr('data-editor-mode');
-			var withTwigAutocompletion = $this.is('.placeholders');
+			var withTwigAutocompletion = $this.hasClass('placeholders');
 			
 			var aceOptions = {
 				showLineNumbers: true,

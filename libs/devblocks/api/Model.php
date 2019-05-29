@@ -2380,29 +2380,29 @@ class DevblocksSearchField {
 };
 
 class DevblocksAclPrivilege {
-	var $id = '';
-	var $plugin_id = '';
-	var $label = '';
+	public $id = '';
+	public $plugin_id = '';
+	public $label = '';
 };
 
 class DevblocksEventPoint {
-	var $id = '';
-	var $plugin_id = '';
-	var $name = '';
-	var $param = array();
+	public $id = '';
+	public $plugin_id = '';
+	public $name = '';
+	public $param = array();
 };
 
 class DevblocksExtensionPoint {
-	var $id = '';
-	var $plugin_id = '';
-	var $extensions = array();
+	public $id = '';
+	public $plugin_id = '';
+	public $extensions = array();
 };
 
 class DevblocksTemplate {
-	var $set = '';
-	var $plugin_id = '';
-	var $path = '';
-	var $sort_key = '';
+	public $set = '';
+	public $plugin_id = '';
+	public $path = '';
+	public $sort_key = '';
 };
 
 /**
@@ -2410,23 +2410,23 @@ class DevblocksTemplate {
  * @ingroup plugin
  */
 class DevblocksPluginManifest {
-	var $id = '';
-	var $enabled = 0;
-	var $name = '';
-	var $description = '';
-	var $author = '';
-	var $version = 0;
-	var $link = '';
-	var $dir = '';
-	var $manifest_cache = array();
+	public $id = '';
+	public $enabled = 0;
+	public $name = '';
+	public $description = '';
+	public $author = '';
+	public $version = 0;
+	public $link = '';
+	public $dir = '';
+	public $manifest_cache = [];
 	
-	var $extension_points = array();
-	var $event_points = array();
-	var $acl_privs = array();
-	var $class_loader = array();
-	var $extensions = array();
+	public $extension_points = [];
+	public $event_points = [];
+	public $acl_privs = [];
+	public $class_loader = [];
+	public $extensions = [];
 	
-	var $_requirements_errors = array();
+	public $_requirements_errors = [];
 	
 	function setEnabled($bool) {
 		$this->enabled = ($bool) ? 1 : 0;
@@ -2607,13 +2607,13 @@ class DevblocksPluginManifest {
  * @ingroup plugin
  */
 class DevblocksExtensionManifest {
-	var $id = '';
-	var $plugin_id ='';
-	var $point = '';
-	var $name = '';
-	var $file = '';
-	var $class = '';
-	var $params = array();
+	public $id = '';
+	public $plugin_id ='';
+	public $point = '';
+	public $name = '';
+	public $file = '';
+	public $class = '';
+	public $params = array();
 
 	/**
 	 * Creates and loads a usable extension from a manifest record.  The object returned

@@ -110,7 +110,7 @@ class Controller_Resource extends DevblocksControllerExtension {
 					break;
 			}
 			
-			$out = file_get_contents($resource, false);
+			@$out = file_get_contents($resource, false);
 	
 			// Pass through
 			if($out) {

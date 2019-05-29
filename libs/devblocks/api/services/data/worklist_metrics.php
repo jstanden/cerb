@@ -214,6 +214,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			
 			$value = $db->GetOneSlave($sql);
 			
+			if(array_key_exists('field', $series))
 			switch($series['field']['type']) {
 				case Model_CustomField::TYPE_CURRENCY:
 					@$currency_id = $series['field']['type_options']['currency_id'];

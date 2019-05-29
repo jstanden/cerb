@@ -516,6 +516,9 @@ class DevblocksPlatform extends DevblocksEngine {
 	static function dateLerpArray(array $array, $step, $format=null) {
 		// [TODO] Unit test
 		
+		if(empty($array))
+			return [];
+		
 		if(!$format) {
 			$formats = [
 				'day' => '%Y-%m-%d',

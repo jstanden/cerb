@@ -724,7 +724,7 @@ function genericAjaxPopupClose($layer, $event) {
 		try {
 			if(null != $event)
 				$popup.trigger($event);
-		} catch(e) { if(window.console) console.log(e);  }
+		} catch(e) { if(window.console) console.log(e); }
 		
 		try {
 			$popup.dialog('close');
