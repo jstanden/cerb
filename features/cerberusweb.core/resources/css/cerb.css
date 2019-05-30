@@ -429,13 +429,6 @@ INPUT[type=text].input_url {
   padding: 2px 2px 2px 25px;
   background: url(input_icons/link.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
-INPUT[type=text].cerb-input-quicksearch {
-  padding: 5px 0px 5px 25px;
-  border-radius: 10px;
-  border: 1px solid #c8c8c8;
-  outline: none;
-}
-
 INPUT[type=password] {
   padding: 2px 2px 2px 25px;
   background: url(input_icons/lock.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;

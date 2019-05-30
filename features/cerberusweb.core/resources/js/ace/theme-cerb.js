@@ -29,7 +29,7 @@ color: rgb(127, 0, 85);\
 color: rgb(127, 0, 85);\
 }\
 .ace-cerb .ace_operator {\
-color: rgb(25, 118, 116);\
+color: rgb(50, 50, 50);\
 font-weight: normal;\
 }\
 .ace-cerb .ace_constant.ace_buildin {\

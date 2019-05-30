@@ -365,13 +365,6 @@ INPUT[type=text] {
 	&.input_url {
 		@include form-input-icon('input_icons/link.png');
 	}
-
-	&.cerb-input-quicksearch {
-		padding: 5px 0px 5px 25px;
-		border-radius: 10px;
-		border: 1px solid rgb(200,200,200);
-		outline: none;
-	}
 }
 
 // Password inputrs

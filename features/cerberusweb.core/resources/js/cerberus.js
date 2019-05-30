@@ -767,7 +767,6 @@ var ajax = new cAjaxCalls();
 				showLineNumbers: true,
 				wrap: true,
 				enableBasicAutocompletion: [],
-				enableLiveAutocompletion: [],
 				enableSnippets: false,
 				tabSize: 2,
 				useSoftTabs: false,
@@ -787,12 +786,14 @@ var ajax = new cAjaxCalls();
 			
 			var $editor = $('<pre/>')
 				.attr('id', editor_id)
-				.addClass('placeholders')
 				.css('margin', '0')
 				.css('position', 'relative')
 				.css('width', '100%')
 				.insertAfter($this)
-			;
+				;
+			
+			if(withTwigAutocompletion)
+				$editor.addClass('placeholders');
 			
 			var editor = ace.edit(editor_id);
 			editor.$blockScrolling = Infinity;
@@ -955,12 +956,19 @@ var ajax = new cAjaxCalls();
 					getCompletions: function(editor, session, pos, prefix, callback) {
 						var token = session.getTokenAt(pos.row, pos.column);
 						
-						if(token == null) {
-							callback(null, twig_snippets.map(function(c) {
-								c.completer = autocompleterTwig;
-								return c;
-							}));
+						if(null == token)
 							return;
+						
+						// This should only happen for the Twig editor (not embeds)
+						if('ace/mode/twig' == session.getMode().$id) {
+							if(token == null) {
+								callback(null, twig_snippets.map(function(c) {
+									c.score = 5000;
+									c.completer = autocompleterTwig;
+									return c;
+								}));
+								return;
+							}
 						}
 						
 						if(token.type == 'identifier' || (token.type == 'text' && token.start > 0)) {
@@ -968,6 +976,7 @@ var ajax = new cAjaxCalls();
 							
 							if(prevToken && prevToken.type == 'meta.tag.twig') {
 								callback(null, twig_tags.map(function(c) {
+									c.score = 5000;
 									c.completer = autocompleterTwig;
 									return c;
 								}));
@@ -976,6 +985,7 @@ var ajax = new cAjaxCalls();
 							
 							if(prevToken && prevToken.type == 'keyword.operator.twig') {
 								callback(null, twig_functions.map(function(c) {
+									c.score = 5000;
 									c.completer = autocompleterTwig;
 									return c;
 								}));
@@ -984,6 +994,7 @@ var ajax = new cAjaxCalls();
 							
 							if(prevToken && prevToken.type == 'keyword.operator.other' && prevToken.value == '|') {
 								callback(null, twig_filters.map(function(c) {
+									c.score = 5000;
 									c.completer = autocompleterTwig;
 									return c;
 								}));
@@ -994,6 +1005,7 @@ var ajax = new cAjaxCalls();
 						if(token.type == 'meta.tag.twig') {
 							var results = [].concat(twig_tags).concat(twig_functions);
 							callback(null, results.map(function(c) {
+								c.score = 5000;
 								c.completer = autocompleterTwig;
 								return c;
 							}));
@@ -1002,14 +1014,16 @@ var ajax = new cAjaxCalls();
 						
 						if(token.type == 'keyword.operator.other' && token.value == '|') {
 							callback(null, twig_filters.map(function(c) {
+								c.score = 5000;
 								c.completer = autocompleterTwig;
 								return c;
 							}));
 							return;
 						}
 						
-						if(token.type == 'variable.other.readwrite.local.twig') {
+						if(token.type == 'variable.other.readwrite.local.twig' && token.value == '{{') {
 							callback(null, twig_functions.map(function(c) {
+								c.score = 5000;
 								c.completer = autocompleterTwig;
 								return c;
 							}));
@@ -1020,11 +1034,13 @@ var ajax = new cAjaxCalls();
 					}
 				};
 				
-				aceOptions.enableBasicAutocompletion = [autocompleterTwig];
-				aceOptions.enableLiveAutocompletion = [autocompleterTwig];
+				aceOptions.enableBasicAutocompletion.push(autocompleterTwig);
 			}
 			
-			if(mode == 'ace/mode/yaml') {
+			if(mode == 'ace/mode/cerb_query') {
+				aceOptions.useSoftTabs = true;
+				
+			} else if(mode == 'ace/mode/yaml') {
 				aceOptions.useSoftTabs = true;
 			}
 			
