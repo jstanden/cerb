@@ -2257,257 +2257,40 @@ abstract class C4_AbstractView {
 		$this->renderPage = 0;
 	}
 	
-	// [TODO] Cache this?
-	function getQuickSearchMenu() {
-		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$this instanceof IAbstractView_QuickSearch)
-			return;
 		
-		$menu = [];
-		
-		$view_context = $this->getContext();
-		
-		// Saved searches
-		
-		if(false != ($view_context = $this->getContext())) { 
-			$presets_menu = new DevblocksMenuItemPlaceholder();
-
-			// Load saved searches for this context type
-			$searches = DAO_ContextSavedSearch::getUsableByActor($active_worker, $view_context);
 			
-			if(is_array($searches))
-			foreach($searches as $search) {
-				if(empty($search->query))
-					continue;
-				
-				$item = new DevblocksMenuItemPlaceholder();
-				$item->label = $search->name;
-				$item->l = $search->name;
-				$item->key = $search->query;
-				$presets_menu->children[$search->id] = $item;
 			}
 			
-			$menu['(saved searches)'] = $presets_menu;
-		}
-		
-		// Operators
-		
-		$oper_menu = new DevblocksMenuItemPlaceholder();
-		
-		$item = new DevblocksMenuItemPlaceholder();
-		$item->label = 'AND';
-		$item->l = 'AND';
-		$item->key = 'AND';
-		$oper_menu->children['AND'] = $item;
-		
-		$item = new DevblocksMenuItemPlaceholder();
-		$item->label = 'OR';
-		$item->l = 'OR';
-		$item->key = 'OR';
-		$oper_menu->children['OR'] = $item;
-		
-		$menu['(operators)'] = $oper_menu;
-		
-		// Placeholders
-		
-		$placeholders_menu = new DevblocksMenuItemPlaceholder();
-		$labels = $this->getPlaceholderLabels();
-		
-		if(!empty($labels)) {
-			$keys = array_map(function($key) {
-				return '{{' . $key . '}}';
-			}, array_keys($labels));
-
-			$values = array_column($labels, 'label');
-			
-			if(count($keys) == count($values)) {
-				$labels = array_combine($keys, $values);
-				$placeholders_menu->children = Extension_DevblocksContext::getPlaceholderTree($labels, ' ', '_');
-				$menu['(placeholders)'] = $placeholders_menu;
 			}
 		}
 		
-		// Search fields
 		
-		$search_fields = $this->getQuickSearchFields();
-		$params = $this->getParamsAvailable();
 		
 		// Sort
 		
-		$sort_menu = new DevblocksMenuItemPlaceholder();
 		
-		foreach($search_fields as $field_key => $field) {
 			if(!$field['is_sortable'])
 				continue;
 			
-			if(false == ($param = @$params[$field['options']['param_key']]))
 				continue;
 			
-			$item = new DevblocksMenuItemPlaceholder();
-			$item->label = $field_key;
-			$item->l = $field_key;
-			$item->key = 'sort:'.$field_key;
-			
-			$item_asc = new DevblocksMenuItemPlaceholder();
-			$item_asc->label = 'ascending';
-			$item_asc->l = 'ascending';
-			$item_asc->key = 'sort:'.$field_key;
-			$item->children['ascending'] = $item_asc;
-			
-			$item_desc = new DevblocksMenuItemPlaceholder();
-			$item_desc->label = 'descending';
-			$item_desc->l = 'descending';
-			$item_desc->key = 'sort:-'.$field_key;
-			$item->children['descending'] = $item_desc;
-			
-			$sort_menu->children[$field_key] = $item;
 		}
 		
-		$menu['(sort)'] = $sort_menu;
-		
-		// Subtotals
 		
 		if($this instanceof IAbstractView_Subtotals) {
-			$subtotals_menu = new DevblocksMenuItemPlaceholder();
 			
-			$subtotal_fields = $this->getSubtotalFields();
-			
-			foreach($search_fields as $field_key => $field) {
-				if(false == ($param = @$params[$field['options']['param_key']]))
-					continue;
-				
-				if(!array_key_exists($param->token, $subtotal_fields))
-					continue;
-				
-				$item = new DevblocksMenuItemPlaceholder();
-				$item->label = $field_key;
-				$item->l = $field_key;
-				$item->key = 'subtotal:'.$field_key;
-				
-				$subtotals_menu->children[$field_key] = $item;
 			}
-			
-			$menu['(subtotal)'] = $subtotals_menu;
 		}
 		
-		// Fields
 		
-		if(!empty($search_fields)) {
-			$labels = array_keys($search_fields);
-			$keys = array_map(function($field) {
-				return $field.':';
-			}, $labels);
 			
-			$tree = Extension_DevblocksContext::getPlaceholderTree(array_combine($keys, $labels), '.', '.');
-			
-			$recurseAddOptions = null;
-			$recurseAddOptions = function(DevblocksMenuItemPlaceholder &$node) use (&$recurseAddOptions, $search_fields) {
-				$key = substr($node->key, 0, -1);
 				
-				foreach($node->children as $child)
-					$recurseAddOptions($child);
 				
-				if(!isset($search_fields[$key]))
-					return;
 				
-				if(!isset($search_fields[$key]['examples'])) {
-					switch($search_fields[$key]['type']) {
-						case DevblocksSearchCriteria::TYPE_BOOL:
-							$search_fields[$key]['examples'] = [
-								'yes',
-								'no',
-							];
-							break;
-							
-						case DevblocksSearchCriteria::TYPE_DATE:
-							$search_fields[$key]['examples'] = [
-								'"-2 hours"',
-								sprintf('"%s-01-01 to %s"', date('Y'), date('Y-m-d')),
-								'"-1 month to now"',
-								'"big bang to -1 year"',
-							];
-							break;
-							
-						case DevblocksSearchCriteria::TYPE_NUMBER:
-							$search_fields[$key]['examples'] = [
-								'50',
-								'<10',
-								'>=25',
-								'1...100',
-								'!10',
-							];
-							break;
-					}
-				}
 				
-				if(isset($search_fields[$key]['examples'])) {
-					$examples_menu = new DevblocksMenuItemPlaceholder();
-					
-					foreach($search_fields[$key]['examples'] as $example) {
-						
-						// Literal example
-						if(is_string($example)) {
-							$item = new DevblocksMenuItemPlaceholder();
-							$item->label = $example;
-							$item->l = $example;
-							$item->key = $node->key . $example;
-							$examples_menu->children[$example] = $item;
-							
-						// Structured example
-						} else if(is_array($example)) {
-							switch($example['type']) {
-								case 'chooser':
-									$item = new DevblocksMenuItemPlaceholder();
-									$item->label = '(chooser)';
-									$item->l = '(chooser)';
-									$item->key = $node->key;
-									$item->type = $example['type'];
-									$item->params = $example;
-									$node->children[$example['label']] = $item;
-									break;
-								
-								case 'list':
-									$key_delimiter = @$example['key_delimiter'] ?: ' ';
-									$label_delimiter = @$example['label_delimiter'] ?: ' ';
-									
-									$values = array_combine(
-										array_map(function($k) use ($node) {
-											return $node->key . $k;
-										}, array_keys($example['values'])),
-										$example['values']
-									);
-									
-									$node->children = Extension_DevblocksContext::getPlaceholderTree($values, $label_delimiter, $key_delimiter);
-									break;
-									
-								case 'search':
-									$item = new DevblocksMenuItemPlaceholder();
-									$item->label = '(search)';
-									$item->l = '(search)';
-									$item->key = $node->key;
-									$item->type = $example['type'];
-									$item->params = $example;
-									$node->children[$example['label']] = $item;
-									break;
-							}
-						}
-					}
-					
-					if(!empty($examples_menu))
-						$node->children['(examples)'] = $examples_menu;
-				}
-			};
-
-			if(is_array($tree))
-			foreach($tree as $node)
-				$recurseAddOptions($node);
-			
-			foreach($tree as $k => $v)
-				$menu[$k] = $v;
 		}
 		
-		return $menu;
 	}
 	
 	function renderSubtotals() {
