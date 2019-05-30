@@ -30,30 +30,4 @@ class PageSection_SetupDevelopersDataQueryTester extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/data-query-tester/index.tpl');
 	}
-	
-	function runQueryAction() {
-		@$data_query = DevblocksPlatform::importGPC($_REQUEST['data_query'], 'string', null);
-		
-		$tpl = DevblocksPlatform::services()->template();
-		$data = DevblocksPlatform::services()->data();
-		$error = null;
-		
-		header('Content-Type: application/json; charset=utf-8');
-		
-		if(false === (@$results = $data->executeQuery($data_query, $error, 0))) {
-			echo json_encode([
-				'status' => false,
-				'error' => $error,
-			]);
-			
-		} else {
-			$tpl->assign('results_json', DevblocksPlatform::strFormatJson(json_encode($results)));
-			$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/developers/data-query-tester/results.tpl');
-			
-			echo json_encode([
-				'status' => true,
-				'html' => $html,
-			]);
-		}
-	}
 };
