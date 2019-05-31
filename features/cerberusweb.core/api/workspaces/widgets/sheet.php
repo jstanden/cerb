@@ -69,6 +69,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 				$sheets->addType('custom', $sheets->types()->custom());
 				$sheets->addType('date', $sheets->types()->date());
 				$sheets->addType('link', $sheets->types()->link());
+				$sheets->addType('search', $sheets->types()->search());
 				$sheets->addType('search_button', $sheets->types()->searchButton());
 				$sheets->addType('slider', $sheets->types()->slider());
 				$sheets->addType('text', $sheets->types()->text());

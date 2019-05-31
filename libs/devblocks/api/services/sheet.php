@@ -256,6 +256,67 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
+	function search() {
+		return function($column, $sheet_dict) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			@$column_key = $column['key'];
+			@$column_params = $column['params'] ?: [];
+			
+			@$search_label = $column_params['label'];
+			@$search_context = $column_params['context'];
+			@$search_query = $column_params['query'];
+			@$is_underlined = !array_key_exists('underline', $column_params) || $column_params['underline'];
+			$value = '';
+			
+			$default_search_context_key = null;
+			$default_search_label_key = $column_key;
+			
+			if($column_suffix = DevblocksPlatform::strEndsWith($column_key, ['_context','_label'])) {
+				$column_prefix = substr($column_key, 0, -strlen($column_suffix));
+				
+				$default_search_context_key = $column_prefix . '_context';
+				$default_search_label_key = $column_prefix . '_label';
+			}
+			
+			if(!$search_label) {
+				$search_label_key = @$column_params['label_key'] ?: $default_search_label_key;
+				$search_label = $sheet_dict->get($search_label_key);
+			}
+			
+			if(!$search_context) {
+				$search_context_key = @$column_params['context_key'] ?: $default_search_context_key;
+				$search_context = $sheet_dict->get($search_context_key);
+			}
+			
+			if(!$search_query) {
+				$search_query_key = @$column_params['query_key'] ?: null;
+				$search_query = $sheet_dict->get($search_query_key);
+			}
+			
+			if($search_context && $search_label) {
+				if(false == ($context_ext = Extension_DevblocksContext::getByAlias($search_context, true)))
+					return;
+				
+				if(false == ($search_query = $tpl_builder->build($search_query, $sheet_dict)))
+					return;
+				
+				// Search link
+				$value .= sprintf('<span class="cerb-search-trigger" data-context="%s" data-query="%s" style="text-decoration:%s;cursor:pointer;">%s</span>',
+					DevblocksPlatform::strEscapeHtml($context_ext->id),
+					DevblocksPlatform::strEscapeHtml($search_query),
+					$is_underlined ? 'underline' : false,
+					DevblocksPlatform::strEscapeHtml($search_label)
+				);
+				
+			} else {
+				$value = $search_label;
+			}
+			
+			return $value;
+		};
+	}
+	
 	function searchButton() {
 		return function($column, $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
