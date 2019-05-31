@@ -197,6 +197,72 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
 	}
 	
+	function querySuggestionsAction() {
+		@$context_alias = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
+		@$expand = DevblocksPlatform::importGPC($_REQUEST['expand'], 'string', '');
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context_alias, true)))
+			return;
+		
+		if(false == ($view = $context_ext->getTempView()))
+			return;
+		
+		$suggestions = $view->getQueryAutocompleteSuggestions();
+		
+		// Expand
+		
+		if($expand && array_key_exists('_contexts', $suggestions)) {
+			$expand_keys = explode(':', rtrim($expand,':'));
+			$expand_prefix = '';
+			
+			foreach($expand_keys as $expand_key) {
+				$expand_key .=  ':';
+				$expand_prefix .= $expand_key;
+				
+				if(array_key_exists($expand_prefix, $suggestions['_contexts'])) {
+					if(false == ($expand_context_ext = Extension_DevblocksContext::getByAlias($suggestions['_contexts'][$expand_prefix], true)))
+						return;
+					
+					if(false == ($expand_view = $expand_context_ext->getTempView()))
+						return;
+					
+					$expand_suggestions = $expand_view->getQueryAutocompleteSuggestions();
+					
+					@$expand_contexts = $expand_suggestions['_contexts'];
+					unset($expand_suggestions['_contexts']);
+					
+					if($expand_contexts) {
+						$suggestions['_contexts'] = array_merge(
+							$suggestions['_contexts'],
+							array_combine(
+								array_map(function($k) use ($expand_prefix) {
+									return $expand_prefix . $k;
+								}, array_keys($expand_contexts)),
+								$expand_contexts
+							)
+						);
+					}
+					
+					if($expand_suggestions) {
+						$suggestions = array_merge(
+							$suggestions,
+							array_combine(
+								array_map(function($k) use ($expand_prefix) {
+									return $expand_prefix . $k;
+								}, array_keys($expand_suggestions)),
+								$expand_suggestions
+							)
+						);
+					}
+				}
+			}
+		}
+		
+		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
+	}
+	
 	function sheetAction() {
 		@$data_query = DevblocksPlatform::importGPC($_REQUEST['data_query'], 'string', '');
 		@$sheet_yaml = DevblocksPlatform::importGPC($_REQUEST['sheet_yaml'], 'string', '');
