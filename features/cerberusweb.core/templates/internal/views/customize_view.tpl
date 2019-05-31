@@ -31,7 +31,7 @@
 	<legend>Restrict the worklist results using this quick search:</legend>
 	
 	<div id="viewCustomReqQuickSearch{$view->id}" style="margin:5px 0px 0px 0px;">
-		<input type="text" name="params_required_query" value="{$workspace_list->params_required_query}" style="width:100%;padding:5px;" class="cerb-query-trigger" data-context="{$workspace_list->context}">
+		<textarea name="params_required_query" style="width:100%;padding:5px;" data-editor-mode="ace/mode/cerb_query">{$workspace_list->params_required_query}</textarea>
 	</div>
 </fieldset>
 {/if}
@@ -101,10 +101,9 @@ $(function() {
 		swatches: ['#6A87DB','#CF2C1D','#FEAF03','#57970A','#9669DB','#ADADAD','#34434E']
 	});
 
-	$container.find('.cerb-query-trigger')
-		.cerbQueryTrigger()
-			.on('cerb-query-saved', function(e) {
-			})
+	$container.find('textarea[name=params_required_query]')
+		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteSearchQueries({ context: "{$workspace_list->context}" })
 		;
 	;
 	
