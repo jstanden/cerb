@@ -767,4 +767,8 @@ class _DevblocksDataService {
 		
 		return $results;
 	}
+	
+	function stripQuotes($string) {
+		return '"' . str_replace('"','', $string) . '"';
+	}
 }
