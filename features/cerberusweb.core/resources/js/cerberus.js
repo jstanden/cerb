@@ -1007,6 +1007,7 @@ var ajax = new cAjaxCalls();
 					{ value: "nl2br", meta: "filter" },
 					{ value: "number_format(2, '.', ',')", meta: "filter" },
 					{ value: "parse_emails", meta: "filter" },
+					{ value: "permalink", meta: "filter" },
 					{ value: "quote", meta: "filter" },
 					{ value: "raw", meta: "filter" },
 					{ value: "regexp", meta: "filter" },
