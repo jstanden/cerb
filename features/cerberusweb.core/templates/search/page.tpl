@@ -131,6 +131,6 @@ $(function() {
 		}
 	});
 	
-	$(document).find('INPUT.cerb-input-quicksearch:first').focus();
+	ace.edit($(document).find('.cerb-input-quicksearch:first').nextAll('pre.ace_editor').attr('id')).focus();
 });
 </script>

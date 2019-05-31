@@ -27,7 +27,7 @@ $(function() {
 
 		$popup.delegate('DIV[id^=view]','view_refresh', on_refresh);
 		
-		$popup.find('input.input_search').first().focus();
+		ace.edit($popup.find('.cerb-input-quicksearch:first').nextAll('pre.ace_editor').attr('id')).focus();
 		
 		$popup.css('overflow', 'inherit');
 	});
