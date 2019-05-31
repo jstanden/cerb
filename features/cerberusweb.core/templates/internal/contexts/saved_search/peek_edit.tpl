@@ -51,7 +51,7 @@
 		<tr>
 			<td width="1%" valign="top" nowrap="nowrap"><b>{'common.query'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">
-				<input type="text" name="query" value="{$model->query}" style="width:100%;" class="cerb-query-trigger" data-context="{$model->context}">
+				<textarea name="query" class="cerb-query-trigger" data-editor-mode="ace/mode/cerb_query">{$model->query}</textarea>
 			</td>
 		</tr>
 	</table>
@@ -94,27 +94,25 @@ $(function() {
 		var $context = $popup.find('select[name=context]');
 		var $query = $popup.find('.cerb-query-trigger');
 		
-		// Change the query context when the dropdown changes
-		
-		$context.change(function(e) {
-			$query.attr('data-context', $(this).val());
-		});
-
 		// Buttons
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
-		// Query builders
+		// Code Editor
 		
-		$query
-			.cerbQueryTrigger()
-			.on('cerb-query-saved', function(e) {
-				//var $trigger = $(this);
-				//$trigger.val(e.worklist_quicksearch);
-			})
-		;
+		var $editor  = $query
+			.cerbCodeEditor()
+			.cerbCodeEditorAutocompleteSearchQueries({ context: $context.val() })
+			.nextAll('pre.ace_editor')
+			;
 		
+		// Change the query context when the dropdown changes
+		
+		$context.change(function(e) {
+			$editor.trigger('cerb-code-editor-change-context', $(this).val());
+		});
+
 		// Owners
 		
 		var $owners_menu = $popup.find('ul.owners-menu');
