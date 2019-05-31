@@ -150,6 +150,20 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 	}
 	
+	function querySuggestionMetaAction() {
+		$data = DevblocksPlatform::services()->data();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$results = [
+			'schemaVersion' => time() + 60,
+			'recordTypes' => array_values(Extension_DevblocksContext::getUris()),
+			'dataQueryTypes' => $data->getTypes(),
+		];
+		
+		echo DevblocksPlatform::strFormatJson(json_encode($results));
+	}
+	
 	function sheetAction() {
 		@$data_query = DevblocksPlatform::importGPC($_REQUEST['data_query'], 'string', '');
 		@$sheet_yaml = DevblocksPlatform::importGPC($_REQUEST['sheet_yaml'], 'string', '');
