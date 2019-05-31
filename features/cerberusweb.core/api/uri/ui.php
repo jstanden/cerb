@@ -263,6 +263,25 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
 	}
 	
+	function dataQueryAction() {
+		@$data_query = DevblocksPlatform::importGPC($_REQUEST['q'], 'string', '');
+		
+		$data = DevblocksPlatform::services()->data();
+		
+		$error = null;
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(false == ($results = $data->executeQuery($data_query, $error))) {
+			echo DevblocksPlatform::strFormatJson(json_encode([
+				'error' => $error,
+			]));
+			return;
+		}
+		
+		echo DevblocksPlatform::strFormatJson(json_encode($results));
+	}
+	
 	function sheetAction() {
 		@$data_query = DevblocksPlatform::importGPC($_REQUEST['data_query'], 'string', '');
 		@$sheet_yaml = DevblocksPlatform::importGPC($_REQUEST['sheet_yaml'], 'string', '');
