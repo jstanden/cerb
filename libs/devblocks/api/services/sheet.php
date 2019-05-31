@@ -81,6 +81,11 @@ class _DevblocksSheetService {
 		$column_keys = array_column($columns, 'key');
 		
 		foreach($columns as $column_key => $column) {
+			if(!is_array($column)) {
+				unset($columns[$column_key]);
+				continue;
+			}
+			
 			if(!array_key_exists('label', $column))
 				$columns[$column_key]['label'] = DevblocksPlatform::strTitleCase(trim(str_replace('_', ' ', $column['key'])));
 		}
@@ -122,32 +127,48 @@ class _DevblocksSheetServiceTypes {
 		return function($column, $sheet_dict) {
 			$url_writer = DevblocksPlatform::services()->url();
 			
-			@$card_label = $column['params']['label'];
-			@$card_context = $column['params']['context'];
-			@$card_id = $column['params']['id'];
+			@$column_key = $column['key'];
+			@$column_params = $column['params'] ?: [];
+			
+			@$card_label = $column_params['label'];
+			@$card_context = $column_params['context'];
+			@$card_id = $column_params['id'];
+			@$is_underlined = !array_key_exists('underline', $column_params) || $column_params['underline'];
 			$value = '';
 			
+			$default_card_context_key = null;
+			$default_card_id_key = null;
+			$default_card_label_key = null;
+			
+			if($column_suffix = DevblocksPlatform::strEndsWith($column_key, ['id','_context','_label'])) {
+				$column_prefix = substr($column_key, 0, -strlen($column_suffix));
+				
+				$default_card_context_key = $column_prefix . '_context';
+				$default_card_id_key = $column_prefix . 'id';
+				$default_card_label_key = $column_prefix . '_label';
+			}
+			
 			if(!$card_label) {
-				$card_label_key = @$column['params']['label_key'] ?: '_label';
+				$card_label_key = @$column_params['label_key'] ?: $default_card_label_key;
 				$card_label = $sheet_dict->get($card_label_key);
 			}
 			
 			if(!$card_context) {
-				$card_context_key = @$column['params']['context_key'] ?: '_context';
+				$card_context_key = @$column_params['context_key'] ?: $default_card_context_key;
 				$card_context = $sheet_dict->get($card_context_key);
 			}
 			
 			if(!$card_id) {
-				$card_id_key = @$column['params']['id_key'] ?: 'id';
+				$card_id_key = @$column_params['id_key'] ?: $default_card_id_key;
 				$card_id = $sheet_dict->get($card_id_key);
 			}
 			
-			if($card_id) {
+			if($card_context && $card_id && $card_label) {
 				// Avatar image?
-				if(array_key_exists('params', $column) && array_key_exists('image', $column['params'])) {
-					$avatar_size = @$column['params']['image']['size'] ?: "1.5em";
+				if(array_key_exists('image', $column_params)) {
+					$avatar_size = '1.5em';
 					
-					$value .= sprintf('<img src="%s?v=%s" style="{$avatar_size};width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
+					$value .= sprintf('<img src="%s?v=%s" style="width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
 						$url_writer->write(sprintf("c=avatars&ctx=%s&id=%d",
 							DevblocksPlatform::strEscapeHtml($card_context),
 							$card_id
@@ -159,9 +180,10 @@ class _DevblocksSheetServiceTypes {
 				}
 				
 				// Card link
-				$value .= sprintf('<span class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="text-decoration:underline;cursor:pointer;">%s</span>',
+				$value .= sprintf('<span class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="text-decoration:%s;cursor:pointer;">%s</span>',
 					DevblocksPlatform::strEscapeHtml($card_context),
 					$card_id,
+					$is_underlined ? 'underline' : false,
 					DevblocksPlatform::strEscapeHtml($card_label)
 				);
 				
@@ -176,7 +198,10 @@ class _DevblocksSheetServiceTypes {
 	function custom() {
 		return function($column, $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			@$template = $column['params']['template'];
+			
+			@$column_params = $column['params'] ?: [];
+			
+			@$template = $column_params['template'];
 			
 			$value = $tpl_builder->build($template, $sheet_dict);
 			
@@ -197,8 +222,10 @@ class _DevblocksSheetServiceTypes {
 		return function($column, $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
-			@$href_template = $column['params']['href'];
-			@$text_template = $column['params']['text'];
+			@$column_params = $column['params'] ?: [];
+			
+			@$href_template = $column_params['href'];
+			@$text_template = $column_params['text'];
 			
 			$href = $tpl_builder->build($href_template, $sheet_dict);
 			$value = '';
@@ -233,8 +260,10 @@ class _DevblocksSheetServiceTypes {
 		return function($column, $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
-			@$context_alias = $column['params']['context'] ?: $sheet_dict->get($column['params']['context_key']);
-			@$query = $column['params']['query'];
+			@$column_params = $column['params'] ?: [];
+			
+			@$context_alias = $column_params['context'] ?: $sheet_dict->get($column_params['context_key']);
+			@$query = $column_params['query'];
 			
 			if(false == ($query = $tpl_builder->build($query, $sheet_dict)))
 				return;
@@ -251,18 +280,25 @@ class _DevblocksSheetServiceTypes {
 	
 	function slider() {
 		return function($column, $sheet_dict) {
-			$value_min = @$column['params']['min'] ?: 0;
-			$value_max = @$column['params']['max'] ?: 100;
+			@$column_params = $column['params'] ?: [];
+			
+			$value_min = @$column_params['min'] ?: 0;
+			$value_max = @$column_params['max'] ?: 100;
 			$value_mid = ($value_max + $value_min)/2;
 			
-			if(array_key_exists('value', $column['params'])) {
-				$value = $column['params']['value'];
-				
-			} else if(array_key_exists('value_key', $column['params'])) {
-				$value = $sheet_dict->get($column['params']['value_key']);
+			if(!array_key_exists('params', $column)) {
+				$value = $sheet_dict->get($column['key']);
 				
 			} else {
-				$value = $sheet_dict->get($column['key']);
+				if(array_key_exists('value', $column_params)) {
+					$value = $column_params['value'];
+					
+				} else if(array_key_exists('value_key', $column_params)) {
+					$value = $sheet_dict->get($column_params['value_key']);
+					
+				} else {
+					$value = $sheet_dict->get($column['key']);
+				}
 			}
 			
 			if($value > $value_mid) {
@@ -290,10 +326,19 @@ class _DevblocksSheetServiceTypes {
 	
 	function text() {
 		return function($column, $sheet_dict) {
-			if(array_key_exists('value_key', $column)) {
-				$value = $sheet_dict->get($column['value_key']);
-			} else {
+			@$column_params = $column['params'] ?: [];
+			
+			if(!array_key_exists('params', $column)) {
 				$value = $sheet_dict->get($column['key']);
+				
+			} else {
+				if(array_key_exists('value_key', $column_params)) {
+					$value = $sheet_dict->get($column_params['value_key']);
+				} else if(array_key_exists('value', $column_params)) {
+					$value = $column_params['value'];
+				} else {
+					$value = $sheet_dict->get($column['key']);
+				}
 			}
 			
 			return DevblocksPlatform::strEscapeHtml($value);
