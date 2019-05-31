@@ -26,7 +26,7 @@
 			{foreach from=$columns item=column name=columns}
 				{if $layout.title_column == $column.key}
 				{else}
-				<td style="{if $column.style.weight}font-weight:{$column.style.weight};{/if}">{$row[$column.key] nofilter}</td>
+				<td style="{if $column.params.bold}font-weight:bold;{/if}">{$row[$column.key] nofilter}</td>
 				{/if}
 			{/foreach}
 			</tr>
