@@ -112,6 +112,124 @@ var markitupHTMLDefaults = {
 	]
 }
 
+var cerbAutocompleteSuggestions = {
+	yamlDashboardFilters: {
+		'': [
+			'placeholder:',
+			'label:',
+			'type:',
+			'default:',
+			{
+				caption: '#chooser',
+				snippet: '---\nplaceholder: ${1:input_placeholder}\nlabel: ${2:Label}\ntype: chooser\ndefault: ~\nparams:\n  context: ${3:group}\n  single: ${4:false}\n'
+			},
+			{
+				caption: '#date_range',
+				snippet: '---\nplaceholder: ${1:input_placeholder}\nlabel: ${2:Label}\ntype: date_range\ndefault: ${3:first day of this month -12 months}\n'
+			},
+			{
+				caption: '#picklist',
+				snippet: '---\nplaceholder: ${1:input_placeholder}\nlabel: "${2:By:}"\ntype: picklist\ndefault: ${3:month}\nparams:\n  options:\n  - ${4:day}\n  - week\n  - month\n  - year\n'
+			},
+		],
+		'type:': [
+			'date_range',
+			'picklist',
+			'chooser'
+		]
+	},
+	yamlSheetSchema: {
+		'': [
+			{
+				caption: 'layout:',
+				snippet: 'layout:\n  style: ${1:table}\n  headings: ${2:true}\n  paging: ${3:true}\n  #title_column: _label\n',
+			},
+			{
+				caption: 'columns:',
+				snippet: 'columns:\n- ',
+			}
+		],
+		'layout:': [
+			{
+				caption: 'style:',
+				snippet: 'style: ${1:table}'
+			},
+			{
+				caption: 'headings:',
+				snippet: 'headings: ${1:true}'
+			},
+			{
+				caption: 'paging:',
+				snippet: 'paging: ${1:true}'
+			},
+			'title_column: '
+		],
+		'layout:style:': [
+			'table',
+			'fieldsets'
+		],
+		'layout:headings:': [
+			'true',
+			'false'
+			],
+		'columns:-:': [
+			{
+				caption: '#text',
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: text\n  params:\n    #value_key: other_key\n    #bold: true\n- '
+			},
+			{
+				caption: '#card',
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: card\n  params:\n    #image: true\n    #bold: true\n- '
+			},
+			{
+				caption: '#custom',
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: custom\n  params:\n\n- '
+			},
+			{
+				caption: '#date',
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: date\n  params:\n    #format: d-M-Y H:i:s T # See: https://php.net/date\n    #format: r\n- '
+			},
+			{
+				caption: '#link',
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: link\n  params:\n\n- '
+			},
+			{
+				caption: '#search',
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: search\n  params:\n\n- '
+			},
+			{
+				caption: '#search_button',
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: search_button\n  params:\n\n- '
+			},
+			{
+				caption: '#slider',
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: slider\n  params:\n\n- '
+			},
+			{
+				caption: '#time_elapsed',
+				snippet: 'key: ${1:key}\n  label: ${2:Label}\n  type: time_elapsed\n  params:\n    precision: ${3:2}\n- '
+			},
+			'key: ',
+			'label: ',
+			'type: ',
+			'params: '
+		],
+		'columns:-:key:': [
+		],
+		'columns:-:type:': [
+			'card',
+			'custom',
+			'date',
+			'link',
+			'search',
+			'search_button',
+			'slider',
+			'text',
+			'time_elapsed'
+		]
+	}
+};
+
 $.fn.cerbDateInputHelper = function(options) {
 	var options = (typeof options == 'object') ? options : {};
 	
