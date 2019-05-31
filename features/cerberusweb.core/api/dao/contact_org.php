@@ -112,7 +112,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			time()
 		);
 		
-		if(false == ($rs = $db->ExecuteMaster($sql)))
+		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 		
 		$id = $db->LastInsertId();
@@ -186,8 +186,6 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-
 		$do = $update->actions;
 		$ids = $update->context_ids;
 
@@ -464,7 +462,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
 		$fields = SearchFields_ContactOrg::getFields();
 		
-		list($tables,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContactOrg', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ContactOrg', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
 			"c.id as %s, ".
@@ -843,12 +841,9 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 	}
 	
 	public function index($stop_time=null) {
-		$logger = DevblocksPlatform::services()->log();
-		
 		if(false == ($engine = $this->getEngine()))
 			return false;
 		
-		$ns = self::getNamespace();
 		$id = $this->getParam('last_indexed_id', 0);
 		$ptr_time = $this->getParam('last_indexed_time', 0);
 		$ptr_id = $id;
@@ -1615,7 +1610,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	
 	function autocomplete($term, $query=null) {
 		$url_writer = DevblocksPlatform::services()->url();
-		$list = array();
+		$list = [];
 		
 		if(stristr('none',$term) || stristr('empty',$term) || stristr('no organization',$term)) {
 			$empty = new stdClass();
