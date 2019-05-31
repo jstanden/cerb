@@ -1168,6 +1168,60 @@ var ajax = new cAjaxCalls();
 		});
 	};
 	
+	$.fn.cerbCodeEditorAutocompleteYaml = function(autocomplete_options) {
+		var Autocomplete = require('ace/autocomplete').Autocomplete;
+		
+		return this.each(function() {
+			var $editor = $(this)
+				.nextAll('pre.ace_editor')
+				;
+				
+			var editor = ace.edit($editor.attr('id'));
+			
+			if(!editor.completer) {
+				editor.completer = new Autocomplete();
+			}
+			
+			editor.completer.autocomplete_suggestions = {};
+			
+			if(autocomplete_options.autocomplete_suggestions)
+				editor.completer.autocomplete_suggestions = autocomplete_options.autocomplete_suggestions;
+			
+			var autocompleterYaml = {
+				formatData: function(scope_key) {
+					return editor.completer.autocomplete_suggestions[scope_key].map(function(data) {
+						if('object' == typeof data) {
+							return data;
+							
+						} else if('string' == typeof data) {
+							return {
+								caption: data,
+								snippet: data
+							};
+						}
+					});
+				},
+				getCompletions: function(editor, session, pos, prefix, callback) {
+					var token_path = Devblocks.cerbCodeEditor.getYamlTokenPath(pos, editor);
+					var scope_key = token_path.join('');
+					
+					if(editor.completer.autocomplete_suggestions.hasOwnProperty(scope_key)) {
+						callback(null, autocompleterYaml.formatData(scope_key));
+						return;
+						
+					} else {
+						callback(false);
+						return;
+					}
+				}
+			};
+			
+			editor.setOption('enableBasicAutocompletion', []);
+			editor.completers.push(autocompleterYaml);
+			//editor.commands.on('afterExec', doCerbLiveAutocomplete);
+		});
+	}
+	
 	// Abstract bot interaction trigger
 	
 	$.fn.cerbBotTrigger = function(options) {
