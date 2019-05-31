@@ -39,7 +39,7 @@
 			<td width="99%">
 				<div>
 					Grant role <b>privileges</b> to these workers:
-					<textarea name="member_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" class="cerb-query-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}">{$model->member_query_worker}</textarea>
+					<textarea name="member_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" data-editor-mode="ace/mode/cerb_query">{$model->member_query_worker}</textarea>
 				</div>
 			</td>
 		</tr>
@@ -49,12 +49,12 @@
 			<td width="99%">
 				<div>
 					Records owned by this role can be <b>edited</b> by these workers:
-					<textarea name="editor_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" class="cerb-query-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}">{$model->editor_query_worker}</textarea>
+					<textarea name="editor_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" data-editor-mode="ace/mode/cerb_query">{$model->editor_query_worker}</textarea>
 				</div>
 
 				<div>
 					Records owned by this role are <b>visible</b> to these workers:
-					<textarea name="reader_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" class="cerb-query-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}">{$model->reader_query_worker}</textarea>
+					<textarea name="reader_query_worker" placeholder="({'common.everyone'|devblocks_translate|lower})" style="width:100%;" data-editor-mode="ace/mode/cerb_query">{$model->reader_query_worker}</textarea>
 				</div>
 			</td>
 		</tr>
@@ -242,13 +242,12 @@ $(function() {
 		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
 		
-		// Query builders
-		
-		$popup.find('.cerb-query-trigger')
-			.cerbQueryTrigger()
-			.on('cerb-query-saved', function(e) {
-			})
-		;
+		// Editors
+		$popup.find('textarea[data-editor-mode]')
+			.cerbCodeEditor()
+			.cerbCodeEditorAutocompleteSearchQueries({ context: 'worker' })
+			.nextAll('pre.ace_editor')
+			;
 		
 		$who.on('change', function(e) {
 			var $radio = $(this);
