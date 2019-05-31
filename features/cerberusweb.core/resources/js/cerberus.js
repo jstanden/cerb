@@ -1222,6 +1222,236 @@ var ajax = new cAjaxCalls();
 		});
 	}
 	
+	$.fn.cerbCodeEditorAutocompleteSearchQueries = function(autocomplete_options) {
+		var Autocomplete = require('ace/autocomplete').Autocomplete;
+		
+		var doCerbLiveAutocomplete = function(e) {
+			e.stopPropagation();
+			
+			if(!e.editor.completer) {
+				var Autocomplete = require('ace/autocomplete').Autocomplete;
+				e.editor.completer = new Autocomplete();
+			}
+			
+			if('insertstring' == e.command.name) {
+				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
+					if(1 == e.args.length) {
+						e.editor.completer.showPopup(e.editor);
+					}
+				}
+			}
+		};
+		
+		return this.each(function() {
+			var $editor = $(this)
+				.nextAll('pre.ace_editor')
+				;
+				
+			var editor = ace.edit($editor.attr('id'));
+			
+			if(!editor.completer) {
+				editor.completer = new Autocomplete();
+			}
+			
+			editor.completer.autocomplete_suggestions = {
+				'_contexts': {}
+			};
+			
+			if(autocomplete_options && autocomplete_options.context)
+				editor.completer.autocomplete_suggestions._contexts[''] = autocomplete_options.context;
+			
+			$editor.on('cerb-code-editor-change-context', function(e, context) {
+				e.stopPropagation();
+				
+				var editor = ace.edit($(this).attr('id'));
+				
+				if(!editor.completer || !editor.completer.autocomplete_suggestions)
+					return;
+				
+				editor.completer.autocomplete_suggestions = {
+					'_contexts': {
+						'': context || ''
+					}
+				};
+			});
+			
+			var completer = {
+				identifierRegexps: [/[a-zA-Z_0-9\#\@\.\$\-\u00A2-\uFFFF]/],
+				formatData: function(scope_key) {
+					return editor.completer.autocomplete_suggestions[scope_key].map(function(data) {
+						if('object' == typeof data) {
+							data.completer = {
+								insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
+							};
+							return data;
+							
+						} else if('string' == typeof data) {
+							return {
+								caption: data,
+								snippet: data,
+								completer: {
+									insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
+								}
+							};
+						}
+					});
+				},
+				returnCompletions: function(editor, session, pos, prefix, callback) {
+					var token = session.getTokenAt(pos.row, pos.column);
+					
+					// Don't give suggestions inside Twig elements or at the end of `)` sets
+					if(token) {
+						if(
+							('paren.rparen' == token.type)
+							|| 'variable.other.readwrite.local.twig' == token.type
+							|| ('keyword.operator.other' == token.type && token.value == '|')
+						){
+							callback(false);
+							return;
+						}
+					}
+					
+					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, editor);
+					var scope_key = token_path.scope.join('');
+					
+					autocomplete_suggestions = editor.completer.autocomplete_suggestions;
+					
+					editor.completer.isDynamic = false;
+					
+					// Do we need to lazy load?
+					if(autocomplete_suggestions.hasOwnProperty(scope_key)) {
+						if($.isArray(autocomplete_suggestions[scope_key])) {
+							var results = completer.formatData(scope_key);
+							callback(null, results);
+							
+						} else if('object' == typeof autocomplete_suggestions[scope_key] 
+							&& autocomplete_suggestions[scope_key].hasOwnProperty('_type')) {
+							
+							var key = autocomplete_suggestions[scope_key].hasOwnProperty('key') ? autocomplete_suggestions[scope_key].key : null;
+							var limit = autocomplete_suggestions[scope_key].hasOwnProperty('limit') ? autocomplete_suggestions[scope_key].limit : 0;
+							var min_length = autocomplete_suggestions[scope_key].hasOwnProperty('min_length') ? autocomplete_suggestions[scope_key].min_length : 0;
+							var query = autocomplete_suggestions[scope_key].query.replace('{{term}}', prefix);
+							
+							if(min_length && prefix.length < min_length) {
+								callback(null, []);
+								return;
+							}
+							
+							genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
+								var results = [];
+								
+								if('object' != typeof json || !json.hasOwnProperty('data')) {
+									callback('error');
+									return;
+								}
+								
+								for(i in json.data) {
+									if(!json.data[i].hasOwnProperty(key) || 0 == json.data[i][key].length)
+										continue;
+									
+									var value = json.data[i][key];
+									
+									results.push({
+										value: -1 != value.indexOf(' ') ? ('"' + value + '"') : value
+									});
+								}
+								
+								// If we have the full set, persist it
+								if('' == prefix && limit && limit > json.data.length) {
+									autocomplete_suggestions[scope_key] = results;
+									
+								} else {
+									editor.completer.isDynamic = true;
+								}
+								
+								callback(null, results);
+							});
+						}
+						
+					} else {
+						// If pasting or existing value, work backwards
+						
+						(function() {
+							var expand = '';
+							var expand_prefix = '';
+							var expand_context = autocomplete_suggestions._contexts[''] || '';
+							
+							if(autocomplete_suggestions[scope_key]) {
+								editor.completer.showPopup(editor);
+								return;
+								
+							} else if(autocomplete_suggestions._contexts && autocomplete_suggestions._contexts.hasOwnProperty(scope_key)) {
+								expand_context = autocomplete_suggestions._contexts[scope_key];
+								expand_prefix = scope_key;
+								
+							} else {
+								var stack = [];
+								
+								for(key in token_path.scope) {
+									stack.push(token_path.scope[key]);
+									var stack_key = stack.join('');
+									
+									if(autocomplete_suggestions[stack_key]) {
+										expand_prefix += token_path.scope[key];
+										
+									} else if (autocomplete_suggestions._contexts && autocomplete_suggestions._contexts[stack_key]) {
+										expand_context = autocomplete_suggestions._contexts[stack_key];
+										expand_prefix += token_path.scope[key];
+										
+									} else {
+										expand += token_path.scope[key];
+									}
+								}
+							}
+							
+							if('' == expand_context) {
+								callback(null, []);
+								return;
+							}
+							
+							// [TODO] localStorage cache?
+							genericAjaxGet('', 'c=ui&a=querySuggestions&context=' + encodeURIComponent(expand_context) + '&expand=' + encodeURIComponent(expand), function(json) {
+								if('object' != typeof json) {
+									callback(null, []);
+									return;
+								}
+								
+								for(path_key in json) {
+									if(path_key == '_contexts') {
+										if(!autocomplete_suggestions['_contexts'])
+											autocomplete_suggestions['_contexts'] = {};
+										
+										for(context_key in json[path_key]) {
+											autocomplete_suggestions['_contexts'][expand_prefix + context_key] = json[path_key][context_key];
+										}
+										
+									} else {
+										autocomplete_suggestions[expand_prefix + path_key] = json[path_key];
+									}
+								}
+								
+								if(autocomplete_suggestions[scope_key]) {
+									editor.completer.showPopup(editor);
+									
+								} else {
+									callback(null, []);
+								}
+								return;
+							});
+						})();
+					}
+				},
+				getCompletions: function(editor, session, pos, prefix, callback) {
+					completer.returnCompletions(editor, session, pos, prefix, callback);
+				}
+			};
+		
+			editor.setOption('enableBasicAutocompletion', []);
+			editor.completers.push(completer);
+			editor.commands.on('afterExec', doCerbLiveAutocomplete);
+		});
+	};
+	
 	// Abstract bot interaction trigger
 	
 	$.fn.cerbBotTrigger = function(options) {
