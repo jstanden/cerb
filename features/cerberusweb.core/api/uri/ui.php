@@ -180,6 +180,23 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($data->getTypeMeta($type, $params)));
 	}
 	
+	function queryFieldSuggestionsAction() {
+		@$of = DevblocksPlatform::importGPC($_REQUEST['of'], 'string', '');
+		@$types = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['types'], 'string', ''));
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($of, true)))
+			return;
+		
+		if(false == ($view = $context_ext->getTempView()))
+			return;
+		
+		$suggestions = $view->getQueryAutocompleteFieldSuggestions($types);
+		
+		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
+	}
+	
 	function sheetAction() {
 		@$data_query = DevblocksPlatform::importGPC($_REQUEST['data_query'], 'string', '');
 		@$sheet_yaml = DevblocksPlatform::importGPC($_REQUEST['sheet_yaml'], 'string', '');
