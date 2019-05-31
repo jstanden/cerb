@@ -1452,6 +1452,514 @@ var ajax = new cAjaxCalls();
 		});
 	};
 	
+	$.fn.cerbCodeEditorAutocompleteDataQueries = function() {
+		var Autocomplete = require('ace/autocomplete').Autocomplete;
+		
+		var autocomplete_scope = {
+			'type': '',
+			'of': ''
+		};
+		
+		var autocomplete_suggestions = [];
+		var autocomplete_contexts = [];
+		
+		var autocomplete_suggestions_types = {
+			'': [
+				'type:'
+			],
+			'type:': []
+		};
+		
+		var doCerbLiveAutocomplete = function(e) {
+			e.stopPropagation();
+			
+			if(!(
+				'insertstring' == e.command.name 
+				|| 'paste' == e.command.name 
+				|| 'Return' == e.command.name 
+				|| 'backspace' == e.command.name)) {
+				return;
+			}
+			
+			if(!e.editor.completer) {
+				e.editor.completer = new Autocomplete();
+			}
+			
+			var value = e.editor.session.getValue();
+			var pos = e.editor.getCursorPosition();
+			var current_field = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, e.editor, 1);
+			var is_dirty = false;
+			
+			// If we're in the middle of typing a dynamic series alias, ignore it
+			if(1 == current_field.scope.length
+				&& 0 == current_field.nodes.length
+				&& -1 != ['series.','values.'].indexOf(current_field.scope[0].substr(0,7))
+				) {
+				return;
+			}
+			
+			if(0 == value.length) {
+				autocomplete_scope.type = '';
+				autocomplete_scope.of = '';
+				is_dirty = true;
+				
+			// If we pasted content, rediscover the scope
+			} else if('paste' == e.command.name) {
+				autocomplete_suggestions = {};
+				autocomplete_scope.type = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(e.editor, 'type:') || '';
+				autocomplete_scope.of = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(e.editor, 'of:') || '';
+				is_dirty = true;
+				
+			// If we're typing
+			} else if(current_field.hasOwnProperty('scope')) {
+				var current_field_name = current_field.scope.slice(-1)[0];
+				
+				if(current_field_name == 'type:' && current_field.nodes[0]) {
+					var type = current_field.nodes[0].value;
+					
+					if(autocomplete_scope.type != type) {
+						autocomplete_scope.type = type;
+						autocomplete_scope.of = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(e.editor, 'of:') || '';
+						is_dirty = true;
+					}
+					
+				} else if(current_field_name == 'of:' && current_field.nodes[0]) {
+					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, e.editor);
+					
+					if(1 == token_path.scope.length) {
+						of = current_field.nodes[0].value;
+						
+						if(autocomplete_scope.of != of) {
+							autocomplete_scope.of = of;
+							is_dirty = true;
+						}
+					
+					} else if(-1 != ['series.','values.'].indexOf(token_path.scope[0].substr(0,7))) {
+						var series_key = token_path.scope[0];
+						var series_of = token_path.nodes[0].value;
+						
+						if(autocomplete_scope[series_key + 'of:'] != series_of) {
+							autocomplete_scope[series_key + 'of:'] = series_of;
+							
+							for(key in autocomplete_suggestions._contexts) {
+								if(series_key == key.substr(0,series_key.length))
+									delete autocomplete_suggestions._contexts[key];
+							}
+							
+							for(key in autocomplete_suggestions) {
+								if(series_key == key.substr(0,series_key.length))
+									delete autocomplete_suggestions[key];
+							}
+							
+							if(-1 != autocomplete_contexts.indexOf(series_of)) {
+								autocomplete_scope[series_key + 'x:'] = {
+									'_type': 'series_of_field'
+								};
+								
+								autocomplete_scope[series_key + 'y:'] = {
+									'_type': 'series_of_field'
+								};
+								
+								autocomplete_scope[series_key + 'query:'] = {
+									'_type': 'series_of_query'
+								};
+								
+								autocomplete_scope[series_key + 'query.required:'] = {
+									'_type': 'series_of_query'
+								};
+							}
+						}
+					}
+				}
+			}
+			
+			if(is_dirty) {
+				var type = autocomplete_scope.type;
+				var of = autocomplete_scope.of;
+				
+				// If type: is invalid
+				if('' == type || -1 == autocomplete_suggestions_types['type:'].indexOf(type)) {
+					autocomplete_suggestions = autocomplete_suggestions_types;
+					
+				} else {
+					genericAjaxGet('', 'c=ui&a=dataQuerySuggestions&type=' + encodeURIComponent(type) + '&of=' + encodeURIComponent(of), function(json) {
+						if('object' == typeof json) {
+							autocomplete_suggestions = json;
+						} else {
+							autocomplete_suggestions = autocomplete_suggestions_types;
+						}
+					});
+				}
+			}
+			
+			if('Return' != e.command.name && (!e.editor.completer.activated || e.editor.completer.isDynamic)) {
+				if(e.args && 1 == e.args.length) {
+					e.editor.completer.showPopup(e.editor);
+				}
+			}
+		};
+		
+		return this.each(function() {
+			var $editor = $(this)
+				.nextAll('pre.ace_editor')
+				;
+				
+			var editor = ace.edit($editor.attr('id'));
+			
+			var completer = {
+				identifierRegexps: [/[a-zA-Z_0-9\#\@\.\$\-\u00A2-\uFFFF]/],
+				formatData: function(scope_key) {
+					if(!autocomplete_suggestions.hasOwnProperty(scope_key) 
+						|| undefined == autocomplete_suggestions.hasOwnProperty(scope_key))
+						return [];
+					
+					return autocomplete_suggestions[scope_key].map(function(data) {
+						if('object' == typeof data) {
+							data.completer = {
+								insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
+							};
+							return data;
+							
+						} else if('string' == typeof data) {
+							return {
+								caption: data,
+								snippet: data,
+								completer: {
+									insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
+								}
+							};
+						}
+					});
+				},
+				getCompletions: function(editor, session, pos, prefix, callback) {
+					var token = session.getTokenAt(pos);
+					
+					// Don't give suggestions inside Twig elements
+					if(token) {
+						if(
+							'variable.other.readwrite.local.twig' == token.type
+							|| ('keyword.operator.other' == token.type && token.value == '|')
+						){
+							callback(false);
+							return;
+						}
+					}
+					
+					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, editor);
+					var scope_key = token_path.scope.join('');
+					
+					if(autocomplete_suggestions[scope_key]) {
+						if($.isArray(autocomplete_suggestions[scope_key])) {
+							var results = completer.formatData(scope_key);
+							callback(null, results);
+							
+						} else if('object' == typeof autocomplete_suggestions[scope_key] 
+							&& autocomplete_suggestions[scope_key].hasOwnProperty('_type')) {
+							
+							if('autocomplete' == autocomplete_suggestions[scope_key]._type) {
+								var key = autocomplete_suggestions[scope_key].hasOwnProperty('key') ? autocomplete_suggestions[scope_key].key : null;
+								var limit = autocomplete_suggestions[scope_key].hasOwnProperty('limit') ? autocomplete_suggestions[scope_key].limit : 0;
+								var min_length = autocomplete_suggestions[scope_key].hasOwnProperty('min_length') ? autocomplete_suggestions[scope_key].min_length : 0;
+								var query = autocomplete_suggestions[scope_key].query.replace('{{term}}', prefix);
+								
+								if(min_length && prefix.length < min_length) {
+									callback(null, []);
+									return;
+								}
+								
+								genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
+									var results = [];
+									
+									if('object' != typeof json || !json.hasOwnProperty('data')) {
+										callback(null, []);
+										return;
+									}
+									
+									for(var i in json.data) {
+										if(!json.data[i].hasOwnProperty(key) || 0 == json.data[i][key].length)
+											continue;
+										
+										var value = json.data[i][key];
+										
+										results.push({
+											value: -1 != value.indexOf(' ') ? ('"' + value + '"') : value
+										});
+									}
+									
+									// If we have the full set, persist it
+									if('' == prefix && limit && limit > json.data.length) {
+										autocomplete_suggestions[scope_key] = results;
+										
+									} else {
+										editor.completer.isDynamic = true;
+									}
+									
+									callback(null, results);
+									return;
+								});
+								
+							} else if('series_of_query' == autocomplete_suggestions[scope_key]._type) {
+								var of = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(editor, token_path.scope[0] + 'of:');
+								
+								if(!of) {
+									callback(null, []);
+									return;
+								}
+								
+								genericAjaxGet('', 'c=ui&a=querySuggestions&context=' + encodeURIComponent(of), function(json) {
+									if('object' != typeof json) {
+										callback(null, []);
+										return;
+									}
+									
+									var path_keys = Object.keys(json);
+									
+									for(var path_key_idx in path_keys) {
+										var path_key = path_keys[path_key_idx];
+										
+										if(path_key == '_contexts') {
+											if(!autocomplete_suggestions.hasOwnProperty('_contexts'))
+												autocomplete_suggestions['_contexts'] = {};
+											
+											var context_keys = Object.keys(json[path_key]);
+											
+											for(context_key_id in context_keys) {
+												var context_key = context_keys[context_key_id];
+												autocomplete_suggestions['_contexts'][scope_key + context_key] = json[path_key][context_key];
+											}
+											
+										} else {
+											autocomplete_suggestions[scope_key + path_key] = json[path_key];
+										}
+									}
+									
+									var results = completer.formatData(scope_key);
+									callback(null, results);
+									return;
+								});
+								
+							} else if('series_of_field' == autocomplete_suggestions[scope_key]._type) {
+								var of = autocomplete_scope[token_path.scope[0] + 'of:']
+									|| Devblocks.cerbCodeEditor.getQueryTokenValueByPath(editor, token_path.scope[0] + 'of:');
+								
+								if(!of) {
+									callback(null, []);
+									return;
+								}
+								
+								var of_types = autocomplete_suggestions[scope_key].of_types || '';
+								
+								genericAjaxGet('', 'c=ui&a=queryFieldSuggestions&of=' + encodeURIComponent(of) + '&types=' + encodeURIComponent(of_types), function(json) {
+									if(!$.isArray(json)) {
+										callback(null, []);
+										return;
+									}
+									
+									autocomplete_suggestions[scope_key] = json;
+									
+									var results = completer.formatData(scope_key);
+									callback(null, results);
+									return;
+								});
+							}
+						}
+						
+					} else {
+						if(
+							('series.' == token_path.scope[0].substr(0,7) && !autocomplete_suggestions[token_path.scope[0]] && autocomplete_suggestions['series.*:'])
+							|| ('values.' == token_path.scope[0].substr(0,7) && !autocomplete_suggestions[token_path.scope[0]] && autocomplete_suggestions['values.*:'])
+							) {
+							var series_key = token_path.scope[0];
+							var series_template_key = token_path.scope[0].substr(0,7) + '*:';
+							
+							for(var suggest_key in autocomplete_suggestions[series_template_key]) {
+								if(autocomplete_suggestions[series_template_key][suggest_key]) {
+									autocomplete_suggestions[series_key + suggest_key] = autocomplete_suggestions[series_template_key][suggest_key];
+								}
+							}
+							var series_of = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(editor, token_path.scope[0] + 'of:');
+							
+							if(series_of && token_path.scope[1] && 'query' == token_path.scope[1].substr(0,5)) {
+								if(!autocomplete_suggestions['_contexts'])
+									autocomplete_suggestions['_contexts'] = {};
+								
+								autocomplete_suggestions['_contexts'][token_path.scope.slice(0,2).join('')] = series_of;
+								
+								// Load the series context
+								
+								var expand_context = series_of;
+								var expand_prefix = token_path.scope.slice(0,2).join('');
+								var expand = token_path.scope.slice(2).join('');
+								
+								genericAjaxGet('', 'c=ui&a=querySuggestions&context=' + encodeURIComponent(expand_context) + '&expand=' + encodeURIComponent(expand), function(json) {
+									if('object' != typeof json) {
+										callback(null, []);
+										return;
+									}
+									
+									for(path_key in json) {
+										if(path_key == '_contexts') {
+											if(!autocomplete_suggestions['_contexts'])
+												autocomplete_suggestions['_contexts'] = {};
+											
+											for(context_key in json[path_key]) {
+												autocomplete_suggestions['_contexts'][expand_prefix + context_key] = json[path_key][context_key];
+											}
+											
+										} else {
+											autocomplete_suggestions[expand_prefix + path_key] = json[path_key];
+										}
+									}
+									
+									if(autocomplete_suggestions[scope_key]) {
+										editor.completer.showPopup(editor);
+										
+									} else {
+										callback(null, []);
+									}
+									return;
+								});
+								
+								editor.completer.showPopup(editor);
+								return;
+								
+							} else if(1 == token_path.scope.length) {
+								editor.completer.showPopup(editor);
+								return;
+							}
+						}
+						
+						(function() {
+							var expand = '';
+							var expand_prefix = '';
+							var expand_context = '';
+							
+							if(autocomplete_suggestions[scope_key]) {
+								editor.completer.showPopup(editor);
+								return;
+								
+							} else if(autocomplete_suggestions._contexts && autocomplete_suggestions._contexts.hasOwnProperty(scope_key)) {
+								expand_context = autocomplete_suggestions._contexts[scope_key];
+								expand_prefix = scope_key;
+								
+							} else {
+								var stack = [];
+								
+								for(key in token_path.scope) {
+									stack.push(token_path.scope[key]);
+									var stack_key = stack.join('');
+									
+									if(autocomplete_suggestions[stack_key]) {
+										expand_prefix += token_path.scope[key];
+										
+									} else if (autocomplete_suggestions._contexts && autocomplete_suggestions._contexts[stack_key]) {
+										expand_context = autocomplete_suggestions._contexts[stack_key];
+										expand_prefix += token_path.scope[key];
+										
+									} else {
+										expand += token_path.scope[key];
+									}
+								}
+							}
+							
+							genericAjaxGet('', 'c=ui&a=querySuggestions&context=' + encodeURIComponent(expand_context) + '&expand=' + encodeURIComponent(expand), function(json) {
+								if('object' != typeof json) {
+									callback(null, []);
+									return;
+								}
+								
+								for(path_key in json) {
+									if(path_key == '_contexts') {
+										if(!autocomplete_suggestions['_contexts'])
+											autocomplete_suggestions['_contexts'] = {};
+										
+										for(context_key in json[path_key]) {
+											autocomplete_suggestions['_contexts'][expand_prefix + context_key] = json[path_key][context_key];
+										}
+										
+									} else {
+										autocomplete_suggestions[expand_prefix + path_key] = json[path_key];
+									}
+								}
+								
+								if(autocomplete_suggestions[scope_key]) {
+									editor.completer.showPopup(editor);
+									
+								} else {
+									callback(null, []);
+								}
+								return;
+							});
+						})();
+					}
+				}
+			};
+			
+			(function() {
+				var cerbQuerySuggestionMeta = null;
+				
+				if(localStorage && localStorage.cerbQuerySuggestionMeta) {
+					try {
+						cerbQuerySuggestionMeta = JSON.parse(localStorage.cerbQuerySuggestionMeta);
+					} catch(ex) {
+						cerbQuerySuggestionMeta = null;
+					}
+				}
+				
+				// Only run this once everything is ready
+				var editor_callback = function() {
+					autocomplete_suggestions = autocomplete_suggestions_types;
+					
+					editor.setOption('enableBasicAutocompletion', []);
+					editor.commands.on('afterExec', doCerbLiveAutocomplete);
+					editor.completers.push(completer);
+					
+					editor.on('focus', function(e) {
+						var val = editor.getValue();
+						
+						if(0 == val.length) {
+							if(!editor.completer) {
+								editor.completer = new Autocomplete();
+							}
+							
+							editor.completer.showPopup(editor);
+						}
+					});
+					
+					// If we have default content, trigger a paste
+					if(editor.getValue().length > 0) {
+						setTimeout(function() {
+							editor.commands.exec('paste', editor, {text:''})
+						}, 200);
+					}
+				}
+				
+				if(cerbQuerySuggestionMeta
+					&& cerbQuerySuggestionMeta.schemaVersion
+					&& cerbQuerySuggestionMeta.schemaVersion <= Math.floor(new Date().getTime()/1000)) {
+					
+					autocomplete_contexts = cerbQuerySuggestionMeta.recordTypes;
+					autocomplete_suggestions_types['type:'] = cerbQuerySuggestionMeta.dataQueryTypes;
+					editor_callback.call();
+					
+				} else {
+					genericAjaxGet('', 'c=ui&a=querySuggestionMeta', function(json) {
+						if('object' != typeof json)
+							return;
+						
+						autocomplete_contexts = json.recordTypes;
+						autocomplete_suggestions_types['type:'] = json.dataQueryTypes;
+						
+						if(localStorage)
+							localStorage.cerbQuerySuggestionMeta = JSON.stringify(json);
+						
+						editor_callback.call();
+					});
+				}
+			})();
+		});
+	};
+	
 	// Abstract bot interaction trigger
 	
 	$.fn.cerbBotTrigger = function(options) {
