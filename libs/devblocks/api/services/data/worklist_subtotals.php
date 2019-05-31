@@ -522,7 +522,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			];
 			
 			$parents = array_column($response['children'], 'name');
-			$output[0] = array_merge($output[0], $parents);
 			
 			foreach($response['children'] as $parent) {
 				$series_meta[$parent['name']] = [
@@ -544,6 +543,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					];
 				}
 			}
+			
+			$output[0] = array_merge($output[0], array_keys($series_meta));
 			
 			foreach($xvalues as $child_name => $parents) {
 				$values = array_values($parents);
@@ -706,7 +707,15 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							break;
 							
 						default:
+							$name = $parents[$column_index]['name'];
+							$value = $parents[$column_index]['value'];
+							
 							$row[$key_prefix] = $value;
+							
+							if($name != $value) {
+								$row[$key_prefix . '_label'] = $name;
+							}
+							
 							break;
 					}
 				}
