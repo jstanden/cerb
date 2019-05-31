@@ -952,6 +952,13 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Bot::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'score' => 2000,
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:bots by:name~25 query:(name:{{term}}*) format:dictionaries',
+						'key' => 'name',
+						'limit' => 25,
+					]
 				),
 			'updated' => 
 				array(

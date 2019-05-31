@@ -1651,6 +1651,14 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Address::EMAIL),
+					'score' => 2000,
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:address by:email~25 query:(email:{{term}}*) format:dictionaries',
+						'key' => 'email',
+						'limit' => 25,
+						'min_length' => 1,
+					]
 				),
 			'fieldset' =>
 				array(
@@ -1664,6 +1672,13 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Address::HOST),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:address by:host~25 query:(host:{{term}}*) format:dictionaries',
+						'key' => 'host',
+						'limit' => 25,
+						'min_length' => 1,
+					]
 				),
 			'id' =>
 				array(

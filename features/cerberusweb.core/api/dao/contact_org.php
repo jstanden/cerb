@@ -1140,7 +1140,12 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			'country' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ContactOrg::COUNTRY, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_ContactOrg::COUNTRY, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:orgs by:country~50 query:(country:!"" country:{{term}}*) format:dictionaries',
+						'key' => 'country',
+					]
 				),
 			'created' => 
 				array(
@@ -1182,7 +1187,13 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'score' => 2000,
 					'options' => array('param_key' => SearchFields_ContactOrg::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:orgs by:name~25 query:(name:{{term}}*) format:dictionaries',
+						'key' => 'name',
+					]
 				),
 			'phone' => 
 				array(
@@ -1197,7 +1208,12 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			'state' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ContactOrg::PROVINCE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_ContactOrg::PROVINCE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:orgs by:state~25 query:(state:{{term}}*) format:dictionaries',
+						'key' => 'state',
+					]
 				),
 			'street' => 
 				array(

@@ -811,7 +811,13 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'score' => 3000,
 					'options' => array('param_key' => SearchFields_WorkspaceWidget::LABEL, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:workspace_widget by:name query:(name:{{term}}*) format:dictionaries',
+						'key' => 'name',
+					],
 				),
 			'tab.id' => 
 				array(
@@ -829,7 +835,14 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 			'type' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'score' => 2500,
 					'options' => array('param_key' => SearchFields_WorkspaceWidget::EXTENSION_ID),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:workspace_widget by:type~100 query:(type:*{{term}}*) format:dictionaries',
+						'key' => 'type',
+						'limit' => 100,
+					],
 				),
 			'updated' => 
 				array(

@@ -1716,8 +1716,6 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		$event_extensions = DevblocksPlatform::getExtensions('devblocks.event', false);
 		DevblocksPlatform::sortObjects($event_extensions, 'name');
 		
-		$events = array_column(DevblocksPlatform::objectsToArrays($event_extensions), 'name', 'id');
-		
 		$fields = array(
 			'text' => 
 				array(
@@ -1749,8 +1747,11 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_TriggerEvent::EVENT_POINT),
-					'examples' => [
-						['type' => 'list', 'values' => $events],
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:behaviors by:event~25 query:(event:*{{term}}*) format:dictionaries',
+						'key' => 'event',
+						'limit' => 25,
 					]
 				),
 			'fieldset' =>
@@ -1783,6 +1784,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_TriggerEvent::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:behavior by:name~25 query:(name:*{{term}}*) format:dictionaries',
+						'key' => 'name',
+						'limit' => 25,
+					]
 				),
 			'updated' => 
 				array(

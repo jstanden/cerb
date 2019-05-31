@@ -1409,11 +1409,22 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Contact::FIRST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:contact by:firstName~25 query:(firstName:{{term}}*) format:dictionaries',
+						'key' => 'firstName',
+						'limit' => 25,
+					]
 				),
 			'gender' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Contact::GENDER, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'examples' => [
+						'female',
+						'male',
+						'unknown',
+					],
 				),
 			'id' => 
 				array(
@@ -1437,6 +1448,12 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Contact::LAST_NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:contact by:lastName~25 query:(lastName:{{term}}*) format:dictionaries',
+						'key' => 'lastName',
+						'limit' => 25,
+					]
 				),
 			'org' => 
 				array(

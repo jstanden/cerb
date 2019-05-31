@@ -1806,6 +1806,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'created' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'score' => 2000,
 					'options' => array('param_key' => SearchFields_Message::CREATED_DATE),
 				),
 			'header.messageId' => 
@@ -1823,7 +1824,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 			'id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_MESSAGE,
+					],
 					'options' => array('param_key' => SearchFields_Message::ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_MESSAGE, 'q' => ''],
@@ -1847,6 +1851,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'isOutgoing' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'score' => 2000,
 					'options' => array('param_key' => SearchFields_Message::IS_OUTGOING),
 				),
 			'isSigned' => 
@@ -1870,6 +1875,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'sender' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'score' => 2000,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_SENDER_SEARCH),
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
@@ -1877,7 +1883,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 			'sender.id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_ADDRESS,
+					],
 					'options' => array('param_key' => SearchFields_Message::ADDRESS_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_ADDRESS, 'q' => ''],
@@ -1886,6 +1895,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'ticket' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'score' => 2000,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_TICKET_SEARCH),
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
@@ -1893,7 +1903,10 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				),
 			'ticket.id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
+					'type_options' => [
+						'context' => CerberusContexts::CONTEXT_TICKET,
+					],
 					'options' => array('param_key' => SearchFields_Message::TICKET_ID),
 					'examples' => [
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
@@ -1910,6 +1923,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			'worker' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'score' => 1500,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_WORKER_SEARCH),
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],

@@ -1834,6 +1834,7 @@ abstract class C4_AbstractView {
 			
 			$field = array(
 				'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+				'score' => 500,
 				'options' => [
 					'param_key' => $param_key
 				],
@@ -2257,40 +2258,284 @@ abstract class C4_AbstractView {
 		$this->renderPage = 0;
 	}
 	
+	function getQueryAutocompleteSuggestions() {
+		$suggestions = [
+			'' => [],
+			'_contexts' => [],
+		];
 		
+		$query_fields = $this->getQuickSearchFields();
 		
+		foreach($query_fields as $query_field_key => $query_field) {
+			$suggestion_key = $query_field_key . ':'; 
+			$suggestion = $suggestion_key;
 			
+			// Type-specific suggestions
+			switch($query_field['type']) {
+				case 'bool':
+					$suggestions[$suggestion_key] = [
+						'yes',
+						'no',
+					];
+					break;
+					
+				case 'context':
+					$suggestion = [
+						'caption' => $suggestion_key,
+						'snippet' => $suggestion_key . '[${1}]',
+					];
+					break;
+					
+				case 'date':
+					$suggestions[$suggestion_key] = [
+						[
+							'caption' => '(date range)',
+							'snippet' => '"${1:-1 week} to ${2:now}"'
+						],
+					];
+					break;
+					
+				case 'decimal':
+					$suggestions[$suggestion_key] = [
+						[
+							'caption' => '(equals)',
+							'snippet' => '${1:3.14}'
+						],
+						[
+							'caption' => '(not)',
+							'snippet' => '!${1:3.14}'
+						],
+						[
+							'caption' => '(greater than)',
+							'snippet' => '>${1:3.14}'
+						],
+						[
+							'caption' => '(less than)',
+							'snippet' => '<${1:3.14}'
+						],
+						[
+							'caption' => '(in set)',
+							'snippet' => '[${1:3.14},${2:1.234}]'
+						],
+					];
+					break;
+					
+				case 'fulltext':
+					if (array_key_exists('examples', $query_field)) {
+						$suggestions[$suggestion_key] = [];
+						
+						foreach($query_field['examples'] as $example) {
+							$suggestions[$suggestion_key][] = $example . ' ';
+						}
+						
+					} else {
+						//var_dump($query_field);
+					}
+					break;
+					
+				case 'geo_point':
+					break;
+					
+				case 'number':
+					$suggestions[$suggestion_key] = [
+						[
+							'caption' => '(equals)',
+							'snippet' => '${1:1234}'
+						],
+						[
+							'caption' => '(not)',
+							'snippet' => '!${1:1234}'
+						],
+						[
+							'caption' => '(greater than)',
+							'snippet' => '>${1:1234}'
+						],
+						[
+							'caption' => '(less than)',
+							'snippet' => '<${1:1234}'
+						],
+						[
+							'caption' => '(between)',
+							'snippet' => '${1:1}...${2:100}'
+						],
+						[
+							'caption' => '(in set)',
+							'snippet' => '[${1:1},${2:2}]'
+						],
+					];
+					break;
+					
+				case 'number_seconds':
+					$suggestions[$suggestion_key] = [
+						[
+							'caption' => '(human readable time)',
+							'snippet' => '"${1:5 mins}"'
+						],
+					];
+					break;
+					
+				case 'text':
+					if(array_key_exists('suggester', $query_field)) {
+						$suggestions[$suggestion_key] = [
+							'_type' => 'autocomplete',
+							'query' => $query_field['suggester']['query'],
+							'key' => $query_field['suggester']['key'],
+							'limit' => @$query_field['suggester']['limit'] ?: 0,
+							'min_length' => @$query_field['suggester']['min_length'] ?: 0,
+						];
+						
+					} else if(array_key_exists('examples', $query_field)) {
+						$suggestions[$suggestion_key] = [];
+						
+						foreach($query_field['examples'] as $example) {
+							$suggestions[$suggestion_key][] = $example;
+						}
+					} else {
+						$suggestions[$suggestion_key] = [
+							[
+								'caption' => '(string)',
+								'snippet' => '"${1}"',
+							],
+						];
+					}
+					break;
+					
+				case 'virtual':
+					if('search' == @$query_field['examples'][0]['type']) {
+						$suggestion = [
+							'caption' => $suggestion_key,
+							'snippet' => $suggestion_key . '(${1})',
+						];
+						
+						$suggestions['_contexts'][$suggestion_key] = $query_field['examples'][0]['context'];
+						
+					} else if('chooser' == @$query_field['examples'][0]['type']) {
+						$suggestion = [
+							'caption' => $suggestion_key,
+							'snippet' => $suggestion_key . '[${1}]',
+						];
+						
+						$suggestions['_contexts'][$suggestion_key] = $query_field['examples'][0]['context'];
+						
+					} else if (array_key_exists('examples', $query_field)) {
+						$suggestions[$suggestion_key] = [];
+						
+						foreach($query_field['examples'] as $example) {
+							$suggestions[$suggestion_key][] = $example;
+						}
+					}
+					break;
+					
+				case 'worker':
+					break;
+					
+				default:
+					if (array_key_exists('examples', $query_field)) {
+						$suggestions[$suggestion_key] = [];
+						
+						foreach($query_field['examples'] as $example) {
+							$suggestions[$suggestion_key][] = $example;
+						}
+						
+					} else {
+						error_log(json_encode($query_field));
+					}
+					break;
 			}
 			
+			if(array_key_exists('score', $query_field)) {
+				if(is_array($suggestion)) {
+					$suggestion['score'] = $query_field['score'];
+					
+				} else if (is_string($suggestion)) {
+					$suggestion = [
+						'value' => $suggestion,
+						'score' => $query_field['score'],
+					];
+				}
 			}
+			
+			// Add to top-level suggestions
+			$suggestions[''][] = $suggestion;
 		}
 		
+		$suggestions[''][] = [
+			'caption' => 'limit:',
+			'snippet' => 'limit:${1:25}'
+		];
 		
+		$search_params = $this->getParamsAvailable();
 		
 		// Sort
 		
+		$suggestions[''][] = [
+			'caption' => 'sort:',
+			'snippet' => 'sort:[${1}]'
+		];
+		$suggestions['sort:'] = [];
 		
+		foreach($query_fields as $field_key => $field) {
 			if(!$field['is_sortable'])
 				continue;
 			
+			if(false == (@$search_params[$field['options']['param_key']]))
 				continue;
 			
+			$suggestions['sort:'][] = $field_key;
 		}
 		
+		// Subtotal
 		
 		if($this instanceof IAbstractView_Subtotals) {
+			$suggestions[''][] = [
+				'caption' => 'subtotal:',
+				'snippet' => 'subtotal:[${1}]'
+			];
+			$suggestions['subtotal:'] = $this->getQueryAutocompleteFieldSuggestions();
+		}
+		
+		// Saved searches
+		
+		if(false != ($view_context = $this->getContext()) 
+			&& false != ($active_worker = CerberusApplication::getActiveWorker())
+		) {
+			$searches = DAO_ContextSavedSearch::getUsableByActor($active_worker, $view_context);
 			
+			foreach($searches as $search) {
+				$suggestions[''][] = [
+					'caption' => '#' . $search->tag,
+					'snippet' => $search->query,
+					'suppress_autocomplete' => true,
+				];
 			}
 		}
 		
+		return $suggestions;
+	}
+	
+	function getQueryAutocompleteFieldSuggestions($types=null) {
+		$suggestions = [];
 		
+		if($this instanceof IAbstractView_Subtotals) {
+			$query_fields = $this->getQuickSearchFields();
+			$search_params = $this->getParamsAvailable();
 			
+			foreach($query_fields as $field_key => $field) {
+				if(false == (@$search_params[$field['options']['param_key']]))
+					continue;
 				
+				// Filter types
+				if($types && !in_array($field['type'], $types))
+					continue;
 				
+				if('links.' == $field_key || DevblocksPlatform::strStartsWith($field_key, ['links.']))
+					continue;
 				
-				
+				$suggestions[] = $field_key;
+			}
 		}
 		
+		return $suggestions;
 	}
 	
 	function renderSubtotals() {
