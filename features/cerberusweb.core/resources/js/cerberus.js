@@ -883,6 +883,7 @@ var ajax = new cAjaxCalls();
 			
 			var aceOptions = {
 				showLineNumbers: true,
+				showPrintMargin: false,
 				wrap: true,
 				enableBasicAutocompletion: [],
 				enableSnippets: false,
