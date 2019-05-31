@@ -5,7 +5,7 @@
 			{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
 		</legend>
 		
-		<textarea name="params[data_query]" class="cerb-data-query-editor placeholders" data-editor-mode="ace/mode/twig" style="width:95%;height:50px;">{$widget->params.data_query}</textarea>
+		<textarea name="params[data_query]" class="cerb-data-query-editor placeholders" data-editor-mode="ace/mode/cerb_query" style="width:95%;height:50px;">{$widget->params.data_query}</textarea>
 		
 		<div>
 			<b>Cache</b> query results for 
@@ -50,12 +50,11 @@
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	var $frm = $config.closest('form');
-	var $menu = $config.find('.cerb-menu-insert-column');
-	var $menu_button = $config.find('button.cerb-button-insert-column');
 	var $query_button = $config.find('button.cerb-button-sample-query');
 	
 	var $query_editor = $config.find('textarea.cerb-data-query-editor')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteDataQueries()
 		.nextAll('pre.ace_editor')
 		;
 	
@@ -120,6 +119,9 @@ $(function() {
 	
 	var $yaml_editor = $config.find('textarea.cerb-sheet-yaml-editor')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteYaml({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.yamlSheetSchema
+		})
 		.nextAll('pre.ace_editor')
 		;
 	
@@ -166,6 +168,5 @@ $(function() {
 			});
 		});
 	});
-		;
 });
 </script>

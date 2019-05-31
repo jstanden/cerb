@@ -16,13 +16,13 @@
 		<b>Filter using required query:</b>
 		
 		<div style="margin-left:10px;">
-			<textarea name="params[query_required]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">{$widget->extension_params.query_required}</textarea>
+			<textarea name="params[query_required]" data-editor-mode="ace/mode/cerb_query" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">{$widget->extension_params.query_required}</textarea>
 		</div>
 		
 		<b>Default query:</b>
 		
 		<div style="margin-left:10px;">
-			<textarea name="params[query]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">{$widget->extension_params.query}</textarea>
+			<textarea name="params[query]" data-editor-mode="ace/mode/cerb_query" class="placeholders" style="width:95%;padding:5px;border-radius:5px;" autocomplete="off" spellcheck="false">{$widget->extension_params.query}</textarea>
 		</div>
 		
 		<b>Records per page:</b>
@@ -69,12 +69,19 @@ $(function() {
 		swatches: ['#6a87db','#9a9a9a','#CF2C1D','#FEAF03','#57970A','#9669DB','#626c70']
 	});
 	
-	$config.find('textarea[data-editor-mode]')
+	var $editors = $config.find('textarea[data-editor-mode="ace/mode/cerb_query"]')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteSearchQueries({
+			'context': '{$widget->params.context}'
+		})
+		.nextAll('pre.ace_editor')
 		;
 	
 	$select.on('change', function(e) {
 		var ctx = $select.val();
+
+		// Update editors
+		$editors.trigger('cerb-code-editor-change-context', ctx);
 		
 		if(0 == ctx.length) {
 			$columns.empty();

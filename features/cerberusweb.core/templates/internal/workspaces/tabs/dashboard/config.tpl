@@ -73,12 +73,14 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#tab{$tab->id}Config');
-	
 	var $textarea = $frm.find('.cerb-code-editor');
 	
 	var $editor = $textarea
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteYaml({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.yamlDashboardFilters
+		})
 		.nextAll('pre.ace_editor')
-		;
+	;
 });
 </script>

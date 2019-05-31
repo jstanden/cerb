@@ -5,7 +5,7 @@
 			{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
 		</legend>
 		
-		<textarea name="params[data_query]" data-editor-mode="ace/mode/twig" class="placeholders" style="width:95%;height:50px;">{$widget->params.data_query}</textarea>
+		<textarea name="params[data_query]" data-editor-mode="ace/mode/cerb_query" class="placeholders" style="width:95%;height:50px;">{$widget->params.data_query}</textarea>
 		
 		<div>
 			<b>Cache</b> query results for 
@@ -17,6 +17,10 @@
 <script type="text/javascript">
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
-	$config.find('textarea.placeholders').cerbCodeEditor();
+	
+	$config.find('textarea.placeholders')
+		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteDataQueries()
+		;
 });
 </script>
