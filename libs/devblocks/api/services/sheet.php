@@ -211,10 +211,21 @@ class _DevblocksSheetServiceTypes {
 	
 	function date() {
 		return function($column, $sheet_dict) {
-			$value = $sheet_dict->get($column['key']);
-			$value = DevblocksPlatform::strPrettyTime($value);
+			@$column_params = $column['params'] ?: [];
 			
-			return DevblocksPlatform::strEscapeHtml($value);
+			$ts = $sheet_dict->get($column['key']);
+			
+			if(array_key_exists('format', $column_params) && false != ($date_str = @date($column_params['format'], $ts))) {
+				$value = DevblocksPlatform::strEscapeHtml($date_str);
+				
+			} else {
+				$value = sprintf('<abbr title="%s">%s</abbr>',
+					DevblocksPlatform::strEscapeHtml(date('r', $ts)),
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strPrettyTime($ts))
+				);
+			}
+			
+			return $value;
 		};
 	}
 	
