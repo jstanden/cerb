@@ -602,6 +602,32 @@ class _DevblocksDataService {
 		return [];
 	}
 	
+	function getTypes() {
+		$types = [
+			'worklist.records',
+			'worklist.subtotals',
+			'worklist.series',
+			'worklist.metrics',
+			'worklist.xy',
+			'worklist.geo.points',
+			'sample.geo.points',
+			'sample.timeseries',
+			'sample.xy',
+			'usage.behaviors',
+			'usage.snippets',
+		];
+		
+		$behaviors = DAO_TriggerEvent::getByEvent(Event_DataQueryDatasource::ID);
+		foreach($behaviors as $behavior) {
+			if(false == ($alias = $behavior->event_params['alias']))
+				continue;
+			
+			$types[] = 'behavior.' . $alias;
+		}
+		
+		return $types;
+	}
+	
 	function executeQuery($query, &$error=null, $cache_secs=0) {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = 'data_query_' . sha1($query);
