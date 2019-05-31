@@ -400,6 +400,11 @@ class _DevblocksSheetServiceTypes {
 				} else {
 					$value = $sheet_dict->get($column['key']);
 				}
+				
+				if(array_key_exists('value_map', $column_params) && is_array($column_params['value_map'])) {
+					if(array_key_exists($value, $column_params['value_map']))
+						$value = $column_params['value_map'][$value];
+				}
 			}
 			
 			return DevblocksPlatform::strEscapeHtml($value);
