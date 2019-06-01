@@ -251,7 +251,14 @@ $(function() {
 
 		// Placeholders
 		
-		$popup.find('textarea.placeholders, :text.placeholders').cerbCodeEditor();
+		$popup.find('textarea.placeholders, :text.placeholders').each(function() {
+			var $this = $(this);
+			
+			$this.cerbCodeEditor();
+			
+			if('ace/mode/cerb_query' == $this.attr('data-editor-mode'))
+				$this.cerbCodeEditorAutocompleteDataQueries();
+		});
 		
 		$popup.delegate(':text.placeholders, textarea.placeholders, pre.placeholders', 'focus', function(e) {
 			e.stopPropagation();
@@ -418,9 +425,14 @@ $(function() {
 						$(this).removeClass('unbound');
 					});
 					
-					var $textareas = $html.find('textarea.placeholders, :text.placeholders')
-						.cerbCodeEditor()
-						;
+					$html.find('textarea.placeholders, :text.placeholders').each(function() {
+						var $this = $(this);
+						
+						$this.cerbCodeEditor();
+						
+						if('ace/mode/cerb_query' == $this.attr('data-editor-mode'))
+							$this.cerbCodeEditorAutocompleteDataQueries();
+					});
 					
 					$frm_add_action.find('input[name=seq]').val(1+seq);
 				});

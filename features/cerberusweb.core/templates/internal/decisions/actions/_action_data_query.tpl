@@ -1,6 +1,6 @@
 <b>{'common.query'|devblocks_translate|capitalize}:</b> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
 <div style="margin-left:10px;margin-bottom:10px;">
-	<textarea name="{$namePrefix}[query]" class="placeholders">{$params.query}</textarea>
+	<textarea name="{$namePrefix}[query]" data-editor-mode="ace/mode/cerb_query" class="placeholders">{$params.query}</textarea>
 </div>
 
 <b>Save result to a placeholder named:</b><br>
