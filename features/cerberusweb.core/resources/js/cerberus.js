@@ -1070,7 +1070,7 @@ var ajax = new cAjaxCalls();
 				
 				var autocompleterTwig = {
 					insertMatch: function(editor, data) {
-						delete data.completer;
+						data.completer = null;
 						editor.completer.insertMatch(data);
 					},
 					getCompletions: function(editor, session, pos, prefix, callback) {
@@ -1191,12 +1191,16 @@ var ajax = new cAjaxCalls();
 				formatData: function(scope_key) {
 					return editor.completer.autocomplete_suggestions[scope_key].map(function(data) {
 						if('object' == typeof data) {
+							if(!data.hasOwnProperty('score'))
+								data.score = 1000;
+							
 							return data;
 							
 						} else if('string' == typeof data) {
 							return {
 								caption: data,
-								snippet: data
+								snippet: data,
+								score: 1000
 							};
 						}
 					});
@@ -1280,6 +1284,9 @@ var ajax = new cAjaxCalls();
 				formatData: function(scope_key) {
 					return editor.completer.autocomplete_suggestions[scope_key].map(function(data) {
 						if('object' == typeof data) {
+							if(!data.hasOwnProperty('score'))
+								data.score = 1000;
+							
 							data.completer = {
 								insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
 							};
@@ -1289,6 +1296,7 @@ var ajax = new cAjaxCalls();
 							return {
 								caption: data,
 								snippet: data,
+								score: 1000,
 								completer: {
 									insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
 								}
@@ -1499,6 +1507,7 @@ var ajax = new cAjaxCalls();
 			}
 			
 			if(0 == value.length) {
+				autocomplete_suggestions = {};
 				autocomplete_scope.type = '';
 				autocomplete_scope.of = '';
 				is_dirty = true;
@@ -1515,23 +1524,31 @@ var ajax = new cAjaxCalls();
 				var current_field_name = current_field.scope.slice(-1)[0];
 				
 				if(current_field_name == 'type:' && current_field.nodes[0]) {
-					var type = current_field.nodes[0].value;
+					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, e.editor);
 					
-					if(autocomplete_scope.type != type) {
-						autocomplete_scope.type = type;
-						autocomplete_scope.of = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(e.editor, 'of:') || '';
-						is_dirty = true;
+					if(1 == token_path.scope.length) {
+						var type = current_field.nodes[0].value;
+						
+						if(autocomplete_scope.type != type) {
+							autocomplete_scope.type = type;
+							autocomplete_scope.of = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(e.editor, 'of:') || '';
+							is_dirty = true;
+						}
 					}
 					
 				} else if(current_field_name == 'of:' && current_field.nodes[0]) {
 					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, e.editor);
 					
 					if(1 == token_path.scope.length) {
-						of = current_field.nodes[0].value;
+						var of = current_field.nodes[0].value;
 						
 						if(autocomplete_scope.of != of) {
 							autocomplete_scope.of = of;
-							is_dirty = true;
+							
+							// If it's not a known context, ignore
+							if(-1 != autocomplete_contexts.indexOf(of)) {
+								is_dirty = true;
+							}
 						}
 					
 					} else if(-1 != ['series.','values.'].indexOf(token_path.scope[0].substr(0,7))) {
@@ -1543,12 +1560,12 @@ var ajax = new cAjaxCalls();
 							
 							for(key in autocomplete_suggestions._contexts) {
 								if(series_key == key.substr(0,series_key.length))
-									delete autocomplete_suggestions._contexts[key];
+									autocomplete_suggestions._contexts[key] = null;
 							}
 							
 							for(key in autocomplete_suggestions) {
 								if(series_key == key.substr(0,series_key.length))
-									delete autocomplete_suggestions[key];
+									autocomplete_suggestions[key] = null;
 							}
 							
 							if(-1 != autocomplete_contexts.indexOf(series_of)) {
@@ -1615,6 +1632,9 @@ var ajax = new cAjaxCalls();
 					
 					return autocomplete_suggestions[scope_key].map(function(data) {
 						if('object' == typeof data) {
+							if(!data.hasOwnProperty('score'))
+								data.score = 1000;
+							
 							data.completer = {
 								insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
 							};
@@ -1624,6 +1644,7 @@ var ajax = new cAjaxCalls();
 							return {
 								caption: data,
 								snippet: data,
+								score: 1000,
 								completer: {
 									insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
 								}
