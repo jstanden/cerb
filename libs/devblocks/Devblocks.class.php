@@ -3055,6 +3055,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_PLUGINS);
+		DevblocksPlatform::services()->classloader()->destroy();
 		
 		return $plugins;
 	}
