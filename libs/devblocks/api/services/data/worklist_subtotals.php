@@ -677,32 +677,36 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							$value = $parents[$column_index]['value'];
 							
 							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
-								$key_prefix = substr($key_prefix, 0, -3);
+								$key_prefix = substr($key_prefix, 0, -3) . '_';
+							} else if($key_prefix == 'id') {
+								$key_prefix = '';
 							}
 							
 							if(!array_key_exists('type_options', $column)) {
 								if(false !== (strpos($value,':'))) {
 									@list($context, $context_id) = explode(':', $value, 2);
-									$row[$key_prefix . '__context'] = $context;
-									$row[$key_prefix . '_id'] = $context_id;
-									$row[$key_prefix . '__label'] = $parents[$column_index]['name'];
+									$row[$key_prefix . '_context'] = $context;
+									$row[$key_prefix . 'id'] = $context_id;
+									$row[$key_prefix . '_label'] = $parents[$column_index]['name'];
 								}
 							} else {
-								$row[$key_prefix . '_id'] = $value;
-								$row[$key_prefix . '__context'] = $column['type_options']['context'];
-								$row[$key_prefix . '__label'] = $parents[$column_index]['name'];
+								$row[$key_prefix . 'id'] = $value;
+								$row[$key_prefix . '_context'] = $column['type_options']['context'];
+								$row[$key_prefix . '_label'] = $parents[$column_index]['name'];
 							}
 							
 							break;
 							
 						case DevblocksSearchCriteria::TYPE_WORKER:
 							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
-								$key_prefix = substr($key_prefix, 0, -3);
+								$key_prefix = substr($key_prefix, 0, -3) . '_';
+							} else if($key_prefix == 'id') {
+								$key_prefix = '';
 							}
 							
-							$row[$key_prefix . '__context'] = CerberusContexts::CONTEXT_WORKER;
-							$row[$key_prefix . '__label'] = $parents[$column_index]['name'];
-							$row[$key_prefix . '_id'] = $parents[$column_index]['value'];
+							$row[$key_prefix . '_context'] = CerberusContexts::CONTEXT_WORKER;
+							$row[$key_prefix . '_label'] = $parents[$column_index]['name'];
+							$row[$key_prefix . 'id'] = $parents[$column_index]['value'];
 							break;
 							
 						default:
