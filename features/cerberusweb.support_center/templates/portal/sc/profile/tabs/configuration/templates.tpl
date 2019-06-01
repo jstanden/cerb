@@ -3,8 +3,4 @@
 	<button type="button" onclick="genericAjaxPopup('import','c=internal&a=showImportTemplatesPeek&portal_id={$portal->id}&view_id={$view->id|escape:'url'}',null,false,'50%');"><span class="glyphicons glyphicons-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button></a>
 </form>
 
-<div>
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
-</div>
-
 {include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl" view=$view}
