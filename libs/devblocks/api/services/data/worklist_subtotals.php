@@ -281,9 +281,26 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			switch($by['type']) {
 				case Model_CustomField::TYPE_CURRENCY:
+					@$currency_id = $by['type_options']['currency_id'];
+					
+					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
+						break;
+					
+					foreach($values as $row_idx => $value) {
+						$value = $currency->format($value, false, '.', '');
+						$values[$row_idx] = $value;
+						$rows[$row_idx][$key_select] = $value;
+					}
 					break;
 					
 				case Model_CustomField::TYPE_DECIMAL:
+					@$decimal_at = $by['type_options']['decimal_at'];
+					
+					foreach($values as $row_idx => $value) {
+						$value = DevblocksPlatform::strFormatDecimal($value, $decimal_at, '.', '');
+						$values[$row_idx] = $value;
+						$rows[$row_idx][$key_select] = $value;
+					}
 					break;
 			}
 			
@@ -389,7 +406,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			foreach(array_slice(array_keys($row),1) as $k) {
 				$label = (array_key_exists($k, $labels) && array_key_exists($row[$k], $labels[$k])) ? $labels[$k][$row[$k]] : $row[$k];
-				$query[] = $queries[$k][$row[$k]];
+				$query[] = array_key_exists($row[$k], $queries[$k]) ? $queries[$k][$row[$k]] : '';
 				
 				$data = [
 					'name' => $label,
@@ -667,6 +684,13 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					if($column_index == $depth) {
 						$value = $node['hits'];
 						
+						if(!array_key_exists($column_index, $parents)) {
+							$row[$key_prefix] = $value;
+							$row[$key_prefix . '_' . 'func'] = $chart_model['function'];
+							$rows[] = $row;
+							return;
+						}
+						
 					} else {
 						if(array_key_exists($column_index, $parents))
 							$value = $parents[$column_index]['name'];
@@ -674,7 +698,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					
 					switch($type) {
 						case DevblocksSearchCriteria::TYPE_CONTEXT:
-							$value = $parents[$column_index]['value'];
+							$name = $node['name'];
+							$value = intval($node['value']);
 							
 							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
 								$key_prefix = substr($key_prefix, 0, -3) . '_';
@@ -687,17 +712,20 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 									@list($context, $context_id) = explode(':', $value, 2);
 									$row[$key_prefix . '_context'] = $context;
 									$row[$key_prefix . 'id'] = $context_id;
-									$row[$key_prefix . '_label'] = $parents[$column_index]['name'];
+									$row[$key_prefix . '_label'] = $name;
 								}
 							} else {
 								$row[$key_prefix . 'id'] = $value;
 								$row[$key_prefix . '_context'] = $column['type_options']['context'];
-								$row[$key_prefix . '_label'] = $parents[$column_index]['name'];
+								$row[$key_prefix . '_label'] = $name;
 							}
 							
 							break;
 							
 						case DevblocksSearchCriteria::TYPE_WORKER:
+							$name = $node['name'];
+							$value = intval($node['value']);
+							
 							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
 								$key_prefix = substr($key_prefix, 0, -3) . '_';
 							} else if($key_prefix == 'id') {
@@ -705,20 +733,17 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							}
 							
 							$row[$key_prefix . '_context'] = CerberusContexts::CONTEXT_WORKER;
-							$row[$key_prefix . '_label'] = $parents[$column_index]['name'];
-							$row[$key_prefix . 'id'] = $parents[$column_index]['value'];
+							$row[$key_prefix . '_label'] = $name;
+							$row[$key_prefix . 'id'] = $value;
 							break;
 							
 						default:
 							if(array_key_exists($column_index, $parents)) {
-								$name = $parents[$column_index]['name'];
-								$value = $parents[$column_index]['value'];
+								$name = $node['name'];
+								$value = $node['value'];
 								
 								$row[$key_prefix] = $value;
-								
-								if($name != $value) {
-									$row[$key_prefix . '_label'] = $name;
-								}
+								$row[$key_prefix . '_label'] = $name;
 								
 							} else {
 								$row[$key_prefix] = $value;
@@ -730,11 +755,11 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 				if(in_array($chart_model['function'], ['','count'])) {
 					$row['count'] = $node['hits'];
-				}
-				
-				if(array_key_exists('query', $node)) {
-					$row['count_query_context'] = $chart_model['context'];
-					$row['count_query'] = $node['query'];
+					
+					if(array_key_exists('query', $node)) {
+						$row['count_query_context'] = $chart_model['context'];
+						$row['count_query'] = $node['query'];
+					}
 				}
 				
 				$rows[] = DevblocksDictionaryDelegate::instance($row);
