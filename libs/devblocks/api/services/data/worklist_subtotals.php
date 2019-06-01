@@ -279,7 +279,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$key_select = $by['key_select'];
 			$values = array_column($rows, $key_select);
 			
-			// [TODO] Field type
 			switch($by['type']) {
 				case Model_CustomField::TYPE_CURRENCY:
 					break;
@@ -707,13 +706,18 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							break;
 							
 						default:
-							$name = $parents[$column_index]['name'];
-							$value = $parents[$column_index]['value'];
-							
-							$row[$key_prefix] = $value;
-							
-							if($name != $value) {
-								$row[$key_prefix . '_label'] = $name;
+							if(array_key_exists($column_index, $parents)) {
+								$name = $parents[$column_index]['name'];
+								$value = $parents[$column_index]['value'];
+								
+								$row[$key_prefix] = $value;
+								
+								if($name != $value) {
+									$row[$key_prefix . '_label'] = $name;
+								}
+								
+							} else {
+								$row[$key_prefix] = $value;
 							}
 							
 							break;
