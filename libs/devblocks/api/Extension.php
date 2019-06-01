@@ -336,6 +336,16 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $contexts;
 	}
 	
+	public static function getUris() {
+		$uris = array_map(function($mft) {
+			return $mft->params['alias'];
+		}, Extension_DevblocksContext::getAll(false));
+		
+		asort($uris);
+		
+		return $uris;
+	}
+	
 	/**
 	 * @internal
 	 */
