@@ -567,6 +567,265 @@ function DevblocksClass() {
 			finished();
 		});
 	}
+	
+	this.cerbCodeEditor = {
+		insertMatchAndAutocomplete: function(editor, data) {
+			delete data.completer;
+			editor.completer.insertMatch(data);
+			
+			if(data.suppress_autocomplete)
+				return;
+			
+			// If we're inserting a field, trigger autocompletion
+			if(
+				(data.value && -1 != data.value.indexOf(':'))
+				|| (data.snippet && -1 != data.snippet.indexOf(':'))
+			) {
+				setTimeout(function() {
+					editor.commands.byName.startAutocomplete.exec(editor);
+				}, 50)
+			}
+		},
+		getYamlTokenPath: function(pos, editor) {
+			var TokenIterator = require('ace/token_iterator').TokenIterator;
+			var iter = new TokenIterator(editor.session, pos.row, pos.column);
+			var results = [];
+			
+			var start = iter.getCurrentToken();
+			var token = start;
+			var current_indent = null;
+			
+			if(!String.prototype.trimStart) {
+				String.prototype.trimStart = function() {
+					if(String.prototype.trimLeft)
+						return this.trimLeft();
+					
+					var matches = this.match(/^( +)/);
+					
+					if(null === matches)
+						return this.valueOf();
+					
+					return this.substr(matches[1].length);
+				}
+			}
+			
+			if(null != token) {
+				// We're on a new indent
+				if(token.type == 'text' && token.value.length > 0 && 0 == token.value.trimStart().length) {
+					current_indent = token.value;
+					iter.stepBackward();
+					
+				} else if (token.type == 'list.markup') {
+					var tag_indent = " ".repeat(token.value.length);
+					
+					if (null === current_indent || tag_indent.length < current_indent.length) {
+						results.push('-:');
+						current_indent = tag_indent;
+					}
+					
+					iter.stepBackward();
+				}
+				
+				do {
+					token = iter.getCurrentToken();
+					
+					if(token.type == 'meta.tag') {
+						var token_value = token.value;
+						var prevToken = iter.stepBackward();
+						
+						if(prevToken && prevToken.type == 'list.markup') {
+							if(-1 == token_value.indexOf(' ')) {
+								token_value = " ".repeat(prevToken.value.length) + token_value;
+							} else {
+								token_value = " ".repeat(prevToken.value.length) + token_value;
+							}
+							
+						} else {
+							iter.stepForward();
+						}
+						
+						var tag_trimmed = token_value.trimStart();
+						var tag_indent = " ".repeat(token_value.length - tag_trimmed.length);
+						
+						if(null === current_indent) {
+							current_indent = tag_indent;
+							results.push(tag_trimmed + ':');
+							
+						} else if (tag_indent.length < current_indent.length) {
+							results.push(tag_trimmed + ':');
+							current_indent = tag_indent;
+							
+							if(prevToken && prevToken.type == 'list.markup' && '-:' != results.slice(-1))
+								results.push('-:');
+							
+						} else if (tag_indent.length == current_indent.length) {
+							if(prevToken && prevToken.type == 'list.markup' && '-:' != results.slice(-1))
+								results.push('-:');
+						}
+						
+						// If we hit the root, stop early
+						if(0 == current_indent.length)
+							break;
+					}
+					
+				} while (iter.stepBackward());
+			}
+			
+			return results.reverse();
+		},
+		getQueryTokenValueByPath: function(editor, path) {
+			var TokenIterator = require('ace/token_iterator').TokenIterator;
+			var iter = new TokenIterator(editor.session, 0, 0);
+			var tree = {};
+			
+			path = path.slice(0,-1).split(':').map(function(s) { return s + ':'; });
+			var depth = 0;
+			var matches = 0;
+			
+			do {
+				var token = iter.getCurrentToken();
+				
+				if('meta.tag' == token.type) {
+					if(path.hasOwnProperty(depth) && token.value == path[depth]) {
+						if(matches == depth) {
+							matches++;
+							
+							if(path.length == matches) {
+								// [TODO] This could be multiple following tokens (e.g. [1,2,3])
+								var val = iter.stepForward().value;
+								return val;
+							}
+						}
+					}
+					
+				} else if('paren.lparen' == token.type) {
+					depth++;
+					
+				} else if('paren.rparen' == token.type) {
+					depth--;
+				}
+				
+			} while(iter.stepForward());
+		},
+		getQueryTokenPath: function(pos, editor, max_length) {
+			var TokenIterator = require('ace/token_iterator').TokenIterator;
+			var iter = new TokenIterator(editor.session, pos.row, pos.column);
+			var results = [];
+			var scope = [];
+			
+			var start = iter.getCurrentToken();
+			var token = start;
+			
+			if(null != token) {
+				if(token.type != 'meta.tag') {
+					results.push(token);
+				}
+				
+				if(
+					'whitespace' == token.type
+					|| 'keyword.operator' == token.type
+					|| 'variable.other.readwrite.local.twig' == token.type
+					|| 'meta.tag.twig' == token.type
+					|| ('paren.rparen' == token.type && ']' == token.value)
+					|| ('paren.rparen' == token.type && ')' == token.value)
+				) {
+					// Ignore
+					
+				} else if('meta.tag' == token.type) {
+					scope.push(token.value);
+					iter.stepBackward();
+					
+				} else {
+					var lastToken = token;
+					
+					while(iter.stepBackward()) {
+						token = iter.getCurrentToken();
+						
+						if('meta.tag' == token.type) {
+							scope.push(token.value);
+							iter.stepBackward();
+							break;
+							
+						} else if (
+							'whitespace' == token.type
+							|| (lastToken.type == 'text' && token.type == lastToken.type)
+							|| ('keyword.operator' == token.type && -1 != ['OR','AND'].indexOf(token.value))
+							|| ('paren.rparen' == token.type && ']' == token.value)
+							|| ('paren.rparen' == token.type && ')' == token.value)
+						) {
+							break;
+							
+						} else if (
+								'string' == token.type
+								|| ('keyword.operator' == token.type && '!' == token.value)
+								|| 'text' == token.type
+								|| 'constant.numeric' == token.type
+								|| ('paren.lparen' == token.type && '[' == token.value)
+						) {
+							// Keep looking
+							continue;
+						}
+						
+						lastToken = token;
+					}
+				}
+			}
+			
+			if(max_length && scope.length >= max_length) {
+				return {
+					'scope': scope.reverse(),
+					'nodes': results.reverse()
+				};
+			}
+			
+			// Find root
+			var depth = 0;
+			
+			do {
+				token = iter.getCurrentToken();
+				
+				if(null == token) {
+					continue;
+					
+				} else if('paren.rparen' == token.type && ')' == token.value) {
+					depth++;
+					
+				} else if('paren.lparen' == token.type && '(' == token.value) {
+					depth--;
+					
+					if(-1 == depth)
+						while(null != iter.stepBackward()) {
+							token = iter.getCurrentToken();
+							
+							if('keyword.operator' == token.type && '!' == token.value)
+								token = iter.stepBackward();
+							
+							if('meta.tag' == token.type) {
+								scope.push(token.value);
+								depth++;
+								continue;
+								
+							} else if ('whitespace' == token.type) {
+								continue;
+								
+							} else {
+								iter.stepForward();
+								break;
+							}
+						}
+				}
+				
+				if(max_length && scope.length >= max_length)
+					break;
+				
+			} while(null != iter.stepBackward())
+			
+			return {
+				'scope': scope.reverse(),
+				'nodes': results.reverse()
+			}
+		}
+	};
 };
 
 var Devblocks = new DevblocksClass();
