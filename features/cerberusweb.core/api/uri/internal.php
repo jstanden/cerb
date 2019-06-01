@@ -4226,28 +4226,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->assign('event', $ext_event);
 		
-		// Format custom values
-		
-		if(is_array($trigger->variables))
-		foreach($trigger->variables as $var_key => $var) {
-			if(!empty($var['is_private']))
-				continue;
-			
-			if(!isset($custom_values[$var_key]))
-				continue;
-			
-			try {
-				$custom_values[$var_key] = $trigger->formatVariable($var, $custom_values[$var_key]);
-				
-			} catch(Exception $e) {
-				
-			}
-		}
-		
-		// Merge baseline values with user overrides
+		// Values
 		
 		$values = $ext_event->getValues();
-		$values = array_merge($values, $custom_values);
 		
 		// Get conditions
 		
@@ -4269,6 +4250,23 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Dictionary
 		
 		$dict = new DevblocksDictionaryDelegate($values);
+		
+		// Format custom values
+		
+		if(is_array($trigger->variables))
+		foreach($trigger->variables as $var_key => $var) {
+			if(!empty($var['is_private']))
+				continue;
+			
+			if(!isset($custom_values[$var_key]))
+				continue;
+			
+			try {
+				$custom_value = $trigger->formatVariable($var, $custom_values[$var_key], $dict);
+				$dict->set($var_key, $custom_value);
+				
+			} catch(Exception $e) {}
+		}
 		
 		// [TODO] Update variables/values on assocated worklists
 		

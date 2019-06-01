@@ -959,13 +959,15 @@ class Model_TriggerEvent {
 				
 				if($context && DevblocksPlatform::strEndsWith($var['key'], '_id')) {
 					$ctx_key = mb_substr($var['key'], 0, -3) . '__context';
-					$dict->set($ctx_key, $context);
+					
+					if($dict instanceof DevblocksDictionaryDelegate)
+						$dict->set($ctx_key, $context);
 				}
 				
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
-				if($dict && is_string($value) && DevblocksPlatform::strStartsWith($value, 'var_')) {
+				if($dict instanceof DevblocksDictionaryDelegate && is_string($value) && DevblocksPlatform::strStartsWith($value, 'var_')) {
 					$value = $dict->$value;
 					
 					if(is_array($value))
