@@ -93,6 +93,10 @@
 		tbody:nth-child(even) tr td {
 			background-color: whitesmoke;
 		}
+		
+		tbody:hover td {
+			background-color: #ffffc8;
+		}
 	}
 
 	.cerb-form-builder-error {

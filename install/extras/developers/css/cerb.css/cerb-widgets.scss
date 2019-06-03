@@ -10,9 +10,8 @@ TABLE.cerb-widget-data-table {
 		padding: 5px;
 	}
 	
-	tbody:nth-child(even) tr {
-		td {
-			background-color: rgb(245,245,245);
+	tbody:nth-child(even) td {
+		background-color: rgb(245,245,245);
 		}
 	}
 }
