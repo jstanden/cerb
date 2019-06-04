@@ -46,6 +46,48 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 	}
 	
+	function getContextFieldsJsonAction() {
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
+		
+		header('Content-Type: application/json');
+		
+		if(null == ($context_ext = Extension_DevblocksContext::get($context))) {
+			echo json_encode(false);
+			return;
+		}
+
+		$view_class = $context_ext->getViewClass();
+		
+		if(null == ($view = new $view_class())) { /* @var $view C4_AbstractView */
+			echo json_encode(false);
+			return;
+		}
+		
+		$results = [];
+		$params_avail = $view->getParamsAvailable();
+		
+		$subtotals = [];
+		
+		if($view instanceof IAbstractView_Subtotals) /* @var $view IAbstractView_Subtotals */
+			$subtotals = $view->getSubtotalFields();
+		
+		if(is_array($params_avail))
+		foreach($params_avail as $param) { /* @var $param DevblocksSearchField */
+			if(empty($param->db_label))
+				continue;
+		
+			$results[] = array(
+				'key' => $param->token,
+				'label' => mb_convert_case($param->db_label, MB_CASE_LOWER),
+				'type' => $param->type,
+				'sortable' => $param->is_sortable,
+				'subtotals' => array_key_exists($param->token, $subtotals),
+			);
+		}
+		
+		echo json_encode($results);
+	}
+	
 	function behaviorAction() {
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;

@@ -78,7 +78,7 @@ $(function() {
 		if(0 == ctx.length)
 			return;
 		
-		genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextFieldsJson&context=' + ctx, function(json) {
+		genericAjaxGet('','c=ui&a=getContextFieldsJson&context=' + ctx, function(json) {
 			if('object' == typeof(json) && json.length > 0) {
 				var $select_metric_field = $select.siblings('select.metric_field').html('');
 				
