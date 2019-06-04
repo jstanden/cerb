@@ -66,7 +66,6 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 				$sheet = $sheets->parseYaml($sheet_yaml, $error);
 				
 				$sheets->addType('card', $sheets->types()->card());
-				$sheets->addType('custom', $sheets->types()->custom());
 				$sheets->addType('date', $sheets->types()->date());
 				$sheets->addType('link', $sheets->types()->link());
 				$sheets->addType('search', $sheets->types()->search());

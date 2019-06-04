@@ -175,35 +175,31 @@ var cerbAutocompleteSuggestions = {
 		'columns:-:': [
 			{
 				caption: '#text',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: text\n  params:\n    #value_key: other_key\n    #bold: true\n- '
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: text\n  params:\n    #value: literal text\n    #value_key: some_key\n    #value_template: "{{some_key}}"\n    #bold: true\n    #value_map: { 0: No, 1: Yes }\n- '
 			},
 			{
 				caption: '#card',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: card\n  params:\n    #image: true\n    #bold: true\n- '
-			},
-			{
-				caption: '#custom',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: custom\n  params:\n\n- '
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: card\n  params:\n    #image: true\n    #bold: true\n    #underline: false\n- '
 			},
 			{
 				caption: '#date',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: date\n  params:\n    #format: d-M-Y H:i:s T # See: https://php.net/date\n    #format: r\n- '
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: date\n  params:\n    #format: d-M-Y H:i:s T # See: https://php.net/date\n    #format: r\n    #value: 1577836800\n    #value_key: updated\n- '
 			},
 			{
 				caption: '#link',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: link\n  params:\n\n- '
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: link\n  params:\n    href: ${3:/some/path}\n    #href_key: some_key\n    #href_template: /some/path/{{placeholder}}\n    text: ${4:Link text}\n    #text_key: some_key\n- '
 			},
 			{
 				caption: '#search',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: search\n  params:\n\n- '
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: search\n  params:\n    context: ticket\n    #context_key: _context\n    query: status:o\n    #query_key: query\n    label: Label\n    #label: count\n- '
 			},
 			{
 				caption: '#search_button',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: search_button\n  params:\n\n- '
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: search_button\n  params:\n    context: ticket\n    #context_key: _context\n    query: status:o\n    #query_key: query    #query_template: status:o owner.id:{{id}}\n- '
 			},
 			{
 				caption: '#slider',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: slider\n  params:\n\n- '
+				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: slider\n  params:\n    #value: 75\n    #value_key: some_key\n    #value_template: "{{some_key+50}}"\n    min: 0\n    max: 100\n- '
 			},
 			{
 				caption: '#time_elapsed',

@@ -478,7 +478,6 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 						return;
 					
 					$sheets->addType('card', $sheets->types()->card());
-					$sheets->addType('custom', $sheets->types()->custom());
 					$sheets->addType('date', $sheets->types()->date());
 					$sheets->addType('link', $sheets->types()->link());
 					$sheets->addType('search', $sheets->types()->search());

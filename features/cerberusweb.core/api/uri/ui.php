@@ -357,9 +357,6 @@ class Controller_UI extends DevblocksControllerExtension {
 		if(in_array('card', $types))
 			$sheets->addType('card', $sheets->types()->card());
 		
-		if(in_array('custom', $types))
-			$sheets->addType('custom', $sheets->types()->custom());
-		
 		if(in_array('date', $types))
 			$sheets->addType('date', $sheets->types()->date());
 		
