@@ -227,6 +227,11 @@ var cerbAutocompleteSuggestions = {
 			'text',
 			'time_elapsed'
 		]
+	},
+	getYamlFormInteractions: function(cb) {
+		genericAjaxGet('', 'c=ui&a=yamlSuggestionsFormInteractions', function(json) {
+			cb(json);
+		});
 	}
 };
 

@@ -2,6 +2,11 @@
 class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	function renderConfig(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!array_key_exists('interactions_yaml', $widget->params)) {
+			$widget->params['interactions_yaml'] = "behaviors:\r\n- ";
+		}
+		
 		$tpl->assign('widget', $widget);
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/form_interaction/config.tpl');
 	}
@@ -56,6 +61,8 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 		$results = [];
 		
 		foreach($interactions['behaviors'] as $interaction) {
+			if(!$interaction || !array_key_exists('label', $interaction))
+				continue;
 			
 			$results[$interaction['label']] = $interaction;
 		}

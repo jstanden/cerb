@@ -615,7 +615,7 @@ function DevblocksClass() {
 					current_indent = token.value;
 					iter.stepBackward();
 					
-				} else if (token.type == 'list.markup') {
+				} else if (token.type == 'list.markup' || (token.type == 'string' && token.value.substr(-2) == '- ')) {
 					var tag_indent = " ".repeat(token.value.length);
 					
 					if (null === current_indent || tag_indent.length < current_indent.length) {

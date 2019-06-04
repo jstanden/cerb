@@ -4,6 +4,11 @@ use function GuzzleHttp\Psr7\parse_query;
 class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 	function renderConfig(Model_ProfileWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!array_key_exists('interactions_yaml', $widget->extension_params)) {
+			$widget->extension_params['interactions_yaml'] = "behaviors:\r\n- ";
+		}
+		
 		$tpl->assign('widget', $widget);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/form_interaction/config.tpl');
 	}
@@ -61,6 +66,8 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		$results = [];
 		
 		foreach($interactions['behaviors'] as $interaction) {
+			if(empty($interaction) || !array_key_exists('label', $interaction))
+				continue;
 			
 			$results[$interaction['label']] = $interaction;
 		}
