@@ -18,34 +18,6 @@
 class PageSection_InternalDashboards extends Extension_PageSection {
 	function render() {}
 	
-	function getContextPlaceholdersJsonAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
-		
-		header('Content-Type: application/json');
-		
-		$labels = [];
-		$values = [];
-		
-		CerberusContexts::getContext($context, null, $labels, $values, null, true);
-		
-		if(empty($labels)) {
-			echo json_encode(false);
-			return;
-		}
-		
-		$types = @$values['_types'] ?: [];
-		$results = array();
-		
-		foreach($labels as $k => $v) {
-			$results[] = array(
-				'key' => $k,
-				'label' => $v,
-				'type' => @$types[$k] ?: '',
-			);
-		}
-		
-		echo json_encode($results);
-	}
 	
 	function setWidgetPositionsAction() {
 		@$columns = DevblocksPlatform::importGPC($_REQUEST['column'], 'array', array());

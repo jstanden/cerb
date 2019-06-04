@@ -125,7 +125,7 @@ $div.find('select.context').change(function(e) {
 			}
 		});
 	
-	genericAjaxGet('','c=internal&a=handleSectionAction&section=dashboards&action=getContextPlaceholdersJson&context=' + ctx, function(json) {
+	genericAjaxGet('','c=ui&a=getContextPlaceholdersJson&context=' + ctx, function(json) {
 		if('object' == typeof(json) && json.length > 0) {
 			var $div = $('#div{$uniqid}');
 			var $placeholders = $div.find('select.placeholders');
