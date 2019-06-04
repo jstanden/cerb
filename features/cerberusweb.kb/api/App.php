@@ -267,7 +267,9 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 			return;
 		
 		$path = $request->path;
-
+		
+		array_shift($path); // Controller
+		
 		@$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
 
 		switch($action) {
@@ -286,7 +288,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 
 	function getArticleContentAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-
+		
 		$tpl = DevblocksPlatform::services()->template();
 		
 		// [TODO] ACL
@@ -294,7 +296,7 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 		
 		if(null == ($article = DAO_KbArticle::get($id)))
 			return;
-
+		
 		$tpl->assign('body', $article->getContent());
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/html_editor/preview.tpl');
