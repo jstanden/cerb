@@ -310,11 +310,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				}
 			}
 			
-			if($as_instances)
-				DevblocksPlatform::sortObjects($contexts, 'manifest->name');
-			else
-				DevblocksPlatform::sortObjects($contexts, 'name');
-	
 			if(!empty($with_options)) {
 				if(!is_array($with_options))
 					$with_options = array($with_options);
@@ -332,7 +327,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				}
 			}
 		}
-
+		
+		if($as_instances)
+			DevblocksPlatform::sortObjects($contexts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($contexts, 'name');
+		
 		return $contexts;
 	}
 	
