@@ -4864,19 +4864,6 @@
 			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.internal.section.dashboards</id>
-				<name>Internal Section Dashboards</name>
-				<class>
-					<file>api/uri/internal/dashboards.php</file>
-					<name>PageSection_InternalDashboards</name>
-				</class>
-				<params>
-					<param key="page_id" value="core.controller.internal" />
-					<param key="uri" value="dashboards" />
-				</params>
-			</extension>
-			
-			<extension point="cerberusweb.ui.page.section">
 				<id>core.internal.section.skills</id>
 				<name>Internal Section Skills</name>
 				<class>
