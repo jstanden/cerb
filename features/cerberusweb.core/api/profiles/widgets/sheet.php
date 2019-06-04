@@ -106,6 +106,15 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 	
 	function renderConfig(Model_ProfileWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!array_key_exists('data_query', $widget->extension_params)) {
+			$widget->extension_params['data_query'] = "type:worklist.records\nof:ticket\nexpand: [custom_,]\nquery:(\n  status:o\n  limit:10\n  sort:[id]\n)\nformat:dictionaries";
+		}
+		
+		if(!array_key_exists('sheet_yaml', $widget->extension_params)) {
+			$widget->extension_params['sheet_yaml'] = "layout:\n  style: table\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- key: id\n  label: ID\n  type: text\n- key: _label\n  label: Label\n  type: card\n  params:\n    #image: true\n    #bold: true\n- ";
+		}
+		
 		$tpl->assign('widget', $widget);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/config.tpl');
 	}
