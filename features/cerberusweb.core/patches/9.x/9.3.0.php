@@ -6,6 +6,7 @@ $tables = $db->metaTables();
 // Update package library
 
 $packages = [
+	'cerb_bot_behavior_form_interaction_worker.json',
 	'cerb_profile_widget_ticket_participants.json',
 	'cerb_workspace_widget_chart_sheet.json',
 ];
