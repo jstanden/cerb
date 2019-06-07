@@ -3,8 +3,7 @@
 	<input type="hidden" name="a" value="">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-	{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', json_encode(array()))}
-	{$menu = json_decode($menu_json, true)}
+	{$menu = DAO_WorkerPref::getAsJson($active_worker->id, 'menu_json', json_encode([]))}
 	{$in_menu = in_array($page->id, $menu)}
 	
 	<div style="float:left;">
@@ -192,33 +191,34 @@ $(function() {
 	// Add/Remove in menu
 	$workspace.find('button.add').click(function(e) {
 		var $this = $(this);
-	
 		var $menu = $('BODY UL.navmenu:first');
 		var $item = $menu.find('li.drag[page_id="'+$this.attr('page_id')+'"]');
 		
 		// Remove
-		if($item.length > 0) {
+		if(1 == $item.length) {
 			// Is the page already in the menu?
 			$item.css('visibility','hidden');
 			
-			if($item.length > 0) {
-				$item.effect('transfer', { to:$this, className:'effects-transfer' }, 500, function() {
-					$(this).remove();
-				});
-				
-				$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> Menu');
-			}
+			$item.effect('transfer', { to:$this, className:'effects-transfer' }, 500, function() {
+				$(this).remove();
+			});
 			
+			$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> Menu');
 			genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
 			
 		// Add
 		} else {
+			// Add the menu item if it doesn't exist (e.g. removed on this page cycle)
 			var $li = $('<li class="drag"/>').attr('page_id',$this.attr('page_id'));
 			$li.append($('<a/>').attr('href',$this.attr('page_url')).text($this.attr('page_label')));
-			$li.css('visibility','hidden');
+			
+			$li
+				.css('visibility','hidden')
+				.addClass('selected')
+				;
 			
 			var $marker = $menu.find('li.add');
-	
+			
 			if(0 == $marker.length) {
 				$li.prependTo($menu);
 				
@@ -232,7 +232,6 @@ $(function() {
 			});
 			
 			$this.html('<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> Menu');
-	
 			genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
 		}
 	});

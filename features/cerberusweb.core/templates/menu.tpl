@@ -2,22 +2,22 @@
 <div id="tourHeaderMenu"></div>
 
 <ul class="navmenu cerb-no-print">
-	{$workspace_pages = DAO_WorkspacePage::getAll()}
-
-	{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json','')}
-	{$menu = json_decode($menu_json, true)}
-	
-	{if is_array($menu) && !empty($menu)}
-	{foreach from=$menu item=workspace_page_id}
-		{$workspace_page = $workspace_pages.$workspace_page_id}
-		{$is_selected = $page->id=='core.page.pages' && isset($response_path[1]) && intval($response_path[1])==$workspace_page->id}
-		{if $workspace_page}
-		<li class="{if $is_selected}selected{/if} drag" page_id="{$workspace_page->id}" style="position:relative;">
-			<a href="{devblocks_url}c=pages&page={$workspace_page->id}-{$workspace_page->name|devblocks_permalink}{/devblocks_url}">{$workspace_page->name|lower}</a>
+	{foreach from=$pages_menu item=menu_page}
+		{$is_selected = $page->id == 'core.page.pages' && isset($response_path[1]) && intval($response_path[1])==$menu_page.id}
+		<li class="{if $is_selected}selected{/if} drag" page_id="{$menu_page.id}" style="position:relative;">
+			<a href="{devblocks_url}c=pages&page={$menu_page.id}-{$menu_page.name|devblocks_permalink}{/devblocks_url}">{$menu_page.name|lower}</a>
+			
+			{if $menu_page.tabs}
+			<ul class="cerb-popupmenu cerb-float">
+				{foreach from=$menu_page.tabs item=menu_tab}
+				<li>
+					<a href="{devblocks_url}c=pages&page={$menu_page.id}-{$menu_page.name|devblocks_permalink}&tab={$menu_tab->name|devblocks_permalink|lower}{/devblocks_url}">{$menu_tab->name}</a>
+				</li>
+				{/foreach}
+			</ul>
+			{/if}
 		</li>
-		{/if}
 	{/foreach}
-	{/if}
 	
 	<li style="border-right:0;" class="add {if $page->id=='core.page.pages' && count($response_path)==1}selected{/if}">
 		<a href="{devblocks_url}c=pages{/devblocks_url}" style="font-weight:normal;text-decoration:none;">{if $page->id=='core.page.pages' && count($response_path)==1}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span>{else}<span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:rgb(50,50,50);"></span>{/if}</a>
@@ -49,10 +49,14 @@
 <script type="text/javascript">
 $(function() {
 	var $menu = $('UL.navmenu');
-
+	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 	
 	{if $user_agent && 0 != strcasecmp($user_agent.platform, 'Android')}
+	$menu.find('> li.drag .cerb-popupmenu')
+		.menu()
+		;
+	
 	$menu.sortable({
 		items:'> li.drag',
 		distance: 20,
@@ -70,17 +74,33 @@ $(function() {
 	
 	$menu
 		.find('> li.drag')
+		.hover(
+			function(e) {
+				var $this = $(this);
+				$this.find('.cerb-popupmenu').show();
+			},
+			function(e) {
+				var $this = $(this);
+				$this.find('.cerb-popupmenu').hide();
+			}
+		)
+		;
+	
+	$menu
+		.find('> li.drag')
 		.hoverIntent({
 			sensitivity:10,
 			interval:750,
 			timeout:250,
 			over:function(e) {
-				$(this).css('cursor', 'move');
-				$(this).children().css('cursor', 'move');
+				var $this = $(this);
+				$this.css('cursor', 'move');
+				$this.children().css('cursor', 'move');
 			},
 			out:function(e) {
-				$(this).css('cursor', 'pointer');
-				$(this).children().css('cursor', 'pointer');
+				var $this = $(this);
+				$this.css('cursor', 'pointer');
+				$this.children().css('cursor', 'pointer');
 			}
 		})
 		;
@@ -88,10 +108,14 @@ $(function() {
 
 	// Allow clicking anywhere in the menu item cell
 	$menu.find('> li').click(function(e) {
-		if(!$(e.target).is('li'))
+		e.stopPropagation();
+		
+		var $target = $(e.target);
+		
+		if(!$target.is('li'))
 			return;
 		
-		$link = $(this).find('> a');
+		$link = $target.find('> a');
 		
 		if($link.length > 0)
 			window.location.href = $link.attr('href');

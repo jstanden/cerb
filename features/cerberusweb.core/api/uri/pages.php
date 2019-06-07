@@ -177,7 +177,7 @@ class Page_Custom extends CerberusPageExtension {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$menu = array();
+		$menu = [];
 		$pages = DAO_WorkspacePage::getAll();
 		
 		$page_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($page_ids_str), 'integer', array('nonzero','unique'));
@@ -192,7 +192,9 @@ class Page_Custom extends CerberusPageExtension {
 			$menu[] = $page_id;
 		}
 
-		DAO_WorkerPref::set($active_worker->id, 'menu_json', json_encode($menu));
+		DAO_WorkerPref::setAsJson($active_worker->id, 'menu_json', $menu);
+		
+		$active_worker->clearPagesMenuCache();
 		exit;
 	}
 	
@@ -210,7 +212,9 @@ class Page_Custom extends CerberusPageExtension {
 		
 		$tab_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($tab_ids_str), 'integer', array('nonzero','unique'));
 		
-		DAO_WorkerPref::set($active_worker->id, 'page_tabs_' . $page->id . '_json', json_encode($tab_ids));
+		DAO_WorkerPref::setAsJson($active_worker->id, 'page_tabs_' . $page->id . '_json', $tab_ids);
+		
+		$active_worker->clearPagesMenuCache();
 		exit;
 	}
 	
@@ -267,6 +271,8 @@ class Page_Custom extends CerberusPageExtension {
 		}
 		
 		DAO_WorkerPref::set($active_worker->id, 'menu_json', json_encode(array_values($menu)));
+		
+		$active_worker->clearPagesMenuCache();
 		
 		echo json_encode(array(
 			'success' => true,

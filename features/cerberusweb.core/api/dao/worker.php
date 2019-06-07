@@ -1913,7 +1913,37 @@ class Model_Worker {
 		
 		return @$genders[$this->gender];
 	}
-
+	
+	function getPagesMenu() {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = sprintf("worker:%d:pages_menu", $this->id);
+		
+		if(null === ($pages_menu = $cache->load($cache_key))) {
+			$menu = DAO_WorkerPref::getAsJson($this->id, 'menu_json','');
+			$menu_pages = DAO_WorkspacePage::getIds($menu);
+			
+			$pages_menu = [];
+			
+			foreach($menu_pages as $menu_page) {
+				$pages_menu[$menu_page->id] = [
+					'id' => $menu_page->id,
+					'name' => $menu_page->name,
+					'tabs' => $menu_page->getTabs($this),
+				];
+			}
+			
+			$cache->save($pages_menu, $cache_key, ['schema_workspaces'], 86400);
+		}
+		
+		return $pages_menu;
+	}
+	
+	function clearPagesMenuCache() {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = sprintf("worker:%d:pages_menu", $this->id);
+		$cache->remove($cache_key);
+	}
+	
 	/**
 	 * 
 	 * @return array

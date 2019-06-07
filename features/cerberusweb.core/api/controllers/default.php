@@ -223,6 +223,10 @@ class Controller_Default extends DevblocksControllerExtension {
 			$tpl->assign('proactive_interactions_count', $proactive_interactions_count);
 		}
 		
+		// Pages menu
+		$pages_menu = $active_worker->getPagesMenu();
+		$tpl->assign('pages_menu', $pages_menu);
+		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::border.tpl');
 		

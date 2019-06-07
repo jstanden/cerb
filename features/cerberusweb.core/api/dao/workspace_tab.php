@@ -249,6 +249,18 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		return $tabs;
 	}
 	
+	static function getByPageIds(array $page_ids) {
+		$all_tabs = self::getAll();
+		$tabs = [];
+		
+		foreach($all_tabs as $tab_id => $tab) { /* @var $tab Model_WorkspaceTab */
+			if(in_array($tab->workspace_page_id, $page_ids))
+				$tabs[$tab_id] = $tab;
+		}
+
+		return $tabs;
+	}
+	
 	static function countByPageId($page_id) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -459,6 +471,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
+		$cache->removeByTags(['schema_workspaces']);
 	}
 	
 };

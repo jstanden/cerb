@@ -502,6 +502,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
+		$cache->removeByTags(['pages_menu']);
 	}
 };
 
