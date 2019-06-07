@@ -276,7 +276,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					$params['placeholder_simulator_yaml'] = "# key: value\n";
 				
 				if(!array_key_exists('sheet_yaml', $params))
-					$params['sheet_yaml'] = "layout:\n  style: table # [table,fieldsets]\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- key: id\n- key: _label\n  type: card\n  label: Name";
+					$params['sheet_yaml'] = "layout:\n  style: table # [table,fieldsets]\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- card:\n    key: _label\n    label: Name";
 				
 				$tpl->assign('params', $params);
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/responses/action_respond_sheet.tpl');

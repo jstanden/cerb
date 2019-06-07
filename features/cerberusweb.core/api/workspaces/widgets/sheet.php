@@ -112,7 +112,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		}
 		
 		if(!array_key_exists('sheet_yaml', $widget->params)) {
-			$widget->params['sheet_yaml'] = "layout:\n  style: table\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- key: id\n  label: ID\n  type: text\n- key: _label\n  label: Label\n  type: card\n  params:\n    #image: true\n    #bold: true\n- ";
+			$widget->params['sheet_yaml'] = "layout:\n  style: table\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- text:\n    key: id\n    label: ID\n- card:\n    key: _label\n    label: Label\n    params:\n      #image: true\n      #bold: true\n- ";
 		}
 		
 		$tpl->assign('widget', $widget);

@@ -156,9 +156,9 @@
 							},
 							{
 								"action": "respond_sheet",
-								"data_query": "type:worklist.records\r\nof:task\r\nquery.required:(\r\n  id:{{_record.id}}\r\n)\r\nquery:(\r\n)\r\nexpand:[]\r\nformat:dictionaries",
-								"placeholder_simulator_yaml": "# key: value\r\n_record:\r\n  id: 1",
-								"sheet_yaml": "layout:\r\n  style: fieldsets\r\n  headings: true\r\n  paging: false\r\ncolumns:\r\n- key: _label\r\n  type: card\r\n  label: Task\r\n- key: owner__label\r\n  label: Owner\r\n  type: card\r\n  params:\r\n    image: true\r\n- key: importance\r\n  type: slider\r\n- key: due\r\n  label: Due\r\n  type: date\r\n- key: updated\r\n  label: Updated\r\n  type: date\r\n- "
+								"data_query": "type:worklist.records\nof:task\nquery.required:(\n  id:{{_record.id}}\n)\nquery:(\n)\nexpand:[]\nformat:dictionaries",
+								"placeholder_simulator_yaml": "# key: value\n_record:\n  id: 1",
+								"sheet_yaml": "layout:\n  style: fieldsets\n  headings: true\n  paging: false\ncolumns:\n- card:\n    key: _label\n    label: Task\n- card:\n    key: owner__label\n    label: Owner\n    params:\n      image: true\n- slider:\n    key: importance\n- date:\n    key: due\n    label: Due\n- date:\n    key: updated\n    label: Updated\n- "
 							}
 						]
 					}

@@ -78,16 +78,29 @@ class _DevblocksSheetService {
 			return [];
 		
 		$columns = $sheet['columns'];
-		$column_keys = array_column($columns, 'key');
+		$column_keys = [];
 		
-		foreach($columns as $column_key => $column) {
+		foreach($columns as $column_idx => $column) {
 			if(!is_array($column)) {
-				unset($columns[$column_key]);
+				unset($columns[$column_idx]);
 				continue;
 			}
 			
+			$column_type = key($column);
+			$column = current($column);
+			
+			if(!is_array($column)) {
+				unset($columns[$column_idx]);
+				continue;
+			}
+			
+			$column_keys[] = $column['key'];
+			$column['_type'] = $column_type;
+			
 			if(!array_key_exists('label', $column))
-				$columns[$column_key]['label'] = DevblocksPlatform::strTitleCase(trim(str_replace('_', ' ', $column['key'])));
+				$column['label'] = DevblocksPlatform::strTitleCase(trim(str_replace('_', ' ', $column['key'])));
+			
+			$columns[$column_idx] = $column;
 		}
 		
 		return array_combine($column_keys, $columns);
@@ -106,7 +119,7 @@ class _DevblocksSheetService {
 				if(false == (@$column_key = $column['key']))
 					continue;
 				
-				if(false == ($column_type = @$column['type']))
+				if(false == ($column_type = @$column['_type']))
 					$column_type = $this->_default_type;
 				
 				if(!array_key_exists($column_type, $this->_types))

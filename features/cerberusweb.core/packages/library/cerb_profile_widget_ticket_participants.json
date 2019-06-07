@@ -45,9 +45,9 @@
         "width_units": 4,
         "zone": "sidebar",
         "extension_params": {
-            "data_query": "type:worklist.records\r\nof:addresses\r\nexpand:[]\r\nquery:(\r\n  ticket.id:[{{record_id}}]\r\n  sort:email\r\n  limit: 10\r\n)\r\nformat:dictionaries",
+            "data_query": "type:worklist.records\nof:addresses\nexpand:[]\nquery:(\n  ticket.id:[{{record_id}}]\n  sort:email\n  limit: 10\n)\nformat:dictionaries",
             "cache_secs": "0",
-            "sheet_yaml": "---\r\nlayout:\r\n  style: table\r\n  headings: false\r\n  paging: true\r\ncolumns:\r\n- key: id\r\n  label: Email\r\n  type: card\r\n  params:\r\n    image: true\r\n    bold: true\r\n"
+            "sheet_yaml": "---\r\nlayout:\r\n  style: table\r\n  headings: false\r\n  paging: true\r\ncolumns:\n- card:\n    key: id\n    label: Email\n    params:\n      image: true\n      bold: true\n"
         }
 	}
   ]

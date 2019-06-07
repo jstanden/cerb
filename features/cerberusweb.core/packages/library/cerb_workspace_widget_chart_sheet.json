@@ -60,8 +60,8 @@
       "width_units": 2,
       "zone": "content",
       "params": {
-        "data_query": "type:worklist.records\r\nof:worker\r\nquery:(isDisabled:no lastActivity:\"-15 mins\")\r\nformat:dictionaries",
-        "sheet_yaml": "layout:\r\n  style: table\r\n  headings: true\r\n  paging: true\r\n  #title_column: _label\r\ncolumns:\r\n- key: _label\r\n  label: Worker\r\n  type: card\r\n  params:\r\n    image: true\r\n    bold: true\r\n- key: title\r\n  label: Title\r\n  type: text\r\n- key: location\r\n  label: Location\r\n  type: text\r\n- key: local_time\r\n  label: Local time\r\n  type: custom\r\n  params:\r\n    template: >-\r\n      {% set now = \"now \" ~ timezone %}\r\n      {{now|date('h:ia')}}\r\n- ",
+        "data_query": "type:worklist.records\nof:worker\nquery:(isDisabled:no lastActivity:\"-15 mins\")\nformat:dictionaries",
+        "sheet_yaml": "layout:\n  style: table\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- card:\n    key: _label\n    label: Worker\n    params:\n      image: true\n      bold: true\n- text:\n    key: title\n    label: Title\n- text:\n    key: location\n    label: Location\n- text:\n    key: local_time\n    label: Local time\n    params:\n      value_template: >-\n        {% set now = \"now \" ~ timezone %}\n        {{now|date('h:ia')}}\n- ",
         "cache_secs": ""
       }
     },
@@ -76,8 +76,8 @@
       "width_units": 2,
       "zone": "content",
       "params": {
-        "data_query": "type:worklist.subtotals\r\nof:behavior\r\nby.count:[event~100]\r\nquery:()\r\nformat:dictionaries",
-        "sheet_yaml": "layout:\r\n  style: table\r\n  headings: true\r\n  paging: true\r\ncolumns:\r\n- key: event_label\r\n  label: Event\r\n  type: text\r\n  params:\r\n    bold: true\r\n- key: count\r\n  label: \"# Behaviors\"\r\n  type: search\r\n  params:\r\n    label_key: count\r\n    context_key: count_query_context\r\n    query_key: count_query\r\n- ",
+        "data_query": "type:worklist.subtotals\nof:behavior\nby.count:[event~100]\nquery:()\nformat:dictionaries",
+        "sheet_yaml": "layout:\n  style: table\n  headings: true\n  paging: true\ncolumns:\n- text:\n    key: event_label\n    label: Event\n    params:\n      bold: true\n- search:\n    key: count\n    label: \"# Behaviors\"\n    params:\n      label_key: count\n      context_key: count_query_context\n      query_key: count_query\n- ",
         "cache_secs": ""
       }
     },
@@ -92,8 +92,8 @@
       "width_units": 2,
       "zone": "content",
       "params": {
-        "data_query": "type:worklist.subtotals\r\nof:worker\r\nby.count:[group~100]\r\nquery:()\r\nformat:dictionaries",
-        "sheet_yaml": "layout:\r\n  style: table\r\n  headings: true\r\n  paging: true\r\ncolumns:\r\n- key: group\r\n  label: Group\r\n  type: card\r\n  params:\r\n    image: true\r\n    bold: true\r\n    id_key: group\r\n    label_key: group_label\r\n    context: group\r\n- key: count\r\n  label: \"# Members\"\r\n  type: search\r\n  params:\r\n    label_key: count\r\n    context_key: count_query_context\r\n    query_key: count_query\r\n- ",
+        "data_query": "type:worklist.subtotals\nof:worker\nby.count:[group~100]\nquery:()\nformat:dictionaries",
+        "sheet_yaml": "layout:\n  style: table\n  headings: true\n  paging: true\ncolumns:\n- card:\n    key: group\n    label: Group\n    params:\n      image: true\n      bold: true\n      id_key: group\n      label_key: group_label\n      context: group\n- search:\n    key: count\n    label: \"# Members\"\n    params:\n      label_key: count\n      context_key: count_query_context\n      query_key: count_query\n- ",
         "cache_secs": ""
       }
     },
@@ -108,8 +108,8 @@
       "width_units": 2,
       "zone": "content",
       "params": {
-        "data_query": "type:worklist.subtotals\r\nof:message\r\nby:[worker~10]\r\nquery:(\r\n\tcreated:\"big bang to now\"\r\n\tworker.id:!0\r\n\tisOutgoing:y\r\n\tisBroadcast:n\r\n)\r\nformat:dictionaries",
-        "sheet_yaml": "layout:\r\n  style: table\r\n  headings: true\r\n  paging: true\r\ncolumns:\r\n- key: worker_id\r\n  label: Worker\r\n  type: card\r\n  params:\r\n    image: true\r\n    bold: true\r\n- key: count\r\n  label: \"# Replies\"\r\n  type: search\r\n  params:\r\n    label_key: count\r\n    context_key: count_query_context\r\n    query_key: count_query\r\n- ",
+        "data_query": "type:worklist.subtotals\nof:message\nby:[worker~10]\nquery:(\n\tcreated:\"big bang to now\"\n\tworker.id:!0\n\tisOutgoing:y\n\tisBroadcast:n\n)\nformat:dictionaries",
+        "sheet_yaml": "layout:\n  style: table\n  headings: true\n  paging: true\ncolumns:\n- card:\n    key: worker_id\n    label: Worker\n    params:\n      image: true\n      bold: true\n- search:\n    key: count\n    label: \"# Replies\"\n    params:\n      label_key: count\n      context_key: count_query_context\n      query_key: count_query\n- ",
         "cache_secs": ""
       }
     },
@@ -124,8 +124,8 @@
       "width_units": 2,
       "zone": "content",
       "params": {
-        "data_query": "type:worklist.subtotals\r\nof:ticket\r\nby:[status]\r\nquery:()\r\nformat:dictionaries",
-        "sheet_yaml": "layout:\r\n  style: table\r\n  headings: true\r\n  paging: true\r\ncolumns:\r\n- key: status_label\r\n  label: Status\r\n  type: text\r\n  params:\r\n    bold: true\r\n- key: count\r\n  label: \"# Tickets\"\r\n  type: search\r\n  params:\r\n    label_key: count\r\n    context_key: count_query_context\r\n    query_key: count_query\r\n- ",
+        "data_query": "type:worklist.subtotals\nof:ticket\nby:[status]\nquery:()\nformat:dictionaries",
+        "sheet_yaml": "layout:\n  style: table\n  headings: true\n  paging: true\ncolumns:\n- text:\n    key: status_label\n    label: Status\n    params:\n      bold: true\n- search:\n    key: count\n    label: \"# Tickets\"\n    params:\n      label_key: count\n      context_key: count_query_context\n      query_key: count_query\n- ",
         "cache_secs": ""
       }
     }

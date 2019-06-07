@@ -149,6 +149,8 @@ var cerbAutocompleteSuggestions = {
 				snippet: 'columns:\n- ',
 			}
 		],
+		
+		// Layout
 		'layout:': [
 			{
 				caption: 'style:',
@@ -171,57 +173,205 @@ var cerbAutocompleteSuggestions = {
 		'layout:headings:': [
 			'true',
 			'false'
-			],
+		],
+		
+		// Column types
 		'columns:-:': [
 			{
-				caption: '#text',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: text\n  params:\n    #value: literal text\n    #value_key: some_key\n    #value_template: "{{some_key}}"\n    #bold: true\n    #value_map: { 0: No, 1: Yes }\n- '
+				caption: 'text:',
+				snippet: 'text:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #value: literal text\n      #value_key: some_key\n      #value_template: "{{some_key}}"\n      #bold: true\n      #value_map: { 0: No, 1: Yes }\n- '
 			},
 			{
-				caption: '#card',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: card\n  params:\n    #image: true\n    #bold: true\n    #underline: false\n- '
+				caption: 'card:',
+				snippet: 'card:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #image: true\n      #bold: true\n      #underline: false\n- '
 			},
 			{
-				caption: '#date',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: date\n  params:\n    #format: d-M-Y H:i:s T # See: https://php.net/date\n    #format: r\n    #value: 1577836800\n    #value_key: updated\n- '
+				caption: 'date:',
+				snippet: 'date:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #format: d-M-Y H:i:s T # See: https://php.net/date\n      #format: r\n      #value: 1577836800\n      #value_key: updated\n- '
 			},
 			{
-				caption: '#link',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: link\n  params:\n    href: ${3:/some/path}\n    #href_key: some_key\n    #href_template: /some/path/{{placeholder}}\n    text: ${4:Link text}\n    #text_key: some_key\n- '
+				caption: 'link:',
+				snippet: 'link:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      href: ${3:/some/path}\n      #href_key: some_key\n      #href_template: /some/path/{{placeholder}}\n      text: ${4:Link text}\n      #text_key: some_key\n- '
 			},
 			{
-				caption: '#search',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: search\n  params:\n    context: ticket\n    #context_key: _context\n    query: status:o\n    #query_key: query\n    label: Label\n    #label: count\n- '
+				caption: 'search:',
+				snippet: 'search:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      context: ticket\n      #context_key: _context\n      query: status:o\n      #query_key: query\n      label: Label\n      #label: count\n- '
 			},
 			{
-				caption: '#search_button',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: search_button\n  params:\n    context: ticket\n    #context_key: _context\n    query: status:o\n    #query_key: query    #query_template: status:o owner.id:{{id}}\n- '
+				caption: 'search_button:',
+				snippet: 'search_button:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      context: ticket\n      #context_key: _context\n      query: status:o\n      #query_key: query      #query_template: status:o owner.id:{{id}}\n- '
 			},
 			{
-				caption: '#slider',
-				snippet: 'key: ${1:_label}\n  label: ${2:Label}\n  type: slider\n  params:\n    #value: 75\n    #value_key: some_key\n    #value_template: "{{some_key+50}}"\n    min: 0\n    max: 100\n- '
+				caption: 'slider:',
+				snippet: 'slider:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #value: 75\n      #value_key: some_key\n      #value_template: "{{some_key+50}}"\n      min: 0\n      max: 100\n- '
 			},
 			{
-				caption: '#time_elapsed',
-				snippet: 'key: ${1:key}\n  label: ${2:Label}\n  type: time_elapsed\n  params:\n    precision: ${3:2}\n- '
-			},
-			'key: ',
-			'label: ',
-			'type: ',
-			'params: '
+				caption: 'time_elapsed:',
+				snippet: 'time_elapsed:\n    key: ${1:key}\n    label: ${2:Label}\n    params:\n      precision: ${3:2}\n- '
+			}
 		],
-		'columns:-:key:': [
+		
+		// Text
+		'columns:-:text:': [
+			'key:',
+			'label:',
+			'params:'
 		],
-		'columns:-:type:': [
-			'card',
-			'custom',
-			'date',
-			'link',
-			'search',
-			'search_button',
-			'slider',
-			'text',
-			'time_elapsed'
+		'columns:-:text:params:': [
+			'value:',
+			'value_key:',
+			'value_template:',
+			'value_map:',
+			'bold:'
+		],
+		'columns:-:text:params:bold:': [
+			'true',
+			'false'
+		],
+		
+		// Cards
+		'columns:-:card:': [
+			'key:',
+			'label:',
+			'params:'
+		],
+		'columns:-:card:params:': [
+			'image:',
+			'bold:',
+			'underline:',
+			'context:',
+			'context_key:',
+			'context_template:',
+			'id:',
+			'id_key:',
+			'id_template:',
+			'label:',
+			'label_key:',
+			'label_template:'
+		],
+		'columns:-:card:params:image:': [
+			'true',
+			'false'
+		],
+		'columns:-:card:params:bold:': [
+			'true',
+			'false'
+		],
+		'columns:-:card:params:underline:': [
+			'true',
+			'false'
+		],
+		
+		// Dates
+		'columns:-:date:': [
+			'key:',
+			'label:',
+			'params:'
+		],
+		'columns:-:date:params:': [
+			'value:',
+			'format:',
+			'value_key:',
+			'value_template:',
+			'bold:'
+		],
+		'columns:-:date:params:bold:': [
+			'true',
+			'false'
+		],
+		'columns:-:date:params:format:': [
+			'r',
+			'Y-m-d H:i:s a'
+		],
+		
+		// Links
+		'columns:-:link:': [
+			'key:',
+			'label:',
+			'params:'
+		],
+		'columns:-:link:params:': [
+			'href:',
+			'href_key:',
+			'href_template:',
+			'text:',
+			'text_key:',
+			'text_template:',
+			'bold:'
+		],
+		'columns:-:link:params:bold:': [
+			'true',
+			'false'
+		],
+		
+		// Search
+		'columns:-:search:': [
+			'key:',
+			'label:',
+			'params:'
+		],
+		'columns:-:search:params:': [
+			'context:',
+			'context_key:',
+			'context_template:',
+			'query:',
+			'query_key:',
+			'query_template:',
+			'label:',
+			'label_key:',
+			'label_template:',
+			'bold:'
+		],
+		'columns:-:search:params:bold:': [
+			'true',
+			'false'
+		],
+		
+		// Search button
+		'columns:-:search_button:': [
+			'key:',
+			'label:',
+			'params:'
+		],
+		'columns:-:search_button:params:': [
+			'context:',
+			'context_key:',
+			'context_template:',
+			'query:',
+			'query_key:',
+			'query_template:'
+		],
+		
+		// Slider
+		'columns:-:slider:': [
+			'key:',
+			'label:',
+			'params:'
+		],
+		'columns:-:slider:params:': [
+			'value:',
+			'value_key:',
+			'value_template:',
+			'min:',
+			'max:'
+		],
+		
+		// Time elapsed
+		'columns:-:time_elapsed:': [
+			'key:',
+			'label:',
+			'params:'
+		],
+		'columns:-:time_elapsed:params:': [
+			'value:',
+			'value_key:',
+			'value_template:',
+			'precision:',
+			'bold:'
+		],
+		'columns:-:time_elapsed:params:bold:': [
+			'true',
+			'false'
 		]
 	},
 	getYamlFormInteractions: function(cb) {
