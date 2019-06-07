@@ -1,14 +1,32 @@
-{if !Context_WorkspacePage::isWriteableByActor($page, $active_worker) && empty($page_tabs)}
+{$is_writeable = Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
+{if !$is_writeable && empty($page_tabs)}
 	<div class="help-box" style="padding:5px;border:0;">
 		<h1 style="margin-bottom:5px;text-align:left;">This workspace is empty</h1>
 		
 		<p>
-			This page has no content, and you don't have permission to modify it.  You'll have to wait until someone else adds something.
+			This page has no content and you don't have permission to modify it.  You'll have to wait until someone else adds something.
 		</p>
 	</div>
 {else}
+
+{if 'menu' == $page->extension_params.tab_style}
+<h2 class="cerb-page-tab--title" style="display:inline-block;color:black;margin:-5px 0 0 0;padding:0;"><a href="javascript:;" style="text-decoration:none;"></a> <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;vertical-align:middle;"></span></h2>
+
+<ul class="cerb-tab-switcher-menu cerb-popupmenu cerb-float">
+	{foreach from=$page_tabs item=tab name=page_tabs}
+	<li>
+		<a href="javascript:;" data-index="{$smarty.foreach.page_tabs.index}">{$tab->name}</a>
+	</li>
+	{/foreach}
+</ul>
+{/if}
+
 <div id="pageTabs{$page->id}">
+	{if 'menu' == $page->extension_params.tab_style}
+	<ul style="display:none;">
+	{else}
 	<ul>
+	{/if}
 		{$tabs = []}
 		
 		{foreach from=$page_tabs item=tab}
@@ -20,7 +38,7 @@
 			</li>
 		{/foreach}
 
-		{if Context_WorkspacePage::isWriteableByActor($page, $active_worker) && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
+		{if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
 			<li><a href="{devblocks_url}ajax.php?c=pages&a=showAddTabs&page_id={$page->id}{/devblocks_url}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
 		{/if}
 	</ul>
@@ -34,14 +52,33 @@ $(function() {
 	
 	var $tabs = $("#pageTabs{$page->id}");
 	
+	{if 'menu' == $page->extension_params.tab_style}
+	var $tab_switcher = $tabs.prevAll('h2.cerb-page-tab--title');
+	var $tab_switcher_menu = $tab_switcher.next('.cerb-tab-switcher-menu').menu({
+		select: function(event, ui) {
+			var tab_index = ui.item.find('a').attr('data-index');
+			$tabs.tabs('option', 'active', tab_index);
+			$tab_switcher_menu.hide();
+		}
+	});
+	
+	$tab_switcher.on('click', function(e) {
+		$tab_switcher_menu.toggle();
+	});
+	{/if}
+	
 	var tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+	tabOptions.collapsible = true;
+	tabOptions.active = false;
+	
+	var tabActiveIndex = 0;
 	
 	{if $tab_selected && in_array($tab_selected, $tabs)}
 	{$tab_idx = array_search($tab_selected, $tabs)}
-	tabOptions.active = {$tab_idx};
+	tabActiveIndex = {$tab_idx};
 	Devblocks.setjQueryUiTabSelected('pageTabs{$page->id}', {$tab_idx});
 	{else}
-	tabOptions.active = Devblocks.getjQueryUiTabSelected('pageTabs{$page->id}');
+	tabActiveIndex = Devblocks.getjQueryUiTabSelected('pageTabs{$page->id}');
 	{/if}
 	
 	tabOptions.create = function(e, ui) {
@@ -61,7 +98,32 @@ $(function() {
 		}
 	};
 	
+	tabOptions.activate = function(e, ui) {
+		var $new_tab = $(ui.newTab);
+		var tab_id = $new_tab.attr('tab_id');
+		
+		var $frm = $('#frmWorkspacePage{$page->id}');
+		var $menu = $frm.find('ul.cerb-popupmenu');
+		
+		if(undefined == tab_id) {
+			$menu.find('a.edit-tab').attr('data-context-id', '');
+			$menu.find('a.edit-tab').parent().hide();
+			$menu.find('a.export-tab').parent().hide();
+		} else {
+			$menu.find('a.edit-tab').attr('data-context-id', tab_id);
+			$menu.find('a.edit-tab').parent().show();
+			$menu.find('a.export-tab').parent().show();
+		}
+		
+		// Update the label
+		{if 'menu' == $page->extension_params.tab_style}
+		$tab_switcher.find('> a').text($.trim($new_tab.text()));
+		{/if}
+	};
+	
 	var tabs = $tabs.tabs(tabOptions);
+	
+	$tabs.tabs('option', 'active', tabActiveIndex);
 	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
 	
@@ -99,23 +161,6 @@ $(function() {
 		}
 	});
 	{/if}
-	
-	$tabs.on('tabsactivate', function(e, ui) {
-		var tab_id = $(ui.newTab).attr('tab_id');
-		
-		var $frm = $('#frmWorkspacePage{$page->id}');
-		var $menu = $frm.find('ul.cerb-popupmenu');
-		
-		if(undefined == tab_id) {
-			$menu.find('a.edit-tab').attr('data-context-id', '');
-			$menu.find('a.edit-tab').parent().hide();
-			$menu.find('a.export-tab').parent().hide();
-		} else {
-			$menu.find('a.edit-tab').attr('data-context-id', tab_id);
-			$menu.find('a.edit-tab').parent().show();
-			$menu.find('a.export-tab').parent().show();
-		}
-	});
 	
 	// Keyboard shortcuts
 	
