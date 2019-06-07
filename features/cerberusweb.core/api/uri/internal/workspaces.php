@@ -34,6 +34,13 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/pages/default/page.tpl');
 	}
 	
+	function renderConfig(Model_WorkspacePage $page, $params=[], $params_prefix=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('page', $page);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/pages/default/config.tpl');
+	}
+	
 	function exportPageConfigJson(Model_WorkspacePage $page) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		

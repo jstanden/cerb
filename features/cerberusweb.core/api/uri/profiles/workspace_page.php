@@ -28,9 +28,6 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
-	}
-	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		

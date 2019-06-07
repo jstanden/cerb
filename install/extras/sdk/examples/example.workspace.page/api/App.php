@@ -1,5 +1,4 @@
 <?php
-if(class_exists('Extension_WorkspacePage')):
 class ExWorkspacePage extends Extension_WorkspacePage {
 	function renderPage(Model_WorkspacePage $page) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -8,5 +7,6 @@ class ExWorkspacePage extends Extension_WorkspacePage {
 		
 		$tpl->display('devblocks:example.workspace.page::page.tpl');
 	}
+	
+	function renderConfig(Model_WorkspacePage $page, $params=[], $params_prefix=null) {}
 };
-endif;

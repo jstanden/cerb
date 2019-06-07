@@ -44,6 +44,16 @@ if(@$columns['field_value'] && 0 != strcasecmp($columns['field_value']['type'], 
 }
 
 // ===========================================================================
+// Add `extension_params_json` to `workspace_page`
+
+list($columns,) = $db->metaTable('workspace_page');
+
+if(!isset($columns['extension_params_json'])) {
+	$sql = "ALTER TABLE workspace_page ADD COLUMN extension_params_json TEXT AFTER extension_id";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

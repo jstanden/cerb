@@ -9,6 +9,12 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+{if $model}
+{$page_extension = $model->getExtension()}
+{else}
+{$page_extension = null}
+{/if}
+
 {if !$model->id}
 <table cellspacing="0" cellpadding="2" border="0" width="98%">
 	<tr>
@@ -63,9 +69,8 @@
 					</td>
 					<td width="99%">
 						{if !empty($model)}
-							{$page_extension = DevblocksPlatform::getExtension($model->extension_id, false)}
 							{if $page_extension}
-								{$page_extension->params.label|devblocks_translate|capitalize}
+								{$page_extension->manifest->params.label|devblocks_translate|capitalize}
 							{/if}
 						{else}
 							<select name="extension_id">
@@ -95,6 +100,17 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
 			{/if}
 		</table>
+		
+		{* The rest of config comes from the extension *}
+		<div class="cerb-page-params">
+		{if $page_extension && method_exists($page_extension,'renderConfig')}
+		{$page_extension->renderConfig($model)}
+		{/if}
+		</div>
+		
+		<div class="cerb-placeholder-menu" style="display:none;">
+		{include file="devblocks:cerberusweb.core::internal/workspaces/tabs/dashboard/toolbar.tpl"}
+		</div>
 		
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 		

@@ -17,6 +17,7 @@
 
 class DAO_WorkspacePage extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
+	const EXTENSION_PARAMS_JSON = 'extension_params_json';
 	const ID = 'id';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
@@ -45,6 +46,14 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 				return true;
 			})
 			;
+			
+		// text
+		$validation
+			->addField(self::EXTENSION_PARAMS_JSON)
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		// int(10) unsigned
 		$validation
 			->addField(self::ID)
@@ -207,7 +216,7 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, extension_id, updated_at ".
+		$sql = "SELECT id, name, owner_context, owner_context_id, extension_id, extension_params_json, updated_at ".
 			"FROM workspace_page ".
 			$where_sql.
 			$sort_sql.
@@ -335,6 +344,10 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->extension_id = $row['extension_id'];
 			$object->updated_at = intval($row['updated_at']);
+			
+			if(false != (@$params = json_decode($row['extension_params_json'], true)))
+				$object->extension_params = $params;
+			
 			$objects[$object->id] = $object;
 		}
 
@@ -620,6 +633,7 @@ class Model_WorkspacePage {
 	public $owner_context;
 	public $owner_context_id;
 	public $extension_id;
+	public $extension_params = [];
 	public $updated_at;
 	
 	function getExtension() {
@@ -1064,6 +1078,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 			'owner__label' => $prefix.$translate->_('common.owner'),
 			'extension_id' => $prefix.$translate->_('Extension ID'),
 			'extension__label' => $prefix.$translate->_('common.type'),
+			'extension_params' => $prefix.$translate->_('common.params'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
@@ -1076,6 +1091,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 			'owner__label' =>'context_url',
 			'extension__label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'extension_params' => [],
 			'record_url' => Model_CustomField::TYPE_URL,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
@@ -1101,6 +1117,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 			$token_values['id'] = $page->id;
 			$token_values['name'] = $page->name;
 			$token_values['extension_id'] = $page->extension_id;
+			$token_values['extension_params'] = $page->extension_params;
 			$token_values['updated_at'] = $page->updated_at;
 			
 			if(false != ($page_extension = $page->getExtension())) {
@@ -1136,6 +1153,13 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
+		$keys['extension_params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
 		$keys['extension_id']['notes'] = "[Workspace Page Type](/docs/plugins/extensions/points/cerberusweb.ui.workspace.page/)";
 		
 		return $keys;
@@ -1143,6 +1167,19 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'extension_params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_WorkspacePage::EXTENSION_PARAMS_JSON] = $json;
+				break;
 		}
 		
 		return true;

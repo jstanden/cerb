@@ -534,9 +534,11 @@ class Page_Custom extends CerberusPageExtension {
 						
 					case 'build':
 						@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
+						@$params = DevblocksPlatform::importGPC($_POST['params'],'array', []);
 						
 						$fields = [
 							DAO_WorkspacePage::NAME => $name,
+							DAO_WorkspacePage::EXTENSION_PARAMS_JSON => json_encode($params),
 						];
 						
 						// Owner

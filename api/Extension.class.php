@@ -587,6 +587,7 @@ abstract class Extension_WorkspacePage extends DevblocksExtension {
 	}
 	
 	abstract function renderPage(Model_WorkspacePage $page);
+	abstract function renderConfig(Model_WorkspacePage $page, $params=[], $params_prefix=null);
 };
 
 abstract class Extension_WorkspaceTab extends DevblocksExtension {
