@@ -134,6 +134,17 @@ class _DevblocksCacheManager {
 		return $engine->save($data, $key, $tags, $ttl);
 	}
 	
+	public function getTagVersion($tag) {
+		$cache_key = 'tag:' . $tag;
+		
+		if(false == ($ts = $this->load($cache_key))) {
+			$ts = time();
+			$this->save($ts, $cache_key);
+		}
+		
+		return $ts;
+	}
+
 	/**
 	 * 
 	 * @param string $key
@@ -154,10 +165,23 @@ class _DevblocksCacheManager {
 			$engine = self::$_cacher;
 		}
 		
+		$tags = [];
+		
 		// Retrieving the long-term cache
 		if($nocache || !isset($this->_registry[$key])) {
-			if(false === ($this->_registry[$key] = $engine->load($key)))
+			if(false === ($this->_registry[$key] = $engine->load($key, $tags)))
 				return NULL;
+			
+			// Are any tags expired?
+			if($tags) {
+				// One at a time so we can bail out early on invalidation
+				foreach($tags as $tag => $cached_at) {
+					if($this->getTagVersion($tag) > $cached_at) {
+						$this->remove($key);
+						return NULL;
+					}
+				}
+			}
 			
 			@$this->_statistics[$key] = intval($this->_statistics[$key]) + 1;
 			$this->_io_reads_long++;
@@ -203,6 +227,11 @@ class _DevblocksCacheManager {
 		}
 		
 		return $engine->remove($key);
+	}
+	
+	public function removeByTags(array $tags) {
+		foreach($tags as $tag)
+			$this->remove('tag:' . $tag);
 	}
 	
 	public function clean() {
@@ -306,7 +335,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		return $key_prefix . $safe_key . $salt_suffix;
 	}
 	
-	function load($key) {
+	function load($key, &$tags=[]) {
 		@$cache_dir = $this->_config['cache_dir'];
 		
 		if(empty($cache_dir))
@@ -326,14 +355,20 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		
 		fclose($fp);
 		
-		// If this is wrapped data, check the cache expiration
+		// If this is wrapped data
 		if(is_array($wrapper) && isset($wrapper['data'])) {
-			if(isset($wrapper['cache_until']) && !empty($wrapper['cache_until'])) {
+			// Check the cache expiration
+			if(array_key_exists('cache_until', $wrapper) && $wrapper['cache_until']) {
 				// If expired, kill it
 				if(intval($wrapper['cache_until']) < time()) {
 					self::remove($key);
 					return NULL;
 				}
+			}
+			
+			// Do we have tags?
+			if(array_key_exists('tags', $wrapper)) {
+				$tags = $wrapper['tags'];
 			}
 			
 			// If not expired, return the data
@@ -344,7 +379,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		return $wrapper;
 	}
 	
-	function save($data, $key, $tags=array(), $ttl=0) {
+	function save($data, $key, $tags=[], $ttl=0) {
 		@$cache_dir = $this->_config['cache_dir'];
 		
 		if(empty($cache_dir))
@@ -352,9 +387,12 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 		
 		$cache_file = $cache_dir . $this->_getFilename($key);
 		
-		$wrapper = array(
+		$wrapper = [
 			'data' => $data,
-		);
+		];
+		
+		if(is_array($tags) && $tags)
+			$wrapper['tags'] = array_fill_keys($tags, time());
 		
 		// Are we setting a TTL?
 		if(!empty($ttl)) {
@@ -501,29 +539,47 @@ class DevblocksCacheEngine_Memcache extends Extension_DevblocksCacheEngine {
 		return true;
 	}
 	
-	private function _set($cache_key, $data, $ttl) {
-		if($this->_driver instanceof Memcached) {
-			return $this->_driver->set($cache_key, $data, $ttl);
+	private function _set($cache_key, $data, $ttl, $tags=[]) {
+		if($tags) {
+			$wrapper = [
+				'data' => $data,
+				'tags' => array_fill_keys($tags, time()),
+			];
 		} else {
-			return $this->_driver->set($cache_key, $data, 0, $ttl);
+			$wrapper = $data;
+		}
+		
+		if($this->_driver instanceof Memcached) {
+			return $this->_driver->set($cache_key, $wrapper, $ttl);
+		} else {
+			return $this->_driver->set($cache_key, $wrapper, 0, $ttl);
 		}
 	}
 	
-	function save($data, $key, $tags=array(), $ttl=0) {
+	function save($data, $key, $tags=[], $ttl=0) {
 		$cache_key = $this->_getCacheKey($key);
 		
 		if(empty($ttl))
 			$ttl = 86400; // 1 day (any value is needed for LRU)
 
-		$this->_set($cache_key, $data, $ttl);
+		$this->_set($cache_key, $data, $ttl, $tags);
 		return true;
 	}
 	
-	function load($key) {
+	function load($key, &$tags=[]) {
 		$cache_key = $this->_getCacheKey($key);
 		
-		@$val = $this->_driver->get($cache_key);
-		return $val;
+		@$wrapper = $this->_driver->get($cache_key);
+		
+		if(is_array($wrapper) && array_key_exists('data', $wrapper)) {
+			if(array_key_exists('tags', $wrapper))
+				$tags = $wrapper['tags'];
+			
+			return $wrapper['data'];
+			
+		} else {
+			return $wrapper;
+		}
 	}
 	
 	function remove($key) {
@@ -634,25 +690,44 @@ class DevblocksCacheEngine_Redis extends Extension_DevblocksCacheEngine {
 		return true;
 	}
 	
-	function save($data, $key, $tags=array(), $ttl=0) {
+	function save($data, $key, $tags=[], $ttl=0) {
 		$cache_key = $this->_getCacheKey($key);
 		
 		if(empty($ttl))
 			$ttl = 86400; // 1 day (any value is needed for LRU)
-			
-		$this->_driver->setex($cache_key, $ttl, serialize($data));
+		
+		if($tags) {
+			$wrapper = [
+				'data' => $data,
+				'tags' => array_fill_keys($tags, time()),
+			];
+		} else {
+			$wrapper = $data;
+		}
+		
+		$this->_driver->setex($cache_key, $ttl, serialize($wrapper));
 		return true;
 	}
 	
-	function load($key) {
+	function load($key, &$tags=[]) {
 		$cache_key = $this->_getCacheKey($key);
 		
-		$val = $this->_driver->get($cache_key);
+		if(
+			null === ($wrapper = $this->_driver->get($cache_key))
+			|| false === ($wrapper = @unserialize($wrapper))
+		) {
+			return null;
+		}
 		
-		if(!$val || false === ($val = unserialize($val)))
-			$val = null;
-		
-		return $val;
+		if(is_array($wrapper) && array_key_exists('data', $wrapper)) {
+			if(array_key_exists('tags', $wrapper))
+				$tags = $wrapper['tags'];
+			
+			return $wrapper['data'];
+			
+		} else {
+			return $wrapper;
+		}
 	}
 	
 	function remove($key) {
