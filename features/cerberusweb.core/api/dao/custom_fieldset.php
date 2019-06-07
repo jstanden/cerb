@@ -502,6 +502,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		// Invalidate cache on changes
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
+		$cache->removeByTags(['schema_records']);
 	}
 
 };

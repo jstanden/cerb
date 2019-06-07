@@ -1956,9 +1956,10 @@ var ajax = new cAjaxCalls();
 					}
 				}
 				
+				// Do we have a cached copy of the schema meta?
 				if(cerbQuerySuggestionMeta
 					&& cerbQuerySuggestionMeta.schemaVersion
-					&& cerbQuerySuggestionMeta.schemaVersion <= Math.floor(new Date().getTime()/1000)) {
+					&& cerbQuerySuggestionMeta.schemaVersion == CerbSchemaRecordsVersion) {
 					
 					autocomplete_contexts = cerbQuerySuggestionMeta.recordTypes;
 					autocomplete_suggestions_types['type:'] = cerbQuerySuggestionMeta.dataQueryTypes;

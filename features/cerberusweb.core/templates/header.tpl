@@ -20,6 +20,7 @@
 	<script type="text/javascript">
 		var DevblocksAppPath = '{$smarty.const.DEVBLOCKS_WEBPATH}';
 		var DevblocksWebPath = '{devblocks_url}{/devblocks_url}';
+		var CerbSchemaRecordsVersion = {intval(DevblocksPlatform::services()->cache()->getTagVersion("schema_records"))};
 	</script>
 	
 	<style type="text/css">

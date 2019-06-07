@@ -468,6 +468,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 	static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
+		$cache->removeByTags(['schema_records']);
 	}
 };
 

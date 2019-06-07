@@ -223,11 +223,12 @@ class Controller_UI extends DevblocksControllerExtension {
 	
 	function querySuggestionMetaAction() {
 		$data = DevblocksPlatform::services()->data();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		$results = [
-			'schemaVersion' => time() + 60,
+			'schemaVersion' => $cache->getTagVersion('schema_records'),
 			'recordTypes' => array_values(Extension_DevblocksContext::getUris()),
 			'dataQueryTypes' => $data->getTypes(),
 		];
