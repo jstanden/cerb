@@ -1322,6 +1322,23 @@ var ajax = new cAjaxCalls();
 	$.fn.cerbCodeEditorAutocompleteYaml = function(autocomplete_options) {
 		var Autocomplete = require('ace/autocomplete').Autocomplete;
 		
+		var doCerbLiveAutocomplete = function(e) {
+			e.stopPropagation();
+			
+			if(!e.editor.completer) {
+				var Autocomplete = require('ace/autocomplete').Autocomplete;
+				e.editor.completer = new Autocomplete();
+			}
+			
+			if('insertstring' == e.command.name) {
+				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
+					if(1 == e.args.length) {
+						e.editor.completer.showPopup(e.editor);
+					}
+				}
+			}
+		};
+		
 		return this.each(function() {
 			var $editor = $(this)
 				.nextAll('pre.ace_editor')
@@ -1373,7 +1390,7 @@ var ajax = new cAjaxCalls();
 			
 			editor.setOption('enableBasicAutocompletion', []);
 			editor.completers.push(autocompleterYaml);
-			//editor.commands.on('afterExec', doCerbLiveAutocomplete);
+			editor.commands.on('afterExec', doCerbLiveAutocomplete);
 		});
 	}
 	
