@@ -99,6 +99,8 @@ $(function() {
 	};
 	
 	tabOptions.activate = function(e, ui) {
+		Devblocks.getDefaultjQueryUiTabOptions().activate(e, ui);
+		
 		var $new_tab = $(ui.newTab);
 		var tab_id = $new_tab.attr('tab_id');
 		
