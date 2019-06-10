@@ -1425,6 +1425,8 @@ var ajax = new cAjaxCalls();
 				editor.completer = new Autocomplete();
 			}
 			
+			editor.completer.exactMatch = true;
+			
 			editor.completer.autocomplete_suggestions = {
 				'_contexts': {}
 			};
@@ -1790,6 +1792,12 @@ var ajax = new cAjaxCalls();
 				;
 				
 			var editor = ace.edit($editor.attr('id'));
+			
+			if(!editor.completer) {
+				editor.completer = new Autocomplete();
+			}
+			
+			editor.completer.exactMatch = true;
 			
 			var completer = {
 				identifierRegexps: [/[a-zA-Z_0-9\#\@\.\$\-\u00A2-\uFFFF]/],
