@@ -174,6 +174,10 @@ var cerbAutocompleteSuggestions = {
 			'true',
 			'false'
 		],
+		'layout:paging:': [
+			'true',
+			'false'
+			],
 		
 		// Column types
 		'columns:-:': [
