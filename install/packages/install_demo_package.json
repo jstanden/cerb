@@ -3574,7 +3574,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_ned}}}",
 			"headers": "To: c.bruno@fiaflux.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: What are bot interactions?\r\nDate: {{{'-111570 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo49.msg2@cerb.example>\r\n",
-			"content": "> How do [bot] interactions work?\n\nHi Christian,\n\nInteractions are short conversations between a chat bot and a human user with a specific intent. They help avoid the challenges introduced by open-ended conversations.\n\nSee: https://cerb.ai/docs/bots/interactions/\n"
+			"content": "> How do [bot] interactions work?\n\nHi Christian,\n\nInteractions are short conversations between a bot and a human user with a specific intent. They help avoid the challenges introduced by open-ended conversations.\n\nSee: https://cerb.ai/docs/bots/interactions/\n"
 		},
 		{
 			"uid": "ticket_demo_050",
@@ -3616,7 +3616,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_kina}}}",
 			"headers": "To: c.bertin@baston.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: Starting a chat from a bot\r\nDate: {{{'-107186 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo50.msg2@cerb.example>\r\n",
-			"content": "> Is there a way for bots to initiate interactions?\n\nHi Claire,\n\nYes! We call those \"proactive interactions\".\n\nSee: https://cerb.ai/docs/bots/interactions/proactive/\n"
+			"content": "> Is there a way for bots to initiate interactions?\n\nHi Claire,\n\nYes! We call those \"proactive interactions\".\n\nSee: https://cerb.ai/docs/bots/interactions/chat/#proactive-chat-interactions\n"
 		},
 		{
 			"uid": "ticket_demo_051",

@@ -969,7 +969,7 @@ messages:
       
       Hi Christian,
       
-      Interactions are short conversations between a chat bot and a human user with a specific intent. They help avoid the challenges introduced by open-ended conversations.
+      Interactions are short conversations between a bot and a human user with a specific intent. They help avoid the challenges introduced by open-ended conversations.
       
       See: https://cerb.ai/docs/bots/interactions/
 ---
@@ -989,7 +989,7 @@ messages:
       
       Yes! We call those "proactive interactions".
       
-      See: https://cerb.ai/docs/bots/interactions/proactive/
+      See: https://cerb.ai/docs/bots/interactions/chat/#proactive-chat-interactions
 ---
 subject: Figuring out what a user wants to do in a chat bot
 group: group_support
