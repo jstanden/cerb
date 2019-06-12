@@ -291,6 +291,7 @@ class ChRest_Records extends Extension_RestController {
 	
 	private function _getContextRecord(DevblocksExtensionManifest $context, array $stack) {
 		@$id = intval(array_shift($stack));
+		@$show_meta = DevblocksPlatform::importVar($_REQUEST['show_meta'], 'boolean', false);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -313,8 +314,15 @@ class ChRest_Records extends Extension_RestController {
 			$context
 		);
 		
-		if(is_array($container) && isset($container['results']) && isset($container['results'][$id]))
-			$this->success($container['results'][$id]);
+		if(is_array($container) && isset($container['results']) && isset($container['results'][$id])) {
+			$container = $container['results'][$id];
+			
+			if($show_meta) {
+				$this->_includeContextMeta($context, $container);
+			}
+			
+			$this->success($container);
+		}
 
 		// Error
 		$this->error(self::ERRNO_NOT_FOUND, sprintf("Invalid record %s #%d", $context->id, $id));
@@ -382,9 +390,32 @@ class ChRest_Records extends Extension_RestController {
 		if(!$context->hasOption('search')) {
 			$this->error(self::ERRNO_NOT_IMPLEMENTED);
 		}
-
+		
+		@$show_meta = DevblocksPlatform::importVar($_REQUEST['show_meta'], 'boolean', false);
+		
 		$container = $this->_handlePostSearch($context);
 		
+		if($show_meta) {
+			$this->_includeContextMeta($context, $container);
+		}
+		
 		$this->success($container);
+	}
+	
+	private function _includeContextMeta(DevblocksExtensionManifest $context, array &$container) {
+		$context_ext = $context->createInstance();
+		$token_labels = $token_values = [];
+		$context_ext->getContext(null, $token_labels, $token_values);
+		
+		$meta_dict = DevblocksDictionaryDelegate::instance($token_values);
+		$meta_dict->custom_;
+		
+		unset($token_labels);
+		unset($token_values);
+		
+		$container['_meta'] = [
+			'labels' => $meta_dict->_labels,
+			'types' => $meta_dict->_types,
+		];
 	}
 };
