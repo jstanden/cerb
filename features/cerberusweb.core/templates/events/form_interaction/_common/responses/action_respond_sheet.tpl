@@ -23,7 +23,7 @@
 	</div>
 </div>
 
-<b>Display this sheet schema:</b> <small>(YAML)</small>
+<b>Display this sheet schema:</b> <small>(YAML)</small> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/sheets/"}
 
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<textarea name="{$namePrefix}[sheet_yaml]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/yaml" style="width:95%;height:50px;">{$params.sheet_yaml}</textarea>
@@ -148,7 +148,6 @@ $(function() {
 			formData.append('data_query', json.response);
 			formData.append('sheet_yaml', editor.getValue());
 			formData.append('types[]', 'card');
-			formData.append('types[]', 'custom');
 			formData.append('types[]', 'date');
 			formData.append('types[]', 'link');
 			formData.append('types[]', 'search');
