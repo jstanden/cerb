@@ -2395,6 +2395,13 @@ class CerberusContexts {
 					}
 
 					Event_RecordChanged::trigger($context, $new_model, $old_model, $actor);
+					
+					// Trigger specific context events
+					if($context == CerberusContexts::CONTEXT_TASK) {
+						if(!$old_model['title'] && !$old_model['created_at']) {
+							Event_TaskCreatedByWorker::trigger($new_model->id, null);
+						}
+					}
 				}
 			}
 		}

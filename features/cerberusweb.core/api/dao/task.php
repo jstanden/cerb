@@ -154,9 +154,6 @@ class DAO_Task extends Cerb_ORMHelper {
 			)
 		);
 		
-		// Bot events
-		Event_TaskCreatedByWorker::trigger($id, null);
-		
 		return $id;
 	}
 	
