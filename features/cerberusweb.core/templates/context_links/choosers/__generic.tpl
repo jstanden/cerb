@@ -1,5 +1,5 @@
 <div>
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null}
+{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null focus=true}
 </div>
 
 <div style="clear:both;"></div>
@@ -28,8 +28,6 @@ $(function() {
 
 		$popup.dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Chooser');
 		
-		$popup.find('input:text:first').focus();
-
 		// Progressive de-enhancement
 		
 		var on_refresh = function() {

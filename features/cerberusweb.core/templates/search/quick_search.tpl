@@ -47,6 +47,10 @@ $(function() {
 		}
 	});
 	
+	{if $focus}
+	editor.focus();
+	{/if}
+	
 	var $menu_trigger = $frm.find('a.cerb-quick-search-menu-trigger').click(function() {
 		editor.focus();
 		editor.commands.byName.startAutocomplete.exec(editor);

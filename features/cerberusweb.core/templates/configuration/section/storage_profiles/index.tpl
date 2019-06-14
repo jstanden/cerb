@@ -3,7 +3,7 @@
 </div>
 
 <div>
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false focus=true}
 </div>
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" style="margin-bottom:5px;">

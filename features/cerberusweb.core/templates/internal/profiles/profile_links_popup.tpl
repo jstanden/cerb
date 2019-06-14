@@ -1,7 +1,7 @@
 {$links_popup_uniqid = uniqid()}
 <div id="{$links_popup_uniqid}">
 	<div>
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null focus=true}
 	</div>
 	
 	{include file="devblocks:cerberusweb.core::internal/views/search_and_view.tpl"}

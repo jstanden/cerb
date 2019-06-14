@@ -1,5 +1,5 @@
 <div>
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false focus=true}
 </div>
 
 <form action="{devblocks_url}{/devblocks_url}" style="margin:5px 0px 5px 0px;">

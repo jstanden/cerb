@@ -23,7 +23,7 @@
 </div>
 
 <div>
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false focus=true}
 </div>
 
 <div style="clear:both;"></div>

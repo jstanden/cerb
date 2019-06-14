@@ -1,4 +1,4 @@
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view}
+{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view focus=true}
 
 <script type="text/javascript">
 $(function() {
@@ -12,8 +12,6 @@ $(function() {
 		$popup.dialog('option', 'minHeight', 50);
 		$popup.dialog('option', 'width', '50%');
 		$popup.dialog('option', 'closeOnEscape', false);
-		
-		ace.edit($popup.find('.cerb-input-quicksearch:first').nextAll('pre.ace_editor').attr('id')).focus();
 		
 		$popup.css('overflow', 'inherit');
 	});

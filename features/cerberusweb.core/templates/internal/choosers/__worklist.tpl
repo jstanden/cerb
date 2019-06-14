@@ -1,5 +1,5 @@
 <div>
-{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null}
+{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null focus=true}
 </div>
 
 <div style="clear:both;"></div>
@@ -17,8 +17,6 @@ $(function() {
 	$popup.one('popup_open',function(event,ui) {
 		event.stopPropagation();
 		$popup.dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Worklist');
-		
-		$popup.find('input:text:first').focus();
 		
 		$popup.css('overflow', 'inherit');
 		

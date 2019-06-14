@@ -4,7 +4,7 @@
 
 {if $view instanceof IAbstractView_QuickSearch}
 <div>
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$view return_url=null reset=false focus=true}
 </div>
 {/if}
 
@@ -130,7 +130,5 @@ $(function() {
 			});
 		}
 	});
-	
-	ace.edit($(document).find('.cerb-input-quicksearch:first').nextAll('pre.ace_editor').attr('id')).focus();
 });
 </script>
