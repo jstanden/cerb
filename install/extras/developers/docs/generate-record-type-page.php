@@ -196,7 +196,9 @@ EOD;
 	}
 	
 	$labels = $values = [];
-	CerberusContexts::getContext($context_ext->id, null, $labels, $values, '', true);
+	
+	$context_ext->getContext(null, $labels, $values, '');
+	ksort($labels);
 	
 	$context_prefixes = [];
 	
@@ -246,6 +248,9 @@ EOD;
 	// Output dictionary keys
 	
 	foreach($labels as $k => $label) {
+		if(!DevblocksPlatform::strStartsWith($label, '`'))
+			$label = DevblocksPlatform::strTitleCase(strtr($label,':',' '));
+		
 		if(false !== strpos($k, 'custom_') && $k != 'custom_<id>')
 			continue;
 		
@@ -262,6 +267,9 @@ EOD;
 			continue;
 		
 		@$type = $values['_types'][$k];
+		
+		if(is_array($type) || is_object($type))
+			continue;
 		
 		if(array_key_exists($type, $custom_field_types))
 			$type = $custom_field_types[$type];
@@ -575,9 +583,18 @@ EOD;
 					continue;
 				
 				$type = 'Record';
+				$label = trim($label);
+				
+				// [TODO] Move this into the contexts meta
+				$label_map = [
+					'Messages Firstoutgoing' => 'Messages First Outgoing',
+				];
+				
+				if(array_key_exists($label, $label_map))
+					$label = $label_map[$label];
 				
 				$label = sprintf("[%s](/docs/records/types/%s/)",
-					trim($label),
+					$label,
 					$context_mft->params['alias']
 				);
 		} else {
@@ -698,7 +715,7 @@ EOD;
 	}
 	
 	if($context_ext->hasOption('custom_fields')) {
-		$columns['cf_<id>'] = new DevblocksSearchField('cf_<id>', '', '', '[Custom field](/docs/records/types/custom_field/)');
+		$columns['cf_<id>'] = new DevblocksSearchField('cf_<id>', '', '', '[Custom Field](/docs/records/types/custom_field/)');
 	}
 	
 	if($columns) {
@@ -719,7 +736,7 @@ EOD;
 		foreach($columns as $column_key => $column) {
 			$out .= sprintf("| `%s` | %s\n",
 				$column_key,
-				DevblocksPlatform::strTitleCase($column->db_label)
+				DevblocksPlatform::strStartsWith($column->db_label, '[') ? $column->db_label : DevblocksPlatform::strTitleCase($column->db_label)
 			);
 		}
 	}

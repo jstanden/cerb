@@ -187,6 +187,7 @@ $extension_point_meta = [
 		'label' => 'Bot Event',
 		'class' => 'Extension_DevblocksEvent',
 		'examples' => [],
+		'extensible' => true,
 		],
 	'devblocks.event.action' => [
 		'label' => 'Bot Action',

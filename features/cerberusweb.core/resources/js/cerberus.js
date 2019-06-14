@@ -1180,6 +1180,7 @@ var ajax = new cAjaxCalls();
 					{ value: "title", meta: "filter" },
 					{ value: "trim", meta: "filter" },
 					{ value: "truncate(10)", meta: "filter" },
+					{ value: "unescape", meta: "filter" },
 					{ value: "upper", meta: "filter" },
 					{ value: "url_decode", meta: "filter" },
 					{ value: "url_decode('json')", meta: "filter" },
