@@ -4,7 +4,7 @@
 	<name>Translation Editor</name>
 	<description>A GUI for translating the Cerb interface into other languages.  This adds a 'Translations' tab to Configuration.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.3.0</version>
+	<version>9.3.1</version>
 	<link>http://wiki.cerbweb.com/Features:Translation_Editor</link>
 	<image>plugin.png</image>
 	
