@@ -1317,8 +1317,9 @@ class DevblocksEventHelper {
 				break;
 				
 			case Model_CustomField::TYPE_NUMBER:
-				$value = intval($params['value']);
-				$dict->$token = $value;
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$value = $tpl_builder->build($params['value'], $dict);
+				$dict->$token = intval($value);
 				break;
 				
 			case Model_CustomField::TYPE_SINGLE_LINE:
