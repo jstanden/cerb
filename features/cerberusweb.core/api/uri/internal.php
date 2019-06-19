@@ -4060,11 +4060,13 @@ class ChInternalController extends DevblocksControllerExtension {
 					$actions = $event->getActions($trigger);
 					$tpl->assign('actions', $actions);
 					
-					// [TODO] Cache this
 					$map = [];
 					array_walk($actions, function($v, $k) use (&$map) {
-						if(is_array($v) && isset($v['label']))
+						if(array_key_exists('label', $v))
 							$map[$k] = $v['label'];
+						
+						if(array_key_exists('scope', $v) && 'global' == $v['scope'])
+							$map[$k] = '(Global) ' . $map[$k];
 					});
 					
 					$actions_menu = Extension_DevblocksContext::getPlaceholderTree($map);

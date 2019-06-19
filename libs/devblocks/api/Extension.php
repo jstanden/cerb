@@ -2738,33 +2738,96 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 	 * @internal
 	 */
 	function getActions($trigger) { /* @var $trigger Model_TriggerEvent */
-		$actions = array(
-			'_create_calendar_event' => array('label' => 'Create calendar event'),
-			'_exit' => array('label' => 'Behavior exit'),
-			'_get_key' => array('label' => 'Get persistent key'),
-			'_get_links' => array('label' => 'Get links'),
-			'_get_worklist_metric' => array('label' => 'Get worklist metric'),
-			'_run_behavior' => array('label' => 'Behavior run'),
-			'_run_subroutine' => array('label' => 'Behavior call subroutine'),
-			'_schedule_behavior' => array('label' => 'Behavior schedule'),
-			'_set_custom_var' => array('label' => 'Set custom placeholder'),
-			'_set_custom_var_snippet' => array('label' => 'Set custom placeholder using a snippet'),
-			'_set_key' => array('label' => 'Set persistent key'),
-			'_unschedule_behavior' => array('label' => 'Behavior unschedule'),
+		$actions = [
+			'_create_calendar_event' => [
+				'label' => 'Create calendar event',
+			],
+			'_exit' => [
+				'label' => 'Behavior exit',
+			],
+			'_get_key' => [
+				'label' => 'Get persistent key',
+			],
+			'_get_links' => [
+				'label' => 'Get links',
+			],
+			'_get_worklist_metric' => [
+				'label' => 'Get worklist metric',
+			],
+			'_run_behavior' => [
+				'label' => 'Behavior run',
+			],
+			'_run_subroutine' => [
+				'label' => 'Behavior call subroutine',
+			],
+			'_schedule_behavior' => [
+				'label' => 'Behavior schedule',
+			],
+			'_set_custom_var' => [
+				'label' => 'Set custom placeholder',
+			],
+			'_set_custom_var_snippet' => [
+				'label' => 'Set custom placeholder using a snippet',
+			],
+			'_set_key' => [
+				'label' => 'Set persistent key',
+			],
+			'_unschedule_behavior' => [
+				'label' => 'Behavior unschedule',
+			],
+			'add_watchers' => [
+				'label' =>'Add watchers',
+			],
+			'create_comment' => [
+				'label' => 'Create comment',
+			],
+			'create_notification' => [
+				'label' => 'Create notification',
+			],
+			'create_task' => [
+				'label' => 'Create task',
+			],
+			'create_ticket' => [
+				'label' => 'Create ticket',
+			],
+			'send_email' => [
+				'label' => 'Send email',
+			],
+			'set_links' => [
+				'label' => 'Set links',
+			],
+		];
+		
+		$actions = array_map(
+			function($action) {
+				$action['scope'] = 'global';
+				return $action;
+			},
+			$actions
 		);
+		
 		$custom = $this->getActionExtensions($trigger);
-
-		if(!empty($custom) && is_array($custom))
+		
+		if(!empty($custom) && is_array($custom)) {
+			$custom = array_map(function($action) {
+				$action['scope'] = 'local';
+				return $action;
+			}, $custom);
+			
 			$actions = array_merge($actions, $custom);
+		}
 
 		// Trigger variables
 
 		if(is_array($trigger->variables))
 		foreach($trigger->variables as $key => $var) {
-			$actions[$key] = array('label' => 'Set (variable) ' . $var['label']);
+			$actions[$key] = [
+				'label' => 'Set (variable) ' . $var['label'],
+				'scope' => 'local',
+			];
 		}
 
-		$va = $trigger->getBot();
+		$bot = $trigger->getBot();
 
 		// Add plugin extensions
 
@@ -2772,11 +2835,14 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		// Filter extensions by VA permissions
 
-		$manifests = $va->filterActionManifestsByAllowed($manifests);
+		$manifests = $bot->filterActionManifestsByAllowed($manifests);
 
 		if(is_array($manifests))
 		foreach($manifests as $manifest) {
-			$actions[$manifest->id] = array('label' => $manifest->params['label']);
+			$actions[$manifest->id] = [
+				'label' => $manifest->params['label'],
+				'scope' => 'global',
+			];
 		}
 
 		// Sort by label
@@ -2785,7 +2851,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		return $actions;
 	}
-
+	
 	abstract function getActionExtensions(Model_TriggerEvent $trigger);
 	abstract function renderActionExtension($token, $trigger, $params=[], $seq=null);
 	abstract function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict);

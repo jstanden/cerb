@@ -371,6 +371,9 @@ abstract class AbstractEvent_Record extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
+		if(!array_key_exists('context', $trigger->event_params))
+			return;
+		
 		if(false == ($delegate = $this->_getCustomContextBehavior($trigger->event_params['context'])))
 			return;
 		
