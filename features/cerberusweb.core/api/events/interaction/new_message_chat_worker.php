@@ -36,7 +36,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		return new Model_DevblocksEvent(
 			self::ID,
 			array(
-				'worker_id' => $active_worker->id,
+				'worker_id' => $active_worker ? $active_worker->id : 0,
 				'message' => 'This is a test message',
 				'actions' => &$actions,
 

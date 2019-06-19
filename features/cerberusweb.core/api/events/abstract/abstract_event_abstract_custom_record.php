@@ -269,6 +269,7 @@ abstract class AbstractEvent_AbstractCustomRecord extends Extension_DevblocksEve
 				break;
 				
 			default:
+				$matches=[];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);

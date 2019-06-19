@@ -18,7 +18,6 @@ while($row = mysqli_fetch_assoc($rs)) {
 	$changes = 0;
 	
 	$params = json_decode($row['params_json'], true);
-	$params_orig = $params;
 	
 	switch($row['extension_id']) {
 		

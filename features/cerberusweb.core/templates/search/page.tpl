@@ -17,7 +17,7 @@ $(function() {
 	
 	// Keyboard shortcuts
 	$(document).keypress(function(event) {
-		is_control_character = (event.which == 9 || event.which == 10 || event.which == 13 || event.which == 32);
+		var is_control_character = (event.which == 9 || event.which == 10 || event.which == 13 || event.which == 32);
 		
 		if($(event.target).is('button') && is_control_character)
 			return;
@@ -39,14 +39,14 @@ $(function() {
 		// [TODO] Intercept 91,93 ([] -- tabs prev/next)
 		
 		// Find the worklists on this tab
-		$worklists = $('#pageSearch TABLE.worklistBody').closest('FORM');
-		$worklist = $('');
+		var $worklists = $('#pageSearch TABLE.worklistBody').closest('FORM');
+		var $worklist = $('');
 		
 		// Are we confident about the user's intentions with this keystroke?
-		indirect = true; // by default, we're not
+		var indirect = true; // by default, we're not
 		
 		// Try to find a selected row in the worklists
-		$selected_row = $worklists.find('TABLE.worklistBody > TBODY > TR.selected').first();
+		var $selected_row = $worklists.find('TABLE.worklistBody > TBODY > TR.selected').first();
 
 		if($selected_row.length > 0) {
 			$worklist = $selected_row.closest('form');
@@ -69,12 +69,12 @@ $(function() {
 		
 		if($worklist.length > 0) {
 			$worklist.each(function(e) {
-				view_id = $(this).find('input:hidden[name=view_id]').val();
-				$view = $('#viewForm' + view_id);
+				var view_id = $(this).find('input:hidden[name=view_id]').val();
+				var $view = $('#viewForm' + view_id);
 				
 				// Intercept global worklist keys
 				
-				hotkey_activated = true;
+				var hotkey_activated = true;
 				
 				switch(event.which) {
 					case 42: // (*) reset filters
@@ -121,7 +121,7 @@ $(function() {
 				
 				if($view.length > 0) {
 					// Trigger event
-					e = jQuery.Event('keyboard_shortcut');
+					var e = jQuery.Event('keyboard_shortcut');
 					e.view_id = view_id;
 					e.indirect = indirect;
 					e.keypress_event = event;

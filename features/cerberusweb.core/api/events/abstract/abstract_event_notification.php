@@ -266,6 +266,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 				break;
 				
 			default:
+				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
 					$field_id = $matches[2];
 					$custom_field = DAO_CustomField::get($field_id);
@@ -348,7 +349,7 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 				DAO_Notification::IS_READ => 0,
 				DAO_Notification::WORKER_ID => $worker->id,
 			];
-			$id = DAO_Notification::create($fields);
+			DAO_Notification::create($fields);
 		}
 	}
 	

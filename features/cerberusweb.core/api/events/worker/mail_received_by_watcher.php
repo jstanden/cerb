@@ -63,7 +63,9 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 			$result = array_shift($results);
 			
 			$message_id = $result[SearchFields_Ticket::TICKET_LAST_MESSAGE_ID];
-			$worker_id = $active_worker->id;
+			
+			if($active_worker)
+				$worker_id = $active_worker->id;
 		}
 		
 		return new Model_DevblocksEvent(
@@ -115,7 +117,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 
 			// Fill some custom values
 			if(!is_null($event_model)) {
-				$values['is_first'] = ($values['id'] == $ticket_values['initial_message_id']) ? 1 : 0;
+				$values['is_first'] = ($values['id'] == @$ticket_values['initial_message_id']) ? 1 : 0;
 			}
 			
 			$values['ticket_has_owner'] = !empty($ticket_values['owner_id']) ? 1 : 0;
