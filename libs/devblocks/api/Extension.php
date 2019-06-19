@@ -2867,7 +2867,35 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				case '_unschedule_behavior':
 					DevblocksEventHelper::renderActionUnscheduleBehavior($trigger);
 					break;
+					
+				case 'add_watchers':
+					DevblocksEventHelper::renderActionAddWatchers($trigger);
+					break;
+				
+				case 'create_comment':
+					DevblocksEventHelper::renderActionCreateComment($trigger);
+					break;
+					
+				case 'create_notification':
+					DevblocksEventHelper::renderActionCreateNotification($trigger);
+					break;
+					
+				case 'create_task':
+					DevblocksEventHelper::renderActionCreateTask($trigger);
+					break;
+					
+				case 'create_ticket':
+					DevblocksEventHelper::renderActionCreateTicket($trigger);
+					break;
+					
+				case 'send_email':
+					DevblocksEventHelper::renderActionSendEmail($trigger);
+					break;
 
+				case 'set_links':
+					DevblocksEventHelper::renderActionSetLinks($trigger);
+					break;
+					
 				default:
 					// Variables
 					if(DevblocksPlatform::strStartsWith($token, 'var_')) {
@@ -3015,6 +3043,38 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 				case '_unschedule_behavior':
 					return DevblocksEventHelper::simulateActionUnscheduleBehavior($params, $dict);
+					break;
+					
+				case 'add_watchers':
+					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
+					return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, $on_default);
+					break;
+					
+				case 'create_comment':
+					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
+					return DevblocksEventHelper::simulateActionCreateComment($params, $dict, $on_default);
+					break;
+
+				case 'create_notification':
+					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
+					return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, $on_default);
+					break;
+
+				case 'create_task':
+					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
+					return DevblocksEventHelper::simulateActionCreateTask($params, $dict, $on_default);
+					break;
+
+				case 'create_ticket':
+					return DevblocksEventHelper::simulateActionCreateTicket($params, $dict);
+					break;
+
+				case 'send_email':
+					return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+					break;
+
+				case 'set_links':
+					return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 					break;
 
 				default:
@@ -3223,7 +3283,39 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					else
 						DevblocksEventHelper::runActionUnscheduleBehavior($params, $dict);
 					break;
-
+					
+				case 'add_watchers':
+					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
+					DevblocksEventHelper::runActionAddWatchers($params, $dict, $on_default);
+					break;
+				
+				case 'create_comment':
+					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
+					DevblocksEventHelper::runActionCreateComment($params, $dict, $on_default);
+					break;
+					
+				case 'create_notification':
+					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
+					DevblocksEventHelper::runActionCreateNotification($params, $dict, $on_default);
+					break;
+					
+				case 'create_task':
+					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
+					DevblocksEventHelper::runActionCreateTask($params, $dict, $on_default);
+					break;
+					
+				case 'create_ticket':
+					DevblocksEventHelper::runActionCreateTicket($params, $dict);
+					break;
+					
+				case 'send_email':
+					DevblocksEventHelper::runActionSendEmail($params, $dict);
+					break;
+			
+				case 'set_links':
+					DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
+					break;
+			
 				default:
 					// Variables
 					if(substr($token,0,4) == 'var_') {

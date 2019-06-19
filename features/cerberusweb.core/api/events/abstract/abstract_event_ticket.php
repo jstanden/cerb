@@ -619,11 +619,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		$actions =
 			array(
 				'add_recipients' => array('label' =>'Add recipients'),
-				'add_watchers' => array('label' =>'Add watchers'),
-				'create_comment' => array('label' =>'Create comment'),
-				'create_notification' => array('label' =>'Create notification'),
-				'create_task' => array('label' =>'Create task'),
-				'create_ticket' => array('label' =>'Create ticket'),
 				'move_to' => array('label' => 'Move to'),
 				'relay_email' => array('label' => 'Relay to external email'),
 				'remove_recipients' => array('label' =>'Remove recipients'),
@@ -637,12 +632,15 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				'set_spam_training' => array('label' => 'Set ticket spam training'),
 				'set_status' => array('label' => 'Set ticket status'),
 				'set_subject' => array('label' => 'Set ticket subject'),
-				'set_links' => array('label' => 'Set links'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 		
 		return $actions;
+	}
+	
+	function getActionDefaultOn() {
+		return 'ticket_id';
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -658,26 +656,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'add_recipients':
 				DevblocksEventHelper::renderActionAddRecipients($trigger);
-				break;
-				
-			case 'add_watchers':
-				DevblocksEventHelper::renderActionAddWatchers($trigger);
-				break;
-
-			case 'create_comment':
-				DevblocksEventHelper::renderActionCreateComment($trigger);
-				break;
-				
-			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification($trigger);
-				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask($trigger);
-				break;
-				
-			case 'create_ticket':
-				DevblocksEventHelper::renderActionCreateTicket($trigger);
 				break;
 				
 			case 'move_to':
@@ -778,10 +756,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
 				break;
 			
-			case 'set_links':
-				DevblocksEventHelper::renderActionSetLinks($trigger);
-				break;
-				
 			default:
 				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
@@ -809,26 +783,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				return DevblocksEventHelper::simulateActionAddRecipients($params, $dict, 'ticket_id');
 				break;
 				
-			case 'add_watchers':
-				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'ticket_id');
-				break;
-			
-			case 'create_comment':
-				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'ticket_id');
-				break;
-				
-			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'ticket_id');
-				break;
-				
-			case 'create_task':
-				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'ticket_id');
-				break;
-
-			case 'create_ticket':
-				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'ticket_id');
-				break;
-
 			case 'relay_email':
 				return DevblocksEventHelper::simulateActionRelayEmail(
 					$params,
@@ -932,9 +886,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				return $out;
 				break;
 			
-			case 'set_links':
-				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
-				break;
 				
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
@@ -955,26 +906,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				DevblocksEventHelper::runActionAddRecipients($params, $dict, 'ticket_id');
 				break;
 				
-			case 'add_watchers':
-				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'ticket_id');
-				break;
-			
-			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $dict, 'ticket_id');
-				break;
-				
-			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'ticket_id');
-				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $dict, 'ticket_id');
-				break;
-
-			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'ticket_id');
-				break;
-
 			case 'relay_email':
 				DevblocksEventHelper::runActionRelayEmail(
 					$params,
@@ -1201,10 +1132,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				$dict->ticket_bucket_id = $to_bucket_id;
 				break;
 			
-			case 'set_links':
-				DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
-				break;
-				
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
 					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);

@@ -188,25 +188,23 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			array(
-				'create_comment' => array('label' =>'Create comment'),
-				'create_notification' => array('label' =>'Create notification'),
-				'create_task' => array('label' =>'Create task'),
-				'create_ticket' => array('label' =>'Create ticket'),
-				'send_email' => array('label' => 'Send email'),
+				'prompt_captcha' => array('label' => 'Prompt with CAPTCHA challenge'),
+				'prompt_checkboxes' => array('label' => 'Prompt with multiple choices'),
+				'prompt_radios' => array('label' => 'Prompt with single choice'),
+				'prompt_text' => array('label' => 'Prompt with text'),
 				
-				'prompt_captcha' => array('label' => 'Form prompt with CAPTCHA challenge'),
-				'prompt_checkboxes' => array('label' => 'Form prompt with multiple choices'),
-				'prompt_radios' => array('label' => 'Form prompt with single choice'),
-				'prompt_text' => array('label' => 'Form prompt with text'),
+				'prompt_submit' => array('label' => 'Prompt with submit'),
 				
-				'prompt_submit' => array('label' => 'Form prompt with submit'),
-				
-				'respond_sheet' => array('label' => 'Form respond with sheet'),
-				'respond_text' => array('label' => 'Form respond with text'),
+				'respond_sheet' => array('label' => 'Respond with sheet'),
+				'respond_text' => array('label' => 'Respond with text'),
 			)
 			;
 		
 		return $actions;
+	}
+	
+	function getActionDefaultOn() {
+		return 'worker_id';
 	}
 	
 	function renderActionExtension($token, $trigger, $params=[], $seq=null) {
@@ -224,26 +222,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
-			case 'create_comment':
-				DevblocksEventHelper::renderActionCreateComment($trigger);
-				break;
-
-			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification($trigger);
-				break;
-
-			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask($trigger);
-				break;
-
-			case 'create_ticket':
-				DevblocksEventHelper::renderActionCreateTicket($trigger);
-				break;
-				
-			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail($trigger);
-				break;
-			
 			case 'prompt_captcha':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_captcha.tpl');
 				break;
@@ -290,22 +268,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
-			case 'create_comment':
-				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'worker_id');
-				break;
-
-			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'worker_id');
-				break;
-
-			case 'create_task':
-				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'worker_id');
-				break;
-
-			case 'create_ticket':
-				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'worker_id');
-				break;
-			
 			case 'prompt_captcha':
 				$out = ">>> Prompting with CAPTCHA challenge\n";
 				break;
@@ -346,10 +308,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 			case 'prompt_submit':
 				break;
 				
-			case 'send_email':
-				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
-				break;
-			
 			case 'respond_text':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$content = $tpl_builder->build($params['message'], $dict);
@@ -374,22 +332,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
-			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $dict, 'worker_id');
-				break;
-				
-			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'worker_id');
-				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $dict, 'worker_id');
-				break;
-
-			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $dict);
-				break;
-			
 			case 'prompt_captcha':
 				$actions =& $dict->_actions;
 				
@@ -513,10 +455,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$dict->__exit = 'suspend';
 				break;
 				
-			case 'send_email':
-				DevblocksEventHelper::runActionSendEmail($params, $dict);
-				break;
-			
 			case 'respond_text':
 				$actions =& $dict->_actions;
 				

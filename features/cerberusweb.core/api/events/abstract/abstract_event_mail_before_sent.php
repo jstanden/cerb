@@ -447,7 +447,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$actions =
 			array(
 				'append_to_content' => array('label' =>'Append text to message content'),
-				'create_notification' => array('label' =>'Create notification'),
 				'prepend_to_content' => array('label' =>'Prepend text to message content'),
 				'replace_content' => array('label' =>'Replace text in message content'),
 				'set_header' => array('label' => 'Set message header'),
@@ -456,6 +455,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			;
 		
 		return $actions;
+	}
+	
+	function getActionDefaultOn() {
+		return 'ticket_id';
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -473,10 +476,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			case 'prepend_to_content':
 				$tpl->assign('is_sent', true);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_add_content.tpl');
-				break;
-				
-			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification($trigger);
 				break;
 				
 			case 'replace_content':
@@ -637,10 +636,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
-			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'ticket_id');
-				break;
-
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
 					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
@@ -742,10 +737,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
-			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'ticket_id');
-				break;
-
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
 					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);

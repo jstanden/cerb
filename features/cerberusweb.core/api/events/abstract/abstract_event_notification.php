@@ -228,18 +228,16 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 		$actions =
 			array(
 				'copy_notification' => array('label' =>'Copy notification'),
-				'create_comment' => array('label' =>'Create comment'),
-				'create_notification' => array('label' =>'Create notification'),
-				'create_task' => array('label' =>'Create task'),
-				'create_ticket' => array('label' =>'Create ticket'),
-				'send_email' => array('label' => 'Send email'),
-				'set_links' => array('label' => 'Set links'),
 				'set_notification_is_read' => array('label' => 'Set notification is read'),
 			)
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			
 		return $actions;
+	}
+	
+	function getActionDefaultOn() {
+		return 'notification_id';
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -261,30 +259,6 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 				$tpl->assign('values_to_contexts', $values_to_contexts);
 				
 				$tpl->display('devblocks:cerberusweb.core::events/model/notification/action_copy.tpl');
-				break;
-				
-			case 'create_comment':
-				DevblocksEventHelper::renderActionCreateComment($trigger);
-				break;
-				
-			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification($trigger);
-				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask($trigger);
-				break;
-				
-			case 'create_ticket':
-				DevblocksEventHelper::renderActionCreateTicket($trigger);
-				break;
-				
-			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail($trigger);
-				break;
-				
-			case 'set_links':
-				DevblocksEventHelper::renderActionSetLinks($trigger);
 				break;
 				
 			case 'set_notification_is_read':
@@ -336,30 +310,6 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 				return self::simulateActionCopyNotification($trigger, $params, $dict);
 				break;
 				
-			case 'create_comment':
-				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'notification_id');
-				break;
-				
-			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'notification_id');
-				break;
-				
-			case 'create_task':
-				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'notification_id');
-				break;
-
-			case 'create_ticket':
-				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict, 'notification_id');
-				break;
-				
-			case 'send_email':
-				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
-				break;
-				
-			case 'set_links':
-				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
-				break;
-			
 			case 'set_notification_is_read':
 				return DevblocksEventHelper::simulateActionSetAbstractField('is read', Model_CustomField::TYPE_CHECKBOX, 'notification_is_read', $params, $dict);
 				break;
@@ -411,30 +361,6 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 		switch($token) {
 			case 'copy_notification':
 				self::runActionCopyNotification($trigger, $params, $dict);
-				break;
-				
-			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $dict, 'notification_id');
-				break;
-				
-			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'notification_id');
-				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $dict, 'notification_id');
-				break;
-
-			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $dict, 'notification_id');
-				break;
-				
-			case 'send_email':
-				DevblocksEventHelper::runActionSendEmail($params, $dict);
-				break;
-				
-			case 'set_links':
-				DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
 				break;
 				
 			case 'set_notification_is_read':

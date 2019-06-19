@@ -283,20 +283,17 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			[
-				'add_watchers' => array('label' =>'Add watchers'),
-				'create_comment' => array('label' =>'Create comment'),
-				'create_notification' => array('label' =>'Create notification'),
-				'create_task' => array('label' =>'Create task'),
-				'create_ticket' => array('label' =>'Create ticket'),
-				'send_email' => array('label' => 'Send email'),
 				'set_is_banned' => array('label' => 'Set is banned'),
 				'set_is_defunct' => array('label' => 'Set is defunct'),
-				'set_links' => array('label' => 'Set links'),
 			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			
 		return $actions;
+	}
+	
+	function getActionDefaultOn() {
+		return 'email_id';
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -310,37 +307,9 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
-			case 'add_watchers':
-				DevblocksEventHelper::renderActionAddWatchers($trigger);
-				break;
-			
-			case 'create_comment':
-				DevblocksEventHelper::renderActionCreateComment($trigger);
-				break;
-				
-			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification($trigger);
-				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask($trigger);
-				break;
-				
-			case 'create_ticket':
-				DevblocksEventHelper::renderActionCreateTicket($trigger);
-				break;
-				
-			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail($trigger);
-				break;
-
 			case 'set_is_banned':
 			case 'set_is_defunct':
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
-				break;
-				
-			case 'set_links':
-				DevblocksEventHelper::renderActionSetLinks($trigger);
 				break;
 				
 			default:
@@ -365,32 +334,11 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
-			case 'add_watchers':
-				return DevblocksEventHelper::simulateActionAddWatchers($params, $dict, 'email_id');
-				break;
-			case 'create_comment':
-				return DevblocksEventHelper::simulateActionCreateComment($params, $dict, 'email_id');
-				break;
-			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict, 'email_id');
-				break;
-			case 'create_task':
-				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'email_id');
-				break;
-			case 'create_ticket':
-				return DevblocksEventHelper::simulateActionCreateTicket($params, $dict);
-				break;
-			case 'send_email':
-				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
-				break;
 			case 'set_is_banned':
 				return DevblocksEventHelper::simulateActionSetAbstractField('is banned', Model_CustomField::TYPE_CHECKBOX, 'email_is_banned', $params, $dict);
 				break;
 			case 'set_is_defunct':
 				return DevblocksEventHelper::simulateActionSetAbstractField('is defunct', Model_CustomField::TYPE_CHECKBOX, 'email_is_defunct', $params, $dict);
-				break;
-			case 'set_links':
-				return DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
 				break;
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
@@ -406,30 +354,6 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
-			case 'add_watchers':
-				DevblocksEventHelper::runActionAddWatchers($params, $dict, 'email_id');
-				break;
-			
-			case 'create_comment':
-				DevblocksEventHelper::runActionCreateComment($params, $dict, 'email_id');
-				break;
-				
-			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $dict, 'email_id');
-				break;
-				
-			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $dict, 'email_id');
-				break;
-
-			case 'create_ticket':
-				DevblocksEventHelper::runActionCreateTicket($params, $dict);
-				break;
-				
-			case 'send_email':
-				DevblocksEventHelper::runActionSendEmail($params, $dict);
-				break;
-				
 			case 'set_is_banned':
 				@$value = $params['value'];
 				@$bit = !empty($value) ? 1 : 0;
@@ -448,10 +372,6 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 					DAO_Address::IS_DEFUNCT => $bit,
 				));
 				$dict->is_defunct = $bit;
-				break;
-				
-			case 'set_links':
-				DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
 				break;
 				
 			default:

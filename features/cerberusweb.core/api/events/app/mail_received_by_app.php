@@ -449,13 +449,11 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		$actions =
 			array(
 				'append_to_content' => array('label' =>'Append text to message content'),
-				'create_notification' => array('label' =>'Create notification'),
 				'prepend_to_content' => array('label' =>'Prepend text to message content'),
 				'replace_content' => array('label' =>'Replace text in message content'),
 				'reject' => array('label' =>'Reject delivery of message'),
 				'redirect_email' => array('label' =>'Redirect delivery to another email address'),
 				'remove_attachments' => array('label' => 'Remove attachments by filename'),
-				'send_email' => array('label' => 'Send email'),
 				'send_email_sender' => array('label' => 'Reply to sender'),
 				'set_header' => array('label' => 'Set message header'),
 				'set_sender_is_banned' => array('label' => 'Set sender is banned'),
@@ -471,6 +469,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		}
 		
 		return $actions;
+	}
+	
+	function getActionDefaultOn() {
+		return null;
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -489,10 +491,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_add_content.tpl');
 				break;
 				
-			case 'create_notification':
-				DevblocksEventHelper::renderActionCreateNotification($trigger);
-				break;
-				
 			case 'replace_content':
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_replace_content.tpl');
 				break;
@@ -508,10 +506,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_remove_attachments.tpl');
 				break;
 			
-			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail($trigger);
-				break;
-
 			case 'send_email_sender':
 				//$tpl->assign('workers', DAO_Worker::getAll());
 				$tpl->display('devblocks:cerberusweb.core::events/mail_received_by_app/action_send_email_sender.tpl');
@@ -556,10 +550,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				);
 				
 				return $out;
-				break;
-				
-			case 'create_notification':
-				return DevblocksEventHelper::simulateActionCreateNotification($params, $dict);
 				break;
 				
 			case 'prepend_to_content':
@@ -642,10 +632,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 					$value
 				);
 				return $out;
-				break;
-				
-			case 'send_email':
-				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
 				break;
 				
 			case 'send_email_sender':
@@ -806,10 +792,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$dict->body .= "\r\n" . $tpl_builder->build($params['content'], $dict);
 				break;
 				
-			case 'create_notification':
-				DevblocksEventHelper::runActionCreateNotification($params, $dict);
-				break;
-				
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$dict->body = $tpl_builder->build($params['content'], $dict) . "\r\n" . $dict->body;
@@ -876,10 +858,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				$dict->pre_actions['attachment_filters'][] = array('oper' => $oper, 'value' => $value);
 				break;
 				
-			case 'send_email':
-				return DevblocksEventHelper::runActionSendEmail($params, $dict);
-				break;
-
 			case 'send_email_sender':
 				// Translate message tokens
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();

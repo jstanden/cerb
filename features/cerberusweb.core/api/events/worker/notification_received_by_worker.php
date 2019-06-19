@@ -177,12 +177,14 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions = array(
-			'send_email' => array('label' => 'Send email'),
 			'send_email_owner' => array('label' => 'Send email to notified worker'),
-			'create_task' => array('label' =>'Create task'),
 			'mark_read' => array('label' =>'Mark read'),
 		);
 		return $actions;
+	}
+	
+	function getActionDefaultOn() {
+		return 'id';
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -196,16 +198,8 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
-			case 'create_task':
-				DevblocksEventHelper::renderActionCreateTask($trigger);
-				break;
-				
 			case 'mark_read':
 				echo "The notification will be marked as read.";
-				break;
-				
-			case 'send_email':
-				DevblocksEventHelper::renderActionSendEmail($trigger);
 				break;
 				
 			case 'send_email_owner':
@@ -230,10 +224,6 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
-			case 'send_email':
-				return DevblocksEventHelper::simulateActionSendEmail($params, $dict);
-				break;
-			
 			case 'send_email_owner':
 				$to = array();
 				
@@ -269,10 +259,6 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 			case 'mark_read':
 				return ">>> Marking notification as read\n";
 				break;
-				
-			case 'create_task':
-				return DevblocksEventHelper::simulateActionCreateTask($params, $dict, 'id');
-				break;
 		}
 	}
 	
@@ -283,10 +269,6 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 			return;
 		
 		switch($token) {
-			case 'create_task':
-				DevblocksEventHelper::runActionCreateTask($params, $dict, 'id');
-				break;
-			
 			case 'mark_read':
 				DAO_Notification::update($notification_id, array(
 					DAO_Notification::IS_READ => 1,
@@ -294,10 +276,6 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 				$dict->is_read = 1;
 				break;
 			
-			case 'send_email':
-				DevblocksEventHelper::runActionSendEmail($params, $dict);
-				break;
-				
 			case 'send_email_owner':
 				$to = array();
 				
