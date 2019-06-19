@@ -3444,7 +3444,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.ajax.request</id>
-			<name>[UI] Respond to Ajax HTTP request</name>
+			<name>Respond to Ajax HTTP request</name>
 			<class>
 				<file>api/events/ajax/ajax_request.php</file>
 				<name>Event_AjaxHttpRequest</name>
@@ -3456,7 +3456,8 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
-				<param key="options"/>
+				<param key="menu_key" value="UI:Respond to HTTP request" />
+				<param key="options" />
 			</params>
 		</extension>
 		
@@ -3476,13 +3477,14 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Schedule:Recurrent behavior" />
 				<param key="options"/>
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.interactions.get.worker</id>
-			<name>Conversation get interactions for worker</name>
+			<name>Get chat interactions for worker</name>
 			<class>
 				<file>api/events/interaction/get_interactions_for_worker.php</file>
 				<name>Event_GetInteractionsForWorker</name>
@@ -3496,13 +3498,14 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Chat Interactions:Worker:Get interactions" />
 				<param key="options"/>
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.interaction.chat.worker</id>
-			<name>Conversation handle interaction with worker</name>
+			<name>Handle chat interaction with worker</name>
 			<class>
 				<file>api/events/interaction/new_interaction_chat_worker.php</file>
 				<name>Event_NewInteractionChatWorker</name>
@@ -3516,6 +3519,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Chat Interactions:Worker:Handle interaction" />
 				<param key="options">
 					<value>
 						<data key="resumable" />
@@ -3526,7 +3530,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.message.chat.worker</id>
-			<name>Conversation with worker</name>
+			<name>Chat with worker</name>
 			<class>
 				<file>api/events/interaction/new_message_chat_worker.php</file>
 				<name>Event_NewMessageChatWorker</name>
@@ -3540,6 +3544,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Chat Interactions:Worker:Chat with worker" />
 				<param key="options">
 					<value>
 						<data key="resumable" />
@@ -3564,6 +3569,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Dashboards:Render widget" />
 			</params>
 		</extension>
 		
@@ -3583,22 +3589,25 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Dashboards:Get metric for widget" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.data.query.datasource</id>
-			<name>Data Query Datasource</name>
+			<name>Data query datasource</name>
 			<class>
 				<file>api/events/datasource/data_query_datasource.php</file>
 				<name>Event_DataQueryDatasource</name>
 			</class>
-			<params/>
+			<params>
+				<param key="menu_key" value="Data Queries:Datasource" />
+			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.app</id>
-			<name>Before new incoming message is accepted</name>
+			<name>Filter new incoming message</name>
 			<class>
 				<file>api/events/app/mail_received_by_app.php</file>
 				<name>Event_MailReceivedByApp</name>
@@ -3610,12 +3619,13 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Filtering:Filter new incoming message" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.comment.ticket.group</id>
-			<name>New comment on conversation in group</name>
+			<name>New comment on ticket in group</name>
 			<class>
 				<file>api/events/group/comment_on_ticket_in_group.php</file>
 				<name>Event_CommentOnTicketInGroup</name>
@@ -3626,12 +3636,13 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:New comment on ticket in group" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.assigned.group</id>
-			<name>Conversation assigned in group</name>
+			<name>Ticket assigned in group</name>
 			<class>
 				<file>api/events/group/mail_assigned_in_group.php</file>
 				<name>Event_MailAssignedInGroup</name>
@@ -3641,13 +3652,14 @@
 					<value>
 						<data key="cerberusweb.contexts.group" />
 					</value>
+					<param key="menu_key" value="Mail:Ticket assigned in group" />
 				</param>
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.closed.group</id>
-			<name>Conversation closed in group</name>
+			<name>Ticket closed in group</name>
 			<class>
 				<file>api/events/group/mail_closed_in_group.php</file>
 				<name>Event_MailClosedInGroup</name>
@@ -3658,12 +3670,13 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Ticket closed in group" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.moved.group</id>
-			<name>Conversation moved in group</name>
+			<name>Ticket moved in group</name>
 			<class>
 				<file>api/events/group/mail_moved_to_group.php</file>
 				<name>Event_MailMovedToGroup</name>
@@ -3674,6 +3687,7 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Ticket moved in group" />
 			</params>
 		</extension>
 		
@@ -3691,12 +3705,13 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:New message added to ticket" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.group</id>
-			<name>New message added to ticket in this group</name>
+			<name>New message added to ticket in group</name>
 			<class>
 				<file>api/events/group/mail_received_by_group.php</file>
 				<name>Event_MailReceivedByGroup</name>
@@ -3707,6 +3722,7 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:New message added to ticket in group" />
 			</params>
 		</extension>
 		
@@ -3724,6 +3740,7 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Sent:After message sent by worker" />
 			</params>
 		</extension>
 		
@@ -3740,12 +3757,13 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Sent:After message sent by group member" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.before.sent</id>
-			<name>Before message sent from worker</name>
+			<name>Before message sent by worker</name>
 			<class>
 				<file>api/events/app/mail_before_sent.php</file>
 				<name>Event_MailBeforeSent</name>
@@ -3757,12 +3775,13 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Sent:Before message sent by worker" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.sent.group</id>
-			<name>Before message sent from group member</name>
+			<name>Before message sent by group member</name>
 			<class>
 				<file>api/events/group/mail_before_sent_by_group.php</file>
 				<name>Event_MailBeforeSentByGroup</name>
@@ -3773,6 +3792,7 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Sent:Before message sent by group member" />
 			</params>
 		</extension>
 		
@@ -3790,6 +3810,7 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Form Interactions:Worker" />
 				<param key="options">
 					<data key="resumable" />
 				</param>
@@ -3798,7 +3819,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.ticket.viewed.worker</id>
-			<name>After ticket profile viewed by a worker</name>
+			<name>Ticket profile viewed by a worker</name>
 			<class>
 				<file>api/events/app/ticket_viewed_by_worker.php</file>
 				<name>Event_TicketViewedByWorker</name>
@@ -3810,9 +3831,11 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Ticket profile viewed by a worker" />
 			</params>
 		</extension>
 		
+		<!-- Deprecated -->
 		<extension point="devblocks.event">
 			<id>event.task.created.worker</id>
 			<name>New task created</name>
@@ -3827,6 +3850,8 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:New task created" />
+				<param key="deprecated" value="true" />
 			</params>
 		</extension>
 		
@@ -3845,6 +3870,7 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Record changed" />
 			</params>
 		</extension>
 		
@@ -3865,6 +3891,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Email address" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -3888,6 +3915,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="API:Custom request" />
 			</params>
 		</extension>
 		
@@ -3908,6 +3936,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Calendar" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -3933,6 +3962,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Calendar event" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -3958,6 +3988,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Contact" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -3983,6 +4014,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Group" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4008,6 +4040,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Message" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4033,6 +4066,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Notification" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4058,6 +4092,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Organization" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4083,6 +4118,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Reminder" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4108,6 +4144,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Task" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4133,6 +4170,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Ticket" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4158,6 +4196,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Bot" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4183,6 +4222,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Worker" />
 				<param key="options">
 					<value>
 						<data key="visibility" />
@@ -4204,6 +4244,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:New message on a watched ticket" />
 			</params>
 		</extension>
 		
@@ -4220,12 +4261,13 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Notifications:New notification for me" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.compose.pre.ui.worker</id>
-			<name>[UI] Before composing a new message</name>
+			<name>Before composing a new message</name>
 			<class>
 				<file>api/events/ui/ui_before_compose_by_worker.php</file>
 				<name>Event_MailBeforeUiComposeByWorker</name>
@@ -4239,12 +4281,13 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Compose:Before composing a new message" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.mail.reply.pre.ui.worker</id>
-			<name>[UI] Before composing a message reply</name>
+			<name>Before composing a message reply</name>
 			<class>
 				<file>api/events/ui/ui_before_reply_by_worker.php</file>
 				<name>Event_MailBeforeUiReplyByWorker</name>
@@ -4258,12 +4301,14 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Compose:Before composing a message reply" />
 			</params>
 		</extension>
 		
+		<!-- Deprecated -->
 		<extension point="devblocks.event">
 			<id>event.mail.reply.during.ui.worker</id>
-			<name>[DEPRECATED] [UI] During a message reply</name>
+			<name>[DEPRECATED] During a message reply</name>
 			<class>
 				<file>api/events/ui/ui_during_reply_by_worker.php</file>
 				<name>Event_MailDuringUiReplyByWorker</name>
@@ -4277,12 +4322,14 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Mail:Compose:During a message reply" />
+				<param key="deprecated" value="true" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.ui.card.editor.opened.worker</id>
-			<name>[UI] Record editor opened</name>
+			<name>Record editor opened</name>
 			<class>
 				<file>api/events/ui/ui_card_editor_opened_by_worker.php</file>
 				<name>Event_UiCardEditorOpenedByWorker</name>
@@ -4293,12 +4340,13 @@
 						<data key="cerberusweb.contexts.app" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Record editor opened" />
 			</params>
 		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.ui.worklist.render.worker</id>
-			<name>[UI] Render record worklist</name>
+			<name>Record worklist rendered</name>
 			<class>
 				<file>api/events/ui/ui_worklist_render_by_worker.php</file>
 				<name>Event_UiWorklistRenderByWorker</name>
@@ -4311,6 +4359,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Record worklist rendered" />
 			</params>
 		</extension>
 		
@@ -4328,6 +4377,7 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Record commented on" />
 			</params>
 		</extension>
 

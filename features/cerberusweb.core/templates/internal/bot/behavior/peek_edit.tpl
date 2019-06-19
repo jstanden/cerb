@@ -164,7 +164,7 @@
 								{else}
 									<div>{$idx|capitalize}</div>
 								{/if}
-								<ul style="">
+								<ul style="width:200px;">
 									{menu keys=$data->children level=$level+1}
 								</ul>
 							</li>

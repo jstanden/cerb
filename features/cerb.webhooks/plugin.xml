@@ -101,6 +101,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Webhooks:Received" />
 			</params>
 		</extension>
 		

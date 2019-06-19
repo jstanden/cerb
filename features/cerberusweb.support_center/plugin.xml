@@ -294,6 +294,7 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Portals:New contact registered in Support Center" />
 			</params>
 		</extension>
 		

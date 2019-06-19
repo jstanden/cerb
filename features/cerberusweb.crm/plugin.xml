@@ -180,6 +180,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Opportunity" />
 				<param key="options">
 					<value>
 						<data key="visibility" />

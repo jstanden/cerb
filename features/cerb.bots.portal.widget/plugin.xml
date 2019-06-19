@@ -52,7 +52,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.interaction.chat.portal</id>
-			<name>Conversation handle interaction with portal visitor</name>
+			<name>Handle chat interaction with portal visitor</name>
 			<class>
 				<file>api/events/new_interaction_chat_portal.php</file>
 				<name>Event_NewInteractionChatPortal</name>
@@ -64,6 +64,7 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
+				<param key="menu_key" value="Chat Interactions:Portal:Handle interaction" />
 				<param key="options">
 					<data key="resumable" />
 				</param>
@@ -72,7 +73,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.message.chat.portal</id>
-			<name>Conversation with portal visitor</name>
+			<name>Chat with portal visitor</name>
 			<class>
 				<file>api/events/new_message_chat_portal.php</file>
 				<name>Event_NewMessageChatPortal</name>
@@ -86,6 +87,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
+				<param key="menu_key" value="Chat Interactions:Portal:Chat with visitor" />
 				<param key="options">
 					<data key="resumable" />
 				</param>

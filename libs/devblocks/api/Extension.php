@@ -635,7 +635,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	/**
 	 * @internal
 	 */
-	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ') {
+	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ', $condense=true) {
 		natcasesort($labels);
 		
 		$keys = new DevblocksMenuItemPlaceholder();
@@ -684,8 +684,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		$forward_recurse($keys, '');
 		
-		$condense = null;
-		$condense = function(&$node, $key=null, &$parent=null) use (&$condense, $label_separator, $key_separator) {
+		$condense_func = null;
+		$condense_func = function(&$node, $key=null, &$parent=null) use (&$condense_func, $label_separator, $key_separator) {
 			// If this node has exactly one child
 			if(is_array($node->children) && 1 == count($node->children) && $parent && is_null($node->label)) {
 				reset($node->children);
@@ -711,17 +711,19 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				
 				// Recurse through the parent again
 				foreach($parent->children as $k => &$n)
-					$condense($n, $k, $parent);
+					$condense_func($n, $k, $parent);
 				
 			} else {
 				// If this node still has children, recurse into them
 				if(is_array($node->children))
 				foreach($node->children as $k => &$n)
-					$condense($n, $k, $node);
+					$condense_func($n, $k, $node);
 			}
 			
 		};
-		$condense($keys);
+		
+		if($condense)
+			$condense_func($keys);
 		
 		return $keys->children;
 	}
@@ -1821,7 +1823,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				$manifest->id = $event_id;
 				$manifest->plugin_id = 'cerberusweb.core';
 				$manifest->point = Extension_DevblocksEvent::POINT;
-				$manifest->name = 'Record custom behavior on ' . DevblocksPlatform::strLower($custom_record->name);
+				$manifest->name = 'Record custom behavior on ' . DevblocksPlatform::strUpperFirst($custom_record->name, true);
 				$manifest->file = 'api/events/macro/abstract_custom_record_macro.php';
 				$manifest->class = 'Event_AbstractCustomRecord_' . $custom_record->id;
 				$manifest->params = [
@@ -1834,6 +1836,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							'cerberusweb.contexts.worker' => '',
 						],
 					],
+					'menu_key' => 'Records:Custom Behavior:' . DevblocksPlatform::strUpperFirst($custom_record->name, true),
 					'options' => [
 						0 => [
 							'visibility' => '',

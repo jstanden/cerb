@@ -1,21 +1,21 @@
 {function menu level=0}
 	{foreach from=$keys item=data key=idx}
 		{if is_array($data->children) && !empty($data->children)}
-			<li {if $data->key}data-token="{$data->key}" data-label="{$data->label}"{/if}>
+			<li {if $data->key}data-token="{$data->key}" data-label="{$events[$data->key]->name}"{/if}>
 				{if $data->key}
-					<div style="font-weight:bold;">{$data->l|capitalize}</div>
+					<div style="font-weight:bold;">{$data->l}</div>
 				{else}
-					<div>{$idx|capitalize}</div>
+					<div>{$idx}</div>
 				{/if}
-				<ul style="">
+				<ul style="width:200px;">
 					{menu keys=$data->children level=$level+1}
 				</ul>
 			</li>
 		{elseif $data->key}
 			{$item_context = explode(':', $data->key)}
-			<li data-token="{$data->key}" data-label="{$data->label}">
+			<li data-token="{$data->key}" data-label="{$events[$data->key]->name}">
 				<div style="font-weight:bold;">
-					{$data->l|capitalize}
+					{$data->l}
 				</div>
 			</li>
 		{/if}
@@ -24,6 +24,6 @@
 
 <ul class="chooser-container bubbles"></ul>
 
-<ul class="events-menu" style="width:300px;{if $model->event_point}display:none;{/if}">
+<ul class="events-menu" style="width:150px;{if $model->event_point}display:none;{/if}">
 {menu keys=$events_menu}
 </ul>
