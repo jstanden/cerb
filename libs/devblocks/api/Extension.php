@@ -2741,60 +2741,358 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$actions = [
 			'_create_calendar_event' => [
 				'label' => 'Create calendar event',
+				'notes' => 'Use [Record create](/docs/bots/events/actions/core.bot.action.record.create/) instead.',
+				'deprecated' => true,
+				'params' => [
+					'calendar_id' => [
+						'type' => 'id',
+						'required' => true,
+						'notes' => 'The ID of the [calendar](/docs/records/types/calendar/) to add the event to',
+					],
+					'title' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => 'The name of the event',
+					],
+					'when' => [
+						'type' => 'timestamp',
+						'required' => true,
+						'notes' => 'The start datetime of the event',
+					],
+					'until' => [
+						'type' => 'timestamp',
+						'required' => true,
+						'notes' => 'The end of datetime of the event',
+					],
+					'is_available' => [
+						'type' => 'bit',
+						'notes' => '`0`=busy, `1`=available',
+					],
+					'comment' => [
+						'type' => 'text',
+						'notes' => 'An optional comment to add to the new record',
+					],
+					'run_in_simulator' => [
+						'type' => 'bit',
+						'notes' => 'Create new records from the simulator: `0`=no, `1`=yes',
+					],
+					'object_var' => [
+						'type' => 'text',
+						'notes' => 'Save the new record into this `var_` behavior variable',
+					],
+				],
 			],
 			'_exit' => [
 				'label' => 'Behavior exit',
+				'params' => [
+					'mode' => [
+						'type' => 'text',
+						'notes' => 'may be `suspend` on resumable behaviors, otherwise omit',
+					],
+				],
 			],
 			'_get_key' => [
 				'label' => 'Get persistent key',
+				'params' => [
+					'key' => [
+						'type' => 'string',
+						'required' => true,
+						'notes' => 'The key of the value to retrieve from storage',
+					],
+					'var' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'Save the returned value to this placeholder',
+					],
+				],
 			],
 			'_get_links' => [
 				'label' => 'Get links',
+				'params' => [
+					'on' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'The placeholder/variable containing the target record',
+					],
+					'links_context' => [
+						'type' => 'context',
+						'required' => true,
+						'notes' => 'Fetch links of [record type](/docs/records/types/)',
+					],
+					'var' => [
+						'type' => 'placeholder',
+						'notes' => 'Save the link results to this placeholder',
+					],
+					'behavior_var' => [
+						'type' => 'placeholder',
+						'notes' => 'Set this behavior variable with the link results',
+					],
+				],
 			],
 			'_get_worklist_metric' => [
 				'label' => 'Get worklist metric',
+				'deprecated' => true,
+				'notes' => 'Use [Execute Data Query](/docs/bots/events/actions/core.bot.action.data_query/) instead.',
+				'params' => [],
 			],
 			'_run_behavior' => [
 				'label' => 'Behavior run',
+				'params' => [
+					'on' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'The placeholder/variable containing the target record',
+					],
+					'behavior_id' => [
+						'type' => 'id',
+						'required' => true,
+						'notes' => 'The ID of the [behavior](/docs/records/types/behavior/) to execute',
+					],
+					'var_*' => [
+						'type' => 'mixed',
+						'notes' => 'Input variables for the target behavior',
+					],
+					'run_in_simulator' => [
+						'type' => 'bit',
+						'notes' => 'Run the target behavior in the simulator: `0`=no, `1`=yes',
+					],
+					'var' => [
+						'type' => 'placeholder',
+						'notes' => 'Save the behavior results to this placeholder',
+					],
+				],
 			],
 			'_run_subroutine' => [
 				'label' => 'Behavior call subroutine',
+				'params' => [
+					'subroutine' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => 'The name of the behavior [subroutine](/docs/bots/behaviors/#subroutines) to execute',
+					],
+				],
 			],
 			'_schedule_behavior' => [
 				'label' => 'Behavior schedule',
+				'params' => [
+					'on' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'The placeholder/variable containing the target record',
+					],
+					'behavior_id' => [
+						'type' => 'id',
+						'required' => true,
+						'notes' => 'The ID of the [behavior](/docs/records/types/behavior/) to execute',
+					],
+					'var_*' => [
+						'type' => 'mixed',
+						'notes' => 'Input variables for the target behavior',
+					],
+					'run_date' => [
+						'type' => 'template',
+						'notes' => 'When to run the scheduled behavior (e.g. `now`, `+2 days`, `Friday 8am`)',
+					],
+					'on_dupe' => [
+						'type' => 'text',
+						'notes' => '`first` (only schedule earliest), `last` (only schedule latest), or omit to allow multiple occurrences',
+					],
+				],
 			],
 			'_set_custom_var' => [
 				'label' => 'Set custom placeholder',
+				'params' => [
+					'var' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'The placeholder to set',
+					],
+					'value' => [
+						'type' => 'string',
+						'required' => true,
+						'notes' => 'The new value of the placeholder',
+					],
+					'format' => [
+						'type' => 'string',
+						'notes' => 'The format of the value: `json`, or omit for text',
+					],
+					'is_simulator_only' => [
+						'type' => 'bit',
+						'notes' => 'Only set the placeholder in simulator mode: `0`=no, `1`=yes',
+					],
+				],
 			],
 			'_set_custom_var_snippet' => [
 				'label' => 'Set custom placeholder using a snippet',
+				'params' => [
+					'var' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'Save the snippet output to this placeholder',
+					],
+					'on' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'The placeholder/variable containing the target record',
+					],
+					'snippet_id' => [
+						'type' => 'id',
+						'required' => true,
+						'notes' => 'The ID of the [snippet](/docs/records/types/snippet/) to use',
+					],
+				],
 			],
 			'_set_key' => [
 				'label' => 'Set persistent key',
+				'params' => [
+					'key' => [
+						'type' => 'string',
+						'required' => true,
+						'notes' => 'The key to set in storage',
+					],
+					'value' => [
+						'type' => 'string',
+						'required' => true,
+						'notes' => 'The value to set in storage',
+					],
+					'expires_at' => [
+						'type' => 'datetime',
+						'notes' => 'When to expire the key (e.g. `now`, `+2 days`, `Friday 8am`); omit to never expire',
+					],
+				],
 			],
 			'_unschedule_behavior' => [
 				'label' => 'Behavior unschedule',
+				'params' => [
+					'on' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'The placeholder/variable containing the target record',
+					],
+					'behavior_id' => [
+						'type' => 'id',
+						'required' => true,
+						'notes' => 'The ID of the [behavior](/docs/records/types/behavior/) to remove',
+					],
+				],
 			],
 			'add_watchers' => [
 				'label' =>'Add watchers',
+				'params' => [
+					'on' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'The placeholder/variable containing the target record',
+					],
+					'worker_id' => [
+						'type' => 'id[]',
+						'required' => true,
+						'notes' => 'An array of [worker](/docs/records/types/worker/) IDs to add as watchers to the target record',
+					],
+				],
 			],
 			'create_comment' => [
 				'label' => 'Create comment',
+				'notes' => 'Use [Record create](/docs/bots/events/actions/core.bot.action.record.create/) instead.',
+				'deprecated' => true,
+				'params' => [
+				],
 			],
 			'create_notification' => [
 				'label' => 'Create notification',
+				'notes' => 'Use [Record create](/docs/bots/events/actions/core.bot.action.record.create/) instead.',
+				'deprecated' => true,
+				'params' => [
+				],
 			],
 			'create_task' => [
 				'label' => 'Create task',
+				'notes' => 'Use [Record create](/docs/bots/events/actions/core.bot.action.record.create/) instead.',
+				'deprecated' => true,
+				'params' => [
+				],
 			],
 			'create_ticket' => [
 				'label' => 'Create ticket',
+				'notes' => 'Use [Record create](/docs/bots/events/actions/core.bot.action.record.create/) or [Execute email parser](/docs/bots/events/actions/core.bot.action.email_parser/) instead.',
+				'deprecated' => true,
+				'params' => [
+				],
 			],
 			'send_email' => [
 				'label' => 'Send email',
+				'params' => [
+					'from_address_id' => [
+						'type' => 'id',
+						'required' => true,
+						'notes' => 'The sender [email address](/docs/records/types/address/) ID to as `From:`',
+					],
+					'send_as' => [
+						'type' => 'text',
+						'notes' => 'The personalized `From:` name',
+					],
+					'to' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => 'A list of `To:` recipient email addresses delimited with commas',
+					],
+					'cc' => [
+						'type' => 'text',
+						'notes' => 'A list of `Cc:` recipient email addresses delimited with commas',
+					],
+					'bcc' => [
+						'type' => 'text',
+						'notes' => 'A list of `Bcc:` recipient email addresses delimited with commas',
+					],
+					'subject' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => 'The `Subject:` of the email message',
+					],
+					'headers' => [
+						'type' => 'text',
+						'notes' => 'A list of `Header: Value` pairs delimited with newlines',
+					],
+					'format' => [
+						'type' => 'text',
+						'notes' => '`parsedown` for Markdown/HTML, or omitted for plaintext',
+					],
+					'content' => [
+						'type' => 'text',
+						'notes' => 'The email message body',
+					],
+					'html_template_id' => [
+						'type' => 'id',
+						'notes' => 'The [html template](/docs/records/types/html_template/) to use with Markdown format',
+					],
+					'bundle_ids' => [
+						'type' => 'id[]',
+						'notes' => 'An array of [file bundles](/docs/records/types/file_bundle/) to attach',
+					],
+					'run_in_simulator' => [
+						'type' => 'bit',
+						'notes' => 'Send live email in the simulator: `0`=no, `1`=yes',
+					],
+				],
 			],
 			'set_links' => [
 				'label' => 'Set links',
+				'params' => [
+					'on' => [
+						'type' => 'placeholder',
+						'required' => true,
+						'notes' => 'The placeholder/variable containing the target record',
+					],
+					'is_remove' => [
+						'type' => 'bit',
+						'notes' => '`0` (add links), `1` (remove links)',
+					],
+					'context_objects' => [
+						'type' => 'array',
+						'required' => true,
+						'notes' => 'An array of `record_type:record_id` pairs to link to the target',
+					],
+				],
 			],
 		];
 		
@@ -2839,10 +3137,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		if(is_array($manifests))
 		foreach($manifests as $manifest) {
-			$actions[$manifest->id] = [
-				'label' => $manifest->params['label'],
-				'scope' => 'global',
-			];
+			$action = [];
+			
+			if(method_exists($manifest->class, 'getMeta')) {
+				$action = call_user_func([$manifest->class, 'getMeta']);
+			}
+			
+			$action['label'] = $manifest->params['label'];
+			$action['scope'] = 'global';
+			
+			$actions[$manifest->id] = $action;
 		}
 
 		// Sort by label
@@ -2958,7 +3262,8 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					break;
 					
 				case 'send_email':
-					DevblocksEventHelper::renderActionSendEmail($trigger);
+					$email_recipients = method_exists($this, 'getActionEmailRecipients') ? $this->getActionEmailRecipients() : null;
+					DevblocksEventHelper::renderActionSendEmail($trigger, $email_recipients);
 					break;
 
 				case 'set_links':
@@ -3512,6 +3817,11 @@ abstract class Extension_DevblocksEventAction extends DevblocksExtension {
 		return $results;
 	}
 
+	/**
+	 * Return information about the action (params, notes, etc)
+	 */
+	static function getMeta() { return []; }
+	
 	/**
 	 * Render the behavior action's configuration template.
 	 */

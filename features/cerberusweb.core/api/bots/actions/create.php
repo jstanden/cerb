@@ -1,5 +1,16 @@
 <?php
 class BotAction_CreateAttachment extends Extension_DevblocksEventAction {
+	const ID = 'core.va.action.create_attachment';
+	
+	static function getMeta() {
+		return [
+			'notes' => 'Use [Record create](/docs/bots/events/actions/core.bot.action.record.create/) instead.',
+			'deprecated' => true,
+			'params' => [
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
@@ -122,6 +133,15 @@ class BotAction_CreateAttachment extends Extension_DevblocksEventAction {
 
 class BotAction_CreateReminder extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.create_reminder';
+	
+	static function getMeta() {
+		return [
+			'notes' => 'Use [Record create](/docs/bots/events/actions/core.bot.action.record.create/) instead.',
+			'deprecated' => true,
+			'params' => [
+			],
+		];
+	}
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();

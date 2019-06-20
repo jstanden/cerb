@@ -168,7 +168,17 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			[
-				'return_data' => array('label' => 'Return data'),
+				'return_data' => [
+					'label' => 'Return data',
+					'notes' => '',
+					'params' => [
+						'data' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The [data query](/docs/data-queries/) results in the given `format:`',
+						],
+					],
+				],
 			]
 		;
 		

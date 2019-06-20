@@ -456,19 +456,84 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
-		$actions = array(
-			'send_email' => array('label' => 'Send email'),
-			'relay_email' => array('label' => 'Relay to external email'),
-			'send_email_recipients' => array('label' => 'Reply to recipients'),
-		);
-		
-		// [TODO] Add set custom fields
+		$actions = [
+			'relay_email' => [
+				'label' => 'Send email relay to workers',
+				'notes' => '',
+				'params' => [
+					'to' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => 'An array of [email addresses](/docs/records/types/address/) recipients. These must match registered worker email addresses',
+					],
+					'to_owner' => [
+						'type' => 'text',
+						'notes' => 'Any value enables this option to include the ticket owner as a recipient',
+					],
+					'to_watchers' => [
+						'type' => 'text',
+						'notes' => 'Any value enables this option to include the ticket watchers as recipients',
+					],
+					'subject' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => 'The subject of the relayed message',
+					],
+					'content' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => 'The body of the relayed message',
+					],
+					'include_attachments' => [
+						'type' => 'bit',
+						'notes' => '`0` (do not include attachments) or `1` (include attachments)',
+					],
+				],
+			],
+			'send_email_recipients' => [
+				'label' => 'Send email to recipients',
+				'notes' => '',
+				'params' => [
+					'headers' => [
+						'type' => 'text',
+						'notes' => 'A list of `Header: Value` pairs delimited by newlines',
+					],
+					'format' => [
+						'type' => 'text',
+						'notes' => '`parsedown` for Markdown/HTML, or omitted for plaintext',
+					],
+					'content' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => 'The email message body',
+					],
+					'html_template_id' => [
+						'type' => 'id',
+						'notes' => 'The [html template](/docs/records/types/html_template/) to use with Markdown format',
+					],
+					'bundle_ids' => [
+						'type' => 'id[]',
+						'notes' => 'An array of [file bundles](/docs/records/types/file_bundle/) to attach',
+					],
+					'is_autoreply' => [
+						'type' => 'bit',
+						'notes' => '`0` (not an autoreply), `1` (an autoreply)',
+					],
+				],
+			],
+		];
 		
 		return $actions;
 	}
 	
 	function getActionDefaultOn() {
 		return 'ticket_id';
+	}
+	
+	function getActionEmailRecipients() {
+		return [
+			'ticket_bucket_replyto_id,group_replyto_id' => 'Ticket Bucket',
+		];
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -492,14 +557,6 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 					array('workers'),
 					'content'
 				);
-				break;
-				
-			case 'send_email':
-				$placeholders = [
-					'ticket_bucket_replyto_id,group_replyto_id' => 'Ticket Bucket',
-				];
-				
-				DevblocksEventHelper::renderActionSendEmail($trigger, $placeholders);
 				break;
 				
 			case 'send_email_recipients':

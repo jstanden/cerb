@@ -447,18 +447,134 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'append_to_content' => array('label' =>'Append text to message content'),
-				'prepend_to_content' => array('label' =>'Prepend text to message content'),
-				'replace_content' => array('label' =>'Replace text in message content'),
-				'reject' => array('label' =>'Reject delivery of message'),
-				'redirect_email' => array('label' =>'Redirect delivery to another email address'),
-				'remove_attachments' => array('label' => 'Remove attachments by filename'),
-				'send_email_sender' => array('label' => 'Reply to sender'),
-				'set_header' => array('label' => 'Set message header'),
-				'set_sender_is_banned' => array('label' => 'Set sender is banned'),
-				'set_sender_is_defunct' => array('label' => 'Set sender is defunct'),
-			)
+			[
+				'append_to_content' => [
+					'label' => 'Append text to message content',
+					'notes' => '',
+					'params' => [
+						'content' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The content to append to the message body',
+						],
+						'mode' => [
+							'type' => 'text',
+							'notes' => '`sent` (only sent message), `saved` (only saved message), or omit for both',
+						],
+					],
+				],
+				'prepend_to_content' => [
+					'label' => 'Prepend text to message content',
+					'notes' => '',
+					'params' => [
+						'content' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The content to prepend to the message body',
+						],
+						'mode' => [
+							'type' => 'text',
+							'notes' => '`sent` (only sent message), `saved` (only saved message), or omit for both',
+						],
+					],
+				],
+				'replace_content' => [
+					'label' => 'Replace text in message content',
+					'notes' => '',
+					'params' => [
+						'is_regexp' => [
+							'type' => 'bit',
+							'notes' => '`0` (plaintext match), `1` (regular expression match)',
+						],
+						'replace_mode' => [
+							'type' => 'text',
+							'notes' => '`text`, `html`, or omit for both',
+						],
+						'replace' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The content to match in the message body',
+						],
+						'with' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The new content to replace the match with',
+						],
+					],
+				],
+				'set_header' => [
+					'label' => 'Set message header',
+					'notes' => '',
+					'params' => [
+						'header' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The email header to set',
+						],
+						'value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The value of the email header',
+						],
+					],
+				],
+				'reject' => [
+					'label' =>'Reject delivery of message',
+					'notes' => 'This action has no configurable parameters.',
+					'params' => [],
+				],
+				'redirect_email' => [
+					'label' =>'Redirect delivery to another email address',
+					'notes' => '',
+					'params' => [
+						'to' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'A comma-separated list of recipient email addresses',
+						],
+					],
+				],
+				'remove_attachments' => [ 
+					'label' => 'Remove attachments by filename',
+					'notes' => '',
+					'params' => [
+						'match_oper' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The filename match operator: `is`, `like`, `regexp`',
+						],
+						'match_value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The value to match in the filename',
+						],
+					],
+				],
+				'send_email_sender' => [
+					'label' => 'Reply to sender',
+					'notes' => '',
+					'params' => [
+						'subject' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The subject of the message to send',
+						],
+						'content' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The body content of the message to send',
+						],
+					],
+				],
+				'set_sender_is_banned' => [
+					'label' => 'Set sender is banned',
+					'deprecated' => true,
+				],
+				'set_sender_is_defunct' => [
+					'label' => 'Set sender is defunct',
+					'deprecated' => true,
+				],
+			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 		

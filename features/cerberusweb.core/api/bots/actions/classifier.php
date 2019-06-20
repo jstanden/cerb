@@ -2,6 +2,28 @@
 class BotAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	const ID = 'core.va.action.classifier_prediction';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'classifier_id' => [
+					'type' => 'id',
+					'required' => true,
+					'notes' => 'The ID of the [classifier](/docs/records/types/classifier/) to use',
+				],
+				'content' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The text to give the classifier',
+				],
+				'object_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the classifier results',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);

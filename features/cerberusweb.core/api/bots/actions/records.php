@@ -2,6 +2,32 @@
 class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.record.create';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'context' => [
+					'type' => 'context',
+					'required' => true,
+					'notes' => 'The [record type](/docs/records/types/) to create',
+				],
+				'changeset_json' => [
+					'type' => 'json',
+					'required' => true,
+					'notes' => 'The field keys and values',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Create records in the simulator: `0`=no, `1`=yes',
+				],
+				'object_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the new record',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
@@ -137,6 +163,37 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 
 class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.record.update';
+	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'context' => [
+					'type' => 'context',
+					'required' => true,
+					'notes' => 'The [record type](/docs/records/types/) to update',
+				],
+				'id' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The ID of the record to update',
+				],
+				'changeset_json' => [
+					'type' => 'json',
+					'required' => true,
+					'notes' => 'The field keys and values',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Update records in the simulator: `0`=no, `1`=yes',
+				],
+				'object_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the updated record',
+				],
+			],
+		];
+	}
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -288,6 +345,37 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 class BotAction_RecordUpsert extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.record.upsert';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'context' => [
+					'type' => 'context',
+					'required' => true,
+					'notes' => 'The [record type](/docs/records/types/) to upsert',
+				],
+				'query' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The [search query](/docs/search/) to determine if the record exists (update) or not (insert)',
+				],
+				'changeset_json' => [
+					'type' => 'json',
+					'required' => true,
+					'notes' => 'The field keys and values',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Upsert records in the simulator: `0`=no, `1`=yes',
+				],
+				'object_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the record',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
@@ -406,6 +494,28 @@ class BotAction_RecordUpsert extends Extension_DevblocksEventAction {
 class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.record.delete';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'context' => [
+					'type' => 'context',
+					'required' => true,
+					'notes' => 'The [record type](/docs/records/types/) to delete',
+				],
+				'id' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The ID of the record to delete',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Delete records in the simulator: `0`=no, `1`=yes',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
@@ -497,6 +607,32 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 
 class BotAction_RecordRetrieve extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.record.retrieve';
+	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'context' => [
+					'type' => 'context',
+					'required' => true,
+					'notes' => 'The [record type](/docs/records/types/) to retrieve',
+				],
+				'id' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The ID of the record to retrieve',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Create records in the simulator: `0`=no, `1`=yes',
+				],
+				'object_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the retrieved record',
+				],
+			],
+		];
+	}
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -600,6 +736,32 @@ class BotAction_RecordRetrieve extends Extension_DevblocksEventAction {
 
 class BotAction_RecordSearch extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.record.search';
+	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'context' => [
+					'type' => 'context',
+					'required' => true,
+					'notes' => 'The [record type](/docs/records/types/) to search',
+				],
+				'query' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The [search query](/docs/search/) to perform',
+				],
+				'expand' => [
+					'type' => 'string',
+					'notes' => 'A comma-separated list of keys to expand (e.g. `custom_, owner`)',
+				],
+				'object_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the search results',
+				],
+			],
+		];
+	}
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();

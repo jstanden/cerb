@@ -2,6 +2,42 @@
 class BotAction_ScheduleInteractionProactive extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.interaction_proactive.schedule';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'on' => [
+					'type' => 'placeholder',
+					'required' => true,
+					'notes' => 'The placeholder/variable containing the target record',
+				],
+				'behavior_id' => [
+					'type' => 'id',
+					'required' => true,
+					'notes' => 'The ID of the [behavior](/docs/records/types/behavior/) to execute',
+				],
+				'interaction' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The name of the [chat interaction](/docs/bots/interactions/chat/) to trigger',
+				],
+				'interaction_params_json' => [
+					'type' => 'json',
+					'required' => true,
+					'notes' => 'The initial interaction keys and values',
+				],
+				'expires' => [
+					'type' => 'datetime',
+					'notes' => 'The date/time to expire an unread proactive interaction (e.g. `now`, `+2 days`, `Friday 8am`)',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Trigger proactive interactions in the simulator: `0`=no, `1`=yes',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);

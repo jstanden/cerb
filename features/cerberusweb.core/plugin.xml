@@ -3456,7 +3456,7 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
-				<param key="menu_key" value="UI:Respond to HTTP request" />
+				<param key="menu_key" value="UI:Respond to Ajax HTTP request" />
 				<param key="options" />
 			</params>
 		</extension>

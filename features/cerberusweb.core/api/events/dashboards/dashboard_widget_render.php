@@ -155,9 +155,19 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'render_html' => array('label' => 'Render HTML'),
-			)
+			[
+				'render_html' => [
+					'label' => 'Render HTML',
+					'notes' => '',
+					'params' => [
+						'html' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The HTML content to display in the browser',
+						],
+					],
+				],
+			]
 		;
 		
 		return $actions;

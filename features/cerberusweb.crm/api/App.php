@@ -29,6 +29,15 @@ class CrmEventListener extends DevblocksEventListenerExtension {
 };
 
 class VaAction_CreateOpportunity extends Extension_DevblocksEventAction {
+	static function getMeta() {
+		return [
+			'notes' => 'Use [Record create](/docs/bots/events/actions/core.bot.action.record.create/) instead.',
+			'deprecated' => true,
+			'params' => [
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);

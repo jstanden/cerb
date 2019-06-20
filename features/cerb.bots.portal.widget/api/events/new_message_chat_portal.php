@@ -267,17 +267,214 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'prompt_buttons' => array('label' => 'Prompt with buttons'),
-				'prompt_images' => array('label' => 'Prompt with images'),
-				'prompt_rating_number' => array('label' => 'Prompt with numeric rating scale'),
-				'prompt_text' => array('label' => 'Prompt with text input'),
-				'prompt_wait' => array('label' => 'Prompt with wait'),
-				'send_message' => array('label' => 'Respond with message'),
-				'send_script' => array('label' => 'Respond with script'),
-				'switch_behavior' => array('label' => 'Switch conversational behavior'),
-				'window_close' => array('label' => 'Close chat window'),
-			)
+			[
+				'prompt_buttons' => [
+					'label' => 'Prompt with buttons',
+					'notes' => '',
+					'params' => [
+						'options' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'A list of predefined options separated by newlines',
+						],
+						'color_from' => [
+							'type' => 'text',
+							'notes' => 'A hex color code for the gradient start',
+						],
+						'color_mid' => [
+							'type' => 'text',
+							'notes' => 'A hex color code for the gradient midpoint',
+						],
+						'color_to' => [
+							'type' => 'text',
+							'notes' => 'A hex color code for the gradient end',
+						],
+						'style' => [
+							'type' => 'text',
+							'notes' => 'Additional CSS styles to apply to the buttons',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's input",
+						],
+						'var_format' => [
+							'type' => 'text',
+							'notes' => "A template for formatting this prompt",
+						],
+						'var_validate' => [
+							'type' => 'text',
+							'notes' => "A template for validating this prompt",
+						],
+					],
+				],
+				'prompt_images' => [
+					'label' => 'Prompt with images',
+					'notes' => '',
+					'params' => [
+						'images' => [
+							'type' => 'array',
+							'required' => true,
+							'notes' => 'An array of base64-encoded images in `data:` URI format',
+						],
+						'labels' => [
+							'type' => 'array',
+							'notes' => 'An array of textual labels for the above images',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's input",
+						],
+						'var_format' => [
+							'type' => 'text',
+							'notes' => "A template for formatting this prompt",
+						],
+						'var_validate' => [
+							'type' => 'text',
+							'notes' => "A template for validating this prompt",
+						],
+					],
+				],
+				'prompt_rating_number' => [
+					'label' => 'Prompt with numeric rating scale',
+					'notes' => '',
+					'params' => [
+						'range_from' => [
+							'type' => 'number',
+							'required' => true,
+							'notes' => 'The starting value of the rating scale',
+						],
+						'label_from' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The starting label of the rating scale',
+						],
+						'color_from' => [
+							'type' => 'text',
+							'notes' => 'The starting hex color code of the rating scale',
+						],
+						'range_to' => [
+							'type' => 'number',
+							'required' => true,
+							'notes' => 'The ending value of the rating scale',
+						],
+						'label_to' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The ending label of the rating scale',
+						],
+						'color_to' => [
+							'type' => 'text',
+							'notes' => 'The ending hex color code of the rating scale',
+						],
+						'color_mid' => [
+							'type' => 'text',
+							'notes' => 'The midpoint hex color code of the rating scale',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's input",
+						],
+					],
+				],
+				'prompt_text' => [
+					'label' => 'Prompt with text input',
+					'notes' => '',
+					'params' => [
+						'placeholder' => [
+							'type' => 'text',
+							'notes' => 'The instructive text in the textbox when blank',
+						],
+						'default' => [
+							'type' => 'text',
+							'notes' => 'The default text in the textbox',
+						],
+						'mode' => [
+							'type' => 'text',
+							'notes' => '`single` or `multiple` lines',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's input",
+						],
+						'var_format' => [
+							'type' => 'text',
+							'notes' => "A template for formatting this prompt",
+						],
+						'var_validate' => [
+							'type' => 'text',
+							'notes' => "A template for validating this prompt",
+						],
+					],
+				],
+				'prompt_wait' => [
+					'label' => 'Prompt with wait',
+					'notes' => 'This action has no configurable options',
+					'params' => [],
+				],
+				'send_message' => [
+					'label' => 'Respond with message',
+					'notes' => '',
+					'params' => [
+						'message' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The message to send to the user',
+						],
+						'format' => [
+							'type' => 'text',
+							'notes' => '`markdown`, `html`, or omit for plaintext',
+						],
+						'delay_ms' => [
+							'type' => 'text',
+							'notes' => 'The typing delay to simulate (in milliseconds)',
+						],
+					],
+				],
+				'send_script' => [
+					'label' => 'Respond with script',
+					'notes' => '',
+					'params' => [
+						'script' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The Javascript/jQuery script to execute in the user browser',
+						],
+					],
+				],
+				'switch_behavior' => [
+					'label' => 'Switch behavior',
+					'notes' => '',
+					'params' => [
+						'behavior_id' => [
+							'type' => 'id',
+							'required' => true,
+							'notes' => 'The [behavior](/docs/records/types/behavior/) to start',
+						],
+						'var_*' => [
+							'type' => 'mixed',
+							'notes' => 'Variable inputs to the target behavior',
+						],
+						'return' => [
+							'type' => 'bit',
+							'notes' => '`0` (exit the current behavior) or `1` (resume the current behavior after completion)',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the behavior's results",
+						],
+					],
+				],
+				'window_close' => [
+					'label' => 'Close chat window',
+					'notes' => 'This action has no configuration options.',
+					'params' => [],
+				],
+			]
 			;
 		
 		return $actions;

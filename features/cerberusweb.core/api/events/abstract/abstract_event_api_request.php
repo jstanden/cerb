@@ -241,7 +241,15 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 		$actions =
 			[
 				'add_api_response' => [
-					'label' => 'Add to API response message'
+					'label' => 'Add to API response message',
+					'notes' => '',
+					'params' => [
+						'value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The text to append to the HTTP response',
+						]
+					],
 				],
 			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
@@ -328,7 +336,7 @@ abstract class AbstractEvent_ApiRequest extends Extension_DevblocksEvent {
 				$response = rtrim($dict->_response);
 				
 				if(false !== $out)
-					$dict->_response =  (!empty($response) ? $response . PHP_EOL : '') . $out;
+					$dict->_response = (!empty($response) ? $response . PHP_EOL : '') . $out;
 				break;
 			
 			default:

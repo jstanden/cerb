@@ -445,12 +445,78 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'append_to_content' => array('label' =>'Append text to message content'),
-				'prepend_to_content' => array('label' =>'Prepend text to message content'),
-				'replace_content' => array('label' =>'Replace text in message content'),
-				'set_header' => array('label' => 'Set message header'),
-			)
+			[
+				'append_to_content' => [
+					'label' => 'Append text to message content',
+					'notes' => '',
+					'params' => [
+						'content' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The content to append to the message body',
+						],
+						'mode' => [
+							'type' => 'text',
+							'notes' => '`sent` (only sent message), `saved` (only saved message), or omit for both',
+						],
+					],
+				],
+				'prepend_to_content' => [
+					'label' => 'Prepend text to message content',
+					'notes' => '',
+					'params' => [
+						'content' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The content to prepend to the message body',
+						],
+						'mode' => [
+							'type' => 'text',
+							'notes' => '`sent` (only sent message), `saved` (only saved message), or omit for both',
+						],
+					],
+				],
+				'replace_content' => [
+					'label' => 'Replace text in message content',
+					'notes' => '',
+					'params' => [
+						'is_regexp' => [
+							'type' => 'bit',
+							'notes' => '`0` (plaintext match), `1` (regular expression match)',
+						],
+						'replace_mode' => [
+							'type' => 'text',
+							'notes' => '`text`, `html`, or omit for both',
+						],
+						'replace' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The content to match in the message body',
+						],
+						'with' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The new content to replace the match with',
+						],
+					],
+				],
+				'set_header' => [
+					'label' => 'Set message header',
+					'notes' => '',
+					'params' => [
+						'header' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The email header to set',
+						],
+						'value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The value of the email header',
+						],
+					],
+				],
+			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 		

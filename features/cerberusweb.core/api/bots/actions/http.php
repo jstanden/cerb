@@ -2,6 +2,60 @@
 use GuzzleHttp\Psr7\Request;
 
 class BotAction_HttpRequest extends Extension_DevblocksEventAction {
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'http_verb' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The request method: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`',
+				],
+				'http_url' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The request URL',
+				],
+				'http_headers' => [
+					'type' => 'text',
+					'notes' => 'A list of `Header: Value` pairs (e.g. `Content-Type: application/json`), separated by newlines',
+				],
+				'http_body' => [
+					'type' => 'text',
+					'notes' => 'If `POST` or `PUT`, the HTTP request body',
+				],
+				'auth' => [
+					'type' => 'text',
+					'notes' => '`connected_account`, `placeholder`, or omitted',
+				],
+				'auth_connected_account_id' => [
+					'type' => 'text',
+					'notes' => 'When using auth=`connected_account` must return a [connected account](/docs/records/types/connected-account/] ID',
+				],
+				'auth_placeholder' => [
+					'type' => 'text',
+					'notes' => 'When using auth=`placeholder` the template must result to a [connected account](/docs/records/types/connected-account/] ID',
+				],
+				'options[ignore_ssl_validation]' => [
+					'type' => 'bit',
+					'notes' => '`0` (validate SSL), `1` (ignore SSL validation)',
+				],
+				'options[raw_response_body]' => [
+					'type' => 'bit',
+					'notes' => '`0` (auto-convert response by content type), `1` (keep raw response)',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Make HTTP requests in the simulator: `0`=no, `1`=yes',
+				],
+				'response_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the HTTP response',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);

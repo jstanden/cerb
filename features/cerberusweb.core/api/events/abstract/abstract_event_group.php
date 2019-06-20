@@ -171,9 +171,7 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'send_email' => array('label' => 'Send email'),
-			)
+			[]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			
@@ -182,6 +180,12 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 	
 	function getActionDefaultOn() {
 		return 'group_id';
+	}
+	
+	function getActionEmailRecipients() {
+		return [
+			'group_replyto_id' => 'Group',
+		];
 	}
 	
 	function renderActionExtension($token, $trigger, $params=array(), $seq=null) {
@@ -195,14 +199,6 @@ abstract class AbstractEvent_Group extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
-			case 'send_email':
-				$placeholders = [
-					'group_replyto_id' => 'Group',
-				];
-				
-				DevblocksEventHelper::renderActionSendEmail($trigger, $placeholders);
-				break;
-
 			default:
 				$matches = [];
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {

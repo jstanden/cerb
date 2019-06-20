@@ -328,9 +328,14 @@ class Event_CrmOpportunityMacro extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'set_status' => array('label' => 'Set opportunity status'),
-			)
+			[
+				'set_status' => [
+					'label' => 'Set opportunity status',
+					'deprecated' => true,
+					'notes' => 'Use [Record update](/docs/bots/events/actions/core.bot.action.record.update/) instead',
+					'params' => [],
+				],
+			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			

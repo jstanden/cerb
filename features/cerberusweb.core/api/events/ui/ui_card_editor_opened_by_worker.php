@@ -299,9 +299,19 @@ class Event_UiCardEditorOpenedByWorker extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'exec_jquery' => array('label' =>'Execute jQuery script'),
-			)
+			[
+				'exec_jquery' => [
+					'label' =>'Execute jQuery script',
+					'notes' => '',
+					'params' => [
+						'jquery_script' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The Javascript/jQuery script to execute in the browser',
+						]
+					],
+				],
+			]
 			;
 		
 		return $actions;

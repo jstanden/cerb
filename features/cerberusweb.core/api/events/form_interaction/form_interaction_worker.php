@@ -187,17 +187,171 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'prompt_captcha' => array('label' => 'Prompt with CAPTCHA challenge'),
-				'prompt_checkboxes' => array('label' => 'Prompt with multiple choices'),
-				'prompt_radios' => array('label' => 'Prompt with single choice'),
-				'prompt_text' => array('label' => 'Prompt with text'),
-				
-				'prompt_submit' => array('label' => 'Prompt with submit'),
-				
-				'respond_sheet' => array('label' => 'Respond with sheet'),
-				'respond_text' => array('label' => 'Respond with text'),
-			)
+			[
+				'prompt_captcha' => [
+					'label' => 'Prompt with CAPTCHA challenge',
+					'notes' => '',
+					'params' => [
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => 'The placeholder to set with the CAPTCHA challenge response',
+						],
+					],
+				],
+				'prompt_checkboxes' => [
+					'label' => 'Prompt with multiple choices',
+					'notes' => '',
+					'params' => [
+						'label' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The label for the set of choices',
+						],
+						'options' => [
+							'label' => [
+								'type' => 'text',
+								'required' => true,
+								'notes' => 'Predefined options separated by newlines',
+							],
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's choices",
+						],
+						'var_validate' => [
+							'type' => 'text',
+							'notes' => "A template for validating this prompt",
+						],
+					],
+				],
+				'prompt_radios' => [
+					'label' => 'Prompt with single choice',
+					'notes' => '',
+					'params' => [
+						'label' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The label for the set of choices',
+						],
+						'style' => [
+							'label' => [
+								'type' => 'text',
+								'notes' => '`radios` or `buttons`',
+							],
+						],
+						'orientation' => [
+							'label' => [
+								'type' => 'text',
+								'notes' => '`horizontal` or `vertical`',
+							],
+						],
+						'options' => [
+							'label' => [
+								'type' => 'text',
+								'required' => true,
+								'notes' => 'Predefined options separated by newlines',
+							],
+						],
+						'default' => [
+							'label' => [
+								'type' => 'text',
+								'notes' => 'The selected option by default',
+							],
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's choices",
+						],
+						'var_format' => [
+							'type' => 'text',
+							'notes' => "A template for formatting this prompt",
+						],
+						'var_validate' => [
+							'type' => 'text',
+							'notes' => "A template for validating this prompt",
+						],
+					],
+				],
+				'prompt_text' => [
+					'label' => 'Prompt with text',
+					'notes' => '',
+					'params' => [
+						'label' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The label for the text input',
+						],
+						'placeholder' => [
+							'type' => 'text',
+							'notes' => 'The descriptive text in the textbox when empty',
+						],
+						'default' => [
+							'type' => 'text',
+							'notes' => 'The default value in the textbox',
+						],
+						'mode' => [
+							'type' => 'text',
+							'notes' => '`multiple` (multiple lines), or omit for single line',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's input",
+						],
+						'var_format' => [
+							'type' => 'text',
+							'notes' => "A template for formatting this prompt",
+						],
+						'var_validate' => [
+							'type' => 'text',
+							'notes' => "A template for validating this prompt",
+						],
+					],
+				],
+				'prompt_submit' => [
+					'label' => 'Prompt with submit',
+					'notes' => 'This action has no configurable parameters.',
+					'params' => [],
+				],
+				'respond_sheet' => [
+					'label' => 'Respond with sheet',
+					'notes' => '',
+					'params' => [
+						'data_query' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => "The [data query](/docs/data-queries/) to run",
+						],
+						'placeholder_simulator_yaml' => [
+							'type' => 'yaml',
+							'notes' => "The test placeholder values when using the simulator",
+						],
+						'sheet_yaml' => [
+							'type' => 'yaml',
+							'required' => true,
+							'notes' => "The [sheet](/docs/sheets/) schema to display",
+						],
+					],
+				],
+				'respond_text' => [
+					'label' => 'Respond with text',
+					'notes' => '',
+					'params' => [
+						'message' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => "The message to send to the user",
+						],
+						'format' => [
+							'type' => 'text',
+							'notes' => "The format of the message: `markdown`, `html`, or omit for plaintext",
+						],
+					],
+				],
+			]
 			;
 		
 		return $actions;

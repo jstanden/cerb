@@ -185,9 +185,19 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'switch_behavior' => array('label' => 'Use behavior'),
-			)
+			[
+				'switch_behavior' => [
+					'label' => 'Use behavior',
+					'notes' => '',
+					'params' => [
+						'behavior_id' => [
+							'type' => 'id',
+							'required' => true,
+							'notes' => 'The [conversational behavior](/docs/bots/events/event.message.chat.portal/) to start',
+						]
+					],
+				],
+			]
 		;
 		
 		return $actions;

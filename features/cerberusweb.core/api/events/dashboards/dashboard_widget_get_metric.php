@@ -135,9 +135,19 @@ class Event_DashboardWidgetGetMetric extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'return_value' => array('label' => 'Return metric value'),
-			)
+			[
+				'return_value' => [
+					'label' => 'Return metric value',
+					'notes' => '',
+					'params' => [
+						'value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The metric value to return to the widget',
+						]
+					],
+				],
+			]
 		;
 		
 		return $actions;

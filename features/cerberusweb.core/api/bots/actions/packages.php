@@ -2,6 +2,32 @@
 class BotAction_PackageImport extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.package.import';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'package_json' => [
+					'type' => 'json',
+					'required' => true,
+					'notes' => 'The [package](/docs/packages/) manifest',
+				],
+				'prompts_json' => [
+					'type' => 'json',
+					'required' => true,
+					'notes' => 'The prompted input for the package',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Import packages in the simulator: `0`=no, `1`=yes',
+				],
+				'object_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the imported package results',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$actor = $trigger->getBot();
 		

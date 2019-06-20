@@ -176,10 +176,34 @@ class Event_NotificationReceivedByWorker extends Extension_DevblocksEvent {
 	}
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
-		$actions = array(
-			'send_email_owner' => array('label' => 'Send email to notified worker'),
-			'mark_read' => array('label' =>'Mark read'),
-		);
+		$actions = [
+			'send_email_owner' => [
+				'label' => 'Send email to notified worker',
+				'notes' => '',
+				'params' => [
+					'to' => [
+						'type' => 'array',
+						'required' => true,
+						'notes' => "An array of worker email addresses. These must match one or more of the notification owner's registered email addresses",
+					],
+					'subject' => [
+						'type' => 'text',
+						'required' => true,
+						'notes' => "The subject of the message to send",
+					],
+					'content' => [
+						'type' => 'array',
+						'required' => true,
+						'notes' => "The body content of the message to send",
+					],
+				],
+			],
+			'mark_read' => [
+				'label' =>'Mark read',
+				'notes' => 'This action has no configurable parameters',
+				'params' => [],
+			],
+		];
 		return $actions;
 	}
 	

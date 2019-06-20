@@ -283,8 +283,14 @@ abstract class AbstractEvent_Address extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			[
-				'set_is_banned' => array('label' => 'Set is banned'),
-				'set_is_defunct' => array('label' => 'Set is defunct'),
+				'set_is_banned' => [
+					'label' => 'Set is banned',
+					'deprecated' => true,
+				],
+				'set_is_defunct' => [
+					'label' => 'Set is defunct',
+					'deprecated' => true,
+				],
 			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;

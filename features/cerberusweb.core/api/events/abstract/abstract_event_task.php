@@ -238,13 +238,28 @@ abstract class AbstractEvent_Task extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'set_due_date' => array('label' => 'Set task due date'),
-				'set_importance' => array('label' => 'Set task importance'),
-				'set_owner' => array('label' => 'Set task owner'),
-				'set_reopen_date' => array('label' => 'Set task reopen date'),
-				'set_status' => array('label' => 'Set task status'),
-			)
+			[
+				'set_due_date' => [
+					'label' => 'Set task due date',
+					'deprecated' => true,
+				],
+				'set_importance' => [
+					'label' => 'Set task importance',
+					'deprecated' => true,
+				],
+				'set_owner' => [
+					'label' => 'Set task owner',
+					'deprecated' => true,
+				],
+				'set_reopen_date' => [
+					'label' => 'Set task reopen date',
+					'deprecated' => true,
+				],
+				'set_status' => [
+					'label' => 'Set task status',
+					'deprecated' => true,
+				],
+			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			

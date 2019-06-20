@@ -211,10 +211,38 @@ class Event_NewInteractionChatWorker extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'set_bot_name' => array('label' => 'Set bot name'),
-				'switch_behavior' => array('label' => 'Use behavior'),
-			)
+			[
+				'set_bot_name' => [
+					'label' => 'Set bot name',
+					'notes' => '',
+					'params' => [
+						'name' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The new displayed name of the [bot](/docs/bots/)',
+						],
+					],
+				],
+				'switch_behavior' => [
+					'label' => 'Use behavior',
+					'notes' => '',
+					'params' => [
+						'behavior_id' => [
+							'type' => 'id',
+							'required' => true,
+							'notes' => 'The [conversational behavior](/docs/bots/events/event.message.chat.worker/) to start',
+						],
+						'return' => [
+							'type' => 'bit',
+							'notes' => 'The current behavior should: `0` (exit), `1` (wait for result)',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'notes' => 'Save the behavior results to this placeholder',
+						],
+					],
+				],
+			]
 		;
 		
 		return $actions;

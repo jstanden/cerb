@@ -175,9 +175,14 @@ abstract class AbstractEvent_Reminder extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'set_reminder_status' => ['label' => 'Set reminder status'],
-			)
+			[
+				'set_reminder_status' => [
+					'label' => 'Set reminder status',
+					'deprecated' => true,
+					'notes' => 'Use [Record update](/docs/bots/events/actions/core.bot.action.record.update/) instead',
+					'params' => [],
+				],
+			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			

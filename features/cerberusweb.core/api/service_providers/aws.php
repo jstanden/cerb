@@ -253,6 +253,48 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 class BotAction_AwsGetPresignedUrl extends Extension_DevblocksEventAction {
 	const ID = 'wgm.aws.bot.action.get_presigned_url';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'http_verb' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The HTTP request method: `GET`, `POST`, `PUT`, `DELETE`',
+				],
+				'http_url' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The HTTP request URL',
+				],
+				'http_headers' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The HTTP request `Header: Value` pairs, separated by newlines',
+				],
+				'http_body' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'If `POST` or `PUT`, the HTTP request body',
+				],
+				'expires_secs' => [
+					'type' => 'number',
+					'required' => true,
+					'notes' => 'The duration of the pre-signed URL',
+				],
+				'auth_connected_account_id' => [
+					'type' => 'id',
+					'required' => true,
+					'notes' => 'The AWS [connected account](/docs/connected-accounts/) to use for request signing',
+				],
+				'response_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the presigned URL',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);

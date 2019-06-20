@@ -226,10 +226,23 @@ abstract class AbstractEvent_Notification extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'copy_notification' => array('label' =>'Copy notification'),
-				'set_notification_is_read' => array('label' => 'Set notification is read'),
-			)
+			[
+				'copy_notification' => [
+					'label' =>'Copy notification',
+					'notes' => '',
+					'params' => [
+						'worker_id' => [
+							'type' => 'array',
+							'required' => true,
+							'notes' => 'An array of [worker](/docs/records/types/worker/) IDs, or placeholders containing worker IDs',
+						]
+					],
+				],
+				'set_notification_is_read' => [
+					'label' => 'Set notification is read',
+					'deprecated' => true,
+				],
+			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			

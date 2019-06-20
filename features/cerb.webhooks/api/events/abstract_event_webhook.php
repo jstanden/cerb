@@ -320,12 +320,56 @@ abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'set_http_header' => array('label' => 'Respond with HTTP header'),
-				'set_http_body' => array('label' => 'Respond with HTTP body'),
-				'set_http_status' => array('label' => 'Respond with HTTP status'),
-				'set_timezone' => array('label' => 'Set timezone'),
-			)
+			[
+				'set_http_header' => [
+					'label' => 'Respond with HTTP header',
+					'notes' => '',
+					'params' => [
+						'name' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The HTTP response header name',
+						],
+						'value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The HTTP response header value',
+						],
+					],
+				],
+				'set_http_body' => [
+					'label' => 'Respond with HTTP body',
+					'notes' => '',
+					'params' => [
+						'value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The HTTP response body',
+						],
+					],
+				],
+				'set_http_status' => [
+					'label' => 'Respond with HTTP status',
+					'notes' => '',
+					'params' => [
+						'value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The HTTP response status (e.g. 200 OK)',
+						],
+					],
+				],
+				'set_timezone' => [
+					'label' => 'Set timezone',
+					'params' => [
+						'value' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The new timezone (e.g. `America/Los_Angeles`)',
+						],
+					],
+				],
+			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 			

@@ -347,9 +347,33 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
-			array(
-				'return_interaction' => array('label' => 'Return interaction'),
-			)
+			[
+				'return_interaction' => [
+					'label' => 'Return interaction',
+					'notes' => '',
+					'params' => [
+						'behavior_id' => [
+							'type' => 'id',
+							'required' => true,
+							'notes' => 'The ID of the [behavior](/docs/records/types/behavior/) to run',
+						],
+						'name' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The name of the displayed interaction',
+						],
+						'interaction' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The ID of the displayed interaction',
+						],
+						'interaction_params_json' => [
+							'type' => 'json',
+							'notes' => 'The parameters of the displayed interaction',
+						],
+					],
+				],
+			]
 		;
 		
 		return $actions;

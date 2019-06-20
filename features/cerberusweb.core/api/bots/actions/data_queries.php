@@ -2,6 +2,23 @@
 class BotAction_DataQuery extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.data_query';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'query' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The [data query](/docs/data-queries/) to execute',
+				],
+				'object_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the data query results',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);

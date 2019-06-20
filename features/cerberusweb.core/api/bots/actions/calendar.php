@@ -2,6 +2,33 @@
 class BotAction_CalculateTimeElapsed extends Extension_DevblocksEventAction {
 	const ID = 'core.bot.action.calculate_time_elapsed';
 	
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'calendar_id' => [
+					'type' => 'id',
+					'required' => true,
+					'notes' => 'The ID of the [calendar](/docs/records/types/calendar/) to use',
+				],
+				'date_from' => [
+					'type' => 'datetime',
+					'required' => true,
+					'notes' => 'The starting date',
+				],
+				'date_to' => [
+					'type' => 'datetime',
+					'required' => true,
+					'notes' => 'The ending date',
+				],
+				'placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to save the result',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);

@@ -1,5 +1,26 @@
 <?php
 class BotAction_EmailParser extends Extension_DevblocksEventAction {
+	static function getMeta() {
+		return [
+			'notes' => '',
+			'params' => [
+				'message_source' => [
+					'type' => 'text',
+					'required' => true,
+					'notes' => 'The raw email message (RFC-2822) to process',
+				],
+				'run_in_simulator' => [
+					'type' => 'bit',
+					'notes' => 'Run the email parser in the simulator: `0`=no, `1`=yes',
+				],
+				'response_placeholder' => [
+					'type' => 'placeholder',
+					'notes' => 'The placeholder to set with the email parser results',
+				],
+			],
+		];
+	}
+	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('params', $params);
