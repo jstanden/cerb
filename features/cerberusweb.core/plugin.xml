@@ -4626,7 +4626,7 @@
 			<id>core.bot.action.interaction_proactive.schedule</id>
 			<name>Schedule Proactive Interaction</name>
 			<class>
-				<file>api/bot/actions/interactions.php</file>
+				<file>api/bots/actions/interactions.php</file>
 				<name>BotAction_ScheduleInteractionProactive</name>
 			</class>
 			<params>
