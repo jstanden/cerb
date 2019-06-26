@@ -126,7 +126,6 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 			$header_signature = $_SERVER['HTTP_CERB5_AUTH'];
 		}
 
-		@$this->_payload = DevblocksPlatform::getHttpBody();
 		@list($auth_access_key, $auth_signature) = explode(":", $header_signature, 2);
 		$url_parts = parse_url(DevblocksPlatform::getWebPath());
 		$url_path = $url_parts['path'];
@@ -307,6 +306,8 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 	function handleRequest(DevblocksHttpRequest $request) {
 		@$verb = $_SERVER['REQUEST_METHOD'];
 		$error = null;
+		
+		@$this->_payload = DevblocksPlatform::getHttpBody();
 		
 		if(false == ($worker = $this->_getAuthorizedWorker($request, $error))) {
 			if(empty($error)) {
