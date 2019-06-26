@@ -3,8 +3,9 @@
 <h1 class="title">{$article->title}</h1>
 
 <div class="content">
-	{if !empty($article->content)}
-		{$article->getContent() nofilter}<br>
+	{$article_content = $article->getContent()}
+	{if $article_content}
+		{$article_content nofilter}<br>
 	{else}
 		<i>[[ {'portal.kb.public.no_content'|devblocks_translate} ]]</i><br>
 	{/if}

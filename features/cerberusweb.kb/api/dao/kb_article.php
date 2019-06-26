@@ -856,7 +856,7 @@ class Search_KbArticle extends Extension_DevblocksSearchSchema {
 				$doc = array(
 					'content' => implode("\n", array(
 						$article->title,
-						strip_tags($article->content)
+						strip_tags($article->getContent())
 					)),
 				);
 				
