@@ -47,12 +47,9 @@ class UmScKbController extends Extension_UmScController {
 		array_shift($stack); // kb
 		
 		// KB Roots
+		
 		$sKbRoots = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_KB_ROOTS, '');
 		$kb_roots = !empty($sKbRoots) ? unserialize($sKbRoots) : array();
-		
-		$kb_roots_str = '0';
-		if(!empty($kb_roots))
-			$kb_roots_str = implode(',', array_keys($kb_roots));
 		
 		// KB worklist
 		
@@ -164,8 +161,7 @@ class UmScKbController extends Extension_UmScController {
 				
 				$cats = DAO_KbArticle::getCategoriesByArticleId($id);
 
-				$breadcrumbs = array();
-				$trails = array();
+				$trails = [];
 				foreach($cats as $cat_id) {
 					$pid = $cat_id;
 					$trail = array();
@@ -215,7 +211,7 @@ class UmScKbController extends Extension_UmScController {
 
 				// Remove empty categories
 				if(is_array($tree_map[0]))
-				foreach($tree_map as $node_id => $children) {
+				foreach($tree_map as $children) {
 					foreach($children as $child_id => $count) {
 						if(empty($count)) {
 							@$pid = $categories[$child_id]->parent_id;
