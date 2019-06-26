@@ -99,6 +99,16 @@
 					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.m_address_id}" title="{$sender->getNameWithEmail()}">{$sender->getNameWithEmail()|truncate:45:'...':true:true}</a>
 					{/if}
 				</td>
+			{elseif $column=="t_bucket_id"}
+				{$ticket = $object_tickets.{$result.m_ticket_id}}
+				<td data-column="{$column}">
+					{if $ticket}
+						{$bucket = $ticket->getBucket()}
+						{if $bucket}
+						<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">{$bucket->name}</a>
+						{/if}
+					{/if}
+				</td>
 			{elseif $column=="t_group_id"}
 				{$ticket = $object_tickets.{$result.m_ticket_id}}
 				<td data-column="{$column}">
