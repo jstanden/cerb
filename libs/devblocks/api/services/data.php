@@ -633,8 +633,13 @@ class _DevblocksDataService {
 		$cache_key = 'data_query_' . sha1($query);
 		
 		if($cache_secs) {
-			if(false != ($results = $cache->load($cache_key)))
-				return $results;
+			if(
+				false != ($results = $cache->load($cache_key))
+				&& is_array($results)
+				&& array_key_exists('results', $results)
+			) {
+				return $results['results'];
+			}
 		}
 		
 		$chart_fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
@@ -762,8 +767,9 @@ class _DevblocksDataService {
 				break;
 		}
 		
-		if($cache_secs)
-			$cache->save($results, $cache_key, [], $cache_secs);
+		if($cache_secs) {
+			$cache->save(['results' => $results], $cache_key, [], $cache_secs);
+		}
 		
 		return $results;
 	}
