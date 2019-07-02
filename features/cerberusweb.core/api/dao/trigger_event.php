@@ -1296,6 +1296,7 @@ class Model_TriggerEvent {
 						if(isset($dict->__exit)) {
 							$path[] = $node_id;
 							$path[] = ('suspend' == $dict->__exit) ? 'SUSPEND' : 'STOP';
+							unset($dict->__exit);
 							return;
 						}
 						
