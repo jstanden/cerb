@@ -116,8 +116,14 @@ class Cerb_Packages {
 				
 				switch($config_prompt['type']) {
 					case 'chooser':
-						if(0 == strlen($value))
+						@$is_single = $config_prompt['params']['single'] ?: false;
+						
+						if($is_single && 0 == strlen($value)) {
 							throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
+							
+						} else if(!$is_single && empty($value)) {
+							throw new Exception_DevblocksValidationError(sprintf("'%s' (%s) is required.", $config_prompt['label'], $key));
+						}
 						
 						$placeholders[$key] = $value;
 						
