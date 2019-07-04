@@ -393,7 +393,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function importVar($value, $type=null, $default=null) {
-		if(is_null($value) && !is_null($default))
+		if(is_null($value))
 			$value = $default;
 		
 		if(DevblocksPlatform::strStartsWith($type, 'array:')) {
