@@ -842,7 +842,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		if(array_key_exists('links', $keys)) {
 			$keys['links']['type'] = 'links';
-			$keys['links']['notes'] = 'An array of record `type:id` tuples to link to';
+			$keys['links']['notes'] = 'An array of record `type:id` tuples to link to. Prefix with `-` to unlink.';
 		}
 		
 		return $keys;
@@ -1487,7 +1487,15 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		$links = [];
 		
+		if(is_array($value))
 		foreach($value as &$tuple) {
+			$is_remove = false;
+			
+			if(DevblocksPlatform::strStartsWith($tuple, ['-'])) {
+				$is_remove = true;
+				$tuple = ltrim($tuple,'-');
+			}
+			
 			@list($context, $id) = explode(':', $tuple, 2);
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, false))) {
@@ -1497,13 +1505,15 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			
 			$context = $context_ext->id;
 			
-			$tuple = sprintf("%s:%d",
+			$tuple = sprintf("%s%s:%d",
+				$is_remove ? '-' : '',
 				$context,
 				$id
 			);
 			
 			$links[] = $tuple;
 		}
+		
 		
 		if(false == ($json = json_encode($links))) {
 			$error = 'could not be JSON encoded.';

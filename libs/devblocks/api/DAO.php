@@ -589,9 +589,15 @@ abstract class DevblocksORMHelper {
 			if(is_array($links))
 			foreach($links as $link) {
 				$link_context = $link_id = null;
+				$is_remove = false;
 				
 				if(!is_string($link))
 					continue;
+				
+				if(DevblocksPlatform::strStartsWith($link, ['-'])) {
+					$is_remove = true;
+					$link = ltrim($link, '-');
+				}
 				
 				@list($link_context, $link_id) = explode(':', $link, 2);
 				
@@ -599,8 +605,13 @@ abstract class DevblocksORMHelper {
 					continue;
 				
 				if(is_array($ids)) {
-					foreach($ids as $id)
-						DAO_ContextLink::setLink($link_context_ext->id, $link_id, $context, $id);
+					foreach($ids as $id) {
+						if($is_remove) {
+							DAO_ContextLink::deleteLink($link_context_ext->id, $link_id, $context, $id);
+						} else {
+							DAO_ContextLink::setLink($link_context_ext->id, $link_id, $context, $id);
+						}
+					}
 				}
 			}
 		}
