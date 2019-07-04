@@ -52,7 +52,7 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 	
 	private function _getHtml($widget) {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder()->newInstance(true);
 		
 		if(empty($active_worker) || !Context_WorkspaceWidget::isReadableByActor($widget, $active_worker))
 			return;

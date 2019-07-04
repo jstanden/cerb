@@ -30,14 +30,14 @@ class _DevblocksTemplateBuilder {
 	private $_twig = null;
 	private $_errors = [];
 	
-	private function __construct() {
+	private function __construct($autoescaping=false) {
 		$this->_twig = new Twig_Environment(new Twig_Loader_String(), array(
 			'cache' => false,
 			'debug' => false,
 			'strict_variables' => false,
 			'auto_reload' => true,
 			'trim_blocks' => true,
-			'autoescape' => false,
+			'autoescape' => $autoescaping,
 		));
 		
 		if(class_exists('_DevblocksTwigExtensions', true)) {
@@ -194,8 +194,8 @@ class _DevblocksTemplateBuilder {
 		return $instance;
 	}
 	
-	static function newInstance() {
-		return new _DevblocksTemplateBuilder();
+	static function newInstance($autoescaping=false) {
+		return new _DevblocksTemplateBuilder($autoescaping);
 	}
 
 	/**
