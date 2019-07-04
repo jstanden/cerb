@@ -46,4 +46,14 @@ class _DevblocksStringService {
 		
 		return $docs;
 	}
+	
+	function yamlEmit($object, $with_boundaries=true) {
+		if($with_boundaries) {
+			return yaml_emit($object);
+			
+		} else {
+			$yaml_out = DevblocksPlatform::parseCrlfString(yaml_emit($object), false, false);
+			return implode("\n", array_slice($yaml_out, 1, -1));
+		}
+	}
 }
