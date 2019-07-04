@@ -742,7 +742,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if($this->hasOption('links')) {
 			$map['links'] = '_links';
 		}
-		
+
 		return $map;
 	}
 	
@@ -836,8 +836,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		}
 		
 		if(array_key_exists('fieldsets', $keys)) {
-			$keys['links']['type'] = 'fieldsets';
-			$keys['links']['notes'] = 'An array or comma-separated list of [custom fieldset](/docs/records/types/custom_fieldset/) IDs';
+			$keys['fieldsets']['type'] = 'fieldsets';
+			$keys['fieldsets']['notes'] = 'An array or comma-separated list of [custom fieldset](/docs/records/types/custom_fieldset/) IDs';
 		}
 		
 		if(array_key_exists('links', $keys)) {

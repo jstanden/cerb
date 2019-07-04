@@ -112,7 +112,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
 			
-		$context = "<?php echo $ctx_ext_id; ?>";
+		$context = '<?php echo $ctx_ext_id; ?>';
 		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
@@ -947,6 +947,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		return $url;
 	}
 	
+	// [TODO] Profile fields
 	function profileGetFields($model=null) {
 		$translate = DevblocksPlatform::getTranslationService();
 		$properties = [];
