@@ -438,7 +438,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 			
 			$token = substr($name, strlen($context_data['prefix']));
 			
-			if(null == ($context = Extension_DevblocksContext::get($context_ext)))
+			if(null == ($context = Extension_DevblocksContext::getByAlias($context_ext, true)))
 				continue;
 			
 			if(!method_exists($context, 'lazyLoadContextValues'))
