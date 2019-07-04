@@ -42,6 +42,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const UPDATED_DATE = 'updated_date';
 	
 	const _PARTICIPANTS = '_participants';
+	const _PARTICIPANT_IDS = '_participant_ids';
 	
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
@@ -181,6 +182,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			->setMaxLength(65535)
 			// [TODO] Formatter -> RFC emails
 			->addValidator($validation->validators()->emails(true))
+			;
+		// text
+		$validation
+			->addField(self::_PARTICIPANT_IDS)
+			->string()
+			->setMaxLength(65535)
 			;
 		$validation
 			->addField('_fieldsets')
@@ -792,6 +799,33 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			if($participant_models)
 			foreach($ids as $id) {
 				DAO_Ticket::addParticipantIds($id, array_keys($participant_models));
+			}
+		}
+		
+		if(array_key_exists(self::_PARTICIPANT_IDS, $fields)) {
+			$add_participant_ids = $remove_participant_ids = [];
+			
+			$participant_ids = DevblocksPlatform::parseCsvString($fields[self::_PARTICIPANT_IDS]);
+			
+			if(is_array($participant_ids))
+			foreach($participant_ids as $id) {
+				if($id < 0) {
+					$remove_participant_ids[abs($id)] = true;
+				} else {
+					$add_participant_ids[$id] = true;
+				}
+			}
+			
+			unset($fields[self::_PARTICIPANT_IDS]);
+			
+			$add_participant_ids = array_keys($add_participant_ids);
+			$remove_participant_ids = array_keys($remove_participant_ids);
+			
+			foreach($ids as $id) {
+				if($add_participant_ids)
+					DAO_Ticket::addParticipantIds($id, $add_participant_ids);
+				if($remove_participant_ids)
+					DAO_Ticket::removeParticipantIds($id, $remove_participant_ids);
 			}
 		}
 		
@@ -4787,6 +4821,13 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'type' => 'string',
 		];
 		
+		$keys['participant_ids'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'A comma-separated list of email addresses IDs to add or remove as participants. Prefix an ID with `-` to remove',
+			'type' => 'string',
+		];
+		
 		$keys['status'] = [
 			'is_immutable' => false,
 			'is_required' => false,
@@ -4826,6 +4867,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			case 'participants':
 				$out_fields[DAO_Ticket::_PARTICIPANTS] = $value;
+				break;
+				
+			case 'participant_ids':
+				$out_fields[DAO_Ticket::_PARTICIPANT_IDS] = $value;
 				break;
 				
 			case 'status':
