@@ -408,10 +408,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		if(!is_null($value))
 			return $value;
 		
-		if($default)
-			return $default;
-		
-		return null;
+		return $default;
 	}
 	
 	public function set($name, $value) {
