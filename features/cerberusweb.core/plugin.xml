@@ -3740,7 +3740,7 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
-				<param key="menu_key" value="Mail:Sent:After message sent by worker" />
+				<param key="menu_key" value="Mail:Sending:After message sent by worker" />
 			</params>
 		</extension>
 		
@@ -3757,7 +3757,7 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
-				<param key="menu_key" value="Mail:Sent:After message sent by group member" />
+				<param key="menu_key" value="Mail:Sending:After message sent by group member" />
 			</params>
 		</extension>
 		
@@ -3775,7 +3775,7 @@
 						<data key="cerberusweb.contexts.role" />
 					</value>
 				</param>
-				<param key="menu_key" value="Mail:Sent:Before message sent by worker" />
+				<param key="menu_key" value="Mail:Sending:Before message sent by worker" />
 			</params>
 		</extension>
 		
@@ -3792,7 +3792,7 @@
 						<data key="cerberusweb.contexts.group" />
 					</value>
 				</param>
-				<param key="menu_key" value="Mail:Sent:Before message sent by group member" />
+				<param key="menu_key" value="Mail:Sending:Before message sent by group member" />
 			</params>
 		</extension>
 		
@@ -4281,7 +4281,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
-				<param key="menu_key" value="Mail:Compose:Before composing a new message" />
+				<param key="menu_key" value="Mail:Sending:Before starting to compose a new message" />
 			</params>
 		</extension>
 		
@@ -4301,7 +4301,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
-				<param key="menu_key" value="Mail:Compose:Before composing a message reply" />
+				<param key="menu_key" value="Mail:Sending:Before starting to compose a reply message" />
 			</params>
 		</extension>
 		
@@ -4322,7 +4322,7 @@
 						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
-				<param key="menu_key" value="Mail:Compose:During a message reply" />
+				<param key="menu_key" value="Mail:Sending:While drafting a message reply" />
 				<param key="deprecated" value="true" />
 			</params>
 		</extension>
