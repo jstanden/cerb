@@ -150,6 +150,21 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		//$labels['worker_id'] = $prefix.'worker id';
 		$values['worker_id'] =& $properties['worker_id'];
 		
+		// Ticket custom fields
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
+		
+		foreach($custom_fields as $custom_field) {
+			$labels['custom_' . $custom_field->id] = $prefix.'custom field ' . DevblocksPlatform::strLower($custom_field->name);
+			
+			if(
+				array_key_exists('custom_fields', $properties)
+				&& is_array($properties['custom_fields'])
+				&& array_key_exists($custom_field->id, $properties['custom_fields'])
+			) {
+				$values['custom_' . $custom_field->id] = $properties['custom_fields'][$custom_field->id];
+			}
+		}
+		
 		/**
 		 * Ticket
 		 */
