@@ -3142,11 +3142,21 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(!$active_worker->hasPriv(sprintf("contexts.%s.export", $context_ext->id)))
 			return false;
 		
-		$tokens = $context_ext->getCardProperties();
-
-		// Push _label into the front of $tokens if not set
-		if(!in_array('_label', $tokens))
-			array_unshift($tokens, '_label');
+		// Check prefs
+		
+		$pref_key = sprintf("worklist.%s.export_tokens",
+			$context_ext->manifest->getParam('uri', $context_ext->id)
+		);
+		
+		if(null == ($tokens = DAO_WorkerPref::getAsJson($active_worker->id, $pref_key))) {
+			$tokens = $context_ext->getCardProperties();
+			
+			// Push _label into the front of $tokens if not set
+			if(!in_array('_label', $tokens))
+				array_unshift($tokens, '_label');
+		}
+		
+		// Template
 		
 		$tpl->assign('tokens', $tokens);
 		
@@ -3159,25 +3169,42 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/views/view_export.tpl');
 	}
-
+	
 	function doViewExportAction() {
 		@$cursor_key = DevblocksPlatform::importGPC($_REQUEST['cursor_key'], 'string', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header("Content-Type: application/json; charset=" . LANG_CHARSET_CODE);
 		
 		try {
 			if(empty($cursor_key)) {
 				@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-				@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'], 'array', array());
+				@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'], 'array', []);
 				@$export_as = DevblocksPlatform::importGPC($_REQUEST['export_as'], 'string', 'csv');
 				@$format_timestamps = DevblocksPlatform::importGPC($_REQUEST['format_timestamps'], 'integer', 0);
 				
+				if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
+					return;
+				
+				if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
+					return false;
+				
+				if($active_worker) {
+					// Check prefs
+					$pref_key = sprintf("worklist.%s.export_tokens",
+						$context_ext->manifest->getParam('uri', $context_ext->id)
+					);
+					
+					DAO_WorkerPref::setAsJson($active_worker->id, $pref_key, $tokens);
+				}
+				
 				if(!isset($_SESSION['view_export_cursors']))
-					$_SESSION['view_export_cursors']  = array();
+					$_SESSION['view_export_cursors']  = [];
 				
-				$cursor_key = sha1(serialize(array($view_id, $tokens, $export_as, time())));
+				$cursor_key = sha1(serialize([$view_id, $tokens, $export_as, time()]));
 				
-				$_SESSION['view_export_cursors'][$cursor_key] = array(
+				$_SESSION['view_export_cursors'][$cursor_key] = [
 					'key' => $cursor_key,
 					'view_id' => $view_id,
 					'tokens' => $tokens,
@@ -3189,7 +3216,7 @@ class ChInternalController extends DevblocksControllerExtension {
 					'temp_file' => APP_TEMP_PATH . '/' . $cursor_key . '.tmp',
 					'attachment_name' => null,
 					'attachment_url' => null,
-				);
+				];
 			}
 			
 			$cursor = $this->_viewIncrementalExport($cursor_key);
