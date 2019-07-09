@@ -144,16 +144,26 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		if(is_array($links))
 		foreach($links as $link) {
 			$link_context = $link_id = null;
+			$is_unlink = false;
 			
 			if(!is_string($link))
 				continue;
+			
+				if(DevblocksPlatform::strStartsWith($link, ['-'])) {
+					$is_unlink = true;
+					$link = ltrim($link, '-');
+				}
 			
 			@list($link_context, $link_id) = explode(':', $link, 2);
 			
 			if(false == ($link_context_ext = Extension_DevblocksContext::getByAlias($link_context, false)))
 				continue;
 			
-			DAO_Attachment::addLinks($link_context_ext->id, $link_id, $ids);
+			if($is_unlink) {
+				DAO_Attachment::unattach($link_context_ext->id, $link_id, $ids);
+			} else {
+				DAO_Attachment::addLinks($link_context_ext->id, $link_id, $ids);
+			}
 		}
 	}
 	
@@ -257,6 +267,27 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		
 		return self::addLinks($context, $context_id, $file_ids);
+	}
+	
+	static function unattach($context, $context_id, $file_ids) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!is_array($file_ids))
+			$file_ids = [$file_ids];
+		
+		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'int');
+		
+		if(empty($file_ids))
+			return;
+		
+		$sql = sprintf("DELETE FROM attachment_link WHERE context = %s AND context_id = %d AND attachment_id IN (%s)",
+			$db->qstr($context),
+			$context_id,
+			implode(',', $file_ids)
+		);
+		$db->ExecuteMaster($sql);
+		
+		return true;
 	}
 	
 	static function deleteLinks($context, $context_ids) {
@@ -1936,6 +1967,13 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		$links = [];
 		
 		foreach($value as &$tuple) {
+			$is_unlink = false;
+			
+			if(DevblocksPlatform::strStartsWith($tuple, ['-'])) {
+				$is_unlink = true;
+				$tuple = ltrim($tuple, '-');
+			}
+			
 			@list($context, $id) = explode(':', $tuple, 2);
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, false))) {
@@ -1945,7 +1983,8 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			
 			$context = $context_ext->id;
 			
-			$tuple = sprintf("%s:%d",
+			$tuple = sprintf("%s%s:%d",
+				$is_unlink ? '-' : '',
 				$context,
 				$id
 			);
