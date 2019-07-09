@@ -4258,6 +4258,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		// Values
 		
 		$values = $ext_event->getValues();
+		$values = array_merge($values, $custom_values);
 		
 		// Get conditions
 		
