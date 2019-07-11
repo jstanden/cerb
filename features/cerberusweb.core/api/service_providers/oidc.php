@@ -97,6 +97,17 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		return $json;
 	}
 	
+	public function getPublicKeyByDefault() {
+		$jwks = $this->fetchJwks($this->urlJwks);
+		
+		if(!is_array($jwks) || !array_key_exists('keys', $jwks) || empty($jwks['keys']))
+			return null;
+		
+		$jwk = current($jwks['keys']);
+		
+		return $this->convertJwkToRsa($jwk);
+	}
+	
 	public function getPublicKeyByJwkId($kid) {
 		$jwks = $this->fetchJwks($this->urlJwks);
 		
@@ -141,9 +152,17 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		}
 		
 		$signer = new Lcobucci\JWT\Signer\Rsa\Sha256();
-		$kid = $token->getHeader('kid');
 		
-		$public_key = $this->getPublicKeyByJwkId($kid);
+		// Not all ID tokens provide a 'kid' (Key ID) header
+		if($token->hasHeader('kid')) {
+			$kid = $token->getHeader('kid');
+			
+			if(false == ($public_key = $this->getPublicKeyByJwkId($kid)))
+				throw new InvalidTokenException('Received an invalid key ID (kid) header from authorization server.');
+		} else {
+			// Use the first key if one wasn't specified
+			$public_key = $this->getPublicKeyByDefault();
+		}
 		
 		if (false === $token->verify($signer, $public_key)) {
 			throw new InvalidTokenException('Received an invalid id_token from authorization server.');
@@ -156,7 +175,7 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		if(false === $token->validate($data)) {
 			throw new InvalidTokenException('The id_token did not pass validation.');
 		}
-
+		
 		return $accessToken;
 	}
 
@@ -355,7 +374,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		}
 		
 		$id_token = $token->getIdToken();
-
+		
 		if(
 			false == ($email = $id_token->getClaim('email'))
 			|| false == ($worker = DAO_Worker::getByEmail($email))
