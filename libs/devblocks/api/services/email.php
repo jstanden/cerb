@@ -39,20 +39,28 @@ class _DevblocksEmailManager {
 		$from = array_keys($message->getFrom());
 		$sender = reset($from);
 		
-		if(empty($sender))
+		if(empty($sender)) {
+			$this->_lastErrorMessage = "A 'From:' sender address is required.";
 			return false;
+		}
 		
-		if(false == ($replyto = DAO_Address::getByEmail($sender)))
+		if(false == ($replyto = DAO_Address::getByEmail($sender))) {
+			$this->_lastErrorMessage = "The 'From:' sender address does not exist.";
 			return false;
+		}
 		
 		if(!DAO_Address::isLocalAddressId($replyto->id))
 			$replyto = DAO_Address::getDefaultLocalAddress();
 		
-		if(false == ($model = $replyto->getMailTransport()))
+		if(false == ($model = $replyto->getMailTransport())) {
+			$this->_lastErrorMessage = "The 'From:' sender address does not have a mail transport configured.";
 			return false;
+		}
 		
-		if(false == ($transport = $model->getExtension()))
+		if(false == ($transport = $model->getExtension())) {
+			$this->_lastErrorMessage = "The 'From:' sender address mail transport is invalid.";
 			return false;
+		}
 		
 		if(false == ($result = $transport->send($message, $model, $this->_lastErrorMessage))) {
 			$this->_lastErrorMessage = $transport->getLastError();
