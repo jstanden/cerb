@@ -3485,7 +3485,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 		$actions = $this->getActionExtensions($trigger);
 
 		$out = '';
-
+		
 		if(null != (@$actions[$token])) {
 			// Is this a dry run?  If so, don't actually change anything
 			if($dry_run) {
@@ -3670,34 +3670,55 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 					
 				case 'add_watchers':
 					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
-					DevblocksEventHelper::runActionAddWatchers($params, $dict, $on_default);
+					if($dry_run)
+						$out = DevblocksEventHelper::simulateActionAddWatchers($params, $dict, $on_default);
+					else
+						DevblocksEventHelper::runActionAddWatchers($params, $dict, $on_default);
 					break;
 				
 				case 'create_comment':
 					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
-					DevblocksEventHelper::runActionCreateComment($params, $dict, $on_default);
+					if($dry_run)
+						$out = DevblocksEventHelper::simulateActionCreateComment($params, $dict, $on_default);
+					else
+						DevblocksEventHelper::runActionCreateComment($params, $dict, $on_default);
 					break;
 					
 				case 'create_notification':
 					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
-					DevblocksEventHelper::runActionCreateNotification($params, $dict, $on_default);
+					if($dry_run)
+						$out = DevblocksEventHelper::simulateActionCreateNotification($params, $dict, $on_default);
+					else
+						DevblocksEventHelper::runActionCreateNotification($params, $dict, $on_default);
 					break;
 					
 				case 'create_task':
 					$on_default = method_exists($this, 'getActionDefaultOn') ? $this->getActionDefaultOn() : null;
-					DevblocksEventHelper::runActionCreateTask($params, $dict, $on_default);
+					if($dry_run)
+						$out = DevblocksEventHelper::simulateActionCreateTask($params, $dict, $on_default);
+					else
+						DevblocksEventHelper::runActionCreateTask($params, $dict, $on_default);
 					break;
 					
 				case 'create_ticket':
-					DevblocksEventHelper::runActionCreateTicket($params, $dict);
+					if($dry_run)
+						$out = DevblocksEventHelper::simulateActionCreateTicket($params, $dict);
+					else
+						DevblocksEventHelper::runActionCreateTicket($params, $dict);
 					break;
 					
 				case 'send_email':
-					DevblocksEventHelper::runActionSendEmail($params, $dict);
+					if($dry_run)
+						$out = DevblocksEventHelper::simulateActionSendEmail($params, $dict);
+					else
+						DevblocksEventHelper::runActionSendEmail($params, $dict);
 					break;
 			
 				case 'set_links':
-					DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
+					if($dry_run)
+						$out = DevblocksEventHelper::simulateActionSetLinks($trigger, $params, $dict);
+					else
+						DevblocksEventHelper::runActionSetLinks($trigger, $params, $dict);
 					break;
 			
 				default:
