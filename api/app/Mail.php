@@ -372,14 +372,16 @@ class CerberusMail {
 		return $results;
 	}
 	
-	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=[], $format=null, $html_template_id=null, $file_ids=[], $cc=null, $bcc=null) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=[], $format=null, $html_template_id=null, $file_ids=[], $cc=null, $bcc=null, &$error=null) {
+		$error = null;
+		
 		try {
 			$mail_service = DevblocksPlatform::services()->mail();
 			$mail = $mail_service->createMessage();
 			
 			if(empty($from_addy) || empty($from_personal)) {
 				if(false == ($replyto_default = DAO_Address::getDefaultLocalAddress()))
-					throw new Exception("There is no default sender address.");
+					throw new Exception_DevblocksValidationError("There is no default sender address.");
 				
 				if(empty($from_addy))
 					$from_addy = $replyto_default->email;
@@ -469,10 +471,16 @@ class CerberusMail {
 			// [TODO] Report when the message wasn't sent.
 			// [TODO] We can use '$failedRecipients' for this
 			if(!$mail_service->send($mail)) {
+				$error = $mail_service->getLastErrorMessage();
 				return false;
 			}
 			
+		} catch (Exception_DevblocksValidationError $e) {
+			$error = $e->getMessage();
+			return false;
+			
 		} catch (Exception $e) {
+			$error = 'An unexpected error occurred.';
 			return false;
 		}
 		
