@@ -1163,7 +1163,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		if(!is_string($string))
 			return '';
 		
-		if(false == ($ctx_manifest = Extension_DevblocksContext::get($string, false)))
+		if(false == ($ctx_manifest = Extension_DevblocksContext::getByAlias($string, false)))
 			return '';
 		
 		if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($ctx_manifest)))
