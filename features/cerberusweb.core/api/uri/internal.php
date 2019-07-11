@@ -4288,7 +4288,7 @@ class ChInternalController extends DevblocksControllerExtension {
 			if(!empty($var['is_private']))
 				continue;
 			
-			if(!isset($custom_values[$var_key]))
+			if(!array_key_exists($var_key, $custom_values))
 				continue;
 			
 			try {

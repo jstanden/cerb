@@ -72,7 +72,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			
 			$dict = DevblocksDictionaryDelegate::instance($values);
 			
-			$result = $behavior->runDecisionTree($dict, false, $event);
+			$behavior->runDecisionTree($dict, false, $event);
 			
 			foreach($actions as $action) {
 				switch(@$action['_action']) {
@@ -418,6 +418,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 					break;
 				
 				@$interaction_params_json = $tpl_builder->build($params['interaction_params_json'], $dict);
+				
 				if(false == ($interaction_params = json_decode($interaction_params_json, true)))
 					$interaction_params = [];
 				
@@ -430,7 +431,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 					$name,
 					$behavior->title,
 					$behavior_id,
-					DevblocksPlatform::strFormatJson($interaction_params_json)
+					DevblocksPlatform::strFormatJson(json_encode($interaction_params))
 				);
 				break;
 		}

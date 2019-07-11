@@ -421,6 +421,8 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$out = '';
+		
 		switch($token) {
 			case 'prompt_captcha':
 				$out = ">>> Prompting with CAPTCHA challenge\n";

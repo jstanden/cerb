@@ -765,14 +765,14 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
 			new Twig_SimpleFunction('cerb_has_priv', [$this, 'function_cerb_has_priv']),
-			new Twig_SimpleFunction('cerb_placeholders_list', [$this, 'function_placeholders_list'], ['needs_environment' => true]),
+			new Twig_SimpleFunction('cerb_placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
 			new Twig_SimpleFunction('cerb_record_readable', [$this, 'function_cerb_record_readable']),
 			new Twig_SimpleFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
 			new Twig_SimpleFunction('cerb_url', [$this, 'function_cerb_url']),
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
 			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
-			new Twig_SimpleFunction('placeholders_list', [$this, 'function_placeholders_list'], ['needs_environment' => true]),
+			new Twig_SimpleFunction('placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
 			new Twig_SimpleFunction('random_string', [$this, 'function_random_string']),
 			new Twig_SimpleFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
 			new Twig_SimpleFunction('shuffle', [$this, 'function_shuffle']),
@@ -953,7 +953,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return $var;
 	}
 	
-	function function_placeholders_list(Twig_Environment $env) {
+	function function_cerb_placeholders_list(Twig_Environment $env) {
 		if(false == (@$callback = $env->getUndefinedVariableCallbacks()[0]) || !is_array($callback))
 			return [];
 		
