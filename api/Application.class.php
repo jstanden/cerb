@@ -3371,8 +3371,12 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	 * @return mixed
 	 */
 	static function getIds($ids) {
-		if(!is_array($ids))
+		if(!is_array($ids)) {
+			if(is_null($ids) || !is_numeric($ids))
+				return [];
+			
 			$ids = array($ids);
+		}
 
 		if(empty($ids))
 			return [];

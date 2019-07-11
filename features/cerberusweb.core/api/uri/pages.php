@@ -245,7 +245,7 @@ class Page_Custom extends CerberusPageExtension {
 
 		$pages = DAO_WorkspacePage::getAll();
 		
-		@$menu = json_decode(DAO_WorkerPref::get($active_worker->id, 'menu_json', json_encode(array())));
+		@$menu = json_decode(DAO_WorkerPref::get($active_worker->id, 'menu_json', '[]'));
 		
 		if(!is_array($menu))
 			$menu = array();

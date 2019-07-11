@@ -88,7 +88,7 @@ class Controller_Default extends DevblocksControllerExtension {
 				
 				// Find the worker's first page
 				
-				if(null != ($menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', null))) {
+				if(null != ($menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', '[]'))) {
 					@$menu = json_decode($menu_json);
 
 					if(is_array($menu) && !empty($menu)) {

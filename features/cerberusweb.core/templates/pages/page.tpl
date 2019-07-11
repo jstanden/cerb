@@ -3,7 +3,7 @@
 	<input type="hidden" name="a" value="">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-	{$menu = DAO_WorkerPref::getAsJson($active_worker->id, 'menu_json', json_encode([]))}
+	{$menu = DAO_WorkerPref::getAsJson($active_worker->id, 'menu_json', '[]')}
 	{$in_menu = in_array($page->id, $menu)}
 	
 	<div style="float:left;">

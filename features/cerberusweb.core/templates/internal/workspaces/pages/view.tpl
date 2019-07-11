@@ -58,7 +58,7 @@
 	</thead>
 
 	{* Column Data *}
-	{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', json_encode(array()))}
+	{$menu_json = DAO_WorkerPref::get($active_worker->id, 'menu_json', '[]')}
 	{$menu = json_decode($menu_json, true)}
 	
 	{foreach from=$data item=result key=idx name=results}

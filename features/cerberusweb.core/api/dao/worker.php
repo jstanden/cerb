@@ -1919,7 +1919,7 @@ class Model_Worker {
 		$cache_key = sprintf("worker:%d:pages_menu", $this->id);
 		
 		if(null === ($pages_menu = $cache->load($cache_key))) {
-			$menu = DAO_WorkerPref::getAsJson($this->id, 'menu_json','');
+			$menu = DAO_WorkerPref::getAsJson($this->id, 'menu_json','[]');
 			$menu_pages = DAO_WorkspacePage::getIds($menu);
 			
 			$pages_menu = [];
