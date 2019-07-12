@@ -672,9 +672,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['sort']
 				;
 			
-			return sprintf("%s %sIN (SELECT context_id FROM attachment_link WHERE attachment_id IN (%s)) ",
+			return sprintf("%s %sIN (SELECT context_id FROM attachment_link WHERE context = %s AND attachment_id IN (%s)) ",
 				Cerb_OrmHelper::escape($join_key),
 				$not ? 'NOT ' : '',
+				Cerb_ORMHelper::qstr($context),
 				$sql
 			);
 		}
