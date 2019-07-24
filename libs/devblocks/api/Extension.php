@@ -4277,6 +4277,15 @@ abstract class DevblocksControllerExtension extends DevblocksExtension implement
 	
 	public function handleRequest(DevblocksHttpRequest $request) {}
 	public function writeResponse(DevblocksHttpResponse $response) {}
+	
+	public function redirectRequestToLogin(DevblocksHttpIO $request) {
+		$query = [];
+		if(!empty($request->path)) {
+			if(is_array($request->path) && !empty($request->path))
+				$query = ['url'=> implode('/',$request->path)];
+		}
+		DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'], $query));
+	}
 };
 
 abstract class DevblocksEventListenerExtension extends DevblocksExtension {

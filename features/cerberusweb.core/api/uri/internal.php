@@ -17,13 +17,15 @@
 
 class ChInternalController extends DevblocksControllerExtension {
 	const ID = 'core.controller.internal';
-
+	
 	/*
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		$worker = CerberusApplication::getActiveWorker();
-		if(empty($worker)) return;
+		// Security
+		if(null == (CerberusApplication::getActiveWorker())) {
+			return $this->redirectRequestToLogin($request);
+		}
 
 		$stack = $request->path;
 		array_shift($stack); // internal
