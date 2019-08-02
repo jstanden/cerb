@@ -7,6 +7,12 @@
 <input type="hidden" name="context_id" value="{$worker->id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+<div class="cerb-delta-slider-container" style="display:none;margin-right:0;">
+	<div class="cerb-delta-slider cerb-slider-gray">
+		<span class="cerb-delta-slider-midpoint"></span>
+	</div>
+</div>
+
 <div style="column-width:275px;">
 
 {foreach from=$memberships item=membership}
@@ -22,15 +28,17 @@
 			{$buckets = $group->getBuckets()}
 			{foreach from=$buckets item=bucket}
 			{$responsibility = $responsibilities.{$bucket->id}}
-			<div class="cerb-delta-slider-container" style="display:inline-block;">
+			<div class="cerb-slider-card" style="width:250px;display:block;margin:0 10px 10px 5px;">
 				<label>
 					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$bucket->id}">{$bucket->name}</a>
 				</label>
 				
-				<input type="hidden" name="responsibilities[{$bucket->id}]" value="{$responsibility|default:0}"  data-worker-id="{$worker->id}"  data-bucket-id="{$bucket->id}">
-	
-				<div class="cerb-delta-slider {if $responsibility < 50}cerb-slider-red{elseif $responsibility > 50}cerb-slider-green{else}cerb-slider-gray{/if}">
-					<span class="cerb-delta-slider-midpoint"></span>
+				<div class="cerb-slider-readonly" style="margin-bottom:15px;">
+					<input type="hidden" name="responsibilities[{$bucket->id}]" value="{$responsibility|default:0}" data-worker-id="{$worker->id}" data-bucket-id="{$bucket->id}">
+					<div style="margin:5px 0 0 5px;position:relative;width:250px;height:9px;background-color:rgb(230,230,230);border-radius:9px;">
+						<span style="display:inline-block;background-color:rgb(200,200,200);height:18px;width:1px;position:absolute;top:-4px;margin-left:1px;left:50%;"></span>
+						<div class="cerb-slider-handle" style="position:relative;margin-left:-6px;top:-3px;left:{$responsibility}%;width:15px;height:15px;border-radius:15px;background-color:{if $responsibility < 50}rgb(230,70,70);{elseif $responsibility > 50}rgb(0,200,0);{else}rgb(175,175,175);{/if}"></div>
+					</div>
 				</div>
 			</div>
 			{/foreach}
@@ -55,40 +63,79 @@ $(function() {
 		
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
-		$frm.find('div.cerb-delta-slider').each(function() {
+		var $slider_helper = $frm.find('> .cerb-delta-slider-container');
+		var $slider_helper_control = $slider_helper.find('.cerb-delta-slider');
+		
+		$slider_helper_control.each(function() {
 			var $this = $(this);
-			var $input = $this.siblings('input:hidden');
 			var $label = $this.siblings('label');
 			var $level = $label.find('small');
 			
+			var funcColorizeHandle = function(e, ui) {
+				e.stopPropagation();
+				
+				$this.removeClass('cerb-slider-gray cerb-slider-red cerb-slider-green');
+				
+				if(ui.value < 50) {
+					$this.addClass('cerb-slider-red');
+					$this.slider('option', 'range', 'min');
+				} else if(ui.value > 50) {
+					$this.addClass('cerb-slider-green');
+					$this.slider('option', 'range', 'max');
+				} else {
+					$this.addClass('cerb-slider-gray');
+					$this.slider('option', 'range', false);
+				}
+			};
+			
 			$this.slider({
 				disabled: false,
-				value: $input.val(),
+				value: 0,
 				min: 0,
 				max: 100,
 				step: 10,
 				range: 'min',
-				slide: function(event, ui) {
-					$this.removeClass('cerb-slider-gray cerb-slider-red cerb-slider-green');
-					
-					if(ui.value < 50) {
-						$this.addClass('cerb-slider-red');
-						$this.slider('option', 'range', 'min');
-					} else if(ui.value > 50) {
-						$this.addClass('cerb-slider-green');
-						$this.slider('option', 'range', 'max');
-					} else {
-						$this.addClass('cerb-slider-gray');
-						$this.slider('option', 'range', false);
-					}
-				},
-				stop: function(event, ui) {
-					$input.val(ui.value);
-				}
+				slide: funcColorizeHandle,
+				change: funcColorizeHandle
 			});
 		});
 		
-		$frm.find('button.submit').click(function() {
+		$popup.find('fieldset.peek').parent().on('mouseenter mouseleave', '.cerb-slider-card', 
+			function(e) {
+				e.stopPropagation();
+				
+				var $this = $(this);
+				var $slider = $this.find('.cerb-slider-readonly');
+				var $input = $slider.find('input:hidden');
+				
+				if('mouseenter' == e.type) {
+					$slider_helper_control.slider('value', $input.val());
+					$slider_helper.insertAfter($slider.hide()).show();
+					
+				} else {
+					var value = $slider_helper_control.slider('value');
+					var $slider_handle = $slider.find('.cerb-slider-handle');
+					
+					$input.val(value);
+					
+					$slider_handle.css('left', value + '%');
+					
+					if(value < 50) {
+						$slider_handle.css('background-color', 'rgb(230,70,70)');
+					} else if (value > 50) {
+						$slider_handle.css('background-color', 'rgb(0,200,0)');
+					} else {
+						$slider_handle.css('background-color', 'rgb(175,175,175)');
+					}
+					
+					$slider.show();
+					$slider_helper.detach();
+				}
+			}
+		);
+		
+		$frm.find('button.submit').click(function(e) {
+			e.stopPropagation();
 			genericAjaxPopupPostCloseReloadView('peek', $frm, null, false, 'responsibilities_save');
 		});
 		
