@@ -478,6 +478,15 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return $responsibilities;
 	}
 	
+	static function setResponsibility($worker_id, $bucket_id, $responsibility) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$db->ExecuteMaster(sprintf("REPLACE INTO worker_to_bucket (bucket_id, worker_id, responsibility_level) ".
+			"VALUES (%d, %d, %d)",
+			$bucket_id, $worker_id, $responsibility
+		));
+	}
+	
 	static function setResponsibilities($worker_id, $responsibilities) {
 		$db = DevblocksPlatform::services()->database();
 		

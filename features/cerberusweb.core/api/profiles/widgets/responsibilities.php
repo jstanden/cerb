@@ -108,6 +108,31 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 		}
 	}
 	
+	function saveResponsibilityJsonAction(Model_ProfileWidget $model) {
+		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', '');
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'], 'integer', '');
+		@$responsibility = DevblocksPlatform::importGPC($_REQUEST['responsibility'], 'integer', '');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		try {
+			if(false == ($bucket = DAO_Bucket::get($bucket_id)))
+				throw new Exception_DevblocksAjaxValidationError("Invalid bucket.");
+			
+			if(!$active_worker->isGroupManager($bucket->group_id))
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+			
+			DAO_Worker::setResponsibility($worker_id, $bucket_id, $responsibility);
+			
+			echo json_encode([ 'status' => true ]);
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode([ 'status' => false, 'error' => $e->getMessage() ]);
+		}
+	}
+	
 	function saveResponsibilitiesPopupAction(Model_ProfileWidget $model) {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'string', '');

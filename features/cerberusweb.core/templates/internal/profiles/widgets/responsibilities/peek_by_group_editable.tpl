@@ -1,11 +1,4 @@
 <form id="group{$group->id}Responsibilities" action="javascript:;" onsubmit="return false;">
-<input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleProfileWidgetAction">
-<input type="hidden" name="widget_id" value="{$widget->id}">
-<input type="hidden" name="action" value="saveResponsibilitiesPopup">
-<input type="hidden" name="context" value="{CerberusContexts::CONTEXT_GROUP}">
-<input type="hidden" name="context_id" value="{$group->id}">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <div class="cerb-delta-slider-container" style="display:none;margin-right:0;">
 	<div class="cerb-delta-slider cerb-slider-gray">
@@ -48,7 +41,7 @@
 {/foreach}
 </div>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+<button type="button" class="done"><span class="glyphicons glyphicons-circle-ok"></span> {'common.done'|devblocks_translate|capitalize}</button>
 
 </form>
 
@@ -115,6 +108,29 @@ $(function() {
 					var value = $slider_helper_control.slider('value');
 					var $slider_handle = $slider.find('.cerb-slider-handle');
 					
+					// If the value changed
+					if($input.val() != value) {
+						var form_data = new FormData();
+						form_data.append('c', 'profiles');
+						form_data.append('a', 'handleProfileWidgetAction');
+						form_data.append('widget_id', '{$widget->id}');
+						form_data.append('action', 'saveResponsibilityJson');
+						form_data.append('worker_id', $input.attr('data-worker-id'));
+						form_data.append('bucket_id', $input.attr('data-bucket-id'));
+						form_data.append('responsibility', value);
+						
+						genericAjaxPost(form_data, '', null, function(err) {
+							Devblocks.clearAlerts();
+							
+							if(err.error) {
+								Devblocks.createAlertError(err.error);
+								
+							} else {
+								Devblocks.createAlert('Saved!');
+							}
+						});
+					}
+					
 					$input.val(value);
 					
 					$slider_handle.css('left', value + '%');
@@ -133,10 +149,9 @@ $(function() {
 			}
 		);
 		
-		$frm.find('button.submit').click(function(e) {
+		$frm.find('button.done').click(function(e) {
 			e.stopPropagation();
-			
-			genericAjaxPopupPostCloseReloadView('peek', $frm, null, false, 'responsibilities_save');
+			genericAjaxPopupClose($popup, 'responsibilities_save');
 		});
 		
 	});
