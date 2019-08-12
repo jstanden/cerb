@@ -1333,6 +1333,16 @@ class CerberusContexts {
 
 		return ($a->_context == $b->_context && $a->id == $b->id);
 	}
+	
+	public static function isSameContext($a, $b) {
+		if(false == ($a = Extension_DevblocksContext::getByAlias($a, false)))
+			return false;
+
+		if(false == ($b = Extension_DevblocksContext::getByAlias($b, false)))
+			return false;
+
+		return ($a->id == $b->id);
+	}
 
 	public static function allowEverything($models) {
 		if(is_array($models)) {
