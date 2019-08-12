@@ -899,6 +899,13 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 			self::VIRTUAL_ON => new DevblocksSearchField(self::VIRTUAL_ON, '*', 'on', $translate->_('common.on'), null, false),
 		);
 		
+		// Custom fields with fieldsets
+		
+		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
+		
+		if(is_array($custom_columns))
+			$columns = array_merge($columns, $custom_columns);
+		
 		// Sort by label (translation-conscious)
 		DevblocksPlatform::sortObjects($columns, 'db_label');
 
