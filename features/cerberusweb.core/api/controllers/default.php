@@ -105,7 +105,7 @@ class Controller_Default extends DevblocksControllerExtension {
 		
 		// [JAS]: Require us to always be logged in for Cerberus pages
 		if(empty($visit) && 0 != strcasecmp($controller,'login')) {
-			$query = array();
+			$query = [];
 			// Must be a valid page controller
 			if(!empty($response->path)) {
 				if(is_array($response->path) && !empty($response->path) && CerberusApplication::getPageManifestByUri(current($response->path)))

@@ -664,13 +664,13 @@ abstract class DevblocksEngine {
 				}
 			}
 		}
-
+		
 		// [JAS]: Offer the platform a chance to intercept.
 		switch($controller_uri) {
 
 			// [JAS]: Plugin-supplied URIs
 			default:
-				$routing = array();
+				$routing = [];
 				$controllers = DevblocksPlatform::getExtensions('devblocks.controller', false);
 
 				// Add any controllers which have definitive routing
@@ -692,7 +692,7 @@ abstract class DevblocksEngine {
 				if(!empty($controller_mft)) {
 					$controller = $controller_mft->createInstance();
 				}
-
+				
 				if($controller instanceof DevblocksHttpRequestHandler) {
 					$controller->handleRequest($request);
 
@@ -701,7 +701,7 @@ abstract class DevblocksEngine {
 						$response = new DevblocksHttpResponse($request->path);
 						DevblocksPlatform::setHttpResponse($response);
 					}
-
+					
 					// [JAS]: An Ajax request doesn't need the full Http cycle
 					if(!$is_ajax) {
 						$controller->writeResponse($response);

@@ -79,7 +79,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		if(false == ($mailer = $this->_getMailer($options)))
 			return false;
 		
-		$failed_recipients = array();
+		$failed_recipients = [];
 		
 		$result = $mailer->send($message, $failed_recipients);
 		

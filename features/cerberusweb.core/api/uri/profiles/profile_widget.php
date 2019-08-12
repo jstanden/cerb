@@ -2,7 +2,7 @@
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2014, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2019, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -237,10 +237,12 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 							DAO_ProfileWidget::onUpdateByActor($active_worker, $id, $fields);
 						}
 						
-						// Custom field saves
-						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_WIDGET, $id, $field_ids, $error))
-							throw new Exception_DevblocksAjaxValidationError($error);
+						if($id) {
+							// Custom field saves
+							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_WIDGET, $id, $field_ids, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+						}
 						
 						echo json_encode(array(
 							'status' => true,

@@ -18,8 +18,6 @@ $(function() {
 	});
 	
 	$form.on('cerb-form-builder-submit', function(e) {
-		console.log(e);
-		
 		e.stopPropagation();
 		
 		var $this = $(this);

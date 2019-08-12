@@ -353,7 +353,7 @@ class _DevblocksBayesClassifierService {
 		// [TODO] Look for tags and verify them
 		$tagged_text = preg_replace('#\{\{(.*?)\:(.*?)\}\}#','[${1}]', $text);
 		
-		if(false == ($tokens = self::tokenizeWords($tagged_text)))
+		if(false == (self::tokenizeWords($tagged_text)))
 			return false;
 		
 		return true;
@@ -743,7 +743,6 @@ class _DevblocksBayesClassifierService {
 		foreach($custom_entities as $entity) {
 			switch($entity->type) {
 				case 'list':
-					$synonyms = [];
 					@$label_map = $entity->params['map'];
 					
 					if(empty($label_map) || !is_array($label_map))
@@ -1285,7 +1284,7 @@ class _DevblocksBayesClassifierService {
 	
 	// [TODO] remind me about lunch at Twenty Nine Palms Resort on the fifth at five thirty pm for sixty mins
 	// [TODO] $environment has locale, lang, me
-	static function predict($text, $classifier_id, $environment=array()) {
+	static function predict($text, $classifier_id, $environment=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
 		// Load all classes
@@ -1322,8 +1321,8 @@ class _DevblocksBayesClassifierService {
 			$entities = self::extractNamedEntities($raw_words, $tags, $types);
 			
 			foreach($entities as $entity_type => $results) {
-				foreach($results as $result_id => $result) {
-					foreach($result['range'] as $pos => $val) {
+				foreach($results as $result) {
+					foreach(array_keys($result['range']) as $pos) {
 						$tokens[$pos] = sprintf('[%s]', $entity_type);
 					}
 				}
@@ -1418,10 +1417,9 @@ class _DevblocksBayesClassifierService {
 		// Test each class
 		
 		$class_freqs_sum = array_sum($class_freqs);
-		$class_probs = [];
 		
 		foreach($class_data as $class_id => $data) {
-			$training_count = @$classes[$class_id]['training_count'] ?: 0;
+			//$training_count = @$classes[$class_id]['training_count'] ?: 0;
 			
 			// If we've never seen this class in training (or any class), we can't make any predictions
 			if(0 == $class_freqs_sum || 0 == $classifiers[$classifier_id]['dictionary_size']) {

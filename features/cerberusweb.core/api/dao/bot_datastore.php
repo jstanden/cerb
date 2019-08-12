@@ -23,7 +23,7 @@ class DAO_BotDatastore extends Cerb_ORMHelper {
 		$validation
 			->addField(self::DATA_VALUE)
 			->string()
-			->setMaxLength(65535)
+			->setMaxLength('24 bits')
 			->setRequired(true)
 			;
 		$validation
