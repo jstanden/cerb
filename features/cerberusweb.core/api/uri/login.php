@@ -834,6 +834,11 @@ class Page_Login extends CerberusPageExtension {
 		$login_state->destroy();
 		
 		if($login_post_url) {
+			if(DevblocksPlatform::strStartsWith($login_post_url, 'internal/redirectRead/')) {
+				$url_parts = explode('/', $login_post_url);
+				$login_post_url = DevblocksPlatform::services()->url()->write('c=internal&a=redirectRead&id=' . intval(array_pop($url_parts)), true);
+			}
+			
 			if(DevblocksPlatform::strStartsWith($login_post_url, ['http:','https:'])) {
 				DevblocksPlatform::redirectURL($login_post_url, 1);
 				
