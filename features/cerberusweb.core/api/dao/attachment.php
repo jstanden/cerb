@@ -1944,7 +1944,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		$keys['attach']['type'] = 'links';
 		$keys['attach']['notes'] = 'An array of `type:id` tuples to attach this file to';
-		$keys['content']['notes'] = 'The content of this file';
+		$keys['content']['notes'] = 'The content of this file. For binary, base64-encode in [data URI format](https://en.wikipedia.org/wiki/Data_URI_scheme)';
 		$keys['mime_type']['notes'] = 'The MIME type of this file (e.g. `image/png`); defaults to `application/octet-stream`';
 		$keys['name']['notes'] = 'The filename';
 		
