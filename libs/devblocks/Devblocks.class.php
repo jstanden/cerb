@@ -951,6 +951,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		);
 	}
 	
+	static function arrayIsIndexed(array $array) {
+		$len = count($array);
+		
+		// Ambiguous on empty arrays
+		if(0 == $len)
+			return null;
+		
+		return array_keys($array) === range(0, $len-1);
+	}
+	
 	static function arrayDictSet($var, $path, $val) {
 		if(empty($var))
 			$var = is_array($var) ? [] : new stdClass();

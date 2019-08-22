@@ -1312,6 +1312,26 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testArrayIsIndexed() {
+		// Indexed numbers
+		$array = [1,2,3,4,5];
+		$expected = true;
+		$actual = DevblocksPlatform::arrayIsIndexed($array);
+		$this->assertEquals($expected, $actual);
+		
+		// Indexed strings
+		$array = ['red', 'green', 'blue'];
+		$expected = true;
+		$actual = DevblocksPlatform::arrayIsIndexed($array);
+		$this->assertEquals($expected, $actual);
+		
+		// Assoc strings
+		$array = ['color' => 'red', 'age' => 40];
+		$expected = false;
+		$actual = DevblocksPlatform::arrayIsIndexed($array);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	public function testArrayDictSet() {
 		// Nested dot notation
 		
