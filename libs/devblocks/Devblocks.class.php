@@ -939,6 +939,18 @@ class DevblocksPlatform extends DevblocksEngine {
 		return array_search(DevblocksPlatform::strLower($needle), $haystack, true);
 	}
 	
+	static function arrayInNoCase($key, $array) {
+		return in_array(
+			DevblocksPlatform::strLower($key),
+			array_map(
+				function($v) { 
+					return is_string($v) ? DevblocksPlatform::strLower($v) : $v;
+				},
+				$array
+			)
+		);
+	}
+	
 	static function arrayDictSet($var, $path, $val) {
 		if(empty($var))
 			$var = is_array($var) ? [] : new stdClass();
