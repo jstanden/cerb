@@ -50,6 +50,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('function','fetch', array('_DevblocksTemplateManager', 'function_void'));
 			$instance->registerPlugin('block','devblocks_url', array('_DevblocksTemplateManager', 'block_devblocks_url'));
 			$instance->registerPlugin('block','php', array('_DevblocksTemplateManager', 'block_void'));
+			$instance->registerPlugin('modifier','devblocks_context_name', array('_DevblocksTemplateManager', 'modifier_devblocks_context_name'));
 			$instance->registerPlugin('modifier','devblocks_date', array('_DevblocksTemplateManager', 'modifier_devblocks_date'));
 			$instance->registerPlugin('modifier','devblocks_decimal', array('_DevblocksTemplateManager', 'modifier_devblocks_decimal'));
 			$instance->registerPlugin('modifier','devblocks_email_quotes_cull', array('_DevblocksTemplateManager', 'modifier_devblocks_email_quotes_cull'));
@@ -183,6 +184,25 @@ class _DevblocksTemplateManager {
 		} else {
 			return $contents;
 		}
+	}
+	
+	static function modifier_devblocks_context_name($string, $type='plural') {
+		if(!is_string($string))
+			return '';
+		
+		if(false == ($ctx_manifest = Extension_DevblocksContext::getByAlias($string, false)))
+			return '';
+		
+		if('id' == $type)
+			return $ctx_manifest->id;
+		
+		if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($ctx_manifest)))
+			return '';
+		
+		if(isset($aliases[$type]))
+			return $aliases[$type];
+		
+		return '';
 	}
 	
 	static function modifier_devblocks_date($string, $format=null, $gmt=false) {
