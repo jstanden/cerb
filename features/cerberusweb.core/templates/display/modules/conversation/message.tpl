@@ -50,6 +50,10 @@
 			{if $sender_worker}
 				{if $message->was_signed}<span class="glyphicons glyphicons-circle-ok" style="{if $expanded}font-size:1.3em;{/if}color:rgb(66,131,73);" title="{'common.signed'|devblocks_translate|capitalize}"></span>{/if}
 				<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
+				&nbsp;
+				{if $sender_worker->title}
+					{$sender_worker->title}
+				{/if}
 			{else}
 				{if $sender_contact}
 					{$sender_org = $sender_contact->getOrg()}
