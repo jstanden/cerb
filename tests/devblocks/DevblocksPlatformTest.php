@@ -1284,6 +1284,22 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testArraySearchNoCase() {
+		$array = ['ReD', 'GReEN', 'bLUe'];
+		
+		$expected = 1;
+		$actual = DevblocksPlatform::arraySearchNoCase('green', $array);
+		$this->assertEquals($expected, $actual);
+		
+		$expected = 2;
+		$actual = DevblocksPlatform::arraySearchNoCase('BLUE', $array);
+		$this->assertEquals($expected, $actual);
+		
+		$expected = false;
+		$actual = DevblocksPlatform::arraySearchNoCase('Chartreuse', $array);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	public function testArrayDictSet() {
 		// Nested dot notation
 		
