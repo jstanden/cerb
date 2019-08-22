@@ -2,7 +2,7 @@
 class _DevblocksMultiFactorAuthService {
 	static $instance = null;
 	
-	private function __construct(){
+	private function __construct() {
 	}
 	
 	static function getInstance() {
@@ -24,16 +24,35 @@ class _DevblocksMultiFactorAuthService {
 		return $seed;
 	}
 	
-	public function getMultiFactorOtpFromSeed($seed) {
-		$timestamp = floor(microtime(true)/30);
-		$binary_key = DevblocksPlatform::strBase32Decode($seed);
-		$binary_timestamp = pack('N*', 0) . pack('N*', $timestamp);
+	public function getMultiFactorOtpFromSeed($seed, $intervals=1, $at=null) {
+		if(is_null($at))
+			$at = microtime(true);
 		
-		// References: https://github.com/tadeck/onetimepass
-		$hash = hash_hmac('sha1', $binary_timestamp, $binary_key, true);
-		$offset = ord($hash[19]) & 0xf;
-		$bytes = unpack("N*", substr($hash, $offset, 4));
+		$codes = [];
+
+		$timestamp = floor($at/30);
 		
-		return (array_shift($bytes) & 0x7fffffff) % 1000000;
+		for($i=0; $i<$intervals; $i++) {
+			$binary_key = DevblocksPlatform::strBase32Decode($seed);
+			$binary_timestamp = pack('N*', 0) . pack('N*', $timestamp - $i);
+			
+			// References: https://github.com/tadeck/onetimepass
+			$hash = hash_hmac('sha1', $binary_timestamp, $binary_key, true);
+			$offset = ord($hash[19]) & 0xf;
+			$bytes = unpack("N*", substr($hash, $offset, 4));
+			
+			$codes[] = (array_shift($bytes) & 0x7fffffff) % 1000000;
+		}
+
+		if(1 == $intervals) {
+			return array_shift($codes);
+		} else {
+			return $codes;
+		}
+	}
+	
+	public function isAuthorized($code, $seed, $at=null) {
+		$valid_codes = $this->getMultiFactorOtpFromSeed($seed, 2, $at);
+		return in_array(intval($code), $valid_codes, true);
 	}
 };

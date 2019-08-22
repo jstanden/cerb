@@ -993,9 +993,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 								if(!$otp || strlen($otp) != 6 || !is_numeric($otp))
 									throw new Exception_DevblocksAjaxValidationError("The given security code is invalid. It must be six digits.");
 								
-								$server_otp = DevblocksPlatform::services()->mfa()->getMultiFactorOtpFromSeed($seed);
-								
-								if(0 != strcmp($server_otp, $otp))
+								if(!DevblocksPlatform::services()->mfa()->isAuthorized($otp, $seed))
 									throw new Exception_DevblocksAjaxValidationError("The given security code is invalid. Please try again.");
 								
 								DAO_WorkerPref::set($worker_id, 'mfa.totp.seed', $seed);

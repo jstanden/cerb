@@ -365,7 +365,7 @@ class Page_Login extends CerberusPageExtension {
 				$otp_seed = $login_state->getParam('mfa.totp.seed');
 				
 				// If verified
-				if($otp == DevblocksPlatform::services()->mfa()->getMultiFactorOtpFromSeed($otp_seed)) {
+				if(DevblocksPlatform::services()->mfa()->isAuthorized($otp, $otp_seed)) {
 					DAO_WorkerPref::set($worker->id, 'mfa.totp.seed', $otp_seed);
 					$login_state->setIsMfaAuthenticated(true);
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','authenticated']));
@@ -382,7 +382,7 @@ class Page_Login extends CerberusPageExtension {
 				
 				if($otp) {
 					// If verified
-					if($otp == DevblocksPlatform::services()->mfa()->getMultiFactorOtpFromSeed($mfa_totp_seed)) {
+					if(DevblocksPlatform::services()->mfa()->isAuthorized($otp, $mfa_totp_seed)) {
 						$login_state->setIsMfaAuthenticated(true);
 						
 						if($setting_can_remember && $remember_device) {
@@ -625,7 +625,7 @@ class Page_Login extends CerberusPageExtension {
 						
 					} else {
 						// OTP verified
-						if(0 == strcmp($otp, DevblocksPlatform::services()->mfa()->getMultiFactorOtpFromSeed($mfa_totp_seed))) {
+						if(DevblocksPlatform::services()->mfa()->isAuthorized($otp, $mfa_totp_seed)) {
 							$login_state
 								->setParam('recover.verified', true)
 								;
