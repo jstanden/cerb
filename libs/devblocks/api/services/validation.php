@@ -716,6 +716,10 @@ class _DevblocksValidationService {
 		return $this->_fields[$name];
 	}
 	
+	function reset() {
+		$this->_fields = [];
+	}
+	
 	/*
 	 * @return DevblocksValidationField[]
 	 */
