@@ -1076,7 +1076,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		} else {
 			options.position = {
 				my: "center top",
-				at: "center top+20"
+				at: "center top+35"
 			};
 		}
 		target = null;
@@ -1090,7 +1090,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	} else {
 		options.position = {
 			my: "center top",
-			at: "center top+20"
+			at: "center top+35"
 		};
 	}
 	
@@ -1163,7 +1163,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 					if($popup.is(':hidden')) {
 						$dialog.css('position', $dialog.attr('data-position'));
 						$this.button('option', 'icons', { primary: 'ui-icon-carat-1-n' } );
-						$popup.dialog( "option", "position", { my: "center top", at: "center top", of: window } );
+						$popup.dialog( "option", "position", { my: "center top", at: "center top+35", of: window } );
 						$popup.show();
 					} else {
 						$popup.hide();
