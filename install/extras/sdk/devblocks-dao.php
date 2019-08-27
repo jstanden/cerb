@@ -80,6 +80,10 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 			->setRequired(true)
 			;
 		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+		$validation
 			->addField('_fieldsets')
 			->string()
 			->setMaxLength(65535)
@@ -96,6 +100,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
+		//	$fields[DAO_Automation::CREATED_AT] = time();
 		$sql = "INSERT INTO <?php echo $table_name; ?> () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
@@ -394,8 +399,8 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		
 		return array($results,$total);
 	}
-
 };
+
 </textarea>
 
 <textarea style="width: 98%; height: 200px;">
@@ -507,6 +512,7 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 		return $columns;
 	}
 };
+
 </textarea>
 
 <textarea style="width: 98%; height: 200px;">
@@ -840,86 +846,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 };
 </textarea>
 
-<b>plugin.xml</b>
-<br>
-<textarea style="width: 98%; height: 200px;">
-<file path="api/dao/<?php echo $table_name; ?>.php">
-	<class name="Context_<?php echo $class_name; ?>" />
-	<class name="DAO_<?php echo $class_name; ?>" />
-	<class name="Model_<?php echo $class_name; ?>" />
-	<class name="SearchFields_<?php echo $class_name; ?>" />
-	<class name="View_<?php echo $class_name; ?>" />
-</file>
-</textarea>
-
-<b>strings.xml</b>
-<br>
-<textarea style="width: 98%; height: 200px;">
-<!-- <?php echo $class_name; ?> -->
-
-<?php foreach(array_keys($fields) as $field_name) { ?>
-<tu tuid='dao.<?php echo $table_name; ?>.<?php echo $field_name; ?>'>
-	<tuv xml:lang="en_US">
-	<seg><?php echo ucwords(str_replace('_',' ',$field_name)); ?></seg></tuv>
-</tu>
-<?php } ?>
-</textarea>
-
-<h2>Context</h2>
-
-<b>plugin.xml</b>
-<br>
-<textarea style="width: 98%; height: 200px;">
-		<extension point="devblocks.context">
-			<id><?php echo $ctx_ext_id; ?></id>
-			<name><?php echo $object_name; ?></name>
-			<class>
-				<file>api/dao/<?php echo $table_name; ?>.php</file>
-				<name>Context_<?php echo $class_name; ?></name>
-			</class>
-			<params>
-				<param key="names">
-					<value>
-						<data key="<?php echo $table_name; ?>" value="singular" />
-						<data key="<?php echo $table_name; ?>" value="plural" />
-						<data key="<?php echo $table_name; ?>" value="singular short" />
-						<data key="<?php echo $table_name; ?>" value="plural short" />
-					</value>
-				</param>
-				<param key="alias" value="<?php echo $table_name; ?>" />
-				<param key="dao_class" value="DAO_<?php echo $class_name; ?>" />
-				<param key="view_class" value="View_<?php echo $class_name;?>" />
-				<param key="options">
-					<value>
-						<data key="cards" />
-						<data key="custom_fields" />
-						<data key="links" />
-						<data key="records" />
-						<data key="search" />
-						<data key="snippets" />
-						<data key="va_variable" />
-						<data key="watchers" />
-						<data key="workspace" />
-					</value>
-				</param>
-				<param key="acl">
-					<value>
-						<data key="broadcast" />
-						<data key="comment" />
-						<data key="create" />
-						<data key="delete" />
-						<data key="export" />
-						<data key="import" />
-						<data key="merge" />
-						<data key="update" />
-						<data key="update.bulk" />
-					</value>
-				</param>
-			</params>
-		</extension>
-</textarea>
-
-<b>api/dao/<?php echo $table_name; ?>.php</b><br>
 <textarea style="width:98%;height:200px;">
 class Context_<?php echo $class_name;?> extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = '<?php echo $ctx_ext_id; ?>';
@@ -1252,6 +1178,82 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 };
 </textarea>
 
+
+<b>plugin.xml</b>
+<br>
+<textarea style="width: 98%; height: 200px;">
+<file path="api/dao/<?php echo $table_name; ?>.php">
+	<class name="Context_<?php echo $class_name; ?>" />
+	<class name="DAO_<?php echo $class_name; ?>" />
+	<class name="Model_<?php echo $class_name; ?>" />
+	<class name="SearchFields_<?php echo $class_name; ?>" />
+	<class name="View_<?php echo $class_name; ?>" />
+</file>
+</textarea>
+
+<textarea style="width: 98%; height: 200px;">
+		<extension point="devblocks.context">
+			<id><?php echo $ctx_ext_id; ?></id>
+			<name><?php echo $object_name; ?></name>
+			<class>
+				<file>api/dao/<?php echo $table_name; ?>.php</file>
+				<name>Context_<?php echo $class_name; ?></name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="<?php echo $table_name; ?>" value="singular" />
+						<data key="<?php echo $table_name; ?>" value="plural" />
+						<data key="<?php echo $table_name; ?>" value="singular short" />
+						<data key="<?php echo $table_name; ?>" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="<?php echo $table_name; ?>" />
+				<param key="dao_class" value="DAO_<?php echo $class_name; ?>" />
+				<param key="view_class" value="View_<?php echo $class_name;?>" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+</textarea>
+
+<b>strings.xml</b>
+<br>
+<textarea style="width: 98%; height: 200px;">
+<!-- <?php echo $class_name; ?> -->
+
+<?php foreach(array_keys($fields) as $field_name) { ?>
+<tu tuid='dao.<?php echo $table_name; ?>.<?php echo $field_name; ?>'>
+	<tuv xml:lang="en_US">
+	<seg><?php echo ucwords(str_replace('_',' ',$field_name)); ?></seg></tuv>
+</tu>
+<?php } ?>
+</textarea>
+
 <b>templates/<?php echo $table_name; ?>/peek.tpl</b><br>
 <textarea style="width:98%;height:200px;">
 {$div_id = "peek{uniqid()}"}
@@ -1397,7 +1399,7 @@ $(function() {
 
 <table cellspacing="0" cellpadding="2" border="0" width="98%">
 	<tr>
-		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 		</td>
@@ -1408,12 +1410,8 @@ $(function() {
 	{/if}
 </table>
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-<fieldset class="peek">
-	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	&lt;textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"&gt;&lt;/textarea&gt;
-</fieldset>
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
 <fieldset style="display:none;" class="delete">
@@ -1429,8 +1427,14 @@ $(function() {
 {/if}
 
 <div class="buttons" style="margin-top:10px;">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{if $model->id}
+		<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{else}
+		<button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+		<button type="button" class="create-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>
+	{/if}
 </div>
 
 </form>
@@ -1445,9 +1449,12 @@ $(function() {
 		$popup.css('overflow', 'inherit');
 
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
+		$popup.find('button.create-continue').click({ mode: 'create_continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-
+		
 		// Close confirmation
 		
 		$popup.on('dialogbeforeclose', function(e, ui) {
@@ -1456,21 +1463,7 @@ $(function() {
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
 		
-		var $textarea = $(this).find('textarea[name=comment]');
 		
-		// @mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-
-		$textarea.atwho({
-			at: '@',
-			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_workers,
-			searchKey: '_index',
-			limit: 10
-		});
-
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
@@ -1682,7 +1675,7 @@ $(function() {
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
-| All source code & content (c) Copyright 2014, Webgroup Media LLC
+| All source code & content (c) Copyright 2002-2019, Webgroup Media LLC
 |   unless specifically noted otherwise.
 |
 | This source code is released under the Devblocks Public License.
@@ -1734,7 +1727,6 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
 				
 				$error = null;
 				
@@ -1772,29 +1764,17 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 					DAO_<?php echo $class_name; ?>::onUpdateByActor($active_worker, $id, $fields);
 					
 				}
-	
-				// If we're adding a comment
-				if(!empty($comment)) {
-					$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-					
-					$fields = array(
-						DAO_Comment::CREATED => time(),
-						DAO_Comment::CONTEXT => '<?php echo $ctx_ext_id; ?>',
-						DAO_Comment::CONTEXT_ID => $id,
-						DAO_Comment::COMMENT => $comment,
-						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-					);
-					DAO_Comment::create($fields, $also_notify_worker_ids);
-				}
 				
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost('<?php echo $ctx_ext_id; ?>', $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
+				if($id) {
+					// Custom field saves
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					if(!DAO_CustomFieldValue::handleFormPost('<?php echo $ctx_ext_id; ?>', $id, $field_ids, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+				}
 				
 				echo json_encode(array(
 					'status' => true,
+					'context' => '<?php echo $ctx_ext_id; ?>',
 					'id' => $id,
 					'label' => $name,
 					'view_id' => $view_id,

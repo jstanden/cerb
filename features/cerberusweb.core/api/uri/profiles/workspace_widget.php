@@ -242,10 +242,12 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						if(method_exists($widget_extension, 'saveConfig'))
 							$widget_extension->saveConfig($widget);
 						
-						// Custom field saves
-						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $id, $field_ids, $error))
-							throw new Exception_DevblocksAjaxValidationError($error);
+						if($id) {
+							// Custom field saves
+							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $id, $field_ids, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+						}
 						
 						echo json_encode([
 							'status' => true,

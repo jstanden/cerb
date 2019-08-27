@@ -26,7 +26,7 @@ class Page_Login extends CerberusPageExtension {
 			'account.locked' => "Your account has been temporarily locked after too many failed login attempts. Please wait a few minutes and try again.",
 			'auth.expired' => "The code has expired.",
 			'auth.failed' => "Authentication failed.",
-			'confim.failed' => "The given confirmation code doesn't match the one on file.",
+			'confirm.failed' => "The given confirmation code doesn't match the one on file.",
 			'confirm.invalid' => "The given confirmation code is invalid.",
 			'email.invalid' => "The provided email address is not valid.",
 			'email.unavailable' => "The provided email address is not available.",
