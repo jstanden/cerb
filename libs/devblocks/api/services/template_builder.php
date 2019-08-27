@@ -591,7 +591,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		return $this->get($name);
 	}
 	
-	public function getDictionary($with_prefix=null, $with_meta=true) {
+	public function getDictionary($with_prefix=null, $with_meta=true, $add_prefix=null) {
 		$dict = $this->_dictionary;
 		
 		if(!$with_meta) {
@@ -603,12 +603,12 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		}
 		
 		// Convert any nested dictionaries to arrays
-		array_walk_recursive($dict, function(&$v) use ($with_meta) {
+		array_walk_recursive($dict, function(&$v) use ($with_meta, $add_prefix) {
 			if($v instanceof DevblocksDictionaryDelegate)
-				$v = $v->getDictionary(null, $with_meta);
+				$v = $v->getDictionary(null, $with_meta, $add_prefix);
 		});
 		
-		if(empty($with_prefix))
+		if(!$with_prefix && !$add_prefix)
 			return $dict;
 
 		$new_dict = [];
@@ -616,7 +616,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		foreach($dict as $k => $v) {
 			$len = strlen($with_prefix);
 			if(0 == strcasecmp($with_prefix, substr($k,0,$len))) {
-				$new_dict[substr($k,$len)] = $v;
+				$new_dict[$add_prefix . substr($k,$len)] = $v;
 			}
 		}
 		
