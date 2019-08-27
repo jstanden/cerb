@@ -472,6 +472,17 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		return $ptr;
 	}
 	
+	public function setPush($name, $value) {
+		$current_value = $this->get($name, []);
+		
+		if(!is_array($current_value))
+			$current_value = [$current_value];
+		
+		array_push($current_value, $value);
+		
+		return $this->$name = $current_value;
+	}
+	
 	public function unset($name) {
 		return $this->__unset($name);
 	}
