@@ -412,12 +412,90 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		return $default;
 	}
 	
+	public function getKeyPath($name, $default=null) {
+		$queue = $this->_getPathFromText($name);
+		
+		$ptr =& $this->_dictionary;
+		
+		if(is_array($queue))
+		while(null !== ($k = array_shift($queue))) {
+			if(is_array($ptr)) {
+				if(!array_key_exists($k, $ptr)) {
+					return $default;
+				}
+				
+				$ptr =& $ptr[$k];
+				
+			} else {
+				if(empty($queue)) {
+					return $ptr;
+				}
+			}
+		}
+		
+		return $ptr;
+	}
+	
 	public function set($name, $value) {
 		return $this->$name = $value;
 	}
 	
+	public function _getPathFromText($name) {
+		$path = explode('.', $name);
+		return $path;
+	}
+	
+	public function setKeyPath($name, $value) {
+		$queue = $this->_getPathFromText($name);
+		
+		$ptr =& $this->_dictionary;
+		
+		if(is_array($queue))
+		while(null !== ($k = array_shift($queue))) {
+			if(!array_key_exists($k, $ptr)) {
+				$ptr[$k] = [];
+				$ptr =& $ptr[$k];
+				
+			} else if(!is_array($ptr[$k])) {
+				if($queue)
+					return false;
+				
+				$ptr =& $ptr[$k];
+				
+			} else {
+				$ptr =& $ptr[$k];
+			}
+		}
+		
+		$ptr = $value;
+		
+		return $ptr;
+	}
+	
 	public function unset($name) {
 		return $this->__unset($name);
+	}
+	
+	public function unsetKeyPath($name) {
+		$path = $this->_getPathFromText($name);
+		
+		$ptr =& $this->_dictionary;
+		
+		while($k = array_shift($path)) {
+			if(!array_key_exists($k, $ptr)) {
+				return false;
+			}
+			
+			if(empty($path)) {
+				unset($ptr[$k]);
+				return true;
+				
+			} else {
+				$ptr =& $ptr[$k];
+			}
+		}
+		
+		return false;
 	}
 	
 	public function &__get($name) {
@@ -559,6 +637,52 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 			if(DevblocksPlatform::strEndsWith($key, $suffix))
 				unset($this->_dictionary[$key]);
 		}
+	}
+	
+	public function scrubKeyPathPrefix($name, $prefix) {
+		$path = $this->_getPathFromText($name);
+		
+		$ptr =& $this->_dictionary;
+		
+		if(is_array($path))
+		foreach($path as $k) {
+			if(!array_key_exists($k, $ptr)) {
+				return false;
+			}
+			
+			$ptr =& $ptr[$k];
+		}
+		
+		if(is_array($ptr))
+		foreach(array_keys($ptr) as $key) {
+			if(DevblocksPlatform::strStartsWith($key, $prefix))
+				unset($ptr[$key]);
+		}
+		
+		return true;
+	}
+	
+	public function scrubKeyPathSuffix($name, $suffix) {
+		$path = $this->_getPathFromText($name);
+		
+		$ptr =& $this->_dictionary;
+		
+		if(is_array($path))
+		foreach($path as $k) {
+			if(!array_key_exists($k, $ptr)) {
+				return false;
+			}
+			
+			$ptr =& $ptr[$k];
+		}
+		
+		if(is_array($ptr))
+		foreach(array_keys($ptr) as $key) {
+			if(DevblocksPlatform::strEndsWith($key, $suffix))
+				unset($ptr[$key]);
+		}
+		
+		return true;
 	}
 	
 	public function extract($prefix) {
