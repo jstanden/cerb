@@ -132,7 +132,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				}
 				
 				@$limit_desc = DevblocksPlatform::strStartsWith($limit, '-') ? false : true;
-				@$limit = DevblocksPlatform::intClamp(abs($limit), 0, 250) ?: 25;
+				@$limit = DevblocksPlatform::intClamp(abs($limit), 0, 2000) ?: 25;
 				
 				$subtotal_field['limit'] = $limit;
 				$subtotal_field['limit_desc'] = $limit_desc;
@@ -176,7 +176,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$sql_where = $query_parts['where'];
 		
 		foreach($by_fields as $by) {
-			$limit = DevblocksPlatform::intClamp($by['limit'], 0, 250) ?: 25;
+			$limit = DevblocksPlatform::intClamp($by['limit'], 0, 2000) ?: 25;
 			@$limit_desc = $by['limit_desc'];
 			
 			$sql = sprintf("SELECT COUNT(*) AS hits, %s %s %s %s GROUP BY `%s` ORDER BY hits %s LIMIT %d",
