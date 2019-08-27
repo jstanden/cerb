@@ -76,6 +76,7 @@ class _DevblocksTemplateBuilder {
 				'base64url_decode',
 				'bytes_pretty',
 				'cerb_translate',
+				'context_alias',
 				'context_name',
 				'date_pretty',
 				'hash_hmac',
@@ -1084,6 +1085,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFilter('base64url_decode', [$this, 'filter_base64url_decode']),
 			new Twig_SimpleFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
 			new Twig_SimpleFilter('cerb_translate', [$this, 'filter_cerb_translate']),
+			new Twig_SimpleFilter('context_alias', [$this, 'filter_context_alias']),
 			new Twig_SimpleFilter('context_name', [$this, 'filter_context_name']),
 			new Twig_SimpleFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new Twig_SimpleFilter('hash_hmac', [$this, 'filter_hash_hmac']),
@@ -1157,6 +1159,10 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function filter_cerb_translate($string) {
 		return DevblocksPlatform::translate($string);
+	}
+	
+	function filter_context_alias($string) {
+		return $this->filter_context_name($string, 'uri');
 	}
 	
 	function filter_context_name($string, $type='plural') {
