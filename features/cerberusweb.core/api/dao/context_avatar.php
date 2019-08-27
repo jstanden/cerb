@@ -696,12 +696,12 @@ class Storage_ContextAvatar extends Extension_DevblocksStorageSchema {
 			$profile = self::getActiveStorageProfile();
 		}
 		
+		$profile_id = 0;
+		
 		if($profile instanceof Model_DevblocksStorageProfile) {
 			$profile_id = $profile->id;
 		} elseif(is_numeric($profile)) {
-			$profile_id = intval($profile_id);
-		} elseif(is_string($profile)) {
-			$profile_id = 0;
+			$profile_id = intval($profile);
 		}
 
 		if(false === ($storage = DevblocksPlatform::getStorageService($profile))) {
