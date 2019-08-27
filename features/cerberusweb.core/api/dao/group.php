@@ -195,6 +195,10 @@ class DAO_Group extends Cerb_ORMHelper {
 		return $groups;
 	}
 	
+	static function getByName($name) {
+		return DevblocksPlatform::arraySearchNoCase($name, DAO_Group::getNames());
+	}
+	
 	static function getNames(Model_Worker $for_worker=null) {
 		$groups = DAO_Group::getAll();
 		$names = [];
