@@ -1316,9 +1316,9 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile'));
-		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile'));
-		$tpl->assign('archive_after_days', $this->getParam('archive_after_days'));
+		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile', 'devblocks.storage.engine.database'));
+		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.database'));
+		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 0));
 		
 		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schemas/message_content/render.tpl");
 	}
@@ -1326,9 +1326,9 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 	function renderConfig() {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile'));
-		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile'));
-		$tpl->assign('archive_after_days', $this->getParam('archive_after_days'));
+		$tpl->assign('active_storage_profile', $this->getParam('active_storage_profile', 'devblocks.storage.engine.database'));
+		$tpl->assign('archive_storage_profile', $this->getParam('archive_storage_profile', 'devblocks.storage.engine.database'));
+		$tpl->assign('archive_after_days', $this->getParam('archive_after_days', 0));
 		
 		$tpl->display("devblocks:cerberusweb.core::configuration/section/storage_profiles/schemas/message_content/config.tpl");
 	}
