@@ -9,13 +9,8 @@ $tables = $db->metaTables();
 
 $db->ExecuteMaster("DROP TABLE IF EXISTS _installer_test_suite");
 
-if(false == $db->ExecuteMaster(sprintf("CREATE TABLE _installer_test_suite (id int) ENGINE=%s", APP_DB_ENGINE))) {
-	echo "ERROR: Failed to create the `_installer_test_suite` table. "; 
-	return false;
-}
-
-if(false == $db->ExecuteMaster("ALTER TABLE _installer_test_suite ADD COLUMN pos POINT NOT NULL, ADD SPATIAL INDEX (pos)")) {
-	echo "ERROR: Your MySQL version does not support SPATIAL indexes. Cerb requires MySQL 5.6 (MariaDB 10.2.2) or newer. "; 
+if(false == $db->ExecuteMaster(sprintf("CREATE TABLE _installer_test_suite (id int, pos POINT NOT NULL, PRIMARY KEY(id), SPATIAL INDEX(pos)) ENGINE=%s", APP_DB_ENGINE))) {
+	echo "ERROR: Your MySQL version does not support SPATIAL indexes. Cerb requires MySQL 5.6 (MariaDB 10.2.2) or newer. ";
 	return false;
 }
 
