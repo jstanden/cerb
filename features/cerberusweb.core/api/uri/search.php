@@ -108,10 +108,11 @@ class Page_Search extends CerberusPageExtension {
 		
 		$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
 		$label = @$aliases['plural'] ?: $context_ext->manifest->name;
+		$popup_title = DevblocksPlatform::translateCapitalized('common.search') . ': ' . mb_convert_case($label, MB_CASE_TITLE);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('context_ext', $context_ext);
-		$tpl->assign('popup_title', DevblocksPlatform::translateCapitalized('common.search') . ': ' . mb_convert_case($label, MB_CASE_TITLE));
+		$tpl->assign('popup_title', $popup_title);
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::search/popup.tpl');
