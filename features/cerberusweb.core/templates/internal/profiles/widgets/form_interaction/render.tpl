@@ -24,18 +24,11 @@ $(function() {
 		var $tab = $this.closest('.cerb-profile-layout');
 		
 		// Grab the entire form params
-		
-		var form_data = {};
 		var form_elements = $form.serializeArray();
-		
-		for(var i in form_elements) {
-			var form_element = form_elements[i];
-			form_data[form_element.name] = form_element.value;
-		}
-		
+
 		var evt = $.Event('cerb-widget-refresh');
 		evt.widget_id = {$widget->id};
-		evt.refresh_options = form_data;
+		evt.refresh_options = form_elements;
 		
 		$tab.triggerHandler(evt);
 	});
