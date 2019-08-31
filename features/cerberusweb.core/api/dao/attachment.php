@@ -333,7 +333,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		return (false !== $db->ExecuteMaster($sql));
 	}
 	
-	static function getLinks($file_id, $only_contexts=null) {
+	static function getLinks($file_id, $only_contexts=null, $limit=0) {
 		$db = DevblocksPlatform::services()->database();
 		$contexts = [];
 		
@@ -345,6 +345,10 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			$sql .= sprintf(" AND context IN (%s)",
 				implode(',', $db->qstrArray($only_contexts))
 			);
+		}
+		
+		if($limit) {
+			$sql .= sprintf(" LIMIT %d", $limit);
 		}
 		
 		$results = $db->GetArrayMaster($sql);
