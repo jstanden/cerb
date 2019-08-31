@@ -11,7 +11,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		$form_value = $this->getValue($form_value);
 		$tpl->assign('form_value', $form_value);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/editors/geopoint.tpl');
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/extensions/geopoint/editor.tpl');
 	}
 	
 	function validationRegister(Model_CustomField $field, _DevblocksValidationService &$validation) {
