@@ -684,3 +684,183 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		return $keys;
 	}
 };
+
+class DevblocksStorageEngine_CerbCloudS3 extends Extension_DevblocksStorageEngine {
+	const ID = 'cerb.cloud.storage.engine.s3';
+	
+	public function setOptions($options=array()) {
+		if(
+			!defined('CERB_CLOUD_SUBDOMAIN')
+			|| !defined('CERB_CLOUD_TOKEN')
+			|| !defined('CERB_CLOUD_REGION')
+		) {
+			return false;
+		}
+		
+		parent::setOptions($options);
+		
+		return true;
+	}
+	
+	function testConfig(Model_DevblocksStorageProfile $profile) {
+		// No public configuration
+	}
+	
+	function renderConfig(Model_DevblocksStorageProfile $profile) {
+		// No public configuration
+	}
+	
+	function saveConfig(Model_DevblocksStorageProfile $profile) {
+		// No public configuration
+	}
+	
+	public function exists($namespace, $key) {
+		$token_url = sprintf("http://app.%s.internal.cerb.cloud/_services/storage/%s/%s/%s",
+			CERB_CLOUD_REGION,
+			CERB_CLOUD_SUBDOMAIN,
+			$this->escapeNamespace($namespace),
+			$key
+		);
+		
+		$http_client = new GuzzleHttp\Client();
+		
+		$response = $http_client->head($token_url, [
+			'http_errors' => false,
+			'headers' => [
+				'Authorization' => CERB_CLOUD_TOKEN,
+			]
+		]);
+		
+		if(200 == $response->getStatusCode())
+			return true;
+	
+		return false;
+	}
+	
+	public function put($namespace, $id, $data) {
+		// Get a unique hash path for this namespace+id
+		$hash = base_convert(sha1($this->escapeNamespace($namespace) . $id), 16, 32);
+		
+		$key = sprintf("%s/%s/%d",
+			substr($hash, 0, 1),
+			substr($hash, 1, 1),
+			$id
+		);
+		
+		$token_url = sprintf("http://app.%s.internal.cerb.cloud/_services/storage/%s/%s/%s",
+			CERB_CLOUD_REGION,
+			CERB_CLOUD_SUBDOMAIN,
+			$this->escapeNamespace($namespace),
+			$key
+		);
+		
+		$http_client = new GuzzleHttp\Client();
+		
+		$response = $http_client->request('PUT', $token_url, [
+			'http_errors' => false,
+			'headers' => [
+				'Authorization' => CERB_CLOUD_TOKEN,
+			],
+		]);
+		
+		$response_body = $response->getBody()->getContents();
+		
+		if(
+			false == ($response_json = @json_decode($response_body, true))
+			|| !is_array($response_json)
+			|| !array_key_exists('url', $response_json)
+		) {
+			return false;
+		}
+		
+		// The pre-signed URL
+		$put_url = $response_json['url'];
+		
+		$response = $http_client->put($put_url, [
+			'http_errors' => false,
+			'headers' => [],
+			'body' => $data,
+		]);
+		
+		if(200 ==  $response->getStatusCode())
+			return $key;
+		
+		return false;
+	}
+
+	public function get($namespace, $key, &$fp=null) {
+		$token_url = sprintf("http://app.%s.internal.cerb.cloud/_services/storage/%s/%s/%s",
+			CERB_CLOUD_REGION,
+			CERB_CLOUD_SUBDOMAIN,
+			$this->escapeNamespace($namespace),
+			$key
+		);
+		
+		$http_client = new GuzzleHttp\Client();
+		
+		$response = $http_client->get($token_url, [
+			'http_errors' => false,
+			'headers' => [
+				'Authorization' => CERB_CLOUD_TOKEN,
+			]
+		]);
+		
+		if(
+			false == ($response_json = @json_decode($response->getBody()->getContents(), true))
+			|| !is_array($response_json)
+			|| !array_key_exists('url', $response_json)
+		) {
+			return false;
+		}
+		
+		// The pre-signed URL
+		$get_url = $response_json['url'];
+		
+		$response = $http_client->get($get_url, [
+			'http_errors' => false,
+		]);
+		
+		if(200 != $response->getStatusCode())
+			return false;
+	
+		if($fp && is_resource($fp)) {
+			$body = $response->getBody();
+			
+			while(!$body->eof())
+				fwrite($fp, $body->read(65536));
+			
+			fseek($fp, 0);
+			return true;
+			
+		} else {
+			return $response->getBody()->getContents();
+		}
+		
+		return false;
+	}
+	
+	public function delete($namespace, $key) {
+		$token_url = sprintf("http://app.%s.internal.cerb.cloud/_services/storage/%s/%s/%s",
+			CERB_CLOUD_REGION,
+			CERB_CLOUD_SUBDOMAIN,
+			$this->escapeNamespace($namespace),
+			$key
+		);
+		
+		$http_client = new GuzzleHttp\Client();
+		
+		$response = $http_client->delete($token_url, [
+			'http_errors' => false,
+			'headers' => [
+				'Authorization' => CERB_CLOUD_TOKEN,
+			]
+		]);
+		
+		// [TODO] A 200-OK response may contain an embedded error message
+		
+		if(200 ==  $response->getStatusCode())
+			return $key;
+		
+		return true;
+	}
+};

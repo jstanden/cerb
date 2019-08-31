@@ -85,6 +85,7 @@
 			<class name="DevblocksStorageEngineDatabase" />
 			<class name="DevblocksStorageEngineDisk" />
 			<class name="DevblocksStorageEngineS3" />
+			<class name="DevblocksStorageEngine_CerbCloudS3" />
 		</file>
 	</class_loader>
 	
@@ -192,6 +193,17 @@
 			<class>
 				<file>api/services/storage.php</file>
 				<name>DevblocksStorageEngineS3</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="devblocks.storage.engine">
+			<id>cerb.cloud.storage.engine.s3</id>
+			<name>Cerb Cloud</name>
+			<class>
+				<file>api/services/storage.php</file>
+				<name>DevblocksStorageEngine_CerbCloudS3</name>
 			</class>
 			<params>
 			</params>

@@ -1951,12 +1951,10 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 			$object->id = $row['id'];
 			$object->name = $row['name'];
 			$object->extension_id = $row['extension_id'];
-			$object->params_json = $row['params_json'];
+			$object->params = [];
 			
-			if(false !== ($params = json_decode($object->params_json, true))) {
+			if(false !== (@$params = json_decode($row['params_json'], true))) {
 				$object->params = $params;
-			} else {
-				$object->params = [];
 			}
 			
 			$objects[$object->id] = $object;
@@ -1968,7 +1966,9 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	}
 	
 	static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = [$ids];
+		
 		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))

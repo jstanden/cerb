@@ -3309,19 +3309,23 @@ class DevblocksPlatform extends DevblocksEngine {
 			return false;
 		
 		$profile = $args[0];
-		$params = array();
+		$params = [];
 		
 		// Handle $profile polymorphism
 		if($profile instanceof Model_DevblocksStorageProfile) {
 			$extension = $profile->extension_id;
 			$params['_profile_id'] = $profile->id;
-			$params = array_merge($params, $profile->params);
+			
+			if(is_array($profile->params))
+				$params = array_merge($params, $profile->params);
 			
 		} else if(is_numeric($profile)) {
 			$storage_profile = DAO_DevblocksStorageProfile::get($profile);
 			$extension = $storage_profile->extension_id;
 			$params['_profile_id'] = $storage_profile->id;
-			$params = array_merge($params, $storage_profile->params);
+			
+			if(is_array($storage_profile->params))
+				$params = array_merge($params, $storage_profile->params);
 			
 		} else if(is_string($profile)) {
 			$extension = $profile;
