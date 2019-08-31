@@ -3914,7 +3914,6 @@ class CerbQuickSearchLexer {
 					case DevblocksSearchCriteria::GROUP_OR_NOT:
 					case DevblocksSearchCriteria::GROUP_AND:
 					case DevblocksSearchCriteria::GROUP_AND_NOT:
-						$token->value = $token->value;
 						break;
 						
 					default:
@@ -3922,9 +3921,9 @@ class CerbQuickSearchLexer {
 						break;
 				}
 				
-				$param = array(
+				$param = [
 					$token->value,
-				);
+				];
 				foreach($token->children as $child)
 					self::buildParams($child, $param);
 				

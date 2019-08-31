@@ -491,8 +491,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 			case 'prompt_captcha':
 				$actions =& $dict->_actions;
 				
-				assert($actions);
-				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
 				@$var = $params['var'];
@@ -520,8 +518,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 			case 'prompt_checkboxes':
 				$actions =& $dict->_actions;
-				
-				assert($actions);
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				

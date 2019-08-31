@@ -14,7 +14,7 @@
 		{$page_owner_meta = $page->getOwnerMeta()}
 		{if !empty($page_owner_meta)}
 			<div style="display:inline-block;margin-right:5px;">
-				Owned by 
+				Managed by
 				<img src="{devblocks_url}c=avatars&context={$page->owner_context}&context_id={$page->owner_context_id}{/devblocks_url}?v={$page_owner_meta.updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">
 				<b>
 				{if $page->owner_context_id} 

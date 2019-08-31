@@ -118,7 +118,8 @@ class _DevblocksClassLoadManager {
 		$regex = new RegexIterator($iter, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
 		
 		foreach($regex as $class_file => $o) {
-			assert(!is_null($o));
+			if(is_null($o))
+				continue;
 			$class_name = substr($class_file, strlen($path), strlen($class_file)-strlen($path)-4);
 			$class_name = $ns_prefix . str_replace(DIRECTORY_SEPARATOR, '\\', $class_name);
 			$this->classMap[$class_name] = $class_file;

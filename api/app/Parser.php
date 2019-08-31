@@ -1248,7 +1248,6 @@ class CerberusParser {
 					$state = '';
 					$comments = [];
 					$comment_ptr = null;
-					assert(is_null($comment_ptr)); // for validation
 					
 					$matches = [];
 					

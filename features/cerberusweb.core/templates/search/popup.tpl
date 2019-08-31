@@ -21,7 +21,7 @@ $(function() {
 
 			$worklist.css('background','none');
 			$worklist.css('background-color','rgb(100,100,100)');
-		}
+		};
 		
 		on_refresh();
 

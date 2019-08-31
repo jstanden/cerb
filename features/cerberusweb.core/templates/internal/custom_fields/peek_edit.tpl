@@ -129,7 +129,7 @@ $(function() {
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		
 		// When the context changes, update the chooser
-		var $select_context = $popup.find('select[name=context]').on('change', function(e) {
+		$popup.find('select[name=context]').on('change', function(e) {
 			var $this = $(this);
 			var $chooser = $popup.find('button[data-field-name="custom_fieldset_id"]');
 			var val = $this.val();
@@ -140,7 +140,7 @@ $(function() {
 		});
 		
 		// When the type changes, draw new params
-		var $select_type = $popup.find('select[name=type]').on('change', function(e) {
+		$popup.find('select[name=type]').on('change', function(e) {
 			var $this = $(this);
 			var $params = $popup.find('div.params');
 			genericAjaxGet($params, 'c=profiles&a=handleSectionAction&section=custom_field&action=getFieldParams&type=' + $this.val());

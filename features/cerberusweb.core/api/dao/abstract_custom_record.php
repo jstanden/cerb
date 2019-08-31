@@ -192,6 +192,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
 	 * @param integer $limit
+	 * @param array $options
 	 * @return Model_AbstractCustomRecord[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
@@ -569,7 +570,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		if(!($rs instanceof mysqli_result))
 			return false;
 		
-		$results = array();
+		$results = [];
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object_id = intval($row[SearchFields_AbstractCustomRecord::ID]);

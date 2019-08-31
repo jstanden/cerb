@@ -712,7 +712,10 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 	
 	public function merge($token_prefix, $label_prefix, $src_labels, $src_values) {
 		$dst_labels =& $this->_dictionary['_labels'];
-		assert(is_array($dst_labels));
+		
+		if(!is_array($dst_labels))
+			return false;
+		
 		$dst_values =& $this->_dictionary;
 		
 		if(is_array($src_labels))
