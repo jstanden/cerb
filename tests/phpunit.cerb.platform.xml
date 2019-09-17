@@ -11,6 +11,9 @@
 			<file>devblocks/services/DevblocksCacheTest.php</file>
 		</testsuite>
 		<testsuite>
+			<file>devblocks/services/DevblocksStringTest.php</file>
+		</testsuite>
+		<testsuite>
 			<file>devblocks/services/DevblocksMfaTest.php</file>
 		</testsuite>
 		<testsuite>

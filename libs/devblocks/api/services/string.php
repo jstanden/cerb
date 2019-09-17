@@ -19,6 +19,13 @@ class _DevblocksStringService {
 		return base64_decode(strtr($string, ['-'=>'+', '_'=>'/']));
 	}
 	
+	function strAfter($string, $marker) {
+		if(false === ($pos = strpos($string, $marker)))
+			return null;
+		
+		return substr($string, $pos+1);
+	}
+	
 	/*
 	 * Credit: https://stackoverflow.com/a/16496730
 	 */
