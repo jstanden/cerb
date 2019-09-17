@@ -84,7 +84,7 @@ class WebhookListenerEngine_BotBehavior extends Extension_WebhookListenerEngine 
 		$tpl->assign('behaviors', $behaviors);
 		$tpl->assign('bots', $bots);
 		
-		$tpl->display('devblocks:cerb.webhooks::webhook_listener/engines/va.tpl');
+		$tpl->display('devblocks:cerb.webhooks::webhook_listener/engines/bot_behavior.tpl');
 	}
 	
 	function handleWebhookRequest(Model_WebhookListener $webhook) {
