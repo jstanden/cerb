@@ -16,4 +16,17 @@ class DevblocksStringTest extends PHPUnit_Framework_TestCase {
 		$actual = $strings->strAfter('user@host', '#');
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testStrBefore() {
+		$strings = DevblocksPlatform::services()->string();
+		
+		$expected = 'user';
+		$actual = $strings->strBefore('user@host', '@');
+		$this->assertEquals($expected, $actual);
+		
+		// No marker found
+		$expected = 'user@host';
+		$actual = $strings->strBefore('user@host', '#');
+		$this->assertEquals($expected, $actual);
+	}
 }

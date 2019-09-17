@@ -26,6 +26,13 @@ class _DevblocksStringService {
 		return substr($string, $pos+1);
 	}
 	
+	function strBefore($string, $marker) {
+		if(false === ($before = strstr($string, $marker, true)))
+			return $string;
+		
+		return $before;
+	}
+	
 	/*
 	 * Credit: https://stackoverflow.com/a/16496730
 	 */
