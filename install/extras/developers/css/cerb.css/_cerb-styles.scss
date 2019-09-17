@@ -622,6 +622,7 @@ DIV.dashboard-widget {
 		
 		.cerb-data-sheet--field-title {
 			font-weight: bold;
+			font-size: 125%;
 		}
 		
 		.cerb-data-sheet--field {
@@ -629,7 +630,6 @@ DIV.dashboard-widget {
 				padding: 2px 5px;
 				
 				&:first-child {
-					width: 1%;
 					white-space: nowrap;
 				}
 	

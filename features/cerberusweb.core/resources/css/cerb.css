@@ -674,12 +674,12 @@ DIV.dashboard-widget DIV.updated {
 }
 .cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field-title {
   font-weight: bold;
+  font-size: 125%;
 }
 .cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field TD {
   padding: 2px 5px;
 }
 .cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field TD:first-child {
-  width: 1%;
   white-space: nowrap;
 }
 .cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field TD:last-child {
