@@ -357,7 +357,7 @@ class ChRest_Records extends Extension_RestController {
 		
 		// Get subtotal data, if provided
 		if(!empty($subtotals))
-			$subtotal_data = $this->_handleSearchSubtotals($view, $subtotals);
+			$subtotal_data = $this->_handleRecordSubtotals($view, $subtotals, $context);
 		
 		$objects = [];
 		
@@ -384,6 +384,66 @@ class ChRest_Records extends Extension_RestController {
 		}
 		
 		return $container;
+	}
+	
+	/**
+	 * @param C4_AbstractView $view
+	 * @param array $subtotals
+	 * @param DevblocksExtensionManifest $context
+	 * @return array
+	 */
+	protected function _handleRecordSubtotals($view, $subtotals, $context) {
+		$subtotal_data = [];
+		
+		if(!($view instanceof IAbstractView_QuickSearch))
+			return [];
+		
+		if(false == ($query_fields = $view->getQuickSearchFields()))
+			return [];
+		
+		if(is_array($subtotals) && !empty($subtotals)) {
+			foreach($subtotals as $subtotal) {
+				if(null == ($query_field = $query_fields[$subtotal]))
+					$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid subtotal token.", $subtotal));
+				
+				if(false == ($field = $query_field['options']['param_key']))
+					$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid subtotal token.", $subtotal));
+				
+				$counts = $view->getSubtotalCounts($field);
+				
+				$subtotal_data[$subtotal] = [];
+				
+				foreach($counts as $key => $count) {
+					$data = array(
+						'label' => $count['label'],
+						'hits' => intval($count['hits']),
+					);
+					
+					if(0 != strcasecmp($count['label'], $key))
+						$data['key'] = $key;
+					
+					if(isset($count['children']) && !empty($count['children'])) {
+						$data['distribution'] = [];
+						
+						foreach($count['children'] as $child_key => $child) {
+							$child_data = array(
+								'label' => $child['label'],
+								'hits' => intval($child['hits']),
+							);
+							
+							if(0 != strcasecmp($child['label'], $child_key))
+								$child_data['key'] = $child_key;
+							
+							$data['distribution'][] = $child_data;
+						}
+					}
+					
+					$subtotal_data[$subtotal][] = $data;
+				}
+			}
+		}
+		
+		return $subtotal_data;
 	}
 	
 	private function _getContextSearch(DevblocksExtensionManifest $context) { 
