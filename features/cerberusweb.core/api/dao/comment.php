@@ -833,7 +833,7 @@ class Model_Comment {
 		}
 	}
 	
-	public function getAuthorDictionary() {
+	public function getActorDictionary() {
 		$models = CerberusContexts::getModels($this->owner_context, [$this->owner_context_id]);
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $this->owner_context);
 		

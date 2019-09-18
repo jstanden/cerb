@@ -19,8 +19,14 @@
 		{/if}
 	</b>
 	
-	({$owner_meta.context_ext->manifest->name|lower})
-	
+	{if $comment->owner_context == CerberusContexts::CONTEXT_WORKER}
+		{$actor = $comment->getActorDictionary()}
+		 &nbsp;
+		{$actor->title}
+	{else}
+		({$owner_meta.context_ext->manifest->name|lower})
+	{/if}
+
 	<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 		<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>
 
