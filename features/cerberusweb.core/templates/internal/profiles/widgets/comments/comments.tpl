@@ -49,5 +49,20 @@ $(function() {
 			}
 		})
 	;
+
+	// Scroll to and highlight comments in permalinks
+
+	var anchor = window.location.hash.substr(1);
+
+	if('comment' == anchor.substr(0,7)) {
+		var $anchor = $('#' + anchor);
+
+		if($anchor.length > 0) {
+			var offset = $anchor.offset();
+			window.scrollTo(offset.left, offset.top);
+
+			$anchor.find('> div.block').effect('highlight', { }, 1000);
+		}
+	}
 });
 </script>

@@ -853,6 +853,13 @@ class Model_Comment {
 		return $dicts[$this->context_id];
 	}
 	
+	public function getTargetContext($as_instance=true) {
+		if(false == ($context_ext = Extension_DevblocksContext::get($this->context, $as_instance)))
+			return false;
+		
+		return $context_ext;
+	}
+	
 	function getAttachments() {
 		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, $this->id);
 	}

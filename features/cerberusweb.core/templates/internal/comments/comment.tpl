@@ -1,4 +1,5 @@
 {$owner_meta = $comment->getOwnerMeta()}
+{$target_context = $comment->getTargetContext(false)}
 {$is_writeable = Context_Comment::isWriteableByActor($comment, $active_worker)}
 
 <div class="block" style="overflow:auto;margin-bottom:10px;">
@@ -22,11 +23,9 @@
 	
 	<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 		<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>
-		
-		{if $comment->context == CerberusContexts::CONTEXT_TICKET}
-			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#comment{$comment->id}"}
-			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
-		{/if}
+
+		{$permalink_url = "{devblocks_url full=true}c=profiles&type={$target_context->params.alias}&id={$comment->context_id}{/devblocks_url}/#comment{$comment->id}"}
+		<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 	</div>
 	
 	{if isset($owner_meta.context_ext->manifest->params.alias)}
