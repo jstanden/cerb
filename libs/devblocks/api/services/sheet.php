@@ -306,6 +306,8 @@ class _DevblocksSheetServiceTypes {
 				$default_search_label_key = $column_prefix . '_label';
 			}
 			
+			$is_label_escaped = false;
+			
 			if(array_key_exists('label', $column_params)) {
 				$search_label = $column_params['label'];
 			} else if(array_key_exists('label_key', $column_params)) {
@@ -313,6 +315,7 @@ class _DevblocksSheetServiceTypes {
 			} else if(array_key_exists('label_template', $column_params)) {
 				$search_label = $tpl_builder->build($column_params['label_template'], $sheet_dict);
 				$search_label = DevblocksPlatform::purifyHTML($search_label, false, true);
+				$is_label_escaped = true;
 			} else {
 				$search_label = $sheet_dict->get($default_search_label_key);
 			}
@@ -347,11 +350,11 @@ class _DevblocksSheetServiceTypes {
 					return;
 				
 				// Search link
-				$value .= sprintf('<span class="cerb-search-trigger" data-context="%s" data-query="%s" style="text-decoration:%s;cursor:pointer;">%s</span>',
+				$value .= sprintf('<div class="cerb-search-trigger" data-context="%s" data-query="%s" style="text-decoration:%s;cursor:pointer;">%s</div>',
 					DevblocksPlatform::strEscapeHtml($context_ext->id),
 					DevblocksPlatform::strEscapeHtml($search_query),
 					$is_underlined ? 'underline' : false,
-					DevblocksPlatform::strEscapeHtml($search_label)
+					$is_label_escaped ? $search_label : DevblocksPlatform::strEscapeHtml($search_label)
 				);
 				
 			} else {
