@@ -242,11 +242,16 @@ class DAO_Comment extends Cerb_ORMHelper {
 	}
 	
 	static function getByContext($context, $context_ids) {
-		if(!is_array($context_ids))
-			$context_ids = array($context_ids);
+		if(!is_array($context_ids)) {
+			if(0 == strlen($context_ids)) {
+				$context_ids = [];
+			} else {
+				$context_ids = [$context_ids];
+			}
+		}
 		
 		if(empty($context_ids))
-			return array();
+			return [];
 
 		return self::getWhere(sprintf("%s = %s AND %s IN (%s)",
 			self::CONTEXT,
