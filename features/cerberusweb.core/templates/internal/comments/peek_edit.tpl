@@ -13,7 +13,7 @@
 
 <div class="cerb-form">
 	{if $model->id}
-		{$author = $model->getAuthorDictionary()}
+		{$author = $model->getActorDictionary()}
 		{if $author}
 		<div>
 			<label>{'common.author'|devblocks_translate|capitalize}:</label>

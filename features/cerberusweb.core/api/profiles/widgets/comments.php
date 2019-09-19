@@ -11,7 +11,26 @@ class ProfileWidget_Comments extends Extension_ProfileWidget {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$comments = DAO_Comment::getByContext($context, $context_id);
+		$target_context = $context;
+		$target_context_id = $context_id;
+		
+		if(array_key_exists('context', $model->extension_params) && $model->extension_params['context']) {
+			$dict = DevblocksDictionaryDelegate::instance([
+				'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'current_worker_id' => $active_worker->id,
+				
+				'record__context' => $context,
+				'record_id' => $context_id,
+				
+				'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+				'widget_id' => $model->id,
+			]);
+			
+			@$target_context = $tpl_builder->build($model->extension_params['context'], $dict);
+			@$target_context_id = $tpl_builder->build($model->extension_params['context_id'], $dict);
+		}
+		
+		$comments = DAO_Comment::getByContext($target_context, $target_context_id);
 		
 		$tpl->assign('context', $target_context);
 		$tpl->assign('context_id', $target_context_id);
