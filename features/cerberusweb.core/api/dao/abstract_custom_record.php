@@ -1162,6 +1162,21 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			],
 		);
 		
+		$properties['owner_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.owner')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->owner_context_id,
+			'params' => [
+				'context' => $model->owner_context
+			]
+		);
+		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['created'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.created'),
 			'type' => Model_CustomField::TYPE_DATE,
