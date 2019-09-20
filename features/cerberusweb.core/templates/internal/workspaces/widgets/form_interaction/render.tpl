@@ -28,7 +28,7 @@ $(function() {
 
 		var evt = $.Event('cerb-widget-refresh');
 		evt.widget_id = {$widget->id};
-		evt.refresh_options = form_element;
+		evt.refresh_options = form_elements;
 		
 		$tab.triggerHandler(evt);
 	});
