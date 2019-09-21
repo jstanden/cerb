@@ -90,7 +90,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		return true;
 	}
 
-	function populateQuickSearchMeta(array &$search_field_meta) {
+	function populateQuickSearchMeta(Model_CustomField $field, array &$search_field_meta) {
 		$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_GEO_POINT;
 		return true;
 	}

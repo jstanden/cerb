@@ -49,7 +49,7 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	abstract function getLabelsForValues($values);
 	abstract function getValueTableName();
 	abstract function getValueTableSql($context, array $context_ids);
-	abstract function populateQuickSearchMeta(array &$search_field_meta);
+	abstract function populateQuickSearchMeta(Model_CustomField $field, array &$search_field_meta);
 	abstract function prepareCriteriaParam(Model_CustomField $field, $param, &$vals, &$implode_token);
 	abstract function renderEditable(Model_CustomField $field, $form_key, $form_value);
 	abstract function renderValue($value);
