@@ -716,7 +716,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 			if(!is_array($filter) && 3 != count($filter))
 				$this->error(self::ERRNO_SEARCH_FILTERS_INVALID);
 
-			if(null === (@$field = $this->translateToken($filter[0], 'search')))
+			if(!($this instanceof IExtensionRestController) || null === (@$field = $this->translateToken($filter[0], 'search')))
 				$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid search token.", $filter[0]));
 
 			$oper = $filter[1];
@@ -868,7 +868,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 
 		if(is_array($subtotals) && !empty($subtotals)) {
 			foreach($subtotals as $subtotal) {
-				if(null === ($field = $this->translateToken($subtotal, 'subtotal')))
+				if(!($this instanceof IExtensionRestController) || null === ($field = $this->translateToken($subtotal, 'subtotal')))
 					$this->error(self::ERRNO_SEARCH_FILTERS_INVALID, sprintf("'%s' is not a valid subtotal token.", $subtotal));
 
 				// [TODO] Can we nest this with arbitrary subtotals?  (worker replies -> group)
