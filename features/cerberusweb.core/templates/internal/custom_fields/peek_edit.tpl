@@ -84,7 +84,7 @@
 </table>
 
 <div class="params" style="margin-top:5px;">
-{include file="devblocks:cerberusweb.core::internal/custom_fields/field_params.tpl" model=$model}
+{$model->renderConfig()}
 </div>
 
 {if !empty($model->id)}

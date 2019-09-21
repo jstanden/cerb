@@ -46,6 +46,7 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	const POINT = 'cerb.custom_field';
 	
 	//abstract function hasMultipleValues();
+	abstract function renderConfig(Model_CustomField $field);
 	abstract function getLabelsForValues($values);
 	abstract function getValueTableName();
 	abstract function getValueTableSql($context, array $context_ids);

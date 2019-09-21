@@ -2,6 +2,9 @@
 class CustomField_GeoPoint extends Extension_CustomField {
 	const ID = 'cerb.custom_field.geo.point';
 	
+	function renderConfig(Model_CustomField $field) {
+	}
+	
 	function renderEditable(Model_CustomField $field, $form_key, $form_value) {
 		$tpl = DevblocksPlatform::services()->template();
 		

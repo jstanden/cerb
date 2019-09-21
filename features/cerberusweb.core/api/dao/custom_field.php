@@ -1527,6 +1527,18 @@ class Model_CustomField {
 		
 		return DAO_CustomFieldset::get($this->custom_fieldset_id);
 	}
+	
+	function renderConfig() {
+		if(false != ($custom_field_extension = Extension_CustomField::get($this->type, true))) {
+			/** @var $custom_field_extension Extension_CustomField */
+			$custom_field_extension->renderConfig($this);
+			
+		} else {
+			$tpl = DevblocksPlatform::services()->template();
+			$tpl->assign('model', $this);
+			$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/field_params.tpl');
+		}
+	}
 };
 
 class SearchFields_CustomField extends DevblocksSearchFields {

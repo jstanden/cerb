@@ -146,9 +146,15 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 		
 		$model = new Model_CustomField();
 		$model->type = $type;
-		$tpl->assign('model', $model);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/field_params.tpl');
+		if(false != ($custom_field_extension = Extension_CustomField::get($type, true))) {
+			/** @var $custom_field_extension Extension_CustomField */
+			$custom_field_extension->renderConfig($model);
+			
+		} else {
+			$tpl->assign('model', $model);
+			$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/field_params.tpl');
+		}
 	}
 	
 	function viewExploreAction() {
