@@ -881,9 +881,15 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				return;
 			
 			$not = false;
+			$all = false;
+			
 			if(DevblocksPlatform::strStartsWith($query, '!')) {
 				$not = true;
 				$query = mb_substr($query, 1);
+				
+			} elseif(DevblocksPlatform::strStartsWith($query, 'all(')) {
+				$all = true;
+				$query = mb_substr($query, 3);
 			}
 			
 			$view = $ext->getTempView();
@@ -911,13 +917,30 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				. $query_parts['sort']
 				;
 			
-			return sprintf("%s %sIN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s)) ",
-				$pkey,
-				$not ? 'NOT ' : '',
-				Cerb_ORMHelper::qstr($from_context),
-				Cerb_ORMHelper::qstr($ext->id),
-				$sql
-			);
+			// All
+			if($all) {
+				return sprintf("%s %sIN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s) ".
+					"GROUP BY (from_context_id) ".
+					"HAVING COUNT(*) = (SELECT COUNT(*) FROM context_link WHERE from_context = %s AND to_context = %s AND from_context_id = cl.from_context_id)) ",
+					$pkey,
+					$not ? 'NOT ' : '',
+					Cerb_ORMHelper::qstr($from_context),
+					Cerb_ORMHelper::qstr($ext->id),
+					$sql,
+					Cerb_ORMHelper::qstr($from_context),
+					Cerb_ORMHelper::qstr($ext->id)
+				);
+				
+			// Any
+			} else {
+				return sprintf("%s %sIN (SELECT from_context_id FROM context_link cl WHERE from_context = %s AND to_context = %s AND to_context_id IN (%s)) ",
+					$pkey,
+					$not ? 'NOT ' : '',
+					Cerb_ORMHelper::qstr($from_context),
+					Cerb_ORMHelper::qstr($ext->id),
+					$sql
+				);
+			}
 		}
 		
 		if($param->operator != DevblocksSearchCriteria::OPER_TRUE) {

@@ -3993,6 +3993,7 @@ class CerbQuickSearchLexer {
 			' OR ' => ' <$OR> ',
 			' AND ' => ' <$AND> ',
 			'!(' => ' <$PON> ',
+			':all(' => ': <$POA> ',
 			':!' => ': <$NOT> ',
 			'(' => ' <$PO> ',
 			')' => ' <$PC> ',
@@ -4072,6 +4073,10 @@ class CerbQuickSearchLexer {
 								$token_type = 'T_PARENTHETICAL_OPEN_NEG';
 								$token_value = '!(';
 								break;
+							case '<$POA>':
+								$token_type = 'T_PARENTHETICAL_OPEN_ALL';
+								$token_value = 'all(';
+								break;
 							case '<$PC>':
 								$token_type = 'T_PARENTHETICAL_CLOSE';
 								$token_value = ')';
@@ -4141,6 +4146,7 @@ class CerbQuickSearchLexer {
 		
 		while($token = current($tokens)) {
 			switch($token->type) {
+				case 'T_PARENTHETICAL_OPEN_ALL':
 				case 'T_PARENTHETICAL_OPEN_NEG':
 				case 'T_PARENTHETICAL_OPEN':
 					$opens[] = key($tokens);
@@ -4156,8 +4162,18 @@ class CerbQuickSearchLexer {
 					$open_token = array_shift($cut);
 					array_pop($cut);
 					
-					$value = ($open_token->type == 'T_PARENTHETICAL_OPEN_NEG') ? '!' : null;
-					$tokens[$start] = new CerbQuickSearchLexerToken('T_GROUP', $value, $cut);
+					$value = null;
+					$token_params = [];
+					
+					if($open_token->type == 'T_PARENTHETICAL_OPEN_NEG') {
+						$value = '!';
+						$token_params['subtype'] = '!';
+					} else if($open_token->type == 'T_PARENTHETICAL_OPEN_ALL') {
+						$value = 'all';
+						$token_params['subtype'] = 'all';
+					}
+					
+					$tokens[$start] = new CerbQuickSearchLexerToken('T_GROUP', $value, $cut, $token_params);
 
 					reset($tokens);
 					break;
@@ -4261,22 +4277,33 @@ class CerbQuickSearchLexer {
 			// [TODO] Operator precedence AND -> OR
 			// [TODO] Handle 'a OR b AND c'
 			
-			$not = ($token->value == '!') ? true : false;
+			$all = (@$token->params['subtype'] == 'all') ? true : false;
+			$not = (@$token->params['subtype'] == '!') ? true : false;
 			$token->value = null;
 			
 			foreach($token->children as $k => $child) {
 				switch($child->type) {
 					case 'T_BOOL':
 						if(empty($token->value)) {
-							$oper = 'AND';
+							$oper = sprintf('%sAND',
+								$all ? 'ALL ' : ''
+							);
+							
+							// [TODO] This should write a group like 'NOT (a AND b)' instead
 							
 							switch($child->value) {
 								case 'OR':
-									$oper = ($not) ? 'OR NOT' : 'OR';
+									$oper = sprintf('%sOR%s',
+										$all ? 'ALL ': '',
+										$not ? ' NOT' : ''
+									);
 									break;
 									
 								default:
-									$oper = ($not) ? 'AND NOT' : 'AND';
+									$oper = sprintf('%sAND%s',
+										$all ? 'ALL ': '',
+										$not ? ' NOT' : ''
+									);
 									break;
 							}
 							
@@ -4289,7 +4316,10 @@ class CerbQuickSearchLexer {
 			}
 			
 			if(empty($token->value))
-				$token->value = ($not) ? 'AND NOT' : 'AND';
+				$token->value = sprintf('%sAND%s',
+					$all ? 'ALL ' : '',
+					$not ? ' NOT' : ''
+				);
 		});
 		
 		$params = null;
@@ -4371,11 +4401,7 @@ class CerbQuickSearchLexer {
 					break;
 					
 				case 'T_GROUP':
-					if(DevblocksPlatform::strEndsWith($token->value,'NOT')) {
-						$string .= '!(';
-					} else {
-						$string .= '(';
-					}
+					$string .= sprintf('%s(', @$token->params['subtype']);
 					
 					// The separators are always OR/AND, we use NOT for the overall group in !(
 					switch($token->value) {
@@ -4562,11 +4588,13 @@ class CerbQuickSearchLexerToken {
 	public $type = null;
 	public $value = null;
 	public $children = [];
+	public $params = [];
 	
-	public function __construct($type, $value, $children=[]) {
+	public function __construct($type, $value, $children=[], $params=[]) {
 		$this->type = $type;
 		$this->value = $value;
 		$this->children = $children;
+		$this->params = $params;
 	}
 };
 
