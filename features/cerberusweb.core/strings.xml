@@ -2924,6 +2924,16 @@
 				<seg>workspace pages</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.workspace.page.export">
+			<tuv xml:lang="en_US">
+				<seg>export page</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.page.owner">
+			<tuv xml:lang="en_US">
+				<seg>Managed by</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.workspace.tab">
 			<tuv xml:lang="en_US">
 				<seg>workspace tab</seg>
@@ -2932,6 +2942,11 @@
 		<tu tuid="common.workspace.tabs">
 			<tuv xml:lang="en_US">
 				<seg>workspace tabs</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.tab.export">
+			<tuv xml:lang="en_US">
+				<seg>export tab</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.workspace.widget">
