@@ -308,6 +308,7 @@ class Controller_Avatars extends DevblocksControllerExtension {
 		$r_rand = mt_rand(25,180);
 		$g_rand = mt_rand(25,180);
 		$b_rand = mt_rand(25,180);
+		mt_srand();
 		
 		header('Pragma: cache');
 		header('Cache-control: max-age=86400', true); // 24 hours // , must-revalidate
