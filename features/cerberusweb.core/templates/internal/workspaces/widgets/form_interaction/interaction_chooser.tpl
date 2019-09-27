@@ -1,6 +1,6 @@
 <div>
 {if !$interactions}
-	No interactions are configured.
+	No interactions are available.
 {else}
 	<input type="hidden" name="interaction" value="">
 	{foreach from=$interactions item=interaction key=interaction_label}
