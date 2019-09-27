@@ -525,6 +525,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
 		
+		@$dont_send = DevblocksPlatform::importGPC($_REQUEST['dont_send'],'integer',0);
+		
 		$properties = array();
 		
 		if(empty($subject))
@@ -584,6 +586,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		
 		if(isset($html_template))
 			$properties['html_template_id'] = $html_template->id;
+		
+		if(!empty($dont_send))
+			$properties['dont_send'] = $dont_send ? 1 : 0;
 		
 		if(false == ($ticket_id = CerberusMail::compose($properties)))
 			$this->error(self::ERRNO_CUSTOM, "Failed to create a new message.");
