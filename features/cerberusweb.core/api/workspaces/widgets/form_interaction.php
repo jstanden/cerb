@@ -436,6 +436,8 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					
 					if($style == 'buttons') {
 						$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_buttons.tpl');
+					} else if($style == 'picklist') {
+						$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_picklist.tpl');
 					} else {
 						$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_radios.tpl');
 					}

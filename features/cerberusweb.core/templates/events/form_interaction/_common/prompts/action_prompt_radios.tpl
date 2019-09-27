@@ -13,6 +13,10 @@
 		<input type="radio" name="{$namePrefix}[style]" value="buttons" {if $params.style=='buttons'}checked="checked"{/if}> 
 		Buttons 
 	</label>
+	<label>
+		<input type="radio" name="{$namePrefix}[style]" value="picklist" {if $params.style=='picklist'}checked="checked"{/if}>
+		Picklist
+	</label>
 </div>
 
 <b>{'common.orientation'|devblocks_translate|capitalize}:</b>
