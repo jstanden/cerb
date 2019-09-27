@@ -1034,10 +1034,15 @@ var ajax = new cAjaxCalls();
 				return;
 			
 			var mode = $this.attr('data-editor-mode');
+			var maxLines = $this.attr('data-editor-lines') || 20;
+			var showGutter = $this.attr('data-editor-gutter');
+			var showLineNumbers = $this.attr('data-editor-line-numbers');
+			var isReadOnly = $this.attr('data-editor-readonly');
 			var withTwigAutocompletion = $this.hasClass('placeholders');
 			
 			var aceOptions = {
-				showLineNumbers: true,
+				showLineNumbers: 'false' == showLineNumbers ? false : true,
+				showGutter: 'false' == showGutter ? false : true,
 				showPrintMargin: false,
 				wrap: true,
 				enableBasicAutocompletion: [],
@@ -1045,7 +1050,8 @@ var ajax = new cAjaxCalls();
 				tabSize: 2,
 				useSoftTabs: false,
 				minLines: 2,
-				maxLines: 20
+				maxLines: maxLines,
+				readOnly: 'true' == isReadOnly ? true : false
 			};
 			
 			if(null == mode)
