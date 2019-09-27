@@ -1149,6 +1149,11 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID:
 				break;
 				
+			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
+				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+				
 			default:
 				// Custom Fields
 				if(substr($field,0,3)=='cf_') {
