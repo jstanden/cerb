@@ -1,12 +1,15 @@
 {$peek_context = CerberusContexts::CONTEXT_COMMENT}
 {$peek_context_id = $model->id}
-{$form_id = uniqid()}
+{$is_html = !$model->id || $model->is_markdown}
+
+{$form_id = uniqid('form')}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="comment">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="is_markdown" value="{if $is_html}1{else}0{/if}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -48,21 +51,38 @@
 		{/if}
 	{/if}
 	
+
 	<div>
 		<label>
 			{'common.comment'|devblocks_translate|capitalize}:
 		</label>
-		<textarea name="comment" rows="10" cols="60" style="width:98%;height:150px;" placeholder="{'comment.notify.at_mention'|devblocks_translate}" autofocus="autofocus">{$model->comment}</textarea>
-	</div>
-	
-	<fieldset class="peek">
-		<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
-		<div class="cerb-snippet-insert" style="display:inline-block;">
-			<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="type:[plaintext,worker]" data-single="true" data-autocomplete="type:[plaintext,worker]"><span class="glyphicons glyphicons-search"></span></button>
-			<ul class="bubbles chooser-container"></ul>
+
+		<div class="cerb-code-editor-toolbar">
+			<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
+
+			<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
+				<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
+				<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
+				<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
+				<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
+				<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
+				<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
+				<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
+				<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+			</div>
+
+			<div class="cerb-code-editor-toolbar-divider"></div>
+
+			<button type="button" title="Insert @mention" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--mention"><span class="glyphicons glyphicons-user-add"></span></button>
+			<button type="button" title="Insert snippet" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
+			<div class="cerb-code-editor-toolbar-divider"></div>
+
+			<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 		</div>
-	</fieldset>
-	
+
+		<textarea name="comment" data-editor-mode="ace/editor/markdown" data-editor-lines="15" data-editor-gutter="true" data-editor-line-numbers="false" rows="10" cols="60" style="width:98%;height:50px;display:none;" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
+	</div>
+
 	<fieldset class="peek">
 		<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
@@ -131,98 +151,175 @@ $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.comment'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		
+
 		// Buttons
-		
+
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		
+
 		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
-		
+
 		// Close confirmation
-		
+
 		$popup.on('dialogbeforeclose', function(e, ui) {
 			var keycode = e.keyCode || e.which;
 			if(keycode == 27)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
-		
+
 		// Editor
-		
-		var $textarea = $popup.find('textarea[name=comment]')
-			.focus()
-			;
-		
-		// @mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-		
-		$textarea.atwho({
-			at: '@',
-			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_workers,
-			searchKey: '_index',
-			limit: 10
-		});
-		
-		// Snippets
-		
-		$popup.find('.cerb-snippet-insert button.cerb-chooser-trigger')
-			.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				e.stopPropagation();
-				var $this = $(this);
-				var $ul = $this.siblings('ul.chooser-container');
-				var $search = $ul.prev('input[type=search]');
-				var $textarea = $('#{$form_id} textarea[name=comment]');
-				
-				// Find the snippet_id
-				var snippet_id = $ul.find('input[name=snippet_id]').val();
-				
-				if(null == snippet_id)
-					return;
-				
-				// Remove the selection
-				$ul.find('> li').find('span.glyphicons-circle-remove').click();
-				
-				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				var url = 'c=internal&a=snippetPaste&id=' + snippet_id;
-				url += "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}";
-				
-				genericAjaxGet('',url,function(json) {
-					// If the content has placeholders, use that popup instead
-					if(json.has_custom_placeholders) {
-						$textarea.focus();
-						
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
-					
-						$popup_paste.bind('snippet_paste', function(event) {
-							if(null == event.text)
-								return;
-						
-							$textarea.insertAtCursor(event.text).focus();
-						});
-						
-					} else {
-						$textarea.insertAtCursor(json.text).focus();
-					}
-					
-					$search.val('');
+
+		var loadEditor = function() {
+			var $editor = $popup.find('textarea[name=comment]')
+				.cerbCodeEditor()
+				.cerbCodeEditorAutocompleteComments()
+				;
+
+			// Focus editor
+			var editor = ace.edit($editor.nextAll('pre.ace_editor').attr('id'));
+
+			// Comment editor toolbar
+
+			var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar')
+				.cerbCodeEditorToolbarMarkdown()
+				;
+
+			// Formatting
+			$editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
+				var $button = $(this);
+
+				if('html' === $button.attr('data-format')) {
+					$frm.find('input:hidden[name=is_markdown]').val('0');
+					$button.attr('data-format', 'plaintext');
+					$button.text('Formatting off');
+					$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+				} else {
+					$frm.find('input:hidden[name=is_markdown]').val('1');
+					$button.attr('data-format', 'html');
+					$button.text('Formatting on');
+					$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+				}
+			});
+
+			// Upload image
+			$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
+				event.stopPropagation();
+
+				var new_event = $.Event('cerb-chooser-save', {
+					labels: event.labels,
+					values: event.values
 				});
-			})
-		;
-		
+
+				$popup.find('button.chooser_file').triggerHandler(new_event);
+
+				editor.insertSnippet('![Image](' + event.url + ')');
+				editor.focus();
+			});
+
+			// Mention
+			$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--mention').on('click', function () {
+				var Range = require('ace/range').Range;
+
+				var pos = editor.getCursorPosition();
+
+				if (pos.column > 0) {
+					var range = new Range(pos.row, pos.column - 1, pos.row, pos.column);
+					var text = editor.session.getTextRange(range);
+
+					// If we just inserted an @, don't add text, just autocomplete
+					if ('@' === text) {
+						editor.commands.byName.startAutocomplete.exec(editor);
+						editor.focus();
+						return;
+					}
+				}
+
+				editor.insertSnippet("@");
+				editor.commands.byName.startAutocomplete.exec(editor);
+				editor.focus();
+			});
+
+			// Snippets
+			$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
+				var context = 'cerberusweb.contexts.snippet';
+				var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,comment]') + '&single=1&context=' + encodeURIComponent(context);
+
+				var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+
+				$chooser.on('chooser_save', function (event) {
+					if (!event.values || 0 == event.values.length)
+						return;
+
+					var snippet_id = event.values[0];
+
+					if (null == snippet_id)
+						return;
+
+					// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+					var url = 'c=internal&a=snippetPaste&id='
+						+ encodeURIComponent(snippet_id)
+						+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
+					;
+
+					genericAjaxGet('', url, function (json) {
+						// If the content has placeholders, use that popup instead
+						if (json.has_custom_placeholders) {
+							var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+
+							$popup_paste.bind('snippet_paste', function (event) {
+								if (null == event.text)
+									return;
+
+								editor.insert(event.text);
+								editor.scrollToLine(editor.getCursorPosition().row);
+								editor.focus();
+							});
+
+						} else {
+							editor.insert(json.text);
+							editor.scrollToLine(editor.getCursorPosition().row);
+							editor.focus();
+						}
+					});
+				});
+			});
+
+			// Preview
+			$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
+				var formData = new FormData();
+				formData.append('c', 'profiles');
+				formData.append('a', 'handleSectionAction');
+				formData.append('section', 'comment');
+				formData.append('action', 'preview');
+				formData.append('comment', editor.getValue());
+				formData.append('is_markdown', $frm.find('input:hidden[name=is_markdown]').val());
+
+				genericAjaxPopup(
+					'comment_preview',
+					formData,
+					'reuse',
+					false
+				);
+			});
+
+			// Focus
+			setTimeout(function() {
+				editor.focus();
+			}, 100);
+		};
+
+		setTimeout(loadEditor, 0);
+
 		// Attachments
-		
+
 		$popup.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
-		
+
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});

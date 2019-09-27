@@ -62,6 +62,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 			@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array()), 'int');
 			@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+			@$is_markdown = DevblocksPlatform::importGPC($_REQUEST['is_markdown'],'integer',0);
 			
 			$error = null;
 			
@@ -79,6 +80,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
 					DAO_Comment::COMMENT => $comment,
 					DAO_Comment::CREATED => time(),
+					DAO_Comment::IS_MARKDOWN => $is_markdown,
 				);
 				
 				if(!DAO_Comment::validate($fields, $error))
@@ -96,6 +98,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			} else { // Edit
 				$fields = array(
 					DAO_Comment::COMMENT => $comment,
+					DAO_Comment::IS_MARKDOWN => $is_markdown,
 				);
 				
 				if(isset($options['update_timestamp']) && $options['update_timestamp'])
@@ -168,7 +171,27 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			return;
 			
 		}
+	}
 	
+	function previewAction() {
+		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string');
+		@$is_markdown = DevblocksPlatform::importGPC($_REQUEST['is_markdown'],'integer', 0);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$model = new Model_Comment();
+		$model->created = time();
+		$model->owner_context = CerberusContexts::CONTEXT_WORKER;
+		$model->owner_context_id = $active_worker->id;
+		$model->context = null;
+		$model->context_id = null;
+		$model->comment = $comment;
+		$model->is_markdown = $is_markdown ? 1 : 0;
+		
+		$tpl->assign('model', $model);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/comments/preview_popup.tpl');
 	}
 	
 	function viewExploreAction() {

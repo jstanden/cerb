@@ -134,11 +134,17 @@
 	{if isset($comment->created)}<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$comment->created|devblocks_date} ({$comment->created|devblocks_prettytime})<br>{/if}
 	
 	<div style="clear:both;"></div>
-	
+
+	{if $comment->is_markdown}
+	<div style="margin:2px;padding:5px;">
+		<div class="commentBodyHtml">{$comment->getContent() nofilter}</div>
+	</div>
+	{else}
 	<div style="margin:2px;padding:5px;">
 		<pre class="emailbody">{$comment->comment|truncate:5000|trim|escape|devblocks_hyperlinks nofilter}</pre>
 	</div>
-	
+	{/if}
+
 	{* Attachments *}
 	{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_COMMENT}" context_id=$comment->id}
 {/if}
