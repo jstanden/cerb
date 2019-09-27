@@ -1330,6 +1330,133 @@ var ajax = new cAjaxCalls();
 			editor.setOptions(aceOptions);
 		});
 	};
+
+	$.fn.cerbCodeEditorToolbarMarkdown = function() {
+	  return this.each(function() {
+	      var $editor_toolbar = $(this);
+
+	      var $pre = $editor_toolbar.nextAll('pre.ace_editor');
+
+	      var editor = ace.edit($pre.attr('id'));
+
+          // Bold
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--bold').on('click', function () {
+              var selected_text = editor.getSelectedText();
+
+              if (0 === selected_text.length)
+                  return;
+
+              editor.session.replace(editor.getSelectionRange(), '**' + selected_text + '**');
+              editor.focus();
+          });
+
+          // Italics
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--italic').on('click', function () {
+              var selected_text = editor.getSelectedText();
+
+              if (0 === selected_text.length)
+                  return;
+
+              editor.session.replace(editor.getSelectionRange(), '_' + selected_text + '_');
+              editor.focus();
+          });
+
+          // Link
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--link').on('click', function () {
+              var selected_text = editor.getSelectedText();
+
+              if (0 === selected_text.length) {
+                  editor.insertSnippet('[${1:link text}](${2:https://example.com})');
+                      editor.focus();
+                      return;
+                  }
+
+                  editor.session.replace(editor.getSelectionRange(), '');
+                  editor.insertSnippet('[' + selected_text + '](${1:https://example.com})');
+                      editor.focus();
+                  });
+
+          // List
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--list').on('click', function () {
+              var range = editor.getSelectionRange();
+
+              editor.session.indentRows(range.start.row, range.end.row, '* ');
+              editor.focus();
+          });
+
+          // Image
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--image').on('click', function () {
+              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=chooserOpenFile&single=1', null, true, '750');
+
+              $chooser.one('chooser_save', function (event) {
+                  var file_id = event.values[0];
+                  var file_label = event.labels[0];
+                  var file_name = file_label.substring(0, file_label.lastIndexOf(' ('));
+
+                  var url =
+                      document.location.protocol
+                      + '//'
+                      + document.location.host
+                      + DevblocksWebPath
+                      + 'files/'
+                      + encodeURIComponent(file_id) + '/'
+                      + encodeURIComponent(file_name)
+                  ;
+
+                  $editor_toolbar.triggerHandler(
+                      $.Event(
+                          'toolbar-image-inserted',
+                          { labels: event.labels, values: event.values }
+                      )
+                  );
+
+                  editor.insertSnippet('![Image](' + url + ')');
+                  editor.focus();
+              });
+          });
+
+          // Quote
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--quote').on('click', function () {
+              var range = editor.getSelectionRange();
+
+              editor.session.indentRows(range.start.row, range.end.row, '> ');
+              editor.focus();
+          });
+
+          // Code
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--code').on('click', function () {
+              var selected_text = editor.getSelectedText();
+
+              if (0 === selected_text.length) {
+              editor.insertSnippet("~~~\n${1:your code goes here}\n~~~\n");
+                  editor.focus();
+                  return;
+              }
+
+              var range = editor.getSelectionRange();
+
+              // If multiple lines, use block format. Otherwise use backticks on vars
+              if (range.start.row != range.end.row) {
+                  range.start.column = 0;
+                  range.end.row++;
+                  range.end.column = 0;
+                  editor.selection.setRange(range);
+                  editor.session.replace(range, "~~~\n" + editor.getSelectedText() + "~~~~\n");
+
+              } else {
+                  editor.session.replace(editor.getSelectionRange(), '`' + selected_text + '`');
+              }
+
+              editor.focus();
+          });
+
+          // Table
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--table').on('click', function () {
+              editor.insertSnippet("Column | Column\n--- | ---\nValue | Value\n");
+              editor.focus();
+          });
+      });
+    };
 	
 	$.fn.cerbCodeEditorAutocompleteYaml = function(autocomplete_options) {
 		var Autocomplete = require('ace/autocomplete').Autocomplete;
