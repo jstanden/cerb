@@ -2436,7 +2436,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * Indents a flat JSON string or array to make it more human-readable.
 	 *
-	 * @param string $json The original JSON string to process.
+	 * @param string|array $json The original JSON string to process.
 	 * @return string Indented version of the original JSON string.
 	 * @test DevblocksPlatformTest
 	 */
@@ -2444,10 +2444,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_string($json))
 			$json = json_decode($json, true);
 		
-		if(is_array($json))
-			return json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		
-		return false;
+		return json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	}
 	
 	/**

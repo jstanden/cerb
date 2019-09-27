@@ -1214,6 +1214,12 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$actual = DevblocksPlatform::strFormatJson('[{"name":"Jeff","title":"Software Architect","org":"Webgroup Media LLC"}]');
 		
 		$this->assertEquals($expected, $actual);
+		
+		// Test literal string input
+		
+		$expected = '"This is a string"';
+		$actual = DevblocksPlatform::strFormatJson('"This is a string"');
+		$this->assertEquals($expected, $actual);
 	}
 	
 	public function testStripHTML() {
