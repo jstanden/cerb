@@ -1,0 +1,20 @@
+.cerb-code-editor-toolbar {
+	background:rgb(245,245,245);
+	border-bottom:1px solid rgb(230,230,230);
+	border-top:1px solid rgb(230,230,230);
+	
+	.cerb-code-editor-toolbar-button {
+		background:rgb(245,245,245);
+		border:0;
+	}
+	
+	.cerb-code-editor-toolbar-divider {
+		border-left: 1px solid rgb(210, 210, 210);
+		display: inline-block;
+		margin: 0 5px 0 0;
+		padding: 0;
+		vertical-align: middle;
+		height: 16px;
+		width: 2px;
+	}
+}
