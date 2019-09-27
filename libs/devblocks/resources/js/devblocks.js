@@ -18,6 +18,14 @@ function DevblocksClass() {
 		}
 	}
 	
+	this.getObjectKeyByPath = function(o, path) {
+		path = path.split('.');
+		var value = o[path.shift()];
+		while(value && path.length)
+			value = value[path.shift()];
+		return value;
+	}
+	
 	// Source: http://stackoverflow.com/a/16693578
 	this.uniqueId = function() {
 		return (Math.random().toString(16)+"000000000").substr(2,8);
