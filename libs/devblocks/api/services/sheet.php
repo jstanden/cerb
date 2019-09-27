@@ -178,7 +178,7 @@ class _DevblocksSheetServiceTypes {
 			
 			if($card_context && $card_id && $card_label) {
 				// Avatar image?
-				if(array_key_exists('image', $column_params)) {
+				if(array_key_exists('image', $column_params) && $column_params['image']) {
 					$avatar_size = '1.5em';
 					
 					$value .= sprintf('<img src="%s?v=%s" style="width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
