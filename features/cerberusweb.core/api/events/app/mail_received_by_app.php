@@ -22,6 +22,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 	 *
 	 * Enter description here ...
 	 * @param CerberusParserModel $parser_model
+	 * @return array
 	 */
 	static function trigger(&$parser_model) { //, Model_Message $message, Model_Ticket $ticket, Model_Group $group
 		$events = DevblocksPlatform::services()->event();
@@ -37,9 +38,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			)
 		);
 	}
-
+	
 	/**
 	 *
+	 * @param Model_TriggerEvent $trigger
 	 * @param CerberusParserModel $parser_model
 	 * @return Model_DevblocksEvent
 	 */

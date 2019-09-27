@@ -856,12 +856,15 @@ abstract class Extension_RestController extends DevblocksExtension {
 
 		return $tokens;
 	}
-
+	
 	/**
+	 * @param C4_AbstractView $view
+	 * @param string $subtotals
+	 * @return array
 	 * @internal
 	 */
 	protected function _handleSearchSubtotals($view, $subtotals) {
-		$subtotal_data = array();
+		$subtotal_data = [];
 
 		if(is_array($subtotals) && !empty($subtotals)) {
 			foreach($subtotals as $subtotal) {
@@ -871,7 +874,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 				// [TODO] Can we nest this with arbitrary subtotals?  (worker replies -> group)
 				$counts = $view->getSubtotalCounts($field);
 
-				$subtotal_data[$subtotal] = array();
+				$subtotal_data[$subtotal] = [];
 
 				foreach($counts as $key => $count) {
 					$data = array(
@@ -883,7 +886,7 @@ abstract class Extension_RestController extends DevblocksExtension {
 						$data['key'] = $key;
 
 					if(isset($count['children']) && !empty($count['children'])) {
-						$data['distribution'] = array();
+						$data['distribution'] = [];
 
 						foreach($count['children'] as $child_key => $child) {
 							$child_data = array(

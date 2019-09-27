@@ -3140,6 +3140,8 @@ class ChInternalController extends DevblocksControllerExtension {
 		if(null == ($context_ext = Extension_DevblocksContext::getByViewClass(get_class($view), true)))
 			return false;
 		
+		/* @var $context_ext Extension_DevblocksContext */
+		
 		// Check privs
 		if(!$active_worker->hasPriv(sprintf("contexts.%s.export", $context_ext->id)))
 			return false;

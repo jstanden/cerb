@@ -977,7 +977,8 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	}
 	
 	/**
-	 * @param Model_Attachment | $attachment_id
+	 * @param $object
+	 * @param resource $fp
 	 * @return mixed
 	 */
 	public static function get($object, &$fp=null) {
@@ -1001,6 +1002,12 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		return $storage->get('attachments', $key, $fp);
 	}
 	
+	/**
+	 * @param int $id
+	 * @param string $contents
+	 * @param Model_DevblocksStorageProfile|int $profile
+	 * @return bool|void
+	 */
 	public static function put($id, $contents, $profile=null) {
 		if(empty($profile)) {
 			$profile = self::getActiveStorageProfile();
@@ -1040,8 +1047,13 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		return $storage_key;
 	}
 	
+	/**
+	 * @param int[] $ids
+	 * @return bool
+	 */
 	public static function delete($ids) {
-		if(!is_array($ids)) $ids = array($ids);
+		if(!is_array($ids))
+			$ids = [$ids];
 		
 		$db = DevblocksPlatform::services()->database();
 		
@@ -1057,7 +1069,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 			
 			if(null != ($storage = DevblocksPlatform::getStorageService($profile)))
 				if(false === $storage->delete('attachments', $row['storage_key']))
-					return FALSE;
+					return false;
 		}
 		
 		mysqli_free_result($rs);
@@ -1108,7 +1120,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 	}
 	
 	public static function unarchive($stop_time=null) {
-		// We don't want to unarchive message content under any condition
+		// We don't want to unarchive attachment content under any condition
 		/*
 		$db = DevblocksPlatform::services()->database();
 
