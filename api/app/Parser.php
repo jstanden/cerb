@@ -60,7 +60,13 @@ class CerberusParserMessage {
 	private function _buildHeaders() {
 		if(empty($this->raw_headers) && !empty($this->headers))
 		foreach($this->headers as $k => $v) {
-			$this->raw_headers .= sprintf("%s: %s\r\n", $k, $v);
+			if(is_array($v)) {
+				foreach($v as $vv) {
+					$this->raw_headers .= sprintf("%s: %s\r\n", $k, $vv);
+				}
+			} else if(is_string($v)) {
+				$this->raw_headers .= sprintf("%s: %s\r\n", $k, $v);
+			}
 		}
 	}
 	
