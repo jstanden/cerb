@@ -1062,7 +1062,7 @@ var ajax = new cAjaxCalls();
 				.hide()
 				;
 			
-			var editor_id = Devblocks.uniqueId();
+			var editor_id = Devblocks.uniqueId('editor');
 			
 			var $editor = $('<pre/>')
 				.attr('id', editor_id)

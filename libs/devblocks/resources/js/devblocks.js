@@ -27,8 +27,8 @@ function DevblocksClass() {
 	}
 	
 	// Source: http://stackoverflow.com/a/16693578
-	this.uniqueId = function() {
-		return (Math.random().toString(16)+"000000000").substr(2,8);
+	this.uniqueId = function(prefix) {
+		return '' + (prefix ? prefix : '') + (Math.random().toString(16)+"000000000").substr(2,8);
 	}
 	
 	/* Source: http://bytes.com/forum/thread90068.html */
