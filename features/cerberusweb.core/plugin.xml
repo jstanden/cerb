@@ -5469,7 +5469,20 @@
 					<param key="uri" value="oauth2_token_generator" />
 				</params>
 			</extension>
-			
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.setup.developers.reference.icons</id>
+				<name>Icon Reference</name>
+				<class>
+					<file>api/uri/config/reference_icons.php</file>
+					<name>PageSection_SetupDevelopersReferenceIcons</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.configuration" />
+					<param key="uri" value="reference_icons" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.setup.package.import</id>
 				<name>Package Import Section</name>
