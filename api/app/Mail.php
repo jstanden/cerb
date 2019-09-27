@@ -714,6 +714,9 @@ class CerberusMail {
 					
 				if(!empty($bcc))
 					$params['bcc'] = $bcc;
+				
+				if('parsedown' == $content_format)
+					$params['format'] = 'parsedown';
 					
 				$fields = array(
 					DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
@@ -722,7 +725,7 @@ class CerberusMail {
 					DAO_MailQueue::UPDATED => time()+5, // small offset
 					DAO_MailQueue::HINT_TO => $toStr,
 					DAO_MailQueue::SUBJECT => $subject,
-					DAO_MailQueue::BODY => $params['content'],
+					DAO_MailQueue::BODY => $content_sent,
 					DAO_MailQueue::PARAMS_JSON => json_encode($params),
 					DAO_MailQueue::IS_QUEUED => !empty($worker) ? 0 : 1,
 					DAO_MailQueue::QUEUE_DELIVERY_DATE => time(),
