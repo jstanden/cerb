@@ -1532,7 +1532,107 @@ var ajax = new cAjaxCalls();
 			editor.commands.on('afterExec', doCerbLiveAutocomplete);
 		});
 	}
-	
+
+	$.fn.cerbCodeEditorAutocompleteComments = function(autocomplete_options) {
+		var Autocomplete = require('ace/autocomplete').Autocomplete;
+		var lang = require('ace/lib/lang');
+
+		var doCerbLiveAutocomplete = function(e) {
+			e.stopPropagation();
+
+			if('Tab' == e.command.name) {
+				return;
+			}
+
+			if(!e.editor.completer) {
+				var Autocomplete = require('ace/autocomplete').Autocomplete;
+				e.editor.completer = new Autocomplete();
+			}
+
+			if('insertstring' == e.command.name) {
+				e.editor.completer.showPopup(e.editor);
+			}
+		};
+
+		return this.each(function() {
+			var $editor = $(this)
+				.nextAll('pre.ace_editor')
+			;
+
+			var editor = ace.edit($editor.attr('id'));
+
+			if(!editor.completer) {
+				editor.completer = new Autocomplete();
+			}
+
+			var autocompleterComments = {
+				formatData: function(results) {
+					return results.map(function(data) {
+						if('object' == typeof data) {
+							if(!data.hasOwnProperty('score'))
+								data.score = 1000;
+
+							return data;
+
+						} else if('string' == typeof data) {
+							return {
+								caption: data,
+								snippet: data,
+								score: 1000
+							};
+						}
+					});
+				},
+				getCompletions: function(editor, session, pos, prefix, callback) {
+					var token = session.getTokenAt(pos.row, pos.column);
+
+					if (null == token) {
+						return;
+
+					} else if(token.value.startsWith('@')) {
+						var term = token.value.substring(token.value.lastIndexOf('@')+1);
+
+						if(-1 !== term.lastIndexOf(' '))
+							return callback(null, []);
+
+						var query = 'type:worklist.records of:worker query:(isDisabled:n'
+							+ (term.length == 0
+								? ' mention:!""'
+								: ' (mention:{}*)'.replace(/\{\}/g, term)
+								)
+							+ ')'
+							;
+
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
+							var results = [];
+
+							if('object' != typeof json || !json.hasOwnProperty('data')) {
+								callback(null, []);
+								return;
+							}
+
+							for(var i in json.data) {
+								var worker = json.data[i];
+
+								results.push({
+									value: json.data[i]['at_mention_name'] + ' ',
+									docHTML: "<b>" + lang.escapeHTML(worker['_label']) + "</b><br>" + lang.escapeHTML(worker['title'])
+								});
+							}
+
+							callback(null, results);
+							return;
+						});
+					}
+				}
+			};
+
+			editor.setOption('enableBasicAutocompletion', []);
+			editor.completers.push(autocompleterComments);
+			editor.commands.on('afterExec', doCerbLiveAutocomplete);
+		});
+	}
+
 	$.fn.cerbCodeEditorAutocompleteSearchQueries = function(autocomplete_options) {
 		var Autocomplete = require('ace/autocomplete').Autocomplete;
 		
