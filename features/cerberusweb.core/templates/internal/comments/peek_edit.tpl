@@ -66,7 +66,21 @@
 	<fieldset class="peek">
 		<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
 		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
-		<ul class="chooser-container bubbles"></ul>
+		<ul class="chooser-container bubbles">
+			{if !empty($attachments)}
+				{foreach from=$attachments item=attachment name=attachments}
+					<li>
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+							<b>{$attachment->name}</b>
+							({$attachment->storage_size|devblocks_prettybytes}	-
+							{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+						</a>
+						<input type="hidden" name="file_ids[]" value="{$attachment->id}">
+						<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					</li>
+				{/foreach}
+			{/if}
+		</ul>
 	</fieldset>
 	
 	{if $model->id}

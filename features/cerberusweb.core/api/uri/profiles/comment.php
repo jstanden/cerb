@@ -115,8 +115,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 			
 			if($id) {
 				// Add attachments
-				if(is_array($file_ids) && !empty($file_ids))
-					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
+				DAO_Attachment::setLinks(CerberusContexts::CONTEXT_COMMENT, $id, $file_ids);
 				
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);

@@ -1624,6 +1624,9 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			$attachments = DAO_Attachment::getByContextIds($context, $context_id);
+			$tpl->assign('attachments', $attachments);
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
