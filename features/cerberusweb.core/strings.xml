@@ -2931,7 +2931,12 @@
 		</tu>
 		<tu tuid="common.workspace.page.owner">
 			<tuv xml:lang="en_US">
-				<seg>Managed by</seg>
+				<seg>managed by</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.page.config.tab_type">
+			<tuv xml:lang="en_US">
+				<seg>display tabs as</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.workspace.tab">
