@@ -13,7 +13,7 @@
 	
 	<table cellpadding="0" cellspacing="2" border="0" width="98%">
 		<tr>
-			<td width="0%" nowrap="nowrap" align="right"><b>From:</b>&nbsp;</td>
+			<td width="0%" nowrap="nowrap" align="right"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="100%">
 				<select name="group_id">
 					{foreach from=$groups item=group key=group_id}
@@ -78,14 +78,14 @@
 				
 				<div>
 					<fieldset style="display:inline-block;">
-						<legend>Actions</legend>
+						<legend>{'common.actions'|devblocks_translate|capitalize}</legend>
 						
 						<div id="divComposeInteractions{$popup_uniqid}" style="display:inline-block;">
 						{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 						</div>
 						
 						<button id="btnComposeSaveDraft{$popup_uniqid}" class="toolbar-item" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
-						<button id="btnComposeInsertSig{$popup_uniqid}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="glyphicons glyphicons-edit"></span> Insert Signature</button>
+						<button id="btnComposeInsertSig{$popup_uniqid}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="glyphicons glyphicons-edit"></span> {'display.reply.insert_sig'|devblocks_translate|capitalize}</button>
 					</fieldset>
 				
 					<fieldset style="display:inline-block;">
@@ -166,7 +166,7 @@
 </fieldset>
 
 <fieldset class="peek">
-	<legend>Assignments</legend>
+	<legend>{'common.assignments'|devblocks_translate|capitalize}</legend>
 	
 	<table cellpadding="0" cellspacing="0" width="100%" border="0">
 		<tr>

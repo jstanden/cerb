@@ -330,6 +330,11 @@
 				<seg>Assigned</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.assignments">
+			<tuv xml:lang="en_US">
+				<seg>Assignments</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.at">
 			<tuv xml:lang="en_US">
 				<seg>at</seg>
