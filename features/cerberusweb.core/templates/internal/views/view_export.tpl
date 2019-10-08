@@ -51,15 +51,15 @@
 </table>
 
 <div style="margin-bottom:10px;">
-	<b>{'common.export.date_format'|devblocks_translate}Format dates as:</b>
+	<b>{'common.export.date_format'|devblocks_translate}</b>
 	<div style="margin-left:10px;">
 		<label><input type="radio" name="format_timestamps" value="1" checked="checked"> {'common.text'|devblocks_translate|capitalize}</label>
-		<label><input type="radio" name="format_timestamps" value="0"> {'common.unix_timestamp'|devblocks_translate|capitalize}Unix Timestamps</label>
+		<label><input type="radio" name="format_timestamps" value="0"> {'common.unix_timestamp'|devblocks_translate|capitalize}</label>
 	</div>
 </div>
 
 <div style="margin-bottom:10px;">
-	<b>{'common.export.list_format'|devblocks_translate}Export list as:</b>
+	<b>{'common.export.list_format'|devblocks_translate}</b>
 	<div style="margin-left:10px;">
 		<select name="export_as">
 			<option value="csv" selected="selected">Comma-separated values (.csv)</option>

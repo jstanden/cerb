@@ -1195,6 +1195,16 @@
 				<seg>export data</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.export.date_format">
+			<tuv xml:lang="en_US">
+				<seg>Format dates as:</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.export.list_format">
+			<tuv xml:lang="en_US">
+				<seg>Export list as:</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.export.widget">
 			<tuv xml:lang="en_US">
 				<seg>export widget</seg>
@@ -2719,6 +2729,11 @@
 				<seg>Undelete</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.unix_timestamp">
+			<tuv xml:lang="en_US">
+				<seg>Unix Timestamps</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.unknown">
 			<tuv xml:lang="en_US">
 				<seg>unknown</seg>
@@ -3033,7 +3048,7 @@
 				<seg>Hide watchers column</seg>
 			</tuv>
 		</tu>
-
+		
 		<tu tuid="worklist.prevent_changing_order">
 			<tuv xml:lang="en_US">
 				<seg>Prevent workers from changing the sort column</seg>
