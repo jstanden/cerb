@@ -3010,6 +3010,32 @@
 			</tuv>
 		</tu>
 
+		<!-- Worklist -->
+
+		<tu tuid="worklist.compose.sender">
+			<tuv xml:lang="en_US">
+				<seg>When composing mail from this worklist, set the sender to</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="worklist.hide_watcher">
+			<tuv xml:lang="en_US">
+				<seg>Hide watchers column</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="worklist.prevent_changing_order">
+			<tuv xml:lang="en_US">
+				<seg>Prevent workers from changing the sort column</seg>
+			</tuv>
+		</tu>
+
+		<tu tuid="worklist.restrict_result">
+			<tuv xml:lang="en_US">
+				<seg>Restrict the worklist results using this quick search</seg>
+			</tuv>
+		</tu>
+
 		<!-- CalendarEvent -->
 		
 		<tu tuid="dao.calendar_event.is_available">
@@ -3862,6 +3888,7 @@
 				<seg>Switch</seg>
 			</tuv>
 		</tu>
+
 
 		<!-- Home -->
 		
