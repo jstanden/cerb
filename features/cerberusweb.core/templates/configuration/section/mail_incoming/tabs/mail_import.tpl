@@ -31,11 +31,11 @@ $(function() {
 			var $output = $frm.find('div.output');
 			
 			// If successful, display a link to the new ticket
-			if(undefined != json.status && true == json.status) {
+			if(undefined !== json.status && true === json.status) {
 				$txt.val('');
 				$output.html('');
 				
-				if(undefined != json.ticket_label && undefined != json.ticket_url) {
+				if(undefined !== json.ticket_label && undefined !== json.ticket_url) {
 					var $b = $('<b>Created: </b>');
 					
 					var $a = $('<a/>')
@@ -50,8 +50,8 @@ $(function() {
 				}
 				
 			// If an error, display it
-			} else if(undefined != json.status && false == json.status) {
-				var message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
+			} else if(undefined !== json.status && false === json.status) {
+				var message = (undefined !== json.log && json.log.length > 0) ? json.log : json.error;
 				Devblocks.showError($output, message, false, true);
 			}
 		});

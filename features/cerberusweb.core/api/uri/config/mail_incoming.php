@@ -516,6 +516,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			@$message_source = DevblocksPlatform::importGPC($_REQUEST['message_source'],'string','');
 	
 			$dict = CerberusParser::parseMessageSource($message_source, true, true);
+			$json = null;
 			
 			if(is_object($dict) && !empty($dict->id)) {
 				$json = json_encode(array(
@@ -526,9 +527,10 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 				
 			} elseif(null === $dict) {
 				$log = ob_get_contents();
+				$log = str_replace('<BR>', ' ', $log);
 				
 				$json = json_encode(array(
-					'status' => true,
+					'status' => false,
 					'error' => sprintf('Rejected: %s',
 						trim($log)
 					)
