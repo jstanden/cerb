@@ -107,13 +107,13 @@
 			
 			<div>
 				<fieldset style="display:inline-block;margin-bottom:0;">
-					<legend>Actions</legend>
+					<legend>{'common.actions'|devblocks_translate|capitalize}</legend>
 					
 					<div id="replyInteractions{$message->id}" style="display:inline-block;">
 					{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 					</div>
 					
-					<button name="saveDraft" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
+					<button name="saveDraft" type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'mail.save_draft'|devblocks_translate|capitalize}</button>
 					
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}

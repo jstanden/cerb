@@ -84,7 +84,7 @@
 						{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 						</div>
 						
-						<button id="btnComposeSaveDraft{$popup_uniqid}" class="toolbar-item" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
+						<button id="btnComposeSaveDraft{$popup_uniqid}" class="toolbar-item" type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'mail.save_draft'|devblocks_translate|capitalize}</button>
 						<button id="btnComposeInsertSig{$popup_uniqid}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="glyphicons glyphicons-edit"></span> {'display.reply.insert_sig'|devblocks_translate|capitalize}</button>
 					</fieldset>
 				
@@ -224,13 +224,12 @@
 <div class="status"></div>
 
 <div class="help-box submit-no-recipients" style="display:none;">
-	<h1>You haven't specified any recipients.</h1>
+	<h1>{'mail.compose.info.no_recipient.title'|devblocks_translate}</h1>
 	<p>
-		A new ticket will be created without sending any email.
-		This is normal if you're working on an issue and you plan to add an email address later (e.g. phone call).
+		{'mail.compose.info.no_recipient.warning'|devblocks_translate}
 	</p>
 	<p>
-		If this isn't what you meant to do, add a recipient in the <b>To:</b> field above.
+		{'mail.compose.info.no_recipient.solution'|devblocks_translate}
 	</p>
 	<div>
 		<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Create a ticket without recipients</button>
