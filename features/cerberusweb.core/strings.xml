@@ -4178,6 +4178,11 @@
 				<seg>A new ticket will be created without sending any email. This is normal if you're working on an issue and you plan to add an email address later (e.g. phone call).</seg>
 			</tuv>
 		</tu>
+		<tu tuid="mail.composer.options_dont_send">
+			<tuv xml:lang="en_US">
+				<seg>Start a new conversation without sending a copy of this message to the recipients</seg> 
+			</tuv>
+		</tu>
 		<tu tuid="mail.create.on_behalf">
 			<tuv xml:lang="en_US">
 				<seg>#### This message was created by %s on your behalf.</seg>
