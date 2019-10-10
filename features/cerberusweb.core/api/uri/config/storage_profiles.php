@@ -54,13 +54,14 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		if(null == ($profile = DAO_DevblocksStorageProfile::get($id)))
 			$profile = new Model_DevblocksStorageProfile();
 			
-		$tpl->assign('profile', $profile);
-		
 		if(!empty($profile->id)) {
 			$storage_ext_id = $profile->extension_id;
 		} else {
 			$storage_ext_id = 'devblocks.storage.engine.disk';
+			$profile->extension_id = $storage_ext_id;
 		}
+		
+		$tpl->assign('profile', $profile);
 
 		if(!empty($id)) {
 			$storage_schemas = DevblocksPlatform::getExtensions('devblocks.storage.schema', false);
