@@ -147,7 +147,7 @@
 	<div>
 		<label>
 		<input type="checkbox" name="options_dont_send" value="1" {if $draft->params.options_dont_send}checked="checked"{/if}> 
-		{'mail.compose.options_dont_send'|devblocks_translate|capitalize}Start a new conversation without sending a copy of this message to the recipients
+		{'mail.compose.options_dont_send'|devblocks_translate|capitalize}
 		</label>
 	</div>
 	
@@ -232,7 +232,7 @@
 		{'mail.compose.info.no_recipient.solution'|devblocks_translate}
 	</p>
 	<div>
-		<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Create a ticket without recipients</button>
+		<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'mail.compose.create_without_recipients'|devblocks_translate}</button>
 	</div>
 </div>
 

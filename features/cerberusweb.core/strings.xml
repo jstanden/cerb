@@ -4163,6 +4163,11 @@
 
 		<!-- Mail -->
 		
+		<tu tuid="mail.compose.create_without_recipients">
+			<tuv xml:lang="en_US">
+				<seg>Create a ticket without recipients</seg>
+			</tuv>
+		</tu>
 		<tu tuid="mail.compose.info.no_recipient.solution">
 			<tuv xml:lang="en_US">
 				<seg>If this isn't what you meant to do, add a recipient in the To: field above.</seg>
@@ -4178,7 +4183,7 @@
 				<seg>A new ticket will be created without sending any email. This is normal if you're working on an issue and you plan to add an email address later (e.g. phone call).</seg>
 			</tuv>
 		</tu>
-		<tu tuid="mail.composer.options_dont_send">
+		<tu tuid="mail.compose.options_dont_send">
 			<tuv xml:lang="en_US">
 				<seg>Start a new conversation without sending a copy of this message to the recipients</seg> 
 			</tuv>
