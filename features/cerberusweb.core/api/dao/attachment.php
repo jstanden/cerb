@@ -2047,6 +2047,26 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 				break;
 			
 			default:
+				if($token === 'on' || false != ($on_prefix = DevblocksPlatform::strStartsWith($token, ['on.','on:']))) {
+					@list($record_identifier, $record_expands) = explode(':', $token);
+					
+					if(false == ($record_alias = DevblocksPlatform::services()->string()->strAfter($record_identifier, '.'))) {
+						if(false != ($links = $this->_lazyLoadAttach($context_id,$record_expands)) && is_array($links))
+							$values = array_merge($values, $links);
+						
+					} else {
+						if(false != ($on_context = Extension_DevblocksContext::getByAlias($record_alias))) {
+							if(false != ($links = $this->_lazyLoadAttach($context_id, [$on_context->id=>$record_expands]))) {
+								if(!array_key_exists('on', $values))
+									$values['on'] = [];
+								
+								$values['on'] = array_merge($values['on'], $links['on']);
+							}
+						}
+					}
+					break;
+				}
+				
 				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
 					if(false != ($fields = $this->_lazyLoadCustomFields($token, $context, $context_id)) && is_array($fields))
 						$values = array_merge($values, $fields);
@@ -2055,6 +2075,42 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		return $values;
+	}
+	
+	private function _lazyLoadAttach($context_id, $context_expands=null) {
+		if(!$context_expands || is_string($context_expands)) {
+			$results = DAO_Attachment::getLinks($context_id, null, 100);
+			$context_expands = ['*' => $context_expands ?: ''];
+		} else {
+			$results = DAO_Attachment::getLinks($context_id, array_keys($context_expands), 100);
+		}
+		
+		$token_values = [
+			'on' => [],
+		];
+		
+		foreach($results as $result_context => $result_ids) {
+			$result_context_records = [];
+			
+			foreach($result_ids as $result_id) {
+				$result_context_records[] = DevblocksDictionaryDelegate::instance([
+					'_context' => $result_context,
+					'id' => $result_id,
+				]);
+			}
+			
+			@$record_expands = $context_expands[$result_context] ?: $context_expands['*'];
+			
+			if($record_expands) {
+				foreach(DevblocksPlatform::parseCsvString($record_expands) as $expand_key) {
+					DevblocksDictionaryDelegate::bulkLazyLoad($result_context_records, $expand_key);
+				}
+			}
+			
+			$token_values['on'] = array_merge($token_values['on'], $result_context_records);
+		}
+		
+		return $token_values;
 	}
 	
 	function getChooserView($view_id=null) {
