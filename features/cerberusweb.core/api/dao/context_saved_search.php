@@ -1141,6 +1141,10 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		}
 		
 		switch($token) {
+			default:
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
+				break;
 		}
 		
 		return $values;

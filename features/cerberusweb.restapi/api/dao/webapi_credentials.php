@@ -949,16 +949,9 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		}
 		
 		switch($token) {
-			case 'links':
-				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $links);
-				break;
-		
 			default:
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
-					$values = array_merge($values, $fields);
-				}
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
 				break;
 		}
 		

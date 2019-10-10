@@ -2608,16 +2608,9 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 		}
 
 		switch($token) {
-			case 'links':
-				if(false != ($links = $this->_lazyLoadLinks($context, $context_id)) && is_array($links))
-					$values = array_merge($values, $links);
-				break;
-
 			default:
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
-					$values = array_merge($values, $fields);
-				}
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
 				break;
 		}
 

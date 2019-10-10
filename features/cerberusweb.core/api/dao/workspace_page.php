@@ -1266,11 +1266,6 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		switch($token) {
-			case 'links':
-				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $links);
-				break;
-			
 			case 'tabs':
 				$tabs = DAO_WorkspaceTab::getByPage($context_id);
 				$values['tabs'] = [];
@@ -1318,10 +1313,8 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 				break;
 			
 			default:
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
-					$values = array_merge($values, $fields);
-				}
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
 				break;
 		}
 		

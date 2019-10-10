@@ -1375,23 +1375,9 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		}
 		
 		switch($token) {
-			case 'links':
-				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $links);
-				break;
-		
-			case 'watchers':
-				$watchers = [
-					$token => CerberusContexts::getWatchers($context, $context_id, true),
-				];
-				$values = array_merge($values, $watchers);
-				break;
-				
 			default:
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
-					$values = array_merge($values, $fields);
-				}
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
 				break;
 		}
 		

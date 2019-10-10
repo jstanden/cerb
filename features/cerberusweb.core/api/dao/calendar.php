@@ -1586,18 +1586,6 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		}
 		
 		switch($token) {
-			case 'links':
-				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $links);
-				break;
-			
-			case 'watchers':
-				$watchers = [
-					$token => CerberusContexts::getWatchers($context, $context_id, true),
-				];
-				$values = array_merge($values, $watchers);
-				break;
-			
 			case 'scope':
 				// [TODO] Handle 'Start on Monday'
 				$month = null;
@@ -1722,10 +1710,8 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 				break;
 				
 			default:
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
-					$values = array_merge($values, $fields);
-				}
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
 				break;
 		}
 		

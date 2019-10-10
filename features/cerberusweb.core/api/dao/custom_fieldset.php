@@ -1188,12 +1188,9 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 					$values = array_merge($values, $cfield_values);
 				break;
 				
-			case 'links':
-				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $links);
-				break;
-				
 			default:
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
 				break;
 		}
 		

@@ -4953,11 +4953,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		switch($token) {
-			case 'links':
-				$links = $this->_lazyLoadLinks($context, $context_id);
-				$values = array_merge($values, $links);
-				break;
-			
+			// [TODO] Add an entry for 'participants' and deprecate this (set both)
 			case 'requester_emails':
 				if(!isset($dictionary['requesters'])) {
 					$result = $this->lazyLoadContextValues('requesters', $dictionary);
@@ -4999,13 +4995,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 					break;
 				
 				$values['signature'] = $group->getReplySignature(intval($dictionary['bucket_id']), $active_worker);
-				break;
-				
-			case 'watchers':
-				$watchers = array(
-					$token => CerberusContexts::getWatchers($context, $context_id, true),
-				);
-				$values = array_merge($values, $watchers);
 				break;
 				
 			case '_messages':
@@ -5079,10 +5068,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				break;
 				
 			default:
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
-					$values = array_merge($values, $fields);
-				}
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
 				break;
 		}
 		

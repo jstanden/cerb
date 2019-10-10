@@ -2041,11 +2041,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		}
 		
 		switch($token) {
-			case 'links':
-				if(false != ($links = $this->_lazyLoadLinks($context, $context_id)) && is_array($links))
-					$values = array_merge($values, $links);
-				break;
-			
 			default:
 				if($token === 'on' || false != ($on_prefix = DevblocksPlatform::strStartsWith($token, ['on.','on:']))) {
 					@list($record_identifier, $record_expands) = explode(':', $token);
@@ -2064,12 +2059,10 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 							}
 						}
 					}
-					break;
-				}
-				
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					if(false != ($fields = $this->_lazyLoadCustomFields($token, $context, $context_id)) && is_array($fields))
-						$values = array_merge($values, $fields);
+					
+				} else {
+					$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+					$values = array_merge($values, $defaults);
 				}
 				break;
 		}

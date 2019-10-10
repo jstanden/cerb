@@ -1549,6 +1549,25 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $token_values;
 	}
 	
+	// [TODO] Attachments?
+	protected function _lazyLoadDefaults($token, $context, $context_id) {
+		$context_ext = Extension_DevblocksContext::get($context, true);
+		
+		if(DevblocksPlatform::strStartsWith($token, 'custom_') && $context_ext->hasOption('custom_fields')) {
+			return $this->_lazyLoadCustomFields($token, $context, $context_id);
+			
+		} else if(($token === 'links' || DevblocksPlatform::strStartsWith($token, ['links.','links:'])) && $context_ext->hasOption('links')) {
+			return $this->_lazyLoadLinks($context, $context_id);
+			
+		} else if($token === 'watchers' && $context_ext->hasOption('watchers')) {
+			return [
+				$token => CerberusContexts::getWatchers($context, $context_id, true),
+			];
+		}
+		
+		return [];
+	}
+	
 	/**
 	 * @internal
 	 */

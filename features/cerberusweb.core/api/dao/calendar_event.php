@@ -1199,18 +1199,9 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		}
 		
 		switch($token) {
-			case 'watchers':
-				$watchers = array(
-					$token => CerberusContexts::getWatchers($context, $context_id, true),
-				);
-				$values = array_merge($values, $watchers);
-				break;
-				
 			default:
-				if(DevblocksPlatform::strStartsWith($token, 'custom_')) {
-					$fields = $this->_lazyLoadCustomFields($token, $context, $context_id);
-					$values = array_merge($values, $fields);
-				}
+				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+				$values = array_merge($values, $defaults);
 				break;
 		}
 		
