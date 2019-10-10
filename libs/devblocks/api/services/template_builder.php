@@ -561,7 +561,12 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 				}
 				
 				// The getDictionary() call above already filters out _labels and _types
-				$this->_dictionary[$new_key] = $v;
+				
+				if(array_key_exists($new_key, $this->_dictionary) && is_array($this->_dictionary[$new_key])) {
+					$this->_dictionary[$new_key] = array_merge($this->_dictionary[$new_key], $v);
+				} else {
+					$this->_dictionary[$new_key] = $v;
+				}
 			}
 		}
 		
