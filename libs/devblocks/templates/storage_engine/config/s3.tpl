@@ -13,5 +13,5 @@ This engine stores content in Amazon's S3 cloud storage service.<br>
 <b>Path prefix:</b> (optional)<br>
 <input type="text" name="path_prefix" size="64" value="{$profile->params.path_prefix}" placeholder="path/to/files/"><br>
 
-<b>Host:</b> (optional)<br>
+<b>Host:</b> (see: <a href="https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region" target="_blank" rel="noreferrer noopener">AWS S3 regional endpoints</a>)<br>
 <input type="text" name="host" size="64" value="{$profile->params.host}" placeholder="s3.amazonaws.com"><br>
