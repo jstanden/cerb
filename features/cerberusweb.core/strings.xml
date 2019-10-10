@@ -4188,6 +4188,31 @@
 				<seg>Start a new conversation without sending a copy of this message to the recipients</seg> 
 			</tuv>
 		</tu>
+		<tu tuid="mail.compose.org_name.placeholder">
+			<tuv xml:lang="en_US">
+				<seg>(optional) Link this ticket to an organization for suggested recipients</seg>
+			</tuv>
+		</tu>
+		<tu tuid="mail.compose.to.placeholder">
+			<tuv xml:lang="en_US">
+				<seg>These recipients will automatically be included in all future correspondence</seg>
+			</tuv>
+		</tu>
+		<tu tuid="mail.compose.cc.placeholder">
+			<tuv xml:lang="en_US">
+				<seg>These recipients will publicly receive a copy of this message</seg>
+			</tuv>
+		</tu>
+		<tu tuid="mail.compose.bcc.placeholder">
+			<tuv xml:lang="en_US">
+				<seg>These recipients will secretly receive a copy of this message</seg>
+			</tuv>
+		</tu>
+		<tu tuid="mail.compose.snippet_insert.placeholder">
+			<tuv xml:lang="en_US">
+				<seg>(Ctrl-Shift-I)</seg>
+			</tuv>
+		</tu>
 		<tu tuid="mail.create.on_behalf">
 			<tuv xml:lang="en_US">
 				<seg>#### This message was created by %s on your behalf.</seg>
