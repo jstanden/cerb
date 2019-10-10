@@ -107,13 +107,13 @@
 			
 			<div>
 				<fieldset style="display:inline-block;margin-bottom:0;">
-					<legend>Actions</legend>
+					<legend>{'common.actions'|devblocks_translate|capitalize}</legend>
 					
 					<div id="replyInteractions{$message->id}" style="display:inline-block;">
 					{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
 					</div>
 					
-					<button name="saveDraft" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
+					<button name="saveDraft" type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'mail.save_draft'|devblocks_translate|capitalize}</button>
 					
 					{* Plugin Toolbar *}
 					{if !empty($reply_toolbaritems)}
@@ -618,7 +618,7 @@ $(function() {
 		};
 		
 		markitupPlaintextSettings.markupSet.unshift(
-			{ name:'Switch to Markdown', openWith: markitupReplyFunctions.switchToMarkdown, key: 'H', className:'parsedown' },
+			{ name:'{'mail.compose.view.switch_markdown'|devblocks_translate}', openWith: markitupReplyFunctions.switchToMarkdown, key: 'H', className:'parsedown' },
 			{ separator:' ' },
 			{ name:'Preview', key: 'P', call:'preview', className:"preview" }
 		);
@@ -659,7 +659,7 @@ $(function() {
 		};
 		
 		markitupParsedownSettings.markupSet.unshift(
-			{ name:'Switch to Plaintext', openWith: markitupReplyFunctions.switchToPlaintext, key: 'H', className:'plaintext' },
+			{ name:'{'mail.compose.view.switch_plaintext'|devblocks_translate}', openWith: markitupReplyFunctions.switchToPlaintext, key: 'H', className:'plaintext' },
 			{ separator:' ' }
 		);
 		
