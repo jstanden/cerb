@@ -4200,12 +4200,12 @@
 		</tu>
 		<tu tuid="mail.compose.cc.placeholder">
 			<tuv xml:lang="en_US">
-				<seg>These recipients will publicly receive a copy of this message</seg>
+				<seg>These recipients will publicly receive a one-time copy of this message</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.compose.bcc.placeholder">
 			<tuv xml:lang="en_US">
-				<seg>These recipients will secretly receive a copy of this message</seg>
+				<seg>These recipients will secretly receive a one-time copy of this message</seg>
 			</tuv>
 		</tu>
 		<tu tuid="mail.compose.snippet_insert.placeholder">
