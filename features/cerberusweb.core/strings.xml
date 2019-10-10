@@ -4213,6 +4213,16 @@
 				<seg>(Ctrl-Shift-I)</seg>
 			</tuv>
 		</tu>
+		<tu tuid="mail.compose.view.switch_markdown">
+			<tuv xml:lang="en_US">
+				<seg>Switch to Markdown</seg>
+			</tuv>
+		</tu>
+		<tu tuid="mail.compose.view.switch_plaintext">
+			<tuv xml:lang="en_US">
+				<seg>Switch to Plaintext</seg>
+			</tuv>
+		</tu>
 		<tu tuid="mail.create.on_behalf">
 			<tuv xml:lang="en_US">
 				<seg>#### This message was created by %s on your behalf.</seg>

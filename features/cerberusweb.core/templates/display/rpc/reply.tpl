@@ -618,7 +618,7 @@ $(function() {
 		};
 		
 		markitupPlaintextSettings.markupSet.unshift(
-			{ name:'Switch to Markdown', openWith: markitupReplyFunctions.switchToMarkdown, key: 'H', className:'parsedown' },
+			{ name:'{'mail.compose.view.switch_markdown'|devblocks_translate}', openWith: markitupReplyFunctions.switchToMarkdown, key: 'H', className:'parsedown' },
 			{ separator:' ' },
 			{ name:'Preview', key: 'P', call:'preview', className:"preview" }
 		);
@@ -659,7 +659,7 @@ $(function() {
 		};
 		
 		markitupParsedownSettings.markupSet.unshift(
-			{ name:'Switch to Plaintext', openWith: markitupReplyFunctions.switchToPlaintext, key: 'H', className:'plaintext' },
+			{ name:'{'mail.compose.view.switch_plaintext'|devblocks_translate}', openWith: markitupReplyFunctions.switchToPlaintext, key: 'H', className:'plaintext' },
 			{ separator:' ' }
 		);
 		
