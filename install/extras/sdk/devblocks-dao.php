@@ -1200,6 +1200,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 				<param key="options">
 					<value>
 						<data key="cards" />
+                        <data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />

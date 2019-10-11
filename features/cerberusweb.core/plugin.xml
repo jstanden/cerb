@@ -1267,6 +1267,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1307,6 +1308,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1352,6 +1354,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<!--<data key="custom_fields" />-->
 						<data key="links" />
 						<data key="records" />
@@ -1396,6 +1399,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1443,6 +1447,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1484,6 +1489,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1527,6 +1533,7 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1573,6 +1580,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1612,6 +1620,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1654,6 +1663,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="links" />
 						<data key="records" />
 						<data key="search" />
@@ -1694,6 +1704,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="links" />
 						<data key="records" />
 						<data key="search" />
@@ -1733,6 +1744,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1772,6 +1784,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1820,6 +1833,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
@@ -1858,6 +1872,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1908,6 +1923,7 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="records" />
 						<data key="links" />
@@ -1955,6 +1971,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -1996,6 +2013,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2041,6 +2059,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2088,6 +2107,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2174,6 +2194,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="links" />
 						<data key="records" />
 						<data key="search" />
@@ -2252,6 +2273,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="records" />
 						<data key="search" />
 						<data key="va_variable" />
@@ -2293,6 +2315,7 @@
 					<value>
 						<data key="attachments" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2337,6 +2360,7 @@
 						<data key="attachments" />
 						<data key="autocomplete" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2384,6 +2408,7 @@
 					<value>
 						<data key="attachments" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2426,6 +2451,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="search" />
@@ -2470,6 +2496,7 @@
 					<value>
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
@@ -2514,6 +2541,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2561,6 +2589,7 @@
 					<value>
 						<data key="attachments" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2643,6 +2672,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2689,6 +2719,7 @@
 					<value>
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2737,6 +2768,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2778,6 +2810,7 @@
 				<param key="view_class" value="View_Skill" />
 				<param key="options">
 					<value>
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="records" />
 					</value>
@@ -2814,6 +2847,7 @@
 				<param key="view_class" value="View_Skillset" />
 				<param key="options">
 					<value>
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="records" />
 					</value>
@@ -2849,6 +2883,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2891,6 +2926,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2943,6 +2979,7 @@
 						<data key="attachments" />
 						<data key="autocomplete" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -2989,6 +3026,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -3030,6 +3068,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -3082,6 +3121,7 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
@@ -3132,6 +3172,7 @@
 						<data key="autocomplete" />
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
@@ -3174,6 +3215,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -3216,6 +3258,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -3259,6 +3302,7 @@
 					<value>
 						<data key="avatars" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="owner" />
@@ -3301,6 +3345,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -3343,6 +3388,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -3385,6 +3431,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -3427,6 +3474,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />

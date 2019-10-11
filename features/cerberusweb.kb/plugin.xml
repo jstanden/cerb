@@ -118,6 +118,7 @@
 					<value>
 						<data key="attachments" />
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />
@@ -165,6 +166,7 @@
 				<param key="options">
 					<value>
 						<data key="cards" />
+						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
 						<data key="records" />

@@ -34,8 +34,8 @@
 			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
 			<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
 			{/if}
-			
-			{if array_key_exists('comment', $context_ext->manifest->params.acl.0)}
+
+			{if $context_ext->hasOption('comments') && array_key_exists('comment', $context_ext->manifest->params.acl.0)}
 			<button type="button" id="btnProfileComment" title="(O)" data-context="cerberusweb.contexts.comment" data-context-id="0" data-edit="context:{$page_context} context.id:{$page_context_id}">
 				<span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}
 			</button>
