@@ -13,6 +13,15 @@ if(!isset($columns['is_markdown'])) {
 }
 
 // ===========================================================================
+// Remove deprecated worker preferences
+
+$sql = sprintf("DELETE FROM worker_pref WHERE setting IN (%s,%s)",
+	$db->qstr('mail_reply_textbox_size_auto'),
+	$db->qstr('mail_reply_textbox_size_px')
+);
+$db->ExecuteMaster($sql);
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
