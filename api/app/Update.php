@@ -116,7 +116,7 @@ class ChUpdateController extends DevblocksControllerExtension {
 					$errors[] = sprintf("Your Cerb license coverage for major software updates expired on %s, and %s is not included.  Please <a href='%s' target='_blank' rel='noopener'>renew your license</a>%s, <a href='%s'>remove your license</a> and enter Evaluation Mode (1 simultaneous worker), or <a href='%s' target='_blank' rel='noopener'>download</a> an earlier version.",
 						gmdate("F d, Y",$u),
 						APP_VERSION,
-						'https://cerb.ai/download/',
+						'https://cerb.ai/pricing/self-hosted/',
 						!is_null($remuneration->key) ? sprintf(" (%s)",$remuneration->key) : '',
 						$url->write('c=update&a=unlicense'),
 						'https://github.com/cerb/cerb-release'
