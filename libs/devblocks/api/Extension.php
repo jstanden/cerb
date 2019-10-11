@@ -269,6 +269,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					
 					if(in_array('avatars', $custom_record->params['options']))
 						$options['avatars'] = '';
+					
+					if(in_array('comments', $custom_record->params['options']))
+						$options['comments'] = '';
 				}
 				
 				$context_id = sprintf('contexts.custom_record.%d', $custom_record->id);
