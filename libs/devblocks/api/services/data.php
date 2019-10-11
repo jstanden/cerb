@@ -20,6 +20,10 @@ class _DevblocksDataService {
 	
 	function getTypeMeta($type, $params) {
 		switch($type) {
+			case 'calendar.events':
+				// [TODO]
+				break;
+
 			case 'worklist.records':
 				@$of = $params['of'];
 				
@@ -604,6 +608,7 @@ class _DevblocksDataService {
 	
 	function getTypes() {
 		$types = [
+			'calendar.events',
 			'worklist.records',
 			'worklist.subtotals',
 			'worklist.series',
@@ -663,6 +668,14 @@ class _DevblocksDataService {
 		$results = [];
 		
 		switch($chart_type) {
+			case 'calendar.events':
+				$provider = new _DevblocksDataProviderCalendarEvents();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
 			case 'sample.geo.points':
 				$provider = new _DevblocksDataProviderSampleGeoPoints();
 				
