@@ -260,11 +260,13 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					'workspace' => '',
 				];
 				
-				if(is_array(@$custom_record->params['options']) && in_array('hide_search', $custom_record->params['options']))
-					unset($options['search']);
-				
-				if(is_array(@$custom_record->params['options']) && in_array('avatars', $custom_record->params['options']))
-					$options['avatars'] = '';
+				if(is_array(@$custom_record->params['options'])) {
+					if(in_array('hide_search', $custom_record->params['options']))
+						unset($options['search']);
+					
+					if(in_array('avatars', $custom_record->params['options']))
+						$options['avatars'] = '';
+				}
 				
 				$context_id = sprintf('contexts.custom_record.%d', $custom_record->id);
 				$manifest = new DevblocksExtensionManifest();
@@ -275,7 +277,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				$manifest->file = 'api/dao/abstract_custom_record.php';
 				$manifest->class = 'Context_AbstractCustomRecord_' . $custom_record->id;
 				$manifest->params = [
-					//'alias' => 'custom_record_' . $custom_record->id,
 					'alias' => $custom_record->uri,
 					'dao_class' => 'DAO_AbstractCustomRecord_' . $custom_record->id,
 					'view_class' => 'View_AbstractCustomRecord_' . $custom_record->id,
