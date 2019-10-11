@@ -2131,6 +2131,7 @@
 				<param key="view_class" value="View_Comment" />
 				<param key="options">
 					<value>
+						<data key="attachments" />
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -2290,6 +2291,7 @@
 				<param key="view_class" value="View_EmailSignature" />
 				<param key="options">
 					<value>
+						<data key="attachments" />
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -2332,6 +2334,7 @@
 				<param key="view_class" value="View_FileBundle" />
 				<param key="options">
 					<value>
+						<data key="attachments" />
 						<data key="autocomplete" />
 						<data key="cards" />
 						<data key="custom_fields" />
@@ -2379,6 +2382,7 @@
 				<param key="view_class" value="View_MailHtmlTemplate" />
 				<param key="options">
 					<value>
+						<data key="attachments" />
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -2555,6 +2559,7 @@
 				<param key="view_class" value="View_Message" />
 				<param key="options">
 					<value>
+						<data key="attachments" />
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -2935,6 +2940,7 @@
 				<param key="view_class" value="View_Ticket" />
 				<param key="options">
 					<value>
+						<data key="attachments" />
 						<data key="autocomplete" />
 						<data key="cards" />
 						<data key="custom_fields" />

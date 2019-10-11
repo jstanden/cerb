@@ -116,6 +116,7 @@
 				<param key="view_class" value="View_KbArticle" />
 				<param key="options">
 					<value>
+						<data key="attachments" />
 						<data key="cards" />
 						<data key="custom_fields" />
 						<data key="links" />
