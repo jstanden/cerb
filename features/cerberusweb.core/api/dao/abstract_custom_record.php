@@ -1480,6 +1480,9 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 				$tpl->assign('owners_menu', $owners_menu);
 			}
 			
+			$attachments = DAO_Attachment::getByContextIds($context, $context_id);
+			$tpl->assign('attachments', $attachments);
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

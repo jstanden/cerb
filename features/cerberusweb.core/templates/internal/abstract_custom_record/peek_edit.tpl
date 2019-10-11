@@ -56,11 +56,33 @@
 		</td>
 	</tr>
 	{/if}
-	
+
 	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" tbody=true bulk=false}
 	{/if}
 </table>
+
+{if $custom_record->hasOption('attachments')}
+<fieldset class="peek" style="margin-top:10px;">
+	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
+	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<ul class="chooser-container bubbles">
+		{if !empty($attachments)}
+			{foreach from=$attachments item=attachment name=attachments}
+				<li>
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+						<b>{$attachment->name}</b>
+						({$attachment->storage_size|devblocks_prettybytes}	-
+						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+					</a>
+					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
+					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+				</li>
+			{/foreach}
+		{/if}
+	</ul>
+</fieldset>
+{/if}
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
@@ -159,7 +181,13 @@ $(function() {
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');
 		var $avatar_image = $avatar_chooser.closest('td').find('img.cerb-avatar');
 		ajax.chooserAvatar($avatar_chooser, $avatar_image);
-		
+
+		// Attachments
+
+		$popup.find('button.chooser_file').each(function() {
+			ajax.chooserFile(this,'file_ids');
+		});
+
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});

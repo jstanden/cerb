@@ -73,6 +73,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+				@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array()), 'int');
 				
 				// Owner
 			
@@ -127,14 +128,19 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					$dao_class::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				// Avatar image
-				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
-				DAO_ContextAvatar::upsertWithImage($context, $id, $avatar_image);
+				if($id) {
+					// Add attachments
+					DAO_Attachment::setLinks($context, $id, $file_ids);
+					
+					// Custom field saves
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					if (!DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					// Avatar image
+					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					DAO_ContextAvatar::upsertWithImage($context, $id, $avatar_image);
+				}
 				
 				echo json_encode(array(
 					'status' => true,

@@ -264,6 +264,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					if(in_array('hide_search', $custom_record->params['options']))
 						unset($options['search']);
 					
+					if(in_array('attachments', $custom_record->params['options']))
+						$options['attachments'] = '';
+					
 					if(in_array('avatars', $custom_record->params['options']))
 						$options['avatars'] = '';
 				}

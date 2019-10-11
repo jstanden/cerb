@@ -59,6 +59,7 @@
 	<div style="margin:5px 5px 5px 10px;">
 		<label><input type="checkbox" name="params[options][]" value="hide_search" {if in_array('hide_search', $options)}checked="checked"{/if}> Hide in search menu</label>
 		<label><input type="checkbox" name="params[options][]" value="avatars" {if in_array('avatars', $options)}checked="checked"{/if}> Profile images</label>
+		<label><input type="checkbox" name="params[options][]" value="attachments" {if in_array('attachments', $options)}checked="checked"{/if}> {'common.attachments'|devblocks_translate|capitalize}</label>
 	</div>
 </fieldset>
 
