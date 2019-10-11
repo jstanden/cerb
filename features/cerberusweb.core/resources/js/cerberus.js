@@ -920,35 +920,41 @@ var cAjaxCalls = function() {
 			var $ul = $('<ul class="bubbles chooser-container"></ul>');
 			$ul.insertAfter($button);
 		}
+
+		$button.on('cerb-chooser-save', function(event) {
+			// If in single-selection mode
+			if(options.single)
+				$ul.find('li').remove();
+
+			// Add the labels
+			for(var idx in event.labels) {
+				if (0 === $ul.find('input:hidden[value="' + event.values[idx] + '"]').length) {
+					var $label = $('<a href="javascript:;" class="cerb-peek-trigger" data-context="cerberusweb.contexts.attachment" />')
+						.attr('data-context-id', event.values[idx])
+						.text(event.labels[idx])
+						.cerbPeekTrigger()
+					;
+					var $li = $('<li/>').append($label);
+					$('<input type="hidden">').attr('name', field_name + (options.single ? '' : '[]')).attr('value', event.values[idx]).appendTo($li);
+					$('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+
+					if (null != options.style)
+						$li.addClass(options.style);
+
+					$ul.append($li);
+				}
+			}
+		});
 		
 		// The chooser search button
 		$button.click(function(event) {
-			var $button = $(button);
-			var $ul = $button.nextAll('ul.chooser-container:first');
 			var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=' + (options.single ? '1' : '0'),null,true,'750');
 			
 			$chooser.one('chooser_save', function(event) {
-				// If in single-selection mode
-				if(options.single)
-					$ul.find('li').remove();
-				
-				// Add the labels
-				for(var idx in event.labels)
-					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
-						var $label = $('<a href="javascript:;" class="cerb-peek-trigger" data-context="cerberusweb.contexts.attachment" />')
-							.attr('data-context-id', event.values[idx])
-							.text(event.labels[idx])
-							.cerbPeekTrigger()
-							;
-						var $li = $('<li/>').append($label);
-						var $hidden = $('<input type="hidden">').attr('name', field_name + (options.single ? '' : '[]')).attr('value', event.values[idx]).appendTo($li);
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
-						
-						if(null != options.style)
-							$li.addClass(options.style);
-						$ul.append($li);
-					}
-				
+				var new_event = $.Event(event.type, event);
+				new_event.type = 'cerb-chooser-save';
+				event.stopPropagation();
+				$button.triggerHandler(new_event);
 				$button.focus();
 			});
 		});
