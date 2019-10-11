@@ -11,14 +11,14 @@
  	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.3" max="9.3.99" />
+		<app_version min="9.4" max="9.4.99" />
 		<!--<php_extension name="curl" />-->
 	</requires>
  
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="9.2.0" />
+		<require plugin_id="cerberusweb.core" version="9.4" />
 	</dependencies>
 
 	<!-- Patches -->

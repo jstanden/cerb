@@ -10,7 +10,7 @@
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="9.2.0" />
+		<require plugin_id="cerberusweb.core" version="9.4" />
 	</dependencies>
 	
 	<!-- Exported Classes -->
