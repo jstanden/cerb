@@ -248,7 +248,7 @@ EOD;
 	// Output dictionary keys
 	
 	foreach($labels as $k => $label) {
-		if(!DevblocksPlatform::strStartsWith($label, '`'))
+		if(!DevblocksPlatform::strStartsWith($label, ['`','[']))
 			$label = DevblocksPlatform::strTitleCase(strtr($label,':',' '));
 		
 		if(false !== strpos($k, 'custom_') && $k != 'custom_<id>')
@@ -274,7 +274,6 @@ EOD;
 		if(array_key_exists($type, $custom_field_types))
 			$type = $custom_field_types[$type];
 		
-		$label = DevblocksPlatform::strTitleCase($label);
 		$type = DevblocksPlatform::strTitleCase($type);
 		
 		$label_map = [
