@@ -2,17 +2,17 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<H2>Copy Worklist</H2>
+<H2>{'worklist.copy.title'|devblocks_translate|capitalize}</H2>
 
-You can copy this worklist to other pages in order to build your ideal workspace.<br>
+{'worklist.copy.info'|devblocks_translate}<br>
 <br>
 
-<b>Worklist title:</b><br>
+<b>{'worklist.copy.new_list_title'|devblocks_translate}</b><br>
 <input type="text" name="list_title" value="{$view->name}" size="45">
 <br>
 <br>
 
-<b>Copy to page:</b><br>
+<b>{'worklist.copy.new_parent_page'|devblocks_translate}</b><br>
 {$pages = DAO_WorkspacePage::getByWorker($active_worker)}
 <select name="workspace_page_id">
 	<option value=""></option>
@@ -34,7 +34,7 @@ You can copy this worklist to other pages in order to build your ideal workspace
 <br>
 
 <button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','c=internal&a=viewDoCopy');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
-<button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style=""><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Do nothing</button><br>
+<button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style=""><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button><br>
 </form>
 
 <script type="text/javascript">

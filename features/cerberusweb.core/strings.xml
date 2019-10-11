@@ -3057,19 +3057,36 @@
 				<seg>When composing mail from this worklist, set the sender to</seg>
 			</tuv>
 		</tu>
-
+		<tu tuid="worklist.copy.info">
+			<tuv xml:lang="en_US">
+				<seg>You can copy this worklist to other pages in order to build your ideal workspace.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worklist.copy.new_list_title">
+			<tuv xml:lang="en_US">
+				<seg>Worklist title:</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worklist.copy.new_parent_page">
+			<tuv xml:lang="en_US">
+				<seg>Copy to page:</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worklist.copy.title">
+			<tuv xml:lang="en_US">
+				<seg>Copy Worklist</seg>
+			</tuv>
+		</tu>
 		<tu tuid="worklist.hide_watcher">
 			<tuv xml:lang="en_US">
 				<seg>Hide watchers column</seg>
 			</tuv>
 		</tu>
-		
 		<tu tuid="worklist.prevent_changing_order">
 			<tuv xml:lang="en_US">
 				<seg>Prevent workers from changing the sort column</seg>
 			</tuv>
-		</tu>
-
+		</tu> 
 		<tu tuid="worklist.restrict_result">
 			<tuv xml:lang="en_US">
 				<seg>Restrict the worklist results using this quick search</seg>
