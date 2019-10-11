@@ -2219,10 +2219,22 @@ UL.ui-menu li.ui-state-focus {
   margin: 0;
   padding: 0;
 }
+.cerb-form-builder .cerb-form-builder-response-say {
+  color: black;
+  background-color: #eee;
+  border: 0;
+  border-radius: 12px 12px 12px 0;
+  padding: 9px 10px;
+  margin-bottom: 5px;
+  display: inline-block;
+}
+.cerb-form-builder .cerb-form-builder-response-say P {
+  margin: 0;
+  padding: 0;
+}
 .cerb-form-builder .cerb-form-builder-prompt-text INPUT[type=text],
 .cerb-form-builder .cerb-form-builder-prompt-captcha INPUT[type=text],
 .cerb-form-builder .cerb-form-builder-prompt-text TEXTAREA {
-  width: 100%;
   border: 1px solid gainsboro;
 }
 .cerb-form-builder .cerb-data-table {
