@@ -280,6 +280,11 @@
 				<seg>add</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.add_fieldset">
+			<tuv xml:lang="en_US">
+				<seg>add fieldset</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.all">
 			<tuv xml:lang="en_US">
 				<seg>all</seg>
@@ -1258,6 +1263,11 @@
 		<tu tuid="common.file_bundles">
 			<tuv xml:lang="en_US">
 				<seg>File Bundles</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.file_bundles.include">
+			<tuv xml:lang="en_US">
+				<seg>Include files from these bundles</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.filter">

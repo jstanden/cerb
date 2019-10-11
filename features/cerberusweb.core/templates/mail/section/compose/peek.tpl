@@ -147,7 +147,7 @@
 	<div>
 		<label>
 		<input type="checkbox" name="options_dont_send" value="1" {if $draft->params.options_dont_send}checked="checked"{/if}> 
-		{'mail.compose.options_dont_send'|devblocks_translate|capitalize}
+		{'mail.compose.options_dont_send'|devblocks_translate}
 		</label>
 	</div>
 	
@@ -411,7 +411,7 @@
 		};
 		
 		markitupParsedownSettings.markupSet.unshift(
-			{ name:'Switch to Plaintext', openWith: markitupReplyFunctions.switchToPlaintext, className:'plaintext' },
+			{ name:'{'mail.compose.view.switch_plaintext'|devblocks_translate}', openWith: markitupReplyFunctions.switchToPlaintext, className:'plaintext' },
 			{ separator:' ' }
 		);
 		
