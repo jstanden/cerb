@@ -1,5 +1,58 @@
 <?php
 class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		return [
+			'' => [
+				[
+					'caption' => 'series:',
+					'snippet' => "series.\${1:alias}:(\n  of:\${2:org}\n  point:\${3:coordinates}\n  fields:[\${4:name,coordinates}]\n  query:(\n    \${5:coordinates:!null}\n  )\n)",
+					'suppress_autocomplete' => true,
+				],
+				'format:',
+			],
+			'series.*:' => [
+				'' => [
+					'of:',
+					[
+						'caption' => 'point:',
+						'snippet' => 'point:${1:coordinates}',
+					],
+					[
+						'caption' => 'fields:',
+						'snippet' => 'fields:[${1:name,coordinates}]',
+					],
+					[
+						'caption' => 'query:',
+						'snippet' => 'query:(${1})',
+					],
+					[
+						'caption' => 'query.required:',
+						'snippet' => 'query.required:(${1})',
+					],
+				],
+				'of:' => array_values(Extension_DevblocksContext::getUris()),
+				'point:' => [
+					'_type' => 'series_of_field',
+					'of_types' => 'geo_point',
+				],
+				'fields:' => [
+					'_type' => 'series_of_field',
+				],
+				'query:' => [
+					'_type' => 'series_of_query',
+				],
+				'query.required:' => [
+					'_type' => 'series_of_query',
+				],
+			],
+			'format:' => [
+				'geojson',
+				'table',
+				//'dictionaries', // [TODO]
+			]
+		];
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		

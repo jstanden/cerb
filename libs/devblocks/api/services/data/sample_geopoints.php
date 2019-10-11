@@ -1,5 +1,37 @@
 <?php
 class _DevblocksDataProviderSampleGeoPoints extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		return [
+			'' => [
+				[
+					'caption' => 'series:',
+					'snippet' => "series.\${1:cities}:(\n  new_york:(name:\"\${2:New York}\" coordinates:\"POINT(\${3:-73.935242 40.73061})\")\n)",
+					'suppress_autocomplete' => true,
+				],
+				'format:',
+			],
+			'series.*:' => [
+				'' => [
+					'label:',
+					'y.min:',
+					'y.max:',
+					'trend:',
+				],
+				'label:' => [],
+				'y.min:' => [],
+				'y.max:' => [],
+				'trend:' => [
+					'down',
+					'up',
+					'random',
+				],
+			],
+			'format:' => [
+				'geojson',
+			]
+		];
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$data = [
 			'type' => 'Topology',

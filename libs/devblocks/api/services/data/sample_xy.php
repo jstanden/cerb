@@ -1,5 +1,43 @@
 <?php
 class _DevblocksDataProviderSampleXy extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		return [
+			'' => [
+				[
+					'caption' => 'series:',
+					'snippet' => "series.\${1:alias}:(\n  label:\"\${2:Enterprise}\"\n  samples:\${3:100}\n  trend:\${4:up}\n  x.min:\${5:120}\n  x.max:\${6:172800}\n  y.min:\${7:0}\n  y.max:\${8:100}\n)",
+					'suppress_autocomplete' => true,
+				],
+				'format:',
+			],
+			'series.*:' => [
+				'' => [
+					'label:',
+					'samples:',
+					'trend:',
+					'x.min:',
+					'x.max:',
+					'y.min:',
+					'y.max:',
+				],
+				'label:' => [],
+				'samples:' => [],
+				'trend:' => [
+					'down',
+					'up',
+					'random',
+				],
+				'x.min:' => [],
+				'x.max:' => [],
+				'y.min:' => [],
+				'y.max:' => [],
+			],
+			'format:' => [
+				'scatterplot',
+			]
+		];
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		
 		$chart_model = [

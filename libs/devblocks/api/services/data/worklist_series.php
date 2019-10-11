@@ -1,5 +1,64 @@
 <?php
 class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		return [
+			'' => [
+				[
+					'caption' => 'series:',
+					'snippet' => "series.\${1:alias}:(\n  of:\${2:ticket}\n  x:\${3:id}\n  function:\${4:count}\n  query:(\n    \${5}\n  )\n)",
+					'suppress_autocomplete' => true,
+				],
+				'x.label:',
+				'format:',
+			],
+			'series.*:' => [
+				'' => [
+					'of:',
+					'label:',
+					'x:',
+					'y:',
+					'y.metric:',
+					'function:',
+					[
+						'caption' => 'query:',
+						'snippet' => 'query:(${1})',
+					],
+					[
+						'caption' => 'query.required:',
+						'snippet' => 'query.required:(${1})',
+					],
+				],
+				'of:' => array_values(Extension_DevblocksContext::getUris()),
+				'function:' => [
+					'count',
+					'sum',
+					'avg',
+					'min',
+					'max',
+				],
+				'x.label' => [],
+				'x:' => [
+					'_type' => 'series_of_field',
+					'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
+				],
+				'y:' => [
+					'_type' => 'series_of_field',
+					'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
+				],
+				'query:' => [
+					'_type' => 'series_of_query',
+				],
+				'query.required:' => [
+					'_type' => 'series_of_query',
+				],
+			],
+			'format:' => [
+				'table',
+				'timeseries',
+			]
+		];
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		

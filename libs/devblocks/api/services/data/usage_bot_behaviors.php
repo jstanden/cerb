@@ -1,5 +1,17 @@
 <?php
 class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		return [
+			'' => [
+				'format:',
+			],
+			'format:' => [
+				'table',
+				'timeseries',
+			]
+		];
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$format = 'table';
 		

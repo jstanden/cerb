@@ -1,5 +1,46 @@
 <?php
 class _DevblocksDataProviderSampleTimeSeries extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		return [
+			'' => [
+				'x.count:',
+				'x.unit:',
+				[
+					'caption' => 'series:',
+					'snippet' => "series.\${1:alias}:(\n  label:\"\${2:# Tickets}\"\n  y.min:\${3:1000}\n  y.max:\${4:100000}\n  trend:\${5:random}\n)",
+					'suppress_autocomplete' => true,
+				],
+				'format:',
+			],
+			'series.*:' => [
+				'' => [
+					'label:',
+					'y.min:',
+					'y.max:',
+					'trend:',
+				],
+				'label:' => [],
+				'y.min:' => [],
+				'y.max:' => [],
+				'trend:' => [
+					'down',
+					'up',
+					'random',
+				],
+			],
+			'x.count:' => [],
+			'x.unit:' => [
+				'days',
+				'weeks',
+				'months',
+				'years',
+			],
+			'format:' => [
+				'timeseries',
+			]
+		];
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		
 		$chart_model = [

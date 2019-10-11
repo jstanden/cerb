@@ -1,5 +1,6 @@
 <?php
 abstract class _DevblocksDataProvider {
+	abstract function getSuggestions($type, array $params=[]);
 	abstract function getData($query, $chart_fields, &$error=null, array $options=[]);
 }
 
@@ -21,584 +22,74 @@ class _DevblocksDataService {
 	function getTypeMeta($type, $params) {
 		switch($type) {
 			case 'calendar.events':
-				// [TODO]
+				$provider = new _DevblocksDataProviderCalendarEvents();
+				return $provider->getSuggestions($type, $params);
+				break;
+
+			case 'classifier.prediction':
+				$provider = new _DevblocksDataProviderClassifierPrediction();
+				return $provider->getSuggestions($type, $params);
 				break;
 
 			case 'worklist.records':
-				@$of = $params['of'];
-				
-				if($of) {
-					if(
-						false == ($context_ext = Extension_DevblocksContext::getByAlias($of, true))
-						|| false == ($view = $context_ext->getTempView())) 
-					{
-						$of = null;
-					} else {
-						$of_schema = $view->getQueryAutocompleteSuggestions();
-					}
-				}
-				
-				if(!$of) {
-					$suggestions = [
-						'' => [
-							'of:',
-						],
-						'type:' => $this->getTypes(),
-						'of:' => array_values(Extension_DevblocksContext::getUris()),
-					];
-					return $suggestions;
-				}
-				
-				$suggestions  = [
-					'' => [
-						'of:',
-						[
-							'caption' => 'query:',
-							'snippet' => 'query:(${1})',
-						],
-						[
-							'caption' => 'query.required:',
-							'snippet' => 'query.required:(${1})',
-						],
-						'format:',
-						[
-							'caption' => 'expand:',
-							'snippet' => 'expand:[${1}]',
-						],
-						'page:',
-					],
-					'of:' => array_values(Extension_DevblocksContext::getUris()),
-					'query:' => [],
-					'query.required:' => [],
-					'page:' => [
-						[
-							'caption' => '(number)',
-							'snippet' => '${1:0}',
-						]
-					],
-					'format:' => [
-						'dictionaries',
-					]
-				];
-				
-				foreach($of_schema as $of_path => $of_suggestions) {
-					if('_contexts' == $of_path) {
-						if(!array_key_exists('_contexts', $suggestions))
-							$suggestions['_contexts'] = [];
-						
-						foreach($of_suggestions as $ctx_path => $ctx_suggestion) {
-							$suggestions['_contexts']['query:' . $ctx_path] = $ctx_suggestion;
-							$suggestions['_contexts']['query.required:' . $ctx_path] = $ctx_suggestion;
-						}
-						
-					} else {
-						$suggestions['query:' . $of_path] = $of_suggestions;
-						$suggestions['query.required:' . $of_path] = $of_suggestions;
-					}
-				}
-				
-				return $suggestions;
+				$provider = new _DevblocksDataProviderWorklistRecords();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'worklist.subtotals':
-				@$of = $params['of'];
-				
-				// Sanitize `of:`
-				if($of) {
-					if(
-						false == ($context_ext = Extension_DevblocksContext::getByAlias($of, true))
-						|| false == ($view = $context_ext->getTempView())) 
-					{
-						$of = null;
-					} else {
-						$of_schema = $view->getQueryAutocompleteSuggestions();
-					}
-				}
-				
-				if(!$of) {
-					$suggestions = [
-						'' => [
-							'of:',
-						],
-						'type:' => $this->getTypes(),
-						'of:' => array_values(Extension_DevblocksContext::getUris()),
-					];
-					return $suggestions;
-				}
-				
-				$suggestions = [
-					'' => [
-						'of:',
-						[
-							'caption' => 'by.count:',
-							'snippet' => 'by.count:[${1}]',
-						],
-						[
-							'caption' => 'by.avg:',
-							'snippet' => 'by.avg:[${1}]',
-						],
-						[
-							'caption' => 'by.sum:',
-							'snippet' => 'by.sum:[${1}]',
-						],
-						[
-							'caption' => 'by.min:',
-							'snippet' => 'by.min:[${1}]',
-						],
-						[
-							'caption' => 'by.max:',
-							'snippet' => 'by.max:[${1}]',
-						],
-						[
-							'caption' => 'query:',
-							'snippet' => 'query:(${1})',
-						],
-						[
-							'caption' => 'query.required:',
-							'snippet' => 'query.required:(${1})',
-						],
-						'format:',
-						'metric:',
-						[
-							'caption' => 'expand:',
-							'snippet' => 'expand:[${1}]',
-						],
-					],
-					'of:' => array_values(Extension_DevblocksContext::getUris()),
-					'by:' => [],
-					'by.count:' => [],
-					'by.avg:' => [],
-					'by.sum:' => [],
-					'by.min:' => [],
-					'by.max:' => [],
-					'query:' => [],
-					'query.required:' => [],
-					'metric:' => [
-						[
-							'caption' => '(expression)',
-							'snippet' => '"${1:x*1}"',
-						]
-					],
-					'format:' => [
-						'tree',
-						'dictionaries',
-						'categories',
-						'table',
-						'timeseries',
-						'pie',
-					]
-				];
-				
-				foreach($of_schema as $of_path => $of_suggestions) {
-					if('_contexts' == $of_path) {
-						if(!array_key_exists('_contexts', $suggestions))
-							$suggestions['_contexts'] = [];
-						
-						foreach($of_suggestions as $ctx_path => $ctx_suggestion) {
-							$suggestions['_contexts']['query:' . $ctx_path] = $ctx_suggestion;
-							$suggestions['_contexts']['query.required:' . $ctx_path] = $ctx_suggestion;
-						}
-						
-					} else {
-						$suggestions['query:' . $of_path] = $of_suggestions;
-						$suggestions['query.required:' . $of_path] = $of_suggestions;
-						
-						if('subtotal:' == $of_path) {
-							$suggestions['by:'] = $of_suggestions;
-							$suggestions['by.count:'] = $of_suggestions;
-							$suggestions['by.avg:'] = $of_suggestions;
-							$suggestions['by.sum:'] = $of_suggestions;
-							$suggestions['by.min:'] = $of_suggestions;
-							$suggestions['by.max:'] = $of_suggestions;
-						}
-					}
-				}
-				
-				return $suggestions;
+				$provider = new _DevblocksDataProviderWorklistSubtotals();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'worklist.series':
-				return [
-					'' => [
-						[
-							'caption' => 'series:',
-							'snippet' => "series.\${1:alias}:(\n  of:\${2:ticket}\n  x:\${3:id}\n  function:\${4:count}\n  query:(\n    \${5}\n  )\n)",
-							'suppress_autocomplete' => true,
-						],
-						'x.label:',
-						'format:',
-					],
-					'series.*:' => [
-						'' => [
-							'of:',
-							'label:',
-							'x:',
-							'y:',
-							'y.metric:',
-							'function:',
-							[
-								'caption' => 'query:',
-								'snippet' => 'query:(${1})',
-							],
-							[
-								'caption' => 'query.required:',
-								'snippet' => 'query.required:(${1})',
-							],
-						],
-						'of:' => array_values(Extension_DevblocksContext::getUris()),
-						'function:' => [
-							'count',
-							'sum',
-							'avg',
-							'min',
-							'max',
-						],
-						'x.label' => [],
-						'x:' => [
-							'_type' => 'series_of_field',
-							'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
-						],
-						'y:' => [
-							'_type' => 'series_of_field',
-							'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
-						],
-						'query:' => [
-							'_type' => 'series_of_query',
-						],
-						'query.required:' => [
-							'_type' => 'series_of_query',
-						],
-					],
-					'format:' => [
-						'table',
-						'timeseries',
-					]
-				];
+				$provider = new _DevblocksDataProviderWorklistSeries();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'worklist.metrics':
-				return [
-					'' => [
-						[
-							'caption' => 'values:',
-							'snippet' => "values.\${1:open_tickets}:(\n  of:\${2:ticket}\n  function:\${3:count}\n  field:\${4:id}\n  query:(\n    \${5:status:open}\n  )\n)",
-							'suppress_autocomplete' => true,
-						],
-						'format:',
-					],
-					'values.*:' => [
-						'' => [
-							'of:',
-							'label:',
-							'field:',
-							'function:',
-							[
-								'caption' => 'metric:',
-								'snippet' => 'metric:"${1:x}"',
-							],
-							[
-								'caption' => 'query:',
-								'snippet' => 'query:(${1})',
-							],
-							[
-								'caption' => 'query.required:',
-								'snippet' => 'query.required:(${1})',
-							],
-						],
-						'of:' => array_values(Extension_DevblocksContext::getUris()),
-						'function:' => [
-							'count',
-							'sum',
-							'avg',
-							'min',
-							'max',
-						],
-						'field:' => [
-							'_type' => 'series_of_field',
-							'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
-						],
-						'query:' => [
-							'_type' => 'series_of_query',
-						],
-						'query.required:' => [
-							'_type' => 'series_of_query',
-						],
-					],
-					'format:' => [
-						'table',
-					]
-				];
+				$provider = new _DevblocksDataProviderWorklistMetrics();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'worklist.xy':
-				return [
-					'' => [
-						[
-							'caption' => 'series:',
-							'snippet' => "series.\${1:alias}:(\n  of:\${2:message}\n  x:\${3:worker}\n  y:\${4:responseTime}\n  query:(\n    \${5:responseTime:>0 sort:responseTime limit:10}\n  )\n)",
-							'suppress_autocomplete' => true,
-						],
-						'format:',
-					],
-					'series.*:' => [
-						'' => [
-							'of:',
-							'label:',
-							'x:',
-							'x.metric:',
-							'y:',
-							'y.metric:',
-							[
-								'caption' => 'query:',
-								'snippet' => 'query:(${1})',
-							],
-							[
-								'caption' => 'query.required:',
-								'snippet' => 'query.required:(${1})',
-							],
-						],
-						'of:' => array_values(Extension_DevblocksContext::getUris()),
-						'x:' => [
-							'_type' => 'series_of_field',
-							'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
-						],
-						'y:' => [
-							'_type' => 'series_of_field',
-							'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
-						],
-						'query:' => [
-							'_type' => 'series_of_query',
-						],
-						'query.required:' => [
-							'_type' => 'series_of_query',
-						],
-					],
-					'format:' => [
-						'pie',
-						'categories',
-						'scatterplot',
-						'table',
-					]
-				];
+				$provider = new _DevblocksDataProviderWorklistXy();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'worklist.geo.points':
-				return [
-					'' => [
-						[
-							'caption' => 'series:',
-							'snippet' => "series.\${1:alias}:(\n  of:\${2:org}\n  point:\${3:coordinates}\n  fields:[\${4:name,coordinates}]\n  query:(\n    \${5:coordinates:!null}\n  )\n)",
-							'suppress_autocomplete' => true,
-						],
-						'format:',
-					],
-					'series.*:' => [
-						'' => [
-							'of:',
-							[
-								'caption' => 'point:',
-								'snippet' => 'point:${1:coordinates}',
-							],
-							[
-								'caption' => 'fields:',
-								'snippet' => 'fields:[${1:name,coordinates}]',
-							],
-							[
-								'caption' => 'query:',
-								'snippet' => 'query:(${1})',
-							],
-							[
-								'caption' => 'query.required:',
-								'snippet' => 'query.required:(${1})',
-							],
-						],
-						'of:' => array_values(Extension_DevblocksContext::getUris()),
-						'point:' => [
-							'_type' => 'series_of_field',
-							'of_types' => 'geo_point',
-						],
-						'fields:' => [
-							'_type' => 'series_of_field',
-						],
-						'query:' => [
-							'_type' => 'series_of_query',
-						],
-						'query.required:' => [
-							'_type' => 'series_of_query',
-						],
-					],
-					'format:' => [
-						'geojson',
-						'table',
-						//'dictionaries', // [TODO]
-					]
-				];
+				$provider = new _DevblocksDataProviderWorklistGeoPoints();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'sample.geo.points':
-				return [
-					'' => [
-						[
-							'caption' => 'series:',
-							'snippet' => "series.\${1:cities}:(\n  new_york:(name:\"\${2:New York}\" coordinates:\"POINT(\${3:-73.935242 40.73061})\")\n)",
-							'suppress_autocomplete' => true,
-						],
-						'format:',
-					],
-					'series.*:' => [
-						'' => [
-							'label:',
-							'y.min:',
-							'y.max:',
-							'trend:',
-						],
-						'label:' => [],
-						'y.min:' => [],
-						'y.max:' => [],
-						'trend:' => [
-							'down',
-							'up',
-							'random',
-						],
-					],
-					'format:' => [
-						'geojson',
-					]
-				];
+				$provider = new _DevblocksDataProviderSampleGeoPoints();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'sample.timeseries':
-				return [
-					'' => [
-						'x.count:',
-						'x.unit:',
-						[
-							'caption' => 'series:',
-							'snippet' => "series.\${1:alias}:(\n  label:\"\${2:# Tickets}\"\n  y.min:\${3:1000}\n  y.max:\${4:100000}\n  trend:\${5:random}\n)",
-							'suppress_autocomplete' => true,
-						],
-						'format:',
-					],
-					'series.*:' => [
-						'' => [
-							'label:',
-							'y.min:',
-							'y.max:',
-							'trend:',
-						],
-						'label:' => [],
-						'y.min:' => [],
-						'y.max:' => [],
-						'trend:' => [
-							'down',
-							'up',
-							'random',
-						],
-					],
-					'x.count:' => [],
-					'x.unit:' => [
-						'days',
-						'weeks',
-						'months',
-						'years',
-					],
-					'format:' => [
-						'timeseries',
-					]
-				];
+				$provider = new _DevblocksDataProviderSampleTimeSeries();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'sample.xy':
-				return [
-					'' => [
-						[
-							'caption' => 'series:',
-							'snippet' => "series.\${1:alias}:(\n  label:\"\${2:Enterprise}\"\n  samples:\${3:100}\n  trend:\${4:up}\n  x.min:\${5:120}\n  x.max:\${6:172800}\n  y.min:\${7:0}\n  y.max:\${8:100}\n)",
-							'suppress_autocomplete' => true,
-						],
-						'format:',
-					],
-					'series.*:' => [
-						'' => [
-							'label:',
-							'samples:',
-							'trend:',
-							'x.min:',
-							'x.max:',
-							'y.min:',
-							'y.max:',
-						],
-						'label:' => [],
-						'samples:' => [],
-						'trend:' => [
-							'down',
-							'up',
-							'random',
-						],
-						'x.min:' => [],
-						'x.max:' => [],
-						'y.min:' => [],
-						'y.max:' => [],
-					],
-					'format:' => [
-						'scatterplot',
-					]
-				];
+				$provider = new _DevblocksDataProviderSampleXy();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'usage.behaviors':
-				return [
-					'' => [
-						'format:',
-					],
-					'format:' => [
-						'table',
-						'timeseries',
-					]
-				];
+				$provider = new _DevblocksDataProviderUsageBotBehaviors();
+				return $provider->getSuggestions($type, $params);
 				break;
 				
 			case 'usage.snippets':
-				return [
-					'' => [
-						'format:',
-					],
-					'format:' => [
-						'table',
-						'timeseries',
-					]
-				];
+				$provider = new _DevblocksDataProviderUsageSnippets();
+				return $provider->getSuggestions($type, $params);
 				break;
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($type, 'behavior.')) {
-					$behavior_uri = substr($type, 9);
-					
-					if(false == ($behavior = Event_DataQueryDatasource::getByAlias($behavior_uri)))
-						break;
-					
-					$schema = [
-						'' => [],
-					];
-					
-					foreach($behavior->variables as $var) {
-						if($var['is_private'])
-							continue;
-						
-						$var_key = substr($var['key'], 4) . ':';
-						
-						$schema[''][] = [
-							'value' => $var_key,
-						];
-						
-						// [TODO] Types
-						$schema[$var_key][] = [
-							'caption' => '(' . $var['label'] . ')',
-							'snippet' => '"${1:' . $var['type'] . '}"',
-						];
-					}
-					
-					return $schema;
+					$provider = new _DevblocksDataProviderBotBehavior();
+					return $provider->getSuggestions($type, $params);
 				}
 				break;
 		}
@@ -608,13 +99,14 @@ class _DevblocksDataService {
 	
 	function getTypes() {
 		$types = [
-			'calendar.events',
 			'worklist.records',
 			'worklist.subtotals',
 			'worklist.series',
 			'worklist.metrics',
 			'worklist.xy',
 			'worklist.geo.points',
+			'calendar.events',
+			'classifier.prediction',
 			'sample.geo.points',
 			'sample.timeseries',
 			'sample.xy',

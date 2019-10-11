@@ -1,5 +1,59 @@
 <?php
 class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		return [
+			'' => [
+				[
+					'caption' => 'values:',
+					'snippet' => "values.\${1:open_tickets}:(\n  of:\${2:ticket}\n  function:\${3:count}\n  field:\${4:id}\n  query:(\n    \${5:status:open}\n  )\n)",
+					'suppress_autocomplete' => true,
+				],
+				'format:',
+			],
+			'values.*:' => [
+				'' => [
+					'of:',
+					'label:',
+					'field:',
+					'function:',
+					[
+						'caption' => 'metric:',
+						'snippet' => 'metric:"${1:x}"',
+					],
+					[
+						'caption' => 'query:',
+						'snippet' => 'query:(${1})',
+					],
+					[
+						'caption' => 'query.required:',
+						'snippet' => 'query.required:(${1})',
+					],
+				],
+				'of:' => array_values(Extension_DevblocksContext::getUris()),
+				'function:' => [
+					'count',
+					'sum',
+					'avg',
+					'min',
+					'max',
+				],
+				'field:' => [
+					'_type' => 'series_of_field',
+					'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
+				],
+				'query:' => [
+					'_type' => 'series_of_query',
+				],
+				'query.required:' => [
+					'_type' => 'series_of_query',
+				],
+			],
+			'format:' => [
+				'table',
+			]
+		];
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		

@@ -1,5 +1,123 @@
 <?php
 class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		@$of = $params['of'];
+		$of_schema = null;
+		
+		// Sanitize `of:`
+		if($of) {
+			if(
+				false == ($context_ext = Extension_DevblocksContext::getByAlias($of, true))
+				|| false == ($view = $context_ext->getTempView()))
+			{
+				$of_schema = null;
+			} else {
+				$of_schema = $view->getQueryAutocompleteSuggestions();
+			}
+		}
+		
+		if(!$of_schema) {
+			$suggestions = [
+				'' => [
+					'of:',
+				],
+				'type:' => DevblocksPlatform::services()->data()->getTypes(),
+				'of:' => array_values(Extension_DevblocksContext::getUris()),
+			];
+			return $suggestions;
+		}
+		
+		$suggestions = [
+			'' => [
+				'of:',
+				[
+					'caption' => 'by.count:',
+					'snippet' => 'by.count:[${1}]',
+				],
+				[
+					'caption' => 'by.avg:',
+					'snippet' => 'by.avg:[${1}]',
+				],
+				[
+					'caption' => 'by.sum:',
+					'snippet' => 'by.sum:[${1}]',
+				],
+				[
+					'caption' => 'by.min:',
+					'snippet' => 'by.min:[${1}]',
+				],
+				[
+					'caption' => 'by.max:',
+					'snippet' => 'by.max:[${1}]',
+				],
+				[
+					'caption' => 'query:',
+					'snippet' => 'query:(${1})',
+				],
+				[
+					'caption' => 'query.required:',
+					'snippet' => 'query.required:(${1})',
+				],
+				'format:',
+				'metric:',
+				[
+					'caption' => 'expand:',
+					'snippet' => 'expand:[${1}]',
+				],
+			],
+			'of:' => array_values(Extension_DevblocksContext::getUris()),
+			'by:' => [],
+			'by.count:' => [],
+			'by.avg:' => [],
+			'by.sum:' => [],
+			'by.min:' => [],
+			'by.max:' => [],
+			'query:' => [],
+			'query.required:' => [],
+			'metric:' => [
+				[
+					'caption' => '(expression)',
+					'snippet' => '"${1:x*1}"',
+				]
+			],
+			'format:' => [
+				'tree',
+				'dictionaries',
+				'categories',
+				'table',
+				'timeseries',
+				'pie',
+			]
+		];
+		
+		foreach($of_schema as $of_path => $of_suggestions) {
+			if('_contexts' == $of_path) {
+				if(!array_key_exists('_contexts', $suggestions))
+					$suggestions['_contexts'] = [];
+				
+				foreach($of_suggestions as $ctx_path => $ctx_suggestion) {
+					$suggestions['_contexts']['query:' . $ctx_path] = $ctx_suggestion;
+					$suggestions['_contexts']['query.required:' . $ctx_path] = $ctx_suggestion;
+				}
+				
+			} else {
+				$suggestions['query:' . $of_path] = $of_suggestions;
+				$suggestions['query.required:' . $of_path] = $of_suggestions;
+				
+				if('subtotal:' == $of_path) {
+					$suggestions['by:'] = $of_suggestions;
+					$suggestions['by.count:'] = $of_suggestions;
+					$suggestions['by.avg:'] = $of_suggestions;
+					$suggestions['by.sum:'] = $of_suggestions;
+					$suggestions['by.min:'] = $of_suggestions;
+					$suggestions['by.max:'] = $of_suggestions;
+				}
+			}
+		}
+		
+		return $suggestions;
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		

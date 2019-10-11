@@ -1,5 +1,57 @@
 <?php
 class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		return [
+			'' => [
+				[
+					'caption' => 'series:',
+					'snippet' => "series.\${1:alias}:(\n  of:\${2:message}\n  x:\${3:worker}\n  y:\${4:responseTime}\n  query:(\n    \${5:responseTime:>0 sort:responseTime limit:10}\n  )\n)",
+					'suppress_autocomplete' => true,
+				],
+				'format:',
+			],
+			'series.*:' => [
+				'' => [
+					'of:',
+					'label:',
+					'x:',
+					'x.metric:',
+					'y:',
+					'y.metric:',
+					[
+						'caption' => 'query:',
+						'snippet' => 'query:(${1})',
+					],
+					[
+						'caption' => 'query.required:',
+						'snippet' => 'query.required:(${1})',
+					],
+				],
+				'of:' => array_values(Extension_DevblocksContext::getUris()),
+				'x:' => [
+					'_type' => 'series_of_field',
+					'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
+				],
+				'y:' => [
+					'_type' => 'series_of_field',
+					'of_types' => 'bool,context,currency,date,decimal,number,number_minutes,number_ms,number_seconds',
+				],
+				'query:' => [
+					'_type' => 'series_of_query',
+				],
+				'query.required:' => [
+					'_type' => 'series_of_query',
+				],
+			],
+			'format:' => [
+				'pie',
+				'categories',
+				'scatterplot',
+				'table',
+			]
+		];
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$db = DevblocksPlatform::services()->database();
 		

@@ -1,5 +1,35 @@
 <?php
 class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
+	function getSuggestions($type, array $params=[]) {
+		$behavior_uri = substr($type, 9);
+		
+		if(false == ($behavior = Event_DataQueryDatasource::getByAlias($behavior_uri)))
+			return [];
+		
+		$schema = [
+			'' => [],
+		];
+		
+		foreach($behavior->variables as $var) {
+			if($var['is_private'])
+				continue;
+			
+			$var_key = substr($var['key'], 4) . ':';
+			
+			$schema[''][] = [
+				'value' => $var_key,
+			];
+			
+			// [TODO] Types
+			$schema[$var_key][] = [
+				'caption' => '(' . $var['label'] . ')',
+				'snippet' => '"${1:' . $var['type'] . '}"',
+			];
+		}
+		
+		return $schema;
+	}
+	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		
