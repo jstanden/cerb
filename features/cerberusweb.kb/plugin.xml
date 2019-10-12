@@ -287,19 +287,6 @@
 			</params>
 		</extension>
 		
-		<!-- Ticket Reply Toolbar -->
-			
-		<extension point="cerberusweb.reply.toolbaritem">
-			<id>cerberusweb.kb.reply.toolbaritem.kb</id>
-			<name>KB Reply Toolbar</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbReplyToolbarButton</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Support Center Module -->
 		
 		<extension point="usermeet.sc.controller">

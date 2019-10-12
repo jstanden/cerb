@@ -118,11 +118,6 @@ $extension_point_meta = [
 		'class' => 'Extension_AppPreBodyRenderer',
 		'examples' => [],
 		],
-	'cerberusweb.reply.toolbaritem' => [
-		'label' => 'Reply Toolbar Item',
-		'class' => 'Extension_ReplyToolbarItem',
-		'examples' => [],
-		],
 	'cerberusweb.rest.controller' => [
 		'label' => 'Rest API Controller',
 		'class' => 'Extension_RestController',

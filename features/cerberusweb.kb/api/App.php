@@ -240,16 +240,6 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 	}
 }
 
-class ChKbReplyToolbarButton extends Extension_ReplyToolbarItem {
-	function render(Model_Message $message) {
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('div', 'replyToolbarOptions'.$message->id);
-		
-		$tpl->display('devblocks:cerberusweb.kb::renderers/toolbar_kb_button.tpl');
-	}
-};
-
 // [TODO] This should just be merged into KbPage
 class ChKbAjaxController extends DevblocksControllerExtension {
 	function isVisible() {

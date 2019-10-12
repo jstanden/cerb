@@ -61,16 +61,6 @@ class ChTimeTrackingProfileScript extends Extension_ContextProfileScript {
 	}
 }
 
-class ChTimeTrackingReplyToolbarTimer extends Extension_ReplyToolbarItem {
-	function render(Model_Message $message) {
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('message', $message); /* @var $message Model_Message */
-		
-		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/tickets/reply_toolbar_timer.tpl');
-	}
-};
-
 class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
 	/**
 	 * @param Model_DevblocksEvent $event

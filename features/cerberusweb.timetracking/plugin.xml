@@ -246,19 +246,6 @@
 			</params>
 		</extension>
 	
-		<!-- Ticket Reply Toolbar -->
-			
-		<extension point="cerberusweb.reply.toolbaritem">
-			<id>timetracking.reply.toolbaritem.timer</id>
-			<name>Time Tracking Reply Toolbar Timer</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingReplyToolbarTimer</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Pages -->
 		
 		<extension point="cerberusweb.page">
