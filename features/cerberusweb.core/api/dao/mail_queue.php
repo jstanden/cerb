@@ -642,13 +642,24 @@ class Model_MailQueue {
 	public $hint_to;
 	public $subject;
 	public $body;
-	public $params;
+	public $params = [];
 	public $is_queued;
 	public $queue_delivery_date;
 	public $queue_fails;
 	
 	public function getTicket() {
 		return DAO_Ticket::get($this->ticket_id);
+	}
+	
+	public function getContent() {
+		if(array_key_exists('format', $this->params) && 'parsedown' == $this->params['format']) {
+			$output = DevblocksPlatform::parseMarkdown($this->body);
+			$output = DevblocksPlatform::purifyHTML($output, true, true);
+			return $output;
+		
+		} else {
+			return $this->body;
+		}
 	}
 	
 	/**

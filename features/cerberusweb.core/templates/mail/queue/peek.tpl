@@ -39,8 +39,12 @@
 	</tr>
 </table>
 
-<div id="draftPeekContent" style="width:400;height:250px;overflow:auto;border:1px solid rgb(180,180,180);padding:5px;background-color:rgb(255,255,255);">
-<pre class="emailbody">{$draft->body|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+<div id="draftPeekContent" style="height:250px;overflow:auto;border:1px solid rgb(180,180,180);padding:5px;background-color:rgb(255,255,255);">
+	{if 'parsedown' == $draft->params.format}
+	<div class="emailBodyHtml">{$draft->getContent() nofilter}</div>
+	{else}
+	<pre class="emailbody">{$draft->body|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+	{/if}
 </div>
 
 <br>
