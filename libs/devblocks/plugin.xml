@@ -46,6 +46,9 @@
 		<file path="api/services/data/calendar_events.php">
 			<class name="_DevblocksDataProviderCalendarEvents" />
 		</file>
+		<file path="api/services/data/classifier_prediction.php">
+			<class name="_DevblocksDataProviderClassifierPrediction" />
+		</file>
 		<file path="api/services/data/sample_geopoints.php">
 			<class name="_DevblocksDataProviderSampleGeoPoints" />
 		</file>

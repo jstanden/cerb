@@ -168,6 +168,14 @@ class _DevblocksDataService {
 				
 				break;
 				
+			case 'classifier.prediction':
+				$provider = new _DevblocksDataProviderClassifierPrediction();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
 			case 'sample.geo.points':
 				$provider = new _DevblocksDataProviderSampleGeoPoints();
 				
