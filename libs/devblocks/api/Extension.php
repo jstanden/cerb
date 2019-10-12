@@ -1166,27 +1166,41 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	abstract function getView($context=null, $context_id=null, $options=[], $view_id=null);
 
 	function lazyLoadGetKeys() {
-		$context_mft = Extension_DevblocksContext::get(static::ID, false);
+		$context_ext = Extension_DevblocksContext::get(static::ID, true);
 		
 		$lazy_keys = [];
 		
-		if($context_mft->hasOption('custom_fields')) {
+		if($context_ext->hasOption('attachments')) {
+			$lazy_keys['attachments'] = [
+				'label' => '[Attachments](/docs/bots/behaviors/dictionaries/key-expansion/#attachments)',
+				'type' => 'Attachments',
+			];
+		}
+		
+		if($context_ext->hasOption('comments')) {
+			$lazy_keys['comments'] = [
+				'label' => '[Comments](/docs/bots/behaviors/dictionaries/key-expansion/#comments)',
+				'type' => 'Comments',
+			];
+		}
+		
+		if($context_ext->hasOption('custom_fields')) {
 			$lazy_keys['custom_<id>'] = [
-				'label' => 'Custom Fields',
+				'label' => '[Custom Fields](/docs/bots/behaviors/dictionaries/key-expansion/#custom-fields)',
 				'type' => 'Mixed',
 			];
 		}
 		
-		if($context_mft->hasOption('links')) {
+		if($context_ext->hasOption('links')) {
 			$lazy_keys['links'] = [
-				'label' => 'Links',
+				'label' => '[Links](/docs/bots/behaviors/dictionaries/key-expansion/#links)',
 				'type' => 'Links',
 			];
 		}
 		
-		if($context_mft->hasOption('watchers')) {
+		if($context_ext->hasOption('watchers')) {
 			$lazy_keys['watchers'] = [
-				'label' => 'Watchers',
+				'label' => '[Watchers](/docs/bots/behaviors/dictionaries/key-expansion/#watchers)',
 				'type' => 'Watchers',
 			];
 		}
