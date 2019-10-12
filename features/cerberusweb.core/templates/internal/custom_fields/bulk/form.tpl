@@ -15,14 +15,14 @@
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top">
 				{if $bulk}
-				<label><input type="checkbox" name="field_ids[]" value="{$f_id}"> {$f->name}:</label>
+				<label><input type="checkbox" name="field_ids[]" value="{$f_id}" {if $custom_fields_expanded.$f_id}checked="checked"{/if}> {$f->name}:</label>
 				{else}
 					<input type="hidden" name="field_ids[]" value="{$f_id}">
 					{$f->name}:
 				{/if}
 			</td>
 			<td width="99%">
-				<div id="bulkOpts{$f_id}" style="display:{if $bulk}none{else}block{/if};">
+				<div id="bulkOpts{$f_id}" style="display:{if $bulk && null == $custom_fields_expanded.$f_id}none{else}block{/if};">
 				{if $f->type==Model_CustomField::TYPE_SINGLE_LINE}
 					<input type="text" name="{$field_name}" size="45" style="width:98%;" maxlength="255" value="{$custom_field_values.$f_id}">
 				{elseif $f->type==Model_CustomField::TYPE_URL}
