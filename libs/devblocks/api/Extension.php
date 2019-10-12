@@ -1570,9 +1570,46 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			return [
 				$token => CerberusContexts::getWatchers($context, $context_id, true),
 			];
+			
+		} else if(($token === 'comments' || DevblocksPlatform::strStartsWith($token, ['comments:','comments~'])) && $context_ext->hasOption('comments')) {
+			return $this->_lazyLoadComments($token, $context, $context_id);
 		}
 		
 		return [];
+	}
+	
+	/**
+	 * @param string $token
+	 * @param string $context
+	 * @param integer $context_id
+	 * @return array
+	 * @internal
+	 */
+	protected function _lazyLoadComments($token, $context, $context_id) {
+		$token_values = [
+			'comments' => [],
+		];
+		
+		@list($token, $record_expands) = explode(':', $token);
+		@list(, $limit) = explode('~', $token);
+		
+		$limit = DevblocksPlatform::intClamp($limit ?: 10, 1, 25);
+		
+		if($record_expands) {
+			$record_expands = explode(',', $record_expands);
+		} else {
+			$record_expands = [];
+		}
+		
+		if(false == ($models = DAO_Comment::getByContext($context, $context_id, $limit)))
+			$token_values;
+		
+		if(false == ($dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_COMMENT, $record_expands)))
+			$token_values;
+		
+		$token_values['comments'] = $dicts;
+		
+		return $token_values;
 	}
 	
 	/**
