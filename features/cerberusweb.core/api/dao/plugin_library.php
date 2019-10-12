@@ -358,11 +358,13 @@ class DAO_PluginLibrary extends Cerb_ORMHelper {
 
 		unset($json_data);
 		
+		if(!is_array($plugins))
+			return false;
+		
 		// Clear local cache
 		DAO_PluginLibrary::flush();
 		
 		// Import plugins to plugin_library
-		if(is_array($plugins))
 		foreach($plugins as $plugin) {
 			$fields = array(
 				DAO_PluginLibrary::ID => $plugin['seq'],
