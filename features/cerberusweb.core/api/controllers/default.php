@@ -180,37 +180,8 @@ class Controller_Default extends DevblocksControllerExtension {
 			$tpl->assign('render_peak_memory', memory_get_peak_usage() - DevblocksPlatform::getStartPeakMemory());
 		}
 
-		// Contexts
-		
-		$search_favorites = [];
-		
-		if($active_worker) {
-			$search_favorites = DAO_WorkerPref::getAsJson($active_worker->id, 'search_favorites_json', '[]');
-			$search_favorites = array_flip($search_favorites);
-		}
-		
-		$contexts = Extension_DevblocksContext::getAll(false);
-		$search_menu = [];
-		
-		foreach($contexts as $context_id => $context) {
-			if($context->hasOption('search')) {
-				$label = $context->name;
-
-				if(false != ($aliases = Extension_DevblocksContext::getAliasesForContext($context)))
-					$label = @$aliases['plural'] ?: $aliases['singular'];
-				
-				$is_visible = !$search_favorites || isset($search_favorites[$context_id]);
-				
-				$search_menu[$context_id] = [
-					'context' => $context_id,
-					'label' => $label,
-					'visible' => $is_visible,
-				];
-			}
-		}
-		
-		DevblocksPlatform::sortObjects($search_menu, '[label]');
-		
+		// Search menu
+		$search_menu = $this->_getSearchMenu($active_worker);
 		$tpl->assign('search_menu', $search_menu);
 		
 		// Conversational interactions
@@ -235,5 +206,42 @@ class Controller_Default extends DevblocksControllerExtension {
 			$tpl->assign('active_worker_notify_count', $unread_notifications);
 			$tpl->display('devblocks:cerberusweb.core::badge_notifications_script.tpl');
 		}
+	}
+	
+	private function _getSearchMenu(Model_Worker $active_worker) {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = 'worker_search_menu_' . $active_worker->id;
+		
+		if(null === ($search_menu = $cache->load($cache_key))) {
+			$search_favorites = [];
+			
+			if ($active_worker) {
+				$search_favorites = DAO_WorkerPref::getAsJson($active_worker->id, 'search_favorites_json', '[]');
+				$search_favorites = array_flip($search_favorites);
+			}
+			
+			$contexts = Extension_DevblocksContext::getAll(false, 'search');
+			$search_menu = [];
+			
+			foreach ($contexts as $context_id => $context) {
+				$label = $context->name;
+				
+				if (false != ($aliases = Extension_DevblocksContext::getAliasesForContext($context)))
+					$label = @$aliases['plural'] ?: $aliases['singular'];
+				
+				$is_visible = !$search_favorites || isset($search_favorites[$context_id]);
+				
+				$search_menu[$context_id] = [
+					'context' => $context_id,
+					'label' => $label,
+					'visible' => $is_visible,
+				];
+			}
+			
+			DevblocksPlatform::sortObjects($search_menu, '[label]');
+			$cache->save($search_menu, $cache_key, ['ui_search_menu'], 3600);
+		}
+		
+		return $search_menu;
 	}
 };
