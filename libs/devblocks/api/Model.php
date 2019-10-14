@@ -2775,15 +2775,8 @@ class DevblocksExtensionManifest {
 	 * @return boolean
 	 */
 	function hasOption($key) {
-		if(!isset($this->params['options']) || !is_array($this->params['options']) || empty($this->params['options']))
-			return false;
-		
-		if(!isset($this->params['options'][0]))
-			return false;
-		
-		$options = $this->params['options'][0];
-		
-		return isset($options[$key]);
+		@$options = $this->params['options'][0] ?: [];
+		return array_key_exists($key, $options);
 	}
 };
 
