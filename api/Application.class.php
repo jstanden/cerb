@@ -227,7 +227,7 @@ class CerberusApplication extends DevblocksApplication {
 	 * @return DevblocksExtensionManifest or NULL
 	 */
 	static function getPageManifestByUri($uri) {
-		$pages = DevblocksPlatform::getExtensions('cerberusweb.page', false);
+		$pages = DevblocksPlatform::getExtensions('cerberusweb.page', false, false);
 		foreach($pages as $manifest) { /* @var $manifest DevblocksExtensionManifest */
 			if(0 == strcasecmp($uri,$manifest->params['uri'])) {
 				return $manifest;

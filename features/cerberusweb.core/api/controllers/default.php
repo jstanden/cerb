@@ -4,7 +4,7 @@ class Controller_Default extends DevblocksControllerExtension {
 	
 	private function _getAllowedPages() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$page_manifests = DevblocksPlatform::getExtensions('cerberusweb.page', false);
+		$page_manifests = DevblocksPlatform::getExtensions('cerberusweb.page', false, false);
 
 		// Check worker level ACL (if set by manifest)
 		foreach($page_manifests as $idx => $page_manifest) {

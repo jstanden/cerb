@@ -635,7 +635,7 @@ class Model_Calendar {
 	public $params;
 	public $updated_at;
 	
-	function getEvents($date_from, $date_to) {
+	function getEvents($date_from, $date_to, $sorted=true) {
 		if(isset($this->params['manual_disabled']) && !empty($this->params['manual_disabled'])) {
 			$calendar_events = array();
 		} else {
@@ -671,6 +671,7 @@ class Model_Calendar {
 		ksort($calendar_events);
 		
 		// Sort daily events by start time
+		if($sorted)
 		foreach($calendar_events as $ts => $events) {
 			DevblocksPlatform::sortObjects($calendar_events[$ts], '[ts]');
 		}

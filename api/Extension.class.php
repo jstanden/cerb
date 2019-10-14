@@ -112,11 +112,11 @@ abstract class Extension_PageSection extends DevblocksExtension {
 	 */
 	static function getExtensions($as_instances=true, $page_id=null) {
 		if(empty($page_id))
-			return DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+			return DevblocksPlatform::getExtensions(self::POINT, $as_instances, false);
 
 		$results = [];
 		
-		$exts = DevblocksPlatform::getExtensions(self::POINT, false);
+		$exts = DevblocksPlatform::getExtensions(self::POINT, false, false);
 		foreach($exts as $ext_id => $ext) {
 			if(0 == strcasecmp($page_id, $ext->params['page_id']))
 				$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;

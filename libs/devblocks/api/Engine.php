@@ -673,7 +673,7 @@ abstract class DevblocksEngine {
 			// [JAS]: Plugin-supplied URIs
 			default:
 				$routing = [];
-				$controllers = DevblocksPlatform::getExtensions('devblocks.controller', false);
+				$controllers = DevblocksPlatform::getExtensions('devblocks.controller', false, false);
 
 				// Add any controllers which have definitive routing
 				if(is_array($controllers))
