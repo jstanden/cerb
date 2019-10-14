@@ -50,7 +50,6 @@
 			
 			<!-- Refresh -->
 			<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location.reload();"><span class="glyphicons glyphicons-refresh"></span></button>
-			
 		</form>
 	</div>
 </div>

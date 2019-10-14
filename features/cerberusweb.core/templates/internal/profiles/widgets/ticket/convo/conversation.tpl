@@ -215,7 +215,7 @@ $(function() {
 			}
 		{/if}
 	});
-	
+
 	var anchor = window.location.hash.substr(1);
 	
 	if('message' == anchor.substr(0,7) || 'comment' == anchor.substr(0,7) || 'draft' == anchor.substr(0,5)) {

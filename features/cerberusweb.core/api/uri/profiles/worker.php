@@ -370,7 +370,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		
 		// Placeholders
 		$token_values = $context_ext->broadcastPlaceholdersGet();
-		$token_labels = $token_values['_labels'];
+		@$token_labels = $token_values['_labels'] ?: [];
 		
 		$placeholders = Extension_DevblocksContext::getPlaceholderTree($token_labels);
 		$tpl->assign('placeholders', $placeholders);

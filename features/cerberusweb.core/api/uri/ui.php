@@ -51,7 +51,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		header('Content-Type: application/json');
 		
-		if(null == ($context_ext = Extension_DevblocksContext::get($context))) {
+		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true))) {
 			echo json_encode(false);
 			return;
 		}
@@ -104,7 +104,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 		
 		$types = @$values['_types'] ?: [];
-		$results = array();
+		$results = [];
 		
 		foreach($labels as $k => $v) {
 			$results[] = array(

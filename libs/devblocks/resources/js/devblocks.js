@@ -1068,7 +1068,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	var $popup = null;
 	
 	// Restore position from previous dialog?
-	if(target == 'reuse') {
+	if(target === 'reuse') {
 		$popup = genericAjaxPopupFetch($layer);
 		if(null != $popup) {
 			try {

@@ -100,7 +100,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		
 		// If the state key doesn't exist, show the interactions menu
 		if(
-			array_key_exists('reset', $_REQUEST) 
+			array_key_exists('reset', $_REQUEST)
 			||  null == ($state_id = DevblocksPlatform::getRegistryKey($state_key, DevblocksRegistryEntry::TYPE_STRING, null))
 		) {
 			@$interaction_key = DevblocksPlatform::importGPC($_REQUEST['interaction'], 'string', null);

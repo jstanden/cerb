@@ -2,13 +2,10 @@
 class Controller_Default extends DevblocksControllerExtension {
 	const ID = 'core.controller.page';
 	
-	// [TODO] We probably need a CerberusApplication scope for getting content that has ACL applied
 	private function _getAllowedPages() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$page_manifests = DevblocksPlatform::getExtensions('cerberusweb.page', false);
 
-		// [TODO] This may cause problems on other pages where an active worker isn't required
-		
 		// Check worker level ACL (if set by manifest)
 		foreach($page_manifests as $idx => $page_manifest) {
 			// If ACL policy defined

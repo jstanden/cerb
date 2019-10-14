@@ -48,7 +48,12 @@ abstract class C4_AbstractView {
 	}
 	abstract function getData();
 	function getDataAsObjects($ids=null) { return []; }
-	function getDataSample($size) {}
+	
+	/**
+	 * @param integer $size
+	 * @return array
+	 */
+	function getDataSample($size) { return []; }
 	
 	private $_placeholderLabels = [];
 	private $_placeholderValues = [];

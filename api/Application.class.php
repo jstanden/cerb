@@ -182,48 +182,6 @@ class CerberusApplication extends DevblocksApplication {
 		);
 	}
 
-	static function getFileBundleDictionaryJson() {
-		$file_bundles = DAO_FileBundle::getAll();
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		$list = [];
-
-		if($active_worker && is_array($file_bundles))
-		foreach($file_bundles as $file_bundle) { /* @var $file_bundle Model_FileBundle */
-			// Filter by owner/readable
-			if(!Context_FileBundle::isReadableByActor($file_bundle, $active_worker))
-				continue;
-
-			$list[] = array(
-				'id' => $file_bundle->id,
-				'name' => DevblocksPlatform::strEscapeHtml($file_bundle->name),
-				'tag' => $file_bundle->tag,
-			);
-		}
-
-		return json_encode($list);
-	}
-
-	static function getAtMentionsBotDictionaryJson($actor) {
-		$bots = DAO_Bot::getReadableByActor($actor);
-
-		$list = [];
-
-		foreach($bots as $bot) {
-			if(empty($bot->at_mention_name))
-				continue;
-
-			$list[] = array(
-				'id' => $bot->id,
-				'name' => DevblocksPlatform::strEscapeHtml($bot->name),
-				'at_mention' => DevblocksPlatform::strEscapeHtml($bot->at_mention_name),
-				'_index' => DevblocksPlatform::strEscapeHtml($bot->name . ' ' . $bot->at_mention_name),
-			);
-		}
-
-		return json_encode($list);
-	}
-
 	static function getAtMentionsWorkerDictionaryJson($with_searches=true) {
 		$workers = DAO_Worker::getAllActive();
 		$list = [];
@@ -1099,7 +1057,7 @@ class CerberusContexts {
 		// Push the stack
 		self::$_stack[] = $context;
 		
-		if(false != ($ctx = Extension_DevblocksContext::get($context, true))) {
+		if(false != ($ctx = Extension_DevblocksContext::getByAlias($context, true))) {
 			// If blank, check the cache for a prebuilt context object
 			if(is_null($context_object)) {
 				$stack_max_empty_depth = CerberusContexts::getStackMaxEmptyDepth();
@@ -1594,7 +1552,7 @@ class CerberusContexts {
 
 		$owner_key_context = $owner_key_prefix . '_context';
 		$owner_key_id = $owner_key_prefix . 'id';
-
+		
 		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $owner_key_prefix);
 
 		foreach($dicts as $id => $dict) {

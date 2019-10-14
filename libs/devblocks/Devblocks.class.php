@@ -527,6 +527,9 @@ class DevblocksPlatform extends DevblocksEngine {
 				'year' => '%Y',
 			];
 			
+			if(!array_key_exists($step, $formats))
+				return [];
+			
 			$format = $formats[$step];
 		}
 		
@@ -2677,7 +2680,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @return DevblocksExtensionManifest[]
 	 */
 	static function getExtensions($point, $as_instances=false, $sorted=true) {
-		$results = array();
+		$results = [];
 		$extensions = DevblocksPlatform::getExtensionRegistry();
 
 		if(is_array($extensions))

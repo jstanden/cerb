@@ -91,7 +91,7 @@
 		</extension>
 	
 		<!-- Contexts -->
-		
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.kb_article</id>
 			<name>Knowledgebase Article</name>
