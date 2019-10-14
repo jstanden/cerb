@@ -14,7 +14,7 @@
 		<div>
 			<ul class="cerb-workspace-widget--menu cerb-popupmenu cerb-float" style="display:none;margin-top:-12px;">
 				{if $is_widget_writeable}
-				<li class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
+				<li class="cerb-workspace-widget-menu--edit" data-context="{CerberusContexts::CONTEXT_WORKSPACE_WIDGET}" data-context-id="{$widget->id}" data-edit="true" data-width="75%">
 					<a href="javascript:;">{'common.edit'|devblocks_translate|capitalize}</a>
 				</li>
 				<li class="cerb-workspace-widget-menu--export-widget">

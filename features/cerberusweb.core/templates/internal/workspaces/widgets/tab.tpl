@@ -190,7 +190,23 @@ $(function() {
 					var $widget = $li.closest('.cerb-workspace-widget');
 					var widget_id = $widget.attr('data-widget-id');
 					
-					if($li.is('.cerb-workspace-widget-menu--refresh')) {
+					if($li.is('.cerb-workspace-widget-menu--edit')) {
+						$li.clone()
+							.cerbPeekTrigger()
+							.on('cerb-peek-saved', function(e) {
+								// [TODO] Check the event type
+								async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
+									// Done
+								});
+							})
+							.on('cerb-peek-deleted', function(e) {
+								$('#workspaceWidget' + e.id).closest('.cerb-workspace-widget').remove();
+								$container.trigger('cerb-reorder');
+							})
+							.click()
+							;
+						
+					} else if($li.is('.cerb-workspace-widget-menu--refresh')) {
 						async.series([ async.apply(loadWidgetFunc, widget_id, false, {}) ], function(err, json) {
 							// Done
 						});
@@ -210,20 +226,6 @@ $(function() {
 			e.stopPropagation();
 			$(this).closest('.cerb-workspace-widget').find('.cerb-workspace-widget--menu').toggle();
 		});
-		
-		$menu.find('.cerb-peek-trigger')
-			.cerbPeekTrigger()
-			.on('cerb-peek-saved', function(e) {
-				// [TODO] Check the event type
-				async.series([ async.apply(loadWidgetFunc, e.id, true, {}) ], function(err, json) {
-					// Done
-				});
-			})
-			.on('cerb-peek-deleted', function(e) {
-				$('#workspaceWidget' + e.id).closest('.cerb-workspace-widget').remove();
-				$container.trigger('cerb-reorder');
-			})
-			;
 		
 		return $target;
 	}
