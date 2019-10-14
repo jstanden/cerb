@@ -433,13 +433,14 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			return;
 		
 		$widgets = DAO_ProfileWidget::getByTab($tab_id);
+		$new_zones = [];
 		
 		// Sanitize widget IDs
-		foreach($zones as &$zone) {
-			$zone = array_values(array_intersect($zone, array_keys($widgets)));
+		foreach($zones as $zone_id => $zone) {
+			$new_zones[$zone_id] = array_values(array_intersect(explode(',', $zone), array_keys($widgets)));
 		}
 		
-		DAO_ProfileWidget::reorder($zones);
+		DAO_ProfileWidget::reorder($new_zones);
 	}
 	
 	function getPlaceholderToolbarForTabAction() {

@@ -127,22 +127,25 @@ $(function() {
 	{/if}
 	
 	$container.on('cerb-reorder', function(e) {
-		var results = { 'zones': { } };
-		
+		var formData = new FormData();
+		formData.append('c', 'profiles');
+		formData.append('a', 'handleSectionAction');
+		formData.append('section', 'workspace_widget');
+		formData.append('action', 'reorderWidgets');
+		formData.append('tab_id', '{$model->id}');
+
 		// Zones
 		$container.find('> .cerb-workspace-layout-zone')
 			.each(function(d) {
 				var $cell = $(this);
 				var zone = $cell.attr('data-layout-zone');
 				var ids = $cell.find('.cerb-workspace-widget').map(function(d) { return $(this).attr('data-widget-id'); });
-				
-				results.zones[zone] = $.makeArray(ids);
+
+				formData.append('zones[' + zone + ']', $.makeArray(ids));
 			})
 			;
-		
-		genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=reorderWidgets&tab_id={$model->id}' 
-			+ '&' + $.param(results)
-		);
+
+		genericAjaxPost(formData);
 	});
 	
 	$container.on('cerb-widget-refresh', function(e) {
