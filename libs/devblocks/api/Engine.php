@@ -14,6 +14,8 @@ if(!function_exists('mb_ucfirst')) {
 abstract class DevblocksEngine {
 	const CACHE_ACL = 'devblocks_acl';
 	const CACHE_ACTIVITY_POINTS = 'devblocks_activity_points';
+	const CACHE_CONTEXTS = 'devblocks_contexts';
+	const CACHE_CONTEXTS_INSTANCES = 'devblocks_contexts_instances';
 	const CACHE_CONTEXT_ALIASES = 'devblocks_context_aliases';
 	const CACHE_EVENT_POINTS = 'devblocks_event_points';
 	const CACHE_EVENTS = 'devblocks_events';

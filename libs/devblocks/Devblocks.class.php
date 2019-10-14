@@ -2506,6 +2506,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		} else { // All
 			$cache->remove(self::CACHE_ACL);
 			$cache->remove(self::CACHE_ACTIVITY_POINTS);
+			$cache->remove(self::CACHE_CONTEXTS);
 			$cache->remove(self::CACHE_CONTEXT_ALIASES);
 			$cache->remove(self::CACHE_EVENTS);
 			$cache->remove(self::CACHE_EVENT_POINTS);

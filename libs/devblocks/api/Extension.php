@@ -239,106 +239,116 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	 * @return Extension_DevblocksContext[]
 	 */
 	public static function getAll($as_instances=false, $with_options=null) {
-		$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances, false);
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = $as_instances ? DevblocksPlatform::CACHE_CONTEXTS_INSTANCES : DevblocksPlatform::CACHE_CONTEXTS;
 		
-		if(
-			class_exists('DAO_CustomRecord', true)
-			&& false != ($custom_records = DAO_CustomRecord::getAll()) 
-			&& is_array($custom_records)
+		if(null === ($contexts = $cache->load($cache_key))) {
+			$contexts = DevblocksPlatform::getExtensions('devblocks.context', $as_instances, false);
+			
+			if (
+				class_exists('DAO_CustomRecord', true)
+				&& false != ($custom_records = DAO_CustomRecord::getAll())
+				&& is_array($custom_records)
 			) {
-			foreach($custom_records as $custom_record) {
-				$options = [
-					'autocomplete' => '',
-					'cards' => '',
-					'custom_fields' => '',
-					'links' => '',
-					'records' => '',
-					'search' => '',
-					'snippets' => '',
-					'va_variable' => '',
-					'watchers' => '',
-					'workspace' => '',
-				];
-				
-				if(is_array(@$custom_record->params['options'])) {
-					if(in_array('hide_search', $custom_record->params['options']))
-						unset($options['search']);
+				foreach ($custom_records as $custom_record) {
+					$options = [
+						'autocomplete' => '',
+						'cards' => '',
+						'custom_fields' => '',
+						'links' => '',
+						'records' => '',
+						'search' => '',
+						'snippets' => '',
+						'va_variable' => '',
+						'watchers' => '',
+						'workspace' => '',
+					];
 					
-					if(in_array('attachments', $custom_record->params['options']))
-						$options['attachments'] = '';
+					if (is_array(@$custom_record->params['options'])) {
+						if (in_array('hide_search', $custom_record->params['options']))
+							unset($options['search']);
+						
+						if (in_array('attachments', $custom_record->params['options']))
+							$options['attachments'] = '';
+						
+						if (in_array('avatars', $custom_record->params['options']))
+							$options['avatars'] = '';
+						
+						if (in_array('comments', $custom_record->params['options']))
+							$options['comments'] = '';
+					}
 					
-					if(in_array('avatars', $custom_record->params['options']))
-						$options['avatars'] = '';
-					
-					if(in_array('comments', $custom_record->params['options']))
-						$options['comments'] = '';
-				}
-				
-				$context_id = sprintf('contexts.custom_record.%d', $custom_record->id);
-				$manifest = new DevblocksExtensionManifest();
-				$manifest->id = $context_id;
-				$manifest->plugin_id = 'cerberusweb.core';
-				$manifest->point = Extension_DevblocksContext::ID;
-				$manifest->name = $custom_record->name;
-				$manifest->file = 'api/dao/abstract_custom_record.php';
-				$manifest->class = 'Context_AbstractCustomRecord_' . $custom_record->id;
-				$manifest->params = [
-					'alias' => $custom_record->uri,
-					'dao_class' => 'DAO_AbstractCustomRecord_' . $custom_record->id,
-					'view_class' => 'View_AbstractCustomRecord_' . $custom_record->id,
-					'acl' => [
-						0 => [
-							'broadcast' => '',
-							'comment' => '',
-							'create' => '',
-							'delete' => '',
-							'export' => '',
-							'import' => '',
-							'merge' => '',
-							'update' => '',
-							'update.bulk' => '',
+					$context_id = sprintf('contexts.custom_record.%d', $custom_record->id);
+					$manifest = new DevblocksExtensionManifest();
+					$manifest->id = $context_id;
+					$manifest->plugin_id = 'cerberusweb.core';
+					$manifest->point = Extension_DevblocksContext::ID;
+					$manifest->name = $custom_record->name;
+					$manifest->file = 'api/dao/abstract_custom_record.php';
+					$manifest->class = 'Context_AbstractCustomRecord_' . $custom_record->id;
+					$manifest->params = [
+						'alias' => $custom_record->uri,
+						'dao_class' => 'DAO_AbstractCustomRecord_' . $custom_record->id,
+						'view_class' => 'View_AbstractCustomRecord_' . $custom_record->id,
+						'acl' => [
+							0 => [
+								'broadcast' => '',
+								'comment' => '',
+								'create' => '',
+								'delete' => '',
+								'export' => '',
+								'import' => '',
+								'merge' => '',
+								'update' => '',
+								'update.bulk' => '',
+							],
 						],
-					],
-					'options' => [
-						0 => $options,
-					],
-					'names' => [
-						0 => [
-							DevblocksPlatform::strLower($custom_record->name) => 'singular',
-							DevblocksPlatform::strLower($custom_record->name_plural) => 'plural',
-						]
-					],
-				];
-				
-				if($as_instances) {
-					$contexts[$context_id] = $manifest->createInstance();
-				} else {
-					$contexts[$context_id] = $manifest;
+						'options' => [
+							0 => $options,
+						],
+						'names' => [
+							0 => [
+								DevblocksPlatform::strLower($custom_record->name) => 'singular',
+								DevblocksPlatform::strLower($custom_record->name_plural) => 'plural',
+							]
+						],
+					];
+					
+					if ($as_instances) {
+						$contexts[$context_id] = $manifest->createInstance();
+					} else {
+						$contexts[$context_id] = $manifest;
+					}
 				}
 			}
 			
-			if(!empty($with_options)) {
-				if(!is_array($with_options))
-					$with_options = array($with_options);
-	
-				foreach($contexts as $k => $context) {
-					@$options = $context->params['options'][0];
-	
-					if(!is_array($options) || empty($options)) {
-						unset($contexts[$k]);
-						continue;
-					}
-	
-					if(count(array_intersect(array_keys($options), $with_options)) != count($with_options))
-						unset($contexts[$k]);
-				}
-			}
+			if($as_instances)
+				DevblocksPlatform::sortObjects($contexts, 'manifest->name');
+			else
+				DevblocksPlatform::sortObjects($contexts, 'name');
+			
+			$cache->save($contexts, $cache_key);
 		}
 		
-		if($as_instances)
-			DevblocksPlatform::sortObjects($contexts, 'manifest->name');
-		else
-			DevblocksPlatform::sortObjects($contexts, 'name');
+		if ($with_options) {
+			if (!is_array($with_options))
+				$with_options = [$with_options];
+			
+			foreach ($contexts as $k => $context) {
+				@$options = $as_instances
+					? $context->manifest->params['options'][0]
+					: $context->params['options'][0]
+				;
+				
+				if (!is_array($options) || empty($options)) {
+					unset($contexts[$k]);
+					continue;
+				}
+				
+				if (count(array_intersect(array_keys($options), $with_options)) != count($with_options))
+					unset($contexts[$k]);
+			}
+		}
 		
 		return $contexts;
 	}
