@@ -4930,33 +4930,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		}
 	}
 	
-	// Utils
-
-	function transformMarkupToHTMLAction() {
-		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string', '');
-		@$data = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
-
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$body = '';
-		
-		switch($format) {
-			case 'markdown':
-			case 'parsedown':
-				$body = DevblocksPlatform::parseMarkdown($data);
-				break;
-				
-			case 'html':
-			default:
-				$body = $data;
-				break;
-		}
-		
-		$tpl->assign('body', $body);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/html_editor/preview.tpl');
-	}
-	
 	// Custom templates
 	
 	function showTemplatePeekAction() {

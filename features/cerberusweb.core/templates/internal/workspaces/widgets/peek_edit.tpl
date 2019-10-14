@@ -260,15 +260,7 @@ $(function() {
 					$toolbar.find('ul.menu').hide();
 					$toolbar.show().insertAfter($target);
 					$toolbar.data('src', $target);
-					
-					// If a markItUp editor, move to parent
-					if($target.is('.markItUpEditor')) {
-						$target = $target.closest('.markItUp').parent();
-						$toolbar.find('button.tester').hide();
-						
-					} else {
-						$toolbar.find('button.tester').show();
-					}
+					$toolbar.find('button.tester').show();
 				}
 			}
 		});

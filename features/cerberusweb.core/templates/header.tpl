@@ -49,7 +49,6 @@
 
 	<!-- Application -->
 	<link type="text/css" rel="stylesheet" href="{devblocks_url}c=resource&p=cerberusweb.core&f=css/cerb.css{/devblocks_url}?v={$smarty.const.APP_BUILD}">
-	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/markitup/jquery.markitup.js{/devblocks_url}?v={$smarty.const.APP_BUILD}"></script>
 	<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/cerberus.js{/devblocks_url}?v={$smarty.const.APP_BUILD}&pl=2017021301"></script>
 	
 	<!-- User-defined styles -->
