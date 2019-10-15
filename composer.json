@@ -30,6 +30,7 @@
       	"ext-imap": "*",
       	"ext-mysqli": "*"
 		"tijsverkoyen/css-to-inline-styles": "^2.2",
+		"ezyang/htmlpurifier": "^4.11",
 		"erusev/parsedown": "^1.7",
 		"erusev/parsedown-extra": "^0.7.1",
     },

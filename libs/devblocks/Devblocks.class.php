@@ -1750,8 +1750,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	static private $_purifier_configs = null;
 	
 	static function purifyHTMLOptions($inline_css=false, $untrusted=true) {
-		require_once(DEVBLOCKS_PATH . 'libs/htmlpurifier/HTMLPurifier.standalone.php');
-		
 		@$config = self::$_purifier_configs[$inline_css][$untrusted];
 		
 		if(!$config) {
