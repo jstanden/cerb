@@ -134,12 +134,6 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initLibs() {
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/parsedown/Parsedown.php', array(
-			'Parsedown'
-		));
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/parsedown/ParsedownExtra.php', array(
-			'ParsedownExtra'
-		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/pclzip/pclzip.lib.php', array(
 			'PclZip'
 		));
