@@ -134,14 +134,6 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initLibs() {
-		$this->registerAutoloadPath(DEVBLOCKS_PATH . 'libs/css_selector/', 
-			"Symfony\\Component\\CssSelector\\"
-		);
-		
-		$this->registerAutoloadPath(DEVBLOCKS_PATH . 'libs/css_to_inline_styles/',
-			"TijsVerkoyen\\CssToInlineStyles\\"
-		);
-		
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/parsedown/Parsedown.php', array(
 			'Parsedown'
 		));

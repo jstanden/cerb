@@ -1,4 +1,6 @@
 <?php
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
+
 include_once(DEVBLOCKS_PATH . "api/Engine.php");
 
 include_once(DEVBLOCKS_PATH . "api/services/bootstrap/logging.php");
@@ -1830,10 +1832,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function purifyHTML($dirty_html, $inline_css=false, $is_untrusted=true) {
-		require_once(DEVBLOCKS_PATH . 'libs/htmlpurifier/HTMLPurifier.standalone.php');
-		
-		$xml_encoding = sprintf('<?xml encoding="%s">', LANG_CHARSET_CODE);
-		
 		// If we're passed a file pointer, load the literal string
 		if(is_resource($dirty_html)) {
 			$fp = $dirty_html;
@@ -1844,12 +1842,10 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// Handle inlining CSS
 		if($inline_css) {
-			$css_converter = new TijsVerkoyen\CssToInlineStyles\CssToInlineStyles();
-			$css_converter->setHTML($xml_encoding . $dirty_html);
-			$css_converter->setUseInlineStylesBlock(true);
-			$dirty_html = $css_converter->convert();
-			$dirty_html = str_replace($xml_encoding, '', $dirty_html);
-			unset($css_converter);
+			if($dirty_html) {
+				$css_converter = new CssToInlineStyles();
+				$dirty_html = $css_converter->convert($dirty_html);
+			}
 		}
 		
 		$config = self::purifyHTMLOptions($inline_css, $is_untrusted);

@@ -29,6 +29,7 @@
       	"ext-mbstring": "*",
       	"ext-imap": "*",
       	"ext-mysqli": "*"
+		"tijsverkoyen/css-to-inline-styles": "^2.2",
     },
 	"require-dev" : {
 		"giggsey/libphonenumber-for-php" : "^8.8",
