@@ -16,6 +16,12 @@
 		}
 	],
 	"require" : {
+		"ext-curl": "*",
+		"ext-gd": "*",
+		"ext-imap": "*",
+		"ext-json": "*",
+		"ext-mbstring": "*",
+		"ext-mysqli": "*",
 		"smarty/smarty" : "3.1.31",
 		"swiftmailer/swiftmailer" : "5.4.9",
 		"mtdowling/cron-expression" : "^1.2",
@@ -25,10 +31,6 @@
 		"league/oauth2-client": "^2.3",
 		"guzzlehttp/guzzle": "~6.0",
 		"phpseclib/phpseclib": "~2.0",
-		"ext-json": "*",
-      	"ext-mbstring": "*",
-      	"ext-imap": "*",
-      	"ext-mysqli": "*"
 		"tijsverkoyen/css-to-inline-styles": "^2.2",
 		"ezyang/htmlpurifier": "^4.11",
 		"erusev/parsedown": "^1.7",
