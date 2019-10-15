@@ -33,6 +33,7 @@
 		"ezyang/htmlpurifier": "^4.11",
 		"erusev/parsedown": "^1.7",
 		"erusev/parsedown-extra": "^0.7.1",
+		"donatj/phpuseragentparser": "^0.14.0"
     },
 	"require-dev" : {
 		"giggsey/libphonenumber-for-php" : "^8.8",

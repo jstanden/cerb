@@ -480,7 +480,6 @@ abstract class DevblocksEngine {
 	
 	static function getClientUserAgent() {
 		if(is_null(self::$_user_agent)) {
-			require_once(DEVBLOCKS_PATH . 'libs/user_agent_parser.php');
 			
 			try {
 				if(false != ($user_agent = parse_user_agent()))
