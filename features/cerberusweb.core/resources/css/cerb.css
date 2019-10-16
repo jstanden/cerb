@@ -1582,6 +1582,9 @@ UL.cerb-popupmenu > LI:hover A {
   border-left: solid 5px #f0f0f0;
   padding-left: 5px;
 }
+.cerb-kb-article-content IMG {
+  max-width: 100%;
+}
 
 DIV.cerb-menu {
   margin-top: -5px;

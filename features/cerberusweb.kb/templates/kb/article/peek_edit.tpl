@@ -9,81 +9,80 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
+<input type="hidden" name="format" value="2">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<div id="kbArticleTabs{$form_id}">
-	<ul>
-		<li><a href="#kbArticleEditor{$form_id}">{'common.editor'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#kbArticleProperties{$form_id}">{'common.properties'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#kbArticleAttachments{$form_id}">{'common.attachments'|devblocks_translate|capitalize}</a></li>
-	</ul>
-	
-	<div id="kbArticleEditor{$form_id}">
-		<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
-		<input type="text" name="title" value="{$model->title}" style="width:99%;border:solid 1px rgb(180,180,180);" autofocus="autofocus"><br>
-		
-		<div>
-			<textarea id="content" name="content" style="width:99%;height:400px;border:solid 1px rgb(180,180,180);">{$model->content}</textarea>
-		</div>
-		
-		<div>
-			<div class="cerb-snippet-insert" style="display:inline-block;">
-				<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="type:[plaintext,article]" data-single="true">{'common.snippets'|devblocks_translate|capitalize}</button>
-				<ul class="bubbles chooser-container"></ul>
-			</div>
-			&nbsp; 
-			<label><input type="radio" name="format" value="2" {if 2==$model->format || empty($model->format)}checked{/if}> <b>Markdown</b> (recommended)</label> [<a href="http://en.wikipedia.org/wiki/Markdown" target="_blank" rel="noopener">?</a>] 
-			<label><input type="radio" name="format" value="1" {if 1==$model->format}checked{/if}> <b>HTML</b></label> 
-		</div>
+<b>{'common.title'|devblocks_translate|capitalize}:</b><br>
+<input type="text" name="title" value="{$model->title}" style="width:99%;border:solid 1px rgb(180,180,180);" autofocus="autofocus"><br>
+
+<div>
+	<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--article">
+		<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
+		<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
+		<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
+		<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
+		<button type="button" title="Heading" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--heading"><span class="glyphicons glyphicons-header"></span></button>
+		<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
+		<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
+		<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
+		<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+		<div class="cerb-code-editor-toolbar-divider"></div>
+		<button type="button" title="Insert snippet" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
+		<div class="cerb-code-editor-toolbar-divider"></div>
+		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 	</div>
-	
-	<div id="kbArticleProperties{$form_id}">
-		<b>Add to Categories:</b><br>
-		<div style="overflow:auto;height:150px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);">
-			{foreach from=$levels item=depth key=node_id}
-				<label>
-					<input type="checkbox" name="category_ids[]" value="{$node_id}" onchange="div=document.getElementById('kbTreeCat{$node_id}');div.style.color=(this.checked)?'green':'';div.style.background=(this.checked)?'rgb(230,230,230)':'';" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}checked{/if}>
-					<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="glyphicons glyphicons-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span>{/if} <span id="kbTreeCat{$node_id}" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}style="color:green;background-color:rgb(230,230,230);"{/if}>{$categories.$node_id->name}</span></span>
-				</label>
-				<br>
-			{/foreach}
-		</div>
-		<br>
-		
-		{if !empty($custom_fields)}
-		<fieldset class="peek">
-			<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
-			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-		</fieldset>
-		{/if}
-		
-		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
-	</div>
-	
-	<div id="kbArticleAttachments{$form_id}">
-		{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $model->id)}
-	
-		<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
-		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
-		<ul class="chooser-container bubbles cerb-attachments-container" style="display:block;">
+
+	<textarea id="content" name="content" data-editor-mode="ace/editor/markdown" data-editor-lines="15" data-editor-gutter="true" data-editor-line-numbers="true" rows="10" cols="60" style="display:none;">{$model->content}</textarea>
+</div>
+
+{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $model->id)}
+
+<fieldset class="peek black" style="margin-top:10px;">
+	<legend>{'common.attachments'|devblocks_translate|capitalize}:</legend>
+
+	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<ul class="chooser-container bubbles cerb-attachments-container">
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
-			<li>
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
-					<b>{$attachment->name}</b>
-					({$attachment->storage_size|devblocks_prettybytes}	- 
-					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
-				</a>
-				<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-				<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
-			</li>
+				<li>
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+						<b>{$attachment->name}</b>
+						({$attachment->storage_size|devblocks_prettybytes}	-
+						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+					</a>
+					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
+					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+				</li>
 			{/foreach}
 		{/if}
-		</ul>
-	</div>
-</div> 
+	</ul>
+</fieldset>
 
-{if !empty($model->id)}
+<fieldset class="peek black">
+	<legend>{'common.categories'|devblocks_translate|capitalize}:</legend>
+
+	<div style="overflow:auto;height:150px;border:solid 1px rgb(180,180,180);background-color:rgb(255,255,255);">
+		{foreach from=$levels item=depth key=node_id}
+			<label>
+				<input type="checkbox" name="category_ids[]" value="{$node_id}" onchange="div=document.getElementById('kbTreeCat{$node_id}');div.style.color=(this.checked)?'green':'';div.style.background=(this.checked)?'rgb(230,230,230)':'';" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}checked{/if}>
+				<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="glyphicons glyphicons-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span>{/if} <span id="kbTreeCat{$node_id}" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}style="color:green;background-color:rgb(230,230,230);"{/if}>{$categories.$node_id->name}</span></span>
+			</label>
+			<br>
+		{/foreach}
+	</div>
+</fieldset>
+
+{if !empty($custom_fields)}
+	<fieldset class="peek black">
+		<legend>{'common.properties'|devblocks_translate|capitalize}:</legend>
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+	</fieldset>
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+
+
+	{if !empty($model->id)}
 <fieldset style="display:none;margin-top:10px;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
@@ -110,7 +109,7 @@ $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'kb.common.knowledgebase_article'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
@@ -118,186 +117,102 @@ $(function() {
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
-		// Tabs
-		$("#kbArticleTabs{$form_id}").tabs();
-		
-				$popup.find('.cerb-peek-trigger')
+		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
 		
-		var $attachments_container = $popup.find('UL.cerb-attachments-container');
-		
-		// Snippets
-		
-		var $content = $popup.find('textarea[name=content]');
-		
-		$frm.find('.cerb-snippet-insert button.cerb-chooser-trigger')
-			.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				e.stopPropagation();
-				var $this = $(this);
-				var $ul = $this.siblings('ul.chooser-container');
-				var $search = $ul.prev('input[type=search]');
-				var $textarea = $('#kbArticleEditor textarea[name=content]');
-				
-				// Find the snippet_id
-				var snippet_id = $ul.find('input[name=snippet_id]').val();
-				
-				if(null == snippet_id)
-					return;
-				
-				// Remove the selection
-				$ul.find('> li').find('span.glyphicons-circle-remove').click();
-				
-				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				var url = 'c=internal&a=snippetPaste&id=' + snippet_id;
-				url += "&context_ids[cerberusweb.contexts.kb_article]={$article->id}";
-				url += "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}";
-				
-				genericAjaxGet('',url,function(json) {
-					// If the content has placeholders, use that popup instead
-					if(json.has_custom_placeholders) {
-						$textarea.focus();
-						
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
-					
-						$popup_paste.bind('snippet_paste', function(event) {
-							if(null == event.text)
-								return;
-						
-							$textarea.insertAtCursor(event.text).focus();
-						});
-						
-					} else {
-						$textarea.insertAtCursor(json.text).focus();
-					}
-					
-					$search.val('');
-				});
-			})
-		;
-		
 		// Editor
-		
-		var markitupHTMLSettings = $.extend(true, { }, markitupHTMLDefaults);
-		var markitupMarkdownSettings = $.extend(true, { }, markitupMarkdownDefaults);
+		var $editor = $popup.find('textarea[name=content]')
+			.cerbCodeEditor()
+			;
 
-		markitupMarkdownSettings.markupSet.splice(
-			10,
-			0,
-			{ name:'Upload an Image', openWith: 
-				function(markItUp) {
-					var $chooser = genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
-					
-					$chooser.one('chooser_save', function(event) {
-						if(!event.response || 0 == event.response)
-							return;
-						
-						{literal}$content.insertAtCursor("![inline-image]({{cerb_file_url(" + event.response[0].id + ",'" + event.response[0].name + "')}})");{/literal}
+		var editor = ace.edit($editor.nextAll('pre.ace_editor').attr('id'));
 
-						// Add an attachment link
-						
-						if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
-							var $li = $('<li/>');
+		var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar--article')
+			.cerbCodeEditorToolbarMarkdown()
+			;
 
-							var $a = $('<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" />')
-								.attr('data-context-id', event.response[0].id)
-								.text(event.response[0].name + ' (' + event.response[0].size + ' bytes - ' + event.response[0].type + ')')
-								.appendTo($li)
-								.cerbPeekTrigger()
-								;
-							
-							var $hidden = $('<input type="hidden" name="file_ids[]">')
-								.val(event.response[0].id)
-								.appendTo($li)
-								;
-							
-							var $remove = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>')
-								.click(function() {
-									$(this).parent().remove();
-								})
-								.appendTo($li)
-								;
-							
-							$attachments_container.append($li);
-						}
-					});
-				},
-				key: 'U',
-				className:'image-inline'
-			}
-		);
-		
-		markitupHTMLSettings.markupSet.splice(
-			13,
-			0,
-			{ name:'Upload an Image', openWith: 
-				function(markItUp) {
-					var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
-					
-					$chooser.one('chooser_save', function(event) {
-						if(!event.response || 0 == event.response)
-							return;
-						
-						{literal}$content.insertAtCursor("<img src=\"{{cerb_file_url(" + event.response[0].id + ",'" + event.response[0].name + "')}}\" alt=\"\">");{/literal}
-						
-						// Add an attachment link
-						
-						var $li = $('<li/>');
+		// Upload image
+		$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
+			event.stopPropagation();
 
-						var $a = $('<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" />')
-							.attr('data-context-id', event.response[0].id)
-							.text(event.response[0].name + ' (' + event.response[0].size + ' bytes - ' + event.response[0].type + ')')
-							.appendTo($li)
-							.cerbPeekTrigger()
-							;
-						
-						var $hidden = $('<input type="hidden" name="file_ids[]">')
-							.val(event.response[0].id)
-							.appendTo($li)
-							;
-						
-						var $remove = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>')
-							.click(function() {
-								$(this).parent().remove();
-							})
-							.appendTo($li)
-							;
-						
-						$attachments_container.append($li);
-					});
-				},
-				key: 'U',
-				className:'image-inline'
-			}
-		);
-		
-		delete markitupHTMLSettings.previewParserPath;
-		delete markitupHTMLSettings.previewTemplatePath;
-		delete markitupHTMLSettings.previewInWindow;
+			var new_event = $.Event('cerb-chooser-save', {
+				labels: event.labels,
+				values: event.values
+			});
 
-		markitupHTMLSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=profiles&a=handleSectionAction&section=kb&action=getEditorHtmlPreview&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
-		
-		delete markitupMarkdownSettings.previewParserPath;
-		delete markitupMarkdownSettings.previewTemplatePath;
-		delete markitupMarkdownSettings.previewInWindow;
-		
-		markitupMarkdownSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=profiles&a=handleSectionAction&section=kb&action=getEditorParsedownPreview&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
-		
-		{if 1==$article->format}
-		$content.markItUp(markitupHTMLSettings);
-		{else}
-		$content.markItUp(markitupMarkdownSettings);
-		{/if}
+			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-		$frm.find('input[name=format]').bind('click', function(event) {
-			$content.markItUpRemove();
-			if(2==$(event.target).val()) {
-				$content.markItUp(markitupMarkdownSettings);
-			} else if(1==$(event.target).val()) {
-				$content.markItUp(markitupHTMLSettings);
-			} 
-		} );
+			{literal}
+			editor.insertSnippet('![inline-image]({{cerb_file_url(' + event.file_id + ',"' + event.file_name + '")}})');
+			{/literal}
+			editor.focus();
+		});
+
+		// Snippets
+		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
+			var context = 'cerberusweb.contexts.snippet';
+			var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,comment]') + '&single=1&context=' + encodeURIComponent(context);
+
+			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+
+			$chooser.on('chooser_save', function (event) {
+				if (!event.values || 0 == event.values.length)
+					return;
+
+				var snippet_id = event.values[0];
+
+				if (null == snippet_id)
+					return;
+
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				var url = 'c=internal&a=snippetPaste&id='
+					+ encodeURIComponent(snippet_id)
+					+ "&context_ids[cerberusweb.contexts.kb_article]={$article->id}"
+					+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
+				;
+
+				genericAjaxGet('', url, function (json) {
+					// If the content has placeholders, use that popup instead
+					if (json.has_custom_placeholders) {
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+
+						$popup_paste.bind('snippet_paste', function (event) {
+							if (null == event.text)
+								return;
+
+							editor.insert(event.text);
+							editor.scrollToLine(editor.getCursorPosition().row);
+							editor.focus();
+						});
+
+					} else {
+						editor.insert(json.text);
+						editor.scrollToLine(editor.getCursorPosition().row);
+						editor.focus();
+					}
+				});
+			});
+		});
+
+		// Preview
+		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
+			var formData = new FormData();
+			formData.append('c', 'profiles');
+			formData.append('a', 'handleSectionAction');
+			formData.append('section', 'kb');
+			formData.append('action', 'preview');
+			formData.append('content', editor.getValue());
+
+			genericAjaxPopup(
+				'preview_article',
+				formData,
+				'reuse',
+				false
+			);
+		});
+
+		// Editor
 		
 		$frm.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
