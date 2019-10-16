@@ -369,7 +369,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$id_string = implode(',', $ids);
 		
 		$sql = sprintf("DELETE FROM custom_field WHERE id IN (%s)",$id_string);
-		if(false == ($db->ExecuteSlave($sql)))
+		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 
 		if(is_array($ids))
