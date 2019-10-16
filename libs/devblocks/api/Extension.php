@@ -467,6 +467,18 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return null;
 	}
 	
+	public static function getByAliases(array $aliases, $as_instances=false) {
+		$results = [];
+		
+		foreach($aliases as $alias) {
+			if(false != ($context_ext = self::getByAlias($alias, $as_instances)))
+				if(!array_key_exists($context_ext->id, $results))
+					$results[$context_ext->id] = $context_ext;
+		}
+		
+		return $results;
+	}
+	
 	/**
 	 * @internal
 	 */
