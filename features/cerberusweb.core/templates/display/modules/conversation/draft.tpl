@@ -11,15 +11,19 @@
 		{else}
 			<span class="tag" style="background-color:rgb(120,120,120);color:white;margin-right:5px;">{'draft'|devblocks_translate|lower}</span>
 		{/if}
-		
-		<h3 style="display:inline;">
-			{if !empty($draft_worker)}<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}">{$draft_worker->getName()}</a>{else}{/if}
-		</h3> &nbsp;
-		
+
+		<div style="display:inline-block;">
+			{if !empty($draft_worker)}<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-size:1.3em;font-weight:bold;">{$draft_worker->getName()}</a>{else}{/if}
+			&nbsp;
+			{if $draft_worker->title}
+				{$draft_worker->title}
+			{/if}
+		</div>
+
 		<div style="float:left;margin:0px 5px 5px 0px;">
 			<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft_worker->id}{/devblocks_url}?v={$draft_worker->updated}" style="height:64px;width:64px;border-radius:64px;">
 		</div>
-		
+
 		<br>
 		
 		{if isset($draft->hint_to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$draft->hint_to}<br>{/if}
