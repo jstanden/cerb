@@ -5126,21 +5126,4 @@ class ChInternalController extends DevblocksControllerExtension {
 		echo $doc->saveXML();
 		exit;
 	}
-
-	// Comments
-
-	function showTabContextCommentsAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-
-		$tpl = DevblocksPlatform::services()->template();
-
-		$tpl->assign('context', $context);
-		$tpl->assign('context_id', $context_id);
-
-		$comments = DAO_Comment::getByContext($context, $context_id);
-		$tpl->assign('comments', $comments);
-
-		$tpl->display('devblocks:cerberusweb.core::internal/comments/tab.tpl');
-	}
 };

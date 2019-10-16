@@ -1355,7 +1355,7 @@ var ajax = new cAjaxCalls();
 		
 		var doCerbLiveAutocomplete = function(e) {
 			e.stopPropagation();
-			
+
 			if(!e.editor.completer) {
 				var Autocomplete = require('ace/autocomplete').Autocomplete;
 				e.editor.completer = new Autocomplete();
@@ -1454,14 +1454,14 @@ var ajax = new cAjaxCalls();
 		});
 	}
 
-	$.fn.cerbCodeEditorAutocompleteComments = function(autocomplete_options) {
+	$.fn.cerbCodeEditorAutocompleteComments = function() {
 		var Autocomplete = require('ace/autocomplete').Autocomplete;
 		var lang = require('ace/lib/lang');
 
 		var doCerbLiveAutocomplete = function(e) {
 			e.stopPropagation();
 
-			if('Tab' == e.command.name) {
+			if('Tab' === e.command.name) {
 				return;
 			}
 
@@ -1470,7 +1470,7 @@ var ajax = new cAjaxCalls();
 				e.editor.completer = new Autocomplete();
 			}
 
-			if('insertstring' == e.command.name) {
+			if('insertstring' === e.command.name) {
 				e.editor.completer.showPopup(e.editor);
 			}
 		};
@@ -1487,23 +1487,6 @@ var ajax = new cAjaxCalls();
 			}
 
 			var autocompleterComments = {
-				formatData: function(results) {
-					return results.map(function(data) {
-						if('object' == typeof data) {
-							if(!data.hasOwnProperty('score'))
-								data.score = 1000;
-
-							return data;
-
-						} else if('string' == typeof data) {
-							return {
-								caption: data,
-								snippet: data,
-								score: 1000
-							};
-						}
-					});
-				},
 				getCompletions: function(editor, session, pos, prefix, callback) {
 					var token = session.getTokenAt(pos.row, pos.column);
 
@@ -1517,7 +1500,7 @@ var ajax = new cAjaxCalls();
 							return callback(null, []);
 
 						var query = 'type:worklist.records of:worker query:(isDisabled:n'
-							+ (term.length == 0
+							+ (term.length === 0
 								? ' mention:!""'
 								: ' (mention:{}*)'.replace(/\{\}/g, term)
 								)
@@ -2477,6 +2460,9 @@ var ajax = new cAjaxCalls();
 			var $trigger = $(this);
 			
 			$trigger.click(function(evt) {
+				evt.preventDefault();
+				evt.stopPropagation();
+				
 				var context = $trigger.attr('data-context');
 				var context_id = $trigger.attr('data-context-id');
 				var layer = $trigger.attr('data-layer');

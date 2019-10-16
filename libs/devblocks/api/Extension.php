@@ -882,6 +882,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		$map = $this->getKeyToDaoFieldMap();
 		
+		// Custom fields
+		
 		if(!$this->_getDaoCustomFieldsFromKeysAndValues($context, $data, $out_custom_fields, $error))
 			return false;
 		
