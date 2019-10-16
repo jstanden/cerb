@@ -31,7 +31,14 @@
 		{elseif !empty($draft->updated)}
 			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$draft->updated|devblocks_date}<br>
 		{/if}
+
+		<div style="clear:both;"></div>
+
+		{if 'parsedown' == $draft->params.format}
+		<div class="emailBodyHtml">{$draft->getContent() nofilter}</div>
+		{else}
 		<pre class="emailbody" style="padding-top:10px;">{$draft->body|trim|escape|devblocks_hyperlinks nofilter}</pre>
+		{/if}
 		
 		{if isset($draft->params.file_ids) && is_array($draft->params.file_ids)}
 		<div style="margin-top:10px;">
