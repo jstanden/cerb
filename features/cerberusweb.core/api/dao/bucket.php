@@ -880,7 +880,7 @@ class Model_Bucket {
 		return $personal;
 	}
 	
-	public function getReplySignature($worker_model=null) {
+	public function getReplySignature($worker_model=null, $as_html=false) {
 		// Check bucket first
 		$signature_id = $this->reply_signature_id;
 		
@@ -895,14 +895,24 @@ class Model_Bucket {
 		if(empty($worker_model))
 			$worker_model = new Model_Worker();
 		
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$token_labels = $token_values = [];
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_model, $token_labels, $token_values);
-		$signature = $tpl_builder->build($signature->signature, $token_values);
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance();
 		
-		return $signature;
+		$dict = DevblocksDictionaryDelegate::instance([
+			'_context' => CerberusContexts::CONTEXT_WORKER,
+			'id' => $worker_model->id,
+		]);
+		
+		if($as_html && $signature->signature_html) {
+			return $tpl_builder->build($signature->signature_html, $dict);
+			
+		} else {
+			return $tpl_builder->build($signature->signature, $dict);
+		}
 	}
 	
+	/**
+	 * @return Model_MailHtmlTemplate|null
+	 */
 	public function getReplyHtmlTemplate() {
 		// Check bucket first
 		$html_template_id = $this->reply_html_template_id;

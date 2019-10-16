@@ -56,7 +56,10 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
 				@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
+				@$signature_html = DevblocksPlatform::importGPC($_REQUEST['signature_html'], 'string', '');
 				@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array()), 'int');
+				
+				$error = null;
 				
 				// Owner
 				
@@ -78,6 +81,7 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 				$fields = array(
 					DAO_EmailSignature::NAME => $name,
 					DAO_EmailSignature::SIGNATURE => $signature,
+					DAO_EmailSignature::SIGNATURE_HTML => $signature_html,
 					DAO_EmailSignature::UPDATED_AT => time(),
 				);
 				
@@ -143,7 +147,38 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 			return;
 			
 		}
+	}
 	
+	function previewAction() {
+		@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string');
+		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'_context' => CerberusContexts::CONTEXT_WORKER,
+			'id' => $active_worker->id,
+		]);
+		
+		if(false === ($signature = $tpl_builder->build($signature, $dict))) {
+			// [TODO] Show error popup
+			return;
+		}
+		
+		if('markdown' == $format) {
+			$signature = DevblocksPlatform::parseMarkdown($signature);
+			$signature = DevblocksPlatform::purifyHTML($signature, true, true);
+			
+		} else {
+			$signature = DevblocksPlatform::strEscapeHtml($signature);
+			$signature = nl2br($signature);
+		}
+		
+		$tpl->assign('content', $signature);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 	}
 	
 	function viewExploreAction() {

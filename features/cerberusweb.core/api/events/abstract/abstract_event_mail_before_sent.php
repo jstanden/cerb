@@ -243,18 +243,29 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			);
 
 		/**
-		 * Signature
+		 * Signatures
 		 */
+		
 		$labels['group_sig'] = 'Group signature';
 		if(!empty($group_id)) {
 			if(null != ($group = DAO_Group::get($group_id))) {
 				if(null != ($worker = DAO_Worker::get($worker_id))) {
 					$sig_bucket_id = isset($ticket_values['bucket_id']) ? $ticket_values['bucket_id'] : 0;
-					$values['group_sig'] = $group->getReplySignature($sig_bucket_id, $worker);
+					$values['group_sig'] = $group->getReplySignature($sig_bucket_id, $worker, false);
 				}
 			}
 		}
-			
+		
+		$labels['group_sig_html'] = 'Group signature HTML';
+		if(!empty($group_id)) {
+			if(null != ($group = DAO_Group::get($group_id))) {
+				if(null != ($worker = DAO_Worker::get($worker_id))) {
+					$sig_bucket_id = isset($ticket_values['bucket_id']) ? $ticket_values['bucket_id'] : 0;
+					$values['group_sig'] = $group->getReplySignature($sig_bucket_id, $worker, true);
+				}
+			}
+		}
+		
 		/**
 		 * Return
 		 */

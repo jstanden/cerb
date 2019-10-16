@@ -1268,7 +1268,7 @@ class CerberusParser {
 						if(preg_match('/^#sig/', $line, $matches)) {
 							$state = '#sig';
 							$group = DAO_Group::get($proxy_ticket->group_id);
-							$sig = $group->getReplySignature($proxy_ticket->bucket_id, $proxy_worker);
+							$sig = $group->getReplySignature($proxy_ticket->bucket_id, $proxy_worker, false);
 							$body .= $sig . PHP_EOL;
 						
 						} elseif(preg_match('/^#start (.*)/', $line, $matches)) {

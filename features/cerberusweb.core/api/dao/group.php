@@ -1201,12 +1201,16 @@ class Model_Group {
 		return null;
 	}
 	
-	public function getReplySignature($bucket_id=0, $worker_model=null) {
+	public function getReplySignature($bucket_id=0, $worker_model=null, $as_html=false) {
 		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
-			return $bucket->getReplySignature($worker_model);
+			return $bucket->getReplySignature($worker_model, $as_html);
 			
 		} else if (false != ($signature = DAO_EmailSignature::get($this->reply_signature_id))) {
-			return $signature->signature;
+			if($as_html) {
+				return $signature->signature_html;
+			} else {
+				return $signature->signature;
+			}
 		}
 		
 		return null;

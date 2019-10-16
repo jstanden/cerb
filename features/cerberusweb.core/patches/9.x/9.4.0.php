@@ -3,6 +3,16 @@ $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Add `email_signature.signature_html` field
+
+list($columns,) = $db->metaTable('email_signature');
+
+if(!isset($columns['signature_html'])) {
+	$sql = "ALTER TABLE email_signature ADD COLUMN signature_html TEXT AFTER signature";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Add `comment.is_markdown` field
 
 list($columns,) = $db->metaTable('comment');

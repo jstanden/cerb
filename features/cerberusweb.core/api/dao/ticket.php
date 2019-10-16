@@ -4994,7 +4994,17 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				if(!isset($dictionary['group_id']) || false == ($group = DAO_Group::get($dictionary['group_id'])))
 					break;
 				
-				$values['signature'] = $group->getReplySignature(intval($dictionary['bucket_id']), $active_worker);
+				$values['signature'] = $group->getReplySignature(intval($dictionary['bucket_id']), $active_worker, false);
+				break;
+				
+			case 'signature_html':
+				if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+					break;
+				
+				if(!isset($dictionary['group_id']) || false == ($group = DAO_Group::get($dictionary['group_id'])))
+					break;
+				
+				$values['signature_html'] = $group->getReplySignature(intval($dictionary['bucket_id']), $active_worker, true);
 				break;
 				
 			case '_messages':
