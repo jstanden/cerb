@@ -1066,6 +1066,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	};
 	
 	var $popup = null;
+	var $listener_holder = $('<div/>');
 	
 	// Restore position from previous dialog?
 	if(target === 'reuse') {
@@ -1088,6 +1089,20 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			};
 		}
 		target = null;
+
+		if(undefined !== $popup) {
+			var old_listeners = $._data($popup[0], 'events');
+
+			if (old_listeners)
+				$.each(old_listeners, function () {
+					$.each(this, function () {
+						var parent_event = this;
+						$listener_holder.each(function () {
+							$(this).bind(parent_event.type, parent_event.handler);
+						})
+					});
+				});
+		}
 		
 	} else if(target && typeof target == "object" && null != target.my && null != target.at) {
 		options.position = {
@@ -1124,83 +1139,102 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	
 	// Load the popup content
 	var $options = { async: false }
-	genericAjaxGet('', request + '&layer=' + $layer,
-		function(html) {
-			$popup = $("#popup"+$layer);
-			
-			if(0 == $popup.length) {
-				$("body").append("<div id='popup"+$layer+"' class='devblocks-popup' style='display:none;'></div>");
-				$popup = $('#popup'+$layer);
-			}
-			
-			// Persist
-			genericAjaxPopupRegister($layer, $popup);
-			
-			// Target
-			if(null != target && null == target.at) {
-				options.position = {
-					my: "right bottom",
-					at: "left top",
-					of: target
-				};
-			}
-			
-			// Render
-			$popup.dialog(options);
-			
-			// Layer
-			$popup.attr('data-layer', $layer);
-			
-			// Open
-			$popup.dialog('open');
-			
-			// Popup min/max functionality
-			var $titlebar = $popup.closest('.ui-dialog')
-				.find('.ui-dialog-titlebar')
-				;
-			
-			var $button_minmax = $("<button class='ui-dialog-titlebar-minmax'></button>")
-				.button({
-					text: false,
-					icons: { primary: 'ui-icon-caret-1-n' }
-				})
-				.on('click', function() {
-					var $this = $(this);
-					var $dialog = $popup.closest('.ui-dialog');
-					
-					if($popup.is(':hidden')) {
-						$dialog.css('position', $dialog.attr('data-position'));
-						$this.button('option', 'icons', { primary: 'ui-icon-carat-1-n' } );
-						$popup.dialog( "option", "position", { my: "center top", at: "center top+35", of: window } );
-						$popup.show();
-					} else {
-						$popup.hide();
-						$dialog.attr('data-position', $dialog.css('position'));
-						$dialog.css('position', 'fixed');
-						$popup.dialog( "option", "position", { my: "center top", at: "center top", of: window } );
-						$this.button('option', 'icons', { primary: 'ui-icon-carat-1-s' } );
-					}
-				})
-				;
-				
-			$titlebar
-				.append($button_minmax)
-				;
-			
-			// Set the content
-			$popup.html(html);
-			
-			if(null == options.position)
-				$popup.dialog('option', 'position', { my: 'center top', at: 'center top+20px', of: window } );
-			
-			$popup.trigger('popup_open');
-			
-			// Callback
-			try { cb(html); } catch(e) { }
-		},
-		$options
-	);
-	
+
+	var callback = function(html) {
+		$popup = $("#popup"+$layer);
+
+		if(0 == $popup.length) {
+			$("body").append("<div id='popup"+$layer+"' class='devblocks-popup' style='display:none;'></div>");
+			$popup = $('#popup'+$layer);
+		}
+
+		// Persist
+		genericAjaxPopupRegister($layer, $popup);
+
+		// Target
+		if(null != target && null == target.at) {
+			options.position = {
+				my: "right bottom",
+				at: "left top",
+				of: target
+			};
+		}
+
+		// Render
+		$popup.dialog(options);
+
+		// Layer
+		$popup.attr('data-layer', $layer);
+
+		// Listeners
+		var copy_listeners = $._data($listener_holder[0], 'events');
+
+		if(copy_listeners)
+			$.each(copy_listeners, function() {
+				$.each(this, function() {
+					var parent_event = this;
+					$popup.each(function() {
+						$(this).bind(parent_event.type, parent_event.handler);
+					})
+				});
+			});
+
+		// Open
+		$popup.dialog('open');
+
+		// Popup min/max functionality
+		var $titlebar = $popup.closest('.ui-dialog')
+			.find('.ui-dialog-titlebar')
+		;
+
+		var $button_minmax = $("<button class='ui-dialog-titlebar-minmax'></button>")
+			.button({
+				text: false,
+				icons: { primary: 'ui-icon-caret-1-n' }
+			})
+			.on('click', function() {
+				var $this = $(this);
+				var $dialog = $popup.closest('.ui-dialog');
+
+				if($popup.is(':hidden')) {
+					$dialog.css('position', $dialog.attr('data-position'));
+					$this.button('option', 'icons', { primary: 'ui-icon-carat-1-n' } );
+					$popup.dialog( "option", "position", { my: "center top", at: "center top+35", of: window } );
+					$popup.show();
+				} else {
+					$popup.hide();
+					$dialog.attr('data-position', $dialog.css('position'));
+					$dialog.css('position', 'fixed');
+					$popup.dialog( "option", "position", { my: "center top", at: "center top", of: window } );
+					$this.button('option', 'icons', { primary: 'ui-icon-carat-1-s' } );
+				}
+			})
+		;
+
+		$titlebar
+			.append($button_minmax)
+		;
+
+		// Set the content
+		$popup.html(html);
+
+		if(null == options.position)
+			$popup.dialog('option', 'position', { my: 'center top', at: 'center top+20px', of: window } );
+
+		$popup.trigger('popup_open');
+
+		// Callback
+		try { cb(html); } catch(e) { }
+	};
+
+	if(request instanceof FormData) {
+		request.append('layer', $layer);
+		genericAjaxPost(request, '', null, callback, $options);
+	} else {
+		request += '&layer=' + $layer;
+		genericAjaxGet('', request, callback, $options);
+	}
+
 	return $popup;
 }
 
