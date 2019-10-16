@@ -1406,10 +1406,39 @@ var ajax = new cAjaxCalls();
 				},
 				getCompletions: function(editor, session, pos, prefix, callback) {
 					var token_path = Devblocks.cerbCodeEditor.getYamlTokenPath(pos, editor);
+					
+					// Normalize path (remove namespaces)
+					token_path = token_path.map(function(v) {
+						var pos = v.indexOf('/');
+						
+						if(-1 == pos)
+							return v;
+						
+						return v.substr(0,pos) + ':';
+					});
+					
 					var scope_key = token_path.join('');
 					
+					// Simple static path full match
 					if(editor.completer.autocomplete_suggestions.hasOwnProperty(scope_key)) {
 						callback(null, autocompleterYaml.formatData(scope_key));
+						return;
+						
+					} else if (editor.completer.autocomplete_suggestions.hasOwnProperty('*')) {
+						var regexps = editor.completer.autocomplete_suggestions['*'];
+						
+						for(var regexp in regexps) {
+							if(scope_key.match(new RegExp('^' + regexp + '$'))) {
+								editor.completer.autocomplete_suggestions[scope_key] = regexps[regexp];
+								callback(null, autocompleterYaml.formatData(scope_key));
+								return;
+							}
+						}
+						
+						// Negative lookup cache
+						editor.completer.autocomplete_suggestions[scope_key] = [];
+						
+						callback(false);
 						return;
 						
 					} else {
