@@ -133,6 +133,48 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		}
 	}
 	
+	function previewAction() {
+		@$template = DevblocksPlatform::importGPC($_REQUEST['template'],'string', '');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'message_body' => '<blockquote>This text is quoted.</blockquote><p>This text contains <b>bold</b>, <i>italics</i>, <a href="javascript:;">links</a>, and <code>code formatting</code>.</p><p><ul><li>These are unordered</li><li>list items</li></ul></p>',
+		]);
+		
+		$output = $tpl_builder->build($template, $dict);
+		
+		$output = DevblocksPlatform::purifyHTML($output, true, true);
+		
+		$tpl->assign('content', $output);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
+	}
+	
+	function previewSignatureAction() {
+		@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string', '');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'_context' => CerberusContexts::CONTEXT_WORKER,
+			'id' => $active_worker->id,
+		]);
+		
+		$output = $tpl_builder->build($signature, $dict);
+		
+		$output = DevblocksPlatform::parseMarkdown($output);
+		
+		$output = DevblocksPlatform::purifyHTML($output, true, true);
+		
+		$tpl->assign('content', $output);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
+	}
+	
 	function getSignatureParsedownPreviewAction() {
 		@$signature = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
 		

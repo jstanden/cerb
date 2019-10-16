@@ -11,29 +11,30 @@
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-{$tabs_id = "{$form_id}_tabs"}
+<table cellspacing="0" cellpadding="2" border="0" width="100%" style="margin-bottom:10px;">
+	<tr>
+		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
+		<td width="99%">
+			<input type="text" name="name" value="{$model->name}" style="width:100%;" autofocus="true">
+		</td>
+	</tr>
+</table>
 
-<div class="cerb-tabs-panel">
-	<ul>
-		<li><a href="#htmlTemplateEditor{$tabs_id}">{'common.editor'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#htmlTemplateCustomFields{$tabs_id}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
-		<li><a href="#htmlTemplateAttachments{$tabs_id}">{'common.attachments'|devblocks_translate|capitalize}</a></li>
-	</ul>
-	
-	<div id="htmlTemplateEditor{$tabs_id}">
-		<fieldset class="peek">
-			<legend>{'common.email_template'|devblocks_translate|capitalize}</legend>
-			
-			<table cellspacing="0" cellpadding="2" border="0" width="98%">
-				<tr>
-					<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
-					<td width="99%">
-						<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="true">
-					</td>
-				</tr>
-			</table>
-			
-		<textarea name="content" style="width:98%;height:200px;border:1px solid rgb(180,180,180);padding:2px;" spellcheck="false">
+<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--html">
+	<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
+	<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
+	<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
+	<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
+	<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
+	<button type="button" title="Heading" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--heading"><span class="glyphicons glyphicons-header"></span></button>
+	<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
+	<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
+	<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+	<div class="cerb-code-editor-toolbar-divider"></div>
+	<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
+</div>
+
+<textarea name="content" class="cerb-code-editor-html placeholders" data-editor-mode="ace/mode/html" data-editor-lines="15">
 {if $model->content}{$model->content}{else}&lt;div id="body"&gt;
 {literal}{{message_body}}{/literal}
 &lt;/div&gt;
@@ -61,86 +62,83 @@ blockquote a {
 }
 &lt;/style&gt;{/if}</textarea>
 	
-		</fieldset>
-		
-		<fieldset class="peek">
-			<legend>Signature</legend>
-			<textarea name="signature" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;" spellcheck="false" placeholder="Leave blank to use the default group signature.">{$model->signature}</textarea>
+<fieldset class="peek black" style="margin-top:15px;">
+	<legend>{'common.signature'|devblocks_translate|capitalize} ({'common.optional'|devblocks_translate|lower})</legend>
 
-			<div>
-				<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
-				
-				{$types = $values._types}
-				{function tree level=0}
-					{foreach from=$keys item=data key=idx}
-						{$type = $types.{$data->key}}
-						{if is_array($data->children) && !empty($data->children)}
-							<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
-								{if $data->key}
-									<div style="font-weight:bold;">{$data->l|capitalize}</div>
-								{else}
-									<div>{$idx|capitalize}</div>
-								{/if}
-								<ul>
-									{tree keys=$data->children level=$level+1}
-								</ul>
-							</li>
-						{elseif $data->key}
-							<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
-						{/if}
-					{/foreach}
-				{/function}
-				
-				<ul class="menu" style="width:150px;">
-				{tree keys=$placeholders}
-				</ul>
-			</div>
-			
-		</fieldset>
+	<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--signature">
+		<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="glyphicons glyphicons-sampler"></span></button>
+		<div class="cerb-code-editor-toolbar-divider"></div>
+		<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
+		<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
+		<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
+		<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
+		<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
+		<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
+		<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
+		<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+		<div class="cerb-code-editor-toolbar-divider"></div>
+		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 	</div>
-	
-	<div id="htmlTemplateCustomFields{$tabs_id}">
-		{if !empty($custom_fields)}
-		<fieldset class="peek">
-			<legend>{'common.custom_fields'|devblocks_translate}</legend>
-			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-		</fieldset>
-		{/if}
-		
-		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE context_id=$model->id}
-	</div>
-	
-	<div id="htmlTemplateAttachments{$tabs_id}">
-		{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $model->id)}
-	
-		<b>{'common.attachments'|devblocks_translate|capitalize}:</b><br>
-		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
-		<ul class="chooser-container bubbles cerb-attachments-container" style="display:block;">
+
+	{$types = $values._types}
+	{function tree level=0}
+		{foreach from=$keys item=data key=idx}
+			{$type = $types.{$data->key}}
+			{if is_array($data->children) && !empty($data->children)}
+				<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
+					{if $data->key}
+						<div style="font-weight:bold;">{$data->l|capitalize}</div>
+					{else}
+						<div>{$idx|capitalize}</div>
+					{/if}
+					<ul>
+						{tree keys=$data->children level=$level+1}
+					</ul>
+				</li>
+			{elseif $data->key}
+				<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+			{/if}
+		{/foreach}
+	{/function}
+
+	<ul class="menu cerb-float" style="width:250px;display:none;">
+		{tree keys=$placeholders}
+	</ul>
+
+	<textarea name="signature" class="cerb-code-editor-html placeholders" data-editor-mode="ace/mode/twig" data-editor-lines="15" data-editor-line-numbers="false">{$model->signature}</textarea>
+</fieldset>
+
+<fieldset class="peek black">
+	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
+
+	{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $model->id)}
+
+	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+	<ul class="chooser-container bubbles cerb-attachments-container">
 		{if !empty($attachments)}
 			{foreach from=$attachments item=attachment name=attachments}
-			<li>
-				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
-					<b>{$attachment->name}</b>
-					({$attachment->storage_size|devblocks_prettybytes}	- 
-					{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
-				</a>
-				<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-				<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
-			</li>
+				<li>
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+						<b>{$attachment->name}</b>
+						({$attachment->storage_size|devblocks_prettybytes}	-
+						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+					</a>
+					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
+					<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+				</li>
 			{/foreach}
 		{/if}
-		</ul>
-	</div>
-</div>
+	</ul>
+</fieldset>
 
 {if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
+	<fieldset class="peek black">
+		<legend>{'common.custom_fields'|devblocks_translate}</legend>
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+	</fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE context_id=$model->id}
 
 {if !empty($model->id)}
 <fieldset style="display:none;" class="delete">
@@ -169,20 +167,112 @@ $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.email_template'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
+
+		var $placeholder_menu = $popup.find('.menu');
 		
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
-		$popup.find('.cerb-tabs-panel').tabs();
-		
-		var $content = $popup.find('textarea[name=content]');
-		var $signature = $popup.find('textarea[name=signature]');
-		var $attachments_container = $popup.find('UL.cerb-attachments-container');
-		
+		var $content = $popup.find('textarea[name=content]')
+			.cerbCodeEditor()
+			;
+
+		var editor_content = ace.edit($content.nextAll('pre.ace_editor').attr('id'));
+
+		var $content_toolbar = $popup.find('.cerb-code-editor-toolbar--html')
+			.cerbCodeEditorToolbarHtml()
+			;
+
+		$content_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
+			event.stopPropagation();
+
+			var new_event = $.Event('cerb-chooser-save', {
+				labels: event.labels,
+				values: event.values
+			});
+
+			$popup.find('button.chooser_file').triggerHandler(new_event);
+
+			editor.insertSnippet('<img src="' + event.url + '" alt="Image">');
+			editor.focus();
+		});
+
+		$content_toolbar.find('.cerb-html-editor-toolbar-button--preview').on('click', function(e) {
+			var formData = new FormData();
+			formData.append('c', 'profiles');
+			formData.append('a', 'handleSectionAction');
+			formData.append('section', 'html_template');
+			formData.append('action', 'preview');
+			formData.append('template', editor_content.getValue());
+
+			genericAjaxPopup(
+				'preview_html_template',
+				formData,
+				'reuse',
+				false
+			);
+		});
+
+		var $signature = $popup.find('textarea[name=signature]')
+			.cerbCodeEditor()
+			;
+
+		var editor_signature = ace.edit($signature.nextAll('pre.ace_editor').attr('id'));
+
+		var $signature_toolbar = $popup.find('.cerb-code-editor-toolbar--signature')
+			.cerbCodeEditorToolbarMarkdown()
+			;
+
+		$signature_toolbar.find('.cerb-markdown-editor-toolbar-button--placeholders').on('click', function(e) {
+			var $editor = $signature.nextAll('pre.ace_editor');
+			var $cursor = $editor.find('.ace_text-input');
+
+			$placeholder_menu
+				.toggle()
+				.position({
+					my: 'left bottom',
+					at: 'left top',
+					of: $cursor
+				})
+			;
+
+			editor_signature.focus();
+		});
+
+		$signature_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
+			event.stopPropagation();
+
+			var new_event = $.Event('cerb-chooser-save', {
+				labels: event.labels,
+				values: event.values
+			});
+
+			$popup.find('button.chooser_file').triggerHandler(new_event);
+
+			editor.insertSnippet('![Image](' + event.url + ')');
+			editor.focus();
+		});
+
+		$signature_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function(e) {
+			var formData = new FormData();
+			formData.append('c', 'profiles');
+			formData.append('a', 'handleSectionAction');
+			formData.append('section', 'html_template');
+			formData.append('action', 'previewSignature');
+			formData.append('signature', editor_signature.getValue());
+
+			genericAjaxPopup(
+				'preview_html_template_sig',
+				formData,
+				'reuse',
+				false
+			);
+		});
+
 		// Peek triggers
 		
 		$popup.find('.cerb-peek-trigger')
@@ -195,143 +285,28 @@ $(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
 		
-		// markItUp
-		
-		try {
-			var markitupHTMLSettings = $.extend(true, { }, markitupHTMLDefaults);
-			var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
-			
-			markitupParsedownSettings.markupSet.splice(
-				4,
-				0,
-				{ name:'Upload an Image', openWith: 
-					function(markItUp) {
-						var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
-						
-						$chooser.one('chooser_save', function(event) {
-							if(!event.response || 0 == event.response)
-								return;
-							
-							{literal}$signature.insertAtCursor("![inline-image]({{cerb_file_url(" + event.response[0].id + ",'" + event.response[0].name + "')}})");{/literal}
-	
-							// Add an attachment link
-							
-							if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
-								var $li = $('<li/>');
-								$li.text(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
-								
-								var $hidden = $('<input type="hidden" name="file_ids[]">')
-									.val(event.response[0].id)
-									.appendTo($li)
-									;
-								
-								var $a = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-								$a.click(function() {
-									$(this).parent().remove();
-								});
-								$a.appendTo($li);
-								
-								$attachments_container.append($li);
-							}
-						});
-					},
-					key: 'U',
-					className:'image-inline'
-				}
-			);
-			
-			markitupHTMLSettings.markupSet.splice(
-				13,
-				0,
-				{ name:'Upload an Image', openWith: 
-					function(markItUp) {
-						var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
-						
-						$chooser.one('chooser_save', function(event) {
-							if(!event.response || 0 == event.response)
-								return;
-							
-							$content.insertAtCursor("<img src=\"" + event.response[0].url + "\" alt=\"\">");
-							
-							// Add an attachment link
-							
-							if(0 == $attachments_container.find('input:hidden[value=' + event.response[0].id + ']').length) {
-								var $li = $('<li/>');
-								$li.text(event.response[0].name + ' ( ' + event.response[0].size + ' bytes - ' + event.response[0].type + ' )');
-								
-								var $hidden = $('<input type="hidden" name="file_ids[]">')
-									.val(event.response[0].id)
-									.appendTo($li)
-									;
-								
-								var $a = $('<a href="javascript:;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
-								$a.click(function() {
-									$(this).parent().remove();
-								});
-								$a.appendTo($li);
-								
-								$attachments_container.append($li);
-							}
-						});
-					},
-					key: 'U',
-					className:'image-inline'
-				}
-			);
-			
-			delete markitupHTMLSettings.previewParserPath;
-			delete markitupHTMLSettings.previewTemplatePath;
-			
-			markitupHTMLSettings.previewParser = function(content) {
-				// Replace 'message_body' with sample text
-				content = content.replace('{literal}{{message_body}}{/literal}', '<blockquote>This text is quoted.</blockquote><p>This text contains <b>bold</b>, <i>italics</i>, <a href="javascript:;">links</a>, and <code>code formatting</code>.</p><p><ul><li>These are unordered</li><li>list items</li></ul></p><p>This is an inline image:</p><p><img src="{devblocks_url}c=avatars&w=address&id=0{/devblocks_url}"></p>');
-				return content;
-			};
-			
-			delete markitupParsedownSettings.previewParserPath;
-			delete markitupParsedownSettings.previewTemplatePath;
-			delete markitupParsedownSettings.previewInWindow;
-			
-			markitupParsedownSettings.previewParserPath = DevblocksAppPath + 'ajax.php?c=profiles&a=handleSectionAction&section=html_template&action=getSignatureParsedownPreview&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
-			
-			$content.markItUp(markitupHTMLSettings);
-			$signature.markItUp(markitupParsedownSettings);
-			
-			var $preview = $popup.find('.markItUpHeader a[title="Preview"]');
-
-			// Default with the preview panel open
-			$preview.trigger('mouseup');
-			
-		} catch(e) {
-			if(window.console)
-				console.log(e);
-		}
-		
 		// Placeholders
-		
-		var $placeholder_menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
-		var $placeholder_menu = $popup.find('ul.menu').hide();
-		
+
 		$placeholder_menu.menu({
 			select: function(event, ui) {
 				var token = ui.item.attr('data-token');
 				var label = ui.item.attr('data-label');
-				
+
 				if(undefined == token || undefined == label)
 					return;
-				
-				$signature.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+
+				var $field = $placeholder_menu.siblings('pre.ace_editor');
+
+				if($field.is('.ace_editor')) {
+					var evt = new jQuery.Event('cerb.insertAtCursor');
+					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
+					$field.trigger(evt);
+				}
+
+				$placeholder_menu.hide();
 			}
 		});
-		
-		$placeholder_menu_trigger
-			.click(
-				function(e) {
-					$placeholder_menu.toggle();
-				}
-			)
-		;
-		
+
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});

@@ -561,12 +561,12 @@ class Model_MailHtmlTemplate {
 		$signature = $this->signature;
 		
 		if(!empty($worker)) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance();
 			
-			$labels = [];
-			$values = [];
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $labels, $values, null, true, true);
-			$dict = new DevblocksDictionaryDelegate($values);
+			$dict = new DevblocksDictionaryDelegate([
+				'_context' => CerberusContexts::CONTEXT_WORKER,
+				'id' => $worker->id,
+			]);
 			
 			$signature = $tpl_builder->build($signature, $dict);
 		}
