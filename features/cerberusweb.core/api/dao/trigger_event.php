@@ -256,52 +256,58 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 	}
 	
 	static function getReadableByActor($actor, $event_point=null, $with_disabled=false, $ignore_admins=false) {
-		$macros = [];
-		
 		$actor = CerberusContexts::polymorphActorToDictionary($actor, false);
+		$bots = DAO_Bot::getAll();
+		$bot_privs = [];
 		
-		$bots = DAO_Bot::getReadableByActor($actor, $ignore_admins);
+		if($event_point) {
+			$behaviors = DAO_TriggerEvent::getByEvent($event_point, $with_disabled);
+		} else {
+			$behaviors = DAO_TriggerEvent::getAll();
+		}
 		
-		if(is_array($bots))
-		foreach($bots as $bot) { /* @var $bot Model_Bot */
+		if(empty($behaviors))
+			return [];
+		
+		$results = [];
+		
+		if(is_array($behaviors))
+		foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
+			if(false == ($bot = $bots[$behavior->bot_id]))
+				continue;
+			
+			if(!array_key_exists($bot->id, $bot_privs)) {
+				$bot_privs[$bot->id] = Context_Bot::isReadableByActor($bot, $actor, $ignore_admins);
+			}
+			
+			// Ignore bots the actor doesn't have access to
+			if(false == @$bot_privs[$bot->id])
+				continue;
+		
+			// Ignore disabled
 			if(!$with_disabled && $bot->is_disabled)
 				continue;
 		
-			$behaviors = $bot->getBehaviors($event_point, $with_disabled, 'name');
-			
-			if(empty($behaviors))
+			// Private behaviors only show up to same actor
+			if($behavior->is_private && !($actor->_context == CerberusContexts::CONTEXT_BOT && $bot->id == $actor->id))
 				continue;
 			
-			$results = [];
+			$result = clone $behavior; /* @var $result Model_TriggerEvent */
 			
-			if(is_array($behaviors))
-			foreach($behaviors as $behavior_id => $behavior) { /* @var $behavior Model_TriggerEvent */
-				if(!isset($bots[$behavior->bot_id]))
-					continue;
-				
-				// Private behaviors only show up to same actor
-				if($behavior->is_private && !($actor->_context == CerberusContexts::CONTEXT_BOT && $bot->id == $actor->id))
-					continue 2;
-				
-				$result = clone $behavior; /* @var $result Model_TriggerEvent */
-				
-				$has_public_vars = false;
-				if(is_array($result->variables))
-				foreach($result->variables as $var_data) {
-					if(empty($var_data['is_private']))
-						$has_public_vars = true;
-				}
-				$result->has_public_vars = $has_public_vars;
-				
-				$results[$behavior_id] = $result;
+			$has_public_vars = false;
+			if(is_array($result->variables))
+			foreach($result->variables as $var_data) {
+				if(empty($var_data['is_private']))
+					$has_public_vars = true;
 			}
+			$result->has_public_vars = $has_public_vars;
 			
-			$macros = $macros + $results;
+			$results[$behavior_id] = $result;
 		}
 		
-		DevblocksPlatform::sortObjects($macros, 'title', true);
+		DevblocksPlatform::sortObjects($results, 'title', true);
 		
-		return $macros;
+		return $results;
 	}
 	
 	/**
