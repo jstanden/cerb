@@ -1223,6 +1223,146 @@ var ajax = new cAjaxCalls();
 		});
 	};
 
+	$.fn.cerbCodeEditorToolbarHtml = function() {
+	  return this.each(function() {
+	      var $editor_toolbar = $(this);
+
+	      var $pre = $editor_toolbar.nextAll('pre.ace_editor');
+
+	      var editor = ace.edit($pre.attr('id'));
+
+          // Bold
+          $editor_toolbar.find('.cerb-html-editor-toolbar-button--bold').on('click', function () {
+              var selected_text = editor.getSelectedText();
+
+              if (0 === selected_text.length)
+                  return;
+
+              editor.session.replace(editor.getSelectionRange(), '<b>' + selected_text + '</b>');
+              editor.focus();
+          });
+
+          // Italics
+          $editor_toolbar.find('.cerb-html-editor-toolbar-button--italic').on('click', function () {
+              var selected_text = editor.getSelectedText();
+
+              if (0 === selected_text.length)
+                  return;
+
+              editor.session.replace(editor.getSelectionRange(), '<i>' + selected_text + '</i>');
+              editor.focus();
+          });
+
+		  // Headings
+		  $editor_toolbar.find('.cerb-html-editor-toolbar-button--heading').on('click', function () {
+			  var selected_text = editor.getSelectedText();
+
+			  if (0 === selected_text.length)
+				  return;
+
+			  editor.session.replace(editor.getSelectionRange(), '<h1>' + selected_text + '</h1>');
+			  editor.focus();
+		  });
+
+		  // Link
+          $editor_toolbar.find('.cerb-html-editor-toolbar-button--link').on('click', function () {
+              var selected_text = editor.getSelectedText();
+
+              if (0 === selected_text.length) {
+				  editor.insertSnippet('<a href="${1:https://example.com}">${2:link text}</a>');
+				  editor.focus();
+				  return;
+			  }
+
+			  editor.session.replace(editor.getSelectionRange(), '');
+              editor.insertSnippet('<a href="${1:https://example.com}">' + selected_text + '</a>');
+			  editor.focus();
+          });
+
+          // List
+          $editor_toolbar.find('.cerb-html-editor-toolbar-button--list').on('click', function () {
+              var range = editor.getSelectionRange();
+
+              // [TODO]
+
+              editor.session.indentRows(range.start.row, range.end.row, '* ');
+              editor.focus();
+          });
+
+          // Image
+          $editor_toolbar.find('.cerb-html-editor-toolbar-button--image').on('click', function () {
+              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=chooserOpenFile&single=1', null, true, '750');
+
+              $chooser.one('chooser_save', function (event) {
+                  var file_id = event.values[0];
+                  var file_label = event.labels[0];
+                  var file_name = file_label.substring(0, file_label.lastIndexOf(' ('));
+
+                  var url =
+                      document.location.protocol
+                      + '//'
+                      + document.location.host
+                      + DevblocksWebPath
+                      + 'files/'
+                      + encodeURIComponent(file_id) + '/'
+                      + encodeURIComponent(file_name)
+                  ;
+
+                  $editor_toolbar.triggerHandler(
+                      $.Event(
+                          'cerb-editor-toolbar-image-inserted',
+                          { labels: event.labels, values: event.values, url: url }
+                      )
+                  );
+              });
+          });
+
+          // Quote
+          $editor_toolbar.find('.cerb-html-editor-toolbar-button--quote').on('click', function () {
+			  var selected_text = editor.getSelectedText();
+
+			  if (0 === selected_text.length)
+				  return;
+
+			  editor.session.replace(editor.getSelectionRange(), '<blockquote>' + selected_text + '</blockquote>');
+			  editor.focus();
+          });
+
+          // Code
+          $editor_toolbar.find('.cerb-html-editor-toolbar-button--code').on('click', function () {
+              var selected_text = editor.getSelectedText();
+
+              if (0 === selected_text.length) {
+	              editor.insertSnippet("<pre><code>\n${1:your code goes here}\n</code></pre>\n");
+                  editor.focus();
+                  return;
+              }
+
+              var range = editor.getSelectionRange();
+
+              // If multiple lines, use block format. Otherwise use backticks on vars
+              if (range.start.row !== range.end.row) {
+                  range.start.column = 0;
+                  range.end.row++;
+                  range.end.column = 0;
+                  editor.selection.setRange(range);
+                  editor.session.replace(range, "<pre><code>\n" + editor.getSelectedText() + "</code></pre>\n");
+
+              } else {
+                  editor.session.replace(editor.getSelectionRange(), '<var>' + selected_text + '</var>');
+              }
+
+              editor.focus();
+          });
+
+          // Table
+		  $editor_toolbar.find('.cerb-html-editor-toolbar-button--table').on('click', function () {
+			editor.insertSnippet('<table>\n<tr>\n<th>Column 1</th>\n<th>Column 2</th>\n</tr>\n<tr>\n<td>Cell 1</td>\n<td>Cell 2</td>\n</tr>\n</table>\n');
+		  	editor.focus();
+          });
+      });
+    };
+
 	$.fn.cerbCodeEditorToolbarMarkdown = function() {
 	  return this.each(function() {
 	      var $editor_toolbar = $(this);
@@ -1253,6 +1393,14 @@ var ajax = new cAjaxCalls();
               editor.focus();
           });
 
+          // Headings
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--heading').on('click', function () {
+			  var range = editor.getSelectionRange();
+
+			  editor.session.indentRows(range.start.row, range.end.row, '#');
+			  editor.focus();
+          });
+
           // Link
           $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--link').on('click', function () {
               var selected_text = editor.getSelectedText();
@@ -1281,29 +1429,26 @@ var ajax = new cAjaxCalls();
               var $chooser = genericAjaxPopup('chooser', 'c=internal&a=chooserOpenFile&single=1', null, true, '750');
 
               $chooser.one('chooser_save', function (event) {
-                  var file_id = event.values[0];
-                  var file_label = event.labels[0];
-                  var file_name = file_label.substring(0, file_label.lastIndexOf(' ('));
+				  var file_id = event.values[0];
+				  var file_label = event.labels[0];
+				  var file_name = file_label.substring(0, file_label.lastIndexOf(' ('));
 
-                  var url =
-                      document.location.protocol
-                      + '//'
-                      + document.location.host
-                      + DevblocksWebPath
-                      + 'files/'
-                      + encodeURIComponent(file_id) + '/'
-                      + encodeURIComponent(file_name)
-                  ;
+				  var url =
+					  document.location.protocol
+					  + '//'
+					  + document.location.host
+					  + DevblocksWebPath
+					  + 'files/'
+					  + encodeURIComponent(file_id) + '/'
+					  + encodeURIComponent(file_name)
+				  ;
 
-                  $editor_toolbar.triggerHandler(
-                      $.Event(
-                          'toolbar-image-inserted',
-                          { labels: event.labels, values: event.values }
-                      )
-                  );
-
-                  editor.insertSnippet('![Image](' + url + ')');
-                  editor.focus();
+				  $editor_toolbar.triggerHandler(
+					  $.Event(
+						  'cerb-editor-toolbar-image-inserted',
+						  { labels: event.labels, values: event.values, file_id: file_id, file_name: file_name, url: url }
+					  )
+				  );
               });
           });
 
