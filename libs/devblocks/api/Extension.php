@@ -1291,21 +1291,23 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	/**
 	 * @internal
 	 */
-	protected function _broadcastPlaceholdersGet($context) {
+	protected function _broadcastPlaceholdersGet($context, $with_broadcast_email=true) {
 		$token_labels = $token_values = [];
 		CerberusContexts::getContext($context, null, $token_labels, $token_values, null, true);
 		
-		$merge_token_labels = $merge_token_values = [];
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, null, true);
-
-		CerberusContexts::merge(
-			'broadcast_email_',
-			'Broadcast ',
-			$merge_token_labels,
-			$merge_token_values,
-			$token_labels,
-			$token_values
-		);
+		if($with_broadcast_email) {
+			$merge_token_labels = $merge_token_values = [];
+			CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, null, $merge_token_labels, $merge_token_values, null, true);
+			
+			CerberusContexts::merge(
+				'broadcast_email_',
+				'Broadcast ',
+				$merge_token_labels,
+				$merge_token_values,
+				$token_labels,
+				$token_values
+			);
+		}
 		
 		return $token_values;
 	}

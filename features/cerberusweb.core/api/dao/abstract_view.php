@@ -3825,6 +3825,18 @@ abstract class C4_AbstractView {
 			if(!($context_ext instanceof IDevblocksContextBroadcast))
 				return;
 			
+			$message_properties = [
+				'worker_id' => @$params['worker_id'] ?: 0,
+				'subject' => $params['subject'],
+				'content' => $params['message'],
+				'content_format' => @$params['format'] ?: '',
+				'group_id' => @$params['group_id'] ?: 0,
+				'html_template_id' => @$params['html_template_id'] ?: 0,
+				'file_ids' => @$params['file_ids'] ?: [],
+			];
+			
+			CerberusMail::parseBroadcastHashCommands($message_properties);
+			
 			if(is_array($dicts))
 			foreach($dicts as $id => $dict) {
 				try {
@@ -3833,8 +3845,9 @@ abstract class C4_AbstractView {
 					
 					$recipients = CerberusApplication::hashLookupAddresses($recipients, true);
 					
+					if(is_array($recipients))
 					foreach($recipients as $model) {
-						// Skip banned or defuct recipients
+						// Skip banned or defunct recipients
 						if($model->is_banned || $model->is_defunct)
 							continue;
 						
@@ -3847,12 +3860,12 @@ abstract class C4_AbstractView {
 						$dict->broadcast_email_;
 						
 						// Templates
-						$subject = $tpl_builder->build($params['subject'], $dict);
-						$body = $tpl_builder->build($params['message'], $dict);
+						$subject = $tpl_builder->build($message_properties['subject'], $dict);
+						$body = $tpl_builder->build($message_properties['content'], $dict);
 						
 						$json_params = array(
 							'to' => $dict->broadcast_email__label,
-							'group_id' => $params['group_id'],
+							'group_id' => $message_properties['group_id'],
 							'status_id' => $status_id,
 							'is_broadcast' => 1,
 							'context_links' => [
@@ -3860,19 +3873,19 @@ abstract class C4_AbstractView {
 							],
 						);
 						
-						if(isset($params['format']))
-							$json_params['format'] = $params['format'];
+						if(array_key_exists('content_format', $message_properties))
+							$json_params['format'] = $message_properties['content_format'];
 						
-						if(isset($params['html_template_id']))
-							$json_params['html_template_id'] = intval($params['html_template_id']);
+						if(array_key_exists('html_template_id', $message_properties))
+							$json_params['html_template_id'] = intval($message_properties['html_template_id']);
 						
-						if(isset($params['file_ids']))
-							$json_params['file_ids'] = $params['file_ids'];
+						if(array_key_exists('file_ids', $message_properties))
+							$json_params['file_ids'] = $message_properties['file_ids'];
 						
 						$fields = array(
 							DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
 							DAO_MailQueue::TICKET_ID => 0,
-							DAO_MailQueue::WORKER_ID => $params['worker_id'],
+							DAO_MailQueue::WORKER_ID => $message_properties['worker_id'],
 							DAO_MailQueue::UPDATED => time(),
 							DAO_MailQueue::HINT_TO => $dict->broadcast_email__label,
 							DAO_MailQueue::SUBJECT => $subject,

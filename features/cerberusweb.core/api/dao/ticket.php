@@ -1009,7 +1009,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(isset($do['behavior']))
 			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_TICKET, $do['behavior'], $ids);
 		
-		if(isset($do['broadcast'])) {
+		if(array_key_exists('broadcast', $do)) {
 			try {
 				$broadcast_params = $do['broadcast'];
 				
@@ -1022,40 +1022,49 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				$models = CerberusContexts::getModels(CerberusContexts::CONTEXT_TICKET, $ids);
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_TICKET, array('custom_'));
 				
-				// $tpl_builder->tokenize($broadcast_params['message']
-				
 				$is_queued = (isset($broadcast_params['is_queued']) && $broadcast_params['is_queued']) ? true : false;
+				
+				$broadcast_properties = [
+					'worker_id' => $broadcast_params['worker_id'],
+					'content' => $broadcast_params['message'],
+					'content_format' => $broadcast_params['format'],
+					'html_template_id' => @$broadcast_params['html_template_id'] ?: 0,
+					'file_ids' => @$broadcast_params['file_ids'] ?: [],
+				];
 				
 				if(is_array($dicts))
 				foreach($dicts as $ticket_id => $dict) {
-					$body = $tpl_builder->build($broadcast_params['message'], $dict);
+					$message_properties = $broadcast_properties;
+					$message_properties['group_id'] = $dict->get('group_id', 0);
+					
+					CerberusMail::parseBroadcastHashCommands($message_properties);
 					
 					$params_json = array(
 						'in_reply_message_id' => $dict->latest_message_id,
 						'is_broadcast' => 1,
 					);
 					
-					if(isset($broadcast_params['format']))
-						$params_json['format'] = $broadcast_params['format'];
+					if(isset($message_properties['content_format']))
+						$params_json['format'] = $message_properties['content_format'];
 					
-					if(isset($broadcast_params['html_template_id']))
-						$params_json['html_template_id'] = intval($broadcast_params['html_template_id']);
+					if(isset($message_properties['html_template_id']))
+						$params_json['html_template_id'] = intval($message_properties['html_template_id']);
 					
 					$fields = array(
 						DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
 						DAO_MailQueue::TICKET_ID => $ticket_id,
-						DAO_MailQueue::WORKER_ID => $broadcast_params['worker_id'],
+						DAO_MailQueue::WORKER_ID => $message_properties['worker_id'],
 						DAO_MailQueue::UPDATED => time(),
 						DAO_MailQueue::HINT_TO => $dict->initial_message_sender_address,
 						DAO_MailQueue::SUBJECT => $dict->subject,
-						DAO_MailQueue::BODY => $body,
+						DAO_MailQueue::BODY => $tpl_builder->build($message_properties['content'], $dict),
 					);
 					
 					if($is_queued)
 						$fields[DAO_MailQueue::IS_QUEUED] = 1;
 
-					if(isset($broadcast_params['file_ids']))
-						$params_json['file_ids'] = $broadcast_params['file_ids'];
+					if(isset($message_properties['file_ids']))
+						$params_json['file_ids'] = $message_properties['file_ids'];
 					
 					if(!empty($params_json))
 						$fields[DAO_MailQueue::PARAMS_JSON] = json_encode($params_json);
@@ -4189,7 +4198,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 	}
 };
 
-class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
+class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete, IDevblocksContextBroadcast {
 	const ID = 'cerberusweb.contexts.ticket';
 	
 	static function isReadableByActor($models, $actor) {
@@ -5665,6 +5674,19 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 
 		return array($add_watchers, $remove_watchers);
+	}
+	
+	function broadcastPlaceholdersGet() {
+		$token_values = $this->_broadcastPlaceholdersGet(CerberusContexts::CONTEXT_TICKET, false);
+		return $token_values;
+	}
+	
+	function broadcastRecipientFieldsGet() {
+		return [];
+	}
+	
+	function broadcastRecipientFieldsToEmails(array $fields, DevblocksDictionaryDelegate $dict) {
+		return [];
 	}
 };
 

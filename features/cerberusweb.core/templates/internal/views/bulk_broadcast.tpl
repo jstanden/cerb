@@ -3,14 +3,16 @@
 	<input type="hidden" name="broadcast_format" value="">
 
 	<blockquote id="bulkBroadcastContainer" style="display:none;margin:0px 10px 10px 10px;">
+		{if !$is_reply}
 		<b>{'message.header.from'|devblocks_translate|capitalize}:</b>
-		
+
 		<div style="margin:0px 0px 5px 10px;">
 			<button type="button" class="chooser-broadcast-group" data-field-name="broadcast_group_id" data-context="{CerberusContexts::CONTEXT_GROUP}" data-single="true" data-query="" data-query-required="member:(id:{$active_worker->id})" data-autocomplete="member:(id:{$active_worker->id})" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 			</ul>
 		</div>
+		{/if}
 		
 		{if $broadcast_recipient_fields}
 		<b>{'message.header.to'|devblocks_translate|capitalize}:</b>
@@ -23,7 +25,7 @@
 			{/foreach}
 		</div>
 		{/if}
-		
+
 		{if $is_reply}
 			<b>{'common.reply'|devblocks_translate|capitalize}:</b>
 			
@@ -38,46 +40,63 @@
 		{/if}
 		
 		<div style="margin:0px 0px 5px 10px;">
-			<textarea name="broadcast_message" style="width:100%;height:200px;"></textarea>
-			
-			<div>
-				<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
-				
-				<div class="cerb-snippet-insert" style="display:inline-block;">
-					<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-query="" data-query-required="type:[plaintext,worker,{$context}]" data-single="true">{'common.snippets'|devblocks_translate|capitalize}</button>
-					<ul class="bubbles chooser-container"></ul>
+
+			<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--broadcast">
+				<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="glyphicons glyphicons-sampler"></span></button>
+				<div class="cerb-code-editor-toolbar-divider"></div>
+				<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
+					<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
+					<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
+					<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
+					<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
+					<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
+					<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
+					<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
+					<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+					<div class="cerb-code-editor-toolbar-divider"></div>
 				</div>
-				
-				{$types = $values._types}
-				{function tree level=0}
-					{foreach from=$keys item=data key=idx}
-						{$type = $types.{$data->key}}
-						{if is_array($data->children) && !empty($data->children)}
-							<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
-								{if $data->key}
-									<div style="font-weight:bold;">{$data->l|capitalize}</div>
-								{else}
-									<div>{$idx|capitalize}</div>
-								{/if}
-								<ul>
-									{tree keys=$data->children level=$level+1}
-								</ul>
-							</li>
-						{elseif $data->key}
-							<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
-						{/if}
-					{/foreach}
-				{/function}
-				
-				<ul class="menu" style="width:150px;">
-				{tree keys=$placeholders}
-				</ul>
+
+				<button type="button" title="Insert snippet" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
+				<button type="button" title="Insert signature" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--signature"><span class="glyphicons glyphicons-pen"></span></button>
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				<button type="button" title="Preview message" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 			</div>
+
+			{$types = $values._types}
+			{function tree level=0}
+				{foreach from=$keys item=data key=idx}
+					{$type = $types.{$data->key}}
+					{if is_array($data->children) && !empty($data->children)}
+						<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
+							{if $data->key}
+								<div style="font-weight:bold;">{$data->l|capitalize}</div>
+							{else}
+								<div>{$idx|capitalize}</div>
+							{/if}
+							<ul>
+								{tree keys=$data->children level=$level+1}
+							</ul>
+						</li>
+					{elseif $data->key}
+						<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+					{/if}
+				{/foreach}
+			{/function}
+
+			<ul class="menu cerb-float" style="width:250px;">
+				{tree keys=$placeholders}
+			</ul>
+
+			<textarea name="broadcast_message" data-editor-mode="ace/mode/twig" data-editor-line-numbers="false" data-editor-lines="20"></textarea>
 		</div>
 		
 		<b>{'common.attachments'|devblocks_translate|capitalize}:</b>
 		
-		<div style="margin:0px 0px 5px 10px;">
+		<div class="cerb-broadcast-attachments" style="margin:0px 0px 5px 10px;">
 			<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
 			<ul class="bubbles chooser-container">
 		</div>

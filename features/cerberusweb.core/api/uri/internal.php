@@ -2997,7 +2997,9 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewBroadcastTestAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(false == ($view = C4_AbstractViewLoader::getView($view_id)))
 			return;
@@ -3015,7 +3017,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			return;
 		}
 		
-		$dao_class = $context_ext->getDaoClass();
 		$search_class = $context_ext->getSearchClass();
 		
 		@$broadcast_to = DevblocksPlatform::importGPC($_REQUEST['broadcast_to'],'array',[]);
@@ -3040,27 +3041,31 @@ class ChInternalController extends DevblocksControllerExtension {
 			$output = "ERROR: This worklist is empty.";
 			
 		} else {
-			@$model = $dao_class::get(current($results));
+			$dict = DevblocksDictionaryDelegate::instance([
+				'_context' => $context_ext->id,
+				'id' => current($results),
+			]);
 			
-			$token_labels = $token_values = [];
+			$broadcast_email_id = 0;
 			
-			// Try to build the template
-			CerberusContexts::getContext($context_ext->id, $model, $token_labels, $token_values);
-			$dict = DevblocksDictionaryDelegate::instance($token_values);
-			
-			if(false == ($recipients = $context_ext->broadcastRecipientFieldsToEmails($broadcast_to, $dict))) {
-				echo DevblocksPlatform::strEscapeHtml(sprintf("ERROR: This record doesn't contain any recipients: %s", $dict->_label));
-				return;
+			if($broadcast_to) {
+				if (false == ($recipients = $context_ext->broadcastRecipientFieldsToEmails($broadcast_to, $dict))) {
+					$broadcast_email_id = 0;
+					
+				} else {
+					shuffle($recipients);
+					
+					if (false == ($email = DAO_Address::lookupAddress($recipients[0], true))) {
+						$broadcast_email_id = 0;
+					} else {
+						$broadcast_email_id = $email->id;
+					}
+				}
 			}
-			
-			shuffle($recipients);
-			
-			if(false == ($email = DAO_Address::lookupAddress($recipients[0], true)))
-				return;
 			
 			// Load recipient placeholders
 			$dict->broadcast_email__context = CerberusContexts::CONTEXT_ADDRESS;
-			$dict->broadcast_email_id = $email->id;
+			$dict->broadcast_email_id = $broadcast_email_id;
 			$dict->broadcast_email_;
 			
 			// Templates
@@ -3071,7 +3076,17 @@ class ChInternalController extends DevblocksControllerExtension {
 				$template = "$broadcast_message";
 			}
 			
-			if(false === (@$out = $tpl_builder->build($template, $dict))) {
+			$message_properties = [
+				'worker_id' => $active_worker->id,
+				'content' => $template,
+				'content_format' => $broadcast_format,
+				'group_id' => $broadcast_group_id ?: $dict->get('group_id', 0),
+				'html_template_id' => $broadcast_html_template_id,
+			];
+			
+			CerberusMail::parseBroadcastHashCommands($message_properties);
+			
+			if(false === (@$out = $tpl_builder->build($message_properties['content'], $dict))) {
 				// If we failed, show the compile errors
 				$errors = $tpl_builder->getErrors();
 				$success= false;
@@ -3111,12 +3126,8 @@ class ChInternalController extends DevblocksControllerExtension {
 			}
 			
 			if($success) {
-				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
-				echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body>',
-					LANG_CHARSET_CODE
-				);
-				echo $output;
-				echo '</body></html>';
+				$tpl->assign('content', $output);
+				$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 				
 			} else {
 				echo $output;

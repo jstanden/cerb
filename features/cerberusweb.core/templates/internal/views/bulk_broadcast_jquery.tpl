@@ -1,179 +1,178 @@
-var $content = $popup.find('textarea[name=broadcast_message]');
-
-$popup.find('button.chooser-broadcast-group')
-	.cerbChooserTrigger()
+var $editor = $popup.find('textarea[name=broadcast_message]')
+	.cerbCodeEditor()
 	;
 
-// Broadcast
+var $editor_pre = $editor.nextAll('pre.ace_editor');
 
-var $placeholder_menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
-var $placeholder_menu = $popup.find('ul.menu').hide();
+var $frm = $editor.closest('form');
+
+var editor = ace.edit($editor_pre.attr('id'));
+
+var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar--broadcast')
+	.cerbCodeEditorToolbarMarkdown()
+	;
+
+var $attachments = $popup.find('.cerb-broadcast-attachments');
+
+$editor_pre.find('.ace_text-input')
+	.cerbCodeEditorInlineImagePaster({
+		editor: editor,
+		attachmentsContainer: $attachments
+	})
+	;
+
+// Formatting
+$editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
+	var $button = $(this);
+
+	if('html' === $button.attr('data-format')) {
+		$frm.find('input:hidden[name=broadcast_format]').val('');
+		$button.attr('data-format', 'plaintext');
+		$button.text('Formatting off');
+		$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+	} else {
+		$frm.find('input:hidden[name=broadcast_format]').val('parsedown');
+		$button.attr('data-format', 'html');
+		$button.text('Formatting on');
+		$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+	}
+});
+
+// Signature
+$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--signature').on('click', function(e) {
+	editor.insertSnippet("#signature\n");
+});
+
+// Placeholders
+$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--placeholders').on('click', function(e) {
+	var $cursor = $editor.nextAll('pre.ace_editor').find('.ace_text-input');
+
+	$placeholder_menu
+		.toggle()
+		.position({
+			my: 'left bottom',
+			at: 'left top',
+			of: $cursor
+		})
+	;
+
+	editor.focus();
+});
+
+// Upload image
+$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
+	event.stopPropagation();
+
+	var new_event = $.Event('cerb-chooser-save', {
+		labels: event.labels,
+		values: event.values
+	});
+
+	$popup.find('button.chooser_file').triggerHandler(new_event);
+
+	editor.insertSnippet('![Image](' + event.url + ')');
+	editor.focus();
+});
+
+// Snippets
+$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
+	var context = 'cerberusweb.contexts.snippet';
+	var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,ticket,worker]') + '&single=1&context=' + encodeURIComponent(context);
+
+	var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+
+	$chooser.on('chooser_save', function (event) {
+		if (!event.values || 0 == event.values.length)
+			return;
+
+		var snippet_id = event.values[0];
+
+		if (null == snippet_id)
+			return;
+
+		// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+		var url = 'c=internal&a=snippetPaste&id='
+			+ encodeURIComponent(snippet_id)
+			+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
+			+ "&context_ids[{$context}]="
+			;
+
+		genericAjaxGet('', url, function (json) {
+			// If the content has placeholders, use that popup instead
+			if (json.has_custom_placeholders) {
+				var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+
+				$popup_paste.bind('snippet_paste', function (event) {
+					if (null == event.text)
+						return;
+
+					editor.insert(event.text);
+					editor.scrollToLine(editor.getCursorPosition().row);
+					editor.focus();
+				});
+
+			} else {
+				editor.insert(json.text);
+				editor.scrollToLine(editor.getCursorPosition().row);
+				editor.focus();
+			}
+		});
+	});
+});
+
+// Preview
+$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
+	var formData = new FormData();
+	formData.append('c', 'internal');
+	formData.append('a', 'viewBroadcastTest');
+	formData.append('view_id', $frm.find('input[name=view_id]').val());
+
+	$frm.find('input[name="broadcast_to[]"]:checked').each(function() {
+		formData.append('broadcast_to[]', $(this).val());
+	});
+
+	$frm.find('input[name=broadcast_subject]').each(function() {
+		formData.append('broadcast_subject', $(this).val());
+	});
+
+	$frm.find('input[name=broadcast_group_id]').each(function() {
+		formData.append('broadcast_group_id', $(this).val());
+	});
+
+	formData.append('broadcast_format', $frm.find('input[name=broadcast_format]').val());
+	formData.append('broadcast_message', editor.getValue());
+
+	genericAjaxPopup(
+		'preview_broadcast',
+		formData,
+		'reuse',
+		false
+	);
+});
+
+// Placeholders
+
+var $placeholder_menu = $popup.find('.menu').hide();
 
 $placeholder_menu.menu({
 	select: function(event, ui) {
 		var token = ui.item.attr('data-token');
 		var label = ui.item.attr('data-label');
-		
+
 		if(undefined == token || undefined == label)
 			return;
-		
-		$content.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+
+		editor.insertSnippet('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
+		editor.focus();
+
+		$placeholder_menu.hide();
 	}
 });
 
-$placeholder_menu_trigger
-	.click(
-		function(e) {
-			$placeholder_menu.toggle();
-		}
-	)
-;
+$popup.find('button.chooser-broadcast-group')
+	.cerbChooserTrigger()
+	;
 
 $popup.find('button.chooser_file').each(function() {
 	ajax.chooserFile(this,'broadcast_file_ids');
 });
-
-// Snippets
-
-$popup.find('.cerb-snippet-insert button.cerb-chooser-trigger')
-	.cerbChooserTrigger()
-	.on('cerb-chooser-saved', function(e) {
-		e.stopPropagation();
-		var $this = $(this);
-		var $ul = $this.siblings('ul.chooser-container');
-		var $search = $ul.prev('input[type=search]');
-		var $textarea = $('#bulkBroadcastContainer textarea[name=broadcast_message]');
-		
-		// Find the snippet_id
-		var snippet_id = $ul.find('input[name=snippet_id]').val();
-		
-		if(null == snippet_id)
-			return;
-		
-		// Remove the selection
-		$ul.find('> li').find('span.glyphicons-circle-remove').click();
-		
-		// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-		var url = 'c=internal&a=snippetPaste&id=' + snippet_id;
-		url += "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}";
-		url += "&context_ids[{$context}]=";
-		
-		genericAjaxGet('',url,function(json) {
-			// If the content has placeholders, use that popup instead
-			if(json.has_custom_placeholders) {
-				$textarea.focus();
-				
-				var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
-			
-				$popup_paste.bind('snippet_paste', function(event) {
-					if(null == event.text)
-						return;
-				
-					$textarea.insertAtCursor(event.text).focus();
-				});
-				
-			} else {
-				$textarea.insertAtCursor(json.text).focus();
-			}
-			
-			$search.val('');
-		});
-	})
-;
-
-// Text editor
-
-var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
-var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
-
-var markitupBroadcastFunctions = {
-	switchToMarkdown: function(markItUp) { 
-		$content.markItUpRemove().markItUp(markitupParsedownSettings);
-		$content.closest('form').find('input:hidden[name=broadcast_format]').val('parsedown');
-		
-		// Template chooser
-		
-		var $ul = $content.closest('.markItUpContainer').find('.markItUpHeader UL');
-		var $li = $('<li style="margin-left:10px;"></li>');
-		
-		var $select = $('<select name="broadcast_html_template_id"></select>');
-		$select.append($('<option value="0"> - {'common.default'|devblocks_translate|lower|escape:'javascript'} -</option>'));
-		
-		{foreach from=$html_templates item=html_template}
-		var $option = $('<option/>').attr('value','{$html_template->id}').text('{$html_template->name|escape:'javascript'}');
-		$select.append($option);
-		{/foreach}
-		
-		$li.append($select);
-		$ul.append($li);
-	},
-	
-	switchToPlaintext: function(markItUp) {
-		$content.markItUpRemove().markItUp(markitupPlaintextSettings);
-		$content.closest('form').find('input:hidden[name=broadcast_format]').val('');
-	}
-};
-
-markitupPlaintextSettings.markupSet.unshift(
-	{ name:'Switch to Markdown', openWith: markitupBroadcastFunctions.switchToMarkdown, className:'parsedown' }
-);
-
-markitupPlaintextSettings.markupSet.push(
-	{ separator:' ' },
-	{ name:'Preview', key: 'P', call:'preview', className:"preview" }
-);
-
-var previewParser = function(content) {
-	genericAjaxPost(
-		'formBatchUpdate',
-		'',
-		'c=internal&a=viewBroadcastTest',
-		function(o) {
-			content = o;
-		},
-		{
-			async: false
-		}
-	);
-	
-	return content;
-};
-
-markitupPlaintextSettings.previewParser = previewParser;
-markitupPlaintextSettings.previewAutoRefresh = false;
-
-markitupParsedownSettings.previewParser = previewParser;
-markitupParsedownSettings.previewAutoRefresh = false;
-delete markitupParsedownSettings.previewInWindow;
-
-markitupParsedownSettings.markupSet.unshift(
-	{ name:'Switch to Plaintext', openWith: markitupBroadcastFunctions.switchToPlaintext, className:'plaintext' },
-	{ separator:' ' }
-);
-
-markitupParsedownSettings.markupSet.splice(
-	6,
-	0,
-	{ name:'Upload an Image', openWith: 
-		function(markItUp) {
-			$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
-			
-			$chooser.one('chooser_save', function(event) {
-				if(!event.response || 0 == event.response)
-					return;
-				
-				$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
-			});
-		},
-		key: 'U',
-		className:'image-inline'
-	}
-);
-
-try {
-	$content.markItUp(markitupPlaintextSettings);
-	
-} catch(e) {
-	if(window.console)
-		console.log(e);
-}
