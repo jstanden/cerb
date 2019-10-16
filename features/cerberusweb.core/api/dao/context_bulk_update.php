@@ -123,14 +123,14 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 		if(false == ($query_parts = $dao_class::getSearchQueryComponents(array(), $params)))
 			return false;
 		
-		$db->ExecuteSlave('set @rank=0');
-		$db->ExecuteSlave('set group_concat_max_len = 1024000');
+		$db->ExecuteMaster('set @rank=0');
+		$db->ExecuteMaster('set group_concat_max_len = 1024000');
 		
 		$sql = sprintf('CREATE TEMPORARY TABLE _bulk SELECT %s AS id, @rank:=@rank+1 AS rank ', $pkey).
 			$query_parts['join'].
 			$query_parts['where']
 			;
-		$db->ExecuteSlave($sql);
+		$db->ExecuteMaster($sql);
 		
 		$sql = sprintf('INSERT INTO context_bulk_update (batch_key, context, context_ids, num_records, worker_id, view_id, created_at, status_id, actions_json) '.
 			'SELECT %s as batch_key, %s as context, GROUP_CONCAT(id) AS context_ids, COUNT(id) as num_records, %d as worker_id, %s as view_id, %d as created_at, 0 as status_id, %s as actions_json '.
@@ -144,9 +144,9 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 			$db->qstr($actions_json),
 			$batch_size
 		);
-		$db->ExecuteSlave($sql);
+		$db->ExecuteMaster($sql);
 		
-		$db->ExecuteSlave('DROP TABLE _bulk');
+		$db->ExecuteMaster('DROP TABLE _bulk');
 		
 		return $batch_key;
 	}
