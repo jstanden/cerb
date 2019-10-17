@@ -1602,8 +1602,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if(DevblocksPlatform::strStartsWith($token, 'custom_') && $context_ext->hasOption('custom_fields')) {
 			return $this->_lazyLoadCustomFields($token, $context, $context_id);
 			
-		} else if(($token === 'links' || DevblocksPlatform::strStartsWith($token, ['links.','links:'])) && $context_ext->hasOption('links')) {
-			return $this->_lazyLoadLinks($context, $context_id);
+		} else if(($token === 'links' || DevblocksPlatform::strStartsWith($token, ['links.','links:','links~'])) && $context_ext->hasOption('links')) {
+			return $this->_lazyLoadLinks($token, $context, $context_id);
 			
 		} else if($token === 'watchers' && $context_ext->hasOption('watchers')) {
 			return [
@@ -1684,7 +1684,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		];
 		
 		@list($token, $record_expands) = explode(':', $token);
-		@list(, $limit) = explode('~', $token);
+		@list($token, $limit) = explode('~', $token);
 		
 		$limit = DevblocksPlatform::intClamp($limit ?: 10, 1, 25);
 		
@@ -1706,19 +1706,75 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	/**
+	 * @param string $token
+	 * @param string $context
+	 * @param int $context_id
+	 * @return array
 	 * @internal
 	 */
-	protected function _lazyLoadLinks($context, $context_id) {
-		$results = DAO_ContextLink::getAllContextLinks($context, $context_id);
-		$token_values = [];
-		$token_values['links'] = [];
+	protected function _lazyLoadLinks($token, $context, $context_id) {
+		$token_values = [
+			'links' => [],
+		];
 		
-		foreach($results as $result) {
-			if(!isset($token_values['links'][$result->context]))
-				$token_values['links'][$result->context] = [];
-			
-			$token_values['links'][$result->context][] = intval($result->context_id);
+		$original_token = $token;
+		@list($token, $record_expands) = explode(':', $token);
+		@list($token, $limit) = explode('~', $token);
+		
+		$limit = DevblocksPlatform::intClamp($limit ?: 10, 1, 25);
+		
+		if($record_expands) {
+			$record_expands = explode(',', $record_expands);
+		} else {
+			$record_expands = [];
 		}
+		
+		$dicts = [];
+		
+		// All links
+		if(false == ($record_alias = DevblocksPlatform::services()->string()->strAfter($token, '.'))) {
+			if(false == ($results = DAO_ContextLink::getAllContextLinks($context, $context_id, $limit)))
+				return $token_values;
+			
+			// Backwards compatibility
+			// @deprecated
+			if($original_token == 'links' && !$record_expands) {
+				foreach($results as $result) {
+					if(!isset($token_values['links'][$result->context]))
+						$token_values['links'][$result->context] = [];
+					
+					$token_values['links'][$result->context][] = intval($result->context_id);
+				}
+				return $token_values;
+			}
+			
+			foreach($results as $result) {
+				$dicts[] = DevblocksDictionaryDelegate::instance([
+					'_context' => $result->context,
+					'id' => $result->context_id,
+				]);
+			}
+			
+		} else { // Links of a specific type
+			if(false == ($results = DAO_ContextLink::getContextLinks($context, $context_id, $record_alias, $limit)))
+				return $token_values;
+			
+			if(array_key_exists($context_id, $results)) {
+				foreach($results[$context_id] as $to_link) {
+					$dicts[] = DevblocksDictionaryDelegate::instance([
+						'_context' => $to_link->context,
+						'id' => $to_link->context_id,
+					]);
+				}
+			}
+		}
+		
+		if($record_expands) {
+			foreach ($record_expands as $record_expand)
+				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $record_expand, true);
+		}
+		
+		$token_values['links'] = $dicts;
 		
 		return $token_values;
 	}

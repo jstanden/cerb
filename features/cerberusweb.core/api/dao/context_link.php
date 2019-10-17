@@ -294,12 +294,13 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		}
 	}
 	
-	static public function getAllContextLinks($from_context, $from_context_id) {
+	static public function getAllContextLinks($from_context, $from_context_id, $limit=0) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$sql = sprintf("SELECT to_context, to_context_id ".
 			"FROM context_link ".
-			"WHERE (%s = %s AND %s IN (%s)) ",
+			"WHERE (%s = %s AND %s IN (%s)) ".
+			($limit ? sprintf('LIMIT %d', $limit) : ''),
 			self::FROM_CONTEXT,
 			$db->qstr($from_context),
 			self::FROM_CONTEXT_ID,
@@ -307,7 +308,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		);
 		$rs = $db->ExecuteSlave($sql);
 		
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -324,23 +325,27 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
-	static public function getContextLinks($from_context, $from_context_ids, $to_context) {
+	static public function getContextLinks($from_context, $from_context_ids, $to_context, $limit=0) {
 		if(!is_array($from_context_ids))
-			$from_context_ids = array($from_context_ids);
+			$from_context_ids = [$from_context_ids];
 		
 		$db = DevblocksPlatform::services()->database();
 		
 		$from_context_ids = DevblocksPlatform::sanitizeArray($from_context_ids, 'integer', array('nonzero','unique'));
 		
 		if(empty($from_context_ids))
-			return array();
+			return [];
+		
+		if(false == ($to_context_mft = Extension_DevblocksContext::getByAlias($to_context, false)))
+			return [];
 		
 		$sql = sprintf("SELECT from_context, from_context_id, to_context, to_context_id ".
 			"FROM context_link ".
 			"WHERE %s = %s ".
-			"AND (%s = %s AND %s IN (%s)) ",
+			"AND (%s = %s AND %s IN (%s)) ".
+			($limit ? sprintf('LIMIT %d', $limit) : ''),
 			self::TO_CONTEXT,
-			$db->qstr($to_context),
+			$db->qstr($to_context_mft->id),
 			self::FROM_CONTEXT,
 			$db->qstr($from_context),
 			self::FROM_CONTEXT_ID,
@@ -348,7 +353,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		);
 		$rs = $db->ExecuteSlave($sql);
 		
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -358,8 +363,8 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			$to_context_id = $row['to_context_id'];
 			$object = new Model_ContextLink($row['to_context'], $row['to_context_id']);
 			
-			if(!isset($objects[$from_context_id]))
-				$objects[$from_context_id] = array();
+			if(!array_key_exists($from_context_id, $objects))
+				$objects[$from_context_id] = [];
 			
 			$objects[$from_context_id][$to_context_id] = $object;
 		}
