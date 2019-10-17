@@ -1,117 +1,120 @@
 {$mail_reply_html = DAO_WorkerPref::get($active_worker->id, 'mail_reply_html', 0)}
+{$is_html = ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek{$popup_uniqid}" onsubmit="return false;">
 <input type="hidden" name="c" value="tickets">
 <input type="hidden" name="a" value="saveComposePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="draft_id" value="{$draft->id}">
-<input type="hidden" name="format" value="{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}parsedown{/if}">
+<input type="hidden" name="format" value="{if $is_html}parsedown{/if}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek">
-	<legend>{'common.message'|devblocks_translate|capitalize}</legend>
-	
-	<table cellpadding="0" cellspacing="2" border="0" width="98%">
-		<tr>
-			<td width="0%" nowrap="nowrap" align="right"><b>From:</b>&nbsp;</td>
-			<td width="100%">
-				<select name="group_id">
-					{foreach from=$groups item=group key=group_id}
-					{if $active_worker->isGroupMember($group_id)}
-					<option value="{$group_id}" member="true" {if $defaults.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+<table cellpadding="0" cellspacing="2" border="0" width="98%">
+	<tr>
+		<td width="0%" nowrap="nowrap" align="right"><b>From:</b>&nbsp;</td>
+		<td width="100%">
+			<select name="group_id">
+				{foreach from=$groups item=group key=group_id}
+				{if $active_worker->isGroupMember($group_id)}
+				<option value="{$group_id}" member="true" {if $defaults.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+				{/if}
+				{/foreach}
+			</select>
+			<select class="ticket-peek-bucket-options" style="display:none;">
+				{foreach from=$buckets item=bucket key=bucket_id}
+				<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
+				{/foreach}
+			</select>
+			<select name="bucket_id">
+				{foreach from=$buckets item=bucket key=bucket_id}
+					{if $bucket->group_id == $defaults.group_id}
+					<option value="{$bucket_id}" {if $defaults.bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
 					{/if}
-					{/foreach}
-				</select>
-				<select class="ticket-peek-bucket-options" style="display:none;">
-					{foreach from=$buckets item=bucket key=bucket_id}
-					<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
-					{/foreach}
-				</select>
-				<select name="bucket_id">
-					{foreach from=$buckets item=bucket key=bucket_id}
-						{if $bucket->group_id == $defaults.group_id}
-						<option value="{$bucket_id}" {if $defaults.bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
-						{/if}
-					{/foreach}
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.organization'|devblocks_translate|capitalize}:&nbsp;</td>
-			<td width="100%">
-				<input type="text" name="org_name" value="{if !empty($org)}{$org}{else}{$draft->params.org_name}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
-			<td width="100%">
-				<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
-				
-				<div id="compose_suggested{$popup_uniqid}" style="display:none;">
-					<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
-					<b>Consider adding these recipients:</b>
-					<ul class="bubbles"></ul> 
+				{/foreach}
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.organization'|devblocks_translate|capitalize}:&nbsp;</td>
+		<td width="100%">
+			<input type="text" name="org_name" value="{if !empty($org)}{$org}{else}{$draft->params.org_name}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="100%">
+			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
+
+			<div id="compose_suggested{$popup_uniqid}" style="display:none;">
+				<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
+				<b>Consider adding these recipients:</b>
+				<ul class="bubbles"></ul>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="100%">
+			<input type="text" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+		<td width="100%">
+			<input type="text" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
+		</td>
+	</tr>
+	<tr>
+		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
+		<td width="100%">
+			<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->subject}" autocomplete="off">
+		</td>
+	</tr>
+	<tr>
+		<td width="100%" colspan="2">
+			<div id="divDraftStatus{$popup_uniqid}"></div>
+
+			<div class="cerb-code-editor-toolbar">
+				{if $interactions_menu}
+					<div id="divComposeInteractions{$popup_uniqid}" style="display:inline-block;">
+						{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl" button_classes="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--interactions"}
+					</div>
+					<div class="cerb-code-editor-toolbar-divider"></div>
+				{/if}
+
+				<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
+					<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
+					<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
+					<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
+					<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
+					<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
+					<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
+					<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
+					<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
+					<div class="cerb-code-editor-toolbar-divider"></div>
 				</div>
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
-			<td width="100%">
-				<input type="text" name="cc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a copy of this message" autocomplete="off">
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
-			<td width="100%">
-				<input type="text" name="bcc" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a copy of this message" autocomplete="off">
-			</td>
-		</tr>
-		<tr>
-			<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
-			<td width="100%">
-				<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->subject}" autocomplete="off">
-			</td>
-		</tr>
-		<tr>
-			<td width="100%" colspan="2">
-				<div id="divDraftStatus{$popup_uniqid}"></div>
-				
-				<div>
-					<fieldset style="display:inline-block;">
-						<legend>Actions</legend>
-						
-						<div id="divComposeInteractions{$popup_uniqid}" style="display:inline-block;">
-						{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
-						</div>
-						
-						<button id="btnComposeSaveDraft{$popup_uniqid}" class="toolbar-item" type="button"><span class="glyphicons glyphicons-circle-ok"></span> Save Draft</button>
-						<button id="btnComposeInsertSig{$popup_uniqid}" class="toolbar-item" type="button" {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+G)"{/if}"><span class="glyphicons glyphicons-edit"></span> Insert Signature</button>
-					</fieldset>
-				
-					<fieldset style="display:inline-block;">
-						<legend>{'common.snippets'|devblocks_translate|capitalize}</legend>
-						<div>
-							<div class="cerb-snippet-insert" style="display:inline-block;">
-								<button type="button" class="cerb-chooser-trigger" data-field-name="snippet_id" data-context="{CerberusContexts::CONTEXT_SNIPPET}" data-placeholder="(Ctrl+Shift+I)" data-query="" data-query-required="type:[plaintext,worker]" data-single="true" data-autocomplete="type:[plaintext,worker]"><span class="glyphicons glyphicons-search"></span></button>
-								<ul class="bubbles chooser-container"></ul>
-							</div>
-							<button type="button" onclick="var txt = encodeURIComponent($('#divComposeContent{$popup_uniqid}').selection('get')); genericAjaxPopup('add_snippet','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_SNIPPET}&context_id=0&edit=1&text=' + txt,null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span></button>
-						</div>
-					</fieldset>
-				</div>
-				
-				<textarea id="divComposeContent{$popup_uniqid}" name="content" style="width:98%;height:150px;border:1px solid rgb(180,180,180);padding:2px;">{if !empty($draft)}{$draft->body}{else}{if $defaults.signature_pos}
+
+				<button type="button" title="Insert #command" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--commands"><span class="glyphicons glyphicons-sampler"></span></button>
+				<button type="button" title="Insert snippet" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
+				{*<button type="button" title="Track time" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="glyphicons glyphicons-stopwatch"></span></button>*}
+				<button type="button" title="Save draft" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="glyphicons glyphicons-floppy-save"></span></button>
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				<button type="button" title="Preview message" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
+			</div>
+
+			<textarea id="divComposeContent{$popup_uniqid}" name="content" data-editor-mode="ace/mode/text" data-editor-line-numbers="false" data-editor-lines="20">{if !empty($draft)}{$draft->body}{else}{if $defaults.signature_pos}
 
 
 
 #signature
 #cut{/if}{/if}</textarea>
-
-				<b>(Use #commands to perform additional actions)</b>
-			</td>
-		</tr>
-	</table>
-</fieldset>
+		</td>
+	</tr>
+</table>
 
 <fieldset class="peek compose-attachments">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
@@ -243,10 +246,11 @@
 </form>
 
 <script type="text/javascript">
-	if(draftComposeAutoSaveInterval == undefined)
+	if(undefined === draftComposeAutoSaveInterval)
 		var draftComposeAutoSaveInterval = null;
 
 	var $popup = genericAjaxPopupFind('#frmComposePeek{$popup_uniqid}');
+
 	$popup.one('popup_open',function(event,ui) {
 		$(this).dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
@@ -256,7 +260,7 @@
 		
 		$popup.on('dialogbeforeclose', function(e, ui) {
 			var keycode = e.keyCode || e.which;
-			if(keycode == 27)
+			if(27 === keycode)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
 		
@@ -328,180 +332,163 @@
 		
 		// Text editor
 		
-		var $content = $frm.find('textarea[name=content]');
-		
-		var markitupPlaintextSettings = $.extend(true, { }, markitupPlaintextDefaults);
-		var markitupParsedownSettings = $.extend(true, { }, markitupParsedownDefaults);
-		
-		var markitupReplyFunctions = {
-			switchToMarkdown: function(markItUp) { 
-				$content.markItUpRemove().markItUp(markitupParsedownSettings);
-				{if !empty($mail_reply_textbox_size_auto)}
-				$content.autosize();
-				{/if}
-				$content.closest('form').find('input:hidden[name=format]').val('parsedown');
+		var $editor = $frm.find('textarea[name=content]')
+			.cerbCodeEditor()
+			.cerbCodeEditorAutocompleteReplies()
+			;
 
-				// Template chooser
-				
-				var $ul = $content.closest('.markItUpContainer').find('.markItUpHeader UL');
-				var $li = $('<li style="margin-left:10px;"></li>');
-				
-				var $select = $('<select name="html_template_id"></select>');
-				$select.append($('<option value="0"/>').text(' - {'common.default'|devblocks_translate|lower|escape:'javascript'} -'));
-				
-				{foreach from=$html_templates item=html_template}
-				var $option = $('<option/>').attr('value','{$html_template->id}').text('{$html_template->name|escape:'javascript'}');
-				{if $draft && $draft->params.html_template_id == $html_template->id}
-				$option.attr('selected', 'selected');
-				{/if}
-				$select.append($option);
-				{/foreach}
-				
-				$li.append($select);
-				$ul.append($li);
-			},
-			
-			switchToPlaintext: function(markItUp) { 
-				$content.markItUpRemove().markItUp(markitupPlaintextSettings);
-				{if !empty($mail_reply_textbox_size_auto)}
-				$content.autosize();
-				{/if}
-				$content.closest('form').find('input:hidden[name=format]').val('');
+		var $editor_pre = $editor.nextAll('.ace_editor');
+
+		var editor = ace.edit($editor_pre.attr('id'));
+
+        $editor_pre.find('.ace_text-input')
+            .cerbCodeEditorInlineImagePaster({
+                editor: editor,
+                attachmentsContainer: $attachments
+            })
+        ;
+
+		var $editor_toolbar = $frm.find('.cerb-code-editor-toolbar')
+			.cerbCodeEditorToolbarMarkdown()
+			;
+
+		var $editor_toolbar_button_save_draft = $frm.find('.cerb-reply-editor-toolbar-button--save').click(function(e) {
+			var $this = $(this);
+
+			if(!$this.is(':visible')) {
+				clearTimeout(draftComposeAutoSaveInterval);
+				draftComposeAutoSaveInterval = null;
+				return;
 			}
-		};
-		
-		markitupPlaintextSettings.markupSet.unshift(
-			{ name:'Switch to Markdown', openWith: markitupReplyFunctions.switchToMarkdown, className:'parsedown' },
-			{ separator:' ' },
-			{ name:'Preview', key: 'P', call:'preview', className:"preview" }
-		);
-		
-		markitupPlaintextSettings.previewAutoRefresh = true;
-		markitupPlaintextSettings.previewInWindow = 'width=800, height=600, titlebar=no, location=no, menubar=no, status=no, toolbar=no, resizable=yes, scrollbars=yes';
-		
-		markitupPlaintextSettings.previewParser = function(content) {
-			genericAjaxPost(
-				$frm,
-				'',
-				'c=display&a=getReplyPreview',
-				function(o) {
-					content = o;
-				},
-				{
-					async: false
-				}
-			);
-			
-			return content;
-		};
-		
-		markitupParsedownSettings.previewParser = function(content) {
+
+			if($this.attr('disabled'))
+				return;
+
+			$this.attr('disabled','disabled');
+
 			genericAjaxPost(
 				'frmComposePeek{$popup_uniqid}',
-				'',
-				'c=display&a=getReplyMarkdownPreview',
-				function(o) {
-					content = o;
-				},
-				{
-					async: false
+				null,
+				'c=profiles&a=handleSectionAction&section=draft&action=saveDraft&type=compose',
+				function(json) {
+					var obj = $.parseJSON(json);
+
+					if(!obj || !obj.html || !obj.draft_id)
+						return;
+
+					$('#divDraftStatus{$popup_uniqid}').html(obj.html);
+
+					$('#frmComposePeek{$popup_uniqid} input[name=draft_id]').val(obj.draft_id);
+
+					$this.removeAttr('disabled');
 				}
 			);
-			
-			return content;
-		};
-		
-		markitupParsedownSettings.markupSet.unshift(
-			{ name:'Switch to Plaintext', openWith: markitupReplyFunctions.switchToPlaintext, className:'plaintext' },
-			{ separator:' ' }
-		);
-		
-		markitupParsedownSettings.markupSet.splice(
-			6,
-			0,
-			{ name:'Upload an Image', openWith: 
-				function(markItUp) {
-					$chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
-					
-					$chooser.one('chooser_save', function(event) {
-						if(!event.response || 0 == event.response)
-							return;
-						
-						$content.insertAtCursor("![inline-image](" + event.response[0].url + ")");
-					});
-				},
-				key: 'U',
-				className:'image-inline'
-			}
-			//{ separator:' ' }
-		);
-		
-		try {
-			$content.markItUp(markitupPlaintextSettings);
-			
-			{if ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
-			markitupReplyFunctions.switchToMarkdown();
-			{/if}
-			
-			$content.autosize();
-			
-		} catch(e) {
-			if(window.console)
-				console.log(e);
-		}
-		
-		// @who and #command
-		
-		var atwho_file_bundles = {CerberusApplication::getFileBundleDictionaryJson() nofilter};
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-		
-		$content
-			.atwho({
-				at: '#attach ',
-				{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${tag}</small></li>',{/literal}
-				{literal}insertTpl: '#attach ${tag}\n',{/literal}
-				suffix: '',
-				data: atwho_file_bundles,
-				limit: 10
-			})
-			.atwho({
-				at: '#',
-				data: [
-					'attach ',
-					'comment',
-					'comment @',
-					'cut\n',
-					'signature\n',
-					'unwatch\n',
-					'watch\n'
-				],
-				limit: 10,
-				suffix: '',
-				hide_without_suffix: true,
-				callbacks: {
-					before_insert: function(value, $li) {
-						if(value.substr(-1) != '\n' && value.substr(-1) != '@')
-							value += ' ';
-						
-						return value;
-					}
-				}
-			})
-			.atwho({
-				at: '@',
-				{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-				{literal}insertTpl: '@${at_mention}',{/literal}
-				data: atwho_workers,
-				searchKey: '_index',
-				limit: 10
-			})
-			;
-		
-		$content.on('inserted.atwho', function(event, $li) {
-			//if($li.text() == 'delete quote from here\n')
-			//	$(this).trigger('delete_quote_from_cursor');
 		});
-		
+
+		// Formatting
+		$editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
+			var $button = $(this);
+
+			if('html' === $button.attr('data-format')) {
+				$frm.find('input:hidden[name=format]').val('');
+				$button.attr('data-format', 'plaintext');
+				$button.text('Formatting off');
+				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+			} else {
+				$frm.find('input:hidden[name=format]').val('parsedown');
+				$button.attr('data-format', 'html');
+				$button.text('Formatting on');
+				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+			}
+		});
+
+		// Upload image
+		$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
+			event.stopPropagation();
+
+			var new_event = $.Event('cerb-chooser-save', {
+				labels: event.labels,
+				values: event.values
+			});
+
+			$popup.find('button.chooser_file').triggerHandler(new_event);
+
+			editor.insertSnippet('![Image](' + event.url + ')');
+			editor.focus();
+		});
+
+		// Commands
+		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--commands').on('click', function(e) {
+			editor.insertSnippet("#");
+			editor.commands.byName.startAutocomplete.exec(editor);
+			editor.focus();
+		});
+
+		// Snippets
+		var $editor_toolbar_button_snippets = $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
+			var context = 'cerberusweb.contexts.snippet';
+			var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,ticket,worker]') + '&single=1&context=' + encodeURIComponent(context);
+
+			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
+
+			$chooser.on('chooser_save', function (event) {
+				if (!event.values || 0 == event.values.length)
+					return;
+
+				var snippet_id = event.values[0];
+
+				if (null == snippet_id)
+					return;
+
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				var url = 'c=internal&a=snippetPaste&id='
+					+ encodeURIComponent(snippet_id)
+					+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
+				;
+
+				genericAjaxGet('', url, function (json) {
+					// If the content has placeholders, use that popup instead
+					if (json.has_custom_placeholders) {
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+
+						$popup_paste.bind('snippet_paste', function (event) {
+							if (null == event.text)
+								return;
+
+							editor.insert(event.text);
+							editor.scrollToLine(editor.getCursorPosition().row);
+							editor.focus();
+						});
+
+					} else {
+						editor.insert(json.text);
+						editor.scrollToLine(editor.getCursorPosition().row);
+						editor.focus();
+					}
+				});
+			});
+		});
+
+		// Preview
+		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
+			var formData = new FormData();
+			formData.append('c', 'profiles');
+			formData.append('a', 'handleSectionAction');
+			formData.append('section', 'ticket');
+			formData.append('action', 'previewReplyMessage');
+			formData.append('format', $frm.find('input[name=format]').val());
+			formData.append('group_id', $frm.find('select[name=group_id]').val());
+			formData.append('bucket_id', $frm.find('select[name=bucket_id]').val());
+			formData.append('content', editor.getValue());
+
+			genericAjaxPopup(
+				'preview_reply',
+				formData,
+				'reuse',
+				false
+			);
+		});
+
 		// Group and bucket
 		$frm.find('select[name=group_id]').on('change', function(e) {
 			var $select = $(this);
@@ -597,258 +584,195 @@
 		
 		$frm.find('> fieldset:nth(1) input.input_date').cerbDateInputHelper();
 		
-		// Insert Sig
-		
-		$('#btnComposeInsertSig{$popup_uniqid}').click(function(e) {
-			var $textarea = $('#divComposeContent{$popup_uniqid}');
-			$textarea.insertAtCursor('#signature\n').focus();
-		});
-		
-		// Drafts
-		
-		$('#btnComposeSaveDraft{$popup_uniqid}').click(function(e) {
-			var $this = $(this);
-			
-			if(!$this.is(':visible')) {
-				clearTimeout(draftComposeAutoSaveInterval);
-				draftComposeAutoSaveInterval = null;
-				return;
-			}
-			
-			if($this.attr('disabled'))
-				return;
-			
-			$this.attr('disabled','disabled');
-			
-			genericAjaxPost(
-				'frmComposePeek{$popup_uniqid}',
-				null,
-				'c=profiles&a=handleSectionAction&section=draft&action=saveDraft&type=compose',
-				function(json) { 
-					var obj = $.parseJSON(json);
-					
-					if(!obj || !obj.html || !obj.draft_id)
-						return;
-				
-					$('#divDraftStatus{$popup_uniqid}').html(obj.html);
-					
-					$('#frmComposePeek{$popup_uniqid} input[name=draft_id]').val(obj.draft_id);
-					
-					$('#btnComposeSaveDraft{$popup_uniqid}').removeAttr('disabled');
-				}
-			);
-		});
-		
 		if(null != draftComposeAutoSaveInterval) {
 			clearTimeout(draftComposeAutoSaveInterval);
 			draftComposeAutoSaveInterval = null;
 		}
 		
-		draftComposeAutoSaveInterval = setInterval("$('#btnComposeSaveDraft{$popup_uniqid}').click();", 30000); // and every 30 sec
-		
-		// Snippet insert menu
-		$frm.find('.cerb-snippet-insert button.cerb-chooser-trigger')
-			.cerbChooserTrigger()
-			.on('cerb-chooser-saved', function(e) {
-				e.stopPropagation();
-				var $this = $(this);
-				var $ul = $this.siblings('ul.chooser-container');
-				var $search = $ul.prev('input[type=search]');
-				var $textarea = $('#divComposeContent{$popup_uniqid}');
-				
-				// Find the snippet_id
-				var snippet_id = $ul.find('input[name=snippet_id]').val();
-				
-				if(null == snippet_id)
-					return;
-				
-				// Remove the selection
-				$ul.find('> li').find('span.glyphicons-circle-remove').click();
-				
-				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				var url = 'c=internal&a=snippetPaste&id=' + snippet_id;
-				url += "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}";
-				
-				genericAjaxGet('',url,function(json) {
-					// If the content has placeholders, use that popup instead
-					if(json.has_custom_placeholders) {
-						$textarea.focus();
-						
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id),null,false,'50%');
-					
-						$popup_paste.bind('snippet_paste', function(event) {
-							if(null == event.text)
-								return;
-						
-							$textarea.insertAtCursor(event.text).focus();
-						});
-						
-					} else {
-						$textarea.insertAtCursor(json.text).focus();
-					}
-					
-					$search.val('');
-				});
-			})
-		;
+		draftComposeAutoSaveInterval = setInterval(function() {
+			$editor_toolbar_button_save_draft.click();
+		}, 30000); // and every 30 sec
 		
 		// Interactions
+		{if $interactions_menu}
 		var $interaction_container = $('#divComposeInteractions{$popup_uniqid}');
 		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
+		{/if}
 		
 		// Shortcuts
 		
 		{if $pref_keyboard_shortcuts}
-		
-		// Reply textbox
-		$('#divComposeContent{$popup_uniqid}').keydown(function(event) {
-			if(!$(this).is(':focus'))
-				return;
-			
-			if(!event.shiftKey || !event.ctrlKey)
-				return;
-			
-			if(event.which == 16 || event.which == 17)
-				return;
-
-			switch(event.which) {
-				case 13: // (RETURN) Send message
-					try {
-						event.preventDefault();
-						$frm.find('button.submit').focus();
-					} catch(ex) { } 
-					break;
-				case 67: // (C) Set closed + focus reopen
-				case 79: // (O) Set open
-				case 87: // (W) Set waiting + focus reopen
-					try {
-						event.preventDefault();
-						
-						var $radio = $frm.find('input:radio[name=status_id]');
-						
-						switch(event.which) {
-							case 67: // closed
-								$radio.filter('.status_closed').click();
-								$frm
-									.find('input:text[name=ticket_reopen]')
-										.select()
-										.focus()
-									;
-								break;
-							case 79: // open
-								$radio.filter('.status_open').click().focus();
-								break;
-							case 87: // waiting
-								$radio.filter('.status_waiting').click();
-								$frm
-									.find('input:text[name=ticket_reopen]')
-										.select()
-										.focus()
-									;
-								break;
-						}
-						
-					} catch(ex) {}
-					break;
-				case 71: // (G) Insert Signature
-					try {
-						event.preventDefault();
-						$('#btnComposeInsertSig{$popup_uniqid}').click();
-					} catch(ex) { } 
-					break;
-				case 73: // (I) Insert Snippet
-					try {
-						event.preventDefault();
-						$('#frmComposePeek{$popup_uniqid}').find('.cerb-snippet-insert input[type=search]').focus();
-					} catch(ex) { } 
-					break;
-				case 81: // (Q) Reformat quotes
-					try {
-						event.preventDefault();
-						var txt = $(this).val();
-						
-						var lines = txt.split("\n");
-						
-						var bins = [];
-						var last_prefix = null;
-						var wrap_to = 76;
-						
-						// Sort lines into bins
-						for(i in lines) {
-							var line = lines[i];
-							var matches = line.match(/^((\> )+)/);
-							var prefix = '';
-							
-							if(matches)
-								prefix = matches[1];
-							
-							if(prefix != last_prefix)
-								bins.push({ prefix:prefix, lines:[] });
-							
-							// Strip the prefix
-							line = line.substring(prefix.length);
-							
-							idx = Math.max(bins.length-1, 0);
-							bins[idx].lines.push(line);
-							
-							last_prefix = prefix;
-						}
-						
-						// Rewrap quoted blocks
-						for(i in bins) {
-							prefix = bins[i].prefix;
-							l = 0;
-							bail = 75000; // prevent infinite loops
-							
-							if(prefix.length == 0)
-								continue;
-							
-							while(undefined != bins[i].lines[l] && bail > 0) {
-								line = bins[i].lines[l];
-								boundary = wrap_to-prefix.length;
-								
-								if(line.length > boundary) {
-									// Try to split on a space
-									pos = line.lastIndexOf(' ', boundary);
-									break_word = (-1 == pos);
-									
-									overflow = line.substring(break_word ? boundary : (pos+1));
-									bins[i].lines[l] = line.substring(0, break_word ? boundary : pos);
-									
-									// If we don't have more lines, add a new one
-									if(overflow) {
-										if(undefined != bins[i].lines[l+1]) {
-											if(bins[i].lines[l+1].length == 0) {
-												bins[i].lines.splice(l+1,0,overflow);
-											} else {
-												bins[i].lines[l+1] = overflow + " " + bins[i].lines[l+1];
-											}
-										} else {
-											bins[i].lines.push(overflow);
-										}
-									}
-								}
-								
-								l++;
-								bail--;
-							}
-						}
-						
-						out = "";
-						
-						for(i in bins) {
-							for(l in bins[i].lines) {
-								out += bins[i].prefix + bins[i].lines[l] + "\n";
-							}
-						}
-						
-						$(this).val($.trim(out));
-						
-					} catch(ex) { }
-					break;
+		editor.commands.addCommand({
+			name: 'Send',
+			bindKey: { win: 'Ctrl-Shift-Enter', mac: 'Ctrl-Shift-Enter' },
+			exec: function(editor) {
+				try {
+					$frm.find('button.submit').focus();
+				} catch(ex) { }
 			}
 		});
-		
+
+		editor.commands.addCommand({
+			name: 'Status closed',
+			bindKey: { win: 'Ctrl-Shift-C', mac: 'Ctrl-Shift-C' },
+			exec: function(editor) {
+				try {
+					var $radio = $frm.find('input:radio[name=status_id]');
+					$radio.filter('.status_closed').click();
+					$frm
+						.find('input:text[name=ticket_reopen]')
+						.select()
+						.focus()
+					;
+				} catch(ex) { }
+			}
+		});
+
+		editor.commands.addCommand({
+			name: 'Status open',
+			bindKey: { win: 'Ctrl-Shift-O', mac: 'Ctrl-Shift-O' },
+			exec: function(editor) {
+				try {
+					var $radio = $frm.find('input:radio[name=status_id]');
+					$radio.filter('.status_open').click().focus();
+				} catch(ex) { }
+			}
+		});
+
+		editor.commands.addCommand({
+			name: 'Status waiting',
+			bindKey: { win: 'Ctrl-Shift-W', mac: 'Ctrl-Shift-W' },
+			exec: function(editor) {
+				try {
+					var $radio = $frm.find('input:radio[name=status_id]');
+					$radio.filter('.status_waiting').click();
+					$frm
+						.find('input:text[name=ticket_reopen]')
+						.select()
+						.focus()
+					;
+				} catch(ex) { }
+			}
+		});
+
+		editor.commands.addCommand({
+			name: 'Insert signature',
+			bindKey: { win: 'Ctrl-Shift-G', mac: 'Ctrl-Shift-G' },
+			exec: function(editor) {
+				try {
+					editor.insertSnippet("#signature\n");
+					editor.focus();
+				} catch(ex) { }
+			}
+		});
+
+		editor.commands.addCommand({
+			name: 'Insert snippet',
+			bindKey: { win: 'Ctrl-Shift-I', mac: 'Ctrl-Shift-I' },
+			exec: function(editor) {
+				try {
+					$editor_toolbar_button_snippets.click();
+				} catch(ex) { }
+			}
+		});
+
+		editor.commands.addCommand({
+			name: 'Bot interaction',
+			bindKey: { win: 'Ctrl-Shift-B', mac: 'Ctrl-Shift-B' },
+			exec: function(editor) {
+				try {
+					$editor_toolbar.find('.cerb-reply-editor-toolbar-button--interactions').click();
+				} catch(ex) { }
+			}
+		});
+
+		editor.commands.addCommand({
+			name: 'Reformat',
+			bindKey: { win: 'Ctrl-Shift-Q', mac: 'Ctrl-Shift-Q' },
+			exec: function(editor) {
+				try {
+				    var txt = editor.getValue();
+
+					var lines = txt.split("\n");
+
+					var bins = [];
+					var last_prefix = null;
+					var wrap_to = 76;
+
+					// Sort lines into bins
+					for(i in lines) {
+						var line = lines[i];
+						var matches = line.match(/^((\> )+)/);
+						var prefix = '';
+
+						if(matches)
+							prefix = matches[1];
+
+						if(prefix != last_prefix)
+							bins.push({ prefix:prefix, lines:[] });
+
+						// Strip the prefix
+						line = line.substring(prefix.length);
+
+						idx = Math.max(bins.length-1, 0);
+						bins[idx].lines.push(line);
+
+						last_prefix = prefix;
+					}
+
+					// Rewrap quoted blocks
+					for(var i in bins) {
+						prefix = bins[i].prefix;
+						var l = 0;
+						var bail = 75000; // prevent infinite loops
+
+						if(prefix.length === 0)
+							continue;
+
+						while(undefined != bins[i].lines[l] && bail > 0) {
+							line = bins[i].lines[l];
+							var boundary = wrap_to-prefix.length;
+
+							if(line.length > boundary) {
+								// Try to split on a space
+								var pos = line.lastIndexOf(' ', boundary);
+								var break_word = (-1 === pos);
+
+								var overflow = line.substring(break_word ? boundary : (pos+1));
+								bins[i].lines[l] = line.substring(0, break_word ? boundary : pos);
+
+								// If we don't have more lines, add a new one
+								if(overflow) {
+									if(undefined != bins[i].lines[l+1]) {
+										if(bins[i].lines[l+1].length === 0) {
+											bins[i].lines.splice(l+1,0,overflow);
+										} else {
+											bins[i].lines[l+1] = overflow + " " + bins[i].lines[l+1];
+										}
+									} else {
+										bins[i].lines.push(overflow);
+									}
+								}
+							}
+
+							l++;
+							bail--;
+						}
+					}
+
+					var out = "";
+
+					for(i in bins) {
+						for(l in bins[i].lines) {
+							out += bins[i].prefix + bins[i].lines[l] + "\n";
+						}
+					}
+
+					editor.setValue($.trim(out));
+					editor.clearSelection();
+				} catch(ex) { }
+			}
+		});
 		{/if}
 		
 		$frm.find(':input:text:first').focus().select();
