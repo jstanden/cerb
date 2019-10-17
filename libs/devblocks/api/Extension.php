@@ -1596,7 +1596,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $token_values;
 	}
 	
-	// [TODO] Attachments?
 	protected function _lazyLoadDefaults($token, $context, $context_id) {
 		$context_ext = Extension_DevblocksContext::get($context, true);
 		
@@ -1613,9 +1612,63 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			
 		} else if(($token === 'comments' || DevblocksPlatform::strStartsWith($token, ['comments:','comments~'])) && $context_ext->hasOption('comments')) {
 			return $this->_lazyLoadComments($token, $context, $context_id);
+			
+		} else if(($token === 'attachments' || DevblocksPlatform::strStartsWith($token, ['attachments:','attachments~'])) && $context_ext->hasOption('attachments')) {
+			return $this->_lazyLoadAttachments($token, $context, $context_id);
 		}
 		
 		return [];
+	}
+	
+	/**
+	 * @param string $token
+	 * @param string $context
+	 * @param integer $context_id
+	 * @return array
+	 * @internal
+	 */
+	protected function _lazyLoadAttachments($token, $context, $context_id) {
+		$token_values = [
+			'attachments' => [],
+		];
+		
+		@$original_token = $token;
+		@list($token, $record_expands) = explode(':', $token);
+		@list(, $limit) = explode('~', $token);
+		
+		$limit = DevblocksPlatform::intClamp($limit ?: 10, 1, 25);
+		
+		if($record_expands) {
+			$record_expands = explode(',', $record_expands);
+		} else {
+			$record_expands = [];
+		}
+		
+		if(false == ($models = DAO_Attachment::getByContextIds($context, [$context_id], true, $limit)))
+			return $token_values;
+		
+		// Backwards compatibility
+		// @deprecated
+		if($original_token == 'attachments' && !$record_expands && in_array($context, [CerberusContexts::CONTEXT_COMMENT, CerberusContexts::CONTEXT_MESSAGE])) {
+			foreach($models as $attachment_id => $attachment) {
+				$object = [
+					'id' => $attachment_id,
+					'file_name' => $attachment->name,
+					'file_size' => $attachment->storage_size,
+					'file_type' => $attachment->mime_type,
+				];
+				$token_values['attachments'][$attachment_id] = $object;
+			}
+			
+			return $token_values;
+		}
+		
+		if(false == ($dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_ATTACHMENT, $record_expands)))
+			return $token_values;
+		
+		$token_values['attachments'] = array_values($dicts);
+		
+		return $token_values;
 	}
 	
 	/**
@@ -1642,10 +1695,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		}
 		
 		if(false == ($models = DAO_Comment::getByContext($context, $context_id, $limit)))
-			$token_values;
+			return $token_values;
 		
 		if(false == ($dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_COMMENT, $record_expands)))
-			$token_values;
+			return $token_values;
 		
 		$token_values['comments'] = $dicts;
 		

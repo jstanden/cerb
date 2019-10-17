@@ -1520,12 +1520,6 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
-		
-		$lazy_keys['attachments'] = [
-			'label' => 'Attachments',
-			'type' => 'HashMap',
-		];
-		
 		return $lazy_keys;
 	}
 
@@ -1545,23 +1539,6 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		switch($token) {
-			case 'attachments':
-				$results = DAO_Attachment::getByContextIds($context, $context_id);
-				$objects = [];
-				
-				foreach($results as $attachment_id => $attachment) {
-					$object = [
-						'id' => $attachment_id,
-						'file_name' => $attachment->name,
-						'file_size' => $attachment->storage_size,
-						'file_type' => $attachment->mime_type,
-					];
-					$objects[$attachment_id] = $object;
-				}
-				
-				$values['attachments'] = $objects;
-				break;
-			
 			default:
 				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
 				$values = array_merge($values, $defaults);

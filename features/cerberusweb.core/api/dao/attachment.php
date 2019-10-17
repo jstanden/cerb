@@ -219,14 +219,23 @@ class DAO_Attachment extends Cerb_ORMHelper {
 	
 	/**
 	 * @param string $where
+	 * @param string $sortBy
+	 * @param bool $sortAsc
+	 * @param int $limit
 	 * @return Model_Attachment[]
 	 */
-	static function getWhere($where=null) {
+	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=0) {
 		$db = DevblocksPlatform::services()->database();
 		
+		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
+		
+		// SQL
 		$sql = "SELECT id,name,mime_type,storage_size,storage_extension,storage_key,storage_profile_id,storage_sha1hash,updated ".
 			"FROM attachment ".
-			(!empty($where) ? sprintf("WHERE %s ",$where) : "");
+			$where_sql.
+			$sort_sql.
+			$limit_sql
+		;
 		$rs = $db->ExecuteSlave($sql);
 		
 		return self::_getObjectsFromResult($rs);
@@ -376,21 +385,26 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		return array_column($results, 'hits', 'context');
 	}
 	
-	static function getByContextIds($context, $context_ids, $merged=true) {
+	static function getByContextIds($context, $context_ids, $merged=true, $limit=0) {
 		if(!is_array($context_ids))
-			$context_ids = array($context_ids);
+			$context_ids = [$context_ids];
 
 		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
 		
 		if(empty($context) && empty($context_ids))
-			return array();
+			return [];
 		
 		$db = DevblocksPlatform::services()->database();
 		
-		$results = self::getWhere(sprintf("id in (SELECT attachment_id FROM attachment_link WHERE context = %s AND context_id IN (%s))",
-			$db->qstr($context),
-			implode(',', $context_ids)
-		));
+		$results = self::getWhere(
+			sprintf("id in (SELECT attachment_id FROM attachment_link WHERE context = %s AND context_id IN (%s))",
+				$db->qstr($context),
+				implode(',', $context_ids)
+			),
+			null,
+			true,
+			$limit
+		);
 		
 		if($merged) {
 			return $results;
