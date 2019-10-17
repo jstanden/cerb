@@ -972,7 +972,10 @@ var ajax = new cAjaxCalls();
 			editor.setTheme("ace/theme/cerb");
 			editor.session.setMode(mode);
 			editor.session.setValue($this.val());
-			
+
+			editor.session.setOption('indentedSoftWrap', false);
+			editor.setOption('wrap', true);
+
 			$this
 				.data('$editor', $editor)
 				.data('editor', editor)
