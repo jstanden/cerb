@@ -3478,16 +3478,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.mail.reply_textbox_size.auto">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="preferences.account.mail.reply_textbox_size.pixels">
-			<tuv xml:lang="pt_PT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.mail.signature">
 			<tuv xml:lang="pt_PT">
 				<seg>Inserir a minha assinatura:</seg>

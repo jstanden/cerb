@@ -3458,16 +3458,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.mail.reply_textbox_size.auto">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="preferences.account.mail.reply_textbox_size.pixels">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.mail.signature">
 			<tuv xml:lang="it_IT">
 				<seg/>

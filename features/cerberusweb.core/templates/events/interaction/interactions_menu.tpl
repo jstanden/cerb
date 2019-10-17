@@ -1,5 +1,5 @@
 {if !empty($interactions_menu)}
-	<button type="button" class="cerb-bot-interactions-button"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button>
+	<button type="button" title="Bot interactions" class="cerb-bot-interactions-button {if $button_classes}{$button_classes}{/if}"><img src="{devblocks_url}c=avatars&context=app&id=0{/devblocks_url}" style="width:22px;height:22px;margin:-3px 0px 0px 2px;"></button>
 	
 	{function menu level=0}
 		{foreach from=$keys item=data key=idx}

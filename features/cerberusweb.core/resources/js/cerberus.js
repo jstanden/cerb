@@ -1682,6 +1682,214 @@ var ajax = new cAjaxCalls();
 		});
 	}
 
+	$.fn.cerbCodeEditorAutocompleteReplies = function() {
+		var Autocomplete = require('ace/autocomplete').Autocomplete;
+		var lang = require('ace/lib/lang');
+
+		var doCerbLiveAutocomplete = function(e) {
+			e.stopPropagation();
+
+			if('Tab' == e.command) {
+				return;
+			}
+
+			if(!e.editor.completer) {
+				var Autocomplete = require('ace/autocomplete').Autocomplete;
+				e.editor.completer = new Autocomplete();
+			}
+
+			if('insertstring' === e.command.name) {
+				e.editor.completer.showPopup(e.editor);
+			}
+		};
+
+		return this.each(function() {
+			var $editor = $(this)
+				.nextAll('pre.ace_editor')
+			;
+
+			var editor = ace.edit($editor.attr('id'));
+
+			if(!editor.completer) {
+				editor.completer = new Autocomplete();
+			}
+
+			var autocompleterReplies = {
+				getCompletions: function(editor, session, pos, prefix, callback) {
+					var token = session.getTokenAt(pos.row, pos.column);
+
+					if (null == token) {
+						return;
+
+					} else if (token.value.startsWith('#comment @')) {
+						var term = token.value.substring(token.value.lastIndexOf('@') + 1);
+
+						if (-1 !== term.lastIndexOf(' '))
+							return callback(null, []);
+
+						var query = 'type:worklist.records of:worker query:(isDisabled:n'
+							+ (term.length === 0
+								? ' mention:!""'
+								: ' (mention:{}*)'.replace(/\{\}/g, term)
+							)
+							+ ')'
+						;
+
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function (json) {
+							var results = [];
+
+							if ('object' != typeof json || !json.hasOwnProperty('data')) {
+								callback(null, []);
+								return;
+							}
+
+							for (var i in json.data) {
+								var worker = json.data[i];
+
+								results.push({
+									value: json.data[i]['at_mention_name'] + ' ',
+									docHTML: "<b>" + lang.escapeHTML(worker['_label']) + "</b><br>" + lang.escapeHTML(worker['title'])
+								});
+							}
+
+							callback(null, results);
+							return;
+						});
+
+					} else if (token.value.startsWith('#attach ')) {
+						var term = token.value.substring(token.value.lastIndexOf(' ') + 1);
+
+						if (-1 !== term.lastIndexOf(' '))
+							return callback(null, []);
+
+						var query = 'type:worklist.records of:file_bundle query:('
+							+ (term.length === 0
+								? ' tag:!""'
+								: ' (tag:{}*)'.replace(/\{\}/g, term)
+							)
+							+ ')'
+						;
+
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function (json) {
+							var results = [];
+
+							if ('object' != typeof json || !json.hasOwnProperty('data')) {
+								callback(null, []);
+								return;
+							}
+
+							for (var i in json.data) {
+								var file_bundle = json.data[i];
+
+								results.push({
+									value: json.data[i]['tag'],
+									docHTML: "<b>" + lang.escapeHTML(file_bundle['_label']) + "</b>"
+								});
+							}
+
+							callback(null, results);
+							return;
+						});
+
+					} else if (token.value.startsWith('#')) {
+						var idx = token.value.indexOf(' ');
+
+						if (-1 != idx && idx <= pos.column)
+							return callback(null, []);
+
+						var results = [];
+
+						var insertActions = function(editor, data) {
+							delete data.completer;
+
+							if('delete_quote_from_here' == data.value) {
+								editor.removeToLineStart();
+
+								var from = to = pos.row;
+
+								if(!editor.session.getLine(from).startsWith('>'))
+									return;
+
+								while(editor.session.getLine(to).startsWith('>')) {
+									to++;
+								}
+
+								if(to > from)
+									to--;
+
+								editor.session.doc.removeLines(from,to);
+
+							} else if('attach ' == data.value || 'comment @' == data.value) {
+								editor.completer.insertMatch(data);
+
+								// If we're inserting a field, trigger autocompletion
+								setTimeout(function() {
+									editor.commands.byName.startAutocomplete.exec(editor);
+								}, 50);
+							}
+						};
+
+						results.push({
+							value: 'attach ',
+							docHTML: "<b>Attach a file bundle by alias</b>",
+							completer: {
+								insertMatch: insertActions
+							}
+						});
+
+						results.push({
+							value: 'comment ',
+							docHTML: "<b>Add a comment</b>"
+						});
+
+						results.push({
+							value: 'comment @',
+							docHTML: "<b>Add a comment with @mention notifications</b>",
+							completer: {
+								insertMatch: insertActions
+							}
+						});
+
+						results.push({
+							value: 'cut',
+							docHTML: "<b>Ignore everything below this line</b>",
+						});
+
+						results.push({
+							value: 'delete_quote_from_here',
+							docHTML: "<b>Remove remaining quoted text from this line</b>",
+							completer: {
+								insertMatch: insertActions
+							}
+						});
+
+						results.push({
+							value: 'signature',
+							docHTML: "<b>Insert the signature placeholder</b>",
+						});
+
+						results.push({
+							value: 'unwatch',
+							docHTML: "<b>Stop watching this ticket</b>",
+						});
+
+						results.push({
+							value: 'watch',
+							docHTML: "<b>Start watching this ticket</b>",
+						});
+
+						callback(null, results);
+						return;
+					}
+				}
+			};
+
+			editor.setOption('enableBasicAutocompletion', []);
+			editor.completers.push(autocompleterReplies);
+			editor.commands.on('afterExec', doCerbLiveAutocomplete);
+		});
+	}
+
 	$.fn.cerbCodeEditorAutocompleteSearchQueries = function(autocomplete_options) {
 		var Autocomplete = require('ace/autocomplete').Autocomplete;
 		

@@ -88,6 +88,63 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 	}
 	
+	function previewReplyMessageAction() {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
+		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string','');
+		
+		if(false == ($group = DAO_Group::get($group_id)))
+			return;
+		
+		$html_template = $group->getReplyHtmlTemplate($bucket_id);
+		
+		// Parse #commands
+		
+		$message_properties = array(
+			'group_id' => $group_id,
+			'bucket_id' => $bucket_id,
+			'content' => $content,
+			'content_format' => $format,
+			'html_template_id' => 0, // [TODO] From group/bucket?
+		);
+		
+		$hash_commands = [];
+		
+		CerberusMail::parseReplyHashCommands($active_worker, $message_properties, $hash_commands);
+		
+		$output = $message_properties['content'];
+		
+		// Markdown
+		
+		if('parsedown' == $format) {
+			$output = DevblocksPlatform::parseMarkdown($output);
+			
+			// Wrap the reply in a template if we have one
+			
+			if($html_template) {
+				$dict = DevblocksDictionaryDelegate::instance([
+					'message_body' => $output,
+				]);
+				
+				$output = $tpl_builder->build($html_template->content, $dict);
+			}
+			
+			$output = DevblocksPlatform::purifyHTML($output, true, true);
+			
+		} else {
+			$output = nl2br(DevblocksPlatform::strEscapeHtml($output));
+		}
+		
+		$tpl->assign('content', $output);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
+	}
+	
 	function showMessageFullHeadersPopupAction() {
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		

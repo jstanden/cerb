@@ -3993,16 +3993,6 @@
 				<seg>While replying:</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.mail.reply_textbox_size.auto">
-			<tuv xml:lang="en_GB">
-				<seg>Automatically grow the text box as I type</seg>
-			</tuv>
-		</tu>
-		<tu tuid="preferences.account.mail.reply_textbox_size.pixels">
-			<tuv xml:lang="en_GB">
-				<seg>Set the initial text box height to </seg>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.mail.signature">
 			<tuv xml:lang="en_GB">
 				<seg>Insert my signature:</seg>
