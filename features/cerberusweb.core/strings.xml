@@ -745,11 +745,6 @@
 				<seg>Context</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.context_id">
-			<tuv xml:lang="en_US">
-				<seg>Context ID</seg>
-			</tuv>
-		</tu>
 		<tu tuid="common.contexts">
 			<tuv xml:lang="en_US">
 				<seg>Contexts</seg>
@@ -2188,9 +2183,29 @@
 				<seg>record</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.record.id">
+			<tuv xml:lang="en_US">
+				<seg>record id</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.record.ids">
+			<tuv xml:lang="en_US">
+				<seg>record ids</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.record.on">
 			<tuv xml:lang="en_US">
 				<seg>on record</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.record.type">
+			<tuv xml:lang="en_US">
+				<seg>record type</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.record.types">
+			<tuv xml:lang="en_US">
+				<seg>record types</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.records">

@@ -571,7 +571,7 @@ class SearchFields_ContextSavedSearch extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'context_saved_search', 'name', $translate->_('common.name'), null, true),
 			self::TAG => new DevblocksSearchField(self::TAG, 'context_saved_search', 'tag', $translate->_('common.tag'), null, true),
 			self::QUERY => new DevblocksSearchField(self::QUERY, 'context_saved_search', 'query', $translate->_('common.query'), null, true),
-			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_saved_search', 'context', $translate->_('common.context'), null, true),
+			self::CONTEXT => new DevblocksSearchField(self::CONTEXT, 'context_saved_search', 'context', $translate->_('common.record.type'), null, true),
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'context_saved_search', 'owner_context', null, null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'context_saved_search', 'owner_context_id', null, null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'context_saved_search', 'updated_at', $translate->_('common.updated'), null, true),
@@ -961,7 +961,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		$search_context_ext = $model->getContextExtension(false);
 		
 		$properties['context'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.context'),
+			'label' => DevblocksPlatform::translateCapitalized('common.record.type'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => @$search_context_ext->name ?: null,
 		);
