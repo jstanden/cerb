@@ -761,8 +761,11 @@ class Model_ContextScheduledBehavior {
 			DAO_ContextScheduledBehavior::delete($this->id);
 		}
 		
+		if(!method_exists($ext->class, 'trigger'))
+			return;
+		
 		// Execute
-		call_user_func(array($ext->class, 'trigger'), $macro->id, $this->context_id, $this->variables);
+		call_user_func([$ext->class, 'trigger'], $macro->id, $this->context_id, $this->variables);
 	}
 	
 	function getNextOccurrence() {

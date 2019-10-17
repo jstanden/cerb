@@ -2251,10 +2251,15 @@ class DevblocksEventHelper {
 					}
 					
 					if($run_in_simulator) {
+						if(!method_exists($ext->manifest->class, 'trigger')) {
+							$out .= "ERROR: This behavior type cannot be triggered.\n";
+							continue;
+						}
+						
 						// Save the current state so we can resume it after the remote behavior
 						$log = EventListener_Triggers::getNodeLog();
 						
-						$runners = call_user_func(array($ext->manifest->class, 'trigger'), $behavior->id, $on_object->id, $vars);
+						$runners = call_user_func([$ext->manifest->class, 'trigger'], $behavior->id, $on_object->id, $vars);
 						
 						// Restore the current state
 						EventListener_Triggers::setNodeLog($log);
@@ -2351,8 +2356,11 @@ class DevblocksEventHelper {
 					if(!isset($on_object->id) && empty($on_object->id))
 						continue;
 					
+					if(!method_exists($ext->class, 'trigger'))
+						continue;
+					
 					$log = EventListener_Triggers::getNodeLog();
-					$runners = call_user_func(array($ext->class, 'trigger'), $behavior->id, $on_object->id, $vars);
+					$runners = call_user_func([$ext->class, 'trigger'], $behavior->id, $on_object->id, $vars);
 					EventListener_Triggers::setNodeLog($log);
 					
 					if(null != (@$runner = $runners[$behavior->id])) {

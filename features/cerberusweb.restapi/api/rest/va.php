@@ -160,14 +160,14 @@ class ChRest_Bots extends Extension_RestController {
 		// Load event manifest
 		if(null == ($ext = Extension_DevblocksEvent::get($behavior->event_point, false))) /* @var $ext DevblocksExtensionManifest */
 			$this->error(self::ERRNO_CUSTOM);
-		
-		// Trigger an arbitrary macro
-		//$runners = call_user_func(array($ext->class, 'trigger'), $behavior->id, $context_id, $vars);
+			
+		if(!method_exists($ext->class, 'trigger'))
+			$this->error(self::ERRNO_CUSTOM, "This behavior type cannot be triggered.");
 		
 		// Trigger a custom API request
-		$runners = call_user_func(array($ext->class, 'trigger'), $behavior->id, $vars);
+		$runners = call_user_func([$ext->class, 'trigger'], $behavior->id, $vars);
 		
-		$values = array();
+		$values = [];
 		
 		if(null != (@$runner = $runners[$behavior->id])) {
 			// Return the whole scope of the behavior to the caller
