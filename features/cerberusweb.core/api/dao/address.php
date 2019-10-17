@@ -2697,9 +2697,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function broadcastRecipientFieldsGet() {
-		$token_labels = $token_values = [];
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_ADDRESS, $token_labels, $token_labels, $token_values, null, true);
-		
 		$results = $this->_broadcastRecipientFieldsGet(CerberusContexts::CONTEXT_ADDRESS, 'Email', [
 			'address',
 			'org_email_address',

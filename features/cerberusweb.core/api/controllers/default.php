@@ -205,7 +205,10 @@ class Controller_Default extends DevblocksControllerExtension {
 		}
 	}
 	
-	private function _getSearchMenu(Model_Worker $active_worker) {
+	private function _getSearchMenu(Model_Worker $active_worker=null) {
+		if(is_null($active_worker))
+			return [];
+		
 		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = 'worker_search_menu_' . $active_worker->id;
 		

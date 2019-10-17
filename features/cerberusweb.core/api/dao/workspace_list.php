@@ -932,27 +932,24 @@ class View_WorkspaceList extends C4_AbstractView implements IAbstractView_Subtot
 		switch($field) {
 			case SearchFields_WorkspaceList::COLUMNS_HIDDEN_JSON:
 			case SearchFields_WorkspaceList::CONTEXT:
-			case SearchFields_WorkspaceList::ID:
 			case SearchFields_WorkspaceList::NAME:
 			case SearchFields_WorkspaceList::OPTIONS_JSON:
 			case SearchFields_WorkspaceList::PARAMS_EDITABLE_JSON:
 			case SearchFields_WorkspaceList::PARAMS_REQUIRED_JSON:
 			case SearchFields_WorkspaceList::PARAMS_REQUIRED_QUERY:
-			case SearchFields_WorkspaceList::RENDER_LIMIT:
 			case SearchFields_WorkspaceList::RENDER_SORT_JSON:
 			case SearchFields_WorkspaceList::RENDER_SUBTOTALS:
-			case SearchFields_WorkspaceList::UPDATED_AT:
-			case SearchFields_WorkspaceList::WORKSPACE_TAB_ID:
-			case SearchFields_WorkspaceList::WORKSPACE_TAB_POS:
-			case 'placeholder_string':
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_WorkspaceList::ID:
+			case SearchFields_WorkspaceList::RENDER_LIMIT:
+			case SearchFields_WorkspaceList::WORKSPACE_TAB_ID:
+			case SearchFields_WorkspaceList::WORKSPACE_TAB_POS:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_WorkspaceList::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				

@@ -125,6 +125,9 @@ class _DevblocksSheetService {
 				if(!array_key_exists($column_type, $this->_types))
 					continue;
 				
+				if(!($sheet_dict instanceof DevblocksDictionaryDelegate))
+					$sheet_dict = DevblocksDictionaryDelegate::instance($sheet_dict);
+				
 				$row[$column_key] = $this->_types[$column_type]($column, $sheet_dict);
 			}
 			
@@ -137,7 +140,7 @@ class _DevblocksSheetService {
 
 class _DevblocksSheetServiceTypes {
 	function card() {
-		return function($column, $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$url_writer = DevblocksPlatform::services()->url();
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
@@ -229,7 +232,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function date() {
-		return function($column, $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			@$column_params = $column['params'] ?: [];
 			
 			if(array_key_exists('value', $column_params)) {
@@ -307,7 +310,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function search() {
-		return function($column, $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			@$column_key = $column['key'];
@@ -386,7 +389,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function searchButton() {
-		return function($column, $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			@$column_params = $column['params'] ?: [];
@@ -427,7 +430,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function slider() {
-		return function($column, $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			@$column_params = $column['params'] ?: [];
@@ -471,7 +474,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function text() {
-		return function($column, $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			@$column_params = $column['params'] ?: [];
@@ -504,7 +507,7 @@ class _DevblocksSheetServiceTypes {
 	}
 	
 	function timeElapsed() {
-		return function($column, $sheet_dict) {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			@$column_params = $column['params'] ?: [];

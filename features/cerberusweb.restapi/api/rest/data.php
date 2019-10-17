@@ -37,6 +37,7 @@ class ChRest_Data extends Extension_RestController { //implements IExtensionRest
 		$data = DevblocksPlatform::services()->data();
 		
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
+		$error = null;
 		
 		if(empty($query))
 			$this->error(self::ERRNO_CUSTOM, "The 'q' query parameter is required.");
@@ -53,6 +54,7 @@ class ChRest_Data extends Extension_RestController { //implements IExtensionRest
 		$data = DevblocksPlatform::services()->data();
 		
 		@$query = DevblocksPlatform::getHttpBody();
+		$error = null;
 		
 		if(empty($query))
 			$this->error(self::ERRNO_CUSTOM, "A query is required in the HTTP request body.");
