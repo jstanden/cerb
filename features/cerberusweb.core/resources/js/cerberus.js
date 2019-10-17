@@ -2928,7 +2928,120 @@ var ajax = new cAjaxCalls();
 			});
 		});
 	}
-	
+
+	// Image paste
+
+	$.fn.cerbCodeEditorInlineImagePaster = function(options) {
+		return this.each(function() {
+			var $cursor = $(this);
+			var $attachments = options['attachmentsContainer'];
+			var $ul = $attachments.find('ul.chooser-container');
+
+			$cursor.on('paste', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				// Uploads
+
+				var jobs = [];
+				var labels = [];
+				var values = [];
+
+				var uploadFunc = function(f, labels, values, callback) {
+					var xhr = new XMLHttpRequest();
+
+					if(xhr.upload) {
+						var $spinner = $('<span class="cerb-ajax-spinner"/>')
+							.css('zoom', '0.5')
+							.css('margin-right', '5px')
+						;
+
+						var $status = $('<li/>');
+
+						$status
+							.appendTo($ul)
+							.append($spinner)
+							.append(
+								$('<span/>')
+									.text('Uploading ' + f.name)
+							)
+						;
+
+						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileAjaxUpload', true);
+						xhr.setRequestHeader('X-File-Name', encodeURIComponent(f.name));
+						xhr.setRequestHeader('X-File-Type', f.type);
+						xhr.setRequestHeader('X-File-Size', f.size);
+						xhr.setRequestHeader('X-CSRF-Token', $('meta[name="_csrf_token"]').attr('content'));
+
+						xhr.onreadystatechange = function(e) {
+							if(xhr.readyState == 4) {
+								$status.remove();
+
+								// var json = {};
+
+								if(xhr.status == 200) {
+									var json = JSON.parse(xhr.responseText);
+
+									var file_id = json.id;
+									var file_name = json.name + ' (' + json.size_label + ')';
+									var file_type = json.type;
+
+									var url =
+										document.location.protocol
+										+ '//'
+										+ document.location.host
+										+ DevblocksWebPath
+										+ 'files/'
+										+ encodeURIComponent(file_id) + '/'
+										+ encodeURIComponent(file_name)
+									;
+
+									// Paste at cursor
+									if(file_type.lastIndexOf("image/", 0) === 0) {
+										options['editor'].insertSnippet('![inline-image](' + url + ")\n");
+									}
+
+									// Add to attachments container
+									if($ul && 0 === $ul.find('input:hidden[value="' + json.id + '"]').length) {
+										var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(json.id);
+										var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+										var $a = $('<a href="javascript:;"/>')
+											.attr('data-context', 'attachment')
+											.attr('data-context-id', json.id)
+											.text(json.name + ' (' + json.size_label + ')')
+											.cerbPeekTrigger()
+										;
+										var $li = $('<li/>').append($a).append($hidden).append($remove);
+										$ul.append($li);
+									}
+								}
+
+								callback(null);
+							}
+						};
+
+						xhr.send(f);
+					}
+				};
+
+				var files = e.originalEvent.clipboardData.files;
+
+				for(var i = 0, f; f = files[i]; i++) {
+					jobs.push(
+						async.apply(uploadFunc, f, labels, values)
+					);
+				}
+
+				if(0 === jobs.length)
+					return;
+
+				async.parallelLimit(jobs, 2, function(err, json) {
+					//if(err)
+				});
+			});
+		});
+	}
+
 	// File drag/drop zones
 	
 	$.fn.cerbAttachmentsDropZone = function() {
