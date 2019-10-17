@@ -147,7 +147,7 @@ function DevblocksClass() {
 	
 	this.clearAlerts = function() {
 		var $alerts = $('#cerb-alerts');
-		$alerts.find('.cerb-alert').remove();
+		$alerts.children().remove();
 	}
 	
 	this.createAlertError = function(message) {
