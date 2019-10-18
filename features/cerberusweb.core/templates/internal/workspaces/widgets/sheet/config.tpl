@@ -156,6 +156,7 @@ $(function() {
 			formData.append('sheet_yaml', editor.getValue());
 			formData.append('types[]', 'card');
 			formData.append('types[]', 'date');
+			formData.append('types[]', 'icon');
 			formData.append('types[]', 'link');
 			formData.append('types[]', 'search');
 			formData.append('types[]', 'search_button');

@@ -481,6 +481,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 					
 					$sheets->addType('card', $sheets->types()->card());
 					$sheets->addType('date', $sheets->types()->date());
+					$sheets->addType('icon', $sheets->types()->icon());
 					$sheets->addType('link', $sheets->types()->link());
 					$sheets->addType('slider', $sheets->types()->slider());
 					$sheets->addType('text', $sheets->types()->text());

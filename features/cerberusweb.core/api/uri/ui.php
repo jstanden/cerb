@@ -432,6 +432,9 @@ class Controller_UI extends DevblocksControllerExtension {
 		if(in_array('date', $types))
 			$sheets->addType('date', $sheets->types()->date());
 		
+		if(in_array('icon', $types))
+			$sheets->addType('icon', $sheets->types()->icon());
+		
 		if(in_array('link', $types))
 			$sheets->addType('link', $sheets->types()->link());
 		

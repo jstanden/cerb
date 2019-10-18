@@ -259,8 +259,71 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
-	function link() {
+	function icon() {
 		return function($column, $sheet_dict) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$value = '';
+			
+			@$column_params = $column['params'] ?: [];
+			
+			if(!is_array($column_params)) {
+				$column_params = [
+					'image' => $column_params
+				];
+			}
+			
+			if(array_key_exists('image', $column_params) && $column_params['image']) {
+				$image = $column_params['image'];
+			} else if(array_key_exists('image_key', $column_params)) {
+				$image = $sheet_dict->get($column_params['image_key']);
+			} else if(array_key_exists('image_template', $column_params)) {
+				$image = $tpl_builder->build($column_params['image_template'], $sheet_dict);
+			} else {
+				$image = '';
+			}
+			
+			$image = trim($image);
+			
+			// Sanitize image name against known list
+			
+			$icons_available = PageSection_SetupDevelopersReferenceIcons::getIcons();
+			
+			if($image) {
+				if(!in_array($image, $icons_available))
+					$image = null;
+			}
+			
+			/*
+			if(array_key_exists('color', $column_params) && $column_params['color']) {
+				$color = $column_params['color'];
+			} else if(array_key_exists('color_key', $column_params)) {
+				$color = $sheet_dict->get($column_params['color_key']);
+			} else if(array_key_exists('color_template', $column_params)) {
+				$color = $tpl_builder->build($column_params['color_template'], $sheet_dict);
+				$color = DevblocksPlatform::purifyHTML($color, false, true);
+			} else {
+				$color = '';
+			}
+			*/
+			
+			// [TODO] Sanitize color
+			
+			if($image) {
+				$span = sprintf('<span class="glyphicons glyphicons-%s" style="margin-right:0.25em;"></span>',
+					DevblocksPlatform::strEscapeHtml($image)
+				);
+				
+				DevblocksPlatform::purifyHTML($span);
+				
+				$value .= $span;
+			}
+			
+			return $value;
+		};
+	}
+	
+	function link() {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			@$column_params = $column['params'] ?: [];

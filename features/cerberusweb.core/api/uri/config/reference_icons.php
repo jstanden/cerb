@@ -16,23 +16,8 @@
 ***********************************************************************/
 
 class PageSection_SetupDevelopersReferenceIcons extends Extension_PageSection {
-	function render() {
-		$visit = CerberusApplication::getVisit();
-		$tpl = DevblocksPlatform::services()->template();
-		$response = DevblocksPlatform::getHttpResponse();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$active_worker->is_superuser)
-			return;
-		
-		$stack = $response->path;
-		
-		@array_shift($stack); // config
-		@array_shift($stack); // reference_icons
-		
-		$visit->set(ChConfigurationPage::ID, 'reference_icons');
-		
-		$icons = [
+	static function getIcons() {
+		return [
 			'activity',
 			'address-book',
 			'adjust',
@@ -644,6 +629,25 @@ class PageSection_SetupDevelopersReferenceIcons extends Extension_PageSection {
 			'zoom-in',
 			'zoom-out',
 		];
+	}
+	
+	function render() {
+		$visit = CerberusApplication::getVisit();
+		$tpl = DevblocksPlatform::services()->template();
+		$response = DevblocksPlatform::getHttpResponse();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			return;
+		
+		$stack = $response->path;
+		
+		@array_shift($stack); // config
+		@array_shift($stack); // reference_icons
+		
+		$visit->set(ChConfigurationPage::ID, 'reference_icons');
+		
+		$icons = self::getIcons();
 		
 		$tpl->assign('icons', $icons);
 		

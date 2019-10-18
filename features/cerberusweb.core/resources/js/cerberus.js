@@ -80,6 +80,10 @@ var cerbAutocompleteSuggestions = {
 				snippet: 'date:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #format: d-M-Y H:i:s T # See: https://php.net/date\n      #format: r\n      #value: 1577836800\n      #value_key: updated\n- '
 			},
 			{
+				caption: 'icon:',
+				snippet: 'icon:\n    key: ${1:_icon}\n    label: ${2:Icon}\n    params:\n      # See: Setup->Developers->Icon Reference\n      image: ${3:circle-ok}\n- '
+			},
+			{
 				caption: 'link:',
 				snippet: 'link:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      href: ${3:/some/path}\n      #href_key: some_key\n      #href_template: /some/path/{{placeholder}}\n      text: ${4:Link text}\n      #text_key: some_key\n- '
 			},
@@ -173,7 +177,19 @@ var cerbAutocompleteSuggestions = {
 			'r',
 			'Y-m-d H:i:s a'
 		],
-		
+
+		// Icon
+		'columns:-:icon:': [
+			'key:',
+			'label:',
+			'params:'
+		],
+		'columns:-:icon:params:': [
+			'image:',
+			'image_key:',
+			'image_template:',
+		],
+
 		// Links
 		'columns:-:link:': [
 			'key:',
