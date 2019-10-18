@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerberusweb.datacenter.sensors</id>
+	<name>Sensors</name>
+	<description>This plugin adds flexible Sensor objects that can be used for network and server monitoring, operational intelligence, etc.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>0.15.0</version>
+	<link>http://www.cerbweb.com/book/latest/plugins/cerberusweb.datacenter.sensors.html</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="9.4" max="9.4.99" />
+		<php_extension name="curl" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="9.4" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="1.0.0" revision="2" file="patches/1.0.0.php" />
+		<patch version="9.0.0" revision="3" file="patches/9.0.0.php" />
+	</patches>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="Extension_Sensor" />
+		</file>
+		
+		<file path="api/dao/sensor.php">
+			<class name="Context_Sensor" />
+			<class name="DAO_DatacenterSensor" />
+			<class name="Model_DatacenterSensor" />
+			<class name="SearchFields_DatacenterSensor" />
+			<class name="View_DatacenterSensor" />
+		</file>
+		
+		<file path="api/events/abstract_event_sensor.php">
+			<class name="AbstractEvent_Sensor" />
+		</file>
+		
+		<file path="api/events/sensor_macro.php">
+			<class name="Event_SensorMacro" />
+		</file>
+		
+	</class_loader>
+
+	<!-- Activity Points -->
+	
+	<activity_points>
+		<activity point="datacenter.sensor.status">
+			<param key="label_key" value="Sensor Status Changed" />
+			<param key="string_key" value="activities.datacenter.sensor.status" />
+			<param key="options" value="" />
+		</activity>
+	</activity_points>
+
+	<!-- Extensions -->
+
+	<extensions>
+
+		<!-- Contexts -->
+
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.datacenter.sensor</id>
+			<name>Sensor</name>
+			<class>
+				<file>api/dao/sensor.php</file>
+				<name>Context_Sensor</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="sensor" value="singular" />
+						<data key="sensors" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="sensor" />
+				<param key="dao_class" value="DAO_DatacenterSensor" />
+				<param key="view_class" value="View_DatacenterSensor" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Sensor Extensions -->
+		
+		<extension point="cerberusweb.datacenter.sensor">
+			<id>cerberusweb.datacenter.sensor.external</id>
+			<name>External</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WgmDatacenterSensorsSensorExternal</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.datacenter.sensor">
+			<id>cerberusweb.datacenter.sensor.http</id>
+			<name>HTTP</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WgmDatacenterSensorsSensorHttp</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.datacenter.sensor">
+			<id>cerberusweb.datacenter.sensor.port</id>
+			<name>Port</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WgmDatacenterSensorsSensorPort</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Workspace Widgets -->
+		
+		<extension point="cerberusweb.ui.workspace.widget.datasource">
+			<id>cerberusweb.datacenter.sensor.widget.datasource</id>
+			<name>Sensor</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WorkspaceWidgetDatasource_Sensor</name>
+			</class>
+			<params>
+				<param key="widgets">
+					<value>
+						<data key="core.workspace.widget.counter" />
+						<data key="core.workspace.widget.gauge" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Pages -->
+
+		<extension point="cerberusweb.page">
+			<id>cerberusweb.datacenter.sensors.page</id>
+			<name>Sensors Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Page_Sensors</name>
+			</class>
+			<params>
+				<param key="uri" value="datacenter.sensors" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+		
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>cerberusweb.profiles.sensor</id>
+			<name>Sensor Page Section</name>
+			<class>
+				<file>api/profiles/sensor.php</file>
+				<name>PageSection_ProfilesSensor</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="sensor" />
+			</params>
+		</extension>
+		
+		<!-- Scheduled Jobs -->
+		
+		<extension point="cerberusweb.cron">
+			<id>cerberusweb.datacenter.sensors.cron</id>
+			<name>Network and service monitoring</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Cron_WgmDatacenterSensors</name>
+			</class>
+			<params />
+		</extension>
+		
+		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>event.macro.sensor</id>
+			<name>Record custom behavior on sensor</name>
+			<class>
+				<file>api/events/sensor_macro.php</file>
+				<name>Event_SensorMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.datacenter.sensor" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Sensor" />
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<!-- REST Controllers -->
+		
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.datacenter.sensors.rest</id>
+			<name>Sensors</name>
+			<class>
+				<file>api/rest/sensors.php</file>
+				<name>ChRest_Sensors</name>
+			</class>
+			<params>
+				<param key="uri" value="sensors" />
+			</params>
+		</extension>
+		
+	</extensions> 
+</plugin>

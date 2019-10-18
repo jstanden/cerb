@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx>
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Plugin Strings -->
+
+		<tu tuid='datacenter.sensors.common.sensor'>
+			<tuv xml:lang="en_US"><seg>Sensor</seg></tuv>
+		</tu>
+		<tu tuid='datacenter.sensors.common.sensors'>
+			<tuv xml:lang="en_US"><seg>Sensors</seg></tuv>
+		</tu>
+
+		<!-- Activity -->
+		
+		<tu tuid='activities.datacenter.sensor.status'>
+			<tuv xml:lang="en_US"><seg>{{sensor}} sensor status changed to {{status_to}}</seg></tuv>
+		</tu>
+
+		<!-- DAO:DatacenterSensor -->
+		
+		<tu tuid='dao.datacenter_sensor.extension_id'>
+			<tuv xml:lang="en_US"><seg>Type</seg></tuv>
+		</tu>
+		<tu tuid='dao.datacenter_sensor.fail_count'>
+			<tuv xml:lang="en_US"><seg>Fail Count</seg></tuv>
+		</tu>
+		<tu tuid='dao.datacenter_sensor.is_disabled'>
+			<tuv xml:lang="en_US"><seg>Is Disabled</seg></tuv>
+		</tu>
+		<tu tuid='dao.datacenter_sensor.metric'>
+			<tuv xml:lang="en_US"><seg>Metric</seg></tuv>
+		</tu>
+		<tu tuid='dao.datacenter_sensor.metric_type'>
+			<tuv xml:lang="en_US"><seg>Metric Type</seg></tuv>
+		</tu>
+		<tu tuid='dao.datacenter_sensor.metric_delta'>
+			<tuv xml:lang="en_US"><seg>Change</seg></tuv>
+		</tu>
+		<tu tuid='dao.datacenter_sensor.output'>
+			<tuv xml:lang="en_US"><seg>Output</seg></tuv>
+		</tu>
+		
+	</body>
+</tmx>
