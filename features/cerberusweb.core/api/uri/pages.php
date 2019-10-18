@@ -602,6 +602,13 @@ class Page_Custom extends CerberusPageExtension {
 							DAO_WorkspacePage::onUpdateByActor($active_worker, $fields, $id);
 						}
 						
+						if($id) {
+							// Custom field saves
+							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id, $field_ids, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+						}
+						
 						echo json_encode(array(
 							'status' => true,
 							'id' => $id,
