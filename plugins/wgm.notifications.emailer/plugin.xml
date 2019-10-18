@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>wgm.notifications.emailer</id>
+	<name>Notifications Emailer</name>
+	<description>This plugin automatically sends an email to workers if they have received new notifications.  It sends digests, so if you receive 100 new assignments you'll only receive a single email about them.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>1.7.0</version>
+	<link>http://www.cerbweb.com/book/latest/plugins/wgm.notifications.emailer.html</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="9.4" max="9.4.99" />
+	</requires>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="9.4" />
+	</dependencies>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+
+		<extension point="cerberusweb.cron">
+			<id>wgm.notifications.emailer.cron</id>
+			<name>Notifications Emailer</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WgmNotifEmailerCron</name>
+			</class>
+			<params />
+		</extension>
+		
+    </extensions> 
+</plugin>
