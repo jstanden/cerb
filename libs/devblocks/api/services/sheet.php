@@ -199,6 +199,12 @@ class _DevblocksSheetServiceTypes {
 				$card_id = $sheet_dict->get($default_card_id_key);
 			}
 			
+			if(array_key_exists('icon', $column_params) && $column_params['icon']) {
+				$icon_column = $column;
+				$icon_column['params'] = $column_params['icon'];
+				$value .= $this->icon()($icon_column, $sheet_dict);
+			}
+			
 			if($card_context && $card_id && $card_label) {
 				// Avatar image?
 				if(array_key_exists('image', $column_params) && $column_params['image']) {
@@ -224,7 +230,7 @@ class _DevblocksSheetServiceTypes {
 				);
 				
 			} else {
-				$value = $card_label;
+				$value .= DevblocksPlatform::strEscapeHtml($card_label);
 			}
 			
 			return $value;

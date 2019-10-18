@@ -136,12 +136,18 @@ var cerbAutocompleteSuggestions = {
 			'context:',
 			'context_key:',
 			'context_template:',
+			'icon:',
 			'id:',
 			'id_key:',
 			'id_template:',
 			'label:',
 			'label_key:',
 			'label_template:'
+		],
+		'columns:-:card:params:icon:': [
+			'image:',
+			'image_key:',
+			'image_template:'
 		],
 		'columns:-:card:params:image:': [
 			'true',
