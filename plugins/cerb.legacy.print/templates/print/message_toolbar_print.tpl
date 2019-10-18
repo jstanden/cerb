@@ -1,0 +1,1 @@
+<button type="button" onclick="document.location.href='{devblocks_url}c=print&a=message&id={$message->id}{/devblocks_url}';"><span class="glyphicons glyphicons-print"></span> {'common.print'|devblocks_translate|capitalize}</button>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerb.legacy.print</id>
+	<name>Legacy Printing</name>
+	<description>This plugin reproduces the old print functionality from Cerb versions earlier than 9.0.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>0.4.0</version>
+	<link></link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="9.4" max="9.4.99" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="9.4" />
+	</dependencies>
+
+	<!-- Extensions -->
+
+	<extensions>
+		<!--  Controllers -->
+		
+		<extension point="devblocks.controller">
+			<id>cerb.legacy.print.controller</id>
+			<name>Print Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Controller_Print</name>
+			</class>
+			<params>
+				<param key="uri" value="print" />
+			</params>
+		</extension>
+		
+		<!-- Ticket Message Tabs -->
+			
+		<extension point="cerberusweb.message.toolbaritem">
+			<id>cerb.legacy.print.toolbaritem.print</id>
+			<name>Ticket Message Toolbar Print Item</name>
+			<class>
+				<file>api/App.php</file>
+				<name>MessageToolbarItem_Print</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<!-- Profile Script -->
+		
+		<extension point="cerberusweb.ui.context.profile.script">
+			<id>cerb.legacy.print.profile.ticket.script</id>
+			<name>Ticket Profile Print Script</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ProfileScript_TicketPrint</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.ticket" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>
