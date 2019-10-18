@@ -2900,6 +2900,12 @@ var ajax = new cAjaxCalls();
 					e.type = 'cerb-peek-saved';
 					e.context = context;
 					$trigger.trigger(e);
+					
+					if(e.is_new) {
+						var new_event = $.Event(e.type, e);
+						new_event.type = 'cerb-peek-created';
+						$trigger.trigger(new_event);
+					}
 				});
 				
 				$peek.on('peek_deleted', function(e) {

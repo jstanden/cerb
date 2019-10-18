@@ -326,7 +326,11 @@ function DevblocksClass() {
 		var $frm = $popup.find('form').first();
 		var options = e.data;
 		var is_delete = (options && options.mode == 'delete');
-		var is_continue = (options && options.mode == 'continue');
+		var is_create = (options && (options.mode == 'create' || options.mode == 'create_continue'));
+		var is_continue = (options && (options.mode == 'continue' || options.mode == 'create_continue'));
+		
+		if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+			return;
 		
 		if(options && options.before && typeof options.before == 'function') {
 			options.before(e, $frm);
@@ -375,6 +379,9 @@ function DevblocksClass() {
 					event = new jQuery.Event('peek_deleted');
 				} else {
 					event = new jQuery.Event('peek_saved');
+					
+					if(is_create)
+						event.is_new = true;
 				}
 				
 				// Meta fields
