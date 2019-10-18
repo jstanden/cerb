@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerb.legacy.profile.attachments</id>
+	<name>Legacy Profile Attachments ZIP Download</name>
+	<description>Download all of the attachments on a record as a single ZIP.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>0.4.0</version>
+	<link></link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="9.4" max="9.4.99" />
+		<php_extension name="zip" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="9.4" />
+	</dependencies>
+
+	<!-- Extensions -->
+
+	<extensions>
+		<!--  Controllers -->
+		
+		<extension point="devblocks.controller">
+			<id>cerb.legacy.profile.attachments.controller</id>
+			<name>Download ZIP Controller</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Controller_AttachmentsAsZip</name>
+			</class>
+			<params>
+				<param key="uri" value="attachments.zip" />
+			</params>
+		</extension>
+	
+		<!-- Profile Script -->
+		
+		<extension point="cerberusweb.ui.context.profile.script">
+			<id>cerb.legacy.profile.attachments.script</id>
+			<name>Profile Attachments Download Script</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ProfileScript_ProfileAttachmentsZip</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.ticket" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>
