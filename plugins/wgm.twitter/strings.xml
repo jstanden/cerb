@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx>
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Plugin Strings -->
+
+		<tu tuid='wgm.twitter.common'>
+			<tuv xml:lang="en_US"><seg>Twitter</seg></tuv>
+		</tu>
+		
+		<tu tuid='wgm.twitter.common.account'>
+			<tuv xml:lang="en_US"><seg>Twitter Account</seg></tuv>
+		</tu>
+		<tu tuid='wgm.twitter.common.message'>
+			<tuv xml:lang="en_US"><seg>Twitter Message</seg></tuv>
+		</tu>
+		<tu tuid='wgm.twitter.common.tweet'>
+			<tuv xml:lang="en_US"><seg>Tweet</seg></tuv>
+		</tu>
+		
+		<!-- Twitter Message -->
+		
+		<tu tuid='dao.twitter_message.account_id'>
+			<tuv xml:lang="en_US"><seg>Account</seg></tuv>
+		</tu>
+		<tu tuid='dao.twitter_message.twitter_id'>
+			<tuv xml:lang="en_US"><seg>Twitter ID</seg></tuv>
+		</tu>
+		<tu tuid='dao.twitter_message.twitter_user_id'>
+			<tuv xml:lang="en_US"><seg>Twitter User ID</seg></tuv>
+		</tu>
+		<tu tuid='dao.twitter_message.user_name'>
+			<tuv xml:lang="en_US"><seg>Username</seg></tuv>
+		</tu>
+		<tu tuid='dao.twitter_message.user_screen_name'>
+			<tuv xml:lang="en_US"><seg>Screen Name</seg></tuv>
+		</tu>
+		<tu tuid='dao.twitter_message.user_followers_count'>
+			<tuv xml:lang="en_US"><seg># Followers</seg></tuv>
+		</tu>
+		<tu tuid='dao.twitter_message.user_profile_image_url'>
+			<tuv xml:lang="en_US"><seg>Profile Image</seg></tuv>
+		</tu>
+		<tu tuid='dao.twitter_message.is_closed'>
+			<tuv xml:lang="en_US"><seg>Is Closed</seg></tuv>
+		</tu>
+		
+	</body>
+</tmx>
