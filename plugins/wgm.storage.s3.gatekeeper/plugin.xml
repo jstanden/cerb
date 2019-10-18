@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>wgm.storage.s3.gatekeeper</id>
+	<name>S3 Gatekeeper Storage Engine</name>
+	<description>This plugin adds a new storage engine for Amazon S3 that doesn't store or expose your AWS account credentials. Instead, it authenticates with a remote gatekeeper script and retrieves a secure, pre-signed URL that is used to perform requests.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>1.7.0</version>
+	<link>http://www.cerbweb.com/book/latest/plugins/wgm.storage.s3.gatekeeper.html</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="9.4" max="9.4.99" />
+		<php_extension name="curl" />
+	</requires>
+	
+	<!-- Plugin Dependencies -->
+
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="9.4" />
+	</dependencies>
+
+	<!-- Extensions -->
+
+	<extensions>
+
+		<!-- Storage Engines -->
+		<extension point="devblocks.storage.engine">
+			<id>devblocks.storage.engine.gatekeeper</id>
+			<name>S3 Gatekeeper</name>
+			<class>
+				<file>api/App.php</file>
+				<name>DevblocksStorageEngineGatekeeper</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+	</extensions>
+</plugin>
