@@ -2853,6 +2853,11 @@ var ajax = new cAjaxCalls();
 				var width = $trigger.attr('data-width');
 				var edit_mode = $trigger.attr('data-edit') ? true : false;
 				
+				var profile_url = $trigger.attr('data-profile-url');
+				
+				if(!profile_url && (evt.shiftKey || evt.metaKey))
+					edit_mode = true;
+				
 				// Context
 				if(!(typeof context == "string") || 0 == context.length)
 					return;
@@ -2862,12 +2867,7 @@ var ajax = new cAjaxCalls();
 					//layer = "peek" + Devblocks.uniqueId();
 					layer = $.md5(context + ':' + context_id + ':' + (edit_mode ? 'true' : 'false'));
 				
-				var profile_url = $trigger.attr('data-profile-url');
-				
-				// Are they also holding SHIFT or CMD?
-				if((evt.shiftKey || evt.metaKey) && profile_url) {
-					evt.preventDefault();
-					evt.stopPropagation();
+				if(profile_url && (evt.shiftKey || evt.metaKey)) {
 					window.open(profile_url, '_blank', 'noopener');
 					return;
 				}
