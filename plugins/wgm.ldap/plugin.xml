@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>wgm.ldap</id>
+	<name>LDAP Integration</name>
+	<description>Authenticate worker and customer logins via LDAP.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>1.9.0</version>
+	<link>http://www.cerbweb.com/book/latest/plugins/wgm.ldap.html</link>
+	<image>plugin.png</image>
+ 
+ 	<!-- Requirements -->
+
+	<requires>
+		<app_version min="9.4" max="9.4.99" />
+		<php_extension name="ldap" />
+	</requires>
+ 
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="9.4" />
+	</dependencies>
+	
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="8.0.0" revision="1" file="patches/8.0.0.php" />
+	</patches>
+
+	<!-- Templates -->
+	
+	<templates set="cerberusweb.support_center">
+		<template path="support_center/login/ldap.tpl" />
+	</templates>
+
+	<!-- Extensions -->
+ 
+	<extensions>
+	
+		<!-- Support Center Login Authenticator -->
+		
+		<extension point="usermeet.login.authenticator">
+			<id>sc.login.auth.ldap</id>
+			<name>LDAP</name>
+			<class>
+				<file>api/App.php</file>
+				<name>ScLdapLoginAuthenticator</name>
+			</class>
+			<params>
+				<param key="switcher_icon" value="images/fugue/address-book.png" />
+				<param key="switcher_label" value="Log in with LDAP" />
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>
