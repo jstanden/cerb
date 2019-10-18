@@ -32,6 +32,15 @@ $sql = sprintf("DELETE FROM worker_pref WHERE setting IN (%s,%s)",
 $db->ExecuteMaster($sql);
 
 // ===========================================================================
+// Drop plugin library tables
+
+if(array_key_exists('plugin_library', $tables))
+	$db->ExecuteMaster("DROP TABLE plugin_library");
+
+if(array_key_exists('fulltext_plugin_library', $tables))
+	$db->ExecuteMaster("DROP TABLE fulltext_plugin_library");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

@@ -56,23 +56,6 @@ class CerbEval_UI_Screenshots extends CerbTestBase {
 		$this->assertTrue(true);
 	}
 	
-	function testScreenshotPluginLibrary() {
-		$cerb = CerbTestHelper::getInstance();
-		$driver = $cerb->driver();
-		
-		$cerb->getPathAndWait('/config/plugins/library');
-		
-		$driver->wait(5, 250)->until(
-			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('viewplugin_library'))
-		);
-		
-		usleep(500000);
-		
-		$driver->takeScreenshot("screenshots/plugin_library.png");
-		
-		$this->assertTrue(true);
-	}
-	
 	public function testLogoutKina() {
 		$cerb = CerbTestHelper::getInstance();
 		

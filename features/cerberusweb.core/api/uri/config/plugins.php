@@ -27,11 +27,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		@array_shift($stack); // config
 		@array_shift($stack); // plugins
 		
-		if(false != (@$tab = array_shift($stack)))
-			$tpl->assign('tab', $tab);
-		
-		// When someone loads the plugin page, check for new or updated
-		//	 user-installed plugins on disk
+		// When someone loads the plugin page, check for new or updated user-installed plugins on disk
 		if(DEVELOPMENT_MODE) {
 			DevblocksPlatform::readPlugins();
 			DAO_Platform::cleanupPluginTables();
@@ -40,12 +36,6 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 			DevblocksPlatform::readPlugins(false, ['plugins','storage/plugins']);
 		}
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/index.tpl');
-	}
-
-	function showTabAction() {
-		$tpl = DevblocksPlatform::services()->template();
-		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_CerbPlugin');
 		$defaults->id = self::VIEW_PLUGINS;
 		$defaults->renderLimit = 10;
@@ -53,18 +43,18 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		$defaults->renderSortAsc = true;
 		
 		$view = C4_AbstractViewLoader::getView(self::VIEW_PLUGINS, $defaults);
-		$view->name = "Installed Plugins";
+		$view->name = "Available Plugins";
 		
 		// Exclude devblocks.core, cerberusweb.core
 		$view->addParamsRequired(array(
-			SearchFields_CerbPlugin::ID => new DevblocksSearchCriteria(SearchFields_CerbPlugin::ID, DevblocksSearchCriteria::OPER_NIN, array('devblocks.core','cerberusweb.core')),
+			SearchFields_CerbPlugin::ID => new DevblocksSearchCriteria(SearchFields_CerbPlugin::ID, DevblocksSearchCriteria::OPER_NIN, ['devblocks.core','cerberusweb.core']),
 		));
 		
 		$tpl->assign('view', $view);
 		
-		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/tab.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/index.tpl');
 	}
-	
+
 	function showPopupAction() {
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
@@ -72,7 +62,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		@$worker = CerberusApplication::getActiveWorker();
 		
 		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
+			echo DevblocksPlatform::translate('common.access_denied');
 			return;
 		}
 		
@@ -86,7 +76,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		
 		$tpl->assign('plugin', $plugin);
 
-		$is_uninstallable = CERB_FEATURES_PLUGIN_LIBRARY && (APP_STORAGE_PATH == substr($plugin->getStoragePath(), 0, strlen(APP_STORAGE_PATH)));
+		$is_uninstallable = (APP_STORAGE_PATH == substr($plugin->getStoragePath(), 0, strlen(APP_STORAGE_PATH)));
 		$tpl->assign('is_uninstallable', $is_uninstallable);
 		
 		// Check requirements
@@ -128,7 +118,7 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		try {
 			$plugin = DevblocksPlatform::getPlugin($plugin_id);
 			
-			if($uninstall && CERB_FEATURES_PLUGIN_LIBRARY) {
+			if($uninstall) {
 				$plugin->uninstall();
 				DAO_Platform::cleanupPluginTables();
 				DAO_Platform::maint();

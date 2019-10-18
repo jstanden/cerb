@@ -2669,9 +2669,6 @@ class DevblocksPluginManifest {
 	}
 	
 	function uninstall() {
-		if(!CERB_FEATURES_PLUGIN_LIBRARY)
-			return false;
-		
 		$plugin_path = $this->getStoragePath();
 		$storage_path = APP_STORAGE_PATH . '/plugins/';
 		

@@ -1868,21 +1868,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.plugin_library.icon_url">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.plugin_library.plugin_id">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
-		<tu tuid="dao.plugin_library.requirements_json">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="dao.snippet.total_uses">
 			<tuv xml:lang="it_IT">
 				<seg/>

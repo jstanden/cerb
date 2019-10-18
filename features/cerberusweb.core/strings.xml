@@ -3159,24 +3159,6 @@
 			<seg>Fingerprint</seg></tuv>
 		</tu>
 		
-		<!-- Plugin Library -->
-		
-		<tu tuid="dao.plugin_library.plugin_id">
-			<tuv xml:lang="en_US">
-				<seg>Plugin ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.plugin_library.icon_url">
-			<tuv xml:lang="en_US">
-				<seg>Icon URL</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.plugin_library.requirements_json">
-			<tuv xml:lang="en_US">
-				<seg>Requirements</seg>
-			</tuv>
-		</tu>
-		
 		<!-- Mailbox -->
 		
 		<tu tuid='dao.mailbox.checked_at'>

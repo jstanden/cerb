@@ -855,26 +855,6 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$this->assertTrue(true);
 	}
 	
-	function testPluginLibraryUpdate() {
-		$cerb = CerbTestHelper::getInstance();
-		$driver = $cerb->driver();
-		
-		$cerb->getPathAndWait('/config/plugins/library/');
-		
-		$driver->wait(10)->until(
-			WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::id('btnPluginLibrarySync'))
-		);
-		
-		$button = $driver->findElement(WebDriverBy::id('btnPluginLibrarySync'))
-			->click();
-		
-		$driver->wait(20)->until(
-			WebDriverExpectedCondition::elementTextContains(WebDriverBy::id('divPluginLibrarySync'), 'Success!')
-		);
-		
-		$this->assertTrue(true);
-	}
-	
 	public function testLogoutKina() {
 		$cerb = CerbTestHelper::getInstance();
 		
