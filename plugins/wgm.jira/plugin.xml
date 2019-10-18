@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>wgm.jira</id>
+	<name>JIRA Integration (Legacy)</name>
+	<description>This plugin provides integration with Atlassian JIRA via their REST API.  It is intended to be a bridge used by other plugins to communicate with JIRA services.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>0.11.0</version>
+	<link>http://www.cerbweb.com/book/latest/plugins/wgm.jira</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="9.4" max="9.4.99" />
+		<php_extension name="curl" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="9.4" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="6.0.0" revision="5" file="patches/6.0.0.php" />
+		<patch version="7.2.0" revision="10" file="patches/7.2.0.php" />
+		<patch version="7.3.0" revision="11" file="patches/7.3.0.php" />
+		<patch version="9.0.0" revision="14" file="patches/9.0.0.php" />
+		<patch version="9.1.0" revision="15" file="patches/9.1.0.php" />
+	</patches>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/App.php">
+			<class name="WgmJira_API" />
+		</file>
+		
+		<file path="api/dao/jira_issue.php">
+			<class name="Context_JiraIssue" />
+			<class name="DAO_JiraIssue" />
+			<class name="Model_JiraIssue" />
+			<class name="Search_JiraIssue" />
+			<class name="SearchFields_JiraIssue" />
+			<class name="View_JiraIssue" />
+		</file>
+	
+		<file path="api/dao/jira_project.php">
+			<class name="Context_JiraProject" />
+			<class name="DAO_JiraProject" />
+			<class name="Model_JiraProject" />
+			<class name="SearchFields_JiraProject" />
+			<class name="View_JiraProject" />
+		</file>
+		
+		<file path="api/events/abstract_event_jira_issue.php">
+			<class name="AbstractEvent_JiraIssue" />
+		</file>
+		
+		<file path="api/events/abstract_event_jira_project.php">
+			<class name="AbstractEvent_JiraProject" />
+		</file>
+		
+		<file path="api/events/jira_issue_created.php">
+			<class name="Event_JiraIssueCreated" />
+		</file>
+		
+		<file path="api/events/jira_issue_commented.php">
+			<class name="Event_JiraIssueCommented" />
+		</file>
+		
+		<file path="api/events/jira_issue_status_changed.php">
+			<class name="Event_JiraIssueStatusChanged" />
+		</file>
+		
+		<file path="api/events/jira_issue_macro.php">
+			<class name="Event_JiraIssueMacro" />
+		</file>
+		
+		<file path="api/events/jira_project_macro.php">
+			<class name="Event_JiraProjectMacro" />
+		</file>
+		
+	</class_loader>
+
+	<!-- Extensions -->
+
+	<extensions>
+
+		<!-- Contexts -->
+
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.jira.project</id>
+			<name>Jira Project</name>
+			<class>
+				<file>api/dao/jira_project.php</file>
+				<name>Context_JiraProject</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="jira project" value="singular" />
+						<data key="jira projects" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="jira_project" />
+				<param key="dao_class" value="DAO_JiraProject" />
+				<param key="view_class" value="View_JiraProject" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<!--<data key="records" />-->
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="create" />
+						<data key="comment" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.jira.issue</id>
+			<name>Jira Issue</name>
+			<class>
+				<file>api/dao/jira_issue.php</file>
+				<name>Context_JiraIssue</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="jira issue" value="singular" />
+						<data key="jira issues" value="plural" />
+						<data key="jira" value="singular proper" />
+					</value>
+				</param>
+				<param key="alias" value="jira_issue" />
+				<param key="dao_class" value="DAO_JiraIssue" />
+				<param key="view_class" value="View_JiraIssue" />
+				<param key="options">
+					<value>
+						<!--<data key="cards" />-->
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>jira.page.profiles.jira_project</id>
+			<name>Jira Project Section</name>
+			<class>
+				<file>api/profile/jira_project.php</file>
+				<name>PageSection_ProfilesJiraProject</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="jira_project" />
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>jira.page.profiles.jira_issue</id>
+			<name>Jira Issue Section</name>
+			<class>
+				<file>api/profile/jira_issue.php</file>
+				<name>PageSection_ProfilesJiraIssue</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="jira_issue" />
+			</params>
+		</extension>
+		
+		<!-- Search Schemas -->
+		
+		<extension point="devblocks.search.schema">
+			<id>jira.search.schema.jira_issue</id>
+			<name>Jira Issues</name>
+			<class>
+				<file>api/dao/jira_issue.php</file>
+				<name>Search_JiraIssue</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<!-- Scheduled Jobs -->
+		
+		<extension point="cerberusweb.cron">
+			<id>wgmjira.cron</id>
+			<name>JIRA Synchronization</name>
+			<class>
+				<file>api/App.php</file>
+				<name>WgmJira_Cron</name>
+			</class>
+			<params />
+		</extension>
+		
+		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>wgmjira.event.issue.created</id>
+			<name>New JIRA issue</name>
+			<class>
+				<file>api/events/jira_issue_created.php</file>
+				<name>Event_JiraIssueCreated</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+					</value>
+				</param>
+				<param key="menu_key" value="JIRA:New issue" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>wgmjira.event.issue.commented</id>
+			<name>New comment on JIRA issue</name>
+			<class>
+				<file>api/events/jira_issue_commented.php</file>
+				<name>Event_JiraIssueCommented</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+					</value>
+				</param>
+				<param key="menu_key" value="JIRA:New comment on issue" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>wgmjira.event.issue.status.changed</id>
+			<name>New status on JIRA issue</name>
+			<class>
+				<file>api/events/jira_issue_status_changed.php</file>
+				<name>Event_JiraIssueStatusChanged</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+					</value>
+				</param>
+				<param key="menu_key" value="JIRA:New status on issue" />
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.macro.jira_issue</id>
+			<name>Record custom behavior on JIRA issue</name>
+			<class>
+				<file>api/events/jira_issue_macro.php</file>
+				<name>Event_JiraIssueMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.jira.issue" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="menu_key" value="Records:Custom Behavior:JIRA issue" />
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="devblocks.event">
+			<id>event.macro.jira_project</id>
+			<name>Record custom behavior on JIRA project</name>
+			<class>
+				<file>api/events/jira_project_macro.php</file>
+				<name>Event_JiraProjectMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.jira.project" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="menu_key" value="Records:Custom Behavior:JIRA project" />
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+	</extensions>
+</plugin>

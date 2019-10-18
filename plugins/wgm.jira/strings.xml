@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx>
+<tmx version="1.4">
+	<header datatype="winres" segtype="sentence" adminlang="en-us" srclang="en-us" o-tmf="abc" />
+	<body>
+
+		<!-- Plugin Strings -->
+
+		<tu tuid='wgm.jira.common'>
+			<tuv xml:lang="en_US"><seg>JIRA</seg></tuv>
+		</tu>
+		
+		<tu tuid='wgm.jira.common.issue'>
+			<tuv xml:lang="en_US"><seg>Issue</seg></tuv>
+		</tu>
+		<tu tuid='wgm.jira.common.issues'>
+			<tuv xml:lang="en_US"><seg>Issues</seg></tuv>
+		</tu>
+		
+		<!-- Jira Issue -->
+		
+		<tu tuid='dao.jira_issue.project_id'>
+			<tuv xml:lang="en_US"><seg>Project</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_issue.jira_id'>
+			<tuv xml:lang="en_US"><seg>Jira ID</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_issue.jira_key'>
+			<tuv xml:lang="en_US"><seg>Key</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_issue.jira_versions'>
+			<tuv xml:lang="en_US"><seg>Versions</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_issue.summary'>
+			<tuv xml:lang="en_US"><seg>Summary</seg></tuv>
+		</tu>
+		
+		<!-- Jira Project -->
+		
+		<tu tuid='dao.jira_project.jira_id'>
+			<tuv xml:lang="en_US"><seg>Jira ID</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_project.jira_key'>
+			<tuv xml:lang="en_US"><seg>Key</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_project.issuetypes_json'>
+			<tuv xml:lang="en_US"><seg>Issue Types</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_project.versions_json'>
+			<tuv xml:lang="en_US"><seg>Versions</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_project.last_checked_at'>
+			<tuv xml:lang="en_US"><seg>Last Checked At</seg></tuv>
+		</tu>
+		<tu tuid='dao.jira_project.last_synced_at'>
+			<tuv xml:lang="en_US"><seg>Last Synced At</seg></tuv>
+		</tu>
+		
+	</body>
+</tmx>
