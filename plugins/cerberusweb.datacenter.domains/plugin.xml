@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerberusweb.datacenter.domains</id>
+	<name>Domains</name>
+	<description>This plugin adds Domain objects for managing webhosting/SaaS/On-Demand infrastructure.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>1.11.0</version>
+	<link>http://www.cerbweb.com/book/latest/plugins/cerberusweb.datacenter.domains.html</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="9.4" max="9.4.99" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="9.4" />
+		<require plugin_id="cerberusweb.datacenter.servers" version="9.4" />
+	</dependencies>
+
+	<!-- Patches -->
+1
+	<patches>
+		<patch version="5.1.0" revision="1" file="patches/5.1.0.php" />
+		<patch version="6.9.0" revision="2" file="patches/6.9.0.php" />
+		<patch version="9.0.0" revision="4" file="patches/9.0.0.php" />
+	</patches>
+
+	<!-- Exported Classes -->
+
+	<class_loader>
+		<file path="api/dao/domain.php">
+			<class name="Context_Domain" />
+			<class name="DAO_Domain" />
+			<class name="Model_Domain" />
+			<class name="Plugin_Domain" />
+			<class name="SearchFields_Domain" />
+			<class name="View_Domain" />
+		</file>
+		<file path="api/events/abstract_event_domain.php">
+			<class name="AbstractEvent_Domain" />
+		</file>
+		<file path="api/events/domain_macro.php">
+			<class name="Event_DomainMacro" />
+		</file>
+	</class_loader>
+
+	<!-- Extensions -->
+
+	<extensions>
+
+		<!-- Event Listeners -->
+
+		<extension point="devblocks.listener.event">
+			<id>cerberusweb.datacenter.domains.listener</id>
+			<name>Event Listener</name>
+			<class>
+				<file>api/App.php</file>
+				<name>EventListener_DatacenterDomains</name>
+			</class>
+			<params>
+				<param key="events">
+					<value>
+						<data key="cron.maint" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Contexts -->
+
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.datacenter.domain</id>
+			<name>Domain</name>
+			<class>
+				<file>api/dao/domain.php</file>
+				<name>Context_Domain</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="domain" value="singular" />
+						<data key="domains" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="domain" />
+				<param key="dao_class" value="DAO_Domain" />
+				<param key="view_class" value="View_Domain" />
+				<param key="options">
+					<value>
+						<data key="autocomplete" />
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="broadcast" />
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Events -->
+
+		<extension point="devblocks.event">
+			<id>event.macro.domain</id>
+			<name>Record custom behavior on domain</name>
+			<class>
+				<file>api/events/domain_macro.php</file>
+				<name>Event_DomainMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.datacenter.domain" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="menu_key" value="Records:Custom Behavior:Domain" />
+				<param key="options">
+					<value>
+						<data key="visibility" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<!-- VA Actions -->
+		
+		<extension point="devblocks.event.action">
+			<id>va.action.create_domain</id>
+			<name>Create Domain</name>
+			<class>
+				<file>api/App.php</file>
+				<name>VaAction_CreateDomain</name>
+			</class>
+			<params>
+				<param key="label" value="Create domain" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<!-- Pages -->
+
+		<extension point="cerberusweb.page">
+			<id>cerberusweb.datacenter.domains.page</id>
+			<name>Domains Page</name>
+			<class>
+				<file>api/App.php</file>
+				<name>Page_Domains</name>
+			</class>
+			<params>
+				<param key="uri" value="datacenter.domains" />
+				<param key="menutitle" value="" />
+			</params>
+		</extension>
+
+		<!-- Profile Page Sections -->
+
+		<extension point="cerberusweb.ui.page.section">
+			<id>cerberusweb.datacenter.page.profiles.domain</id>
+			<name>Domain Section</name>
+			<class>
+				<file>api/profiles/domain.php</file>
+				<name>PageSection_ProfilesDomain</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="domain" />
+			</params>
+		</extension>
+
+		<!-- REST Controllers -->
+
+		<extension point="cerberusweb.rest.controller">
+			<id>cerberusweb.datacenter.domains.rest</id>
+			<name>Domains</name>
+			<class>
+				<file>api/rest/domains.php</file>
+				<name>ChRest_Domains</name>
+			</class>
+			<params>
+				<param key="uri" value="domains" />
+			</params>
+		</extension>
+
+	</extensions>
+</plugin>
