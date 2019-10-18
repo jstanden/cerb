@@ -549,29 +549,34 @@ class _DevblocksSheetServiceTypes {
 			@$column_params = $column['params'] ?: [];
 			$is_escaped = false;
 			
+			$value = '';
+			
+			if(array_key_exists('icon', $column_params) && $column_params['icon']) {
+				$icon_column = $column;
+				$icon_column['params'] = $column_params['icon'];
+				$value .= $this->icon()($icon_column, $sheet_dict);
+			}
+			
 			if(array_key_exists('value', $column_params)) {
-				$value = $column_params['value'];
+				$text_value = $column_params['value'];
 			} else if(array_key_exists('value_key', $column_params)) {
-				$value = $sheet_dict->get($column_params['value_key']);
+				$text_value = $sheet_dict->get($column_params['value_key']);
 			} else if(array_key_exists('value_template', $column_params)) {
-				$value = $tpl_builder->build($column_params['value_template'], $sheet_dict);
-				$value = DevblocksPlatform::purifyHTML($value, false, true);
+				$out = $tpl_builder->build($column_params['value_template'], $sheet_dict);
+				$text_value = DevblocksPlatform::purifyHTML($out, false, true);
 				$is_escaped = true;
 			} else {
-				$value = $sheet_dict->get($column['key']);
+				$text_value = $sheet_dict->get($column['key'], null);
 			}
 			
 			if(array_key_exists('value_map', $column_params) && is_array($column_params['value_map'])) {
 				if(array_key_exists($value, $column_params['value_map']))
-					$value = $column_params['value_map'][$value];
+					$text_value = $column_params['value_map'][$text_value];
 			}
 			
-			if($is_escaped) {
-				return $value;
-				
-			} else {
-				return DevblocksPlatform::strEscapeHtml($value);
-			}
+			$value .= $is_escaped ? $text_value : DevblocksPlatform::strEscapeHtml($text_value);
+			
+			return $value;
 		};
 	}
 	

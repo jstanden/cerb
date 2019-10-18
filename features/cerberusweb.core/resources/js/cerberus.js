@@ -116,13 +116,19 @@ var cerbAutocompleteSuggestions = {
 			'value_key:',
 			'value_template:',
 			'value_map:',
-			'bold:'
+			'bold:',
+			'icon:'
 		],
 		'columns:-:text:params:bold:': [
 			'true',
 			'false'
 		],
-		
+		'columns:-:text:params:icon:': [
+			'image:',
+			'image_key:',
+			'image_template:'
+		],
+
 		// Cards
 		'columns:-:card:': [
 			'key:',
