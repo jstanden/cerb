@@ -697,11 +697,13 @@ function DevblocksClass() {
 			}
 			
 			if(null != token) {
+				var token_column = iter.getCurrentTokenColumn();
+
 				// We're on a new indent
 				if(token.type == 'text' && token.value.length > 0 && 0 == token.value.trimStart().length) {
 					current_indent = token.value;
 					iter.stepBackward();
-					
+
 				} else if (token.type == 'list.markup' || (token.type == 'string' && token.value.substr(-2) == '- ')) {
 					var tag_indent = " ".repeat(token.value.length);
 					
@@ -715,8 +717,9 @@ function DevblocksClass() {
 				
 				do {
 					token = iter.getCurrentToken();
-					
-					if(token.type == 'meta.tag') {
+					token_column = iter.getCurrentTokenColumn()
+
+					if(token.type === 'meta.tag' && 0 === token_column) {
 						var token_value = token.value;
 						var prevToken = iter.stepBackward();
 						
