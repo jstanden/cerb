@@ -56,6 +56,7 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
 				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
 				@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
+				@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array()), 'int');
 				
 				// Owner
 				
