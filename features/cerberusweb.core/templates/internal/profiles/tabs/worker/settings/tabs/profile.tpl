@@ -19,7 +19,7 @@
 		<label><input type="radio" name="gender" value="F" {if $worker->gender == 'F'}checked="checked"{/if}> <span class="glyphicons glyphicons-female" style="color:rgb(243,80,157);"></span> {'common.gender.female'|devblocks_translate|capitalize}</label>
 		&nbsp; 
 		&nbsp; 
-		<label><input type="radio" name="gender" value="" {if empty($worker->gender)}checked="checked"{/if}>  Not specified</label>
+		<label><input type="radio" name="gender" value="" {if empty($worker->gender)}checked="checked"{/if}>  {'common.gender.not_specified'|devblocks_translate}</label>
 	</div>
 	
 	<div style="margin-bottom:5px;">

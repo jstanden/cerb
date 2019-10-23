@@ -10,7 +10,7 @@
 
 <fieldset class="peek">
 	<legend>
-		Always show these record types in the search menu: (<a href="javascript:;" onclick="checkAll('prefsSearchFavorites');">{'common.all'|devblocks_translate|lower}</a>)
+		{'worker.config.search.title'|devblocks_translate}: (<a href="javascript:;" onclick="checkAll('prefsSearchFavorites');">{'common.all'|devblocks_translate|lower}</a>)
 	</legend>
 	
 	<div id="prefsSearchFavorites" style="column-width:225px;column-count:auto;">

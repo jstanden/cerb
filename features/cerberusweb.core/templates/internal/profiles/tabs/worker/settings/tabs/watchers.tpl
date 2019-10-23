@@ -9,8 +9,8 @@
 <input type="hidden" name="tab" value="watchers">
 
 <fieldset class="peek">
-<legend>If I'm watching something, send me a notification when these events happen:</legend>
-Select: 
+<legend>{'worker.config.watcher.title'|devblocks_translate}:</legend>
+{'common.select'|devblocks_translate|capitalize}: 
 <a href="javascript:;" onclick="checkAll('{$form_id}',true);">{'common.all'|devblocks_translate|lower}</a>
 | <a href="javascript:;" onclick="checkAll('{$form_id}',false);">{'common.none'|devblocks_translate|lower}</a>
 <br>

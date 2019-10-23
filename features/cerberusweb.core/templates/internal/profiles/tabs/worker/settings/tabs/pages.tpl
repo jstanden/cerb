@@ -9,7 +9,7 @@
 <input type="hidden" name="tab" value="pages">
 
 <fieldset class="peek">
-	<legend>Show these pages in the navigation bar:</legend>
+	<legend>{'worker.config.pages.title'|devblocks_translate}:</legend>
 	
 	<div style="margin-left:10px;"></div>
 	

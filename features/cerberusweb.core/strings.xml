@@ -305,6 +305,11 @@
 				<seg>anonymous</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.answer">
+			<tuv xml:lang="en_US">
+				<seg>answer</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.any">
 			<tuv xml:lang="en_US">
 				<seg>any</seg>
@@ -368,6 +373,21 @@
 		<tu tuid="common.auth.2fa">
 			<tuv xml:lang="en_US">
 				<seg>two-factor authentication</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.auth.2fa.desc">
+			<tuv xml:lang="en_US">
+				<seg>Two-factor authentication adds extra protection to your account during logins and account recovery by requiring a security code from a device in your possession in addition to your password.</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.auth.2fa.recover.hint">
+			<tuv xml:lang="en_US">
+				<seg>You should pick questions that don't have answers that could be easily obtained from social networks or a Google search. Your answers shouldn't come from a small set of choices that could be guessed in a few attempts, such as "How old were you when...".</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.auth.2fa.recover.info">
+			<tuv xml:lang="en_US">
+				<seg>When recovering your account's login information without two-factor authentication, you'll be asked one or more of the following secret questions to verify your identity.</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.auth.mfa">
@@ -1320,6 +1340,11 @@
 				<seg>male</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.gender.not_specified">
+			<tuv xml:lang="en_US">
+				<seg>Not specified</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.global">
 			<tuv xml:lang="en_US">
 				<seg>global</seg>
@@ -1353,6 +1378,11 @@
 		<tu tuid="common.help.one_per_line">
 			<tuv xml:lang="en_US">
 				<seg>one per line</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.hint">
+			<tuv xml:lang="en_US">
+				<seg>hint</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.history">
@@ -2148,6 +2178,11 @@
 				<seg>Query</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.question">
+			<tuv xml:lang="en_US">
+				<seg>question</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.quick_compose">
 			<tuv xml:lang="en_US">
 				<seg>Quick Compose</seg>
@@ -2393,9 +2428,24 @@
 				<seg>secret</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.secret_question">
+			<tuv xml:lang="en_US">
+				<seg>secret question</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.secret_questions">
+			<tuv xml:lang="en_US">
+				<seg>secret questions</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.security">
 			<tuv xml:lang="en_US">
 				<seg>security</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.select">
+			<tuv xml:lang="en_US">
+				<seg>select</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.selection">
@@ -2512,6 +2562,11 @@
 		<tu tuid="common.size">
 			<tuv xml:lang="en_US">
 				<seg>size</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.size.pixels">
+			<tuv xml:lang="en_US">
+				<seg>pixels</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.skill">
@@ -2972,6 +3027,16 @@
 		<tu tuid="common.workspace.page.config.tab_type">
 			<tuv xml:lang="en_US">
 				<seg>display tabs as</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.page.config.tab.as_tabs">
+			<tuv xml:lang="en_US">
+				<seg>Tab set (default)</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.workspace.page.config.tab.as_dropdown">
+			<tuv xml:lang="en_US">
+				<seg>Dropdown menu</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.workspace.tab">
@@ -5010,6 +5075,21 @@ For example: *receipt*</seg>
 		<tu tuid="worker.at_mention_name">
 			<tuv xml:lang="en_US">
 				<seg>@Mention</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worker.config.pages.title">
+			<tuv xml:lang="en_US">
+				<seg>Show these pages in the navigation bar</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worker.config.search.title">
+			<tuv xml:lang="en_US">
+				<seg>Always show these record types in the search menu</seg>
+			</tuv>
+		</tu>
+		<tu tuid="worker.config.watcher.title">
+			<tuv xml:lang="en_US">
+				<seg>If I'm watching something, send me a notification when these events happen</seg>
 			</tuv>
 		</tu>
 		<tu tuid="worker.is_mfa_required">

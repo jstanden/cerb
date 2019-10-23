@@ -12,7 +12,7 @@
 	<legend>{'common.auth.2fa'|devblocks_translate|capitalize}</legend>
 	
 	<p>
-		Two-factor authentication adds extra protection to your account during logins and account recovery by requiring a security code from a device in your possession in addition to your password.
+		{'common.auth.2fa.desc'|devblocks_translate}
 	</p>
 	
 	{if !$worker->is_mfa_required}
@@ -52,13 +52,13 @@
 </fieldset>
 
 <fieldset class="peek">
-	<legend>Secret Questions</legend>
+	<legend>{'common.secret_questions'|devblocks_translate|capitalize}</legend>
 	
 	<p>
-		When recovering your account's login information without two-factor authentication, you'll be asked one or more of the following secret questions to verify your identity.
+		{'common.auth.2fa.recover.info'|devblocks_translate}
 	</p>
 	<p>
-		You should pick questions that don't have answers that could be easily obtained from social networks or a Google search.  Your answers shouldn't come from a small set of choices that could be guessed in a few attempts, such as "How old were you when...".
+		{'common.auth.2fa.recover.hint'|devblocks_translate}
 	</p>
 	
 	{$q_placeholder = ["e.g. Where do you wish you met your spouse?","e.g. What is your favorite sentence in your favorite book?","e.g. What did you turn into gold during a lucid dream?"]}
@@ -66,19 +66,19 @@
 
 	{section start=0 loop=3 name=secrets}
 	{$section_idx = $smarty.section.secrets.index}
-	<h3 style="margin:5px 0;">Secret Question #{$smarty.section.secrets.iteration}</h3>
+	<h3 style="margin:5px 0;">{'common.secret_question'|devblocks_translate|capitalize} #{$smarty.section.secrets.iteration}</h3>
 	
 	<table cellspacing="1" cellpadding="0" border="0">
 		<tr>
-			<td>Question:</td>
+			<td>{'common.question'|devblocks_translate|capitalize}:</td>
 			<td><input type="text" name="sq_q[]" value="{$secret_questions.$section_idx.q}" size="96" placeholder="{$q_placeholder.$section_idx}" autocomplete="off"></td>
 		</tr>
 		<tr>
-			<td>Hint:</td>
+			<td>{'common.hint'|devblocks_translate|capitalize}:</td>
 			<td><input type="text" name="sq_h[]" value="{$secret_questions.$section_idx.h}" size="96" placeholder="" autocomplete="off"></td>
 		</tr>
 		<tr>
-			<td>Answer:</td>
+			<td>{'common.answer'|devblocks_translate|capitalize}:</td>
 			<td><input type="text" name="sq_a[]" value="{$secret_questions.$section_idx.a}" size="96" placeholder="{$a_placeholder.$section_idx}" autocomplete="off"></td>
 		</tr>
 	</table>
