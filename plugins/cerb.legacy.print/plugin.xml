@@ -4,14 +4,14 @@
 	<name>Legacy Printing</name>
 	<description>This plugin reproduces the old print functionality from Cerb versions earlier than 9.0.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>0.4.0</version>
+	<version>10.0.0</version>
 	<link></link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.6" max="9.6.99" />
+		<app_version min="10.0" max="10.0.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->

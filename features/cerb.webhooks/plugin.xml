@@ -4,14 +4,14 @@
 	<name>Webhooks</name>
 	<description>This plugin enables Cerb to catch webhooks and execute bot behaviors in response.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.6.0</version>
+	<version>10.0.0</version>
 	<link>http://cerbweb.com/book/latest/developer_guide/plugins/plugin.xml</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.6" max="9.6.99" />
+		<app_version min="10.0" max="10.0.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->

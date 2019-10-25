@@ -4,14 +4,14 @@
 	<name>Ticket Profile 'Move To' Shortcut</name>
 	<description>Adds a "move to" shortcut to the top of ticket profiles.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>0.4.0</version>
+	<version>10.0.0</version>
 	<link></link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.6" max="9.6.99" />
+		<app_version min="10.0" max="10.0.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
