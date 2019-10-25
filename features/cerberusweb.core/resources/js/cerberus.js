@@ -3017,8 +3017,9 @@ var ajax = new cAjaxCalls();
 									var json = JSON.parse(xhr.responseText);
 
 									var file_id = json.id;
-									var file_name = json.name + ' (' + json.size_label + ')';
+									var file_name = json.name;
 									var file_type = json.type;
+									var file_size_label = '(' + json.size_label + ')';
 
 									var url =
 										document.location.protocol
@@ -3036,13 +3037,13 @@ var ajax = new cAjaxCalls();
 									}
 
 									// Add to attachments container
-									if($ul && 0 === $ul.find('input:hidden[value="' + json.id + '"]').length) {
-										var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(json.id);
+									if($ul && 0 === $ul.find('input:hidden[value="' + file_id + '"]').length) {
+										var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(file_id);
 										var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 										var $a = $('<a href="javascript:;"/>')
 											.attr('data-context', 'attachment')
-											.attr('data-context-id', json.id)
-											.text(json.name + ' (' + json.size_label + ')')
+											.attr('data-context-id', file_id)
+											.text(file_name + ' ' + file_size_label)
 											.cerbPeekTrigger()
 										;
 										var $li = $('<li/>').append($a).append($hidden).append($remove);
