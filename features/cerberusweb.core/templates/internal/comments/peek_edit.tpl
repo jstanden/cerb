@@ -184,8 +184,17 @@ $(function() {
 				.cerbCodeEditorAutocompleteComments()
 				;
 
+			var $editor_pre = $editor.nextAll('pre.ace_editor');
+
 			// Focus editor
-			var editor = ace.edit($editor.nextAll('pre.ace_editor').attr('id'));
+			var editor = ace.edit($editor_pre.attr('id'));
+
+			$editor_pre.find('.ace_text-input')
+				.cerbCodeEditorInlineImagePaster({
+					editor: editor,
+					attachmentsContainer: $attachments
+				})
+				;
 
 			// Comment editor toolbar
 
