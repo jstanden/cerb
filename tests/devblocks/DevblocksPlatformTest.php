@@ -797,7 +797,7 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 		// Test untrusted ($is_untrusted=true)
 		$dirty_html = '<a href="https://cerb.ai">Website</a>';
-		$expected = '<a href="https://cerb.ai" target="_blank">Website</a>';
+		$expected = '<a href="https://cerb.ai" target="_blank" rel="noreferrer noopener">Website</a>';
 		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true);
 		$this->assertEquals($expected, $actual);
 	}
