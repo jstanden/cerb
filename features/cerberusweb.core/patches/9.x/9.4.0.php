@@ -41,6 +41,16 @@ if(array_key_exists('fulltext_plugin_library', $tables))
 	$db->ExecuteMaster("DROP TABLE fulltext_plugin_library");
 
 // ===========================================================================
+// Increase `worker_auth_hash.pass_hash` length
+
+list($columns,) = $db->metaTable('worker_auth_hash');
+
+if(array_key_exists('pass_hash', $columns) && 0 != strcasecmp('varchar(255)', $columns['pass_hash']['type'])) {
+	$sql = "ALTER TABLE worker_auth_hash MODIFY COLUMN pass_hash VARCHAR(255) DEFAULT ''";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
