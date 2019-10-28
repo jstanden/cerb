@@ -134,9 +134,6 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initLibs() {
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/pclzip/pclzip.lib.php', array(
-			'PclZip'
-		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
 		));
