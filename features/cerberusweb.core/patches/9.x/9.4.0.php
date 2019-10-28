@@ -34,8 +34,50 @@ $db->ExecuteMaster($sql);
 // ===========================================================================
 // Drop plugin library tables
 
-if(array_key_exists('plugin_library', $tables))
+if(array_key_exists('plugin_library', $tables)) {
 	$db->ExecuteMaster("DROP TABLE plugin_library");
+
+	// Drop retired plugins
+	
+	$migrate940_recursiveDelTree = function($dir) use (&$migrate940_recursiveDelTree) {
+		if(file_exists($dir) && is_dir($dir)) {
+			$files = glob($dir . '*', GLOB_MARK);
+			foreach($files as $file) {
+				if(is_dir($file)) {
+					$migrate940_recursiveDelTree($file);
+				} else {
+					unlink($file);
+				}
+			}
+			
+			if(file_exists($dir) && is_dir($dir))
+				rmdir($dir);
+		}
+	};
+	
+	$migrated_plugins = [
+		'cerb.legacy.print',
+		'cerb.legacy.profile.attachments',
+		'cerb.profile.ticket.moveto',
+		'cerberusweb.calls',
+		'cerberusweb.datacenter.domains',
+		'cerberusweb.datacenter.sensors',
+		'cerberusweb.datacenter.servers',
+		'cerberusweb.feed_reader',
+		'wgm.jira',
+		'wgm.ldap',
+		'wgm.notifications.emailer',
+		'wgm.storage.s3.gatekeeper',
+		'wgm.twitter',
+	];
+	
+	foreach($migrated_plugins as $plugin_id) {
+		$dir = APP_STORAGE_PATH . '/plugins/' . $plugin_id . '/';
+		
+		if(file_exists($dir) && is_dir($dir))
+			$migrate940_recursiveDelTree($dir);
+	}
+}
 
 if(array_key_exists('fulltext_plugin_library', $tables))
 	$db->ExecuteMaster("DROP TABLE fulltext_plugin_library");
