@@ -1101,18 +1101,43 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$worker_auth = $db->GetRowSlave(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker->id));
 		
-		if(!isset($worker_auth['pass_hash']) || !isset($worker_auth['pass_salt']))
+		if(!isset($worker_auth['pass_hash']))
 			return null;
 		
-		if(empty($worker_auth['pass_hash']) || empty($worker_auth['pass_salt']))
+		if(empty($worker_auth['pass_hash']))
 			return null;
 		
 		switch(@$worker_auth['method']) {
+			// password_hash()
+			case 1:
+				if(password_verify($password, $worker_auth['pass_hash'])) {
+					if(password_needs_rehash($worker_auth['pass_hash'], PASSWORD_DEFAULT)) {
+						$db->ExecuteMaster(sprintf("UPDATE worker_auth_hash SET pass_hash = %s WHERE worker_id = %d",
+							$db->qstr(password_hash($password, PASSWORD_DEFAULT)),
+							$worker->id
+						));
+					}
+					
+					return $worker;
+				}
+				break;
+				
+			// Legacy hashing (Cerb < 9.4)
 			default:
+				if(!array_key_exists('pass_salt', $worker_auth) || !$worker_auth['pass_salt'])
+					return null;
+				
 				$given_hash = sha1($worker_auth['pass_salt'] . md5($password));
 				
-				if($given_hash == $worker_auth['pass_hash'])
+				if($given_hash == $worker_auth['pass_hash']) {
+					// Upgrade password to stronger hashing method
+					$db->ExecuteMaster(sprintf("UPDATE worker_auth_hash SET pass_hash = %s, pass_salt = '', method = 1 WHERE worker_id = %d",
+						$db->qstr(password_hash($password, PASSWORD_DEFAULT)),
+						$worker->id
+					));
+					
 					return $worker;
+				}
 				break;
 		}
 		
