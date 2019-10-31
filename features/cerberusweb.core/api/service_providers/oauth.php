@@ -412,8 +412,6 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 				if(false == ($refresh_token = $access_token->getRefreshToken()))
 					return false;
 				
-				$provider = $this->_getProvider($params);
-				
 				$access_token = $provider->getAccessToken('refresh_token', [
 					'refresh_token' => $refresh_token
 				]);
