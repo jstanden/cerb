@@ -3,6 +3,15 @@ $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Update package library
+
+$packages = [
+	'cerb_connected_service_google.json',
+];
+
+CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
+
+// ===========================================================================
 // Add `email_signature.signature_html` field
 
 list($columns,) = $db->metaTable('email_signature');
