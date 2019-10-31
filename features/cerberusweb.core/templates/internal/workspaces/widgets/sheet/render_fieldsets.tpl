@@ -31,7 +31,7 @@
 	{/foreach}
 	</table>
 	
-	{if $layout.paging && $paging}
+	{if $layout.paging && $paging && $paging.page.of > 1}
 	<div style="text-align:right;margin-top:5px;">
 		{if array_key_exists('first', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.first}">&lt;&lt;</a>{/if}
 		{if array_key_exists('prev', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.prev}">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>{/if}

@@ -32,7 +32,7 @@
 	{/foreach}
 	</table>
 	
-	{if $layout.paging && $paging}
+	{if $layout.paging && $paging && $paging.page.of > 1}
 	<div style="text-align:right;margin-top:5px;">
 		(Showing {if $paging.page.rows.from==$paging.page.rows.to}{$paging.page.rows.from}{else}{$paging.page.rows.from}-{$paging.page.rows.to}{/if}
 		 of {$paging.page.rows.of}) 
