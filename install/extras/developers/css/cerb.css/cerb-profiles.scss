@@ -1,0 +1,42 @@
+.cerb-profile-widget {
+	min-width:345px;
+	overflow-x:hidden;
+
+	> DIV {
+		padding:0px 5px 10px 5px;
+	}
+}
+
+.cerb-profile-widget--header {
+	border-bottom:1px solid rgb(240,240,240);
+	margin:0 0 10px 0;
+	border-radius:5px;
+	position:relative;
+
+	//border:2px solid rgb(200,200,200);
+	//box-shadow:0px 0px 2px rgb(200,200,200);
+	//background-color:rgb(235,235,235);
+	//background-color:rgb(245,245,245);
+	//padding:5px 0 5px 10px;
+
+	b {
+		font-size:1.7em;
+		color:rgb(0,0,0);
+
+		.glyphicons-menu-hamburger {
+			vertical-align:middle;
+			cursor:move;
+			color:rgb(180,180,180);
+			font-size:0.8em;
+		}
+
+		.glyphicons-chevron-down {
+			font-size:0.5em;
+			vertical-align:middle;
+			margin-left:5px;
+		}
+	}
+}
+
+.cerb-profile-widget--content {
+}

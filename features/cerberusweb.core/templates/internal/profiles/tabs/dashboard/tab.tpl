@@ -56,7 +56,7 @@
 $(function() {
 	var $container = $('#profileTab{$model->id}');
 	var $add_button = $('#btnProfileTabAddWidget{$model->id}');
-	
+
 	// Drag
 	{if $active_worker->is_superuser}
 	$container.find('.cerb-profile-layout-zone--widgets')
@@ -67,7 +67,7 @@ $(function() {
 			placeholder: 'ui-state-highlight',
 			forceHelperSize: true,
 			forcePlaceholderSize: true,
-			handle: '.cerb-profile-widget--header .glyphicons-menu-hamburger',
+			handle: '.cerb-profile-widget--header',
 			connectWith: '.cerb-profile-layout-zone--widgets',
 			opacity: 0.7,
 			start: function(event, ui) {
@@ -124,7 +124,22 @@ $(function() {
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-profile-widget--menu');
 		var $menu_link = $target.find('.cerb-profile-widget--link');
-		
+
+		{if $active_worker->is_superuser}
+		$target.find('.cerb-profile-widget--header.cerb-draggable').hoverIntent({
+			interval: 750,
+			timeout: 250,
+			over: function (e) {
+				$(this).css('cursor', 'move');
+				$(this).find('> b a').css('cursor', 'move');
+			},
+			out: function (e) {
+				$(this).css('cursor', null);
+				$(this).find('> b a').css('cursor', null);
+			}
+		});
+		{/if}
+
 		$menu
 			.menu({
 				select: function(event, ui) {

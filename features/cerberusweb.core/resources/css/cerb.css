@@ -430,6 +430,7 @@ INPUT[type=text].input_url {
   padding: 2px 2px 2px 25px;
   background: url(input_icons/link.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
 }
+
 INPUT[type=password] {
   padding: 2px 2px 2px 25px;
   background: url(input_icons/lock.png?v=2015030101) no-repeat scroll 5px 50% #ffffff;
@@ -2271,6 +2272,66 @@ UL.ui-menu li.ui-state-focus {
   margin: 0;
   padding: 0;
   color: inherit;
+}
+
+.cerb-profile-widget {
+  min-width: 345px;
+  overflow-x: hidden;
+}
+.cerb-profile-widget > DIV {
+  padding: 0px 5px 10px 5px;
+}
+
+.cerb-profile-widget--header {
+  border-bottom: 1px solid #f0f0f0;
+  margin: 0 0 10px 0;
+  border-radius: 5px;
+  position: relative;
+}
+.cerb-profile-widget--header b {
+  font-size: 1.7em;
+  color: black;
+}
+.cerb-profile-widget--header b .glyphicons-menu-hamburger {
+  vertical-align: middle;
+  cursor: move;
+  color: #b4b4b4;
+  font-size: 0.8em;
+}
+.cerb-profile-widget--header b .glyphicons-chevron-down {
+  font-size: 0.5em;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
+.cerb-workspace-widget {
+  min-width: 345px;
+  overflow-x: hidden;
+}
+.cerb-workspace-widget > DIV {
+  padding: 0px 5px 10px 5px;
+}
+
+.cerb-workspace-widget--header {
+  border-bottom: 1px solid #f0f0f0;
+  margin: 0 0 10px 0;
+  border-radius: 5px;
+  position: relative;
+}
+.cerb-workspace-widget--header b {
+  font-size: 1.7em;
+  color: black;
+}
+.cerb-workspace-widget--header b .glyphicons-menu-hamburger {
+  vertical-align: middle;
+  cursor: move;
+  color: #b4b4b4;
+  font-size: 0.8em;
+}
+.cerb-workspace-widget--header b .glyphicons-chevron-down {
+  font-size: 0.5em;
+  vertical-align: middle;
+  margin-left: 5px;
 }
 
 div.cerb-board div.cerb-board-columns {
