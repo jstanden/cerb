@@ -92,6 +92,51 @@ if(array_key_exists('fulltext_plugin_library', $tables))
 	$db->ExecuteMaster("DROP TABLE fulltext_plugin_library");
 
 // ===========================================================================
+// Confirm utf8mb4 encoding with better tests than 9.2
+
+if(!isset($tables['comment']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('comment');
+
+if(!array_key_exists('comment', $columns))
+	return FALSE;
+
+if('utf8mb4_unicode_ci' != $columns['comment']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE comment MODIFY COLUMN comment MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE comment");
+	$db->ExecuteMaster("OPTIMIZE TABLE comment");
+}
+
+if(!isset($tables['ticket']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('ticket');
+
+if('utf8mb4_unicode_ci' != $columns['subject']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE ticket MODIFY COLUMN subject VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE ticket");
+	$db->ExecuteMaster("OPTIMIZE TABLE ticket");
+}
+
+if(!isset($tables['worker']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('worker');
+
+if('utf8mb4_unicode_ci' != $columns['location']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE worker MODIFY COLUMN location VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE worker");
+	$db->ExecuteMaster("OPTIMIZE TABLE worker");
+}
+
+if('utf8mb4_unicode_ci' != $columns['title']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE worker MODIFY COLUMN title VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE worker");
+	$db->ExecuteMaster("OPTIMIZE TABLE worker");
+}
+
+// ===========================================================================
 // Increase `worker_auth_hash.pass_hash` length
 
 list($columns,) = $db->metaTable('worker_auth_hash');
