@@ -4,7 +4,7 @@
 	<name>Time Tracking</name>
 	<description>Track time spent on various helpdesk activities (replying to tickets, etc).  This adds a Track Time button to Display Ticket and Organizations, and a Time Tracking tab to the Activity page.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.3.6</version>
+	<version>9.3.7</version>
 	<link>http://wiki.cerbweb.com/Features:Time_Tracking</link>
 	<image>plugin.png</image>
 	
