@@ -59,7 +59,7 @@
         "grant_type": "authorization_code",
         "client_id": "{{{prompt_client_id}}}",
         "client_secret": "{{{prompt_client_secret}}}",
-        "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth",
+        "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline",
         "access_token_url": "https://www.googleapis.com/oauth2/v4/token",
         "resource_owner_url": "",
         "scope": "{{{prompt_scope}}}",
