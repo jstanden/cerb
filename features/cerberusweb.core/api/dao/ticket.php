@@ -788,6 +788,11 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = [$ids];
 		
+		// Truncate the subject if necessary
+		if(array_key_exists(self::SUBJECT, $fields))
+			if(strlen($fields[self::SUBJECT]) > 255)
+				$fields[self::SUBJECT] = mb_substr($fields[self::SUBJECT], 0, 255);
+		
 		$context = CerberusContexts::CONTEXT_TICKET;
 		self::_updateAbstract($context, $ids, $fields);
 		
