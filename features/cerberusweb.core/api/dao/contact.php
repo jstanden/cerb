@@ -20,6 +20,8 @@ class DAO_Contact extends Cerb_ORMHelper {
 	const UPDATED_AT = 'updated_at';
 	const USERNAME = 'username';
 	
+	const _IMAGE = '_image';
+	
 	private function __construct() {}
 	
 	static function getFields() {
@@ -128,6 +130,11 @@ class DAO_Contact extends Cerb_ORMHelper {
 			->addField(self::USERNAME)
 			->string()
 			->setMaxLength(64)
+			;
+		// base64 blob png
+		$validation
+			->addField(self::_IMAGE)
+			->image('image/png', 50, 50, 500, 500, 100000)
 			;
 		$validation
 			->addField('_fieldsets')
@@ -2126,6 +2133,10 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				}
 				
 				$out_fields[DAO_Contact::PRIMARY_EMAIL_ID] = $address->id;
+				break;
+			
+			case 'image':
+				$out_fields[DAO_Contact::_IMAGE] = $value;
 				break;
 			
 		}
