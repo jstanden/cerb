@@ -886,6 +886,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		$search_class = sprintf("SearchFields_AbstractCustomRecord_%d", static::_ID);
 		$search_fields = $search_class::getFields();
 		$context = self::_getContextName();
+		$custom_record = DAO_CustomRecord::get(static::_ID);
 	
 		$fields = array(
 			'text' => 
@@ -916,8 +917,15 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 				),
 			'name' => 
 				array(
+					'score' => 2000,
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => $search_class::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => ['param_key' => $search_class::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => sprintf('type:worklist.subtotals of:%s by:name~25 query:(name:{{term}}*) format:dictionaries', $custom_record->uri),
+						'key' => 'name',
+						'limit' => 25,
+					]
 				),
 			'owner' => 
 				array(
