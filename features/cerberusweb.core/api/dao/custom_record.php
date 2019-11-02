@@ -231,13 +231,10 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		if(empty($id))
 			return null;
 		
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
+		$custom_records = DAO_CustomRecord::getAll();
 		
-		if(isset($objects[$id]))
-			return $objects[$id];
+		if(array_key_exists($id, $custom_records))
+			return $custom_records[$id];
 		
 		return null;
 	}
