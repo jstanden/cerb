@@ -2,24 +2,27 @@
 {$attach_uniqid = uniqid()}
 
 {if $attachments}
-<b>{'common.attachments'|devblocks_translate|capitalize}:</b>
-<ul id="{$attach_uniqid}" class="bubbles" style="display:block;margin:5px 0px 15px 10px;">
-	{foreach from=$attachments item=attachment}
-	<li>
-		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}" data-profile-url="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}">
-			<b>{$attachment->name}</b>
-			({$attachment->storage_size|devblocks_prettybytes} 
-			- 
-			{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
-		</a>
-		<a href="javascript:;" class="cerb-menu-trigger"><span class="glyphicons glyphicons-chevron-down" style="top:4px;"></span></a>
-	</li>
-	{/foreach}
-</ul>
-<ul class="cerb-menu" style="display:none;position:absolute;">
-	<li data-option="download"><b>Download</b></li>
-	<li data-option="browser"><b>Open in browser</b></li>
-</ul>
+<fieldset class="properties" style="padding:5px 0;border:0;">
+	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
+
+	<ul id="{$attach_uniqid}" class="bubbles" style="display:block;">
+		{foreach from=$attachments item=attachment}
+		<li>
+			<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}" data-profile-url="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}">
+				<b>{$attachment->name}</b>
+				({$attachment->storage_size|devblocks_prettybytes}
+				-
+				{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+			</a>
+			<a href="javascript:;" class="cerb-menu-trigger"><span class="glyphicons glyphicons-chevron-down" style="top:4px;"></span></a>
+		</li>
+		{/foreach}
+	</ul>
+	<ul class="cerb-menu" style="display:none;position:absolute;">
+		<li data-option="download"><b>Download</b></li>
+		<li data-option="browser"><b>Open in browser</b></li>
+	</ul>
+</fieldset>
 {/if}
 
 <script type="text/javascript">
