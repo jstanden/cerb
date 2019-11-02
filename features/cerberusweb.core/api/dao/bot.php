@@ -26,6 +26,8 @@ class DAO_Bot extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
 	
+	const _IMAGE = '_image';
+	
 	const CACHE_ALL = 'ch_bots';
 	
 	private function __construct() {}
@@ -73,6 +75,11 @@ class DAO_Bot extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
+			;
+		// base64 blob png
+		$validation
+			->addField(self::_IMAGE)
+			->image('image/png', 50, 50, 500, 500, 100000)
 			;
 		$validation
 			->addField('_fieldsets')
@@ -1404,6 +1411,9 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'image':
+				$out_fields[DAO_Bot::_IMAGE] = $value;
+				break;
 		}
 		
 		return true;
