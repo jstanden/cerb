@@ -719,14 +719,6 @@ class DAO_Worker extends Cerb_ORMHelper {
 			unset($fields[self::_EMAIL_IDS]);
 		}
 		
-		// Handle avatar images
-		if(isset($fields[self::_IMAGE])) {
-			foreach($ids as $id) {
-				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $id, $fields[self::_IMAGE]);
-			}
-			unset($fields[self::_IMAGE]);
-		}
-		
 		// Handle password updates
 		if(isset($fields[self::_PASSWORD])) {
 			foreach($ids as $id) {
@@ -3522,13 +3514,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'type' => 'string',
 		];
 		
-		$keys['image'] = [
-			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => "The worker's profile picture in PNG format",
-			'type' => 'image',
-		];
-		
 		$keys['password'] = [
 			'is_immutable' => false,
 			'is_required' => false,
@@ -3560,7 +3545,6 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			case 'image':
 				$out_fields[DAO_Worker::_IMAGE] = $value;
 				break;
-				
 				
 			case 'password':
 				$out_fields[DAO_Worker::_PASSWORD] = $value;

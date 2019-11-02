@@ -379,14 +379,6 @@ class DAO_Group extends Cerb_ORMHelper {
 		$context = CerberusContexts::CONTEXT_GROUP;
 		self::_updateAbstract($context, $ids, $fields);
 		
-		// Handle avatar images
-		if(isset($fields[self::_IMAGE])) {
-			foreach($ids as $id) {
-				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_GROUP, $id, $fields[self::_IMAGE]);
-			}
-			unset($fields[self::_IMAGE]);
-		}
-		
 		// Handle membership changes
 		if(isset($fields[self::_MEMBERS])) {
 			if(false != (@$roster_changes = json_decode($fields[self::_MEMBERS], true))) {
@@ -2123,13 +2115,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
-		
-		$keys['image'] = [
-			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => 'Base64-encoded PNG image',
-			'type' => 'image',
-		];
 		
 		$keys['members'] = [
 			'is_immutable' => false,

@@ -562,6 +562,15 @@ abstract class DevblocksORMHelper {
 		if(!is_array($ids))
 			$ids = [$ids];
 		
+		// Handle avatar images
+		
+		if(isset($fields['_image'])) {
+			foreach($ids as $id) {
+				DAO_ContextAvatar::upsertWithImage($context, $id, $fields['_image']);
+			}
+			unset($fields['_image']);
+		}
+		
 		// Custom fieldsets
 		
 		if(isset($fields['_fieldsets'])) {

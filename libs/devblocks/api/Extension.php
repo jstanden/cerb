@@ -835,6 +835,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 			$keys['updated_at']['notes'] = "The date/time when this record was last modified";
 		}
 		
+		if(array_key_exists('image', $keys)) {
+			$keys['image']['notes'] = "The profile image, base64-encoded in [data URI format](https://en.wikipedia.org/wiki/Data_URI_scheme)";
+			$keys['image']['type'] = 'image';
+		}
+		
 		if(array_key_exists('fieldsets', $keys)) {
 			$keys['fieldsets']['type'] = 'fieldsets';
 			$keys['fieldsets']['notes'] = 'An array or comma-separated list of [custom fieldset](/docs/records/types/custom_fieldset/) IDs';
