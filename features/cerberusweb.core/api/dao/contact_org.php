@@ -29,6 +29,8 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 	const UPDATED = 'updated';
 	const WEBSITE = 'website';
 	
+	const _IMAGE = '_image';
+	
 	private function __construct() {}
 	
 	static function getFields() {
@@ -84,6 +86,11 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		$validation
 			->addField(self::WEBSITE)
 			->url()
+			;
+		// base64 blob png
+		$validation
+			->addField(self::_IMAGE)
+			->image('image/png', 50, 50, 500, 500, 100000)
 			;
 		$validation
 			->addField('_fieldsets')
@@ -1792,6 +1799,9 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'image':
+				$out_fields[DAO_ContactOrg::_IMAGE] = $value;
+				break;
 		}
 		
 		return true;
