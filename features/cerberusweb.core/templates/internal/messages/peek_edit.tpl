@@ -38,7 +38,7 @@
 
 {if !empty($custom_fields)}
 <fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
+	<legend>{'common.properties'|devblocks_translate}</legend>
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 </fieldset>
 {/if}

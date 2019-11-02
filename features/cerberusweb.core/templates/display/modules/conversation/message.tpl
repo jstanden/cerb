@@ -130,6 +130,27 @@
 			{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_MESSAGE}" context_id=$message->id attachments=$attachments}
 		{/if}
 
+        {$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id))|default:[]}
+        {$message_custom_fields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_MESSAGE, $values)}
+        {$message_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MESSAGE, $message->id, $values)}
+        <div style="margin-top:10px;">
+            {if $message_custom_fields}
+                <fieldset class="properties" style="padding:5px 0;border:0;">
+                    <legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+
+                    <div style="padding:0px 5px;display:flex;flex-flow:row wrap;">
+                        {foreach from=$message_custom_fields item=v key=k name=message_custom_fields}
+                            <div style="flex:0 0 200px;text-overflow:ellipsis;">
+                                {include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+                            </div>
+                        {/foreach}
+                    </div>
+                </fieldset>
+            {/if}
+
+            {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$message_custom_fieldsets}
+        </div>
+
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="cerb-no-print">
 			<tr>
 				<td align="left" id="{$message->id}act">
@@ -182,12 +203,6 @@
 				{/foreach}
 			{/if}
 		</form>
-
-		{$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id))|default:[]}
-		{$message_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MESSAGE, $message->id, $values)}
-		<div style="margin-top:10px;">
-			{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$message_custom_fieldsets}
-		</div>
 	</div> <!-- end visible -->
 	{/if}
 </div>
