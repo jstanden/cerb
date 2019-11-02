@@ -9,6 +9,8 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	const OWNER_CONTEXT_ID = 'owner_context_id';
 	const UPDATED_AT = 'updated_at';
 	
+	const _IMAGE = '_image';
+	
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
@@ -40,6 +42,11 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
+			;
+		// base64 blob png
+		$validation
+			->addField(self::_IMAGE)
+			->image('image/png', 50, 50, 500, 500, 100000)
 			;
 		$validation
 			->addField('_fieldsets')
@@ -1248,6 +1255,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		
 		$translate = DevblocksPlatform::getTranslationService();
 		$fields = DAO_CustomField::getByContext(self::_getContextName());
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$dao_class = $custom_record->getDaoClass();
 		$model_class = $custom_record->getModelClass();
@@ -1295,7 +1303,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = $context_name;
 		$token_values['_types'] = $token_types;
@@ -1309,6 +1317,9 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			$token_values['owner__context'] = $abstract_custom_record->owner_context;
 			$token_values['owner_id'] = $abstract_custom_record->owner_context_id;
 			$token_values['updated_at'] = $abstract_custom_record->updated_at;
+			
+			if($custom_record->hasOption('avatars'))
+				$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', $custom_record->uri, $abstract_custom_record->id), true) . '?v=' . $abstract_custom_record->updated_at;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($abstract_custom_record, $token_values);
@@ -1346,6 +1357,9 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'image':
+				$out_fields['_image'] = $value;
+				break;
 		}
 		
 		return true;
