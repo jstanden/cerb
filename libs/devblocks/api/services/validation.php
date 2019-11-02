@@ -336,8 +336,8 @@ class _DevblocksValidators {
 		};
 	}
 	
-	function image($type='image/png', $min_width=1, $min_height=1, $max_width=1000, $max_height=1000, $max_size=512000) {
-		return function($value, &$error=null) use ($type, $min_width, $max_width, $min_height, $max_height, $max_size) {
+	function image($type='image/png', $min_width=1, $min_height=1, $max_width=1000, $max_height=1000, $max_size=512000, $is_nullable=true) {
+		return function($value, &$error=null) use ($type, $min_width, $max_width, $min_height, $max_height, $max_size, $is_nullable) {
 			if(!is_string($value)) {
 				$error = "must be a base64-encoded string.";
 				return false;
@@ -349,6 +349,10 @@ class _DevblocksValidators {
 			}
 			
 			$imagedata = substr($value, 5);
+			
+			if($is_nullable && 'null' == $imagedata) {
+				return true;
+			}
 			
 			if(!DevblocksPlatform::strStartsWith($imagedata,'image/png;base64,')) {
 				$error = "must be a base64-encoded string with the format 'data:image/png;base64,<data>";
