@@ -59,8 +59,11 @@
 	{if in_array(SearchFields_Message::ADDRESS_EMAIL, $view->view_columns)}
 		{$sender_ids = DevblocksPlatform::extractArrayValues($results, 'm_address_id')}
 		{$object_senders = DAO_Address::getIds($sender_ids)}
+
+		{$contact_ids = DevblocksPlatform::extractArrayValues($object_senders, 'contact_id')}
+		{$object_contacts = DAO_Contact::getIds($contact_ids)}
 	{/if}
-	
+
 	{* Bulk lazy load tickets *}
 	{$ticket_ids = DevblocksPlatform::extractArrayValues($results, 'm_ticket_id')}
 	{$object_tickets = DAO_Ticket::getIds($ticket_ids)}
@@ -96,7 +99,12 @@
 				{$sender = $object_senders.{$result.m_address_id}}
 				<td data-column="{$column}">
 					{if $sender}
-					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.m_address_id}" title="{$sender->getNameWithEmail()}">{$sender->getNameWithEmail()|truncate:45:'...':true:true}</a>
+						{$contact = $object_contacts.{$sender->contact_id}}
+						{if $contact}
+							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.m_address_id}" title="{$contact->getName()} &lt;{$sender->email}&gt;">{$contact->getName()} &lt;{$sender->email|truncate:45:'...':true:true}&gt;</a>
+						{else}
+							<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.m_address_id}" title="{$sender->email}">{$sender->email|truncate:45:'...':true:true}</a>
+						{/if}
 					{/if}
 				</td>
 			{elseif $column=="t_bucket_id"}

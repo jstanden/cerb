@@ -360,26 +360,6 @@ class DAO_Contact extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 *
-	 * @param bool $nocache
-	 * @return Model_Contact
-[]
-	 */
-	static function getAll($nocache=false) {
-		//$cache = DevblocksPlatform::services()->cache();
-		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
-			$objects = self::getWhere(null, DAO_Contact::ID, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
-			
-			// if(!is_array($objects))
-			//	return false;
-			
-			//$cache->save($buckets, self::_CACHE_ALL);
-		//}
-		
-		return $objects;
-	}
-
-	/**
 	 * @param integer $id
 	 * @return Model_Contact
 	 */
