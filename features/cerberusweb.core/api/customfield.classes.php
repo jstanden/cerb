@@ -73,7 +73,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		);
 	}
 	
-	function renderValue($value) {
+	function renderValue(Model_CustomField $field, $value) {
 		$value = $this->getValue($value);
 		echo htmlentities($value);
 	}

@@ -45,7 +45,6 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	
 	const POINT = 'cerb.custom_field';
 	
-	//abstract function hasMultipleValues();
 	abstract function renderConfig(Model_CustomField $field);
 	abstract function getLabelsForValues($values);
 	abstract function getValueTableName();
@@ -53,13 +52,30 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	abstract function populateQuickSearchMeta(Model_CustomField $field, array &$search_field_meta);
 	abstract function prepareCriteriaParam(Model_CustomField $field, $param, &$vals, &$implode_token);
 	abstract function renderEditable(Model_CustomField $field, $form_key, $form_value);
-	abstract function renderValue($value);
+	abstract function renderValue(Model_CustomField $field, $value);
 	abstract function setFieldValue(Model_CustomField $field, $context, $context_id, $value);
 	abstract function unsetFieldValue(Model_CustomField $field, $context, $context_id, $value=null);
 	abstract function validationRegister(Model_CustomField $field, _DevblocksValidationService &$validation);
 	
+	function hasMultipleValues() {
+		return false;
+	}
+	
 	function formatFieldValue($value) {
 		return $value;
+	}
+	
+	function getParamFromQueryFieldTokens($field, $tokens, $param_key) {
+		return false;
+	}
+
+	function getWhereSQLFromParam(Model_CustomField $field, DevblocksSearchCriteria $param) {
+		return null;
+	}
+	
+	function parseFormPost(Model_CustomField $field) {
+		@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field->id],'string','');
+		return $field_value;
 	}
 }
 

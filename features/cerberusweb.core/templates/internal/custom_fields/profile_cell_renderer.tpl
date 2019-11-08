@@ -136,8 +136,9 @@
 	{$v.value}
 {else}
 	{$field_ext = Extension_CustomField::get($v.type)}
+	{$field = DAO_CustomField::get($v.id)}
 	{if $field_ext}
-		{$field_ext->renderValue($v.value)}
+		{$field_ext->renderValue($field, $v.value)}
 	{else}
 		{$v.value}
 	{/if}

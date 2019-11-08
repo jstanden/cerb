@@ -1124,7 +1124,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		// Return a soft failure when a filtered custom field has been deleted (i.e. ignore)
 		if(false == ($field = DAO_CustomField::get($field_id)))
 			return '';
-		
 
 		$field_table = sprintf("cf_%d", $field_id);
 		$value_table = DAO_CustomFieldValue::getValueTableName($field_id);
@@ -1194,6 +1193,12 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				break;
 				
 			default:
+				if(null != ($field_ext = $field->getTypeExtension())) {
+					if(false != ($where_sql = $field_ext->getWhereSQLFromParam($field, $param))) {
+						return $where_sql;
+					}
+				}
+				
 				switch($param->operator) {
 					case DevblocksSearchCriteria::OPER_IN_OR_NULL:
 						$param->operator = DevblocksSearchCriteria::OPER_IN;
@@ -1439,6 +1444,13 @@ class DevblocksSearchCriteria {
 					case Model_CustomField::TYPE_LINK:
 						if($param_key && false != $param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key))
 							return $param;
+						break;
+						
+					default:
+						if(false != ($field_ext = $custom_field->getTypeExtension())) {
+							if($param_key && false != ($param = $field_ext->getParamFromQueryFieldTokens($field, $tokens, $param_key)))
+								return $param;
+						}
 						break;
 				}
 				break;

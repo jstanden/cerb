@@ -580,7 +580,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			default:
 				$table = null;
 				
-				if(false !== ($field_ext = Extension_CustomField::get($field->type))) {
+				if(false != ($field_ext = Extension_CustomField::get($field->type))) {
 					$table = $field_ext->getValueTableName();
 				}
 				break;
@@ -1234,8 +1234,8 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				default:
-					if(false != (Extension_CustomField::get($fields[$field_id]->type))) {
-						@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
+					if(false != ($field_ext = Extension_CustomField::get($fields[$field_id]->type))) {
+						$field_value = $field_ext->parseFormPost($fields[$field_id]);
 						
 					} else {
 						@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
@@ -1348,7 +1348,8 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			$field_id = intval($row['field_id']);
 			$field_value = $row['field_value'];
 			
-			if(!isset($fields[$field_id]))
+			/** @var $field Model_CustomField */
+			if(null === (@$field = $fields[$field_id]))
 				continue;
 			
 			if(!isset($results[$context_id]))
@@ -1357,7 +1358,8 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 			$ptr =& $results[$context_id];
 			
 			// If multiple value type (multi-checkbox)
-			if(Model_CustomField::hasMultipleValues($fields[$field_id]->type)) {
+			
+			if(Model_CustomField::hasMultipleValues($field->type)) {
 				if(!isset($ptr[$field_id]))
 					$ptr[$field_id] = [];
 					
@@ -1462,8 +1464,6 @@ class Model_CustomField {
 	public $updated_at = 0;
 	
 	static function getTypes() {
-		// [TODO] Extension provided custom field types
-		
 		$fields = [
 			self::TYPE_CHECKBOX => 'Checkbox',
 			self::TYPE_CURRENCY => 'Currency',
@@ -1482,13 +1482,23 @@ class Model_CustomField {
 			self::TYPE_WORKER => 'Worker',
 		];
 		
+		$type_extensions = self::getTypeExtensions();
+		
+		$fields = array_merge($fields, $type_extensions);
+		
+		asort($fields);
+		
+		return $fields;
+	}
+	
+	static function getTypeExtensions() {
+		$fields = [];
 		$custom_field_mfts = DevblocksPlatform::getExtensions(Extension_CustomField::POINT, false);
 		
+		if(is_array($custom_field_mfts))
 		foreach($custom_field_mfts as $mft) {
 			$fields[$mft->id] = $mft->name;
 		}
-		
-		asort($fields);
 		
 		return $fields;
 	}
@@ -1502,12 +1512,38 @@ class Model_CustomField {
 	}
 	
 	static function hasMultipleValues($type) {
-		$multiple_types = [
-			Model_CustomField::TYPE_MULTI_CHECKBOX,
-			Model_CustomField::TYPE_FILES,
-			Model_CustomField::TYPE_LIST,
+		$type_extensions = Extension_CustomField::getAll(false);
+		
+		$static_types = [
+			Model_CustomField::TYPE_CHECKBOX => false,
+			Model_CustomField::TYPE_CURRENCY => false,
+			Model_CustomField::TYPE_DATE => false,
+			Model_CustomField::TYPE_DECIMAL => false,
+			Model_CustomField::TYPE_DROPDOWN => false,
+			Model_CustomField::TYPE_FILE => false,
+			Model_CustomField::TYPE_FILES => true,
+			Model_CustomField::TYPE_LINK => false,
+			Model_CustomField::TYPE_LIST => true,
+			Model_CustomField::TYPE_MULTI_CHECKBOX  => true,
+			Model_CustomField::TYPE_MULTI_LINE => false,
+			Model_CustomField::TYPE_NUMBER => false,
+			Model_CustomField::TYPE_SINGLE_LINE => false,
+			Model_CustomField::TYPE_URL => false,
+			Model_CustomField::TYPE_WORKER => false,
 		];
-		return in_array($type, $multiple_types);
+		
+		if(array_key_exists($type, $static_types))
+			return $static_types[$type];
+		
+		if(array_key_exists($type, $type_extensions)) {
+			/** @var $field_ext Extension_CustomField */
+			if(false == ($field_ext = Extension_CustomField::get($type, true)))
+				return false;
+			
+			return $field_ext->hasMultipleValues();
+		}
+		
+		return false;
 	}
 	
 	function getName() {

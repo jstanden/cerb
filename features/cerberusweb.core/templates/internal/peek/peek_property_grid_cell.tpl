@@ -114,7 +114,9 @@
 {else}
 	{$field_ext = Extension_CustomField::get($types.$k)}
 	{if $field_ext}
-		{$field_ext->renderValue($dict->$k)}
+		{$field_id = substr($k, 7)}
+		{$field = DAO_CustomField::get($field_id)}
+		{$field_ext->renderValue($field, $dict->$k)}
 	{else}
 		{$dict->$k} ({$types.$k})
 	{/if}

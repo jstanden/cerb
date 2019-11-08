@@ -92,7 +92,7 @@
 		{$field_ext = $col->getTypeExtension()}
 		{if $field_ext}
 			<td data-column="{$column}">
-				{$field_ext->renderValue($result.$column)}
+				{$field_ext->renderValue($col, $result.$column)}
 			</td>
 		{else}
 			<td data-column="{$column}"></td>
