@@ -21,7 +21,8 @@ A {
 }
 
 ABBR {
-  border-bottom: dotted 1px #afafaf;
+  text-decoration: none;
+  border-bottom: 1px dotted #afafaf;
 }
 
 H1 {
