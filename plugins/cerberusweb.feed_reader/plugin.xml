@@ -101,6 +101,7 @@
 				<param key="view_class" value="View_Feed" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
@@ -143,6 +144,7 @@
 				<param key="view_class" value="View_FeedItem" />
 				<param key="options">
 					<value>
+						<data key="cards" />
 						<data key="comments" />
 						<data key="custom_fields" />
 						<data key="links" />
