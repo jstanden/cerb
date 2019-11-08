@@ -229,51 +229,6 @@ DIV.cerb-slider-container DIV.cerb-slider INPUT {
   display: none;
 }
 
-FIELDSET.cerb-skillset {
-  margin-bottom: 0;
-}
-FIELDSET.cerb-skillset LABEL {
-  font-weight: bold;
-  padding: 0px 0px 5px 0px;
-  display: block;
-}
-FIELDSET.cerb-skillset LABEL > SMALL {
-  font-weight: normal;
-  font-size: 100%;
-}
-FIELDSET.cerb-skillset DIV.cerb-skill {
-  margin: 0px 10px 10px 5px;
-  width: 250px;
-  display: inline-block;
-}
-FIELDSET.cerb-skillset DIV.cerb-skill div.skill-slider {
-  background-color: #ebebeb;
-  border-color: gainsboro;
-}
-FIELDSET.cerb-skillset DIV.cerb-skill div.skill-slider .ui-slider-handle {
-  background-color: #d0e5f5;
-  border-color: #79b7e7;
-}
-FIELDSET.cerb-skillset DIV.cerb-skill div.skill-slider.cerb-slider-green {
-  border-color: #00c800;
-}
-FIELDSET.cerb-skillset DIV.cerb-skill div.skill-slider.cerb-slider-green .ui-slider-handle {
-  background-color: #00dc00;
-  border-color: #00c800;
-  cursor: pointer;
-}
-FIELDSET.cerb-skillset DIV.cerb-skill div.skill-slider.cerb-slider-green .ui-slider-range {
-  background: #aceb60;
-}
-FIELDSET.cerb-skillset DIV.cerb-skill div.skill-slider.cerb-slider-gray .ui-slider-handle {
-  background-color: gainsboro;
-  border-color: #c8c8c8;
-  cursor: pointer;
-}
-FIELDSET.cerb-skillset DIV.cerb-skill div.skill-slider.cerb-slider-gray .ui-slider-range {
-  background: #c8c8c8;
-}
-
 FIELDSET.cerb-delta-slider-container {
   margin-bottom: 0;
 }

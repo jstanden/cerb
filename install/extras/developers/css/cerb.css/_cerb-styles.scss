@@ -122,65 +122,6 @@ DIV.cerb-slider-container {
 	}
 }
 
-FIELDSET.cerb-skillset {
-	margin-bottom: 0;
-	
-	LABEL {
-		font-weight: bold;
-		padding: 0px 0px 5px 0px;
-		display: block;
-		
-		&> SMALL {
-			font-weight: normal;
-			font-size: 100%;
-		}
-	}
-	
-	DIV.cerb-skill {
-		margin:0px 10px 10px 5px;
-		width:250px;
-		display:inline-block;
-		
-		div.skill-slider {
-			background-color: rgb(235,235,235);
-			border-color: rgb(220,220,220);
-			
-			.ui-slider-handle {
-				background-color: rgb(208,229,245);
-				border-color: rgb(121,183,231);
-			}
-			
-			&.cerb-slider-green {
-				border-color: rgb(0,200,0);
-			
-				.ui-slider-handle {
-					background-color: rgb(0,220,0);
-					border-color: rgb(0,200,0);
-					cursor: pointer;
-
-				}
-				.ui-slider-range {
-					background: rgb(172, 235, 96);
-				}
-			}
-			
-			&.cerb-slider-gray {
-				.ui-slider-handle {
-					background-color: rgb(220,220,220);
-					border-color: rgb(200,200,200);
-					cursor: pointer;
-
-				}
-				.ui-slider-range {
-					background: rgb(200,200,200);
-				}
-			}
-			
-		}
-	
-	}
-}
-
 FIELDSET.cerb-delta-slider-container {
 	margin-bottom: 0;
 }

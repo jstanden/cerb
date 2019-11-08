@@ -147,6 +147,21 @@ if(array_key_exists('pass_hash', $columns) && 0 != strcasecmp('varchar(255)', $c
 }
 
 // ===========================================================================
+// Drop skills and skillsets
+
+if(array_key_exists('context_to_skill', $tables)) {
+	$db->ExecuteMaster('DROP TABLE context_to_skill');
+}
+
+if(array_key_exists('skillset', $tables)) {
+	$db->ExecuteMaster('DROP TABLE skillset');
+}
+
+if(array_key_exists('skill', $tables)) {
+	$db->ExecuteMaster('DROP TABLE skill');
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
