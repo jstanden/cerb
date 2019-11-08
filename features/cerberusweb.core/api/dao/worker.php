@@ -1375,6 +1375,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 	const VIRTUAL_ROLE_SEARCH = '*_role_search';
 	const VIRTUAL_ROLE_EDITOR_SEARCH = '*_role_editor_search';
 	const VIRTUAL_ROLE_READER_SEARCH = '*_role_reader_search';
+	const VIRTUAL_USING_WORKSPACE_PAGE = '*_using_workspace_page';
 	
 	static private $_fields = null;
 	
@@ -1501,6 +1502,19 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			case self::VIRTUAL_ROLE_READER_SEARCH:
 				$sql = "SELECT worker_id FROM worker_to_role WHERE is_readable = 1 AND role_id IN (%s)";
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ROLE, $sql, 'w.id');
+				break;
+				
+			case self::VIRTUAL_USING_WORKSPACE_PAGE:
+				$db = DevblocksPlatform::services()->database();
+				$workspace_page_sql = self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKSPACE_PAGE);
+				
+				if(false == ($rows = $workspace_page_ids = $db->GetArraySlave($workspace_page_sql)))
+					return '0';
+				
+				if(false == ($worker_ids = DAO_WorkspacePage::getUsers(array_column($rows, 'id'))))
+					return '0';
+				
+				return sprintf('w.id IN (%s)', implode(',', $worker_ids));
 				break;
 				
 			default:
@@ -1630,6 +1644,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 			self::VIRTUAL_ROLE_SEARCH => new DevblocksSearchField(self::VIRTUAL_ROLE_SEARCH, '*', 'role_search', null, null),
 			self::VIRTUAL_ROLE_EDITOR_SEARCH => new DevblocksSearchField(self::VIRTUAL_ROLE_SEARCH, '*', 'role_editor_search', null, null),
 			self::VIRTUAL_ROLE_READER_SEARCH => new DevblocksSearchField(self::VIRTUAL_ROLE_READER_SEARCH, '*', 'role_reader_search', null, null),
+			self::VIRTUAL_USING_WORKSPACE_PAGE => new DevblocksSearchField(self::VIRTUAL_USING_WORKSPACE_PAGE, '*', 'using_workspace_page', null, null),
 		);
 
 		// Fulltext indexes
@@ -2172,6 +2187,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Worker::VIRTUAL_ROLE_SEARCH,
 			SearchFields_Worker::VIRTUAL_ROLE_EDITOR_SEARCH,
 			SearchFields_Worker::VIRTUAL_ROLE_READER_SEARCH,
+			SearchFields_Worker::VIRTUAL_USING_WORKSPACE_PAGE,
 			SearchFields_Worker::VIRTUAL_SESSION_ACTIVITY,
 			SearchFields_Worker::FULLTEXT_WORKER,
 		));
@@ -2597,6 +2613,14 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_Worker::UPDATED),
 				),
+			'using.workspace' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_Worker::VIRTUAL_USING_WORKSPACE_PAGE),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKSPACE_PAGE, 'q' => ''],
+					]
+				),
 		);
 		
 		// Add quick search links
@@ -2734,6 +2758,10 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_ROLE_READER_SEARCH);
 				break;
 			
+			case 'using.workspace':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Worker::VIRTUAL_USING_WORKSPACE_PAGE);
+				break;
+			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -2819,6 +2847,13 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Worker::VIRTUAL_ROLE_READER_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml('Role reader'),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_Worker::VIRTUAL_USING_WORKSPACE_PAGE:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml('Using workspace'),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
