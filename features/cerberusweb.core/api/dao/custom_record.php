@@ -468,7 +468,7 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		$cache->remove(DevblocksPlatform::CACHE_CONTEXTS);
 		$cache->remove(DevblocksPlatform::CACHE_CONTEXTS_INSTANCES);
 		$cache->remove(DevblocksPlatform::CACHE_CONTEXT_ALIASES);
-		$cache->removeByTags(['schema_records']);
+		$cache->removeByTags(['schema_records','schema_workspaces','ui_search_menu']);
 	}
 };
 
