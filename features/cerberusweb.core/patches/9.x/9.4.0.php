@@ -162,6 +162,195 @@ if(array_key_exists('skill', $tables)) {
 }
 
 // ===========================================================================
+// Migrate feedback entries to a custom record
+
+if(array_key_exists('feedback_entry', $tables)) {
+	if($db->GetOneMaster("SELECT count(id) FROM feedback_entry") > 0) {
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_record (name, name_plural, uri, params_json, updated_at) " .
+			"VALUES (%s, %s, %s, %s, %d)",
+			$db->qstr('Feedback'),
+			$db->qstr('Feedback'),
+			$db->qstr('feedback'),
+			$db->qstr(json_encode([
+				'owners' => [
+					'contexts' => [
+						'cerberusweb.contexts.app',
+					],
+					'options' => [
+						'comments',
+					],
+				],
+			])),
+			time()
+		));
+		
+		$custom_record_id = $db->LastInsertId();
+		$custom_record_ctx_id = sprintf('contexts.custom_record.%d', $custom_record_id);
+		$custom_record_table = sprintf('custom_record_%d', $custom_record_id);
+		
+		$sql = sprintf("
+			CREATE TABLE `%s` (
+			`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+			`name` varchar(255) DEFAULT '',
+			`owner_context` varchar(255) DEFAULT '',
+			`owner_context_id` int(10) unsigned NOT NULL DEFAULT '0',
+			`created_at` int(10) unsigned NOT NULL DEFAULT '0',
+			`updated_at` int(10) unsigned NOT NULL DEFAULT '0',
+			PRIMARY KEY (`id`),
+			KEY `created_at` (`created_at`),
+			KEY `updated_at` (`updated_at`),
+			KEY `owner` (`owner_context`,`owner_context_id`)
+			) ENGINE=%s
+			",
+			$custom_record_table,
+			APP_DB_ENGINE
+		);
+		$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+		
+		$tables[$custom_record_table] = $custom_record_table;
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field (name, type, pos, params_json, context, custom_fieldset_id, updated_at) " .
+			"VALUES (%s, %s, %d, %s, %s, %d, %d)",
+			$db->qstr('Quote Text'),
+			$db->qstr('T'),
+			1,
+			$db->qstr(json_encode([])),
+			$db->qstr($custom_record_ctx_id),
+			0,
+			time()
+		));
+		$cfield_id_quote_text = $db->LastInsertId();
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field (name, type, pos, params_json, context, custom_fieldset_id, updated_at) " .
+			"VALUES (%s, %s, %d, %s, %s, %d, %d)",
+			$db->qstr('Quote Mood'),
+			$db->qstr('D'),
+			2,
+			$db->qstr(json_encode([
+				'options' => [
+					'Praise',
+					'Neutral',
+					'Criticism',
+				],
+			])),
+			$db->qstr($custom_record_ctx_id),
+			0,
+			time()
+		));
+		$cfield_id_quote_mood = $db->LastInsertId();
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field (name, type, pos, params_json, context, custom_fieldset_id, updated_at) " .
+			"VALUES (%s, %s, %d, %s, %s, %d, %d)",
+			$db->qstr('Quote Author'),
+			$db->qstr('L'),
+			3,
+			$db->qstr(json_encode([
+				'context' => 'cerberusweb.contexts.address',
+			])),
+			$db->qstr($custom_record_ctx_id),
+			0,
+			time()
+		));
+		$cfield_id_quote_author = $db->LastInsertId();
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field (name, type, pos, params_json, context, custom_fieldset_id, updated_at) " .
+			"VALUES (%s, %s, %d, %s, %s, %d, %d)",
+			$db->qstr('Source URL'),
+			$db->qstr('U'),
+			4,
+			$db->qstr(json_encode([])),
+			$db->qstr($custom_record_ctx_id),
+			0,
+			time()
+		));
+		$cfield_id_source_url = $db->LastInsertId();
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field (name, type, pos, params_json, context, custom_fieldset_id, updated_at) " .
+			"VALUES (%s, %s, %d, %s, %s, %d, %d)",
+			$db->qstr('Worker'),
+			$db->qstr('W'),
+			5,
+			$db->qstr(json_encode([])),
+			$db->qstr($custom_record_ctx_id),
+			0,
+			time()
+		));
+		$cfield_id_worker = $db->LastInsertId();
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO %s (id, name, owner_context, owner_context_id, created_at, updated_at) " .
+			"SELECT id, CASE WHEN length(quote_text) > 128 THEN concat(substring(quote_text,1,125),'...') ELSE quote_text END AS name, 'cerberusweb.contexts.app', 0, log_date, log_date FROM feedback_entry",
+			$db->escape($custom_record_table)
+		));
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field_clobvalue (field_id, context_id, field_value, context) " .
+			"SELECT %d, id, quote_text, %s FROM feedback_entry",
+			$cfield_id_quote_text,
+			$db->qstr($custom_record_ctx_id)
+		));
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field_stringvalue (field_id, context_id, field_value, context) " .
+			"SELECT %d, id, CASE WHEN quote_mood = 0 THEN 'Neutral' WHEN quote_mood = 1 THEN 'Praise' WHEN quote_mood = 2 THEN 'Criticism' END AS quote_mood, %s FROM feedback_entry",
+			$cfield_id_quote_mood,
+			$db->qstr($custom_record_ctx_id)
+		));
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field_numbervalue (field_id, context_id, field_value, context) " .
+			"SELECT %d, id, quote_address_id, %s FROM feedback_entry",
+			$cfield_id_quote_author,
+			$db->qstr($custom_record_ctx_id)
+		));
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field_stringvalue (field_id, context_id, field_value, context) " .
+			"SELECT %d, id, source_url, %s FROM feedback_entry",
+			$cfield_id_source_url,
+			$db->qstr($custom_record_ctx_id)
+		));
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO custom_field_numbervalue (field_id, context_id, field_value, context) " .
+			"SELECT %d, id, worker_id, %s FROM feedback_entry",
+			$cfield_id_worker,
+			$db->qstr($custom_record_ctx_id)
+		));
+		
+		// Migrate contexts
+		$db->ExecuteMaster(sprintf("UPDATE attachment_link SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE card_widget SET record_type = 'contexts.custom_record.%d' WHERE record_type = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE comment SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_activity_log SET target_context = 'contexts.custom_record.%d' WHERE target_context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_alias SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_avatar SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_bulk_update SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_link SET from_context = 'contexts.custom_record.%d' WHERE from_context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_link SET to_context = 'contexts.custom_record.%d' WHERE to_context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_merge_history SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_saved_search SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_scheduled_behavior SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE context_to_custom_fieldset SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE custom_field SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE custom_field_clobvalue SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE custom_field_numbervalue SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE custom_field_stringvalue SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE custom_fieldset SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE notification SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE snippet SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE workspace_list SET context = 'contexts.custom_record.%d' WHERE context = 'cerberusweb.contexts.feedback'", $custom_record_id));
+		
+		$db->ExecuteMaster(sprintf("UPDATE context_activity_log SET entry_json = REPLACE(entry_json, 'cerberusweb.contexts.feedback', 'contexts.custom_record.%d')", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = REPLACE(params_json, 'cerberusweb.contexts.feedback', 'contexts.custom_record.%d')", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE devblocks_setting SET setting = REPLACE(setting, 'cerberusweb.contexts.feedback', 'contexts.custom_record.%d') WHERE setting LIKE '%%cerberusweb.contexts.feedback%%'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE devblocks_setting SET value = REPLACE(value, 'cerberusweb.contexts.feedback', 'contexts.custom_record.%d') WHERE value LIKE '%%cerberusweb.contexts.feedback%%'", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE notification SET entry_json = REPLACE(entry_json, 'cerberusweb.contexts.feedback', 'contexts.custom_record.%d')", $custom_record_id));
+		$db->ExecuteMaster(sprintf("UPDATE workspace_widget SET params_json = REPLACE(params_json, 'cerberusweb.contexts.feedback', 'contexts.custom_record.%d')", $custom_record_id));
+		
+		$db->ExecuteMaster("DELETE FROM worker_view_model WHERE class_name = 'View_FeedbackEntry'");
+	}
+	
+	$db->ExecuteMaster('DROP TABLE feedback_entry');
+	
+	unset($tables['feedback_entry']);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

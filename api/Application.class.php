@@ -967,7 +967,6 @@ class CerberusContexts {
 	const CONTEXT_EMAIL_SIGNATURE = 'cerberusweb.contexts.email.signature';
 	const CONTEXT_FEED = 'cerberusweb.contexts.feed';
 	const CONTEXT_FEED_ITEM = 'cerberusweb.contexts.feed.item';
-	const CONTEXT_FEEDBACK = 'cerberusweb.contexts.feedback';
 	const CONTEXT_FILE_BUNDLE = 'cerberusweb.contexts.file_bundle';
 	const CONTEXT_GPG_PUBLIC_KEY = 'cerberusweb.contexts.gpg_public_key';
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
