@@ -1197,6 +1197,12 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		if(is_null($model))
 			$model = new Model_MailQueue();
 		
+		$properties['is_queued'] = array(
+			'label' => mb_ucfirst($translate->_('mail_queue.is_queued')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_queued,
+		);
+		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_LINK,
@@ -1204,6 +1210,18 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'params' => [
 				'context' => self::ID,
 			],
+		);
+		
+		$properties['queue_fails'] = array(
+			'label' => mb_ucfirst($translate->_('mail_queue.queue_fails')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->queue_fails,
+		);
+		
+		$properties['queue_delivery_date'] = array(
+			'label' => mb_ucfirst($translate->_('mail_queue.queue_delivery_date')),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->queue_delivery_date,
 		);
 		
 		$properties['ticket_id'] = array(
@@ -1221,10 +1239,25 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'value' => $model->hint_to,
 		);
 		
+		$properties['type'] = array(
+			'label' => mb_ucfirst($translate->_('common.type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->type,
+		);
+		
 		$properties['updated'] = array(
 			'label' => mb_ucfirst($translate->_('common.updated')),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $model->updated,
+		);
+		
+		$properties['worker_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.worker')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->worker_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_WORKER,
+			],
 		);
 		
 		return $properties;
