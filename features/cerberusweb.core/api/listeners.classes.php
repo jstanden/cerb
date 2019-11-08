@@ -760,7 +760,23 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				// We're preloading some variable values
 				if(isset($event->params['_variables']) && is_array($event->params['_variables'])) {
 					foreach($event->params['_variables'] as $var_key => $var_val) {
-						$dict->$var_key = $var_val;
+						if(!array_key_exists($var_key, $trigger->variables))
+							continue;
+						
+						switch($trigger->variables[$var_key]['type']) {
+							case Model_CustomField::TYPE_LINK:
+								@$link_context = $trigger->variables[$var_key]['params']['context'];
+								if($link_context && DevblocksPlatform::strEndsWith($var_key, '_id')) {
+									$ctx_key = mb_substr($var_key, 0, -3) . '__context';
+									$dict->set($ctx_key, $link_context);
+								}
+								$dict->$var_key = $var_val;
+								break;
+								
+							default:
+								$dict->$var_key = $var_val;
+								break;
+						}
 					}
 				}
 				
