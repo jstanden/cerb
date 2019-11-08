@@ -1185,6 +1185,17 @@
 			</params>
 		</extension>
 
+		<extension point = "cerb.custom_field">
+			<id>cerb.custom_field.record.links</id>
+			<name>Record Links</name>
+			<class>
+				<file>api/customfield.classes.php</file>
+				<name>CustomField_RecordLinks</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">

@@ -569,6 +569,10 @@ class _DevblocksSheetServiceTypes {
 				$text_value = $sheet_dict->get($column['key'], null);
 			}
 			
+			// [TODO] Sheets need a chance to use custom field extensions for rendering labels/cells
+			if(is_array($text_value))
+				$text_value = json_encode($text_value);
+			
 			if(array_key_exists('value_map', $column_params) && is_array($column_params['value_map'])) {
 				if(array_key_exists($value, $column_params['value_map']))
 					$text_value = $column_params['value_map'][$text_value];
