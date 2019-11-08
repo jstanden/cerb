@@ -1042,8 +1042,10 @@ class Context_FeedItem extends Extension_DevblocksContext implements IDevblocksC
 		$properties['feed_id'] = array(
 			'label' => mb_ucfirst($translate->_('dao.feed_item.feed_id')),
 			'type' => Model_CustomField::TYPE_LINK,
-			'params' => array('context' => CerberusContexts::CONTEXT_FEED),
 			'value' => $model->feed_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_FEED,
+			],
 		);
 
 		$properties['guid'] = array(
