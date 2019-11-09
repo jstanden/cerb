@@ -142,12 +142,21 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 	function showImportPopupAction() {
 		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
 		if(!$classifier_id || false == ($classifier = DAO_Classifier::get($classifier_id))) {
-			echo "Invalid classifier.";
+			$tpl->assign('error_message', DevblocksPlatform::translate('error.core.record.not_found'));
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
 			return;
 		}
 		
-		$tpl = DevblocksPlatform::services()->template();
+		if(!Context_Classifier::isWriteableByActor($classifier, $active_worker)) {
+			$tpl->assign('error_message', DevblocksPlatform::translate('common.access_denied'));
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return;
+		}
+		
 		$tpl->assign('classifier_id', $classifier_id);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/classifier/import_popup.tpl');
@@ -157,9 +166,26 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
 		@$examples_csv = DevblocksPlatform::importGPC($_REQUEST['examples_csv'], 'string', null);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		header('Content-Type: application/json');
+		
+		if(!$classifier_id || false == ($classifier = DAO_Classifier::get($classifier_id))) {
+			echo json_encode([
+				'status' => false,
+				'error' => DevblocksPlatform::translate('error.core.record.not_found'),
+			]);
+			return;
+		}
+		
+		if(!Context_Classifier::isWriteableByActor($classifier, $active_worker)) {
+			echo json_encode([
+				'status' => false,
+				'error' => DevblocksPlatform::translate('common.access_denied'),
+			]);
+			return;
+		}
 		
 		$examples = DevblocksPlatform::parseCrlfString($examples_csv);
 		
@@ -321,6 +347,9 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		
 		$prediction = $bayes::predict($text, $classifier_id, $environment);
 		$tpl->assign('prediction', $prediction['prediction']);
+		
+		$is_writeable = Context_Classifier::isWriteableByActor($classifier_id, $active_worker);
+		$tpl->assign('is_writeable', $is_writeable);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/classifier/prediction.tpl');
 	}

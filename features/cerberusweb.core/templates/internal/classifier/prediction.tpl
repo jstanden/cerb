@@ -89,23 +89,42 @@
 	{/if}
 	
 	<div>
-		<button type="button" class="cerb-train-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}" data-context-id="0" data-edit="classifier.id:{$prediction.classifier.id} class.id:{$prediction.classification.id} text:{$prediction.text|escape:'url'}" style="margin-top:5px;">{'common.train'|devblocks_translate|capitalize}</button>
+		{if $is_writeable}
+			<button type="button" class="cerb-train-trigger" data-context="{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}" data-context-id="0" data-edit="classifier.id:{$prediction.classifier.id} class.id:{$prediction.classification.id} text:{$prediction.text|escape:'url'}"><span class="glyphicons glyphicons-circle-plus"></span> {'common.train'|devblocks_translate|capitalize}</button>
+
+			{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}.import")}
+			<button type="button" class="cerb-peek-import" data-context="{CerberusContexts::CONTEXT_CLASSIFIER}" data-context-id="{$prediction.classifier.id}" data-edit="true"><span class="glyphicons glyphicons-file-import"></span> {'common.import'|devblocks_translate|capitalize}</button>
+			{/if}
+		{/if}
 	</div>
 </div>
-
 
 <script type="text/javascript">
 $(function() {
 	var $container = $('#{$div_id}');
 	var $parent = $container.closest('div.output');
-	
+	var $popup = genericAjaxPopupFind($container);
+	var $layer = $popup.attr('data-layer');
+
 	$container.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
-	var $button = $container.find('.cerb-train-trigger')
+	$container.find('.cerb-train-trigger')
 		.cerbPeekTrigger()
 			.on('cerb-peek-saved', function() {
 				$parent.trigger('cerb-peek-saved');
 			})
 		;
+
+	{if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}.import")}
+	$container.find('button.cerb-peek-import')
+		.click(function() {
+			var $import_popup = genericAjaxPopup('classifier_import','c=profiles&a=handleSectionAction&section=classifier&action=showImportPopup&classifier_id={$prediction.classifier.id}',null,false,'50%');
+
+			$import_popup.on('dialogclose', function() {
+				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CLASSIFIER}&context_id={$prediction.classifier.id}','reuse',false,'50%');
+			});
+		})
+		;
+	{/if}
 });
 </script>

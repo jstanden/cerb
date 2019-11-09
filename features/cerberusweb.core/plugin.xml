@@ -4426,6 +4426,24 @@
 			<params>
 			</params>
 		</extension>
+		
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.classifier.trainer</id>
+			<name>Classifier Trainer</name>
+			<class>
+				<file>api/cards/widgets/classifier_trainer.php</file>
+				<name>CardWidget_ClassifierTrainer</name>
+			</class>
+			<params>
+				<!--
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.classifier" />
+					</value>
+				</param>
+				-->
+			</params>
+		</extension>
 
 		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.fields</id>
