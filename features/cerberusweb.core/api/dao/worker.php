@@ -3769,55 +3769,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->display('devblocks:cerberusweb.core::workers/peek_edit.tpl');
 			
 		} else {
-			// Links
-			$links = array(
-				$context => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							$context,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Latest activity
-			$tpl->assign('latest_activity', $worker->getLatestActivity());
-			$tpl->assign('latest_session', $worker->getLatestSession());
-			
-			// Timeline
-			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-			
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				return;
-			
-			// Dictionary
-			$labels = $values = [];
-			CerberusContexts::getContext($context, $worker, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			// Interactions
-			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-			$tpl->assign('interactions_menu', $interactions_menu);
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			$counts_tickets = DAO_Ticket::countsByOwnerId($context_id);
-			$tpl->assign('counts_tickets', $counts_tickets);
-			
-			$tpl->display('devblocks:cerberusweb.core::workers/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $worker);
 		}
 	}
 };

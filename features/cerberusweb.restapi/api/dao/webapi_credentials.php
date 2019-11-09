@@ -1011,6 +1011,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		
 		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
 		$active_worker = CerberusApplication::getActiveWorker();
+		$model = null;
 		
 		if(!empty($context_id)) {
 			$model = DAO_WebApiCredentials::get($context_id);
@@ -1041,54 +1042,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 			$tpl->display('devblocks:cerberusweb.restapi::peek_edit.tpl');
 			
 		} else {
-			// Links
-			$links = array(
-				$context => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							$context,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Timeline
-			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				return;
-			
-			// Dictionary
-			$labels = [];
-			$values = [];
-			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			$properties = $context_ext->getCardProperties();
-			
-			// If this key is owned by the current worker, show the secret hint
-			if($dict->worker_id == $active_worker->id) {
-				if(false !== ($idx = array_search('access_key', $properties))) {
-					array_splice($properties, $idx+1, 0, ['secret_key']);
-				} else {
-					$properties[] = 'secret_key';
-				}
-			}
-			
-			$tpl->assign('properties', $properties);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			$tpl->display('devblocks:cerberusweb.restapi::peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $model);
 		}
 	}
 };

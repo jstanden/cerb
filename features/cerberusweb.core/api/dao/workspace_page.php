@@ -1407,6 +1407,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_WORKSPACE_PAGE;
+		$model = null;
 		
 		if(!empty($context_id)) {
 			$model = DAO_WorkspacePage::get($context_id);
@@ -1454,50 +1455,7 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/pages/peek_edit.tpl');
 			
 		} else {
-			// Links
-			$links = array(
-				$context => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							$context,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Timeline
-			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				return;
-			
-			// Dictionary
-			$labels = [];
-			$values = [];
-			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			// Page users
-			// [TODO] Redo this as another popup
-			$page_users = $model->getUsers();
-			$tpl->assign('page_users', $page_users);
-			$tpl->assign('workers', DAO_Worker::getAll());
-			
-			$tpl->display('devblocks:cerberusweb.core::internal/workspaces/pages/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $model);
 		}
 	}
 };

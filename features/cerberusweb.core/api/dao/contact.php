@@ -2222,7 +2222,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$context = CerberusContexts::CONTEXT_CONTACT;
-		$active_worker = CerberusApplication::getActiveWorker();
+		$contact = null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
@@ -2277,49 +2277,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			}
 			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek_edit.tpl');
 		} else {
-			$links = array(
-				$context => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							$context,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Timeline
-			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-			
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				return;
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Dictionary
-			$labels = $values = [];
-			CerberusContexts::getContext($context, $contact, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			// Interactions
-			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-			$tpl->assign('interactions_menu', $interactions_menu);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			$tpl->assign('counts_tickets', DAO_Ticket::countsByContactId($context_id));
-	
-			$tpl->display('devblocks:cerberusweb.core::internal/contact/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $contact);
 		}
 	}
 	

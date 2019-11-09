@@ -2862,7 +2862,9 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$context = CerberusContexts::CONTEXT_MESSAGE;
+		$message = null;
 		
 		$tpl->assign('view_id', $view_id);
 		
@@ -2883,49 +2885,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek_edit.tpl');
 			
 		} else {
-			$links = array(
-				CerberusContexts::CONTEXT_MESSAGE => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							CerberusContexts::CONTEXT_MESSAGE,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_MESSAGE)))
-				return;
-			
-			// Dictionary
-			$labels = [];
-			$values = [];
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_MESSAGE, $message, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			$is_readable = Context_Message::isReadableByActor($dict, $active_worker);
-			$tpl->assign('is_readable', $is_readable);
-			
-			$is_writeable = Context_Message::isWriteableByActor($dict, $active_worker);
-			$tpl->assign('is_writeable', $is_writeable);
-			
-			// Timeline
-			if($is_readable && $message) {
-				$timeline_json = Page_Profiles::getTimelineJson($message->getTimeline());
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-			
-			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $message);
 		}
 	}
 	

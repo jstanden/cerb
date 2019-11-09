@@ -1893,10 +1893,8 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		$contact = DAO_ContactOrg::get($context_id);
-		
 		$context = CerberusContexts::CONTEXT_ORG;
-		$active_worker = CerberusApplication::getActiveWorker();
+		$contact = DAO_ContactOrg::get($context_id);
 		
 		if(empty($context_id) || $edit) {
 			$tpl->assign('org', $contact);
@@ -1918,50 +1916,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek_edit.tpl');
 			
 		} else {
-			// Dictionary
-			$labels = $values = [];
-			CerberusContexts::getContext($context, $contact, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			// Links
-			$links = array(
-				$context => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							$context,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Timeline
-			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments($context, $context_id));
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-			
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				return;
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Interactions
-			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-			$tpl->assign('interactions_menu', $interactions_menu);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			$tpl->assign('counts_tickets', DAO_Ticket::countsByOrgId($context_id));
-			
-			$tpl->display('devblocks:cerberusweb.core::contacts/orgs/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $contact);
 		}
 	}
 	

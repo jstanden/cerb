@@ -327,48 +327,7 @@ class Context_Server extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->display('devblocks:cerberusweb.datacenter.servers::datacenter/servers/peek_edit.tpl');
 			
 		} else {
-			// Dictionary
-			$labels = $values = [];
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_SERVER, $model, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			// Links
-			$links = array(
-				CerberusContexts::CONTEXT_SERVER => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							CerberusContexts::CONTEXT_SERVER,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Timeline
-			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_SERVER, $context_id));
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-			
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_SERVER)))
-				return;
-			
-			// Interactions
-			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-			$tpl->assign('interactions_menu', $interactions_menu);
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			$tpl->display('devblocks:cerberusweb.datacenter.servers::datacenter/servers/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $model);
 		}
 	}
 	

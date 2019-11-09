@@ -156,18 +156,11 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	
 	function showDraftsPeekAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
-		@$active_worker = CerberusApplication::getActiveWorker();
+		if(false == ($draft = DAO_MailQueue::get($id)))
+			return;
 		
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('view_id', $view_id);
-		
-		if(null != ($draft = DAO_MailQueue::get($id)))
-			if($active_worker->is_superuser || $draft->worker_id==$active_worker->id)
-				$tpl->assign('draft', $draft);
-		
-		$tpl->display('devblocks:cerberusweb.core::mail/queue/peek.tpl');
+		Page_Profiles::renderCard(CerberusContexts::CONTEXT_DRAFT, $id, $draft);
 	}
 	
 	function showDraftsBulkPanelAction() {

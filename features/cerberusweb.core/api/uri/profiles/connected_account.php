@@ -28,21 +28,6 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	// [TODO] Is this used?
-	function showPeekPopupAction() {
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('view_id', $view_id);
-		
-		if(!empty($context_id) && null != ($connected_account = DAO_ConnectedAccount::get($context_id))) {
-			$tpl->assign('model', $connected_account);
-		}
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/connected_account/peek.tpl');
-	}
-	
 	function savePeekJsonAction() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
 		

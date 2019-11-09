@@ -4659,6 +4659,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			// URL
 			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['url'] = $url_writer->writeNoProxy('c=profiles&type=ticket&id='.$ticket->mask,true);
+			$token_values['record_url'] = $token_values['url'];
 
 			// Group
 			$token_values['group_id'] = $ticket->group_id;
@@ -5443,59 +5444,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tpl->display('devblocks:cerberusweb.core::tickets/peek_edit.tpl');
 			
 		} else {
-			// Dictionary
-			$labels = [];
-			$values = [];
-			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			// Links
-			$links = array(
-				$context => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							$context,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				return;
-			
-			// Interactions
-			$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-			$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-			$tpl->assign('interactions_menu', $interactions_menu);
-			
-			// Privileges
-			
-			$is_readable = Context_Ticket::isReadableByActor($dict, $active_worker);
-			$tpl->assign('is_readable', $is_readable);
-			
-			$is_writeable = Context_Ticket::isWriteableByActor($dict, $active_worker);
-			$tpl->assign('is_writeable', $is_writeable);
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			// Timeline
-			if($is_readable && $model) {
-				$timeline_json = Page_Profiles::getTimelineJson($model->getTimeline());
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-			
-			// Template
-			
-			$tpl->display('devblocks:cerberusweb.core::tickets/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $model);
 		}
 	}
 	

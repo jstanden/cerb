@@ -2384,6 +2384,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_BEHAVIOR;
+		$model = null;
 		
 		if(!empty($context_id)) {
 			$model = DAO_TriggerEvent::get($context_id);
@@ -2466,54 +2467,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/peek_edit.tpl');
 			
 		} else {
-			// Links
-			$links = array(
-				CerberusContexts::CONTEXT_BEHAVIOR => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							CerberusContexts::CONTEXT_BEHAVIOR,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Timeline
-			if($context_id) {
-				$timeline_json = Page_Profiles::getTimelineJson(Extension_DevblocksContext::getTimelineComments(CerberusContexts::CONTEXT_BEHAVIOR, $context_id));
-				$tpl->assign('timeline_json', $timeline_json);
-			}
-
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BEHAVIOR)))
-				return;
-			
-			// Dictionary
-			$labels = [];
-			$values = [];
-			CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $model, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			if(!($model instanceof Model_TriggerEvent) || false == ($event = $model->getEvent()))
-				return;
-			
-			if(false == ($bot = $model->getBot()))
-				$bot = new Model_Bot();
-			
-			$tpl->assign('behavior', $model);
-			$tpl->assign('event', $event->manifest);
-			$tpl->assign('va', $bot);
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			$tpl->display('devblocks:cerberusweb.core::internal/bot/behavior/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $model);
 		}
 		
 	}

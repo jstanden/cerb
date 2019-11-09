@@ -1270,6 +1270,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		$model = null;
 		
 		if(!empty($context_id)) {
 			$model = DAO_CustomFieldset::get($context_id);
@@ -1312,38 +1313,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek_edit.tpl');
 			
 		} else {
-			// Links
-			$links = array(
-				$context => array(
-					$context_id => 
-						DAO_ContextLink::getContextLinkCounts(
-							$context,
-							$context_id,
-							[]
-						),
-				),
-			);
-			$tpl->assign('links', $links);
-			
-			// Context
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				return;
-			
-			// Dictionary
-			$labels = array();
-			$values = array();
-			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$tpl->assign('dict', $dict);
-			
-			$properties = $context_ext->getCardProperties();
-			$tpl->assign('properties', $properties);
-			
-			// Card search buttons
-			$search_buttons = $context_ext->getCardSearchButtons($dict, []);
-			$tpl->assign('search_buttons', $search_buttons);
-			
-			$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek.tpl');
+			Page_Profiles::renderCard($context, $context_id, $model);
 		}
 	}
 };
