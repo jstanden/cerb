@@ -4403,6 +4403,19 @@
 			</params>
 		</extension>
 
+		<!-- Card Widgets -->
+
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.fields</id>
+			<name>Record Fields</name>
+			<class>
+				<file>api/cards/widgets/record_fields.php</file>
+				<name>CardWidget_Fields</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">
