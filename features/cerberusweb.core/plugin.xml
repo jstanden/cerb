@@ -4466,7 +4466,18 @@
 			<params>
 			</params>
 		</extension>
-
+		
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.sheet</id>
+			<name>Sheet</name>
+			<class>
+				<file>api/cards/widgets/sheet.php</file>
+				<name>CardWidget_Sheet</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
 		<!-- Event Listeners -->
 		
 		<extension point="devblocks.listener.event">
