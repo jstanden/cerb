@@ -895,7 +895,7 @@ class Model_KbArticle {
 	public $updated = 0;
 	public $views = 0;
 	
-	function getContent() {
+	function getContent($sanitized=true) {
 		$html = '';
 		
 		switch($this->format) {
@@ -913,6 +913,9 @@ class Model_KbArticle {
 				$html = DevblocksPlatform::parseMarkdown($tpl_builder->build($this->content, []));
 				break;
 		}
+		
+		if($sanitized)
+			$html = DevblocksPlatform::purifyHTML($html, true, true);
 		
 		return $html;
 	}
