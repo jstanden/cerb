@@ -4417,6 +4417,17 @@
 		</extension>
 
 		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.behavior.tree</id>
+			<name>Behavior Tree</name>
+			<class>
+				<file>api/cards/widgets/behavior_tree.php</file>
+				<name>CardWidget_BehaviorTree</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.fields</id>
 			<name>Record Fields</name>
 			<class>

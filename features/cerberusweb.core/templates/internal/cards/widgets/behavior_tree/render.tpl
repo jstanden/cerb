@@ -1,0 +1,1 @@
+{include file="devblocks:cerberusweb.core::internal/bot/behavior/tab.tpl"}
