@@ -6,6 +6,17 @@ $tables = $db->metaTables();
 // Update package library
 
 $packages = [
+	'card_widget/cerb_card_widget_address_tickets.json',
+	'card_widget/cerb_card_widget_attachments_viewer.json',
+	'card_widget/cerb_card_widget_bucket_tickets.json',
+	'card_widget/cerb_card_widget_conversation.json',
+	'card_widget/cerb_card_widget_fields.json',
+	'card_widget/cerb_card_widget_gpg_public_key_subkeys.json',
+	'card_widget/cerb_card_widget_gpg_public_key_uids.json',
+	'card_widget/cerb_card_widget_group_tickets.json',
+	'card_widget/cerb_card_widget_org_tickets.json',
+	'card_widget/cerb_card_widget_snippet_content.json',
+	'card_widget/cerb_card_widget_worker_tickets.json',
 	'cerb_connected_service_google.json',
 ];
 
