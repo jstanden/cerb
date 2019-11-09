@@ -4444,6 +4444,17 @@
 				-->
 			</params>
 		</extension>
+		
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.kb_article.viewer</id>
+			<name>Knowledgebase Article</name>
+			<class>
+				<file>api/cards/widgets/kb_article.php</file>
+				<name>CardWidget_KbArticle</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 
 		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.fields</id>

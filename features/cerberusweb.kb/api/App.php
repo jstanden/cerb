@@ -275,22 +275,6 @@ class ChKbAjaxController extends DevblocksControllerExtension {
 				break;
 		}
 	}
-
-	function getArticleContentAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		
-		$tpl = DevblocksPlatform::services()->template();
-		
-		// [TODO] ACL
-		// [TODO] Fetch article content from storage
-		
-		if(null == ($article = DAO_KbArticle::get($id)))
-			return;
-		
-		$tpl->assign('body', $article->getContent());
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/html_editor/preview.tpl');
-	}
 };
 
 class EventListener_Kb extends DevblocksEventListenerExtension {
