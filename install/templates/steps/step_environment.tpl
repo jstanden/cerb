@@ -3,7 +3,7 @@
 <form action="index.php" method="POST">
 <b>PHP Version... </b> 
 {if !$results.php_version}
-	<span class="bad">Failed!  PHP 7.0 or later is required.</span>
+	<span class="bad">Failed!  PHP 7.2 or later is required.</span>
 {else}
 	<span class="good">Passed! (PHP {$results.php_version})</span>
 {/if}
