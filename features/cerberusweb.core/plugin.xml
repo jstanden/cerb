@@ -4404,6 +4404,17 @@
 		</extension>
 
 		<!-- Card Widgets -->
+		
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.attachment.viewer</id>
+			<name>Attachment Viewer</name>
+			<class>
+				<file>api/cards/widgets/attachment_viewer.php</file>
+				<name>CardWidget_AttachmentViewer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
 
 		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.fields</id>
