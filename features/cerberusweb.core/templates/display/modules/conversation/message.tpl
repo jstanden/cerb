@@ -16,6 +16,7 @@
 		{$attachments = []}
 		{/if}
 
+		{if !$embed}
 		<div class="toolbar-minmax" style="float:right;display:none;">
 			{if $active_worker->hasPriv('contexts.cerberusweb.contexts.message.update')}
 			<button type="button" class="edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
@@ -34,6 +35,7 @@
 				<button id="btnMsgMin{$message->id}" type="button" onclick="genericAjaxGet('message{$message->id}','c=display&a=getMessage&id={$message->id}&hide=1');" title="{'common.minimize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-small"></span></button>
 			{/if}
 		</div>
+		{/if}
 
 		<div style="display:inline;margin-right:5px;">
 			<span class="tag" style="color:white;{if !$is_outgoing}background-color:rgb(185,50,40);{else}background-color:rgb(100,140,25);{/if}">{if $is_outgoing}{if $is_not_sent}{'mail.saved'|devblocks_translate|lower}{else}{'mail.sent'|devblocks_translate|lower}{/if}{else}{'mail.received'|devblocks_translate|lower}{/if}</span>
@@ -89,7 +91,7 @@
 		<br>
 	{/if}
 
-	<div id="{$message->id}sh" style="display:block;margin-top:2px;">
+	<div {if !$embed}id="{$message->id}sh"{/if} style="display:block;margin-top:2px;">
 		{if isset($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from|escape|nl2br nofilter}<br>{/if}
 		{if isset($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to|escape|nl2br nofilter}<br>{/if}
 		{if isset($headers.cc)}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc|escape|nl2br nofilter}<br>{/if}
@@ -103,7 +105,7 @@
 		<br>
 	</div>
 
-	{if $expanded}
+	{if !$embed && $expanded}
 	<div style="margin:2px;margin-left:10px;" id="{$message->id}skip" class="cerb-no-print">
 		<button type="button" onclick="document.location='#{$message->id}act';">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</button>
 	</div>
@@ -151,6 +153,7 @@
             {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$message_custom_fieldsets}
         </div>
 
+		{if !$embed}
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="cerb-no-print">
 			<tr>
 				<td align="left" id="{$message->id}act">
@@ -181,7 +184,9 @@
 				</td>
 			</tr>
 		</table>
+		{/if}
 
+		{if !$embed}
 		<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
 			<input type="hidden" name="c" value="display">
 			<input type="hidden" name="a" value="">
@@ -203,15 +208,20 @@
 				{/foreach}
 			{/if}
 		</form>
+		{/if}
 	</div> <!-- end visible -->
 	{/if}
 </div>
+
+{if !$embed}
 <div id="{$message->id}b"></div>
 <div id="{$message->id}notes">
 	{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
 </div>
 <div id="reply{$message->id}"></div>
+{/if}
 
+{if !$embed}
 <script type="text/javascript">
 $(function() {
 	var $msg = $('#message{$message->id}').unbind();
@@ -236,8 +246,9 @@ $(function() {
 	} catch(e) {}
 });
 </script>
+{/if}
 
-{if $active_worker->hasPriv('core.display.actions.reply')}
+{if !$embed && $active_worker->hasPriv('core.display.actions.reply')}
 <script type="text/javascript">
 $(function() {
 	var $msg = $('#message{$message->id}');

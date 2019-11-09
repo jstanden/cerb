@@ -4446,6 +4446,17 @@
 		</extension>
 		
 		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.conversation</id>
+			<name>Conversation</name>
+			<class>
+				<file>api/cards/widgets/conversation.php</file>
+				<name>CardWidget_Conversation</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.kb_article.viewer</id>
 			<name>Knowledgebase Article</name>
 			<class>

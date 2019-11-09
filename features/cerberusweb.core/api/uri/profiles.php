@@ -382,6 +382,10 @@ class Page_Profiles extends CerberusPageExtension {
 				$context = CerberusContexts::CONTEXT_COMMENT;
 				$object = array('context' => $context, 'context_id' => $model->id);
 				$json['objects'][] = $object;
+			} else if($model instanceof Model_MailQueue) {
+				$context = CerberusContexts::CONTEXT_DRAFT;
+				$object = array('context' => $context, 'context_id' => $model->id);
+				$json['objects'][] = $object;
 			} elseif($model instanceof Model_Message) {
 				$context = CerberusContexts::CONTEXT_MESSAGE;
 				$object = array('context' => $context, 'context_id' => $model->id);

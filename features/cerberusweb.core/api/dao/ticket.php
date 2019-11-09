@@ -2609,17 +2609,28 @@ class Model_Ticket {
 		return $messages;
 	}
 	
-	function getTimeline($is_ascending=true) {
+	function getTimeline($is_ascending=true, $target_context=null, $target_context_id=null, &$start_at=0) {
 		$timeline = $this->getMessages();
 		
 		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_TICKET, $this->id)))
 			$timeline = array_merge($timeline, $comments);
+		
+		$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d",
+			Cerb_ORMHelper::escape(DAO_MailQueue::TICKET_ID),
+			$this->id
+		));
+		
+		if($drafts) {
+			$timeline = array_merge($timeline, $drafts);
+		}
 		
 		usort($timeline, function($a, $b) use ($is_ascending) {
 			if($a instanceof Model_Message) {
 				$a_time = intval($a->created_date);
 			} else if($a instanceof Model_Comment) {
 				$a_time = intval($a->created);
+			} else if($a instanceof Model_MailQueue) {
+				$a_time = intval($a->updated);
 			} else {
 				$a_time = 0;
 			}
@@ -2628,6 +2639,8 @@ class Model_Ticket {
 				$b_time = intval($b->created_date);
 			} else if($b instanceof Model_Comment) {
 				$b_time = intval($b->created);
+			} else if($b instanceof Model_MailQueue) {
+				$b_time = intval($b->updated);
 			} else {
 				$b_time = 0;
 			}
@@ -2640,6 +2653,23 @@ class Model_Ticket {
 				return 0;
 			}
 		});
+		
+		if($target_context && $target_context_id) {
+			$target_classes = [
+				CerberusContexts::CONTEXT_COMMENT => 'Model_Comment',
+				CerberusContexts::CONTEXT_DRAFT => 'Model_MailQueue',
+				CerberusContexts::CONTEXT_MESSAGE => 'Model_Message',
+			];
+			
+			if(false != (@$target_class = $target_classes[$target_context])) {
+				foreach($timeline as $object_idx => $object) {
+					if($object instanceof $target_class && $object->id == $target_context_id) {
+						$start_at = $object_idx;
+						break;
+					}
+				}
+			}
+		}
 		
 		return $timeline;
 	}

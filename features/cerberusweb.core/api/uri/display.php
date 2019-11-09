@@ -167,6 +167,22 @@ class ChDisplayPage extends CerberusPageExtension {
 			
 		}
 	}
+	
+	function getDraftAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(false == ($draft = DAO_MailQueue::get($id)))
+			return;
+		
+		if(!Context_Draft::isReadableByActor($draft, $active_worker))
+			return;
+		
+		$tpl->assign('draft', $draft);
+		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/draft.tpl');
+	}
 
 	private function _checkRecentTicketActivity($ticket_id, $since_timestamp) {
 		$active_worker = CerberusApplication::getActiveWorker();

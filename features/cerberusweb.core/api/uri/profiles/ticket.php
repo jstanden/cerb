@@ -75,6 +75,16 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				$is_writeable = Context_Message::isWriteableByActor($message, $active_worker);
 				$tpl->assign('is_writeable', $is_writeable);
 				
+				$sender = $message->getSender();
+				
+				$tpl->assign('message_senders', [
+					$message->address_id => $sender,
+				]);
+				
+				$tpl->assign('message_senders_orgs', [
+					0 => $sender->getOrg(),
+				]);
+				
 				$tpl->display('devblocks:cerberusweb.core::tickets/peek_preview.tpl');
 				break;
 				
@@ -83,6 +93,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					return;
 					
 				$tpl->assign('comment', $comment);
+				$tpl->display('devblocks:cerberusweb.core::tickets/peek_preview.tpl');
+				break;
+				
+			case CerberusContexts::CONTEXT_DRAFT:
+				if(false == ($draft = DAO_MailQueue::get($context_id)))
+					return;
+					
+				$tpl->assign('draft', $draft);
 				$tpl->display('devblocks:cerberusweb.core::tickets/peek_preview.tpl');
 				break;
 		}

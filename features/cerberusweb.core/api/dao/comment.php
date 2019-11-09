@@ -890,7 +890,7 @@ class Model_Comment {
 		return DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, $this->id);
 	}
 	
-	function getTimeline($is_ascending=true) {
+	function getTimeline($is_ascending=true, $target_id=0, &$start_index=0) {
 		// Load all the comments on the parent record
 		$timeline = DAO_Comment::getByContext($this->context, $this->context_id);
 		
@@ -906,6 +906,11 @@ class Model_Comment {
 				return 0;
 			}
 		});
+		
+		if($target_id) {
+			if(false !== ($pos = array_search($target_id, array_column($timeline, 'id'))))
+				$start_index = $pos;
+		}
 		
 		return $timeline;
 	}
@@ -1595,6 +1600,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		$tpl->assign('view_id', $view_id);
 
 		$context = CerberusContexts::CONTEXT_COMMENT;
+		$model = null;
 		
 		if(!empty($context_id)) {
 			$model = DAO_Comment::get($context_id);

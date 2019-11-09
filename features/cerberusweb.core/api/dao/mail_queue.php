@@ -662,6 +662,43 @@ class Model_MailQueue {
 		}
 	}
 	
+	function getTimeline($is_ascending=true) {
+		$timeline = [
+			$this,
+		];
+		
+		if(false != ($comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_DRAFT, $this->id)))
+			$timeline = array_merge($timeline, $comments);
+		
+		usort($timeline, function($a, $b) use ($is_ascending) {
+			if($a instanceof Model_MailQueue) {
+				$a_time = intval($a->updated);
+			} else if($a instanceof Model_Comment) {
+				$a_time = intval($a->created);
+			} else {
+				$a_time = 0;
+			}
+			
+			if($b instanceof Model_MailQueue) {
+				$b_time = intval($b->updated);
+			} else if($b instanceof Model_Comment) {
+				$b_time = intval($b->created);
+			} else {
+				$b_time = 0;
+			}
+			
+			if($a_time > $b_time) {
+				return ($is_ascending) ? 1 : -1;
+			} else if ($a_time < $b_time) {
+				return ($is_ascending) ? -1 : 1;
+			} else {
+				return 0;
+			}
+		});
+		
+		return $timeline;
+	}
+	
 	/**
 	 * @return boolean
 	 */
