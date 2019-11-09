@@ -71,7 +71,7 @@
 		<patch version="9.1.0" revision="1326" file="patches/9.x/9.1.0.php" />
 		<patch version="9.2.0" revision="1333" file="patches/9.x/9.2.0.php" />
 		<patch version="9.3.0" revision="1342" file="patches/9.x/9.3.0.php" />
-		<patch version="9.4.0" revision="1357" file="patches/9.x/9.4.0.php" />
+		<patch version="9.4.0" revision="1360" file="patches/9.x/9.4.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -202,6 +202,14 @@
 			<class name="Model_CalendarRecurringProfile" />
 			<class name="SearchFields_CalendarRecurringProfile" />
 			<class name="View_CalendarRecurringProfile" />
+		</file>
+
+		<file path="api/dao/card_widget.php">
+			<class name="Context_CardWidget" />
+			<class name="DAO_CardWidget" />
+			<class name="Model_CardWidget" />
+			<class name="SearchFields_CardWidget" />
+			<class name="View_CardWidget" />
 		</file>
 
 		<file path="api/dao/cerb_plugin.php">
@@ -2116,7 +2124,51 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.card.widget</id>
+			<name>Card Widget</name>
+			<class>
+				<file>api/dao/card_widget.php</file>
+				<name>Context_CardWidget</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="card widget" value="singular" />
+						<data key="card widgets" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="card_widget" />
+				<param key="dao_class" value="DAO_CardWidget" />
+				<param key="view_class" value="View_CardWidget" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="import" />
+						<data key="merge" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.comment</id>
 			<name>Comment</name>
@@ -5781,7 +5833,20 @@
 					<param key="uri" value="calendar_recurring_profile" />
 				</params>
 			</extension>
-			
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.card_widget</id>
+				<name>Card Widget Section</name>
+				<class>
+					<file>api/uri/profiles/card_widget.php</file>
+					<name>PageSection_ProfilesCardWidget</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="card_widget" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.classifier</id>
 				<name>Classifier Section</name>

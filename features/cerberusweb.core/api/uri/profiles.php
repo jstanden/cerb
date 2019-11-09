@@ -44,6 +44,86 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
 	}
 	
+	static function renderCard($context, $context_id, $model=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$model) {
+			$tpl->assign('error_message', "This record no longer exists.");
+			$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
+			return;
+		}
+		
+		// Context
+		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+			return;
+		
+		// Links
+		if($context_ext->hasOption('links')) {
+			$links = [
+				$context => [
+					$context_id =>
+						DAO_ContextLink::getContextLinkCounts(
+							$context,
+							$context_id,
+							[]
+						),
+				],
+			];
+			$tpl->assign('links', $links);
+		}
+		
+		// Dictionary
+		if($model) {
+			$labels = $values = [];
+			CerberusContexts::getContext($context, $model, $labels, $values, '', true, false);
+			$dict = DevblocksDictionaryDelegate::instance($values);
+		} else {
+			$dict = DevblocksDictionaryDelegate::instance([
+				'_context' => $context,
+				'id' => $context_id,
+			]);
+		}
+		$tpl->assign('dict', $dict);
+		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
+		
+		// Widgets
+		$widgets = DAO_CardWidget::getByContext($context);
+		
+		$zones = [
+			'content' => [],
+		];
+		
+		// Sanitize zones
+		foreach($widgets as $widget_id => $widget) {
+			if(array_key_exists($widget->zone, $zones)) {
+				$zones[$widget->zone][$widget_id] = $widget;
+				continue;
+			}
+			
+			// If the zone doesn't exist, drop the widget into the first zone
+			$zones[key($zones)][$widget_id] = $widget;
+		}
+		
+		$tpl->assign('zones', $zones);
+		
+		$is_readable = CerberusContexts::isReadableByActor($context, $dict, $active_worker);
+		$tpl->assign('is_readable', $is_readable);
+		
+		$is_writeable = CerberusContexts::isWriteableByActor($context, $dict, $active_worker);
+		$tpl->assign('is_writeable', $is_writeable);
+		
+		// Template
+		$tpl->assign('peek_context', $context);
+		$tpl->assign('peek_context_id', $context_id);
+		$tpl->assign('context_ext', $context_ext);
+		$tpl->display('devblocks:cerberusweb.core::internal/cards/card.tpl');
+	}
+	
 	static function renderProfile($context, $context_id, $path=[]) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();

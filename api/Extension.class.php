@@ -532,6 +532,94 @@ abstract class Extension_CalendarDatasource extends DevblocksExtension {
 	abstract function getData(Model_Calendar $calendar, array $params=[], $params_prefix=null, $date_range_from, $date_range_to);
 };
 
+abstract class Extension_CardWidget extends DevblocksExtension {
+	const POINT = 'cerb.card.widget';
+	
+	static $_registry = [];
+	
+	/**
+	 * @param bool $as_instances
+	 * @return DevblocksExtensionManifest[]|Extension_CardWidget[]
+	 * @internal
+	 *
+	 */
+	static function getAll($as_instances=true) {
+		$exts = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
+		
+		// Sorting
+		if($as_instances)
+			DevblocksPlatform::sortObjects($exts, 'manifest->name');
+		else
+			DevblocksPlatform::sortObjects($exts, 'name');
+		
+		return $exts;
+	}
+	
+	/**
+	 * @param string $extension_id
+	 * @return DevblocksExtensionManifest|mixed|null
+	 * @internal
+	 */
+	static function get($extension_id) {
+		if(isset(self::$_registry[$extension_id]))
+			return self::$_registry[$extension_id];
+		
+		if(null != ($extension = DevblocksPlatform::getExtension($extension_id, true))
+			&& $extension instanceof Extension_CardWidget) {
+			
+			self::$_registry[$extension->id] = $extension;
+			return $extension;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * @internal
+	 */
+	static function getByContext($context, $as_instances=true) {
+		$extensions = self::getAll($as_instances);
+		
+		$extensions = array_filter($extensions, function($extension) use ($context, $as_instances) {
+			$ptr = ($as_instances) ? $extension->manifest : $extension;
+			
+			if(!array_key_exists('contexts', $ptr->params))
+				return true;
+			
+			@$contexts = $ptr->params['contexts'][0] ?: [];
+			
+			return isset($contexts[$context]);
+		});
+		
+		return $extensions;
+	}
+	
+	abstract function render(Model_CardWidget $model, $context, $context_id);
+	abstract function renderConfig(Model_CardWidget $model);
+	function saveConfig(array $fields, $id, &$error=null) { return true; }
+	
+	/**
+	 * @internal
+	 */
+	public function export(Model_CardWidget $widget) {
+		$widget_json = [
+			'widget' => [
+				'uid' => 'card_widget_' . $widget->id,
+				'_context' => CerberusContexts::CONTEXT_CARD_WIDGET,
+				'name' => $widget->name,
+				'record_type' => $widget->record_type,
+				'extension_id' => $widget->extension_id,
+				'pos' => $widget->pos,
+				'width_units' => $widget->width_units,
+				'zone' => $widget->zone,
+				'extension_params' => $widget->extension_params,
+			]
+		];
+		
+		return json_encode($widget_json);
+	}
+};
+
 abstract class Extension_WorkspacePage extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.workspace.page';
 	

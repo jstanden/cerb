@@ -137,6 +137,131 @@ if('utf8mb4_unicode_ci' != $columns['title']['collation']) {
 }
 
 // ===========================================================================
+// Add the `card_widget` table
+
+if(!isset($tables['card_widget'])) {
+	$sql = sprintf("
+		CREATE TABLE `card_widget` (
+		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(255) NOT NULL DEFAULT '',
+		`record_type` varchar(255) NOT NULL DEFAULT '',
+		`extension_id` varchar(255) NOT NULL DEFAULT '',
+		`extension_params_json` TEXT,
+		`created_at` int(10) unsigned NOT NULL DEFAULT '0',
+		`updated_at` int(10) unsigned NOT NULL DEFAULT '0',
+		`pos` tinyint(3) unsigned NOT NULL DEFAULT 0,
+		`width_units` tinyint(3) unsigned NOT NULL DEFAULT 1,
+		`zone` varchar(255) NOT NULL DEFAULT '',
+		PRIMARY KEY (id),
+		KEY (record_type),
+		KEY (extension_id)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['card_widget'] = 'card_widget';
+}
+
+// ===========================================================================
+// Migrate record settings to card widgets
+
+$results = $db->GetArrayMaster('SELECT * FROM devblocks_setting WHERE setting LIKE "card:%"');
+
+if($results) {
+	$card_prefs = [];
+	
+	foreach($results as $result) {
+		$parts = explode(':', $result['setting'], 3);
+		
+		if(2 == count($parts)) {
+			if(empty($parts[1]))
+				continue;
+			
+			if(!array_key_exists($parts[1], $card_prefs))
+				$card_prefs[$parts[1]] = [
+					'fields' => [],
+					'search' => [],
+				];
+			
+			$json = str_replace(
+				[
+					'"custom_',
+					'"__label"',
+					'"owner__label"',
+					'__label',
+				],
+				[
+					'"cf_',
+					'"name"',
+					'"owner"',
+					'_id',
+				],
+				$result['value']
+			);
+			
+			$card_prefs[$parts[1]]['fields'] = json_decode($json, true);
+			
+		} elseif(3 == count($parts)) {
+			if(empty($parts[2]))
+				continue;
+			
+			if(!array_key_exists($parts[2], $card_prefs))
+				$card_prefs[$parts[2]] = [
+					'fields' => [],
+					'search' => [],
+				];
+			
+			$json = str_replace(
+				[
+					'{{'
+				],
+				[
+					'{{record_'
+				],
+				$result['value']
+			);
+			
+			$search = json_decode($json, true);
+			
+			$card_prefs[$parts[2]]['search'] = [
+				'context' => array_column($search, 'context'),
+				'query' => array_column($search, 'query'),
+				'label_singular' => array_column($search, 'label_singular'),
+				'label_plural' => array_column($search, 'label_plural'),
+			];
+		}
+	}
+	
+	if(is_array($card_prefs))
+	foreach($card_prefs as $card_context => $card_data) {
+		$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+			"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+			$db->qstr('Properties'),
+			$db->qstr($card_context),
+			$db->qstr('cerb.card.widget.fields'),
+			$db->qstr(json_encode([
+				'context' => $card_context,
+				'context_id' => '{{record_id}}',
+				'properties' => [
+					'0' => $card_data['fields'],
+				],
+				'links' => [
+					'show' => 1,
+				],
+				'search' => $card_data['search'],
+			])),
+			time(),
+			time(),
+			0,
+			4,
+			$db->qstr('content')
+		));
+	}
+	
+	$db->ExecuteMaster('DELETE FROM devblocks_setting WHERE setting LIKE "card:%"');
+}
+
+// ===========================================================================
 // Increase `worker_auth_hash.pass_hash` length
 
 list($columns,) = $db->metaTable('worker_auth_hash');

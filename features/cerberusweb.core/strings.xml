@@ -280,6 +280,11 @@
 				<seg>add</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.add.widget">
+			<tuv xml:lang="en_US">
+				<seg>add widget</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.all">
 			<tuv xml:lang="en_US">
 				<seg>all</seg>
@@ -558,6 +563,16 @@
 		<tu tuid="common.card">
 			<tuv xml:lang="en_US">
 				<seg>card</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.card.widget">
+			<tuv xml:lang="en_US">
+				<seg>card widget</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.card.widgets">
+			<tuv xml:lang="en_US">
+				<seg>card widgets</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.cards">

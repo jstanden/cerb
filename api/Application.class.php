@@ -949,6 +949,7 @@ class CerberusContexts {
 	const CONTEXT_CALENDAR_EVENT = 'cerberusweb.contexts.calendar_event';
 	const CONTEXT_CALENDAR_EVENT_RECURRING = 'cerberusweb.contexts.calendar_event.recurring';
 	const CONTEXT_CALL = 'cerberusweb.contexts.call';
+	const CONTEXT_CARD_WIDGET = 'cerb.contexts.card.widget';
 	const CONTEXT_CLASSIFIER = 'cerberusweb.contexts.classifier';
 	const CONTEXT_CLASSIFIER_CLASS = 'cerberusweb.contexts.classifier.class';
 	const CONTEXT_CLASSIFIER_ENTITY = 'cerberusweb.contexts.classifier.entity';

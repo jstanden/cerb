@@ -2229,6 +2229,36 @@ UL.ui-menu li.ui-state-focus {
   color: inherit;
 }
 
+.cerb-card-widget {
+  min-width: 345px;
+  overflow-x: hidden;
+}
+.cerb-card-widget > DIV {
+  padding: 0px 5px 10px 5px;
+}
+
+.cerb-card-widget--header {
+  border-bottom: 1px solid #f0f0f0;
+  margin: 0 0 5px 0;
+  border-radius: 5px;
+  position: relative;
+}
+.cerb-card-widget--header b {
+  font-size: 1.4em;
+  color: #007800;
+}
+.cerb-card-widget--header b .glyphicons-menu-hamburger {
+  vertical-align: middle;
+  cursor: move;
+  color: #b4b4b4;
+  font-size: 0.8em;
+}
+.cerb-card-widget--header b .glyphicons-chevron-down {
+  font-size: 0.5em;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
 .cerb-profile-widget {
   min-width: 345px;
   overflow-x: hidden;
