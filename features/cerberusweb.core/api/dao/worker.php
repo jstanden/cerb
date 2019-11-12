@@ -1506,7 +1506,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_USING_WORKSPACE_PAGE:
 				$db = DevblocksPlatform::services()->database();
-				$workspace_page_sql = self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKSPACE_PAGE);
+				$workspace_page_sql = self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKSPACE_PAGE, '%s');
 				
 				if(false == ($rows = $workspace_page_ids = $db->GetArraySlave($workspace_page_sql)))
 					return '0';
