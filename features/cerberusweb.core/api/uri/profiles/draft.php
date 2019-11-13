@@ -28,6 +28,117 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
+	function savePeekJsonAction() {
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		try {
+			if(!empty($id) && !empty($do_delete)) { // delete
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_DRAFT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				DAO_MailQueue::delete($id);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'view_id' => $view_id,
+				));
+				return;
+				
+			} else { // create/edit
+				$error = null;
+				
+				// Load the existing model so we can detect changes
+				if ($id && false == ($draft = DAO_MailQueue::get($id)))
+					throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
+				
+				$fields = [];
+				
+				// Fields
+				@$is_queued = DevblocksPlatform::importGPC($_REQUEST['is_queued'], 'bit', 0);
+				@$send_at = DevblocksPlatform::importGPC($_REQUEST['send_at'], 'string', '');
+				
+				$fields[DAO_MailQueue::IS_QUEUED] = $is_queued;
+				$fields[DAO_MailQueue::QUEUE_FAILS] = 0;
+				
+				if($is_queued) {
+					if(!$send_at)
+						$send_at = 'now';
+					
+					$fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = strtotime($send_at);
+				} else {
+					$fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = 0;
+				}
+				
+				// Updated Date
+				$fields[DAO_MailQueue::UPDATED] = time();
+				
+				// Save
+				if (!empty($id)) {
+					if (!DAO_MailQueue::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if (!DAO_MailQueue::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					DAO_MailQueue::update($id, $fields);
+					DAO_MailQueue::onUpdateByActor($active_worker, $fields, $id);
+					
+				} else {
+					if (!DAO_MailQueue::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if (!DAO_MailQueue::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					if (false == ($id = DAO_MailQueue::create($fields)))
+						return false;
+					
+					DAO_MailQueue::onUpdateByActor($active_worker, $fields, $id);
+					
+					// View marquee
+					if (!empty($id) && !empty($view_id)) {
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_DRAFT, $id);
+					}
+				}
+				
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if (!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_DRAFT, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
+				
+				echo json_encode(array(
+					'status' => true,
+					'id' => $id,
+					'label' => '', // [TODO]
+					'view_id' => $view_id,
+				));
+				return;
+			}
+			
+		} catch (Exception_DevblocksAjaxValidationError $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => $e->getMessage(),
+				'field' => $e->getFieldName(),
+			));
+			return;
+			
+		} catch (Exception $e) {
+			echo json_encode(array(
+				'status' => false,
+				'error' => 'An error occurred.',
+			));
+			return;
+		}
+	}
+	
 	function saveDraft() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);

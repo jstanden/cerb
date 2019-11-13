@@ -645,9 +645,6 @@ class ChTicketsPage extends CerberusPageExtension {
 		$ticket_id = CerberusMail::compose($properties);
 		
 		if(!empty($ticket_id)) {
-			if(!empty($draft_id))
-				DAO_MailQueue::delete($draft_id);
-
 			// Run hash commands
 			if(!empty($hash_commands))
 				CerberusMail::handleComposeHashCommands($hash_commands, $ticket_id, $active_worker);

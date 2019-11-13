@@ -310,46 +310,38 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$custom_field_values = $custom_field_values[$ticket->id] ?: [];
+		$custom_field_values = @$custom_field_values[$ticket->id] ?: [];
 		
 		// Are we continuing a draft?
 		if($draft_id) {
-			// Drafts
-			$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND (%s = %s OR %s = %s) AND %s = %d",
-				DAO_MailQueue::TICKET_ID,
-				$message->ticket_id,
-				DAO_MailQueue::WORKER_ID,
-				$active_worker->id,
-				DAO_MailQueue::TYPE,
-				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_REPLY),
-				DAO_MailQueue::TYPE,
-				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_TICKET_FORWARD),
-				DAO_MailQueue::ID,
-				$draft_id
-			));
+			if(false == ($draft = DAO_MailQueue::get($draft_id)))
+				return;
 			
-			if(array_key_exists($draft_id, $drafts)) {
-				$draft = $drafts[$draft_id];
-				$tpl->assign('draft', $draft);
-				
-				$tpl->assign('to', $draft->params['to']);
-				$tpl->assign('cc', $draft->params['cc']);
-				$tpl->assign('bcc', $draft->params['bcc']);
-				$tpl->assign('subject', $draft->params['subject']);
-				
-				if(array_key_exists('owner_id', $draft->params))
-					$ticket->owner_id = $draft->params['owner_id'];
-				
-				if(array_key_exists('group_id', $draft->params))
-					$ticket->group_id = $draft->params['group_id'];
-				
-				if(array_key_exists('bucket_id', $draft->params))
-					$ticket->bucket_id = $draft->params['bucket_id'];
-				
-				if(array_key_exists('custom_fields', $draft->params)) {
-					foreach($draft->params['custom_fields'] as $field_id => $field_value)
-						$custom_field_values[$field_id] = $field_value;
-				}
+			if(!Context_Draft::isWriteableByActor($draft, $active_worker))
+				return;
+			
+			if($draft->worker_id != $active_worker->id)
+				return;
+			
+			$tpl->assign('draft', $draft);
+			
+			$tpl->assign('to', @$draft->params['to']);
+			$tpl->assign('cc', @$draft->params['cc']);
+			$tpl->assign('bcc', @$draft->params['bcc']);
+			$tpl->assign('subject', @$draft->params['subject']);
+			
+			if(array_key_exists('owner_id', $draft->params))
+				$ticket->owner_id = $draft->params['owner_id'];
+			
+			if(array_key_exists('group_id', $draft->params))
+				$ticket->group_id = $draft->params['group_id'];
+			
+			if(array_key_exists('bucket_id', $draft->params))
+				$ticket->bucket_id = $draft->params['bucket_id'];
+			
+			if(array_key_exists('custom_fields', $draft->params)) {
+				foreach($draft->params['custom_fields'] as $field_id => $field_value)
+					$custom_field_values[$field_id] = $field_value;
 			}
 			
 		// Or are we replying without a draft?
@@ -682,9 +674,6 @@ class ChDisplayPage extends CerberusPageExtension {
 
 		// Send
 		if(false != (CerberusMail::sendTicketMessage($properties))) {
-			if(!empty($draft_id))
-				DAO_MailQueue::delete($draft_id);
-			
 			// Run hash commands
 			if(!empty($hash_commands))
 				CerberusMail::handleReplyHashCommands($hash_commands, $ticket, $worker);

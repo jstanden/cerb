@@ -652,6 +652,10 @@ class Model_MailQueue {
 		return DAO_Ticket::get($this->ticket_id);
 	}
 	
+	public function getWorker() {
+		return DAO_Worker::get($this->worker_id);
+	}
+	
 	public function getContent() {
 		$message_properties = [
 			'group_id' => $this->params['group_id'] ?? 0,
@@ -1206,7 +1210,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 	}
 };
 
-class Context_Draft extends Extension_DevblocksContext implements IDevblocksContextProfile {
+class Context_Draft extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = 'cerberusweb.contexts.mail.draft';
 	
 	static function isReadableByActor($models, $actor) {
@@ -1623,5 +1627,44 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		
 		$view->renderTemplate = 'context';
 		return $view;
+	}
+	
+	function renderPeekPopup($context_id = 0, $view_id = '', $edit = false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('view_id', $view_id);
+		
+		$context = CerberusContexts::CONTEXT_DRAFT;
+		$draft = null;
+		
+		if(!empty($context_id)) {
+			$draft = DAO_MailQueue::get($context_id);
+			$tpl->assign('draft', $draft);
+		}
+		
+		if(empty($context_id) || $edit) {
+			if(!isset($draft)) {
+				$draft = new Model_MailQueue();
+				$tpl->assign('draft', $draft);
+			}
+			
+			// Custom fields
+			$custom_fields = DAO_CustomField::getByContext($context, false);
+			$tpl->assign('custom_fields', $custom_fields);
+			
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
+			
+			$types = Model_CustomField::getTypes();
+			$tpl->assign('types', $types);
+			
+			// View
+			$tpl->assign('id', $context_id);
+			$tpl->assign('view_id', $view_id);
+			$tpl->display('devblocks:cerberusweb.core::internal/draft/peek_edit.tpl');
+			
+		} else {
+			Page_Profiles::renderCard($context, $context_id, $draft);
+		}
 	}
 };

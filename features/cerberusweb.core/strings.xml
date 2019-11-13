@@ -1025,6 +1025,11 @@
 				<seg>due</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.draft">
+			<tuv xml:lang="en_US">
+				<seg>draft</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.duplicate">
 			<tuv xml:lang="en_US">
 				<seg>duplicate</seg>
@@ -2311,6 +2316,11 @@
 		<tu tuid="common.results">
 			<tuv xml:lang="en_US">
 				<seg>results</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.resume">
+			<tuv xml:lang="en_US">
+				<seg>resume</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.retry">

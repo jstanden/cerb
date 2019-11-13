@@ -6,11 +6,7 @@
 	{if !$embed}
 	<div class="toolbar-minmax" style="float:right;display:none;">
 		{if $draft_is_writeable && $active_worker->hasPriv('contexts.cerberusweb.contexts.mail.draft.update')}
-			{if $draft->is_queued}
-				<button type="button" class="cerb-button-edit" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$draft->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
-			{else}
-				<button type="button" class="cerb-button-resume"><span class="glyphicons glyphicons-cogwheel"></span></button>
-			{/if}
+			<button type="button" class="cerb-button-edit" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$draft->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
 
 		{if $attachments}
@@ -71,6 +67,12 @@
 	{if isset($draft->params.file_ids) && is_array($draft->params.file_ids)}
 	<div style="margin-top:10px;">
 		{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_DRAFT}" context_id="{$draft->id}"}
+	</div>
+	{/if}
+
+	{if !$embed && $draft_is_writeable && $draft->worker_id == $active_worker->id}
+	<div style="margin-top:10px;">
+		<button type="button" class="cerb-button-resume"><span class="glyphicons glyphicons-share"></span> {'common.resume'|devblocks_translate|capitalize}</button>
 	</div>
 	{/if}
 </div>

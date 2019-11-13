@@ -512,6 +512,7 @@ class CerberusMail {
 		'gpg_encrypt'
 		 */
 		
+		@$draft_id = $properties['draft_id'];
 		@$group_id = $properties['group_id'];
 		@$bucket_id = intval($properties['bucket_id']);
 		
@@ -700,8 +701,6 @@ class CerberusMail {
 			}
 	
 		} catch (Exception $e) {
-			@$draft_id = $properties['draft_id'];
-			
 			if(empty($draft_id)) {
 				$params = array(
 					'to' => $toStr,
@@ -908,6 +907,10 @@ class CerberusMail {
 			// Mail received by group
 			Event_MailReceivedByGroup::trigger($message_id, $group_id);
 		}
+		
+		// Remove the draft
+		if($draft_id)
+			DAO_MailQueue::delete($draft_id);
 		
 		return intval($ticket_id);
 	}
@@ -1236,13 +1239,11 @@ class CerberusMail {
 			}
 			
 		} catch (Exception $e) {
-			@$draft_id = $properties['draft_id'];
-
 			// Only if we weren't trying to send a draft already...
 			if(empty($draft_id)) {
-				$params = array(
+				$params = [
 					'in_reply_message_id' => $properties['message_id'],
-				);
+				];
 				
 				if(isset($properties['cc']))
 					$params['cc'] = $properties['cc'];
@@ -1538,6 +1539,10 @@ class CerberusMail {
 				)
 		);
 		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);
+		
+		// Remove the draft
+		if($draft_id)
+			DAO_MailQueue::delete($draft_id);
 		
 		if(isset($message_id))
 			return $message_id;
