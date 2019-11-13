@@ -652,13 +652,35 @@ class Model_MailQueue {
 	}
 	
 	public function getContent() {
-		if(array_key_exists('format', $this->params) && 'parsedown' == $this->params['format']) {
-			$output = DevblocksPlatform::parseMarkdown($this->body);
+		$message_properties = [
+			'group_id' => $this->params['group_id'] ?? 0,
+			'bucket_id' => $this->params['bucket_id'] ?? 0,
+			'content' => $this->body,
+			'content_format' => $this->params['format'] ?? '',
+		];
+		$commands = [];
+		
+		if(false != ($worker = $this->getWorker())) {
+			switch ($this->type) {
+				case Model_MailQueue::TYPE_TICKET_REPLY:
+				case Model_MailQueue::TYPE_TICKET_FORWARD:
+					CerberusMail::parseReplyHashCommands($worker, $message_properties, $commands);
+					break;
+				
+				case Model_MailQueue::TYPE_COMPOSE:
+					CerberusMail::parseComposeHashCommands($worker, $message_properties, $commands);
+					break;
+			}
+		}
+		
+		if('parsedown' == $message_properties['content_format']) {
+			$output = $message_properties['content'];
+			$output = DevblocksPlatform::parseMarkdown($output);
 			$output = DevblocksPlatform::purifyHTML($output, true, true);
 			return $output;
 		
 		} else {
-			return $this->body;
+			return $message_properties['content'];
 		}
 	}
 	
