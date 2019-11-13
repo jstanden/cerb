@@ -395,6 +395,23 @@ function DevblocksClass() {
 				
 				if(is_continue) {
 					Devblocks.createAlert('Saved!', 'note');
+					$popup.triggerHandler(event);
+					
+					// If this is a create+continue we need to reload the editor
+					if(is_create) {
+						var layer = $popup.attr('data-layer');
+						var popup_url = 'c=internal&a=showPeekPopup' + 
+							'&context=' + encodeURIComponent(e.context) + 
+							'&context_id=' + encodeURIComponent(e.id) + 
+							'&view_id=' + encodeURIComponent(e.view_id) +
+							'&edit=true'
+							;
+						
+						// Body snatch 
+						
+						var $new_popup = genericAjaxPopup(layer, popup_url, 'reuse', false);
+						$new_popup.focus();
+					}
 					
 				} else {
 					genericAjaxPopupClose($popup, event);

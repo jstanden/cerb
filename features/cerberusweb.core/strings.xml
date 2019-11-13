@@ -790,6 +790,11 @@
 				<seg>create</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.create_and_continue">
+			<tuv xml:lang="en_US">
+				<seg>Create &amp; Continue</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.created">
 			<tuv xml:lang="en_US">
 				<seg>created</seg>
