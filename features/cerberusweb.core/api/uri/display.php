@@ -283,9 +283,19 @@ class ChDisplayPage extends CerberusPageExtension {
 		$tpl->assign('reply_mode', $reply_mode);
 		$tpl->assign('reply_format', $reply_format);
 		
-		$message = DAO_Message::get($id);
-		$tpl->assign('message',$message);
-
+		if(false == ($message = DAO_Message::get($id))) {
+			if(!$draft_id || false == ($draft = DAO_MailQueue::get($draft_id)))
+				return false;
+			
+			if(false == ($ticket = $draft->getTicket()))
+				return false;
+			
+			if(false == ($message = $ticket->getLastMessage()))
+				return false;
+		}
+		
+		$tpl->assign('message', $message);
+		
 		$message_headers = $message->getHeaders();
 		$tpl->assign('message_headers', $message_headers);
 		

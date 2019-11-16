@@ -954,15 +954,19 @@ class CerberusMail {
 			
 			@$reply_message_id = $properties['message_id'];
 			
-			if(null == ($message = DAO_Message::get($reply_message_id)))
-				return;
+			if(null == ($message = DAO_Message::get($reply_message_id))) {
+				if(false == ($ticket = DAO_Ticket::get($properties['ticket_id'] ?? 0)))
+					return false;
 				
-			$ticket_id = $message->ticket_id;
+				$message = $ticket->getLastMessage();
+				$reply_message_id = $message->id;
+				
+			} else {
+				// Ticket
+				if(null == ($ticket = $message->getTicket()))
+					return false;
+			}
 			
-			// Ticket
-			if(null == ($ticket = DAO_Ticket::get($ticket_id)))
-				return;
-				
 			// Group
 			if(null == ($group = DAO_Group::get($ticket->group_id)))
 				return;

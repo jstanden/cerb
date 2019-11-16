@@ -140,10 +140,13 @@ $(function() {
 			return;
 		
 		var msgid = parseInt(e.message_id);
-		var $div = $('#reply' + msgid);
-		
-		if(0 == $div.length)
-			return;
+
+		if(0 === e.draft_id) {
+			var $div = $('#reply' + msgid);
+
+			if (0 == $div.length)
+				return;
+		}
 		
 		var is_forward = (null == e.is_forward || 0 == e.is_forward) ? 0 : 1;
 		var draft_id = (null == e.draft_id) ? 0 : parseInt(e.draft_id);
