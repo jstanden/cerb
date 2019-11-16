@@ -59,6 +59,7 @@ $(function() {
         if($timeline.index === 0) {
             $timeline_pager.find('button.cerb-button-first').hide();
             $timeline_pager.find('button.cerb-button-prev').hide();
+            $timeline_pager.find('button.cerb-button-next').focus();
         } else {
             $timeline_pager.find('button.cerb-button-first').show();
             $timeline_pager.find('button.cerb-button-prev').show();
@@ -67,6 +68,7 @@ $(function() {
         if($timeline.index === $timeline.last) {
             $timeline_pager.find('button.cerb-button-next').hide();
             $timeline_pager.find('button.cerb-button-last').hide();
+            $timeline_pager.find('button.cerb-button-prev').focus();
         } else {
             $timeline_pager.find('button.cerb-button-next').show();
             $timeline_pager.find('button.cerb-button-last').show();
