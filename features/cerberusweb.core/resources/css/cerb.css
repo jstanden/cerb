@@ -40,7 +40,6 @@ H2 {
 }
 
 FIELDSET {
-  background: white;
   border: 1px double #e6e6e6;
   margin-bottom: 5px;
 }
@@ -1274,7 +1273,6 @@ DIV.cerb-properties > DIV > LABEL {
 
 FIELDSET.properties {
   border-width: 1px 0px 0px 0px;
-  background-color: white;
 }
 FIELDSET.properties LEGEND {
   color: #323232;
