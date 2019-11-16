@@ -210,7 +210,9 @@ class BotAction_HttpRequest extends Extension_DevblocksEventAction {
 		$headers = GuzzleHttp\headers_from_lines($headers);
 		
 		$request = new Request($verb, $url, $headers, $body);
-		$request_options = [];
+		$request_options = [
+			'http_errors' => false,
+		];
 		
 		switch(DevblocksPlatform::strLower($verb)) {
 			case 'post':
