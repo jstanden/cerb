@@ -199,7 +199,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// base64 blob png
 		$validation
 			->addField(self::_IMAGE)
-			->image('image/png', 50, 50, 500, 500, 100000)
+			->image('image/png', 50, 50, 500, 500, 1000000)
 			;
 		// string
 		$validation
