@@ -139,6 +139,7 @@ class _DevblocksSheetServiceTypes {
 	function card() {
 		return function($column, $sheet_dict) {
 			$url_writer = DevblocksPlatform::services()->url();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
 			@$column_key = $column['key'];
 			@$column_params = $column['params'] ?: [];
@@ -147,7 +148,6 @@ class _DevblocksSheetServiceTypes {
 			@$card_context = $column_params['context'];
 			@$card_id = $column_params['id'];
 			@$is_underlined = !array_key_exists('underline', $column_params) || $column_params['underline'];
-			$value = '';
 			
 			$default_card_context_key = null;
 			$default_card_id_key = null;
@@ -161,19 +161,39 @@ class _DevblocksSheetServiceTypes {
 				$default_card_label_key = $column_prefix . '_label';
 			}
 			
-			if(!$card_label) {
-				$card_label_key = @$column_params['label_key'] ?: $default_card_label_key;
-				$card_label = $sheet_dict->get($card_label_key);
+			$value = '';
+			
+			if(array_key_exists('label', $column_params) && $column_params['label']) {
+				$card_label = $column_params['label'];
+			} else if(array_key_exists('label_key', $column_params)) {
+				$card_label = $sheet_dict->get($column_params['label_key']);
+			} else if(array_key_exists('label_template', $column_params)) {
+				$card_label = $tpl_builder->build($column_params['label_template'], $sheet_dict);
+				$card_label = DevblocksPlatform::purifyHTML($card_label, false, true);
+			} else {
+				$card_label = $sheet_dict->get($default_card_label_key);
 			}
 			
-			if(!$card_context) {
-				$card_context_key = @$column_params['context_key'] ?: $default_card_context_key;
-				$card_context = $sheet_dict->get($card_context_key);
+			if(array_key_exists('context', $column_params) && $column_params['context']) {
+				$card_context = $column_params['context'];
+			} else if(array_key_exists('context_key', $column_params)) {
+				$card_context = $sheet_dict->get($column_params['context_key']);
+			} else if(array_key_exists('context_template', $column_params)) {
+				$card_context = $tpl_builder->build($column_params['context_template'], $sheet_dict);
+				$card_context = DevblocksPlatform::purifyHTML($card_context, false, true);
+			} else {
+				$card_context = $sheet_dict->get($default_card_context_key);
 			}
 			
-			if(!$card_id) {
-				$card_id_key = @$column_params['id_key'] ?: $default_card_id_key;
-				$card_id = $sheet_dict->get($card_id_key);
+			if(array_key_exists('id', $column_params) && $column_params['id']) {
+				$card_id = $column_params['id'];
+			} else if(array_key_exists('id_key', $column_params)) {
+				$card_id = $sheet_dict->get($column_params['id_key']);
+			} else if(array_key_exists('id_template', $column_params)) {
+				$card_id = $tpl_builder->build($column_params['id_template'], $sheet_dict);
+				$card_id = DevblocksPlatform::purifyHTML($card_id, false, true);
+			} else {
+				$card_id = $sheet_dict->get($default_card_id_key);
 			}
 			
 			if($card_context && $card_id && $card_label) {
