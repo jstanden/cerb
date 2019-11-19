@@ -28,7 +28,7 @@
 	
 	<div class="toolbar" style="display:none;float:right;margin-right:20px;">
 		{if !$readonly}
-			<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$note->id}"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>
+			<button type="button" class="cerb-edit-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$note->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>
 		{/if}
 		
 		{if $note->context == CerberusContexts::CONTEXT_MESSAGE}
@@ -40,7 +40,11 @@
 	<br>
 	
 	<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$note->created|devblocks_date} (<abbr title="{$note->created|devblocks_date}">{$note->created|devblocks_prettytime}</abbr>)<br>
-	{if !empty($note->comment)}<pre class="emailbody" style="padding-top:10px;">{$note->comment|escape|devblocks_hyperlinks nofilter}</pre>{/if}
+	{if $note->is_markdown}
+		<div class="commentBodyHtml">{$note->getContent() nofilter}</div>
+	{else}
+		<pre class="emailbody" style="padding-top:10px;">{$note->getContent()|trim|escape|devblocks_hyperlinks nofilter}</pre>
+	{/if}
 	<br clear="all">
 	
 	{* Attachments *}
@@ -66,6 +70,13 @@ $(function() {
 	
 	$comment.find('.cerb-edit-trigger')
 		.cerbPeekTrigger()
+			.on('cerb-peek-saved', function(e) {
+				if(e.id && e.comment_html)
+					$('#comment' + e.id).html(e.comment_html);
+			})
+			.on('cerb-peek-deleted', function(e) {
+				$('#comment' + e.id).remove();
+			})
 		;
 
 });
