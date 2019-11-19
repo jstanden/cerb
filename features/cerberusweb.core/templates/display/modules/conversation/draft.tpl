@@ -70,23 +70,28 @@
 	</div>
 	{/if}
 
-	{if !$embed && $draft_is_writeable && $draft->worker_id == $active_worker->id}
+	{if !$embed}
 	<div style="margin-top:10px;">
-		<button type="button" class="cerb-button-resume"><span class="glyphicons glyphicons-share"></span> {'common.resume'|devblocks_translate|capitalize}</button>
+		{if $draft_is_writeable && !$draft->is_queued && $draft->worker_id == $active_worker->id}
+		<button type="button" class="cerb-button-resume"><span class="glyphicons glyphicons-restart"></span> {'common.resume'|devblocks_translate|capitalize}</button>
+		{/if}
+
+		<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_DRAFT} context.id:{$draft->id}"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>
 	</div>
 	{/if}
 </div>
 
+<div id="draft{$draft->id}_notes">
 {if is_array($draft_notes) && isset($draft_notes.{$draft->id})}
-<div id="draft{$draft->id}_notes" style="background-color:rgb(255,255,255);">
 	{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl" message_notes=$draft_notes message_id=$draft->id readonly=false}
-</div>
 {/if}
+</div>
 
 {if !$embed}
 <script type="text/javascript">
 $(function() {
 	var $draft = $('#draftContainer{$draft->id}');
+	var $notes = $('#draft{$draft->id}_notes');
 	
 	$draft.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
@@ -100,6 +105,18 @@ $(function() {
 
 		$draft.trigger(evt);
 	});
+
+	$draft.find('.cerb-sticky-trigger')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function(e) {
+			e.stopPropagation();
+
+			if(e.id && e.comment_html) {
+				var $new_note = $('<div id="comment' + e.id + '"/>').hide();
+				$new_note.html(e.comment_html).prependTo($notes).fadeIn();
+			}
+		})
+		;
 
 	// Edit
 

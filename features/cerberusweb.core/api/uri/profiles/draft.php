@@ -55,7 +55,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 				$error = null;
 				
 				// Load the existing model so we can detect changes
-				if ($id && false == ($draft = DAO_MailQueue::get($id)))
+				if (!$id || false == ($draft = DAO_MailQueue::get($id)))
 					throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
 				
 				$fields = [];

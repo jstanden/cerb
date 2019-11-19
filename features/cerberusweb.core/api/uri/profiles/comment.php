@@ -133,6 +133,10 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 					$tpl->assign('ticket', $ticket);
 					$html = $tpl->fetch('devblocks:cerberusweb.core::internal/comments/note.tpl');
 					
+				} else if($model->context == CerberusContexts::CONTEXT_DRAFT) {
+					$tpl->assign('note', $model);
+					$html = $tpl->fetch('devblocks:cerberusweb.core::internal/comments/note.tpl');
+					
 				} else {
 					$tpl->assign('comment', $model);
 					
