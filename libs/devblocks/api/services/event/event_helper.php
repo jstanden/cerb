@@ -4222,8 +4222,6 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateTicket($params, DevblocksDictionaryDelegate $dict) {
-		$trigger = $dict->__trigger;
-		
 		@$group_id = $params['group_id'];
 		
 		if(null == ($group = DAO_Group::get($group_id)))
@@ -4352,6 +4350,7 @@ class DevblocksEventHelper {
 		$message->headers['to'] = $group_replyto->email;
 		$message->headers['subject'] = $subject;
 		$message->headers['message-id'] = CerberusApplication::generateMessageId();
+		$message->headers['x-cerb-bot'] = $dict->behavior_bot__label . ' :: ' . $dict->behavior__label;
 		
 		// Sender
 		$fromList = imap_rfc822_parse_adrlist(rtrim($requesters,', '),'');
@@ -4363,55 +4362,37 @@ class DevblocksEventHelper {
 		$from_address = $from->mailbox . '@' . $from->host;
 		$message->headers['from'] = $from_address;
 
-		// [TODO] Fix this
-		$message->body = sprintf(
-			"(... This message was manually created by a bot on behalf of the requesters ...)\r\n"
-		);
-
+		$message->body = $content;
+		
 		// Parse
 		$ticket_id = CerberusParser::parseMessage($message);
 		$ticket = DAO_Ticket::get($ticket_id);
 		
-		// Add additional requesters to ticket
-		if(is_array($fromList) && !empty($fromList))
-		foreach($fromList as $requester) {
-			if(empty($requester))
-				continue;
-			$host = empty($requester->host) ? 'localhost' : $requester->host;
-			DAO_Ticket::createRequester($requester->mailbox . '@' . $host, $ticket_id);
-		}
-		
 		// Worker reply
-		$properties = array(
+		$properties = [
+			'to' => $requesters,
 			'message_id' => $ticket->first_message_id,
 			'ticket_id' => $ticket_id,
-			'subject' => $subject,
-			'content' => $content,
 			'group_id' => $group->id,
 			'bucket_id' => $group->getDefaultBucket()->id,
 			'worker_id' => 0,
 			'status_id' => $status_id,
 			'owner_id' => $owner_id,
 			'ticket_reopen' => $reopen_at,
-		);
+		];
+		
+		DAO_Ticket::updateWithMessageProperties($properties, $ticket);
 		
 		// Attachments
-		
 		if(isset($params['attachment_vars']) && is_array($params['attachment_vars'])) {
-			$properties['forward_files'] = [];
-			
 			foreach($params['attachment_vars'] as $attachment_var) {
 				if(false != ($attachments = $dict->$attachment_var) && is_array($attachments)) {
-					foreach($attachments as $attachment) {
-						$properties['forward_files'][] = $attachment->id;
-						$properties['link_forward_files'][] = $attachment->id;
-					}
+					DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $ticket->first_message_id, array_keys($attachments));
 				}
 			}
 		}
 		
 		// Watchers
-		
 		if(is_array($watcher_worker_ids) && !empty($watcher_worker_ids)) {
 			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id, $watcher_worker_ids);
 		}
@@ -4424,9 +4405,6 @@ class DevblocksEventHelper {
 
 		// Set object variable
 		DevblocksEventHelper::runActionCreateRecordSetVariable(CerberusContexts::CONTEXT_TICKET, $ticket_id, $params, $dict);
-		
-		// Create the ticket
-		CerberusMail::sendTicketMessage($properties);
 		
 		return $ticket_id;
 	}
