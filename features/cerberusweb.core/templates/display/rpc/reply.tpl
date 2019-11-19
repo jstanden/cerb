@@ -295,10 +295,10 @@
 				<br>
 				<br>
 
-				{*
-				<b>When should the message be sent?</b> (leave blank to send immediately)<br>
-				<input type="text" name="reply_send_at" size="55" value="{if !empty($draft)}{$draft->params.reply_send_at}{elseif !empty($ticket->reply_send_at)}{$ticket->reply_send_at|devblocks_date}{/if}">
-				*}
+				<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
+				<input type="text" name="send_at" size="55" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
+				<br>
+				<br>
 
 				{* [TODO] Expand custom field checkboxes *}
 				{if !empty($custom_fields)}
@@ -615,7 +615,7 @@ $(function() {
 
 		// Dates
 		
-		$frm.find('input[name=reply_send_at]')
+		$frm.find('input[name=send_at]')
 			.cerbDateInputHelper()
 			;
 			

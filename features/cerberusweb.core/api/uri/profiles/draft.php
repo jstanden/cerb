@@ -72,11 +72,14 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 						$send_at = 'now';
 					
 					$fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = strtotime($send_at);
+					$draft->params['send_at'] = $send_at;
+					
 				} else {
 					$fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = 0;
+					$draft->params['send_at'] = $send_at;
 				}
 				
-				// Updated Date
+				$fields[DAO_MailQueue::PARAMS_JSON] = json_encode($draft->params);
 				$fields[DAO_MailQueue::UPDATED] = time();
 				
 				// Save

@@ -645,8 +645,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
 		@$html_template_id = DevblocksPlatform::importGPC($_REQUEST['html_template_id'],'integer',0);
 		
-		$properties = [];
-
 		if(empty($content))
 			$this->error(self::ERRNO_CUSTOM, "The 'content' parameter is required");
 		

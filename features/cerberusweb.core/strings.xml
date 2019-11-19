@@ -4350,12 +4350,12 @@
 		</tu>
 		<tu tuid="message.queued.delivery_immediate">
 			<tuv xml:lang="en_US">
-				<seg>scheduled for immediate delivery</seg>
+				<seg>sending now</seg>
 			</tuv>
 		</tu>
 		<tu tuid="message.queued.deliver_in">
 			<tuv xml:lang="en_US">
-				<seg>scheduled for delivery in %s</seg>
+				<seg>sending in %s</seg>
 			</tuv>
 		</tu>
 		<tu tuid="message.content">

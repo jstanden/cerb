@@ -943,8 +943,10 @@ class CerberusMail {
 		'is_autoreply'
 		'custom_fields'
 		'gpg_encrypt'
+		'gpg_sign'
 		'dont_send'
 		'dont_keep_copy'
+		'send_at'
 		*/
 
 		try {
@@ -953,6 +955,8 @@ class CerberusMail {
 			$mail = $mail_service->createMessage();
 			
 			@$reply_message_id = $properties['message_id'];
+			@$send_at = strtotime($properties['send_at'] ?? 0);
+			@$draft_id = $properties['draft_id'];
 			
 			if(null == ($message = DAO_Message::get($reply_message_id))) {
 				if(false == ($ticket = DAO_Ticket::get($properties['ticket_id'] ?? 0)))
@@ -969,7 +973,53 @@ class CerberusMail {
 			
 			// Group
 			if(null == ($group = DAO_Group::get($ticket->group_id)))
-				return;
+				return false;
+			
+			$worker = null;
+			$hash_commands = [];
+			
+			DAO_Ticket::updateWithMessageProperties($properties, $ticket, [], false);
+			
+			if($send_at && $send_at >= time()) {
+				// If we're not resuming a draft from the UI, generate a draft
+				if(!$draft_id || false == (DAO_MailQueue::get($draft_id))) {
+					if (!array_key_exists('subject', $properties))
+						$properties['subject'] = $ticket->subject;
+					
+					if (!array_key_exists('message_id', $properties))
+						$properties['message_id'] = $message->id;
+					
+					if (!array_key_exists('ticket_id', $properties))
+						$properties['ticket_id'] = $ticket->id;
+					
+					$change_fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
+					
+					$change_fields[DAO_MailQueue::TYPE] = empty($is_forward) ? Model_MailQueue::TYPE_TICKET_REPLY : Model_MailQueue::TYPE_TICKET_FORWARD;
+					$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
+					$change_fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = $send_at;
+					
+					$draft_id = DAO_MailQueue::create($change_fields);
+					
+					if(array_key_exists('forward_files', $properties)) {
+						DAO_Attachment::addLinks(CerberusContexts::CONTEXT_DRAFT, $draft_id, $properties['forward_files']);
+					}
+					
+				} else {
+					DAO_MailQueue::update($draft_id, [
+						DAO_MailQueue::IS_QUEUED => 1,
+						DAO_MailQueue::QUEUE_FAILS => 0,
+						DAO_MailQueue::QUEUE_DELIVERY_DATE => $send_at,
+					]);
+				}
+				
+				return true;
+			}
+			
+			if(array_key_exists('worker_id', $properties)) {
+				if(false != ($worker = DAO_Worker::get($properties['worker_id']))) {
+					CerberusMail::parseReplyHashCommands($worker, $properties, $hash_commands);
+				}
+			}
 			
 			$mail->generateId();
 			$outgoing_message_id = $mail->getHeaders()->get('message-id')->getFieldBody();
