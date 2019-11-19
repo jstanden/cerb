@@ -309,6 +309,7 @@ $(function() {
 				formData.append('a', 'handleSectionAction');
 				formData.append('section', 'comment');
 				formData.append('action', 'preview');
+				formData.append('context', $frm.find('input:hidden[name=context]').val());
 				formData.append('comment', editor.getValue());
 				formData.append('is_markdown', $frm.find('input:hidden[name=is_markdown]').val());
 

@@ -176,6 +176,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 	function previewAction() {
 		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string');
 		@$is_markdown = DevblocksPlatform::importGPC($_REQUEST['is_markdown'],'integer', 0);
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -184,7 +185,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		$model->created = time();
 		$model->owner_context = CerberusContexts::CONTEXT_WORKER;
 		$model->owner_context_id = $active_worker->id;
-		$model->context = null;
+		$model->context = $context;
 		$model->context_id = null;
 		$model->comment = $comment;
 		$model->is_markdown = $is_markdown ? 1 : 0;

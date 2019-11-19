@@ -1,7 +1,11 @@
 {$div_id = "comment{uniqid()}"}
 
 <div id="{$div_id}">
+    {if in_array($model->context,[CerberusContexts::CONTEXT_DRAFT,CerberusContexts::CONTEXT_MESSAGE])}
+    {include file="devblocks:cerberusweb.core::internal/comments/note.tpl" note=$model}
+    {else}
     {include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" comment=$model}
+    {/if}
 
     <div>
         <button type="button" data-cerb-button-action="close"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate}</button>
