@@ -283,6 +283,25 @@ if(array_key_exists('pass_hash', $columns) && 0 != strcasecmp('varchar(255)', $c
 }
 
 // ===========================================================================
+// Add indexes for `ticket.first_message_id` and `ticket.last_message_id`
+
+list(,$indexes) = $db->metaTable('ticket');
+
+$changes = [];
+
+if(!array_key_exists('last_wrote_address_id', $indexes))
+	$changes[] = 'ADD INDEX (last_wrote_address_id)';
+
+if(!array_key_exists('first_message_id', $indexes))
+	$changes[] = 'ADD INDEX (first_message_id)';
+
+if(!array_key_exists('last_message_id', $indexes))
+	$changes[] = 'ADD INDEX (last_message_id)';
+
+if($changes)
+	$db->ExecuteMaster('ALTER TABLE ticket '. implode(', ', $changes));
+
+// ===========================================================================
 // Drop skills and skillsets
 
 if(array_key_exists('context_to_skill', $tables)) {
