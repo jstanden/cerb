@@ -1121,11 +1121,32 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		$keys['name_plural']['notes'] = "The plural name of the record; `Issues`";
 		$keys['uri']['notes'] = "The alias of the record (e.g. `issue`); used in URLs, API, etc.";
 		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
 		return $keys;
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'params':
+				if(!is_array($value)) {
+					$error = 'must be an object.';
+					return false;
+				}
+				
+				if(false == ($json = json_encode($value))) {
+					$error = 'could not be JSON encoded.';
+					return false;
+				}
+				
+				$out_fields[DAO_CustomRecord::PARAMS_JSON] = $json;
+				break;
+			
 		}
 		
 		return true;
