@@ -3835,8 +3835,6 @@ abstract class C4_AbstractView {
 				'file_ids' => @$params['file_ids'] ?: [],
 			];
 			
-			CerberusMail::parseBroadcastHashCommands($message_properties);
-			
 			if(is_array($dicts))
 			foreach($dicts as $id => $dict) {
 				try {
@@ -3867,6 +3865,9 @@ abstract class C4_AbstractView {
 							'to' => $dict->broadcast_email__label,
 							'group_id' => $message_properties['group_id'],
 							'status_id' => $status_id,
+							'subject' => $subject,
+							'content' => $body,
+							'worker_id' => $message_properties['worker_id'],
 							'is_broadcast' => 1,
 							'context_links' => [
 								[$context, $id],

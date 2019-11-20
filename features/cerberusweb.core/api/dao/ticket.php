@@ -1037,11 +1037,15 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$message_properties = $broadcast_properties;
 					$message_properties['group_id'] = $dict->get('group_id', 0);
 					
-					CerberusMail::parseBroadcastHashCommands($message_properties);
-					
 					$params_json = array(
 						'in_reply_message_id' => $dict->latest_message_id,
 						'is_broadcast' => 1,
+						'group_id' => $dict->group_id,
+						'bucket_id' => $dict->bucket_id,
+						'to' => $dict->requester_emails,
+						'subject' => $dict->subject,
+						'content' => $tpl_builder->build($message_properties['content'], $dict),
+						'worker_id' => $message_properties['worker_id'],
 					);
 					
 					if(isset($message_properties['content_format']))
