@@ -676,11 +676,10 @@ class CerberusParser {
 				@unlink($file);
 			
 			if(is_numeric($ticket_id)) {
-				$values = [];
-				$null = null;
-				
-				CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $null, $values);
-				$dict = new DevblocksDictionaryDelegate($values);
+				$dict = DevblocksDictionaryDelegate::instance([
+					'_context' => CerberusContexts::CONTEXT_TICKET,
+					'id' => $ticket_id,
+				]);
 				return $dict;
 				
 			} else {

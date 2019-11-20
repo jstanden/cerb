@@ -722,6 +722,9 @@ class Model_CommunityTool {
 	public $updated_at = 0;
 	public $uri = '';
 	
+	/**
+	 * @return DevblocksExtensionManifest|null
+	 */
 	function getExtension() {
 		return Extension_CommunityPortal::get($this->extension_id);
 	}

@@ -165,7 +165,7 @@ abstract class DevblocksORMHelper {
 					;
 					break;
 				case Model_CustomField::TYPE_DROPDOWN:
-					$options = $custom_field->params['options'];
+					$options = $custom_field->params['options'] ?? [];
 					
 					if(!is_array($options))
 						$options = [];
@@ -212,7 +212,7 @@ abstract class DevblocksORMHelper {
 						;
 					break;
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					$options = $custom_field->params['options'];
+					$options = $custom_field->params['options'] ?? [];
 					
 					if(!is_array($options))
 						$options = [];

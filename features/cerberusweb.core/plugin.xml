@@ -558,7 +558,7 @@
 			<class name="SearchFields_Snippet" />
 			<class name="View_Snippet" />
 		</file>
-		
+
 		<file path="api/dao/task.php">
 			<class name="Context_Task" />
 			<class name="DAO_Task" />
@@ -2872,7 +2872,7 @@
 				</param>
 			</params>
 		</extension>
-		
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.task</id>
 			<name>Task</name>
@@ -6309,7 +6309,7 @@
 					<param key="uri" value="snippet" />
 				</params>
 			</extension>
-			
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.task</id>
 				<name>Task Section</name>
@@ -6487,7 +6487,7 @@
 				</param>
 			</params>
 		</extension>
-		
+
 		<!-- Profile Widgets -->
 		
 		<extension point="cerb.profile.tab.widget">

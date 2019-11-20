@@ -34,7 +34,7 @@
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
+<table cellpadding="5" cellspacing="0" border="0" width="100%" class="worklistBody">
 
 	{* Column Headers *}
 	<thead>

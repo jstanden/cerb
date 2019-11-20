@@ -1422,7 +1422,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_ALIAS:
-				return  self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
+				return self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_WORKER, self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:

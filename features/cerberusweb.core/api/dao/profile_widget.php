@@ -293,7 +293,7 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 			$object->zone = $row['zone'];
 			
 			if(false != (@$params = json_decode($row['extension_params_json'], true)))
-			$object->extension_params = $params;
+				$object->extension_params = $params;
 			
 			$objects[$object->id] = $object;
 		}
@@ -598,7 +598,10 @@ class Model_ProfileWidget {
 	function getProfileTab() {
 		return DAO_ProfileTab::get($this->profile_tab_id);
 	}
-
+	
+	/**
+	 * @return DevblocksExtensionManifest|null
+	 */
 	function getExtension() {
 		return Extension_ProfileWidget::get($this->extension_id);
 	}

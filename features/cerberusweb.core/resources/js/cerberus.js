@@ -1582,7 +1582,7 @@ var ajax = new cAjaxCalls();
 				},
 				getCompletions: function(editor, session, pos, prefix, callback) {
 					var token_path = Devblocks.cerbCodeEditor.getYamlTokenPath(pos, editor);
-					
+
 					// Normalize path (remove namespaces)
 					token_path = token_path.map(function(v) {
 						var pos = v.indexOf('/');
@@ -1594,7 +1594,7 @@ var ajax = new cAjaxCalls();
 					});
 					
 					var scope_key = token_path.join('');
-					
+
 					// Simple static path full match
 					if(editor.completer.autocomplete_suggestions.hasOwnProperty(scope_key)) {
 						callback(null, autocompleterYaml.formatData(scope_key));
@@ -2156,7 +2156,7 @@ var ajax = new cAjaxCalls();
 			editor.commands.on('afterExec', doCerbLiveAutocomplete);
 		});
 	};
-	
+
 	$.fn.cerbCodeEditorAutocompleteDataQueries = function() {
 		var Autocomplete = require('ace/autocomplete').Autocomplete;
 		
@@ -2329,7 +2329,7 @@ var ajax = new cAjaxCalls();
 			var completer = {
 				identifierRegexps: [/[a-zA-Z_0-9\*\#\@\.\$\-\u00A2-\uFFFF]/],
 				formatData: function(scope_key) {
-					if(!autocomplete_suggestions.hasOwnProperty(scope_key) 
+					if(!autocomplete_suggestions.hasOwnProperty(scope_key)
 						|| undefined == autocomplete_suggestions.hasOwnProperty(scope_key))
 						return [];
 					

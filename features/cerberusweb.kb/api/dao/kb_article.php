@@ -95,6 +95,10 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		return $id;
 	}
 	
+	/**
+	 * @param $id
+	 * @return Model_KbArticle|null
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;

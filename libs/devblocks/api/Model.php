@@ -681,7 +681,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		}
 	}
 	
-	static function _getWhereSQLFromVirtualSearchSqlField(DevblocksSearchCriteria $param, $context, $subquery_sql, $where_key=null) {
+	static function _getWhereSQLFromVirtualSearchSqlField(DevblocksSearchCriteria $param, $context, $subquery_sql='%s', $where_key=null) {
 		// Handle nested quick search filters first
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			$query = $param->value;
