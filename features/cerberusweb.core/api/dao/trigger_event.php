@@ -956,6 +956,12 @@ class Model_TriggerEvent {
 				@$context = DevblocksPlatform::importVar($var['params']['context'], 'string', null);
 				
 				settype($value, 'integer');
+				
+				// Also add a key for the context when suffixed `_id`
+				if($context && DevblocksPlatform::strEndsWith($var['key'], '_id')) {
+					$ctx_key = mb_substr($var['key'], 0, -3) . '__context';
+					$dict->set($ctx_key, $context);
+				}
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
