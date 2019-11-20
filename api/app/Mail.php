@@ -1729,6 +1729,8 @@ class CerberusMail {
 						
 						switch($content_format) {
 							case 'parsedown':
+								$html_template = null;
+								
 								// Determine if we have an HTML template
 								
 								if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {

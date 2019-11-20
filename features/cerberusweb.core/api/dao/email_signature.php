@@ -545,6 +545,26 @@ class Model_EmailSignature {
 	public $signature_html;
 	public $is_default;
 	public $updated_at;
+	
+	public function getSignature($worker_model, bool $as_html) {
+		// If we have a worker model, convert template tokens
+		if(!$worker_model)
+			$worker_model = new Model_Worker();
+		
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'_context' => CerberusContexts::CONTEXT_WORKER,
+			'id' => $worker_model->id,
+		]);
+		
+		if($as_html && $this->signature_html) {
+			return $tpl_builder->build($this->signature_html, $dict);
+			
+		} else {
+			return $tpl_builder->build($this->signature, $dict);
+		}
+	}
 };
 
 class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

@@ -1206,11 +1206,7 @@ class Model_Group {
 			return $bucket->getReplySignature($worker_model, $as_html);
 			
 		} else if (false != ($signature = DAO_EmailSignature::get($this->reply_signature_id))) {
-			if($as_html) {
-				return $signature->signature_html;
-			} else {
-				return $signature->signature;
-			}
+			return $signature->getSignature($worker_model, $as_html);
 		}
 		
 		return null;
