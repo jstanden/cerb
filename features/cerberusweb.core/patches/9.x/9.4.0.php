@@ -487,6 +487,11 @@ if(array_key_exists('feedback_entry', $tables)) {
 }
 
 // ===========================================================================
+// Fix profile tab comments
+
+$db->ExecuteMaster("UPDATE profile_widget SET extension_params_json=replace(extension_params_json,'{[record_id}}','{{record_id}}') WHERE extension_params_json like '%{[record_id}}%'");
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

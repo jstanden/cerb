@@ -289,7 +289,7 @@ INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerber
 INSERT INTO profile_tab (name, context, extension_id, extension_params_json, updated_at) VALUES ('Overview','cerberusweb.contexts.profile.tab','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP());
 SET @last_tab_id = LAST_INSERT_ID();
 INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, zone, pos, width_units, updated_at) VALUES ('Profile Tab',@last_tab_id,'cerb.profile.tab.widget.fields','{\"context\":\"cerberusweb.contexts.profile.tab\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"context\",\"extension_id\",\"updated\"]],\"links\":{\"show\":\"1\"},\"search\":{\"context\":[\"cerberusweb.contexts.profile.widget\"],\"label_singular\":[\"Widget\"],\"label_plural\":[\"Widgets\"],\"query\":[\"tab.id:{{record_id}}\"]}}','sidebar',1,4,UNIX_TIMESTAMP());
-INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, zone, pos, width_units, updated_at) VALUES ('Discussion',@last_tab_id,'cerb.profile.tab.widget.comments','{\"context\":\"cerberusweb.contexts.profile.tab\",\"context_id\":\"{[record_id}}\",\"height\":\"\"}','content',1,4,UNIX_TIMESTAMP());
+INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, zone, pos, width_units, updated_at) VALUES ('Discussion',@last_tab_id,'cerb.profile.tab.widget.comments','{\"context\":\"cerberusweb.contexts.profile.tab\",\"context_id\":\"{{record_id}}\",\"height\":\"\"}','content',1,4,UNIX_TIMESTAMP());
 INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES ('cerberusweb.core','profile:tabs:cerberusweb.contexts.profile.tab',CONCAT('[',@last_tab_id,']'));
 
 # Profile Widget
