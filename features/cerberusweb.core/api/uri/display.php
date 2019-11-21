@@ -615,94 +615,19 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 
 	function sendReplyAction() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		@$ticket_mask = DevblocksPlatform::importGPC($_REQUEST['ticket_mask'],'string');
-		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
-		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
-		@$reply_mode = DevblocksPlatform::importGPC($_REQUEST['reply_mode'],'string','');
-
-		@$to = DevblocksPlatform::importGPC(@$_REQUEST['to']);
-
-		// Attachments
-		@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'],'array',[]);
-		$file_ids = DevblocksPlatform::sanitizeArray($file_ids, 'integer', array('unique', 'nonzero'));
-		
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
-			return false;
-		
-		if(null == ($ticket = DAO_Ticket::get($ticket_id)))
-			return false;
-		
-		$ticket_uri = !empty($ticket_mask) ? $ticket_mask : $ticket_id;
-		
-		$properties = [
-			'draft_id' => $draft_id,
-			'message_id' => DevblocksPlatform::importGPC(@$_REQUEST['id']),
-			'ticket_id' => $ticket_id,
-			'is_forward' => $is_forward,
-			'to' => $to,
-			'cc' => DevblocksPlatform::importGPC(@$_REQUEST['cc']),
-			'bcc' => DevblocksPlatform::importGPC(@$_REQUEST['bcc']),
-			'subject' => DevblocksPlatform::importGPC(@$_REQUEST['subject'],'string'),
-			'content' => DevblocksPlatform::importGPC(@$_REQUEST['content']),
-			'content_format' => DevblocksPlatform::importGPC(@$_REQUEST['format'],'string',''),
-			'html_template_id' => DevblocksPlatform::importGPC(@$_REQUEST['html_template_id'],'integer',0),
-			'status_id' => DevblocksPlatform::importGPC(@$_REQUEST['status_id'],'integer',0),
-			'group_id' => DevblocksPlatform::importGPC(@$_REQUEST['group_id'],'integer',0),
-			'bucket_id' => DevblocksPlatform::importGPC(@$_REQUEST['bucket_id'],'integer',0),
-			'owner_id' => DevblocksPlatform::importGPC(@$_REQUEST['owner_id'],'integer',0),
-			'ticket_reopen' => DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string',''),
-			'gpg_encrypt' => DevblocksPlatform::importGPC(@$_REQUEST['options_gpg_encrypt'],'integer',0),
-			'gpg_sign' => DevblocksPlatform::importGPC(@$_REQUEST['options_gpg_sign'],'integer',0),
-			'worker_id' => @$worker->id,
-			'forward_files' => $file_ids,
-			'link_forward_files' => true,
-		];
-		
-		$hash_commands = [];
-		
-		CerberusMail::parseReplyHashCommands($worker, $properties, $hash_commands);
-		
-		// Custom fields
-		@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-		$field_values = DAO_CustomFieldValue::parseFormPost(CerberusContexts::CONTEXT_TICKET, $field_ids);
-		if(!empty($field_values)) {
-			$properties['custom_fields'] = $field_values;
-		}
-		
 		// Save the draft one last time
-		if(!empty($draft_id)) {
-			if(false === $this->_saveDraft()) {
-				DAO_MailQueue::delete($draft_id);
-				$draft_id = null;
-			}
-		}
+		if(false == ($result = $this->_saveDraft()))
+			return false;
 		
-		// Options
-		if('save' == $reply_mode)
-			$properties['dont_send'] = true;
-
-		// Send
-		if(false != (CerberusMail::sendTicketMessage($properties))) {
-			// Run hash commands
-			if(!empty($hash_commands))
-				CerberusMail::handleReplyHashCommands($hash_commands, $ticket, $worker);
-		}
-
-		// Automatically add new 'To:' recipients?
-		if(!$is_forward) {
-			try {
-				$to_addys = CerberusMail::parseRfcAddresses($to);
-				if(empty($to_addys))
-					throw new Exception("Blank recipients list.");
-
-				foreach(array_keys($to_addys) as $to_addy)
-					DAO_Ticket::createRequester($to_addy, $ticket_id);
-				
-			} catch(Exception $e) {}
-		}
+		$draft_id = $result['draft_id'];
+		$ticket = $result['ticket'];
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket_uri)));
+		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			return false;
+		
+		$draft->send();
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
 	}
 	
 	private function _saveDraft() {

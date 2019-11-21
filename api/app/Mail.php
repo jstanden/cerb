@@ -955,8 +955,6 @@ class CerberusMail {
 		'bcc'
 		'content',
 		'content_format', // markdown, parsedown, html
-		'content_saved',
-		'content_sent',
 		'html_template_id'
 		'headers'
 		'files'
@@ -1090,7 +1088,7 @@ class CerberusMail {
 			if($ticket->spam_training == CerberusTicketSpamTraining::BLANK
 				&& empty($is_autoreply)
 				&& !empty($worker_id)) {
-				CerberusBayes::markTicketAsNotSpam($ticket_id);
+				CerberusBayes::markTicketAsNotSpam($ticket->id);
 			}
 				
 			// Headers
@@ -1138,7 +1136,7 @@ class CerberusMail {
 					$headers->addTextHeader('Auto-Submitted','auto-replied');
 				
 				// Recipients
-				$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
+				$requesters = DAO_Ticket::getRequestersByTicket($ticket->id);
 				
 				if(is_array($requesters))
 				foreach($requesters as $requester) { /* @var $requester Model_Address */
@@ -1320,6 +1318,9 @@ class CerberusMail {
 				}
 			}
 			
+			if($worker && $hash_commands)
+				CerberusMail::handleReplyHashCommands($hash_commands, $ticket, $worker);
+			
 		} catch (Exception $e) {
 			// Only if we weren't trying to send a draft already...
 			if(empty($draft_id)) {
@@ -1444,7 +1445,7 @@ class CerberusMail {
 			// Fields
 			
 			$fields = array(
-				DAO_Message::TICKET_ID => $ticket_id,
+				DAO_Message::TICKET_ID => $ticket->id,
 				DAO_Message::CREATED_DATE => time(),
 				DAO_Message::ADDRESS_ID => $fromAddressId,
 				DAO_Message::IS_OUTGOING => 1,
@@ -1522,82 +1523,6 @@ class CerberusMail {
 			}
 		}
 		
-		if(isset($properties['owner_id'])) {
-			if(empty($properties['owner_id']) || null != (DAO_Worker::get($properties['owner_id']))) {
-				$ticket->owner_id = intval($properties['owner_id']);
-				$change_fields[DAO_Ticket::OWNER_ID] = $ticket->owner_id;
-			}
-		}
-		
-		// Post-Reply Change Properties
-
-		if(isset($properties['status_id'])) {
-			$reopen_at = 0;
-			
-			// Handle reopen date
-			if(isset($properties['ticket_reopen']) && !empty($properties['ticket_reopen'])) {
-				if(is_numeric($properties['ticket_reopen']) && false != (@$reopen_at = strtotime('now', $properties['ticket_reopen']))) {
-				} else if(false !== (@$reopen_at = strtotime($properties['ticket_reopen']))) {
-				}
-			}
-			
-			switch($properties['status_id']) {
-				case Model_Ticket::STATUS_OPEN:
-					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
-					$change_fields[DAO_Ticket::REOPEN_AT] = 0;
-					break;
-				case Model_Ticket::STATUS_CLOSED:
-					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_CLOSED;
-					
-					if(isset($properties['ticket_reopen']))
-						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
-					break;
-				case Model_Ticket::STATUS_WAITING:
-					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_WAITING;
-					
-					if(isset($properties['ticket_reopen']))
-						$change_fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
-					break;
-			}
-		}
-
-		// Move
-		if(isset($properties['group_id']) || isset($properties['bucket_id'])) {
-			@$move_to_group_id = intval($properties['group_id']);
-			@$move_to_bucket_id = intval($properties['bucket_id']);
-			
-			// Move to the new group if it exists
-			if($move_to_group_id && false != ($move_to_group = DAO_Group::get($move_to_group_id)))
-				$change_fields[DAO_Ticket::GROUP_ID] = $move_to_group_id;
-			
-			// Validate the given bucket id
-			if($move_to_bucket_id 
-				&& (false == ($move_to_bucket = DAO_Bucket::get($move_to_bucket_id)) 
-					|| $move_to_bucket->group_id != $move_to_group->id)) {
-					$move_to_bucket_id = 0;
-			}
-			
-			// Move to the new bucket if it is an inbox, or it belongs to the group
-			if(empty($move_to_bucket_id)) {
-				$move_to_bucket = $move_to_group->getDefaultBucket();
-				$move_to_bucket_id = $move_to_bucket->id;
-			}
-			
-			if($move_to_bucket) {
-				$change_fields[DAO_Ticket::BUCKET_ID] = $move_to_bucket->id;
-			}
-		}
-			
-		if(!empty($ticket_id) && !empty($change_fields)) {
-			DAO_Ticket::update($ticket_id, $change_fields);
-		}
-
-		// Custom fields
-		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : [];
-		if(is_array($custom_fields) && !empty($custom_fields)) {
-			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields, true, true, false);
-		}
-		
 		// Events
 		if(!empty($message_id)) {
 			// After message sent (global)
@@ -1613,7 +1538,7 @@ class CerberusMail {
 			Event_MailReceivedByGroup::trigger($message_id, $group->id);
 
 			// Watchers
-			$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket_id);
+			$context_watchers = CerberusContexts::getWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id);
 			
 			// Include the owner
 			if(!empty($ticket->owner_id) && !isset($context_watchers[$ticket->owner_id]))
@@ -1638,7 +1563,7 @@ class CerberusMail {
 				'target' => sprintf("ctx://%s:%s", CerberusContexts::CONTEXT_TICKET, $ticket->mask),
 				)
 		);
-		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket_id, $entry);
+		CerberusContexts::logActivity('ticket.message.outbound', CerberusContexts::CONTEXT_TICKET, $ticket->id, $entry);
 		
 		// Remove the draft
 		if($draft_id)

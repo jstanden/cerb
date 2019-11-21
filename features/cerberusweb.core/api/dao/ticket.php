@@ -878,6 +878,108 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		}
 	}
 	
+	public static function updateWithMessageProperties(array &$properties, Model_Ticket &$ticket, array $change_fields=[], $unset=true) {
+		// Automatically add new 'To:' recipients?
+		if(!array_key_exists('is_forward', $properties) && array_key_exists('to', $properties)) {
+			try {
+				if(false != ($to_addys = CerberusMail::parseRfcAddresses($properties['to']))) {
+					foreach(array_keys($to_addys) as $to_addy)
+						DAO_Ticket::createRequester($to_addy, $ticket->id);
+				}
+			} catch(Exception $e) {}
+		}
+		
+		if(array_key_exists('owner_id', $properties)) {
+			@$owner_id = DevblocksPlatform::importVar($properties['owner_id'], 'int', 0);
+			
+			if(!$owner_id || null != (DAO_Worker::get($owner_id))) {
+				$ticket->owner_id = $owner_id;
+				$change_fields[DAO_Ticket::OWNER_ID] = $owner_id;
+			}
+			
+			if($unset)
+				unset($properties['owner_id']);
+		}
+		
+		if(array_key_exists('status_id', $properties)) {
+			@$status_id = DevblocksPlatform::importVar($properties['status_id'], 'int', 0);
+			@$reopen_at = DevblocksPlatform::importVar($properties['ticket_reopen'], 'string', '');
+			
+			// Handle reopen date
+			if($reopen_at) {
+				if(is_numeric($reopen_at) && false != (@$reopen_at = strtotime('now', $reopen_at))) {
+				} else if(false !== (@$reopen_at = strtotime($reopen_at))) {
+				}
+			}
+			
+			switch($status_id) {
+				case Model_Ticket::STATUS_OPEN:
+					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
+					$change_fields[DAO_Ticket::REOPEN_AT] = 0;
+					break;
+				case Model_Ticket::STATUS_CLOSED:
+					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_CLOSED;
+					$change_fields[DAO_Ticket::REOPEN_AT] = intval($reopen_at);
+					break;
+				case Model_Ticket::STATUS_WAITING:
+					$change_fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_WAITING;
+					$change_fields[DAO_Ticket::REOPEN_AT] = intval($reopen_at);
+					break;
+			}
+			
+			if($unset) {
+				unset($properties['status_id']);
+				unset($properties['ticket_reopen']);
+			}
+		}
+		
+		// Move
+		if(array_key_exists('group_id', $properties) || array_key_exists('bucket_id', $properties)) {
+			@$move_to_group_id = intval($properties['group_id']);
+			@$move_to_bucket_id = intval($properties['bucket_id']);
+			
+			if(!$move_to_group_id || false == ($move_to_group = DAO_Group::get($move_to_group_id)))
+				$move_to_group = DAO_Group::getDefaultGroup();
+			
+			$change_fields[DAO_Ticket::GROUP_ID] = $move_to_group->id;
+			
+			// Validate the given bucket id
+			
+			if(!$move_to_bucket_id
+				|| false == ($move_to_bucket = DAO_Bucket::get($move_to_bucket_id))
+				|| $move_to_bucket->group_id != $move_to_group->id) {
+				
+				$move_to_bucket = $move_to_group->getDefaultBucket();
+			}
+			
+			// Move to the new bucket if it is an inbox, or it belongs to the group
+			if($move_to_bucket) {
+				$change_fields[DAO_Ticket::BUCKET_ID] = $move_to_bucket->id;
+			}
+			
+			if($unset) {
+				unset($properties['group_id']);
+				unset($properties['bucket_id']);
+			}
+		}
+		
+		if($change_fields) {
+			DAO_Ticket::update($ticket->id, $change_fields);
+		}
+		
+		// Custom fields
+		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : [];
+		
+		if($custom_fields && is_array($custom_fields)) {
+			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket->id, $custom_fields, true, true, false);
+		}
+		
+		if($unset)
+			unset($properties['custom_fields']);
+		
+		return true;
+	}
+	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_TICKET;
 		

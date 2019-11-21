@@ -55,7 +55,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		// tinyint(3) unsigned
 		$validation
 			->addField(self::IS_QUEUED)
-			->uint(1)
+			->bit()
 			;
 		// longtext
 		$validation
@@ -83,6 +83,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		$validation
 			->addField(self::TICKET_ID)
 			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_TICKET, true))
 			;
 		// varchar(255)
 		$validation
@@ -509,6 +510,88 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			)
 		);
 	}
+	
+	public static function getFieldsFromMessageProperties($properties) {
+		$change_fields = [];
+		$params = [];
+		
+		if(array_key_exists('ticket_id', $properties)) {
+			$params['ticket_id'] = $properties['ticket_id'];
+			$change_fields[DAO_MailQueue::TICKET_ID] = $properties['ticket_id'];
+		}
+		
+		if(array_key_exists('message_id', $properties))
+			$params['in_reply_message_id'] = $properties['message_id'];
+		
+		if(array_key_exists('to', $properties)) {
+			$params['to'] = $properties['to'];
+			$change_fields[DAO_MailQueue::HINT_TO] = $properties['to'];
+		}
+		
+		if(array_key_exists('cc', $properties))
+			$params['cc'] = $properties['cc'];
+		
+		if(array_key_exists('bcc', $properties))
+			$params['bcc'] = $properties['bcc'];
+		
+		if(array_key_exists('subject', $properties)) {
+			$params['subject'] = $properties['subject'];
+			$change_fields[DAO_MailQueue::NAME] = $properties['subject'];
+		}
+		
+		if(array_key_exists('content', $properties)) {
+			$params['content'] = $properties['content'];
+		}
+		
+		if(array_key_exists('content_format', $properties))
+			$params['format'] = $properties['content_format'];
+		
+		if(array_key_exists('html_template_id', $properties))
+			$params['html_template_id'] = $properties['html_template_id'];
+		
+		if(array_key_exists('status_id', $properties))
+			$params['status_id'] = $properties['status_id'];
+		
+		if(array_key_exists('group_id', $properties))
+			$params['group_id'] = $properties['group_id'];
+		
+		if(array_key_exists('bucket_id', $properties))
+			$params['bucket_id'] = $properties['bucket_id'];
+		
+		if(array_key_exists('owner_id', $properties))
+			$params['owner_id'] = $properties['owner_id'];
+		
+		if(array_key_exists('worker_id', $properties)) {
+			$params['worker_id'] = $properties['worker_id'];
+			$change_fields[DAO_MailQueue::WORKER_ID] = $properties['worker_id'];
+		}
+		
+		if(array_key_exists('ticket_reopen', $properties))
+			$params['ticket_reopen'] = $properties['ticket_reopen'];
+		
+		if(array_key_exists('options_gpg_encrypt', $properties))
+			$params['gpg_encrypt'] = $properties['options_gpg_encrypt'];
+		
+		if(array_key_exists('options_gpg_sign', $properties))
+			$params['gpg_sign'] = $properties['options_gpg_sign'];
+		
+		if(array_key_exists('is_forward', $properties))
+			$params['is_forward'] = $properties['is_forward'];
+		
+		if(array_key_exists('forward_files', $properties))
+			$params['file_ids'] = $properties['forward_files'];
+		
+		if(array_key_exists('send_at', $properties))
+			$params['send_at'] = $properties['send_at'];
+		
+		if(array_key_exists('custom_fields', $properties))
+			$params['custom_fields'] = $properties['custom_fields'];
+		
+		$change_fields[DAO_MailQueue::PARAMS_JSON] = json_encode($params);
+		$change_fields[DAO_MailQueue::UPDATED] = time();
+		
+		return $change_fields;
+	}
 };
 
 class SearchFields_MailQueue extends DevblocksSearchFields {
@@ -663,6 +746,10 @@ class Model_MailQueue {
 			'content' => $this->body,
 			'content_format' => $this->params['format'] ?? '',
 		];
+		
+		if($this->hasParam('bucket_id'))
+			$message_properties['bucket_id'] = $this->getParam('bucket_id');
+		
 		$commands = [];
 		
 		if(false != ($worker = $this->getWorker())) {
@@ -726,6 +813,104 @@ class Model_MailQueue {
 		return $timeline;
 	}
 	
+	public function hasParam($key) {
+		return array_key_exists($key, $this->params);
+	}
+	
+	public function getParam($key, $default=null) {
+		if($this->hasParam($key))
+			return $this->params[$key];
+		
+		return $default;
+	}
+	
+	public function removeParam($key) {
+		unset($this->params[$key]);
+	}
+	
+	public function removeParams(array $keys) {
+		foreach($keys as $key)
+			$this->removeParam($key);
+	}
+	
+	public function getMessageProperties() {
+		$properties = [
+			'draft_id' => $this->id,
+			'to' => $this->getParam('to'),
+			'cc' => $this->getParam('cc'),
+			'bcc' => $this->getParam('bcc'),
+			'subject' => $this->getParam('subject'),
+			'content' => $this->getParam('content'),
+			'content_format' => $this->getParam('format'),
+			'worker_id' => $this->worker_id,
+		];
+		
+		if($this->hasParam('ticket_id')) {
+			$properties['ticket_id'] = $this->ticket_id;
+		}
+		
+		if($this->hasParam('is_forward'))
+			$properties['is_forward'] = $this->getParam('is_forward');
+		
+		if($this->hasParam('in_reply_message_id'))
+			$properties['message_id'] = $this->getParam('in_reply_message_id');
+		
+		if($this->hasParam('html_template_id'))
+			$properties['html_template_id'] = $this->getParam('html_template_id');
+		
+		if($this->hasParam('is_autoreply'))
+			$properties['is_autoreply'] = $this->getParam('is_autoreply');
+		
+		if($this->hasParam('is_broadcast'))
+			$properties['is_broadcast'] = $this->getParam('is_broadcast');
+		
+		if($this->hasParam('options_dont_send'))
+			$properties['dont_send'] = $this->getParam('options_dont_send');
+		
+		if($this->hasParam('options_gpg_encrypt'))
+			$properties['gpg_encrypt'] = $this->getParam('options_gpg_encrypt');
+		
+		if($this->hasParam('options_gpg_sign'))
+			$properties['gpg_sign'] = $this->getParam('options_gpg_sign');
+		
+		if($this->hasParam('custom_fields'))
+			$properties['custom_fields'] = $this->getParam('custom_fields', []);
+		
+		if($this->hasParam('custom_fieldset_deletes'))
+			$properties['custom_fieldset_deletes'] = $this->getParam('custom_fieldset_deletes', []);
+		
+		if($this->hasParam('context_links'))
+			$properties['context_links'] = $this->getParam('context_links', []);
+		
+		if($this->hasParam('file_ids')) {
+			$properties['forward_files'] = $this->getParam('file_ids', []);
+			$properties['link_forward_files'] = true;
+		}
+		
+		if($this->hasParam('org_id'))
+			$properties['org_id'] = $this->getParam('org_id');
+		
+		if($this->hasParam('status_id'))
+			$properties['status_id'] = $this->getParam('status_id');
+			
+		if($this->hasParam('group_id'))
+			$properties['group_id'] = $this->getParam('group_id');
+		
+		if($this->hasParam('bucket_id'))
+			$properties['bucket_id'] = $this->getParam('bucket_id');
+		
+		if($this->hasParam('owner_id'))
+			$properties['owner_id'] = $this->getParam('owner_id');
+		
+		if($this->hasParam('ticket_reopen'))
+			$properties['ticket_reopen'] = $this->getParam('ticket_reopen');
+		
+		if($this->hasParam('send_at'))
+			$properties['send_at'] = $this->getParam('send_at');
+		
+		return $properties;
+	}
+	
 	/**
 	 * @return boolean
 	 */
@@ -735,18 +920,13 @@ class Model_MailQueue {
 		// Determine the type of message
 		switch($this->type) {
 			case Model_MailQueue::TYPE_COMPOSE:
-				$success = $this->_sendCompose($this->type);
+				$success = $this->_sendCompose();
 				break;
 				
 			case Model_MailQueue::TYPE_TICKET_FORWARD:
 			case Model_MailQueue::TYPE_TICKET_REPLY:
-				$success = $this->_sendTicketReply($this->type);
+				$success = $this->_sendTicketReply();
 				break;
-		}
-		
-		if($success) {
-			// Delete the draft on success
-			DAO_MailQueue::delete($this->id);
 		}
 		
 		return $success;
@@ -758,78 +938,12 @@ class Model_MailQueue {
 		return CerberusMail::compose($properties);
 	}
 	
-	private function _sendTicketReply($type) {
-		$properties = array(
-			'draft_id' => $this->id,
-		);
+	private function _sendTicketReply() {
+		$properties = $this->getMessageProperties();
 		
-		// In reply to message-id
-		if(!isset($this->params['in_reply_message_id']))
-			return false;
-		$properties['message_id'] = $this->params['in_reply_message_id'];
-
-		// Ticket ID
-		if(isset($this->ticket_id))
-			$properties['ticket_id'] = $this->ticket_id;
-
-		if($type == Model_MailQueue::TYPE_TICKET_FORWARD)
-			$properties['is_forward'] = 1;
-			
-		// Auto-reply
-		if(isset($this->params['is_autoreply']) && !empty($this->params['is_autoreply']))
-			$properties['is_autoreply'] = true;
-
-		// Broadcast?
-		if(isset($this->params['is_broadcast']))
-			$properties['is_broadcast'] = intval($this->params['is_broadcast']);
+		if('save' == $this->getParam('reply_mode'))
+			$properties['dont_send'] = true;
 		
-		// To
-		if(isset($this->params['to']))
-			$properties['to'] = $this->params['to'];
-			
-		// Cc+Bcc
-		if(isset($this->params['cc']))
-			$properties['cc'] = $this->params['cc'];
-
-		if(isset($this->params['bcc']))
-			$properties['bcc'] = $this->params['bcc'];
-		
-		// Subject
-		if(!empty($this->subject))
-			$properties['subject'] = $this->subject;
-			
-		// Content
-		if(empty($this->body))
-			return false;
-		
-		$properties['content'] = $this->body;
-
-		if(isset($this->params['format']))
-			$properties['content_format'] = $this->params['format'];
-		
-		if(isset($this->params['html_template_id']))
-			$properties['html_template_id'] = intval($this->params['html_template_id']);
-		
-		// Worker
-		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
-		
-		// Attachments
-		if(isset($this->params['file_ids'])) {
-			$properties['forward_files'] = $this->params['file_ids'];
-			$properties['link_forward_files'] = true;
-		}
-		
-		// Context links
-		@$context_links = $this->params['context_links'];
-		if(!empty($context_links) && is_array($context_links))
-		foreach($context_links as $context_pair) {
-			if(!is_array($context_pair) || 2 != count($context_pair))
-				continue;
-			
-			DAO_ContextLink::setLink($context_pair[0], $context_pair[1], CerberusContexts::CONTEXT_TICKET, $this->ticket_id);
-		}
-
-		// Send message
 		return CerberusMail::sendTicketMessage($properties);
 	}
 };
@@ -1426,9 +1540,11 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		return [
 			'content' => DAO_MailQueue::BODY,
 			'id' => DAO_MailQueue::ID,
+			'is_queued' => DAO_MailQueue::IS_QUEUED,
 			'links' => '_links',
 			'subject' => DAO_MailQueue::SUBJECT,
 			'to' => DAO_MailQueue::HINT_TO,
+			'ticket_id' => DAO_MailQueue::TICKET_ID,
 			'type' => DAO_MailQueue::TYPE,
 			'updated' => DAO_MailQueue::UPDATED,
 			'worker_id' => DAO_MailQueue::WORKER_ID,
