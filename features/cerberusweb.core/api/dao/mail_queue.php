@@ -752,80 +752,10 @@ class Model_MailQueue {
 		return $success;
 	}
 	
-	private function _sendCompose($type) {
-		$properties = array(
-			'draft_id' => $this->id,
-		);
-
-		// Broadcast?
-		if(isset($this->params['is_broadcast']))
-			$properties['is_broadcast'] = intval($this->params['is_broadcast']);
+	private function _sendCompose() {
+		$properties = $this->getMessageProperties();
 		
-		// From
-		if(!isset($this->params['group_id']))
-			return false;
-		$properties['group_id'] = $this->params['group_id'];
-
-		// To+Cc+Bcc
-		if(!isset($this->params['to']))
-			return false;
-		$properties['to'] = $this->params['to'];
-		
-		if(isset($this->params['cc']))
-			$properties['cc'] = $this->params['cc'];
-
-		if(isset($this->params['bcc']))
-			$properties['bcc'] = $this->params['bcc'];
-
-		// Subject
-		if(empty($this->subject))
-			return false;
-		$properties['subject'] = $this->subject;
-
-		// Message body
-		if(empty($this->body))
-			return false;
-		
-		$properties['content'] = $this->body;
-
-		if(isset($this->params['format']))
-			$properties['content_format'] = $this->params['format'];
-		
-		if(isset($this->params['html_template_id']))
-			$properties['html_template_id'] = intval($this->params['html_template_id']);
-			
-		// Next action
-		if(isset($this->params['status_id']))
-			$properties['status_id'] = intval($this->params['status_id']);
-
-		// Org
-		if(isset($this->params['org_id']))
-			$properties['org_id'] = intval($this->params['org_id']);
-		
-		// Worker
-		$properties['worker_id'] = !empty($this->worker_id) ? $this->worker_id : 0;
-		
-		// Attachments
-		if(isset($this->params['file_ids'])) {
-			$properties['forward_files'] = $this->params['file_ids'];
-			$properties['link_forward_files'] = true;
-		}
-
-		// Send mail
-		if(false == ($ticket_id = CerberusMail::compose($properties)))
-			return false;
-		
-		// Context links
-		@$context_links = $this->params['context_links'];
-		if(is_array($context_links))
-		foreach($context_links as $context_pair) {
-			if(!is_array($context_pair) || 2 != count($context_pair))
-				continue;
-			
-			DAO_ContextLink::setLink($context_pair[0], $context_pair[1], CerberusContexts::CONTEXT_TICKET, $ticket_id);
-		}
-		
-		return true;
+		return CerberusMail::compose($properties);
 	}
 	
 	private function _sendTicketReply($type) {

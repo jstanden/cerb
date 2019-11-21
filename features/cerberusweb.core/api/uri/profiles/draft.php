@@ -268,15 +268,6 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		}
 	}
 	
-	function showDraftsPeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		
-		if(false == ($draft = DAO_MailQueue::get($id)))
-			return;
-		
-		Page_Profiles::renderCard(CerberusContexts::CONTEXT_DRAFT, $id, $draft);
-	}
-	
 	function showDraftsBulkPanelAction() {
 		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);

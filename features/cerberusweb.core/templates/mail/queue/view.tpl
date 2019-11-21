@@ -75,7 +75,7 @@
 				{else}
 					<b class="subject">{if empty($result.m_subject)}(no subject){else}{$result.m_subject}{/if}</b>
 				{/if}
-				{if $active_worker->is_superuser || $result.m_worker_id==$active_worker->id}<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=draft&action=showDraftsPeek&view_id={$view->id}&id={$result.m_id}', null, false, '50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
+				{if $active_worker->is_superuser || $result.m_worker_id==$active_worker->id}<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$result.m_id}" data-view-id="{$view->id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">

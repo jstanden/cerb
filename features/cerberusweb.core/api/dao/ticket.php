@@ -5221,7 +5221,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 		
-		$visit = CerberusApplication::getVisit();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
@@ -5309,29 +5308,28 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$tpl->assign('to', $to);
 		
-		// Continue a draft?
-		if(!empty($draft_id)) {
-			$drafts = DAO_MailQueue::getWhere(sprintf("%s = %d AND %s = %d AND %s = %s",
-				DAO_MailQueue::ID,
-				$draft_id,
-				DAO_MailQueue::WORKER_ID,
-				$active_worker->id,
-				DAO_MailQueue::TYPE,
-				Cerb_ORMHelper::qstr(Model_MailQueue::TYPE_COMPOSE)
-			));
-			
-			@$draft = $drafts[$draft_id];
-			
-			if(!empty($drafts)) {
-				$tpl->assign('draft', $draft);
-				
-				// Overload the defaults of the form
-				if(isset($draft->params['group_id']))
-					$defaults['group_id'] = $draft->params['group_id'];
-				if(isset($draft->params['bucket_id']))
-					$defaults['bucket_id'] = $draft->params['bucket_id'];
-			}
+		if(!$draft_id) {
+			$draft_id = DAO_MailQueue::create([
+				DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
+				DAO_MailQueue::WORKER_ID => $active_worker->id,
+				DAO_MailQueue::IS_QUEUED => 0,
+				DAO_MailQueue::QUEUE_DELIVERY_DATE => 0,
+			]);
 		}
+		
+		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			return false;
+		
+		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
+			return false;
+		
+		$tpl->assign('draft', $draft);
+		
+		// Overload the defaults of the form
+		if(isset($draft->params['group_id']))
+			$defaults['group_id'] = $draft->params['group_id'];
+		if(isset($draft->params['bucket_id']))
+			$defaults['bucket_id'] = $draft->params['bucket_id'];
 		
 		// If we still don't have a default group, use the first group
 		if(empty($defaults['group_id']))

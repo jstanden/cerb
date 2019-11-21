@@ -43,7 +43,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{if !empty($to)}{$to}{else}{$draft->params.to}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
+			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{if $to}{$to}{elseif $draft}{$draft->getParam('to')}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 
 			<div id="compose_suggested{$popup_uniqid}" style="display:none;">
 				<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
@@ -67,7 +67,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{$draft->subject}" autocomplete="off">
+			<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{if $draft}{$draft->getParam('subject')}{/if}" autocomplete="off">
 		</td>
 	</tr>
 	<tr>
@@ -106,7 +106,7 @@
 				<button type="button" title="Preview message" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 			</div>
 
-			<textarea id="divComposeContent{$popup_uniqid}" name="content" data-editor-mode="ace/mode/text" data-editor-line-numbers="false" data-editor-lines="20">{if !empty($draft)}{$draft->body}{else}{if $defaults.signature_pos}
+			<textarea id="divComposeContent{$popup_uniqid}" name="content" data-editor-mode="ace/mode/text" data-editor-line-numbers="false" data-editor-lines="20">{if $draft}{$draft->getParam('content')}{else}{if $defaults.signature_pos}
 
 
 

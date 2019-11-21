@@ -500,8 +500,6 @@ class CerberusMail {
 		'subject'
 		'content'
 		'content_format'
-		'content_saved'
-		'content_sent'
 		'html_template_id'
 		'files'
 		'forward_files'
@@ -509,6 +507,7 @@ class CerberusMail {
 		'ticket_reopen'
 		'dont_send'
 		'draft_id'
+		'gpg_sign'
 		'gpg_encrypt'
 		'send_at'
 		 */
@@ -516,19 +515,16 @@ class CerberusMail {
 		@$draft_id = $properties['draft_id'];
 		@$group_id = $properties['group_id'];
 		@$bucket_id = intval($properties['bucket_id']);
-		
-		@$is_broadcast = intval($properties['is_broadcast']);
-		
 		@$worker_id = $properties['worker_id'];
 		@$send_at = strtotime($properties['send_at'] ?? 0);
 		
 		$worker = null;
 		
-		if(empty($worker_id) && null != ($worker = CerberusApplication::getActiveWorker()))
+		if(!$worker_id && null != ($worker = CerberusApplication::getActiveWorker()))
 			$worker_id = $worker->id;
 
 		// Worker
-		if(!empty($worker_id))
+		if($worker_id)
 			$worker = DAO_Worker::get($worker_id);
 		
 		// Group
@@ -538,31 +534,6 @@ class CerberusMail {
 		// Bucket
 		if(!$bucket_id || false == ($bucket = DAO_Bucket::get($bucket_id)) || $bucket->group_id != $group->id)
 			$bucket = $group->getDefaultBucket();
-		
-		// Changing the outgoing message through a VA (global)
-		Event_MailBeforeSent::trigger($properties, null, null, $group_id);
-		
-		// Changing the outgoing message through a VA (group)
-		Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
-		
-		// Handle content appends and prepends
-		self::_generateBodiesWithPrependsAppends($properties);
-		
-		@$org_id = $properties['org_id'];
-		@$toStr = $properties['to'];
-		@$cc = $properties['cc'];
-		@$bcc = $properties['bcc'];
-		@$subject = $properties['subject'];
-		@$content_format = $properties['content_format'];
-		@$content_saved = $properties['content_saved'];
-		@$content_sent = $properties['content_sent'];
-		@$html_template_id = $properties['html_template_id'];
-		@$files = $properties['files'];
-		@$embedded_files = [];
-		@$forward_files = $properties['forward_files'];
-		
-		@$status_id = $properties['status_id'];
-		@$ticket_reopen = $properties['ticket_reopen'];
 		
 		$from_replyto = $group->getReplyTo($bucket->id);
 		$personal = $group->getReplyPersonal($bucket->id, $worker);
@@ -593,7 +564,36 @@ class CerberusMail {
 		}
 		
 		$mask = CerberusApplication::generateTicketMask();
-
+		
+		// Changing the outgoing message through a VA (global)
+		Event_MailBeforeSent::trigger($properties, null, null, $group_id);
+		
+		// Changing the outgoing message through a VA (group)
+		Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
+		
+		$hash_commands = [];
+		
+		if($worker) {
+			CerberusMail::parseComposeHashCommands($worker, $properties, $hash_commands);
+		}
+		
+		// Handle content appends and prepends
+		self::_generateBodiesWithPrependsAppends($properties);
+		
+		@$org_id = $properties['org_id'];
+		@$toStr = $properties['to'];
+		@$cc = $properties['cc'];
+		@$bcc = $properties['bcc'];
+		@$subject = $properties['subject'];
+		@$content_format = $properties['content_format'];
+		@$html_template_id = $properties['html_template_id'];
+		@$files = $properties['files'];
+		@$embedded_files = [];
+		@$forward_files = $properties['forward_files'];
+		@$content_saved = $properties['content_saved'];
+		@$content_sent = $properties['content_sent'];
+		@$is_broadcast = intval($properties['is_broadcast']);
+		
 		if(empty($subject)) $subject = '(no subject)';
 		
 		// add mask to subject if group setting calls for it
@@ -610,7 +610,6 @@ class CerberusMail {
 		
 		// [JAS]: Replace any semi-colons with commas (people like using either)
 		$toList = CerberusMail::parseRfcAddresses($toStr);
-		
 		
 		try {
 			$mail_service = DevblocksPlatform::services()->mail();
@@ -727,7 +726,7 @@ class CerberusMail {
 					throw new Exception('Mail failed to send: unknown reason');
 				}
 			}
-	
+			
 		} catch (Exception $e) {
 			if(!$draft_id) {
 				$fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
@@ -783,8 +782,6 @@ class CerberusMail {
 		$fromAddressInst = CerberusApplication::hashLookupAddress($from_replyto->email, true);
 		$fromAddressId = $fromAddressInst->id;
 		
-		// [TODO] this is redundant with the Parser code.  Should be refactored later
-		
 		// Organization ID from first requester
 		if(empty($org_id)) {
 			reset($toList);
@@ -797,28 +794,15 @@ class CerberusMail {
 		$fields = array(
 			DAO_Ticket::MASK => $mask,
 			DAO_Ticket::SUBJECT => $subject,
+			DAO_Ticket::STATUS_ID => 0,
+			DAO_Ticket::OWNER_ID => 0,
+			DAO_Ticket::REOPEN_AT => 0,
 			DAO_Ticket::CREATED_DATE => time(),
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::ORG_ID => intval($org_id),
 			DAO_Ticket::IMPORTANCE => 50,
 		);
-		
-		// "Next:" [TODO] This is highly redundant with CerberusMail::reply
-		
-		if(isset($properties['owner_id'])) {
-			$fields[DAO_Ticket::OWNER_ID] = intval($properties['owner_id']);
-		}
-		
-		if(isset($ticket_reopen) && !empty($ticket_reopen)) {
-			if(is_numeric($ticket_reopen) && false != (@$reopen_at = strtotime('now', $ticket_reopen))) {
-				$fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
-			} else if(false !== (@$reopen_at = strtotime($ticket_reopen))) {
-				$fields[DAO_Ticket::REOPEN_AT] = $reopen_at;
-			}
-		}
-
-		// End "Next:"
 		
 		$ticket_id = DAO_Ticket::create($fields);
 		
@@ -914,34 +898,33 @@ class CerberusMail {
 		}
 		
 		// Finalize ticket
-		$fields = array(
+		$ticket_fields = [
 			DAO_Ticket::FIRST_MESSAGE_ID => $message_id,
 			DAO_Ticket::LAST_MESSAGE_ID => $message_id,
-		);
+		];
 
-		// Status
-		if(in_array($status_id, array(Model_Ticket::STATUS_WAITING, Model_Ticket::STATUS_CLOSED)))
-			$fields[DAO_Ticket::STATUS_ID] = $status_id;
-		
 		// Move last, so the event triggers properly
-		$fields[DAO_Ticket::GROUP_ID] = $group->id;
-		$fields[DAO_Ticket::BUCKET_ID] = $bucket->id;
+		$properties['group_id'] = $group->id;
+		$properties['bucket_id'] = $bucket->id;
 		
-		DAO_Ticket::update($ticket_id, $fields);
+		if(false !== ($ticket = DAO_Ticket::get($ticket_id)))
+			DAO_Ticket::updateWithMessageProperties($properties, $ticket, $ticket_fields, false);
 		
 		// Train as not spam
 		CerberusBayes::markTicketAsNotSpam($ticket_id);
 		
-		// Custom fields
-		@$custom_fields = isset($properties['custom_fields']) ? $properties['custom_fields'] : [];
-		if(is_array($custom_fields) && !empty($custom_fields)) {
-			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields);
+		if($worker) {
+			DAO_WorkerPref::set($worker->id, 'compose.group_id', $group_id);
+			DAO_WorkerPref::set($worker->id, 'compose.bucket_id', $bucket_id);
+			
+			if($hash_commands)
+				CerberusMail::handleComposeHashCommands($hash_commands, $ticket_id, $worker);
 		}
 		
 		// Events
 		if(!empty($message_id) && !empty($group_id)) {
 			// After message sent (global)
-			Event_MailAfterSent::trigger($message_id, $group_id);
+			Event_MailAfterSent::trigger($message_id);
 			
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group_id);
