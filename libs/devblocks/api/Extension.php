@@ -2938,7 +2938,7 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 				],
 			],
 			'_set_custom_var_snippet' => [
-				'label' => 'Set custom placeholder using a snippet',
+				'label' => 'Set snippet placeholder',
 				'params' => [
 					'var' => [
 						'type' => 'placeholder',
