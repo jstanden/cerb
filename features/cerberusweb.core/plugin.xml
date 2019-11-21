@@ -1204,6 +1204,17 @@
 			</params>
 		</extension>
 
+		<extension point = "cerb.custom_field">
+			<id>cerb.custom_field.slider</id>
+			<name>Slider</name>
+			<class>
+				<file>api/customfield.classes.php</file>
+				<name>CustomField_Slider</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Contexts -->
 		
 		<extension point="devblocks.context">

@@ -112,6 +112,173 @@ class CustomField_GeoPoint extends Extension_CustomField {
 	}
 };
 
+class CustomField_Slider extends Extension_CustomField {
+	const ID = 'cerb.custom_field.slider';
+	
+	function renderConfig(Model_CustomField $field) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('field', $field);
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/extensions/slider/config.tpl');
+	}
+	
+	function renderEditable(Model_CustomField $field, $form_key, $form_value) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('field', $field);
+		$tpl->assign('form_key', $form_key);
+		$tpl->assign('form_value', $this->getValue($form_value));
+		
+		@$value_min = $field->params['value_min'];
+		@$value_max = $field->params['value_max'];
+		
+		if(0 == strlen($value_min))
+			$value_min = 0;
+		
+		if(0 == strlen($value_max))
+			$value_max = 100;
+		
+		$tpl->assign('value_min', $value_min);
+		$tpl->assign('value_max', $value_max);
+		
+		$value_range = $value_max - $value_min;
+		
+		$tpl->assign('value_mid', ($value_range/2)+$value_min);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/extensions/slider/editor.tpl');
+	}
+	
+	function validationRegister(Model_CustomField $field, _DevblocksValidationService &$validation) {
+		@$field_context = $field->params['context'];
+		
+		@$value_min = $field->params['value_min'];
+		@$value_max = $field->params['value_max'];
+		
+		if(0 == strlen($value_min))
+			$value_min = 0;
+		
+		if(0 == strlen($value_max))
+			$value_max = 100;
+		
+		$validation
+			->addField($field->id, $field->name)
+			->number()
+			->setMin(intval($value_min))
+			->setMax(intval($value_max))
+		;
+	}
+	
+	function formatFieldValue($value) {
+		return $value;
+	}
+	
+	function parseFormPost(Model_CustomField $field) {
+		@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field->id],'integer',0);
+		return $field_value;
+	}
+	
+	function setFieldValue(Model_CustomField $field, $context, $context_id, $value) {
+		$db = DevblocksPlatform::services()->database();
+		
+		self::unsetFieldValue($field, $context, $context_id, $value);
+		
+		$sql = sprintf("INSERT INTO custom_field_numbervalue (field_id, context, context_id, field_value) ".
+			"VALUES (%d, %s, %d, %d)",
+			$field->id,
+			$db->qstr($context),
+			$context_id,
+			$value
+		);
+		$db->ExecuteMaster($sql);
+		
+		DevblocksPlatform::markContextChanged($context, $context_id);
+	}
+	
+	function unsetFieldValue(Model_CustomField $field, $context, $context_id, $value=null) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("DELETE FROM custom_field_numbervalue WHERE field_id = %d AND context = %s AND context_id = %d",
+			$field->id,
+			$db->qstr($context),
+			$context_id
+		);
+		$db->ExecuteMaster($sql);
+		
+		DevblocksPlatform::markContextChanged($context, $context_id);
+	}
+	
+	function hasMultipleValues() {
+		return false;
+	}
+	
+	function getValue($value) {
+		return $value;
+	}
+	
+	function renderValue(Model_CustomField $field, $value) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$value_min = $field->params['value_min'];
+		@$value_max = $field->params['value_max'];
+		
+		if(0 == strlen($value_min))
+			$value_min = 0;
+		
+		if(0 == strlen($value_max))
+			$value_max = 100;
+		
+		$tpl->assign('value_min', $value_min);
+		$tpl->assign('value_max', $value_max);
+		
+		$value_range = $value_max - $value_min;
+		
+		$tpl->assign('value_percent', 100 * (($value - $value_min) / $value_range));
+		
+		$tpl->assign('value', $value);
+		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/extensions/slider/render_value.tpl');
+	}
+	
+	function getLabelsForValues($values) {
+		$map = $values;
+		
+		foreach($values as $v) {
+			$map[$v] = $this->getValue($v);
+		}
+		
+		return $map;
+	}
+	
+	function prepareCriteriaParam(Model_CustomField $field, $param, &$vals, &$implode_token) {
+		$implode_token = ', ';
+		return true;
+	}
+	
+	function populateQuickSearchMeta(Model_CustomField $field, array &$search_field_meta) {
+		$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_NUMBER;
+		return true;
+	}
+	
+	function getParamFromQueryFieldTokens($field, $tokens, $param_key) {
+		if($param_key && false != $param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key))
+			return $param;
+		
+		return null;
+	}
+	
+	function getValueTableName() {
+		return 'custom_field_numbervalue';
+	}
+	
+	function getValueTableSql($context, array $context_ids) {
+		return sprintf("SELECT context_id, field_id, field_value ".
+			"FROM custom_field_numbervalue ".
+			"WHERE context = '%s' AND context_id IN (%s)",
+			$context,
+			implode(',', $context_ids)
+		);
+	}
+};
+
 class CustomField_RecordLinks extends Extension_CustomField {
 	const ID = 'cerb.custom_field.record.links';
 	
