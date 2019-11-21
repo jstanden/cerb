@@ -590,14 +590,14 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!empty($dont_send))
 			$properties['dont_send'] = $dont_send ? 1 : 0;
 		
-		if(false == ($ticket_id = CerberusMail::compose($properties)))
-			$this->error(self::ERRNO_CUSTOM, "Failed to create a new message.");
-		
 		// Handle custom fields
 		$custom_fields = $this->_handleCustomFields($_POST);
 		
-		if(is_array($custom_fields))
-			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TICKET, $ticket_id, $custom_fields, true, true, true);
+		if($custom_fields)
+			$properties['custom_fields'] = $custom_fields;
+		
+		if(false == ($ticket_id = CerberusMail::compose($properties)))
+			$this->error(self::ERRNO_CUSTOM, "Failed to create a new message.");
 		
 		return $ticket_id;
 	}

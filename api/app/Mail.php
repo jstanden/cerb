@@ -701,35 +701,52 @@ class CerberusMail {
 			}
 	
 		} catch (Exception $e) {
-			if(empty($draft_id)) {
-				$params = array(
-					'to' => $toStr,
-					'group_id' => $group->id,
-					'bucket_id' => $bucket->id,
-				);
+			if(!$draft_id) {
+				$fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
+				$fields[DAO_MailQueue::TYPE] = Model_MailQueue::TYPE_COMPOSE;
+				$fields[DAO_MailQueue::IS_QUEUED] = 1;
+				$fields[DAO_MailQueue::QUEUE_FAILS] = 1;
+				$fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = time() + 300;
 				
-				if(!empty($cc))
-					$params['cc'] = $cc;
-					
-				if(!empty($bcc))
-					$params['bcc'] = $bcc;
+				$draft_id = DAO_MailQueue::create($fields);
 				
-				if('parsedown' == $content_format)
-					$params['format'] = 'parsedown';
-					
+			} else {
+				if(false != ($draft = DAO_MailQueue::get($draft_id))) {
+					if($draft->queue_fails < 10) {
+						$fields = [
+							DAO_MailQueue::IS_QUEUED => 1,
+							DAO_MailQueue::QUEUE_FAILS => ++$draft->queue_fails,
+							DAO_MailQueue::QUEUE_DELIVERY_DATE => time() + 300,
+						];
+					} else {
+						$fields = [
+							DAO_MailQueue::IS_QUEUED => 0,
+							DAO_MailQueue::QUEUE_DELIVERY_DATE => 0,
+						];
+					}
+					DAO_MailQueue::update($draft_id, $fields);
+				}
+			}
+			
+			$last_error_message = $mail_service->getLastErrorMessage();
+			
+			if($e instanceof Swift_TransportException && !$last_error_message) {
+				$last_error_message = $e->getMessage();
+			} elseif($e instanceof Swift_RfcComplianceException && !$last_error_message) {
+				$last_error_message = $e->getMessage();
+			}
+			
+			// If we have an error message, log it on the draft
+			if($draft_id && !empty($last_error_message)) {
 				$fields = array(
-					DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
-					DAO_MailQueue::TICKET_ID => 0,
-					DAO_MailQueue::WORKER_ID => intval($worker_id),
-					DAO_MailQueue::UPDATED => time()+5, // small offset
-					DAO_MailQueue::HINT_TO => $toStr,
-					DAO_MailQueue::SUBJECT => $subject,
-					DAO_MailQueue::BODY => $content_sent,
-					DAO_MailQueue::PARAMS_JSON => json_encode($params),
-					DAO_MailQueue::IS_QUEUED => !empty($worker) ? 0 : 1,
-					DAO_MailQueue::QUEUE_DELIVERY_DATE => time(),
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+					DAO_Comment::OWNER_CONTEXT_ID => 0,
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_DRAFT,
+					DAO_Comment::CONTEXT_ID => $draft_id,
+					DAO_Comment::COMMENT => 'Error sending message: ' . $last_error_message,
+					DAO_Comment::CREATED => time(),
 				);
-				DAO_MailQueue::create($fields);
+				DAO_Comment::create($fields);
 			}
 			
 			return false;
@@ -1323,10 +1340,28 @@ class CerberusMail {
 					DAO_MailQueue::SUBJECT => $subject,
 					DAO_MailQueue::BODY => $properties['content'],
 					DAO_MailQueue::PARAMS_JSON => json_encode($params),
-					DAO_MailQueue::IS_QUEUED => empty($worker_id) ? 1 : 0,
-					DAO_MailQueue::QUEUE_DELIVERY_DATE => time(),
+					DAO_MailQueue::IS_QUEUED => 1,
+					DAO_MailQueue::QUEUE_FAILS => 1,
+					DAO_MailQueue::QUEUE_DELIVERY_DATE => time() + 300,
 				);
 				$draft_id = DAO_MailQueue::create($fields);
+				
+			} else {
+				if(false != ($draft = DAO_MailQueue::get($draft_id))) {
+					if($draft->queue_fails < 10) {
+						$fields = [
+							DAO_MailQueue::IS_QUEUED => 1,
+							DAO_MailQueue::QUEUE_DELIVERY_DATE => time() + 300,
+							DAO_MailQueue::QUEUE_FAILS => ++$draft->queue_fails,
+						];
+					} else {
+						$fields = [
+							DAO_MailQueue::IS_QUEUED => 0,
+							DAO_MailQueue::QUEUE_DELIVERY_DATE => 0,
+						];
+					}
+					DAO_MailQueue::update($draft_id, $fields);
+				}
 			}
 			
 			$last_error_message = $mail_service->getLastErrorMessage();
