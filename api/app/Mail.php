@@ -510,6 +510,7 @@ class CerberusMail {
 		'dont_send'
 		'draft_id'
 		'gpg_encrypt'
+		'send_at'
 		 */
 		
 		@$draft_id = $properties['draft_id'];
@@ -519,6 +520,8 @@ class CerberusMail {
 		@$is_broadcast = intval($properties['is_broadcast']);
 		
 		@$worker_id = $properties['worker_id'];
+		@$send_at = strtotime($properties['send_at'] ?? 0);
+		
 		$worker = null;
 		
 		if(empty($worker_id) && null != ($worker = CerberusApplication::getActiveWorker()))
@@ -563,6 +566,31 @@ class CerberusMail {
 		
 		$from_replyto = $group->getReplyTo($bucket->id);
 		$personal = $group->getReplyPersonal($bucket->id, $worker);
+		
+		if($send_at && $send_at >= time()) {
+			// If we're not resuming a draft from the UI, generate a draft
+			if (!$draft_id || false == (DAO_MailQueue::get($draft_id))) {
+				$change_fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
+				$change_fields[DAO_MailQueue::TYPE] = Model_MailQueue::TYPE_COMPOSE;
+				$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
+				$change_fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = $send_at;
+				
+				$draft_id = DAO_MailQueue::create($change_fields);
+				
+				if(array_key_exists('forward_files', $properties)) {
+					DAO_Attachment::addLinks(CerberusContexts::CONTEXT_DRAFT, $draft_id, $properties['forward_files']);
+				}
+				
+			} else {
+				DAO_MailQueue::update($draft_id, [
+					DAO_MailQueue::IS_QUEUED => 1,
+					DAO_MailQueue::QUEUE_FAILS => 0,
+					DAO_MailQueue::QUEUE_DELIVERY_DATE => $send_at,
+				]);
+			}
+			
+			return true;
+		}
 		
 		$mask = CerberusApplication::generateTicketMask();
 
