@@ -525,9 +525,8 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
 		
+		@$send_at = DevblocksPlatform::importGPC($_REQUEST['send_at'],'string','');
 		@$dont_send = DevblocksPlatform::importGPC($_REQUEST['dont_send'],'integer',0);
-		
-		$properties = array();
 		
 		if(empty($subject))
 			$this->error(self::ERRNO_CUSTOM, "The 'subject' parameter is required");
@@ -576,6 +575,9 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!empty($reopen_at))
 			$properties['ticket_reopen'] = $reopen_at;
 		
+		if(!empty($send_at))
+			$properties['send_at'] = $send_at;
+		
 		if(!empty($file_ids)) {
 			$properties['link_forward_files'] = true;
 			$properties['forward_files'] = $file_ids;
@@ -617,7 +619,6 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		$worker = CerberusApplication::getActiveWorker();
 		
 		/*
-		'html_template_id'
 		'headers'
 		*/
 		
@@ -639,6 +640,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		@$is_forward = DevblocksPlatform::importGPC($_REQUEST['is_forward'],'integer',0);
 		@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'string',null);
 		@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
+		@$send_at = DevblocksPlatform::importGPC($_REQUEST['send_at'],'string','');
 		@$status = DevblocksPlatform::importGPC($_REQUEST['status'],'integer',0);
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
@@ -711,8 +713,12 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!empty($subject))
 			$properties['subject'] = $subject;
 		
-		if(!empty($to))
+		if(!empty($to)) {
 			$properties['to'] = $to;
+		} else {
+			if(false != ($recipients = $ticket->getRequesters()))
+				$properties['to'] = implode(',', array_column($recipients, 'email'));
+		}
 		
 		if(!empty($cc))
 			$properties['cc'] = $cc;
@@ -726,11 +732,14 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(isset($html_template))
 			$properties['html_template_id'] = $html_template->id;
 		
-		if(!empty($status) && in_array($status, array(0,1,2,3)))
+		if(in_array($status, [0,1,2,3]))
 			$properties['status_id'] = $status;
 		
 		if(!empty($reopen_at))
 			$properties['ticket_reopen'] = $reopen_at;
+		
+		if($send_at)
+			$properties['send_at'] = $send_at;
 		
 		//Files
 		
