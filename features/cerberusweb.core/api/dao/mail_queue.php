@@ -918,6 +918,11 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 
 		$this->view_columns = array(
 			SearchFields_MailQueue::HINT_TO,
+			SearchFields_MailQueue::TYPE,
+			SearchFields_MailQueue::WORKER_ID,
+			SearchFields_MailQueue::IS_QUEUED,
+			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
+			SearchFields_MailQueue::QUEUE_FAILS,
 			SearchFields_MailQueue::UPDATED,
 		);
 		
@@ -1048,7 +1053,22 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailQueue::HINT_TO, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
 				),
-			'type' => 
+			'is.queued' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_MailQueue::IS_QUEUED),
+				),
+			'queue.fails' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_MailQueue::QUEUE_FAILS),
+				),
+			'queue.deliverAt' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_MailQueue::QUEUE_DELIVERY_DATE),
+				),
+			'type' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailQueue::TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -1555,8 +1575,6 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function getChooserView($view_id=null) {
-		$active_worker = CerberusApplication::getActiveWorker();
-
 		if(empty($view_id))
 			$view_id = 'chooser_'.str_replace('.','_',$this->id).time().mt_rand(0,9999);
 		
@@ -1570,30 +1588,17 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		
 		$view->view_columns = array(
 			SearchFields_MailQueue::HINT_TO,
-			SearchFields_MailQueue::UPDATED,
 			SearchFields_MailQueue::TYPE,
+			SearchFields_MailQueue::WORKER_ID,
+			SearchFields_MailQueue::IS_QUEUED,
+			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
+			SearchFields_MailQueue::QUEUE_FAILS,
+			SearchFields_MailQueue::UPDATED,
 		);
 		
 		$view->addColumnsHidden(array(
-			SearchFields_MailQueue::ID,
-			SearchFields_MailQueue::IS_QUEUED,
-			SearchFields_MailQueue::QUEUE_FAILS,
-			SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
 			SearchFields_MailQueue::TICKET_ID,
 		));
-		
-		if($active_worker) {
-			$view->addParams([
-				SearchFields_MailQueue::WORKER_ID => new DevblocksSearchCriteria(SearchFields_MailQueue::WORKER_ID, DevblocksSearchCriteria::OPER_EQ, $active_worker->id),
-			], true);
-			
-		} else {
-			$view->addParams([], true);
-		}
-		
-		$view->addParamsRequired(array(
-			SearchFields_MailQueue::IS_QUEUED => new DevblocksSearchCriteria(SearchFields_MailQueue::IS_QUEUED,'=',0),
-		), true);
 		
 		$view->renderSortBy = SearchFields_MailQueue::UPDATED;
 		$view->renderSortAsc = false;
