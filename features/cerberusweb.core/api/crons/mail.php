@@ -316,12 +316,7 @@ class MailQueueCron extends CerberusCronPageExtension {
 				
 				foreach($messages as $message) { /* @var $message Model_MailQueue */
 					if(!$message->send()) {
-						$logger->error(sprintf("[Mail Queue] Failed sending message %d", $message->id));
-						DAO_MailQueue::update($message->id, array(
-							DAO_MailQueue::QUEUE_FAILS => min($message->queue_fails+1,255),
-							DAO_MailQueue::QUEUE_DELIVERY_DATE => time() + 900, // retry in 15 min
-						));
-						
+						// The drafts handle fail counts and retries automatically now
 					} else {
 						$logger->info(sprintf("[Mail Queue] Sent message %d", $message->id));
 					}
