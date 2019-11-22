@@ -16,14 +16,13 @@
 ***********************************************************************/
 
 class DAO_MailQueue extends Cerb_ORMHelper {
-	const BODY = 'body';
 	const HINT_TO = 'hint_to';
 	const ID = 'id';
 	const IS_QUEUED = 'is_queued';
 	const PARAMS_JSON = 'params_json';
 	const QUEUE_DELIVERY_DATE = 'queue_delivery_date';
 	const QUEUE_FAILS = 'queue_fails';
-	const SUBJECT = 'subject';
+	const NAME = 'name';
 	const TICKET_ID = 'ticket_id';
 	const TYPE = 'type';
 	const UPDATED = 'updated';
@@ -34,12 +33,6 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
-		// longtext
-		$validation
-			->addField(self::BODY)
-			->string()
-			->setMaxLength('32 bits')
-			;
 		// text
 		$validation
 			->addField(self::HINT_TO)
@@ -75,7 +68,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			;
 		// varchar(255)
 		$validation
-			->addField(self::SUBJECT)
+			->addField(self::NAME)
 			->string()
 			->setMaxLength(255)
 			;
@@ -240,7 +233,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, worker_id, updated, type, ticket_id, hint_to, subject, body, params_json, is_queued, queue_delivery_date, queue_fails ".
+		$sql = "SELECT id, worker_id, updated, type, ticket_id, hint_to, name, params_json, is_queued, queue_delivery_date, queue_fails ".
 			"FROM mail_queue ".
 			$where_sql.
 			$sort_sql.
@@ -302,7 +295,6 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			if(isset($out[$draft->ticket_id]) && $out[$draft->ticket_id]->updated > $draft->updated)
 				continue;
 			
-			unset($draft->body);
 			unset($draft->params);
 			
 			$out[$draft->ticket_id] = $draft;
@@ -329,11 +321,13 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			$object->type = $row['type'];
 			$object->ticket_id = $row['ticket_id'];
 			$object->hint_to = $row['hint_to'];
-			$object->subject = $row['subject'];
-			$object->body = $row['body'];
+			$object->name = $row['name'];
 			$object->is_queued = $row['is_queued'];
 			$object->queue_delivery_date = $row['queue_delivery_date'];
 			$object->queue_fails = $row['queue_fails'];
+			
+			// Deprecated
+			$object->subject = $row['name'];
 			
 			// Unserialize params
 			$params_json = $row['params_json'];
@@ -390,7 +384,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			"mail_queue.type as %s, ".
 			"mail_queue.ticket_id as %s, ".
 			"mail_queue.hint_to as %s, ".
-			"mail_queue.subject as %s, ".
+			"mail_queue.name as %s, ".
 			"mail_queue.is_queued as %s, ".
 			"mail_queue.queue_delivery_date as %s, ".
 			"mail_queue.queue_fails as %s ",
@@ -400,7 +394,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 				SearchFields_MailQueue::TYPE,
 				SearchFields_MailQueue::TICKET_ID,
 				SearchFields_MailQueue::HINT_TO,
-				SearchFields_MailQueue::SUBJECT,
+				SearchFields_MailQueue::NAME,
 				SearchFields_MailQueue::IS_QUEUED,
 				SearchFields_MailQueue::QUEUE_DELIVERY_DATE,
 				SearchFields_MailQueue::QUEUE_FAILS
@@ -601,7 +595,7 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 	const TYPE = 'm_type';
 	const TICKET_ID = 'm_ticket_id';
 	const HINT_TO = 'm_hint_to';
-	const SUBJECT = 'm_subject';
+	const NAME = 'm_name';
 	const IS_QUEUED = 'm_is_queued';
 	const QUEUE_DELIVERY_DATE = 'm_queue_delivery_date';
 	const QUEUE_FAILS = 'm_queue_fails';
@@ -698,7 +692,7 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_queue', 'type', $translate->_('mail_queue.type'), null, true),
 			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'mail_queue', 'ticket_id', $translate->_('mail_queue.ticket_id'), null, true),
 			self::HINT_TO => new DevblocksSearchField(self::HINT_TO, 'mail_queue', 'hint_to', $translate->_('message.header.to'), null, true),
-			self::SUBJECT => new DevblocksSearchField(self::SUBJECT, 'mail_queue', 'subject', $translate->_('message.header.subject'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'mail_queue', 'name', $translate->_('common.name'), null, true),
 			self::IS_QUEUED => new DevblocksSearchField(self::IS_QUEUED, 'mail_queue', 'is_queued', $translate->_('mail_queue.is_queued'), null, true),
 			self::QUEUE_DELIVERY_DATE => new DevblocksSearchField(self::QUEUE_DELIVERY_DATE, 'mail_queue', 'queue_delivery_date', $translate->_('mail_queue.queue_delivery_date'), null, true),
 			self::QUEUE_FAILS => new DevblocksSearchField(self::QUEUE_FAILS, 'mail_queue', 'queue_fails', $translate->_('mail_queue.queue_fails'), null, true),
@@ -724,8 +718,7 @@ class Model_MailQueue {
 	public $type;
 	public $ticket_id;
 	public $hint_to;
-	public $subject;
-	public $body;
+	public $name;
 	public $params = [];
 	public $is_queued;
 	public $queue_delivery_date;
@@ -741,10 +734,9 @@ class Model_MailQueue {
 	
 	public function getContent() {
 		$message_properties = [
-			'group_id' => $this->params['group_id'] ?? 0,
-			'bucket_id' => $this->params['bucket_id'] ?? 0,
-			'content' => $this->body,
-			'content_format' => $this->params['format'] ?? '',
+			'group_id' => $this->getParam('group_id', 0),
+			'content' => $this->getParam('content', ''),
+			'content_format' => $this->getParam('format', '')
 		];
 		
 		if($this->hasParam('bucket_id'))
@@ -1077,7 +1069,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 			'text' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_MailQueue::SUBJECT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_MailQueue::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'id' => 
 				array(
@@ -1087,10 +1079,10 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_DRAFT, 'q' => ''],
 					]
 				),
-			'subject' => 
+			'name' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_MailQueue::SUBJECT, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => array('param_key' => SearchFields_MailQueue::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'to' => 
 				array(
@@ -1241,7 +1233,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		switch($field) {
 			case SearchFields_MailQueue::TYPE:
 			case SearchFields_MailQueue::HINT_TO:
-			case SearchFields_MailQueue::SUBJECT:
+			case SearchFields_MailQueue::NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1421,7 +1413,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		
 		return array(
 			'id' => $context_id,
-			'name' => $draft->subject,
+			'name' => $draft->name,
 			'permalink' => '',
 			'updated' => $draft->updated,
 		);
@@ -1456,7 +1448,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 	function getDefaultProperties() {
 		return array(
 			'to',
-			'subject',
+			'name',
 			'updated',
 		);
 	}
@@ -1483,7 +1475,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'_label' => $prefix,
 			'content' => $prefix.$translate->_('common.content'),
 			'id' => $prefix.$translate->_('common.id'),
-			'subject' => $prefix.$translate->_('message.header.subject'),
+			'name' => $prefix.$translate->_('common.name'),
 			'to' => $prefix.$translate->_('message.header.to'),
 			'updated' => $prefix.$translate->_('common.updated'),
 		);
@@ -1493,7 +1485,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'_label' => 'context_url',
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'subject' => Model_CustomField::TYPE_SINGLE_LINE,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'to' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
 		);
@@ -1506,14 +1498,16 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		
 		if($object) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $object->subject;
-			$token_values['content'] = $object->body;
+			$token_values['_label'] = $object->name;
 			$token_values['id'] = $object->id;
-			$token_values['subject'] = $object->subject;
+			$token_values['name'] = $object->name;
 			$token_values['to'] = $object->hint_to;
 			$token_values['updated'] = $object->updated;
 			
 			$token_values['worker_id'] = $object->worker_id;
+			
+			// Deprecated
+			$token_values['subject'] = $object->name;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($object, $token_values);
@@ -1538,11 +1532,12 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function getKeyToDaoFieldMap() {
 		return [
-			'content' => DAO_MailQueue::BODY,
 			'id' => DAO_MailQueue::ID,
 			'is_queued' => DAO_MailQueue::IS_QUEUED,
 			'links' => '_links',
-			'subject' => DAO_MailQueue::SUBJECT,
+			'queue_delivery_date' => DAO_MailQueue::QUEUE_DELIVERY_DATE,
+			'queue_fails' => DAO_MailQueue::QUEUE_FAILS,
+			'name' => DAO_MailQueue::NAME,
 			'to' => DAO_MailQueue::HINT_TO,
 			'ticket_id' => DAO_MailQueue::TICKET_ID,
 			'type' => DAO_MailQueue::TYPE,
@@ -1561,8 +1556,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'type' => 'object',
 		];
 		
-		$keys['content']['notes'] = "The body content of the draft message";
-		$keys['subject']['notes'] = "The subject line of the draft message";
+		$keys['name']['notes'] = "The subject line of the draft message";
 		$keys['to']['notes'] = "The `To:` line of the draft message";
 		$keys['type']['notes'] = "The type of draft: `mail.compose`, `ticket.reply`, or `ticket.forward`";
 		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who owns the draft";

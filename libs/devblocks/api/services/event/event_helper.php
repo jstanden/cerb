@@ -3129,22 +3129,20 @@ class DevblocksEventHelper {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$content = $tpl_builder->build($params['content'], $dict);
 		
-		$fields = array(
+		$fields = [
 			DAO_MailQueue::TYPE => Model_MailQueue::TYPE_TICKET_REPLY,
 			DAO_MailQueue::IS_QUEUED => 1,
-			//DAO_MailQueue::HINT_TO => implode($dict->recipients),
 			DAO_MailQueue::HINT_TO => '(recipients)',
-			DAO_MailQueue::SUBJECT => $dict->ticket_subject,
-			DAO_MailQueue::BODY => $content,
-			DAO_MailQueue::PARAMS_JSON => json_encode(array(
+			DAO_MailQueue::PARAMS_JSON => json_encode([
 				'in_reply_message_id' => $message_id,
 				'is_broadcast' => 1,
-			)),
+				'content' => $content,
+			]),
 			DAO_MailQueue::TICKET_ID => $ticket_id,
 			DAO_MailQueue::WORKER_ID => 0,
 			DAO_MailQueue::UPDATED => time(),
 			DAO_MailQueue::QUEUE_DELIVERY_DATE => $delivery_date,
-		);
+		];
 		DAO_MailQueue::create($fields);
 	}
 

@@ -715,8 +715,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		$fields = array(
 			DAO_MailQueue::UPDATED => time(),
 			DAO_MailQueue::HINT_TO => $hint_to,
-			DAO_MailQueue::SUBJECT => $subject,
-			DAO_MailQueue::BODY => $content,
+			DAO_MailQueue::NAME => $subject,
 			DAO_MailQueue::PARAMS_JSON => json_encode($params),
 			DAO_MailQueue::IS_QUEUED => 0,
 			DAO_MailQueue::QUEUE_DELIVERY_DATE => time(),

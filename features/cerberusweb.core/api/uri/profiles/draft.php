@@ -148,14 +148,13 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 
 		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
 
 		$params = [];
 		
 		$hint_to = null;
 		$type = null;
-			
-		if(empty($to) && empty($subject) && empty($content)) {
+		
+		if(empty($to) && empty($subject)) {
 			return false;
 		}
 		
@@ -205,8 +204,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			DAO_MailQueue::WORKER_ID => $active_worker->id,
 			DAO_MailQueue::UPDATED => time(),
 			DAO_MailQueue::HINT_TO => $hint_to,
-			DAO_MailQueue::SUBJECT => $subject,
-			DAO_MailQueue::BODY => $content,
+			DAO_MailQueue::NAME => $subject,
 			DAO_MailQueue::PARAMS_JSON => json_encode($params),
 			DAO_MailQueue::IS_QUEUED => 0,
 			DAO_MailQueue::QUEUE_DELIVERY_DATE => time(),

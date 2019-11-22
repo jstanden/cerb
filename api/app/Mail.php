@@ -1326,6 +1326,8 @@ class CerberusMail {
 			if(empty($draft_id)) {
 				$params = [
 					'in_reply_message_id' => $properties['message_id'],
+					'subject' => $properties['subject'] ?? '',
+					'content' => $properties['content'] ?? '',
 				];
 				
 				if(isset($properties['cc']))
@@ -1349,8 +1351,7 @@ class CerberusMail {
 					DAO_MailQueue::WORKER_ID => intval($worker_id),
 					DAO_MailQueue::UPDATED => time()+5, // small offset
 					DAO_MailQueue::HINT_TO => $hint_to,
-					DAO_MailQueue::SUBJECT => $subject,
-					DAO_MailQueue::BODY => $properties['content'],
+					DAO_MailQueue::NAME => $properties['subject'] ?? '',
 					DAO_MailQueue::PARAMS_JSON => json_encode($params),
 					DAO_MailQueue::IS_QUEUED => 1,
 					DAO_MailQueue::QUEUE_FAILS => 1,

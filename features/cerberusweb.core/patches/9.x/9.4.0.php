@@ -302,6 +302,23 @@ if($changes)
 	$db->ExecuteMaster('ALTER TABLE ticket '. implode(', ', $changes));
 
 // ===========================================================================
+// Drop `mail_queue.body`
+
+list($columns,) = $db->metaTable('mail_queue');
+
+if(array_key_exists('subject', $columns) && !array_key_exists('name', $columns)) {
+	$sql = "ALTER TABLE mail_queue CHANGE COLUMN subject name varchar(255) not null default ''";
+	$db->ExecuteMaster($sql);
+}
+
+if(array_key_exists('body', $columns)) {
+	$sql = "ALTER TABLE mail_queue DROP COLUMN body";
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster("DELETE FROM worker_view_model WHERE class_name = 'View_MailQueue'");
+}
+
+// ===========================================================================
 // Drop skills and skillsets
 
 if(array_key_exists('context_to_skill', $tables)) {

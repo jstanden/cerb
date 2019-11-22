@@ -157,7 +157,7 @@
 
 {if $is_forward}
 <textarea name="content" id="reply_{$message->id}" class="reply" data-editor-mode="ace/mode/text" data-editor-line-numbers="false" data-editor-lines="20">
-{if !empty($draft)}{$draft->body}{else}
+{if !empty($draft)}{$draft->getParam('content')}{else}
 
 
 #signature
@@ -173,7 +173,7 @@
 </textarea>
 {else}
 <textarea name="content" id="reply_{$message->id}" class="reply" data-editor-mode="ace/mode/text" data-editor-line-numbers="false" data-editor-lines="20">
-{if !empty($draft)}{$draft->body}{else}
+{if !empty($draft)}{$draft->getParam('content')}{else}
 {if 1==$signature_pos || 3==$signature_pos}
 
 

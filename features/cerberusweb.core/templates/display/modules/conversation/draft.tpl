@@ -46,10 +46,10 @@
 
 	<br>
 
-	{if isset($draft->hint_to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$draft->hint_to}<br>{/if}
-	{if $draft->params.cc}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$draft->params.cc}<br>{/if}
-	{if $draft->params.bcc}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$draft->params.bcc}<br>{/if}
-	{if $draft->subject}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$draft->subject}<br>{/if}
+	{if isset($draft->hint_to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$draft->getParam('to')}<br>{/if}
+	{if $draft->params.cc}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$draft->getParam('cc')}<br>{/if}
+	{if $draft->params.bcc}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$draft->getParam('bcc')}<br>{/if}
+	{if $draft->params.subject}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$draft->getParam('subject')}<br>{/if}
 	{if $draft->queue_delivery_date}
 		<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$draft->queue_delivery_date|devblocks_date}<br>
 	{elseif $draft->updated}

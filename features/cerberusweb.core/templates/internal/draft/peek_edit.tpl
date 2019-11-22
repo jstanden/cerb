@@ -46,14 +46,14 @@
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'message.header.to'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="99%">
-				{$draft->hint_to}
+				{$draft->getParam('to')}
 			</td>
 		</tr>
 
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 			<td width="99%">
-				{$draft->subject}
+				{$draft->getParam('subject')}
 			</td>
 		</tr>
 

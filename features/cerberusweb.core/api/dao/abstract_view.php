@@ -3889,8 +3889,7 @@ abstract class C4_AbstractView {
 							DAO_MailQueue::WORKER_ID => $message_properties['worker_id'],
 							DAO_MailQueue::UPDATED => time(),
 							DAO_MailQueue::HINT_TO => $dict->broadcast_email__label,
-							DAO_MailQueue::SUBJECT => $subject,
-							DAO_MailQueue::BODY => $body,
+							DAO_MailQueue::NAME => $subject,
 							DAO_MailQueue::PARAMS_JSON => json_encode($json_params),
 						);
 						

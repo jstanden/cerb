@@ -1162,8 +1162,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 						DAO_MailQueue::WORKER_ID => $message_properties['worker_id'],
 						DAO_MailQueue::UPDATED => time(),
 						DAO_MailQueue::HINT_TO => $dict->initial_message_sender_address,
-						DAO_MailQueue::SUBJECT => $dict->subject,
-						DAO_MailQueue::BODY => $tpl_builder->build($message_properties['content'], $dict),
+						DAO_MailQueue::NAME => $dict->subject,
 					);
 					
 					if($is_queued)
