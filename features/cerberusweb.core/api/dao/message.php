@@ -1045,6 +1045,18 @@ class Model_Message {
 				'wrap' => 0,
 			);
 			
+			$dirty_html = str_replace(
+				[
+					'<center',
+					'</center>',
+				],
+				[
+					'<span',
+					'</span>',
+				],
+				$dirty_html
+			);
+			
 			// If we're not stripping Microsoft Office formatting
 			if(DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::HTML_NO_STRIP_MICROSOFT, CerberusSettingsDefaults::HTML_NO_STRIP_MICROSOFT)) {
 				unset($config['bare']);
