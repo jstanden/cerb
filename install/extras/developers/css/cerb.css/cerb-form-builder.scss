@@ -85,11 +85,15 @@
 	}
 
 	.cerb-form-builder-prompt-text INPUT[type=text],
-	.cerb-form-builder-prompt-captcha INPUT[type=text],
 	.cerb-form-builder-prompt-text TEXTAREA {
 		border: 1px solid rgb(220,220,220);
+		width: 99%;
 	}
-	
+
+	.cerb-form-builder-prompt-captcha INPUT[type=text] {
+		border: 1px solid rgb(220,220,220);
+	}
+
 	.cerb-data-table {
 		width: 100%;
 		

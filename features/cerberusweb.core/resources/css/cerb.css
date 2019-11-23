@@ -2190,8 +2190,11 @@ UL.ui-menu li.ui-state-focus {
   padding: 0;
 }
 .cerb-form-builder .cerb-form-builder-prompt-text INPUT[type=text],
-.cerb-form-builder .cerb-form-builder-prompt-captcha INPUT[type=text],
 .cerb-form-builder .cerb-form-builder-prompt-text TEXTAREA {
+  border: 1px solid gainsboro;
+  width: 99%;
+}
+.cerb-form-builder .cerb-form-builder-prompt-captcha INPUT[type=text] {
   border: 1px solid gainsboro;
 }
 .cerb-form-builder .cerb-data-table {

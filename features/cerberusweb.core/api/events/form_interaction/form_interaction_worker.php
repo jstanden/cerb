@@ -226,6 +226,28 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 						],
 					],
 				],
+				'prompt_chooser' => [
+					'label' => 'Prompt with record chooser',
+					'notes' => '',
+					'params' => [
+						'label' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The label for the set of choices',
+						],
+					],
+				],
+				'prompt_files' => [
+					'label' => 'Prompt with file upload',
+					'notes' => '',
+					'params' => [
+						'label' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The label for the set of choices',
+						],
+					],
+				],
 				'prompt_radios' => [
 					'label' => 'Prompt with single choice',
 					'notes' => '',
@@ -384,6 +406,17 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_checkboxes.tpl');
 				break;
 				
+			case 'prompt_chooser':
+				$record_contexts = Extension_DevblocksContext::getAll(false);
+				$tpl->assign('record_contexts', $record_contexts);
+				
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_chooser.tpl');
+				break;
+				
+			case 'prompt_files':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_files.tpl');
+				break;
+				
 			case 'prompt_radios':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_radios.tpl');
 				break;
@@ -434,6 +467,28 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$options = $tpl_builder->build($params['options'], $dict);
 				
 				$out = sprintf(">>> Prompting with checkboxes\nLabel: %s\nOptions: %s\n",
+					$label,
+					$options
+				);
+				break;
+				
+			case 'prompt_chooser':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$label = $tpl_builder->build($params['label'], $dict);
+				$options = $tpl_builder->build($params['options'], $dict);
+				
+				$out = sprintf(">>> Prompting with record chooser\nLabel: %s\nOptions: %s\n",
+					$label,
+					$options
+				);
+				break;
+				
+			case 'prompt_files':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$label = $tpl_builder->build($params['label'], $dict);
+				$options = $tpl_builder->build($params['options'], $dict);
+				
+				$out = sprintf(">>> Prompting with file upload\nLabel: %s\nOptions: %s\n",
 					$label,
 					$options
 				);
@@ -535,6 +590,56 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					],
 					'label' => $label,
 					'options' => $options,
+				];
+				break;
+				
+			case 'prompt_chooser':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$label = $tpl_builder->build($params['label'], $dict);
+				@$selection = $params['selection'];
+				@$record_type = $tpl_builder->build($params['record_type'], $dict);
+				@$record_query = $tpl_builder->build($params['record_query'], $dict);
+				@$record_query_required = $tpl_builder->build($params['record_query_required'], $dict);
+				@$var = $params['var'];
+				@$var_validate = $params['var_validate'];
+				
+				$actions[] = [
+					'_action' => 'prompt.chooser',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'validate' => $var_validate,
+					],
+					'label' => $label,
+					'selection' => $selection,
+					'record_type' => $record_type,
+					'record_query' => $record_query,
+					'record_query_required' => $record_query_required,
+				];
+				break;
+				
+			case 'prompt_files':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$label = $tpl_builder->build($params['label'], $dict);
+				@$selection = $params['selection'];
+				@$var = $params['var'];
+				@$var_validate = $params['var_validate'];
+				
+				$actions[] = [
+					'_action' => 'prompt.files',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'validate' => $var_validate,
+					],
+					'label' => $label,
+					'selection' => $selection,
 				];
 				break;
 				

@@ -251,12 +251,36 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 						if(is_null($prompt_value))
 							$prompt_value = [];
 						break;
+					
+					case 'prompt.chooser':
+						@$record_type = $form_element['record_type'];
 						
-					case 'prompt.file':
-						if(!DevblocksPlatform::strEndsWith($prompt_var, '_id'))
-							break;
-							
-						$dict->set(substr($prompt_var,0,-2) . '_context', CerberusContexts::CONTEXT_ATTACHMENT);
+						if(is_null($prompt_value))
+							$prompt_value = [];
+						
+						$prompt_value = array_map(function($record_id) use ($record_type) {
+							return DevblocksDictionaryDelegate::instance([
+								'_context' => $record_type,
+								'id' => $record_id,
+							]);
+						}, $prompt_value);
+						break;
+					
+					case 'prompt.files':
+						if(is_null($prompt_value)) {
+							$prompt_value = [];
+						} elseif (is_string($prompt_value)) {
+							$prompt_value = [intval($prompt_value)];
+						} elseif (!is_array($prompt_value)) {
+							$prompt_value = [];
+						}
+						
+						$prompt_value = array_map(function($record_id) {
+							return DevblocksDictionaryDelegate::instance([
+								'_context' => 'attachment',
+								'id' => $record_id,
+							]);
+						}, $prompt_value);
 						break;
 				}
 				
@@ -417,6 +441,54 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					$tpl->assign('var', $var);
 					$tpl->assign('dict', $behavior_dict);
 					$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_checkboxes.tpl');
+					break;
+				
+				case 'prompt.chooser':
+					@$label = $params['label'];
+					@$var = $params['_prompt']['var'];
+					@$record_type = $params['record_type'];
+					@$record_query = $params['record_query'];
+					@$record_query_required = $params['record_query_required'];
+					@$selection = $params['selection'];
+					
+					$records = array_map(function($record) {
+						if($record instanceof DevblocksDictionaryDelegate)
+							return $record;
+						
+						return DevblocksDictionaryDelegate::instance($record);
+					}, $behavior_dict->get($var,[]));
+					
+					$tpl->assign('label', $label);
+					$tpl->assign('record_type', $record_type);
+					$tpl->assign('record_query', $record_query);
+					$tpl->assign('record_query_required', $record_query_required);
+					$tpl->assign('selection', $selection);
+					$tpl->assign('var', $var);
+					$tpl->assign('params', $params);
+					$tpl->assign('records', $records);
+					$tpl->assign('dict', $behavior_dict);
+					$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_chooser.tpl');
+					break;
+				
+				case 'prompt.files':
+					@$label = $params['label'];
+					@$var = $params['_prompt']['var'];
+					@$selection = $params['selection'];
+					
+					$records = array_map(function($record) {
+						if($record instanceof DevblocksDictionaryDelegate)
+							return $record;
+						
+						return DevblocksDictionaryDelegate::instance($record);
+					}, $behavior_dict->get($var,[]));
+					
+					$tpl->assign('label', $label);
+					$tpl->assign('selection', $selection);
+					$tpl->assign('var', $var);
+					$tpl->assign('params', $params);
+					$tpl->assign('records', $records);
+					$tpl->assign('dict', $behavior_dict);
+					$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_files.tpl');
 					break;
 					
 				case 'prompt.radios':

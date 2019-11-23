@@ -5,7 +5,7 @@
 	{$value = $dict->get($var)}
 	
 	{if $mode == 'multiple'}
-	<textarea name="prompts[{$var}]" placeholder="{$placeholder}" autocomplete="off" style="width:99%;height:4.5em;">{$value|default:$default}</textarea>
+	<textarea name="prompts[{$var}]" placeholder="{$placeholder}" autocomplete="off" style="height:4.5em;">{$value|default:$default}</textarea>
 	{else}
 	<input name="prompts[{$var}]" type="text" placeholder="{$placeholder}" value="{$value|default:$default}" autocomplete="off">
 	{/if}
