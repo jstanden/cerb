@@ -158,68 +158,43 @@
 		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','none');"> {'status.open'|devblocks_translate}</label>
 		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if (empty($draft) && 'waiting'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_WAITING)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.waiting'|devblocks_translate}</label>
 		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if (empty($draft) && 'closed'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_CLOSED)}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.closed'|devblocks_translate}</label>{/if}
-		
+
 		<div id="divComposeClosed{$popup_uniqid}" style="display:{if (empty($draft) && 'open'==$defaults.status) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin:5px 0px 0px 20px;">
 			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
-			{'display.reply.next.resume_eg'|devblocks_translate}<br> 
+			{'display.reply.next.resume_eg'|devblocks_translate}<br>
 			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
 			{'display.reply.next.resume_blank'|devblocks_translate}<br>
 		</div>
 	</div>
-</fieldset>
 
-<fieldset class="peek">
-	<legend>Assignments</legend>
-	
-	<table cellpadding="0" cellspacing="0" width="100%" border="0">
-		<tr>
-			<td width="1%" nowrap="nowrap" style="padding-right:10px;" valign="top">
-				{'common.owner'|devblocks_translate|capitalize}:
-			</td>
-			<td width="99%">
-				<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="owner_id" data-autocomplete="" data-autocomplete-if-empty="true" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container">
-					{foreach from=$workers item=v key=k}
-					{if !$v->is_disabled && $draft->params.owner_id == $v->id}
+	<div style="margin-top:10px;">
+		<b>Who should this be assigned to?</b><br>
+
+		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="owner_id" data-autocomplete="" data-autocomplete-if-empty="true" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+		<ul class="bubbles chooser-container">
+			{foreach from=$workers item=v key=k}
+				{if !$v->is_disabled && $draft->params.owner_id == $v->id}
 					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="owner_id" value="{$v->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
-					{/if}
-					{/foreach}
-				</ul>
-			</td>
-		</tr>
-		<tr>
-			<td width="1%" nowrap="nowrap" style="padding-right:10px;" valign="top">
-				{'common.watchers'|devblocks_translate|capitalize}:
-			</td>
-			<td width="99%">
-				<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="add_watcher_ids[]" data-autocomplete=""><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container" style="display:block;">
-					{if $draft->params.add_watcher_ids && is_array($draft->params.add_watcher_ids)}
-					{foreach from=$draft->params.add_watcher_ids item=watcher_id}
-						{$watcher = DAO_Worker::get($watcher_id)}
-						{if $watcher}
-						<li>
-							<input type="hidden" name="add_watcher_ids[]" value="{$watcher_id}">
-							{$watcher->getName()}
-							<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
-						</li>
-						{/if}
-					{/foreach}
-					{/if}
-				</ul>
-			</td>
-		</tr>
-	</table>
-</fieldset>
+				{/if}
+			{/foreach}
+		</ul>
+	</div>
 
-<fieldset class="peek" style="{if empty($custom_fields) && empty($group_fields)}display:none;{/if}" id="compose_cfields{$popup_uniqid}">
-	<legend>{'common.custom_fields'|devblocks_translate|capitalize}</legend>
-	
-	{$custom_field_values = $draft->params.custom_fields}
-	
-	{if !empty($custom_fields)}
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-	{/if}
+	<div style="margin-top:10px;">
+		<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
+		<input type="text" name="send_at" size="55" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
+		<br>
+	</div>
+
+	<div style="margin-top:10px;{if empty($custom_fields) && empty($group_fields)}display:none;{/if}">
+		<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
+
+		{$custom_field_values = $draft->params.custom_fields}
+
+		{if !empty($custom_fields)}
+			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+		{/if}
+	</div>
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false}
@@ -235,17 +210,17 @@
 	<p>
 		If this isn't what you meant to do, add a recipient in the <b>To:</b> field above.
 	</p>
-	<div>
-		<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Create a ticket without recipients</button>
-	</div>
 </div>
 
-<div class="submit-normal" style="display:none;">
+<div class="submit-normal">
 	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'display.ui.send_message'|devblocks_translate}</button>
+	<button type="button" class="draft"><span class="glyphicons glyphicons-disk-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
+	<button type="button" class="discard"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(180,0,0);"></span> {'common.discard'|devblocks_translate|capitalize}</button>
 </div>
 </form>
 
 <script type="text/javascript">
+$(function() {
 	if(undefined === draftComposeAutoSaveInterval)
 		var draftComposeAutoSaveInterval = null;
 
@@ -273,7 +248,11 @@
 		ajax.orgAutoComplete('#frmComposePeek{$popup_uniqid} input:text[name=org_name]');
 		
 		// Date helpers
-		
+
+		$frm.find('input[name=send_at]')
+			.cerbDateInputHelper()
+			;
+
 		$frm.find('input[name=ticket_reopen]')
 			.cerbDateInputHelper()
 			;
@@ -511,11 +490,9 @@
 			var $input = $(this);
 			
 			if($input.val().length > 0) {
-				$frm.find('div.submit-normal').show();
 				$frm.find('div.submit-no-recipients').hide();
 				
 			} else {
-				$frm.find('div.submit-normal').hide();
 				$frm.find('div.submit-no-recipients').show();
 				
 			}
@@ -790,7 +767,7 @@
 			// Validate via Ajax before sending
 			genericAjaxPost($frm, '', 'c=tickets&a=validateComposeJson', function(json) {
 				if(json && json.status) {
-					if(null != draftComposeAutoSaveInterval) { 
+					if(null != draftComposeAutoSaveInterval) {
 						clearTimeout(draftComposeAutoSaveInterval);
 						draftComposeAutoSaveInterval = null;
 					}
@@ -803,7 +780,55 @@
 				}
 			});
 		});
-		
+
+		$frm.find('.draft').click(function(e) {
+			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
+				return;
+
+			// Stop the draft auto-save
+			if(null != draftComposeAutoSaveInterval) {
+				clearTimeout(draftComposeAutoSaveInterval);
+				draftComposeAutoSaveInterval = null;
+			}
+
+			showLoadingPanel();
+
+			genericAjaxPost(
+				'frmComposePeek{$popup_uniqid}',
+				null,
+				'c=profiles&a=handleSectionAction&section=draft&action=saveDraft&type=compose',
+				function(json) {
+					hideLoadingPanel();
+					genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+					genericAjaxPopupClose($popup);
+				}
+			);
+		});
+
+		$frm.find('button.discard').on('click', function(e) {
+			e.stopPropagation();
+
+			window.onbeforeunload = null;
+
+			if(confirm('Are you sure you want to discard this message?')) {
+				if(null != draftComposeAutoSaveInterval) {
+					clearTimeout(draftComposeAutoSaveInterval);
+					draftComposeAutoSaveInterval = null;
+				}
+
+				var draft_id = $frm.find('input:hidden[name=draft_id]').val();
+
+				genericAjaxGet(
+						'',
+						'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id=' + encodeURIComponent(draft_id),
+						function(o) {
+							genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+							genericAjaxPopupClose($popup);
+						}
+				);
+			}
+		});
+
 		{if $org}
 		$frm.find('input:text[name=org_name]').trigger('autocompletechange');
 		{/if}
@@ -818,4 +843,5 @@
 		{/foreach}
 		{/if}
 	});
+});
 </script>
