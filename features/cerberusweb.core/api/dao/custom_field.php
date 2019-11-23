@@ -735,10 +735,13 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 	
 	/**
 	 *
-	 * @param object $context
-	 * @param object $context_id
-	 * @param object $values
-	 * @return
+	 * @param string $context
+	 * @param integer $context_id
+	 * @param array $values
+	 * @param bool $is_blank_unset
+	 * @param bool $delta
+	 * @param bool $autoadd_options
+	 * @return void
 	 */
 	public static function formatAndSetFieldValues($context, $context_id, $values, $is_blank_unset=true, $delta=false, $autoadd_options=false) {
 		// [TODO] This could probably be combined with ::formatFieldValues()

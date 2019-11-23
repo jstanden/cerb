@@ -154,7 +154,6 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		}
 		
 		self::clearCache();
-		$cache->remove(DevblocksPlatform::CACHE_CONTEXT_ALIASES);
 	}
 	
 	static function updateWhere($fields, $where) {
