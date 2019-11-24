@@ -2387,9 +2387,34 @@ abstract class C4_AbstractView {
 					} else if(array_key_exists('examples', $query_field)) {
 						$suggestions[$suggestion_key] = [];
 						
-						foreach($query_field['examples'] as $example) {
-							$suggestions[$suggestion_key][] = $example;
+						$examples = $query_field['examples'];
+						
+						if(!is_array($examples))
+							break;
+						
+						$examples_type = $examples[0]['type'] ?? null;
+						
+						if($examples_type) {
+							$examples = $examples[0];
+							
+							switch ($examples_type) {
+								case 'list':
+									if (array_key_exists('values', $examples)) {
+										foreach ($examples['values'] as $value => $label) {
+											$suggestions[$suggestion_key][] = [
+												'caption' => $label,
+												'snippet' => $value,
+											];
+										}
+									}
+									break;
+							}
+						} else {
+							foreach($examples as $value) {
+								$suggestions[$suggestion_key][] = $value;
+							}
 						}
+						
 					} else {
 						$suggestions[$suggestion_key] = [
 							[
@@ -2438,7 +2463,7 @@ abstract class C4_AbstractView {
 						}
 						
 					} else {
-						error_log(json_encode($query_field));
+						//error_log(json_encode($query_field));
 					}
 					break;
 			}
