@@ -1019,6 +1019,10 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					@$search_favorites = DevblocksPlatform::importGPC($_REQUEST['search_favorites'],'array',[]);
 					DAO_WorkerPref::setAsJson($worker->id, 'search_favorites_json', $search_favorites);
 					
+					$cache = DevblocksPlatform::services()->cache();
+					$cache_key = 'worker_search_menu_' . $worker_id;
+					$cache->remove($cache_key);
+					
 					echo json_encode([
 						'status' => true,
 						'message' => DevblocksPlatform::translate('success.saved_changes'),
