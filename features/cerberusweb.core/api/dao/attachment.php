@@ -1442,15 +1442,12 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Attachment::MIME_TYPE),
-					'examples' => [
-						'application/pdf',
-						'application/zip',
-						'image/png',
-						'text/csv',
-						'text/plain',
-						'text/html',
-						'text/xml',
-					]
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:attachment by:mimetype~25 query:(mimetype:{{term}}*) format:dictionaries',
+						'key' => 'mimetype',
+						'limit' => 25,
+					],
 				),
 			'name' => 
 				array(
