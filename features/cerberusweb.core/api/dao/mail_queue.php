@@ -976,6 +976,11 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailQueue::TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'examples' => [
+						'mail.compose',
+						'ticket.forward',
+						'ticket.reply',
+					]
 				),
 			'updated' => 
 				array(
