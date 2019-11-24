@@ -190,10 +190,9 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 		
 		// Paging
 		
-		$sql_count = sprintf("SELECT COUNT(*) %s %s %s LIMIT %d",
+		$sql_count = sprintf("SELECT COUNT(*) %s %s LIMIT %d",
 			$query_parts['join'],
 			$query_parts['where'],
-			$sort_data['sql_sort'],
 			$view->renderLimit
 		);
 		$total = $db->GetOneSlave($sql_count);
