@@ -55,6 +55,31 @@
 	
 	{* Attachments *}
 	{include file="devblocks:cerberusweb.core::internal/attachments/list.tpl" context="{CerberusContexts::CONTEXT_COMMENT}" context_id=$comment->id attachments=[]}
+
+	{* Custom Fields *}
+	{$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_COMMENT, $comment->id))|default:[]}
+	{if $values}
+	{$comment_custom_fields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_COMMENT, $values)}
+	{$comment_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_COMMENT, $comment->id, $values)}
+	<div style="margin-top:10px;">
+		{if $message_custom_fields}
+			<fieldset class="properties" style="padding:5px 0;border:0;">
+				<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+
+				<div style="padding:0px 5px;display:flex;flex-flow:row wrap;">
+					{foreach from=$comment_custom_fields item=v key=k name=comment_custom_fields}
+						<div style="flex:0 0 200px;text-overflow:ellipsis;">
+							{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+						</div>
+					{/foreach}
+				</div>
+			</fieldset>
+		{/if}
+
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$comment_custom_fieldsets}
+	</div>
+	{/if}
+
 </div>
 
 {if !$embed}
