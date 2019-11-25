@@ -70,6 +70,29 @@
 	</div>
 	{/if}
 
+	{$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_DRAFT, $draft->id))|default:[]}
+	{if $values}
+	{$draft_custom_fields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_DRAFT, $values)}
+	{$draft_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_DRAFT, $draft->id, $values)}
+	<div style="margin-top:10px;">
+		{if $message_custom_fields}
+			<fieldset class="properties" style="padding:5px 0;border:0;">
+				<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
+
+				<div style="padding:0px 5px;display:flex;flex-flow:row wrap;">
+					{foreach from=$draft_custom_fields item=v key=k name=message_custom_fields}
+						<div style="flex:0 0 200px;text-overflow:ellipsis;">
+							{include file="devblocks:cerberusweb.core::internal/custom_fields/profile_cell_renderer.tpl"}
+						</div>
+					{/foreach}
+				</div>
+			</fieldset>
+		{/if}
+
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$draft_custom_fieldsets}
+	</div>
+	{/if}
+
 	{if !$embed}
 	<div style="margin-top:10px;">
 		{if $draft_is_writeable && !$draft->is_queued && $draft->worker_id == $active_worker->id}
