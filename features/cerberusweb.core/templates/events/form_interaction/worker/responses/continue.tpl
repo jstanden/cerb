@@ -5,6 +5,7 @@
 	{/if}
 	<div style="flex:2 2;"></div>
 	{if $continue_options.continue}
+	<input type="hidden" name="prompts[__submit]" value="continue">
 	<button style="flex:1 1;max-width:5em;" type="button" class="cerb-button cerb-form-builder-continue"><span></span></button>
 	{/if}
 </div>
