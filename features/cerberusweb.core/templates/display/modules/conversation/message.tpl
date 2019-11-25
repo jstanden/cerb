@@ -133,6 +133,7 @@
 		{/if}
 
         {$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id))|default:[]}
+		{if $values}
         {$message_custom_fields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_MESSAGE, $values)}
         {$message_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_MESSAGE, $message->id, $values)}
         <div style="margin-top:10px;">
@@ -152,6 +153,7 @@
 
             {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/profile_fieldsets.tpl" properties=$message_custom_fieldsets}
         </div>
+		{/if}
 
 		{if !$embed}
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="cerb-no-print">
