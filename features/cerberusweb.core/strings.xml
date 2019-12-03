@@ -3583,8 +3583,16 @@
 			</tuv>
 		</tu>
 
-		<!-- Confirmation Code -->
+		<!-- Comment -->
 		
+		<tu tuid="dao.comment.is_markdown">
+			<tuv xml:lang="en_US">
+				<seg>Is Markdown</seg>
+			</tuv>
+		</tu>
+
+		<!-- Confirmation Code -->
+
 		<tu tuid="dao.confirmation_code.namespace_key">
 			<tuv xml:lang="en_US">
 				<seg>Namespace</seg>
