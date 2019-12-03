@@ -271,6 +271,572 @@ if($results) {
 	}
 	
 	$db->ExecuteMaster('DELETE FROM devblocks_setting WHERE setting LIKE "card:%"');
+	
+	// ===========================================================================
+	// Add default card widgets
+	
+	// Attachment viewer
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('File'),
+		$db->qstr(CerberusContexts::CONTEXT_ATTACHMENT),
+		$db->qstr('cerb.card.widget.attachment.viewer'),
+		$db->qstr(json_encode([
+			"attachment_id" => "{{record_id}}",
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Bucket tickets
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Tickets'),
+		$db->qstr(CerberusContexts::CONTEXT_BUCKET),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.bucket",
+			"context_id" => "{{record_id}}",
+			"search" => [
+				"context" => [
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket"
+				],
+				"label_singular" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+				"label_plural" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+				"query" => [
+					"bucket.id:{{record_id}} status:!d",
+					"bucket.id:{{record_id}} status:o",
+					"bucket.id:{{record_id}} status:w",
+					"bucket.id:{{record_id}} status:c"
+				]
+			],
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Behavior tree
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Behavior'),
+		$db->qstr(CerberusContexts::CONTEXT_BEHAVIOR),
+		$db->qstr('cerb.card.widget.behavior.tree'),
+		$db->qstr(json_encode([
+			"behavior_id" => "{{record_id}}",
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Classifier training
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Training'),
+		$db->qstr(CerberusContexts::CONTEXT_CLASSIFIER),
+		$db->qstr('cerb.card.widget.classifier.trainer'),
+		$db->qstr(json_encode([
+			"classifier_id" => "{{record_id}}",
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Comment convo
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Preview'),
+		$db->qstr(CerberusContexts::CONTEXT_COMMENT),
+		$db->qstr('cerb.card.widget.conversation'),
+		$db->qstr(json_encode([
+			'context' => CerberusContexts::CONTEXT_COMMENT,
+			'context_id' => '{{record_id}}',
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Contact tickets
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Tickets'),
+		$db->qstr(CerberusContexts::CONTEXT_CONTACT),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.contact",
+			"context_id" => "{{record_id}}",
+			"search" => [
+				"context" => [
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket"
+				],
+				"label_singular" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+				"label_plural" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+				"query" => [
+					"participant:(contact.id:{{record_id}}) status:!d",
+					"participant:(contact.id:{{record_id}}) status:o",
+					"participant:(contact.id:{{record_id}}) status:w",
+					"participant:(contact.id:{{record_id}}) status:c"
+				]
+			],
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Custom record
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Records'),
+		$db->qstr(CerberusContexts::CONTEXT_CUSTOM_RECORD),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:{{record_uri}}\r\nexpand: [custom_,]\r\nquery:(\r\n  limit:10\r\n  sort:[name]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_yaml" => "",
+            "sheet_yaml" => "layout:\r\n  style: table\r\n  headings: false\r\n  paging: true\r\n  #title_column: _label\r\ncolumns:\r\n- card:\r\n    key: _label\r\n    label: Name\r\n    params:\r\n      # image: true\r\n      bold: true\r\n- card:\r\n    key: owner__label\r\n    label: Owner\r\n    params:\r\n      image: true\r\n      underline: false\r\n- date:\r\n    key: updated_at\r\n    label: Updated\r\n-  "
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Draft preview
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Preview'),
+		$db->qstr(CerberusContexts::CONTEXT_DRAFT),
+		$db->qstr('cerb.card.widget.conversation'),
+		$db->qstr(json_encode([
+			'context' => CerberusContexts::CONTEXT_DRAFT,
+			'context_id' => '{{record_id}}',
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Email tickets
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Tickets'),
+		$db->qstr(CerberusContexts::CONTEXT_ADDRESS),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.address",
+            "context_id" => "{{record_id}}",
+            "search" => [
+				"context" => [
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket"
+				],
+                "label_singular" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+                "label_plural" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+                "query" => [
+					"participant.id:{{record_id}} status:!d",
+					"participant.id:{{record_id}} status:o",
+					"participant.id:{{record_id}} status:w",
+					"participant.id:{{record_id}} status:c"
+				]
+            ],
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Email signature
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Signature'),
+		$db->qstr(CerberusContexts::CONTEXT_EMAIL_SIGNATURE),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:email_signature\r\nexpand: [custom_,]\r\nquery:(\r\n  id:{{record_id}}\r\n  limit:1\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_yaml" => "",
+            "sheet_yaml" => "layout:\r\n  style: fieldsets\r\n  headings: false\r\n  paging: false\r\n  #title_column: _label\r\ncolumns:\r\n- text:\r\n    key: signature\r\n    label: Signature\r\n    params:\r\n      value_template: |\r\n        {{signature|e|nl2br}}\r\n- "
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Group tickets
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Tickets'),
+		$db->qstr(CerberusContexts::CONTEXT_GROUP),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.group",
+			"context_id" => "{{record_id}}",
+			"search" => [
+				"context" => [
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket"
+				],
+				"label_singular" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+				"label_plural" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+				"query" => [
+					"group.id:{{record_id}} status:!d",
+					"group.id:{{record_id}} status:o",
+					"group.id:{{record_id}} status:w",
+					"group.id:{{record_id}} status:c"
+				]
+			],
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Mail template content
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Content'),
+		$db->qstr(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:html_template\r\nexpand: [custom_,]\r\nquery:(\r\n  id:{{record_id}}\r\n  limit:11\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_yaml" => "record_id: 1",
+            "sheet_yaml" => "layout:\r\n  style: table\r\n  headings: false\r\n  paging: false\r\n  #title_column: _label\r\ncolumns:\r\n- text:\r\n    key: content\r\n    label: Content\r\n    params:\r\n      value_template: |\r\n        {{content|e|nl2br}}"
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Message convo
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Conversation'),
+		$db->qstr(CerberusContexts::CONTEXT_MESSAGE),
+		$db->qstr('cerb.card.widget.conversation'),
+		$db->qstr(json_encode([
+			'context' => CerberusContexts::CONTEXT_MESSAGE,
+			'context_id' => '{{record_id}}',
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// KB article
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Article'),
+		$db->qstr(CerberusContexts::CONTEXT_KB_ARTICLE),
+		$db->qstr('cerb.card.widget.kb_article.viewer'),
+		$db->qstr(json_encode([
+			'article_id' => '{{record_id}}',
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Org tickets
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Tickets'),
+		$db->qstr(CerberusContexts::CONTEXT_ORG),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.org",
+            "context_id" => "{{record_id}}",
+            "search" => [
+				"context" => [
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket"
+				],
+                "label_singular" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+                "label_plural" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+                "query" => [
+					"org.id:{{record_id}} status:!d",
+					"org.id:{{record_id}} status:o",
+					"org.id:{{record_id}} status:w",
+					"org.id:{{record_id}} status:c"
+				]
+            ],
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Public key UIDs
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('UIDs'),
+		$db->qstr(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:gpg.keyinfo\r\nfilter:uids\r\nfingerprint:{{record_fingerprint}}\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_yaml" => "",
+            "sheet_yaml" => "layout:\r\n  style: table\r\n  headings: false\r\n  paging: false\r\n  #title_column: _label\r\ncolumns:\r\n- text:\r\n    key: uid\r\n    label: UID\r\n- "
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Public key subkeys
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Subkeys'),
+		$db->qstr(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:gpg.keyinfo\r\nfilter:subkeys\r\nfingerprint:{{record_fingerprint}}\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_yaml" => "",
+            "sheet_yaml" => "layout:\r\n  style: table\r\n  headings: true\r\n  paging: true\r\n  #title_column: _label\r\ncolumns:\r\n- text:\r\n    key: fingerprint\r\n    label: Fingerprint\r\n- date:\r\n    key: expires\r\n    label: Expires\r\n    params:\r\n      #image: true\r\n      #bold: true\r\n- icon:\r\n    key: can_sign\r\n    label: Sign\r\n    params:\r\n      image_template: |\r\n        {% if can_sign %}\r\n        circle-ok\r\n        {% endif %}\r\n- icon:\r\n    key: can_encrypt\r\n    label: Encrypt\r\n    params:\r\n      image_template: |\r\n        {% if can_encrypt %}\r\n        circle-ok\r\n        {% endif %}\r\n- \r\n"
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Saved search records
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Records'),
+		$db->qstr(CerberusContexts::CONTEXT_SAVED_SEARCH),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:{{record_context}}\r\nexpand: [custom_,]\r\nquery:(\r\n  {{record_query}} \r\n  limit:10\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_yaml" => "",
+            "sheet_yaml" => "layout:\r\n  style: table\r\n  headings: false\r\n  paging: true\r\n  #title_column: _label\r\ncolumns:\r\n- card:\r\n    key: _label\r\n    label: Label\r\n    params:\r\n      #image: true\r\n      bold: true\r\n- "
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Snippet content
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Content'),
+		$db->qstr(CerberusContexts::CONTEXT_SNIPPET),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:snippet\r\nexpand: [custom_,]\r\nquery:(\r\n  id:{{record_id}}\r\n  limit:1\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_yaml" => "",
+            "sheet_yaml" => "layout:\r\n  style: fieldsets\r\n  headings: false\r\n  paging: false\r\ncolumns:\r\n- text:\r\n    key: content\r\n    label: Content\r\n    params:\r\n      value_template: |\r\n        {{content|e|nl2br}}\r\n- "
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Ticket convo
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Conversation'),
+		$db->qstr(CerberusContexts::CONTEXT_TICKET),
+		$db->qstr('cerb.card.widget.conversation'),
+		$db->qstr(json_encode([
+			'context' => CerberusContexts::CONTEXT_TICKET,
+			'context_id' => '{{record_id}}',
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Time tracking activities
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Properties'),
+		$db->qstr(CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			'context' => CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY,
+			'context_id' => '{{record_id}}',
+			'properties' => [
+				[
+					'updated'
+				]
+			],
+			'links' => [
+				'show' => "1",
+			],
+			"search" => [
+				'context' => [
+					'cerberusweb.contexts.timetracking',
+				],
+				'label_singular' => [
+					'Time Entry',
+				],
+				'label_plural' => [
+					'Time Entries',
+				],
+				'query' => [
+					'activity.id:{{record_id}}',
+				],
+			]
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
+	// Worker tickets
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Tickets'),
+		$db->qstr(CerberusContexts::CONTEXT_WORKER),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerberusweb.contexts.worker",
+			"context_id" => "{{record_id}}",
+			"search" => [
+				"context" => [
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket",
+					"cerberusweb.contexts.ticket"
+				],
+				"label_singular" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+				"label_plural" => [
+					"All",
+					"Open",
+					"Waiting",
+					"Closed"
+				],
+				"query" => [
+					"owner.id:{{record_id}} status:!d",
+					"owner.id:{{record_id}} status:o",
+					"owner.id:{{record_id}} status:w",
+					"owner.id:{{record_id}} status:c"
+				]
+			],
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content')
+	));
+	
 }
 
 // ===========================================================================
