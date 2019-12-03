@@ -3,7 +3,7 @@
     "name": "Page Wizard: Home Overview",
     "revision": 1,
     "requires": {
-      "cerb_version": "9.2.0",
+      "cerb_version": "9.4.0",
       "plugins": [
 
       ]
@@ -72,7 +72,7 @@
         "context": "cerberusweb.contexts.ticket",
         "query_required": "owner.id:me status:o sort:-updated",
         "query": "",
-        "render_limit": "10",
+        "render_limit": "5",
         "header_color": "#6a87db",
         "columns": [
           "t_last_wrote_address_id",
@@ -83,38 +83,51 @@
       }
     },
     {
+      "uid": "workspace_widget_my_drafts",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "tab_id": "{{{uid.workspace_tab_overview}}}",
+      "label": "My Drafts",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 2,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.mail.draft",
+        "query_required": "worker.id:{{current_worker_id}}",
+        "query": "",
+        "render_limit": "5",
+        "header_color": "#6a87db",
+        "columns": [
+          "m_hint_to",
+          "m_type",
+          "m_worker_id",
+          "m_is_queued",
+          "m_queue_delivery_date",
+          "m_queue_fails",
+          "m_updated"
+        ]
+      }
+    },
+    {
       "uid": "workspace_widget_my_tasks",
       "_context": "workspace_widget",
       "tab_id": "{{{uid.workspace_tab_overview}}}",
       "label": "My Tasks",
       "extension_id": "core.workspace.widget.worklist",
-      "pos": 2,
+      "pos": 3,
       "width_units": 2,
       "zone": "content",
       "params": {
         "context": "cerberusweb.contexts.task",
         "query_required": "status:o owner.id:me sort:due",
         "query": "",
-        "render_limit": "10",
+        "render_limit": "5",
         "header_color": "#6a87db",
         "columns": [
           "t_due_date",
           "t_importance",
           "t_updated_date"
         ]
-      }
-    },
-    {
-      "uid": "workspace_widget_my_calendar",
-      "_context": "workspace_widget",
-      "tab_id": "{{{uid.workspace_tab_overview}}}",
-      "label": "My Calendar",
-      "extension_id": "core.workspace.widget.calendar",
-      "pos": 3,
-      "width_units": 2,
-      "zone": "content",
-      "params": {
-        "calendar_id": "{{current_worker_calendar_id}}"
       }
     },
     {
@@ -130,13 +143,26 @@
         "context": "cerberusweb.contexts.reminder",
         "query_required": "worker.id:me closed:n sort:remindAt",
         "query": "",
-        "render_limit": "10",
+        "render_limit": "5",
         "header_color": "#6a87db",
         "columns": [
           "r_name",
           "r_remind_at",
           "r_updated_at"
         ]
+      }
+    },
+    {
+      "uid": "workspace_widget_my_calendar",
+      "_context": "workspace_widget",
+      "tab_id": "{{{uid.workspace_tab_overview}}}",
+      "label": "My Calendar",
+      "extension_id": "core.workspace.widget.calendar",
+      "pos": 5,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "calendar_id": "{{current_worker_calendar_id}}"
       }
     }
   ]

@@ -6,6 +6,7 @@ $tables = $db->metaTables();
 // Update package library
 
 $packages = [
+	'cerb_workspace_page_home.json',
 	'card_widget/cerb_card_widget_address_tickets.json',
 	'card_widget/cerb_card_widget_attachments_viewer.json',
 	'card_widget/cerb_card_widget_bucket_tickets.json',
