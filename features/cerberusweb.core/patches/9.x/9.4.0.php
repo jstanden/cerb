@@ -180,7 +180,439 @@ if(!isset($tables['card_widget'])) {
 $results = $db->GetArrayMaster('SELECT * FROM devblocks_setting WHERE setting LIKE "card:%"');
 
 if($results) {
-	$card_prefs = [];
+	$card_prefs = [
+		'cerberusweb.contexts.address' => [
+			'fields' => [
+				'contact',
+				'org',
+				'is_banned',
+				'is_defunct',
+				'num_nonspam',
+				'num_spam',
+				'mail_transport_id',
+				'updated_at',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.attachment' => [
+			'fields' => [
+				'mime_type',
+				'storage_size',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.behavior' => [
+			'fields' => [
+				'bot_id',
+				'event_point',
+				'priority',
+				'is_disabled',
+				'is_private',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.bot' => [
+			'fields' => [
+				'owner',
+				'is_disabled',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.bucket' => [
+			'fields' => [
+				'group',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.calendar' => [
+			'fields' => [
+				'owner',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.calendar_event' => [
+			'fields' => [
+				'calendar_id',
+				'date_start',
+				'date_end',
+				'is_available',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.calendar_event.recurring' => [
+			'fields' => [
+				'calendar_id',
+				'tz',
+				'patterns',
+			],
+			'search' => [],
+		],
+		'cerb.contexts.card.widget' => [
+			'fields' => [
+				'record_type',
+				'extension_id',
+				'updated_at',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.classifier' => [
+			'fields' => [
+				'owner',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.classifier.class' => [
+			'fields' => [
+				'classifier_id',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.classifier.example' => [
+			'fields' => [
+				'classifier_id',
+				'class_id',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.classifier.entity' => [
+			'fields' => [
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.comment' => [
+			'fields' => [
+				'author',
+				'target',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.connected_account' => [
+			'fields' => [
+				'service',
+				'owner',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.connected_service' => [
+			'fields' => [
+				'extension_id',
+				'uri',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.contact' => [
+			'fields' => [
+				'email',
+				'org',
+				'title',
+				'location',
+				'language',
+				'timezone',
+				'phone',
+				'mobile',
+				'gender',
+				'last_login',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.custom_field' => [
+			'fields' => [
+				'type',
+				'fieldset_id',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.custom_fieldset' => [
+			'fields' => [
+				'owner',
+				'updated_date',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.custom_record' => [
+			'fields' => [
+				'name_plural',
+				'uri',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.currency' => [
+			'fields' => [
+				'code',
+				'symbol',
+				'decimal_at',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.group' => [
+			'fields' => [
+				'send_from',
+				'is_private',
+				'is_default',
+				'updated_at',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.email.signature' => [
+			'fields' => [
+				'is_default',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.file_bundle' => [
+			'fields' => [
+				'tag',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.kb_article' => [
+			'fields' => [
+				'views',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.org' => [
+			'fields' => [
+				'email',
+				'phone',
+				'website',
+				'country',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.opportunity' => [
+			'fields' => [
+				'status',
+				'currency_amount',
+				'closed_date',
+				'updated_date',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.mail.draft' => [
+			'fields' => [
+				'ticket_id',
+				'type',
+				'worker_id',
+				'is_queued',
+				'queue_fails',
+				'queue_delivery_date',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.mail.transport' => [
+			'fields' => [
+				'extension',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.mailbox' => [
+			'fields' => [
+				'is_enabled',
+				'checked_at',
+				'host',
+				'port',
+				'protocol',
+				'username',
+				'num_fails',
+				'timeout_secs',
+				'max_msg_size_kb',
+				'ssl_ignore_validation',
+				'auth_disable_plain',
+				'updated_at',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.message' => [
+			'fields' => [
+				'sender',
+				'ticket',
+				'worker',
+				'created',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.package.library' => [
+			'fields' => [
+				'description',
+				'point',
+				'uri',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.portal' => [
+			'fields' => [
+				'code',
+				'extension',
+				'path',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.profile.tab' => [
+			'fields' => [
+				'context',
+				'extension_id',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.profile.widget' => [
+			'fields' => [
+				'profile_tab_id',
+				'type',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.project.board.column' => [
+			'fields' => [
+				'board_id',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.project.board' => [
+			'fields' => [
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.reminder' => [
+			'fields' => [
+				'remind_at',
+				'worker_id',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.context.saved.search' => [
+			'fields' => [
+				'query',
+				'context',
+				'tag',
+				'owner_id',
+				'updated_at',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.snippet' => [
+			'fields' => [
+				'context',
+				'total_uses',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.task' => [
+			'fields' => [
+				'status',
+				'importance',
+				'owner_id',
+				'due_date',
+				'updated_date',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.ticket' => [
+			'fields' => [
+				'status',
+				'group_id',
+				'bucket_id',
+				'org_id',
+				'importance',
+				'owner',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.timetracking' => [
+			'fields' => [
+				'time_spent',
+				'worker_id',
+				'log_date',
+				'status',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.webhook_listener' => [
+			'fields' => [
+				'guid',
+				'extension_id',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.worker' => [
+			'fields' => [
+				'email',
+				'title',
+				'is_superuser',
+				'language',
+				'location',
+				'phone',
+				'mobile',
+				'timezone',
+				'mention_name',
+				'calendar_id',
+				'gender',
+				'is_mfa_required',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.workspace.page' => [
+			'fields' => [
+				'owner',
+				'extension_id',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.workspace.tab' => [
+			'fields' => [
+				'page_id',
+				'extension_id',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.workspace.widget' => [
+			'fields' => [
+				'workspace_tab_id',
+				'extension_id',
+				'width_units',
+				'zone',
+				'updated',
+			],
+			'search' => [],
+		],
+		'cerberusweb.contexts.workspace.list' => [
+			'fields' => [
+				'context',
+				'updated',
+			],
+			'search' => [],
+		],
+	];
 	
 	foreach($results as $result) {
 		$parts = explode(':', $result['setting'], 3);
