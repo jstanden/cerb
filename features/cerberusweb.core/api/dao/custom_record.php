@@ -980,8 +980,14 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		if(is_null($model))
 			$model = new Model_CustomRecord();
 		
+		$properties['id'] = array(
+			'label' => mb_ucfirst($translate->_('common.id')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['name'] = array(
-			'label' => mb_ucfirst($translate->_('common.name')),
+			'label' => mb_ucfirst($translate->_('common.singular')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->id,
 			'params' => [
@@ -989,10 +995,16 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 			],
 		);
 		
-		$properties['id'] = array(
-			'label' => mb_ucfirst($translate->_('common.id')),
-			'type' => Model_CustomField::TYPE_NUMBER,
-			'value' => $model->id,
+		$properties['name_plural'] = array(
+			'label' => mb_ucfirst($translate->_('common.plural')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->name_plural,
+		);
+		
+		$properties['uri'] = array(
+			'label' => DevblocksPlatform::translate('common.uri'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->uri,
 		);
 		
 		$properties['updated'] = array(
