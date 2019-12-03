@@ -87,6 +87,24 @@
                             <a href="{devblocks_url}c=profiles&type=card_widget&id={$result.c_id}-{$result.c_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_name}</a>
                             <button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
                         </td>
+                    {elseif $column == "c_extension_id"}
+                        <td>
+                            {$display_ext = Extension_CardWidget::get($result.$column)}
+                            {if $display_ext}
+                                {$display_ext->manifest->name}
+                            {else}
+                                {$result.$column}
+                            {/if}
+                        </td>
+                    {elseif $column == "c_record_type"}
+                        <td>
+                            {$display_ext = Extension_DevblocksContext::get($result.$column)}
+                            {if $display_ext}
+                                {$display_ext->manifest->name}
+                            {else}
+                                {$result.$column}
+                            {/if}
+                        </td>
                     {elseif in_array($column, ["c_created_at","c_updated_at"])}
                         <td>
                             {if !empty($result.$column)}

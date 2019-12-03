@@ -975,6 +975,12 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 			'value' => $model->created_at,
 		);
 		
+		$properties['extension_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.type')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => @$model->getExtension()->manifest->name ?? $model->extension_id,
+		);
+		
 		$properties['id'] = array(
 			'label' => $translate->_('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
@@ -999,7 +1005,7 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		$properties['record_type'] = array(
 			'label' => mb_ucfirst($translate->_('common.record.type')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->record_type,
+			'value' => @$model->getRecordExtension()->manifest->name ?? $model->record_type,
 		);
 		
 		$properties['updated_at'] = array(
