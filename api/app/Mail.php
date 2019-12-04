@@ -1408,7 +1408,6 @@ class CerberusMail {
 		
 		if((!isset($properties['dont_keep_copy']) || !$properties['dont_keep_copy'])
 			&& empty($is_autoreply)) {
-			$change_fields[DAO_Ticket::LAST_MESSAGE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::LAST_WROTE_ID] = $fromAddressId;
 			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
 			
@@ -1522,6 +1521,9 @@ class CerberusMail {
 			if(isset($embedded_files) && is_array($embedded_files) && !empty($embedded_files)) {
 				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
 			}
+			
+			// Ticket
+			DAO_Ticket::update($ticket->id, $change_fields);
 		}
 		
 		// Events
