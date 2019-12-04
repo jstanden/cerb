@@ -1,5 +1,5 @@
 {$ul_uniqid = uniqid('values_')}
-<ul id="#{$ul_uniqid}" class="bubbles">
+<ul id="{$ul_uniqid}" class="bubbles">
     {foreach from=$target_dicts item=target_dict}
         <li>
             {* [TODO] Avatars *}
