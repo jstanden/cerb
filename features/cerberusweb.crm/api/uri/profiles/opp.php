@@ -37,7 +37,6 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
 		@$currency_amount = DevblocksPlatform::importGPC($_REQUEST['currency_amount'],'string','0.00');
 		@$currency_id = DevblocksPlatform::importGPC($_REQUEST['currency_id'],'integer',0);
-		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
 		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
 		
@@ -126,20 +125,8 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 					if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
-					// If we're adding a comment
-					if(!empty($comment)) {
-						$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-						
-						$fields = array(
-							DAO_Comment::CREATED => time(),
-							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_OPPORTUNITY,
-							DAO_Comment::CONTEXT_ID => $id,
-							DAO_Comment::COMMENT => $comment,
-							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-							DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-						);
-						$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-					}
+					// Comments
+					DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_OPPORTUNITY, $id);
 				}
 			
 				echo json_encode(array(

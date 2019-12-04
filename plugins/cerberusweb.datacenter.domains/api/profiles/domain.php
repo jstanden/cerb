@@ -57,7 +57,6 @@ class PageSection_ProfilesDomain extends Extension_PageSection {
 				@$server_id = DevblocksPlatform::importGPC($_REQUEST['server_id'],'integer',0);
 				@$created = DevblocksPlatform::importGPC($_REQUEST['created'],'string','');
 				@$contact_address_ids = DevblocksPlatform::importGPC($_REQUEST['contact_address_id'],'array',[]);
-				@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
 				
 				if(false == (@$created = strtotime($created)))
 					$created = time();
@@ -97,20 +96,8 @@ class PageSection_ProfilesDomain extends Extension_PageSection {
 					DAO_Domain::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
-				// If we're adding a comment
-				if(!empty($comment)) {
-					$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-					
-					$fields = array(
-						DAO_Comment::CREATED => time(),
-						DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_DOMAIN,
-						DAO_Comment::CONTEXT_ID => $id,
-						DAO_Comment::COMMENT => $comment,
-						DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-						DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-					);
-					$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
-				}
+				// Comments
+				DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_DOMAIN, $id);
 				
 				// Custom field saves
 				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);

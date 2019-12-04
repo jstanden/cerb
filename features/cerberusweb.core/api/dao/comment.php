@@ -519,6 +519,41 @@ class DAO_Comment extends Cerb_ORMHelper {
 			)
 		);
 	}
+	
+	public static function handleFormPost($context, $context_id) {
+		@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
+		@$comment_enabled = DevblocksPlatform::importGPC(@$_REQUEST['comment_enabled'],'bit',0);
+		@$comment_is_markdown = DevblocksPlatform::importGPC(@$_REQUEST['comment_is_markdown'],'bit',0);
+		@$comment_file_ids = DevblocksPlatform::importGPC(@$_REQUEST['comment_file_ids'],'array',[]);
+		
+		if(!$comment_enabled)
+			return null;
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if($context_id && $comment && $active_worker->hasPriv(sprintf("contexts.%s.comment", $context))) {
+			$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+			
+			$fields = [
+				DAO_Comment::CREATED => time(),
+				DAO_Comment::CONTEXT => $context,
+				DAO_Comment::CONTEXT_ID => $context_id,
+				DAO_Comment::COMMENT => $comment,
+				DAO_Comment::IS_MARKDOWN => $comment_is_markdown,
+				DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+				DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
+			];
+			$comment_id = DAO_Comment::create($fields, $also_notify_worker_ids);
+			
+			if($comment_file_ids) {
+				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_COMMENT, $comment_id, $comment_file_ids);
+			}
+			
+			return $comment_id;
+		}
+		
+		return null;
+	}
 };
 
 class SearchFields_Comment extends DevblocksSearchFields {

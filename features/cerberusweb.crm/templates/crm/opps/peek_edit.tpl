@@ -55,12 +55,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$opp->id}
 
-{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}
-<fieldset class="peek">
-	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
-</fieldset>
-{/if}
+{include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl"}
 
 {if !empty($opp->id)}
 <fieldset style="display:none;" class="delete">
@@ -95,7 +90,6 @@ $(function() {
 	var $popup = genericAjaxPopupFind('#formOppPeek');
 	
 	$popup.one('popup_open',function(event,ui) {
-		var $textarea = $(this).find('textarea[name=comment]');
 		var $frm = $('#formOppPeek');
 		
 		$popup.dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'javascript' nofilter}');
@@ -109,26 +103,13 @@ $(function() {
 		
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
-		
+
 		// Validation
 		
 		$frm.find('input.input_date').cerbDateInputHelper();
 		
 		$frm.find('button.chooser_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
-		});
-		
-		// @mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-
-		$textarea.atwho({
-			at: '@',
-			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_workers,
-			searchKey: '_index',
-			limit: 10
 		});
 		
 		// [UI] Editor behaviors

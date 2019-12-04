@@ -91,12 +91,7 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ORG context_id=$org->id}
 
-{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}
-<fieldset class="peek">
-	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
-</fieldset>
-{/if}
+{include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl"}
 
 {if !empty($org->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}
 <fieldset style="display:none;" class="delete">
@@ -127,9 +122,8 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 
 	$popup.one('popup_open',function(event,ui) {
-		var $aliases = $(this).find('textarea[name=aliases]').autosize();
-		var $textarea = $(this).find('textarea[name=comment]');
-		
+		$(this).find('textarea[name=aliases]').autosize();
+
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
@@ -140,21 +134,7 @@ $(function() {
 		// Title
 		$popup.dialog('option','title', "{'common.edit'|devblocks_translate|capitalize|escape:'javascript' nofilter}: {'common.organization'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
-		// @mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-
-		$textarea.atwho({
-			at: '@',
-			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_workers,
-			searchKey: '_index',
-			limit: 10
-		});
-		
 		// Worker autocomplete
-		
 		$popup.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});

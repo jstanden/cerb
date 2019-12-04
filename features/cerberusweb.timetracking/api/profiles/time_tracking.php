@@ -51,9 +51,6 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			if(false == (@$log_date = strtotime($log_date)))
 				$log_date = time();
 			
-			// Comment
-			@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
-			
 			// Delete entries
 			if(!empty($id) && !empty($do_delete)) {
 				if(false == (DAO_TimeTrackingEntry::get($id)))
@@ -211,24 +208,14 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				DAO_TimeTrackingEntry::onUpdateByActor($active_worker, $fields, $id);
 			}
 			
-			// Custom field saves
-			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-			if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TIMETRACKING, $id, $field_ids, $error))
-				throw new Exception_DevblocksAjaxValidationError($error);
-			
-			// Comments
-			if(!empty($comment)) {
-				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
+			if($id) {
+				// Custom field saves
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TIMETRACKING, $id, $field_ids, $error))
+					throw new Exception_DevblocksAjaxValidationError($error);
 				
-				$fields = array(
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-					DAO_Comment::COMMENT => $comment,
-					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TIMETRACKING,
-					DAO_Comment::CONTEXT_ID => $id,
-					DAO_Comment::CREATED => time(),
-				);
-				DAO_Comment::create($fields, $also_notify_worker_ids);
+				// Comments
+				DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_TIMETRACKING, $id);
 			}
 			
 			$model = new Model_TimeTrackingEntry();

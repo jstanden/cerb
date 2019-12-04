@@ -21,8 +21,8 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=domain&id='.$context_id, true);
-		return $url;
+		
+		return $url_writer->writeNoProxy('c=profiles&type=domain&id='.$context_id, true);
 	}
 	
 	function profileGetFields($model=null) {
@@ -217,7 +217,7 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// URL
 			$url_writer = DevblocksPlatform::services()->url();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=domain&id=%s-%d",DevblocksPlatform::strToPermalink($domain->name),$domain->id), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=domain&id=%d-%s",$domain->id,DevblocksPlatform::strToPermalink($domain->name)), true);
 			
 			// Server
 			$server_id = (null != $domain && !empty($domain->server_id)) ? $domain->server_id : null;

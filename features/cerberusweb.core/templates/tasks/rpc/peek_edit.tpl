@@ -105,11 +105,8 @@
 		
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$task->id}
 		
-		<fieldset class="peek">
-			<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-			<textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
-		</fieldset>
-		
+		{include file="devblocks:cerberusweb.core::internal/cards/editors/comment.tpl"}
+
 		{if !empty($task->id)}
 		<fieldset style="display:none;" class="delete">
 			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
@@ -137,8 +134,6 @@ $(function() {
 	var $popup = genericAjaxPopupFind($frm);
 	
 	$popup.one('popup_open',function(event,ui) {
-		var $textarea = $popup.find('textarea[name=comment]');
-		
 		$popup.dialog('option','title','Tasks');
 		
 		// Buttons
@@ -150,7 +145,7 @@ $(function() {
 		
 		// Abstract peeks
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
+
 		// Package Library
 		
 		{if !$task->id && $packages}
@@ -206,19 +201,6 @@ $(function() {
 			});
 		});
 		
-		// @mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-
-		$textarea.atwho({
-			at: '@',
-			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_workers,
-			searchKey: '_index',
-			limit: 10
-		});
-
 		$popup.find('input.input_date').cerbDateInputHelper();
 		
 		// [UI] Editor behaviors

@@ -247,7 +247,6 @@ class ChTicketsPage extends CerberusPageExtension {
 			@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
 			@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
 			@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
-			@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
 			
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.update', CerberusContexts::CONTEXT_TICKET)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
@@ -325,7 +324,7 @@ class ChTicketsPage extends CerberusPageExtension {
 					CerberusBayes::markTicketAsNotSpam($id);
 			}
 			
-			// Participiants
+			// Participants
 			$requesters = DAO_Ticket::getRequestersByTicket($id);
 			
 			// Delete requesters we've removed
@@ -356,19 +355,7 @@ class ChTicketsPage extends CerberusPageExtension {
 				throw new Exception_DevblocksAjaxValidationError($error);
 			
 			// Comments
-			if($id && !empty($comment)) {
-				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-				
-				$fields = array(
-					DAO_Comment::CREATED => time(),
-					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
-					DAO_Comment::CONTEXT_ID => $id,
-					DAO_Comment::COMMENT => $comment,
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-				);
-				DAO_Comment::create($fields, $also_notify_worker_ids);
-			}
+			DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id);
 			
 			echo json_encode(array(
 				'status' => true,

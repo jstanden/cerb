@@ -92,13 +92,6 @@
 	<pre class="emailbody">{$model->description|escape:'html'|devblocks_hyperlinks nofilter}</pre>
 </fieldset>
 
-{if $active_worker->hasPriv("contexts.{$peek_context}.comment")}
-<fieldset class="peek">
-	<legend>{'common.comment'|devblocks_translate|capitalize}</legend>
-	<textarea name="comment" rows="2" cols="45" style="width:98%;" placeholder="{'comment.notify.at_mention'|devblocks_translate}"></textarea>
-</fieldset>
-{/if}
-
 {if !empty($model->id)}
 <fieldset style="display:none;" class="delete">
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
@@ -129,28 +122,12 @@
 	var $popup = genericAjaxPopupFetch('peek');
 	
 	$popup.one('popup_open', function(event,ui) {
-		var $textarea = $(this).find('textarea[name=comment]');
+		$popup.dialog('option','title',"{'Jira Issue'|escape:'javascript' nofilter}");
 		
-		$(this).dialog('option','title',"{'Jira Issue'|escape:'javascript' nofilter}");
-		
-		$(this).find('button.chooser_watcher').each(function() {
+		$popup.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
 		
-		$(this).find('input:text:first').focus();
-
-		// @mentions
-		
-		var atwho_workers = {CerberusApplication::getAtMentionsWorkerDictionaryJson() nofilter};
-
-		$textarea.atwho({
-			at: '@',
-			{literal}displayTpl: '<li>${name} <small style="margin-left:10px;">${title}</small> <small style="margin-left:10px;">@${at_mention}</small></li>',{/literal}
-			{literal}insertTpl: '@${at_mention}',{/literal}
-			data: atwho_workers,
-			searchKey: '_index',
-			limit: 10
-		});
-		
+		$popup.find('input:text:first').focus();
 	});
 </script>

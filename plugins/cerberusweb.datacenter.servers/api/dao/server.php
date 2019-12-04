@@ -194,7 +194,7 @@ class Context_Server extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// URL
 			$url_writer = DevblocksPlatform::services()->url();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=datacenter&tab=server&id=%d-%s",$server->id, DevblocksPlatform::strToPermalink($server->name)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=server&id=%d-%s",$server->id, DevblocksPlatform::strToPermalink($server->name)), true);
 		}
 		
 		return true;

@@ -50,7 +50,6 @@
 		</div>
 		{/if}
 	{/if}
-	
 
 	<div>
 		<label>
@@ -83,25 +82,30 @@
 		<textarea name="comment" data-editor-mode="ace/editor/markdown" data-editor-lines="15" data-editor-gutter="true" data-editor-line-numbers="false" rows="10" cols="60" style="width:98%;height:50px;display:none;" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
 	</div>
 
-	<fieldset class="peek cerb-comment-attachments">
-		<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-		<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
-		<ul class="chooser-container bubbles">
-			{if !empty($attachments)}
-				{foreach from=$attachments item=attachment name=attachments}
-					<li>
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
-							<b>{$attachment->name}</b>
-							({$attachment->storage_size|devblocks_prettybytes}	-
-							{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
-						</a>
-						<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-						<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
-					</li>
-				{/foreach}
-			{/if}
-		</ul>
-	</fieldset>
+	<div>
+		<label>
+			{'common.attachments'|devblocks_translate|capitalize}:
+		</label>
+
+		<div class="cerb-comment-attachments">
+			<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
+			<ul class="chooser-container bubbles">
+				{if !empty($attachments)}
+					{foreach from=$attachments item=attachment name=attachments}
+						<li>
+							<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}">
+								<b>{$attachment->name}</b>
+								({$attachment->storage_size|devblocks_prettybytes}	-
+								{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
+							</a>
+							<input type="hidden" name="file_ids[]" value="{$attachment->id}">
+							<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+						</li>
+					{/foreach}
+				{/if}
+			</ul>
+		</div>
+	</div>
 	
 	{if $model->id}
 	<div>
@@ -173,7 +177,7 @@ $(function() {
 
 		// Drag/drop attachments
 
-		var $attachments = $frm.find('fieldset.cerb-comment-attachments');
+		var $attachments = $frm.find('.cerb-comment-attachments');
 		$attachments.cerbAttachmentsDropZone();
 
 		// Editor

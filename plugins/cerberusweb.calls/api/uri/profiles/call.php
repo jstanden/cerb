@@ -36,7 +36,6 @@ class PageSection_ProfilesCall extends Extension_PageSection {
 		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'], 'integer', 0);
 		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'], 'string', '');
 		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'], 'string', '');
-		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -105,21 +104,9 @@ class PageSection_ProfilesCall extends Extension_PageSection {
 			
 			if(!$id)
 				throw new Exception_DevblocksAjaxValidationError("Failed to load the record.");
-
-			// If we're adding a comment
-			if(!empty($comment)) {
-				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
-				
-				$fields = array(
-					DAO_Comment::CREATED => time(),
-					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_CALL,
-					DAO_Comment::CONTEXT_ID => $id,
-					DAO_Comment::COMMENT => $comment,
-					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
-					DAO_Comment::OWNER_CONTEXT_ID => $active_worker->id,
-				);
-				DAO_Comment::create($fields, $also_notify_worker_ids);
-			}
+			
+			// Comments
+			DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_CALL, $id);
 			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
