@@ -309,6 +309,16 @@ $(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
 
+		{if $pref_keyboard_shortcuts}
+
+			// Submit
+			$editor.bind('keydown', 'meta+return alt+return', function(e) {
+				e.preventDefault();
+				$popup.find('button.submit').focus();
+			});
+
+		{/if}
+
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
