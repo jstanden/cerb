@@ -91,7 +91,7 @@
 				{tree keys=$placeholders}
 			</ul>
 
-			<textarea name="broadcast_message" data-editor-mode="ace/mode/twig" data-editor-line-numbers="false" data-editor-lines="20"></textarea>
+			<textarea name="broadcast_message"></textarea>
 		</div>
 		
 		<b>{'common.attachments'|devblocks_translate|capitalize}:</b>

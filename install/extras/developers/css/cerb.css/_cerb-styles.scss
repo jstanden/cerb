@@ -66,6 +66,7 @@ DIV.cerb-form {
 		
 		TEXTAREA {
 			width: 100%;
+			box-sizing: border-box;
 			height: 50px;
 		}
 	}
@@ -1636,6 +1637,28 @@ DIV.emailBodyHtml {
 		border-bottom: initial;
 	}
 
+	BLOCKQUOTE {
+		color: rgb(100,100,100);
+		border-left: 5px solid;
+		margin: 0 0 0 10px;
+		padding: 0 0 0 10px;
+	}
+
+	PRE > CODE {
+		display: block;
+		border: 1px solid rgb(232,232,232);
+		background-color: rgb(246,242,240);
+		padding: 10px;
+	}
+
+	P > CODE {
+		background-color: rgb(246,242,240);
+		border: 1px solid rgb(232,232,232);
+		font-weight: bold;
+		padding: 0.1em 0.2em;
+		line-height: 1.75em;
+	}
+
 	%heading {
 		font-size: initial;
 		color: initial;
@@ -1656,6 +1679,10 @@ DIV.emailBodyHtml {
 			@extend %heading;
 		}
 	}
+
+	UL {
+		padding-left: 2em;
+	}
 }
 
 // Comment container (reset styles)
@@ -1671,11 +1698,26 @@ DIV.commentBodyHtml {
 
 	BLOCKQUOTE {
 		clear: both;
-		margin: 0 0 0 5px;
+		color: rgb(100,100,100);
+		border-left: 5px solid;
+		margin: 0 0 0 10px;
 		padding: 0 0 0 10px;
-		border: 0;
-		border-left: 3px solid rgb(145, 145, 145);
-		color: rgb(120, 120, 120);
+	}
+
+	PRE > CODE {
+		clear: both;
+		display: block;
+		border: 1px solid rgb(232,232,232);
+		background-color: rgb(246,242,240);
+		padding: 10px;
+	}
+
+	P > CODE {
+		background-color: rgb(246,242,240);
+		border: 1px solid rgb(232,232,232);
+		font-weight: bold;
+		padding: 0.1em 0.2em;
+		line-height: 1.75em;
 	}
 
 	%heading {
@@ -1723,16 +1765,6 @@ DIV.commentBodyHtml {
 	OL, UL {
 		margin: 0 0 0.5em 1.5em;
 		padding: 0;
-	}
-
-	P {
-		> CODE {
-			background-color: rgb(245, 245, 245);
-			border: 1px solid rgb(200, 200, 200);
-			font-weight: bold;
-			padding: 0.1em 0.2em;
-			line-height: 1.75em;
-		}
 	}
 
 	PRE {

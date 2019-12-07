@@ -71,7 +71,7 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="100%" colspan="2">
+		<td width="100%" colspan="2" style="position:relative;">
 			<div id="divDraftStatus{$popup_uniqid}"></div>
 
 			<div class="cerb-code-editor-toolbar">
@@ -106,7 +106,7 @@
 				<button type="button" title="Preview message" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 			</div>
 
-			<textarea id="divComposeContent{$popup_uniqid}" name="content" data-editor-mode="ace/mode/text" data-editor-line-numbers="false" data-editor-lines="20">{if $draft}{$draft->getParam('content')}{else}{if $defaults.signature_pos}
+			<textarea id="divComposeContent{$popup_uniqid}" name="content" style="box-sizing:border-box;">{if $draft}{$draft->getParam('content')}{else}{if $defaults.signature_pos}
 
 
 
@@ -312,23 +312,15 @@ $(function() {
 		// Text editor
 		
 		var $editor = $frm.find('textarea[name=content]')
-			.cerbCodeEditor()
-			.cerbCodeEditorAutocompleteReplies()
-			;
-
-		var $editor_pre = $editor.nextAll('.ace_editor');
-
-		var editor = ace.edit($editor_pre.attr('id'));
-
-        $editor_pre.find('.ace_text-input')
-            .cerbCodeEditorInlineImagePaster({
-                editor: editor,
+			.cerbTextEditor()
+			.cerbTextEditorAutocompleteReplies()
+            .cerbTextEditorInlineImagePaster({
                 attachmentsContainer: $attachments
             })
-        ;
+			;
 
 		var $editor_toolbar = $frm.find('.cerb-code-editor-toolbar')
-			.cerbCodeEditorToolbarMarkdown()
+			.cerbTextEditorToolbarMarkdown()
 			;
 
 		var $editor_toolbar_button_save_draft = $frm.find('.cerb-reply-editor-toolbar-button--save').click(function(e) {
@@ -392,15 +384,13 @@ $(function() {
 
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-			editor.insertSnippet('![Image](' + event.url + ')');
-			editor.focus();
+			$editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
 		});
 
 		// Commands
 		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--commands').on('click', function(e) {
-			editor.insertSnippet("#");
-			editor.commands.byName.startAutocomplete.exec(editor);
-			editor.focus();
+			$editor.cerbTextEditor('insertText', '#');
+			$editor.autocomplete('search');
 		});
 
 		// Snippets
@@ -411,7 +401,7 @@ $(function() {
 			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
 			$chooser.on('chooser_save', function (event) {
-				if (!event.values || 0 == event.values.length)
+				if (!event.values || 0 === event.values.length)
 					return;
 
 				var snippet_id = event.values[0];
@@ -434,15 +424,11 @@ $(function() {
 							if (null == event.text)
 								return;
 
-							editor.insert(event.text);
-							editor.scrollToLine(editor.getCursorPosition().row);
-							editor.focus();
+							$editor.cerbTextEditor('insertText', event.text);
 						});
 
 					} else {
-						editor.insert(json.text);
-						editor.scrollToLine(editor.getCursorPosition().row);
-						editor.focus();
+						$editor.cerbTextEditor('insertText', json.text);
 					}
 				});
 			});
@@ -458,7 +444,7 @@ $(function() {
 			formData.append('format', $frm.find('input[name=format]').val());
 			formData.append('group_id', $frm.find('select[name=group_id]').val());
 			formData.append('bucket_id', $frm.find('select[name=bucket_id]').val());
-			formData.append('content', editor.getValue());
+			formData.append('content', $frm.find('textarea[name=content]').val());
 
 			genericAjaxPopup(
 				'preview_reply',
@@ -479,7 +465,7 @@ $(function() {
 			
 			$bucket_options.each(function() {
 				var parent_id = $(this).attr('group_id');
-				if(parent_id == '*' || parent_id == group_id)
+				if(parent_id === '*' || parent_id === group_id)
 					$(this).clone().appendTo($bucket);
 			});
 			
@@ -508,7 +494,7 @@ $(function() {
 				
 				$sug.find('ul.bubbles li').remove();
 				
-				if(0 == json.length) {
+				if(0 === json.length) {
 					$sug.hide();
 					return;
 				}
@@ -538,7 +524,7 @@ $(function() {
 					if($len>0)
 						$last = $val.substring($len-1);
 					
-					if(0==$len || $last==' ')
+					if(0===$len || $last===' ')
 						$to.val($val+$sug);
 					else if($last==',')
 						$to.val($val + ' '+$sug);
@@ -547,7 +533,7 @@ $(function() {
 					
 					var $ul = $this.closest('ul');
 					$this.closest('li').remove();
-					if(0==$ul.find('li').length)
+					if(0===$ul.find('li').length)
 						$ul.closest('div').remove();
 					
 					$to.trigger('change');
@@ -577,22 +563,19 @@ $(function() {
 		{/if}
 		
 		// Shortcuts
-		
+
 		{if $pref_keyboard_shortcuts}
-		editor.commands.addCommand({
-			name: 'Send',
-			bindKey: { win: 'Ctrl-Shift-Enter', mac: 'Ctrl-Shift-Enter' },
-			exec: function(editor) {
+			// Send
+			$editor.bind('keydown', 'ctrl+shift+return alt+return meta+return', function(e) {
+				e.preventDefault();
 				try {
 					$frm.find('button.submit').focus();
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Status closed',
-			bindKey: { win: 'Ctrl-Shift-C', mac: 'Ctrl-Shift-C' },
-			exec: function(editor) {
+			// Status closed
+			$editor.bind('keydown', 'ctrl+shift+c', function(e) {
+				e.preventDefault();
 				try {
 					var $radio = $frm.find('input:radio[name=status_id]');
 					$radio.filter('.status_closed').click();
@@ -602,24 +585,20 @@ $(function() {
 						.focus()
 					;
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Status open',
-			bindKey: { win: 'Ctrl-Shift-O', mac: 'Ctrl-Shift-O' },
-			exec: function(editor) {
+			// Status open
+			$editor.bind('keydown', 'ctrl+shift+o', function(e) {
+				e.preventDefault();
 				try {
 					var $radio = $frm.find('input:radio[name=status_id]');
 					$radio.filter('.status_open').click().focus();
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Status waiting',
-			bindKey: { win: 'Ctrl-Shift-W', mac: 'Ctrl-Shift-W' },
-			exec: function(editor) {
+			// Status waiting
+			$editor.bind('keydown', 'ctrl+shift+w', function(e) {
+				e.preventDefault();
 				try {
 					var $radio = $frm.find('input:radio[name=status_id]');
 					$radio.filter('.status_waiting').click();
@@ -629,46 +608,37 @@ $(function() {
 						.focus()
 					;
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Insert signature',
-			bindKey: { win: 'Ctrl-Shift-G', mac: 'Ctrl-Shift-G' },
-			exec: function(editor) {
+			// Insert signature
+			$editor.bind('keydown', 'ctrl+shift+g', function(e) {
+				e.preventDefault();
 				try {
-					editor.insertSnippet("#signature\n");
-					editor.focus();
+					$editor.cerbTextEditor('insertText', '#signature\n');
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Insert snippet',
-			bindKey: { win: 'Ctrl-Shift-I', mac: 'Ctrl-Shift-I' },
-			exec: function(editor) {
+			// Insert snippet
+			$editor.bind('keydown', 'ctrl+shift+i', function(e) {
+				e.preventDefault();
 				try {
 					$editor_toolbar_button_snippets.click();
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Bot interaction',
-			bindKey: { win: 'Ctrl-Shift-B', mac: 'Ctrl-Shift-B' },
-			exec: function(editor) {
+			// Bot interaction
+			$editor.bind('keydown', 'ctrl+shift+b', function(e) {
+				e.preventDefault();
 				try {
 					$editor_toolbar.find('.cerb-reply-editor-toolbar-button--interactions').click();
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Reformat',
-			bindKey: { win: 'Ctrl-Shift-Q', mac: 'Ctrl-Shift-Q' },
-			exec: function(editor) {
+			// Reformat quotes
+			$editor.bind('keydown', 'ctrl+shift+q', function(e) {
+				e.preventDefault();
 				try {
-				    var txt = editor.getValue();
+					var txt = $editor.val();
 
 					var lines = txt.split("\n");
 
@@ -706,7 +676,7 @@ $(function() {
 						if(prefix.length === 0)
 							continue;
 
-						while(undefined != bins[i].lines[l] && bail > 0) {
+						while(undefined !== bins[i].lines[l] && bail > 0) {
 							line = bins[i].lines[l];
 							var boundary = wrap_to-prefix.length;
 
@@ -720,7 +690,7 @@ $(function() {
 
 								// If we don't have more lines, add a new one
 								if(overflow) {
-									if(undefined != bins[i].lines[l+1]) {
+									if(undefined !== bins[i].lines[l+1]) {
 										if(bins[i].lines[l+1].length === 0) {
 											bins[i].lines.splice(l+1,0,overflow);
 										} else {
@@ -745,13 +715,11 @@ $(function() {
 						}
 					}
 
-					editor.setValue($.trim(out));
-					editor.clearSelection();
+					$editor.val($.trim(out));
 				} catch(ex) { }
-			}
-		});
+			});
 		{/if}
-		
+
 		$frm.find(':input:text:first').focus().select();
 		
 		$popup.on('popup_saved', function() {

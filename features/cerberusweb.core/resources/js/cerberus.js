@@ -1394,6 +1394,258 @@ var ajax = new cAjaxCalls();
       });
     };
 
+	$.widget('cerb.cerbTextEditor', {
+		options: {
+
+		},
+
+		_create: function() {
+			this.editor = this.element[0];
+
+			this.element
+				.css('width', '100%')
+				.css('height', '20em')
+			;
+		},
+
+		getCursorPosition: function() {
+			return this.editor.selectionEnd;
+		},
+
+		setCursorPosition: function(index) {
+			this.editor.selectionStart = index;
+			this.editor.selectionEnd = index;
+		},
+
+		getCurrentWordPos: function() {
+			var start = this.editor.selectionStart-1;
+			var end = this.editor.selectionStart;
+
+			for(var x = start; x >= 0; x--) {
+				var char = this.editor.value[x];
+
+				if(char.match(/\s/)) {
+					start = x + 1;
+					break;
+				}
+
+				if(0 === x) {
+					start = x;
+				}
+			}
+
+			return {
+				start: start,
+				end: end
+			};
+		},
+
+		getCurrentWord: function() {
+			var pos = this.getCurrentWordPos();
+			return this.editor.value.substring(pos.start,pos.end);
+		},
+
+		selectCurrentWord: function() {
+			var pos = this.getCurrentWordPos();
+			this.editor.selectionStart = pos.start;
+			this.editor.selectionEnd = pos.end;
+		},
+
+		replaceCurrentWord: function(replaceWith) {
+			this.selectCurrentWord();
+			this.replaceSelection(replaceWith);
+		},
+
+		getSelection: function() {
+			var start = this.editor.selectionStart;
+			var end = this.editor.selectionEnd;
+			var selectedText = this.editor.value.substring(start,end);
+			return selectedText;
+		},
+
+		setSelection: function(start, end) {
+			this.editor.selectionStart = start;
+			this.editor.selectionEnd = end;
+		},
+
+		insertText: function(insertText) {
+			var start = this.editor.selectionStart;
+
+			var newValue =
+				this.editor.value.substring(0,start)
+				+ insertText
+				+ this.editor.value.substring(start)
+			;
+
+			var offset = newValue.length - this.editor.value.length;
+
+			this.editor.value = newValue;
+
+			this.editor.selectionStart = start + offset;
+			this.editor.selectionEnd = start + offset;
+			this.editor.focus();
+		},
+
+		replaceSelection: function(replaceWith) {
+			var start = this.editor.selectionStart;
+			var end = this.editor.selectionEnd;
+
+			var newValue =
+				this.editor.value.substring(0,start)
+				+ replaceWith
+				+ this.editor.value.substring(end)
+			;
+
+			var offset = newValue.length - this.editor.value.length;
+
+			this.editor.value = newValue;
+
+			this.editor.selectionStart = end + offset;
+			this.editor.selectionEnd = end + offset;
+			this.editor.focus();
+		},
+
+		prefixCurrentLine: function(prefixWith) {
+			var start = Math.max(0, this.editor.value.substring(0, this.editor.selectionStart).lastIndexOf('\n')+1);
+			this.editor.selectionStart = start;
+			this.prefixSelection(prefixWith);
+		},
+
+		prefixSelectedLines: function(prefixWith) {
+			// [TODO]
+		},
+
+		prefixSelection: function(prefixWith) {
+			var selectedText = this.getSelection();
+			this.replaceSelection(prefixWith + selectedText);
+		},
+
+		wrapSelection: function(wrapWith) {
+			var selectedText = this.getSelection();
+			this.replaceSelection(wrapWith + selectedText + wrapWith);
+		}
+	});
+
+	$.fn.cerbTextEditorToolbarMarkdown = function() {
+	  return this.each(function() {
+	      var $editor_toolbar = $(this);
+	      var $editor = $editor_toolbar.nextAll('textarea');
+
+	      if(0 === $editor.length)
+	      	return;
+
+          // Bold
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--bold').on('click', function () {
+          	$editor.cerbTextEditor('wrapSelection', '**');
+          });
+
+          // Italics
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--italic').on('click', function () {
+          	$editor.cerbTextEditor('wrapSelection', '_');
+          });
+
+          // Headings
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--heading').on('click', function () {
+          	$editor.cerbTextEditor('prefixSelection', '# ');
+          });
+
+          // Link
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--link').on('click', function () {
+			  var selectedText = $editor.cerbTextEditor('getSelection');
+
+              if (0 === selectedText.length) {
+				$editor.cerbTextEditor('insertText', '[link text](https://example.com)');
+				return;
+			  }
+
+              $editor.cerbTextEditor('replaceSelection', '[' + selectedText + '](https://example.com)');
+		  });
+
+          // Image
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--image').on('click', function () {
+              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=chooserOpenFile&single=1', null, true, '750');
+
+              $chooser.one('chooser_save', function (event) {
+				  var file_id = event.values[0];
+				  var file_label = event.labels[0];
+				  var file_name = file_label.substring(0, file_label.lastIndexOf(' ('));
+
+				  var url =
+					  document.location.protocol
+					  + '//'
+					  + document.location.host
+					  + DevblocksWebPath
+					  + 'files/'
+					  + encodeURIComponent(file_id) + '/'
+					  + encodeURIComponent(file_name)
+				  ;
+
+				  $editor_toolbar.triggerHandler(
+					  $.Event(
+						  'cerb-editor-toolbar-image-inserted',
+						  { labels: event.labels, values: event.values, file_id: file_id, file_name: file_name, url: url }
+					  )
+				  );
+              });
+          });
+
+		  // List
+		  $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--list').on('click', function () {
+			  var selectedText = $editor.cerbTextEditor('getSelection');
+
+			  if (0 === selectedText.length) {
+			  	$editor.cerbTextEditor('prefixCurrentLine', '* ');
+			    return;
+			  }
+
+			  if(-1 === selectedText.indexOf("\n")) {
+			  	$editor.cerbTextEditor('prefixCurrentLine', '* ');
+			  } else {
+			  	var quotedText = $.trim(selectedText).replace(new RegExp('\n', 'g'),'\n* ');
+			  	$editor.cerbTextEditor('replaceSelection', '* ' + quotedText + '\n');
+			  }
+		  });
+
+		  // Quote
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--quote').on('click', function () {
+			  var selectedText = $editor.cerbTextEditor('getSelection');
+
+			  if (0 === selectedText.length) {
+			  	$editor.cerbTextEditor('prefixCurrentLine', '> ');
+			    return;
+			  }
+
+			  if(-1 === selectedText.indexOf("\n")) {
+			  	$editor.cerbTextEditor('prefixCurrentLine', '> ');
+			  } else {
+			  	var quotedText = $.trim(selectedText).replace(new RegExp('\n', 'g'),'\n> ');
+			  	$editor.cerbTextEditor('replaceSelection', '> ' + quotedText + '\n');
+			  }
+          });
+
+          // Code
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--code').on('click', function () {
+			  var selectedText = $editor.cerbTextEditor('getSelection');
+
+              if (0 === selectedText.length) {
+              	  $editor.cerbTextEditor('insertText', "~~~\nyour code goes here\n~~~\n");
+                  return;
+              }
+
+              if(-1 === selectedText.indexOf("\n")) {
+              	 $editor.cerbTextEditor('wrapSelection', '`');
+			  } else {
+              	 $editor.cerbTextEditor('wrapSelection', '~~~\n');
+			  }
+          });
+
+          // Table
+          $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--table').on('click', function () {
+          	  $editor.cerbTextEditor('insertText', "Column | Column\n--- | ---\nValue | Value\n");
+          });
+      });
+    };
+
 	$.fn.cerbCodeEditorToolbarMarkdown = function() {
 	  return this.each(function() {
 	      var $editor_toolbar = $(this);
@@ -1630,134 +1882,19 @@ var ajax = new cAjaxCalls();
 		});
 	}
 
-	$.fn.cerbCodeEditorAutocompleteComments = function() {
-		var Autocomplete = require('ace/autocomplete').Autocomplete;
-		var lang = require('ace/lib/lang');
-
-		var doCerbLiveAutocomplete = function(e) {
-			e.stopPropagation();
-
-			if('Tab' === e.command.name) {
-				return;
-			}
-
-			if(!e.editor.completer) {
-				var Autocomplete = require('ace/autocomplete').Autocomplete;
-				e.editor.completer = new Autocomplete();
-			}
-
-			if('insertstring' === e.command.name) {
-				e.editor.completer.showPopup(e.editor);
-			}
-		};
-
+	$.fn.cerbTextEditorAutocompleteComments = function() {
 		return this.each(function() {
-			var $editor = $(this)
-				.nextAll('pre.ace_editor')
-			;
+			var $editor = $(this);
+			var editor = $editor[0];
 
-			var editor = ace.edit($editor.attr('id'));
+			$editor.autocomplete({
+				appendTo: $editor.parent(),
 
-			if(!editor.completer) {
-				editor.completer = new Autocomplete();
-			}
+				_sourceMentions: function(request, response, token) {
+					var term = token.substring(1);
+					var ajax_requests = [];
 
-			var autocompleterComments = {
-				getCompletions: function(editor, session, pos, prefix, callback) {
-					var token = session.getTokenAt(pos.row, pos.column);
-
-					if (null == token) {
-						return;
-
-					} else if(token.value.startsWith('@')) {
-						var term = token.value.substring(token.value.lastIndexOf('@')+1);
-
-						if(-1 !== term.lastIndexOf(' '))
-							return callback(null, []);
-
-						var query = 'type:worklist.records of:worker query:(isDisabled:n'
-							+ (term.length === 0
-								? ' mention:!""'
-								: ' (mention:{}*)'.replace(/\{\}/g, term)
-								)
-							+ ')'
-							;
-
-						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
-							var results = [];
-
-							if('object' != typeof json || !json.hasOwnProperty('data')) {
-								callback(null, []);
-								return;
-							}
-
-							for(var i in json.data) {
-								var worker = json.data[i];
-
-								results.push({
-									value: json.data[i]['at_mention_name'] + ' ',
-									docHTML: "<b>" + lang.escapeHTML(worker['_label']) + "</b><br>" + lang.escapeHTML(worker['title'])
-								});
-							}
-
-							callback(null, results);
-							return;
-						});
-					}
-				}
-			};
-
-			editor.setOption('enableBasicAutocompletion', []);
-			editor.completers.push(autocompleterComments);
-			editor.commands.on('afterExec', doCerbLiveAutocomplete);
-		});
-	}
-
-	$.fn.cerbCodeEditorAutocompleteReplies = function() {
-		var Autocomplete = require('ace/autocomplete').Autocomplete;
-		var lang = require('ace/lib/lang');
-
-		var doCerbLiveAutocomplete = function(e) {
-			e.stopPropagation();
-
-			if('Tab' == e.command) {
-				return;
-			}
-
-			if(!e.editor.completer) {
-				var Autocomplete = require('ace/autocomplete').Autocomplete;
-				e.editor.completer = new Autocomplete();
-			}
-
-			if('insertstring' === e.command.name) {
-				e.editor.completer.showPopup(e.editor);
-			}
-		};
-
-		return this.each(function() {
-			var $editor = $(this)
-				.nextAll('pre.ace_editor')
-			;
-
-			var editor = ace.edit($editor.attr('id'));
-
-			if(!editor.completer) {
-				editor.completer = new Autocomplete();
-			}
-
-			var autocompleterReplies = {
-				getCompletions: function(editor, session, pos, prefix, callback) {
-					var token = session.getTokenAt(pos.row, pos.column);
-
-					if (null == token) {
-						return;
-
-					} else if (token.value.startsWith('#comment @')) {
-						var term = token.value.substring(token.value.lastIndexOf('@') + 1);
-
-						if (-1 !== term.lastIndexOf(' '))
-							return callback(null, []);
-
+					ajax_requests.push(function(callback) {
 						var query = 'type:worklist.records of:worker query:(isDisabled:n'
 							+ (term.length === 0
 								? ' mention:!""'
@@ -1766,34 +1903,242 @@ var ajax = new cAjaxCalls();
 							+ ')'
 						;
 
-						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function (json) {
-							var results = [];
-
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
 							if ('object' != typeof json || !json.hasOwnProperty('data')) {
-								callback(null, []);
-								return;
+								return callback(null, []);
 							}
+
+							var results = [];
 
 							for (var i in json.data) {
 								var worker = json.data[i];
 
 								results.push({
-									value: json.data[i]['at_mention_name'] + ' ',
-									docHTML: "<b>" + lang.escapeHTML(worker['_label']) + "</b><br>" + lang.escapeHTML(worker['title'])
+									_type: 'worker',
+									label: worker['_label'],
+									value: '@' + worker['at_mention_name'],
+									title: worker['title'],
+									mention: '@' + worker['at_mention_name'],
+									image_url: worker['_image_url'],
+									id: worker['id']
 								});
 							}
 
-							callback(null, results);
-							return;
+							return callback(null, results);
 						});
+					});
 
-					} else if (token.value.startsWith('#attach ')) {
-						var term = token.value.substring(token.value.lastIndexOf(' ') + 1);
+					ajax_requests.push(function(callback) {
+						var query = 'type:worklist.records of:saved_search query:(context:worker'
+							+ (term.length === 0
+									? ' tag:!""'
+									: ' (tag:{}*)'.replace(/\{\}/g, term)
+							)
+							+ ')'
+						;
 
-						if (-1 !== term.lastIndexOf(' '))
-							return callback(null, []);
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
+							if ('object' != typeof json || !json.hasOwnProperty('data')) {
+								return callback(null, []);
+							}
 
-						var query = 'type:worklist.records of:file_bundle query:('
+							var results = [];
+
+							for (var i in json.data) {
+								var search = json.data[i];
+
+								results.push({
+									_type: 'saved_search',
+									label: search['_label'],
+									value: '@' + search['tag'],
+									image_url: search['_image_url'],
+									mention: '@' + search['tag'],
+									id: search['id']
+								});
+							}
+
+							return callback(null, results);
+						});
+					});
+
+					async.parallelLimit(ajax_requests, 2, function(err, json) {
+						if(err)
+							return response([]);
+
+						var results = json.reduce(function(arr,val) { return arr.concat(val); });
+
+						return response(results);
+					});
+				},
+
+				source: function(request, response) {
+					var token = $editor.cerbTextEditor('getCurrentWord');
+
+					if(token.startsWith('@')) {
+						return this.options._sourceMentions(request, response, token);
+					} else {
+						response([]);
+					}
+
+				},
+
+				select: function(event, ui)  {
+					$editor.cerbTextEditor('replaceCurrentWord', ui.item.value);
+					return false;
+				},
+
+				focus: function(event, ui) {
+					return false;
+				},
+
+				open: function(event, ui) {
+					var $menu = $editor.autocomplete('widget');
+					var pos = getCaretCoordinates(editor, editor.selectionEnd);
+
+					$menu
+						.css('width', '400px')
+						.css('top', (editor.offsetTop - editor.scrollTop + pos.top + 15) + 'px')
+						.css('left', (editor.offsetLeft - editor.scrollLeft + pos.left + 5) + 'px')
+					;
+				}
+			})
+			.autocomplete( "instance" )._renderItem = function( ul, item ) {
+				var $li = $('<li/>');
+
+				if(item.image_url) {
+					$('<img/>')
+						.addClass('cerb-avatar')
+						.attr('src', item.image_url)
+						.appendTo($li)
+					;
+				}
+
+				$('<span/>')
+					.text(item.label)
+					.appendTo($li)
+					;
+
+				if(item.mention) {
+					$('<span/>')
+						.text(item.mention)
+						.css('margin-left', '10px')
+						.appendTo($li)
+					;
+				}
+
+				if(item.title) {
+					$('<span/>')
+						.text(item.title)
+						.css('margin-left', '10px')
+						.css('font-weight', 'normal')
+						.appendTo($li);
+					;
+				}
+
+				$li.appendTo(ul);
+
+				return $li;
+			};
+		});
+	}
+
+	$.fn.cerbTextEditorAutocompleteReplies = function() {
+		return this.each(function() {
+			var $editor = $(this);
+			var editor = $editor[0];
+
+			$editor.autocomplete({
+				appendTo: $editor.parent(),
+
+				_sourceCommand: function(request, response, token) {
+					var commands = [
+						{
+							label: '#attach',
+							value: '#attach ',
+							description: 'Attach a file bundle by alias'
+						},
+						{
+							label: '#comment',
+							value: '#comment ',
+							description: 'Add a comment with @mention notifications'
+						},
+						{
+							label: '#cut',
+							value: '#cut\n',
+							description: 'Ignore everything below this line'
+						},
+						{
+							label: '#delete_quote_from_here',
+							value: '#delete_quote_from_here',
+							description: 'Remove remaining quoted text from this line'
+						},
+						{
+							label: '#signature',
+							value: '#signature\n',
+							description: 'Insert the signature placeholder'
+						},
+						{
+							label: '#unwatch',
+							value: '#unwatch\n',
+							description: 'Stop watching this ticket'
+						},
+						{
+							label: '#watch',
+							value: '#watch\n',
+							description: 'Start watching this ticket'
+						}
+					];
+
+					// Filter
+					if(token.length > 1) {
+						return response(commands.filter(function (command) {
+							return command.label.startsWith(token);
+						}));
+					}
+
+					return response(commands);
+				},
+
+				_sourceMention: function(request, response, token) {
+					var term = token.substring(1);
+					var ajax_requests = [];
+
+					ajax_requests.push(function(callback) {
+						var query = 'type:worklist.records of:worker query:(isDisabled:n'
+							+ (term.length === 0
+								? ' mention:!""'
+								: ' (mention:{}*)'.replace(/\{\}/g, term)
+							)
+							+ ')'
+						;
+
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
+							if ('object' != typeof json || !json.hasOwnProperty('data')) {
+								return callback(null, []);
+							}
+
+							var results = [];
+
+							for (var i in json.data) {
+								var worker = json.data[i];
+
+								results.push({
+									_type: 'worker',
+									label: worker['_label'],
+									value: '@' + worker['at_mention_name'],
+									title: worker['title'],
+									mention: '@' + worker['at_mention_name'],
+									image_url: worker['_image_url'],
+									id: worker['id']
+								});
+							}
+
+							return callback(null, results);
+						});
+					});
+
+					ajax_requests.push(function(callback) {
+						var query = 'type:worklist.records of:saved_search query:(context:worker'
 							+ (term.length === 0
 								? ' tag:!""'
 								: ' (tag:{}*)'.replace(/\{\}/g, term)
@@ -1801,123 +2146,155 @@ var ajax = new cAjaxCalls();
 							+ ')'
 						;
 
-						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function (json) {
-							var results = [];
-
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
 							if ('object' != typeof json || !json.hasOwnProperty('data')) {
-								callback(null, []);
-								return;
+								return callback(null, []);
 							}
 
+							var results = [];
+
 							for (var i in json.data) {
-								var file_bundle = json.data[i];
+								var search = json.data[i];
 
 								results.push({
-									value: json.data[i]['tag'],
-									docHTML: "<b>" + lang.escapeHTML(file_bundle['_label']) + "</b>"
+									_type: 'saved_search',
+									label: search['_label'],
+									value: '@' + search['tag'],
+									image_url: search['_image_url'],
+									mention: '@' + search['tag'],
+									id: search['id']
 								});
 							}
 
-							callback(null, results);
-							return;
+							return callback(null, results);
 						});
+					});
 
-					} else if (token.value.startsWith('#')) {
-						var idx = token.value.indexOf(' ');
+					async.parallelLimit(ajax_requests, 2, function(err, json) {
+						if(err)
+							return response([]);
 
-						if (-1 != idx && idx <= pos.column)
-							return callback(null, []);
+						var results = json.reduce(function(arr,val) { return arr.concat(val); });
 
-						var results = [];
+						return response(results);
+					});
+				},
 
-						var insertActions = function(editor, data) {
-							delete data.completer;
+				source: function(request, response) {
+					var token = $editor.cerbTextEditor('getCurrentWord');
 
-							if('delete_quote_from_here' == data.value) {
-								editor.removeToLineStart();
+					if(token.startsWith('#')) {
+						return this.options._sourceCommand(request, response, token);
+					} else if(token.startsWith('@')) {
+						return this.options._sourceMention(request, response, token);
+					} else {
+						response([]);
+					}
+				},
 
-								var from = to = pos.row;
+				select: function(event, ui)  {
+					if('#delete_quote_from_here' === ui.item.value) {
+						$editor.cerbTextEditor('replaceCurrentWord', '');
+						var start = $editor.cerbTextEditor('getCursorPosition');
+						var value = $editor.val();
 
-								if(!editor.session.getLine(from).startsWith('>'))
-									return;
+						var lines = value.substring(start).split(/[\r?\n]/g);
+						var remainder = [];
+						var finished = false;
 
-								while(editor.session.getLine(to).startsWith('>')) {
-									to++;
-								}
-
-								if(to > from)
-									to--;
-
-								editor.session.doc.removeLines(from,to);
-
-							} else if('attach ' == data.value || 'comment @' == data.value) {
-								editor.completer.insertMatch(data);
-
-								// If we're inserting a field, trigger autocompletion
-								setTimeout(function() {
-									editor.commands.byName.startAutocomplete.exec(editor);
-								}, 50);
+						for (var i in lines) {
+							if (!finished && lines[i].startsWith('>')) {
+								continue;
+							} else {
+								finished = true;
 							}
-						};
 
-						results.push({
-							value: 'attach ',
-							docHTML: "<b>Attach a file bundle by alias</b>",
-							completer: {
-								insertMatch: insertActions
-							}
-						});
+							remainder.push(lines[i]);
+						}
 
-						results.push({
-							value: 'comment ',
-							docHTML: "<b>Add a comment</b>"
-						});
+						$editor.cerbTextEditor('setSelection', start, value.length);
+						$editor.cerbTextEditor('replaceSelection', remainder.join('\n'));
+						$editor.cerbTextEditor('setCursorPosition', start);
 
-						results.push({
-							value: 'comment @',
-							docHTML: "<b>Add a comment with @mention notifications</b>",
-							completer: {
-								insertMatch: insertActions
-							}
-						});
+					} else {
+						$editor.cerbTextEditor('replaceCurrentWord', ui.item.value);
+					}
 
-						results.push({
-							value: 'cut',
-							docHTML: "<b>Ignore everything below this line</b>",
-						});
+					return false;
+				},
 
-						results.push({
-							value: 'delete_quote_from_here',
-							docHTML: "<b>Remove remaining quoted text from this line</b>",
-							completer: {
-								insertMatch: insertActions
-							}
-						});
+				focus: function(event, ui) {
+					return false;
+				},
 
-						results.push({
-							value: 'signature',
-							docHTML: "<b>Insert the signature placeholder</b>",
-						});
+				open: function(event, ui) {
+					var $menu = $editor.autocomplete('widget');
+					var pos = getCaretCoordinates(editor, editor.selectionEnd);
 
-						results.push({
-							value: 'unwatch',
-							docHTML: "<b>Stop watching this ticket</b>",
-						});
+					$menu
+						.css('width', '400px')
+						.css('top', (editor.offsetTop - editor.scrollTop + pos.top + 15) + 'px')
+						.css('left', (editor.offsetLeft - editor.scrollLeft + pos.left + 5) + 'px')
+					;
+				}
+			})
+			.autocomplete( "instance" )._renderItem = function( ul, item ) {
+				var $li = $('<li/>');
 
-						results.push({
-							value: 'watch',
-							docHTML: "<b>Start watching this ticket</b>",
-						});
+				// #commands
+				if(item.label.startsWith('#')) {
+					$('<span/>')
+						.text(item.label)
+						.appendTo($li)
+					;
 
-						callback(null, results);
-						return;
+					if(item.description) {
+						$('<span/>')
+							.text(item.description)
+							.css('display', 'block')
+							.css('margin-left', '10px')
+							.css('font-weight', 'normal')
+							.appendTo($li)
+						;
+					}
+
+				// @mentions
+				} else {
+					if(item.image_url) {
+						$('<img/>')
+							.addClass('cerb-avatar')
+							.attr('src', item.image_url)
+							.appendTo($li)
+						;
+					}
+
+					$('<span/>')
+						.text(item.label)
+						.appendTo($li)
+					;
+
+					if(item.mention) {
+						$('<span/>')
+							.text(item.mention)
+							.css('margin-left', '10px')
+							.appendTo($li)
+						;
+					}
+
+					if(item.title) {
+						$('<span/>')
+							.text(item.title)
+							.css('margin-left', '10px')
+							.css('font-weight', 'normal')
+							.appendTo($li);
+						;
 					}
 				}
-			};
 
-			editor.setOption('enableBasicAutocompletion', []);
-			editor.completers.push(autocompleterReplies);
-			editor.commands.on('afterExec', doCerbLiveAutocomplete);
+				$li.appendTo(ul);
+
+				return $li;
+			};
 		});
 	}
 
@@ -2965,6 +3342,123 @@ var ajax = new cAjaxCalls();
 
 	// Image paste
 
+	$.fn.cerbTextEditorInlineImagePaster = function(options) {
+		return this.each(function() {
+			var $cursor = $(this);
+			var $attachments = options['attachmentsContainer'];
+			var $ul = $attachments.find('ul.chooser-container');
+
+			$cursor.on('paste', function(e) {
+				e.stopPropagation();
+
+				var files = e.originalEvent.clipboardData.files;
+
+				if(0 === files.length) {
+					return;
+				}
+
+				e.preventDefault();
+
+				// Uploads
+
+				var jobs = [];
+				var labels = [];
+				var values = [];
+
+				var uploadFunc = function(f, labels, values, callback) {
+					var xhr = new XMLHttpRequest();
+
+					if(xhr.upload) {
+						var $spinner = $('<span class="cerb-ajax-spinner"/>')
+							.css('zoom', '0.5')
+							.css('margin-right', '5px')
+						;
+
+						var $status = $('<li/>');
+
+						$status
+							.appendTo($ul)
+							.append($spinner)
+							.append(
+								$('<span/>')
+									.text('Uploading ' + f.name)
+							)
+						;
+
+						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileAjaxUpload', true);
+						xhr.setRequestHeader('X-File-Name', encodeURIComponent(f.name));
+						xhr.setRequestHeader('X-File-Type', f.type);
+						xhr.setRequestHeader('X-File-Size', f.size);
+						xhr.setRequestHeader('X-CSRF-Token', $('meta[name="_csrf_token"]').attr('content'));
+
+						xhr.onreadystatechange = function(e) {
+							if(xhr.readyState == 4) {
+								$status.remove();
+
+								// var json = {};
+
+								if(xhr.status == 200) {
+									var json = JSON.parse(xhr.responseText);
+
+									var file_id = json.id;
+									var file_name = json.name;
+									var file_type = json.type;
+									var file_size_label = '(' + json.size_label + ')';
+
+									var url =
+										document.location.protocol
+										+ '//'
+										+ document.location.host
+										+ DevblocksWebPath
+										+ 'files/'
+										+ encodeURIComponent(file_id) + '/'
+										+ encodeURIComponent(file_name)
+									;
+
+									// Paste at cursor
+									if(file_type.lastIndexOf("image/", 0) === 0) {
+										$cursor.cerbTextEditor('insertText', '![inline-image](' + url + ")\n");
+									}
+
+									// Add to attachments container
+									if($ul && 0 === $ul.find('input:hidden[value="' + file_id + '"]').length) {
+										var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(file_id);
+										var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+										var $a = $('<a href="javascript:;"/>')
+											.attr('data-context', 'attachment')
+											.attr('data-context-id', file_id)
+											.text(file_name + ' ' + file_size_label)
+											.cerbPeekTrigger()
+										;
+										var $li = $('<li/>').append($a).append($hidden).append($remove);
+										$ul.append($li);
+									}
+								}
+
+								callback(null);
+							}
+						};
+
+						xhr.send(f);
+					}
+				};
+
+				for(var i = 0, f; f = files[i]; i++) {
+					jobs.push(
+						async.apply(uploadFunc, f, labels, values)
+					);
+				}
+
+				if(0 === jobs.length)
+					return;
+
+				async.parallelLimit(jobs, 2, function(err, json) {
+					//if(err)
+				});
+			});
+		});
+	}
+
 	$.fn.cerbCodeEditorInlineImagePaster = function(options) {
 		return this.each(function() {
 			var $cursor = $(this);
@@ -3472,3 +3966,157 @@ var ajax = new cAjaxCalls();
 	}
 	
 }(jQuery));
+
+// https://github.com/component/textarea-caret-position
+(function () {
+// We'll copy the properties below into the mirror div.
+// Note that some browsers, such as Firefox, do not concatenate properties
+// into their shorthand (e.g. padding-top, padding-bottom etc. -> padding),
+// so we have to list every single property explicitly.
+	var properties = [
+		'direction',  // RTL support
+		'boxSizing',
+		'width',  // on Chrome and IE, exclude the scrollbar, so the mirror div wraps exactly as the textarea does
+		'height',
+		'overflowX',
+		'overflowY',  // copy the scrollbar for IE
+
+		'borderTopWidth',
+		'borderRightWidth',
+		'borderBottomWidth',
+		'borderLeftWidth',
+		'borderStyle',
+
+		'paddingTop',
+		'paddingRight',
+		'paddingBottom',
+		'paddingLeft',
+
+		// https://developer.mozilla.org/en-US/docs/Web/CSS/font
+		'fontStyle',
+		'fontVariant',
+		'fontWeight',
+		'fontStretch',
+		'fontSize',
+		'fontSizeAdjust',
+		'lineHeight',
+		'fontFamily',
+
+		'textAlign',
+		'textTransform',
+		'textIndent',
+		'textDecoration',  // might not make a difference, but better be safe
+
+		'letterSpacing',
+		'wordSpacing',
+
+		'tabSize',
+		'MozTabSize'
+
+	];
+
+	var isBrowser = (typeof window !== 'undefined');
+	var isFirefox = (isBrowser && window.mozInnerScreenX != null);
+
+	function getCaretCoordinates(element, position, options) {
+		if (!isBrowser) {
+			throw new Error('textarea-caret-position#getCaretCoordinates should only be called in a browser');
+		}
+
+		var debug = options && options.debug || false;
+		if (debug) {
+			var el = document.querySelector('#input-textarea-caret-position-mirror-div');
+			if (el) el.parentNode.removeChild(el);
+		}
+
+		// The mirror div will replicate the textarea's style
+		var div = document.createElement('div');
+		div.id = 'input-textarea-caret-position-mirror-div';
+		document.body.appendChild(div);
+
+		var style = div.style;
+		var computed = window.getComputedStyle ? window.getComputedStyle(element) : element.currentStyle;  // currentStyle for IE < 9
+		var isInput = element.nodeName === 'INPUT';
+
+		// Default textarea styles
+		style.whiteSpace = 'pre-wrap';
+		if (!isInput)
+			style.wordWrap = 'break-word';  // only for textarea-s
+
+		// Position off-screen
+		style.position = 'absolute';  // required to return coordinates properly
+		if (!debug)
+			style.visibility = 'hidden';  // not 'display: none' because we want rendering
+
+		// Transfer the element's properties to the div
+		properties.forEach(function (prop) {
+			if (isInput && prop === 'lineHeight') {
+				// Special case for <input>s because text is rendered centered and line height may be != height
+				if (computed.boxSizing === "border-box") {
+					var height = parseInt(computed.height);
+					var outerHeight =
+						parseInt(computed.paddingTop) +
+						parseInt(computed.paddingBottom) +
+						parseInt(computed.borderTopWidth) +
+						parseInt(computed.borderBottomWidth);
+					var targetHeight = outerHeight + parseInt(computed.lineHeight);
+					if (height > targetHeight) {
+						style.lineHeight = height - outerHeight + "px";
+					} else if (height === targetHeight) {
+						style.lineHeight = computed.lineHeight;
+					} else {
+						style.lineHeight = 0;
+					}
+				} else {
+					style.lineHeight = computed.height;
+				}
+			} else {
+				style[prop] = computed[prop];
+			}
+		});
+
+		if (isFirefox) {
+			// Firefox lies about the overflow property for textareas: https://bugzilla.mozilla.org/show_bug.cgi?id=984275
+			if (element.scrollHeight > parseInt(computed.height))
+				style.overflowY = 'scroll';
+		} else {
+			style.overflow = 'hidden';  // for Chrome to not render a scrollbar; IE keeps overflowY = 'scroll'
+		}
+
+		div.textContent = element.value.substring(0, position);
+		// The second special handling for input type="text" vs textarea:
+		// spaces need to be replaced with non-breaking spaces - http://stackoverflow.com/a/13402035/1269037
+		if (isInput)
+			div.textContent = div.textContent.replace(/\s/g, '\u00a0');
+
+		var span = document.createElement('span');
+		// Wrapping must be replicated *exactly*, including when a long word gets
+		// onto the next line, with whitespace at the end of the line before (#7).
+		// The  *only* reliable way to do that is to copy the *entire* rest of the
+		// textarea's content into the <span> created at the caret position.
+		// For inputs, just '.' would be enough, but no need to bother.
+		span.textContent = element.value.substring(position) || '.';  // || because a completely empty faux span doesn't render at all
+		div.appendChild(span);
+
+		var coordinates = {
+			top: span.offsetTop + parseInt(computed['borderTopWidth']),
+			left: span.offsetLeft + parseInt(computed['borderLeftWidth']),
+			height: parseInt(computed['lineHeight'])
+		};
+
+		if (debug) {
+			span.style.backgroundColor = '#aaa';
+		} else {
+			document.body.removeChild(div);
+		}
+
+		return coordinates;
+	}
+
+	if (typeof module != 'undefined' && typeof module.exports != 'undefined') {
+		module.exports = getCaretCoordinates;
+	} else if(isBrowser) {
+		window.getCaretCoordinates = getCaretCoordinates;
+	}
+
+}());

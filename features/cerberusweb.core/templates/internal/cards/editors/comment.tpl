@@ -32,7 +32,7 @@
         </div>
 
         <input type="hidden" name="comment_is_markdown" value="1">
-        <textarea name="comment" data-editor-mode="ace/editor/markdown" data-editor-lines="15" data-editor-gutter="true" data-editor-line-numbers="false" rows="10" cols="60" style="width:98%;height:50px;display:none;" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
+        <textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
 
         <div class="cerb-comment-attachments">
             <button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
@@ -50,119 +50,93 @@ $(function() {
     $attachments.cerbAttachmentsDropZone();
 
     // Editor
-    var loadEditor = function() {
-        var $editor = $container.find('textarea[name=comment]')
-            .cerbCodeEditor()
-            .cerbCodeEditorAutocompleteComments()
-        ;
+    var $editor = $container.find('textarea[name=comment]')
+        .cerbTextEditor()
+        .cerbTextEditorAutocompleteComments()
+        .cerbTextEditorInlineImagePaster({
+            attachmentsContainer: $attachments
+        })
+    ;
 
-        var $editor_pre = $editor.nextAll('pre.ace_editor');
+    // Toggle
+    $container.find('input[name="comment_enabled"]')
+        .on('click', function() {
+            var $this = $(this);
 
-        // Focus editor
-        var editor = ace.edit($editor_pre.attr('id'));
-
-        $editor_pre.find('.ace_text-input')
-            .cerbCodeEditorInlineImagePaster({
-                editor: editor,
-                attachmentsContainer: $attachments
-            })
-        ;
-
-        // Toggle
-        $container.find('input[data-cerb-action="comment-toggle"]')
-            .on('click', function() {
-                var $this = $(this);
-
-                if ($this.is(':checked')) {
-                    $this.closest('legend').next('div').show();
-                    editor.focus();
-                } else {
-                    $this.closest('legend').next('div').hide();
-                }
-            })
-        ;
-
-        // Comment editor toolbar
-
-        var $editor_toolbar = $container.find('.cerb-code-editor-toolbar')
-            .cerbCodeEditorToolbarMarkdown()
-        ;
-
-        // Formatting
-        $editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
-            var $button = $(this);
-
-            if('html' === $button.attr('data-format')) {
-                $container.find('input:hidden[name=comment_is_markdown]').val('0');
-                $button.attr('data-format', 'plaintext');
-                $button.text('Formatting off');
-                $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+            if ($this.is(':checked')) {
+                $this.closest('legend').next('div').show();
+                $editor.focus();
             } else {
-                $container.find('input:hidden[name=comment_is_markdown]').val('1');
-                $button.attr('data-format', 'html');
-                $button.text('Formatting on');
-                $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+                $this.closest('legend').next('div').hide();
             }
+        })
+    ;
+
+    // Comment editor toolbar
+
+    var $editor_toolbar = $container.find('.cerb-code-editor-toolbar')
+        .cerbTextEditorToolbarMarkdown()
+    ;
+
+    // Formatting
+    $editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
+        var $button = $(this);
+
+        if('html' === $button.attr('data-format')) {
+            $container.find('input:hidden[name=comment_is_markdown]').val('0');
+            $button.attr('data-format', 'plaintext');
+            $button.text('Formatting off');
+            $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+        } else {
+            $container.find('input:hidden[name=comment_is_markdown]').val('1');
+            $button.attr('data-format', 'html');
+            $button.text('Formatting on');
+            $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+        }
+    });
+
+    // Upload image
+    $editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
+        event.stopPropagation();
+
+        var new_event = $.Event('cerb-chooser-save', {
+            labels: event.labels,
+            values: event.values
         });
 
-        // Upload image
-        $editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
-            event.stopPropagation();
+        $container.find('button.chooser_file').triggerHandler(new_event);
 
-            var new_event = $.Event('cerb-chooser-save', {
-                labels: event.labels,
-                values: event.values
-            });
+        $editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
+    });
 
-            $container.find('button.chooser_file').triggerHandler(new_event);
+    // Mention
+    $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--mention').on('click', function () {
+        var token = $editor.cerbTextEditor('getCurrentWord');
 
-            editor.insertSnippet('![Image](' + event.url + ')');
-            editor.focus();
-        });
+        if(token !== '@') {
+            $editor.cerbTextEditor('insertText', '@');
+        }
 
-        // Mention
-        $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--mention').on('click', function () {
-            var Range = require('ace/range').Range;
+        $editor.autocomplete('search');
+    });
 
-            var pos = editor.getCursorPosition();
+    // Preview
+    $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
+        var formData = new FormData();
+        formData.append('c', 'profiles');
+        formData.append('a', 'handleSectionAction');
+        formData.append('section', 'comment');
+        formData.append('action', 'preview');
+        formData.append('comment', $container.find('textarea[name=comment]').val());
+        formData.append('is_markdown', $container.find('input:hidden[name=comment_is_markdown]').val());
 
-            if (pos.column > 0) {
-                var range = new Range(pos.row, pos.column - 1, pos.row, pos.column);
-                var text = editor.session.getTextRange(range);
-
-                // If we just inserted an @, don't add text, just autocomplete
-                if ('@' === text) {
-                    editor.commands.byName.startAutocomplete.exec(editor);
-                    editor.focus();
-                    return;
-                }
-            }
-
-            editor.insertSnippet("@");
-            editor.commands.byName.startAutocomplete.exec(editor);
-            editor.focus();
-        });
-
-        // Preview
-        $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
-            var formData = new FormData();
-            formData.append('c', 'profiles');
-            formData.append('a', 'handleSectionAction');
-            formData.append('section', 'comment');
-            formData.append('action', 'preview');
-            formData.append('comment', editor.getValue());
-            formData.append('is_markdown', $container.find('input:hidden[name=comment_is_markdown]').val());
-
-            genericAjaxPopup(
-                'comment_preview',
-                formData,
-                'reuse',
-                false
-            );
-        });
-    };
-
-    setTimeout(loadEditor, 0);
+        genericAjaxPopup(
+            'comment_preview',
+            formData,
+            'reuse',
+            false
+        );
+    });
 
     // Attachments
 

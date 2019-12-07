@@ -79,7 +79,7 @@
 			<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 		</div>
 
-		<textarea name="comment" data-editor-mode="ace/editor/markdown" data-editor-lines="15" data-editor-gutter="true" data-editor-line-numbers="false" rows="10" cols="60" style="width:98%;height:50px;display:none;" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
+		<textarea name="comment" placeholder="{'comment.notify.at_mention'|devblocks_translate}">{$model->comment}</textarea>
 	</div>
 
 	<div>
@@ -154,7 +154,7 @@
 $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
-	
+
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.comment'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
@@ -182,156 +182,126 @@ $(function() {
 
 		// Editor
 
-		var loadEditor = function() {
-			var $editor = $popup.find('textarea[name=comment]')
-				.cerbCodeEditor()
-				.cerbCodeEditorAutocompleteComments()
-				;
+		var $editor = $popup.find('textarea[name=comment]');
 
-			var $editor_pre = $editor.nextAll('pre.ace_editor');
+		$editor
+			.cerbTextEditor()
+			.cerbTextEditorAutocompleteComments()
+			.cerbTextEditorInlineImagePaster({
+				attachmentsContainer: $attachments
+			})
+			;
 
-			// Focus editor
-			var editor = ace.edit($editor_pre.attr('id'));
+		// Comment editor toolbar
+		var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar')
+			.cerbTextEditorToolbarMarkdown()
+			;
 
-			$editor_pre.find('.ace_text-input')
-				.cerbCodeEditorInlineImagePaster({
-					editor: editor,
-					attachmentsContainer: $attachments
-				})
-				;
+		// Formatting
+		$editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
+			var $button = $(this);
 
-			// Comment editor toolbar
+			if('html' === $button.attr('data-format')) {
+				$frm.find('input:hidden[name=is_markdown]').val('0');
+				$button.attr('data-format', 'plaintext');
+				$button.text('Formatting off');
+				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+			} else {
+				$frm.find('input:hidden[name=is_markdown]').val('1');
+				$button.attr('data-format', 'html');
+				$button.text('Formatting on');
+				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+			}
+		});
 
-			var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar')
-				.cerbCodeEditorToolbarMarkdown()
-				;
+		// Upload image
+		$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
+			event.stopPropagation();
 
-			// Formatting
-			$editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
-				var $button = $(this);
-
-				if('html' === $button.attr('data-format')) {
-					$frm.find('input:hidden[name=is_markdown]').val('0');
-					$button.attr('data-format', 'plaintext');
-					$button.text('Formatting off');
-					$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
-				} else {
-					$frm.find('input:hidden[name=is_markdown]').val('1');
-					$button.attr('data-format', 'html');
-					$button.text('Formatting on');
-					$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
-				}
+			var new_event = $.Event('cerb-chooser-save', {
+				labels: event.labels,
+				values: event.values
 			});
 
-			// Upload image
-			$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
-				event.stopPropagation();
+			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-				var new_event = $.Event('cerb-chooser-save', {
-					labels: event.labels,
-					values: event.values
-				});
+			$editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
+		});
 
-				$popup.find('button.chooser_file').triggerHandler(new_event);
+		// Mention
+		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--mention').on('click', function () {
+			var token = $editor.cerbTextEditor('getCurrentWord');
 
-				editor.insertSnippet('![Image](' + event.url + ')');
-				editor.focus();
-			});
+			if(token !== '@') {
+				$editor.cerbTextEditor('insertText', '@');
+			}
 
-			// Mention
-			$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--mention').on('click', function () {
-				var Range = require('ace/range').Range;
+			$editor.autocomplete('search');
+		});
 
-				var pos = editor.getCursorPosition();
+		// Snippets
+		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
+			var context = 'cerberusweb.contexts.snippet';
+			var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,comment]') + '&single=1&context=' + encodeURIComponent(context);
 
-				if (pos.column > 0) {
-					var range = new Range(pos.row, pos.column - 1, pos.row, pos.column);
-					var text = editor.session.getTextRange(range);
+			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
-					// If we just inserted an @, don't add text, just autocomplete
-					if ('@' === text) {
-						editor.commands.byName.startAutocomplete.exec(editor);
-						editor.focus();
-						return;
+			$chooser.on('chooser_save', function (event) {
+				if (!event.values || 0 === event.values.length)
+					return;
+
+				var snippet_id = event.values[0];
+
+				if (null == snippet_id)
+					return;
+
+				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+				var url = 'c=internal&a=snippetPaste&id='
+					+ encodeURIComponent(snippet_id)
+					+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
+				;
+
+				genericAjaxGet('', url, function (json) {
+					// If the content has placeholders, use that popup instead
+					if (json.has_custom_placeholders) {
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+
+						$popup_paste.bind('snippet_paste', function (event) {
+							if (null == event.text)
+								return;
+
+							$editor.cerbTextEditor('insertText', event.text);
+						});
+
+					} else {
+						$editor.cerbTextEditor('insertText', json.text);
 					}
-				}
-
-				editor.insertSnippet("@");
-				editor.commands.byName.startAutocomplete.exec(editor);
-				editor.focus();
-			});
-
-			// Snippets
-			$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
-				var context = 'cerberusweb.contexts.snippet';
-				var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,comment]') + '&single=1&context=' + encodeURIComponent(context);
-
-				var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
-
-				$chooser.on('chooser_save', function (event) {
-					if (!event.values || 0 == event.values.length)
-						return;
-
-					var snippet_id = event.values[0];
-
-					if (null == snippet_id)
-						return;
-
-					// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-					var url = 'c=internal&a=snippetPaste&id='
-						+ encodeURIComponent(snippet_id)
-						+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
-					;
-
-					genericAjaxGet('', url, function (json) {
-						// If the content has placeholders, use that popup instead
-						if (json.has_custom_placeholders) {
-							var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
-
-							$popup_paste.bind('snippet_paste', function (event) {
-								if (null == event.text)
-									return;
-
-								editor.insert(event.text);
-								editor.scrollToLine(editor.getCursorPosition().row);
-								editor.focus();
-							});
-
-						} else {
-							editor.insert(json.text);
-							editor.scrollToLine(editor.getCursorPosition().row);
-							editor.focus();
-						}
-					});
 				});
 			});
+		});
 
-			// Preview
-			$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
-				var formData = new FormData();
-				formData.append('c', 'profiles');
-				formData.append('a', 'handleSectionAction');
-				formData.append('section', 'comment');
-				formData.append('action', 'preview');
-				formData.append('context', $frm.find('input:hidden[name=context]').val());
-				formData.append('comment', editor.getValue());
-				formData.append('is_markdown', $frm.find('input:hidden[name=is_markdown]').val());
+		// Preview
+		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
+			var formData = new FormData();
+			formData.append('c', 'profiles');
+			formData.append('a', 'handleSectionAction');
+			formData.append('section', 'comment');
+			formData.append('action', 'preview');
+			formData.append('context', $frm.find('input:hidden[name=context]').val());
+			formData.append('comment', $frm.find('textarea[name=comment]').val());
+			formData.append('is_markdown', $frm.find('input:hidden[name=is_markdown]').val());
 
-				genericAjaxPopup(
-					'comment_preview',
-					formData,
-					'reuse',
-					false
-				);
-			});
+			genericAjaxPopup(
+				'comment_preview',
+				formData,
+				'reuse',
+				false
+			);
+		});
 
-			// Focus
-			setTimeout(function() {
-				editor.focus();
-			}, 100);
-		};
-
-		setTimeout(loadEditor, 0);
+		setTimeout(function() {
+			$editor.focus();
+		}, 100);
 
 		// Attachments
 

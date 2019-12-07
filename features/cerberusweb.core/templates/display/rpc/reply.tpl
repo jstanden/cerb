@@ -156,7 +156,7 @@
 </div>
 
 {if $is_forward}
-<textarea name="content" id="reply_{$message->id}" class="reply" data-editor-mode="ace/mode/text" data-editor-line-numbers="false" data-editor-lines="20">
+<textarea name="content" id="reply_{$message->id}" class="reply" style="box-sizing:border-box;">
 {if !empty($draft)}{$draft->getParam('content')}{else}
 
 
@@ -172,7 +172,7 @@
 {/if}
 </textarea>
 {else}
-<textarea name="content" id="reply_{$message->id}" class="reply" data-editor-mode="ace/mode/text" data-editor-line-numbers="false" data-editor-lines="20">
+<textarea name="content" id="reply_{$message->id}" class="reply" style="box-sizing:border-box;" autofocus="autofocus">
 {if !empty($draft)}{$draft->getParam('content')}{else}
 {if 1==$signature_pos || 3==$signature_pos}
 
@@ -466,26 +466,20 @@ $(function() {
 		// Text editor
 
 		var $editor = $('#reply_{$message->id}')
-			.cerbCodeEditor()
-			.cerbCodeEditorAutocompleteReplies()
-			;
-
-		var $editor_pre = $editor.nextAll('pre.ace_editor');
-
-		var editor = ace.edit($editor_pre.attr('id'));
-
-		$editor_pre.find('.ace_text-input')
-			.cerbCodeEditorInlineImagePaster({
-				editor: editor,
+			.cerbTextEditor()
+			.cerbTextEditorAutocompleteReplies()
+			.cerbTextEditorInlineImagePaster({
 				attachmentsContainer: $attachments
 			})
 			;
 
+		var editor = $editor[0];
+
 		var $editor_toolbar = $frm.find('.cerb-code-editor-toolbar')
-			.cerbCodeEditorToolbarMarkdown()
+			.cerbTextEditorToolbarMarkdown()
 			;
 
-		$editor_toolbar_button_save_draft = $editor_toolbar.find('.cerb-reply-editor-toolbar-button--save')
+		var $editor_toolbar_button_save_draft = $editor_toolbar.find('.cerb-reply-editor-toolbar-button--save')
 			.click(function(event) {
 				event.stopPropagation();
 				var $this = $(this);
@@ -536,15 +530,13 @@ $(function() {
 
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-			editor.insertSnippet('![Image](' + event.url + ')');
-			editor.focus();
+			$editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
 		});
 
 		// Signature
 		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--commands').on('click', function(e) {
-			editor.insertSnippet("#");
-			editor.commands.byName.startAutocomplete.exec(editor);
-			editor.focus();
+			$editor.cerbTextEditor('insertText', '#');
+			$editor.autocomplete('search');
 		});
 
 		// Snippets
@@ -555,7 +547,7 @@ $(function() {
 			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
 			$chooser.on('chooser_save', function (event) {
-				if (!event.values || 0 == event.values.length)
+				if (!event.values || 0 === event.values.length)
 					return;
 
 				var snippet_id = event.values[0];
@@ -579,15 +571,11 @@ $(function() {
 							if (null == event.text)
 								return;
 
-							editor.insert(event.text);
-							editor.scrollToLine(editor.getCursorPosition().row);
-							editor.focus();
+							$editor.cerbTextEditor('insertText', event.text);
 						});
 
 					} else {
-						editor.insert(json.text);
-						editor.scrollToLine(editor.getCursorPosition().row);
-						editor.focus();
+						$editor.cerbTextEditor('insertText', json.text);
 					}
 				});
 			});
@@ -603,7 +591,7 @@ $(function() {
 			formData.append('format', $frm.find('input[name=format]').val());
 			formData.append('group_id', $frm.find('select[name=group_id]').val());
 			formData.append('bucket_id', $frm.find('select[name=bucket_id]').val());
-			formData.append('content', editor.getValue());
+			formData.append('content', $frm.find('textarea[name=content]').val());
 
 			genericAjaxPopup(
 				'preview_reply',
@@ -659,7 +647,7 @@ $(function() {
 		
 		{if !$recent_activity}
 			{if !$is_forward}
-				editor.focus();
+				$editor.focus();
 			{else}
 				$frm.find('input:text[name=to]').focus();
 			{/if}
@@ -837,22 +825,17 @@ $(function() {
 		;
 		
 		// Shortcuts
-		
-		{if $pref_keyboard_shortcuts}
-		editor.commands.addCommand({
-			name: 'Send',
-			bindKey: { win: 'Ctrl-Shift-Enter', mac: 'Ctrl-Shift-Enter' },
-			exec: function(editor) {
-				try {
-					$('#reply{$message->id}_buttons .send.split-left').focus();
-				} catch(ex) { }
-			}
-		});
 
-		editor.commands.addCommand({
-			name: 'Status close',
-			bindKey: { win: 'Ctrl-Shift-C', mac: 'Ctrl-Shift-C' },
-			exec: function(editor) {
+		{if $pref_keyboard_shortcuts}
+			// Submit
+			$editor.bind('keydown', 'meta+return alt+return ctrl+shift+return', function(e) {
+				e.preventDefault();
+				$frm.find('button.send').focus();
+			});
+
+			// Status Close
+			$editor.bind('keydown', 'ctrl+shift+c', function(e) {
+				e.preventDefault();
 				try {
 					var $reply_status = $('#replyStatus{$message->id}');
 					var $radio = $reply_status.find('input:radio[name=status_id]');
@@ -863,13 +846,11 @@ $(function() {
 						.focus()
 					;
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Status open',
-			bindKey: { win: 'Ctrl-Shift-O', mac: 'Ctrl-Shift-O' },
-			exec: function(editor) {
+			// Status Open
+			$editor.bind('keydown', 'ctrl+shift+o', function(e) {
+				e.preventDefault();
 				try {
 					var $reply_status = $('#replyStatus{$message->id}');
 					var $radio = $reply_status.find('input:radio[name=status_id]');
@@ -880,75 +861,52 @@ $(function() {
 						.focus()
 					;
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Status waiting',
-			bindKey: { win: 'Ctrl-Shift-W', mac: 'Ctrl-Shift-W' },
-			exec: function(editor) {
+			// Status Waiting
+			$editor.bind('keydown', 'ctrl+shift+w', function(e) {
+				e.preventDefault();
 				try {
 					var $reply_status = $('#replyStatus{$message->id}');
 					var $radio = $reply_status.find('input:radio[name=status_id]');
 					$radio.filter('.status_waiting').click();
 					$reply_status
-							.find('input:text[name=ticket_reopen]')
-							.select()
-							.focus()
+						.find('input:text[name=ticket_reopen]')
+						.select()
+						.focus()
 					;
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Insert signature',
-			bindKey: { win: 'Ctrl-Shift-G', mac: 'Ctrl-Shift-G' },
-			exec: function(editor) {
+			// Insert signature
+			$editor.bind('keydown', 'ctrl+shift+g', function(e) {
+				e.preventDefault();
 				try {
-                    editor.insertSnippet("#signature\n");
-                    editor.focus();
+                    $editor.cerbTextEditor('insertText', '#signature\n');
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Insert snippet',
-			bindKey: { win: 'Ctrl-Shift-I', mac: 'Ctrl-Shift-I' },
-			exec: function(editor) {
+			// Insert snippet
+			$editor.bind('keydown', 'ctrl+shift+i', function(e) {
+				e.preventDefault();
 				try {
                     $editor_toolbar_button_snippets.click();
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Bot interaction',
-			bindKey: { win: 'Ctrl-Shift-B', mac: 'Ctrl-Shift-B' },
-			exec: function(editor) {
+			// Bot interactions
+			$editor.bind('keydown', 'ctrl+shift+b', function(e) {
+				e.preventDefault();
 				try {
 					$editor_toolbar.find('.cerb-reply-editor-toolbar-button--interactions').click();
 				} catch(ex) { }
-			}
-		});
+			});
 
-		editor.commands.addCommand({
-			name: 'Jump to first blank',
-			bindKey: { win: 'Ctrl-Shift-J', mac: 'Ctrl-Shift-J' },
-			exec: function(editor) {
+			// Reformat quotes
+			$editor.bind('keydown', 'ctrl+shift+q', function(e) {
+				e.preventDefault();
 				try {
-					// var txt = $(this).val();
-					// var pos = txt.indexOf("\n\n")+2;
-					// $(this).setCursorLocation(pos).focus();
-				} catch(ex) { }
-			}
-		});
-
-		editor.commands.addCommand({
-			name: 'Reformat quotes',
-			bindKey: { win: 'Ctrl-Shift-Q', mac: 'Ctrl-Shift-Q' },
-			exec: function(editor) {
-				try {
-					var txt = editor.getValue();
+					var txt = $editor.val();
 
 					var lines = txt.split("\n");
 
@@ -986,7 +944,7 @@ $(function() {
 						if(prefix.length === 0)
 							continue;
 
-						while(undefined != bins[i].lines[l] && bail > 0) {
+						while(undefined !== bins[i].lines[l] && bail > 0) {
 							line = bins[i].lines[l];
 							var boundary = Math.max(0, wrap_to-prefix.length);
 
@@ -1000,7 +958,7 @@ $(function() {
 
 								// If we don't have more lines, add a new one
 								if(overflow) {
-									if(undefined != bins[i].lines[l+1]) {
+									if(undefined !== bins[i].lines[l+1]) {
 										if(bins[i].lines[l+1].length === 0) {
 											bins[i].lines.splice(l+1,0,overflow);
 										} else {
@@ -1025,14 +983,12 @@ $(function() {
 						}
 					}
 
-					editor.setValue($.trim(out));
-					editor.clearSelection();
+					$editor.val($.trim(out));
 
 				} catch(ex) { }
-			}
-		});
+			});
 		{/if}
-		
+
 		{* Run custom jQuery scripts from VA behavior *}
 		
 		{if !empty($jquery_scripts)}

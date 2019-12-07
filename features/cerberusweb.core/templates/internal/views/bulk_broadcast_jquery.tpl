@@ -1,24 +1,16 @@
-var $editor = $popup.find('textarea[name=broadcast_message]')
-	.cerbCodeEditor()
-	;
+var $attachments = $popup.find('.cerb-broadcast-attachments');
 
-var $editor_pre = $editor.nextAll('pre.ace_editor');
+var $editor = $popup.find('textarea[name=broadcast_message]')
+	.cerbTextEditor()
+	.cerbTextEditorInlineImagePaster({
+		attachmentsContainer: $attachments
+	})
+	;
 
 var $frm = $editor.closest('form');
 
-var editor = ace.edit($editor_pre.attr('id'));
-
 var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar--broadcast')
-	.cerbCodeEditorToolbarMarkdown()
-	;
-
-var $attachments = $popup.find('.cerb-broadcast-attachments');
-
-$editor_pre.find('.ace_text-input')
-	.cerbCodeEditorInlineImagePaster({
-		editor: editor,
-		attachmentsContainer: $attachments
-	})
+	.cerbTextEditorToolbarMarkdown()
 	;
 
 // Formatting
@@ -40,23 +32,18 @@ $editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click'
 
 // Signature
 $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--signature').on('click', function(e) {
-	editor.insertSnippet("#signature\n");
+	$editor.cerbTextEditor('insertText', "#signature\n");
 });
 
 // Placeholders
 $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--placeholders').on('click', function(e) {
-	var $cursor = $editor.nextAll('pre.ace_editor').find('.ace_text-input');
-
 	$placeholder_menu
 		.toggle()
-		.position({
-			my: 'left bottom',
-			at: 'left top',
-			of: $cursor
-		})
 	;
 
-	editor.focus();
+	// [TODO] Position at cursor
+
+	$editor.focus();
 });
 
 // Upload image
@@ -70,8 +57,7 @@ $editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
 
 	$popup.find('button.chooser_file').triggerHandler(new_event);
 
-	editor.insertSnippet('![Image](' + event.url + ')');
-	editor.focus();
+	$editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
 });
 
 // Snippets
@@ -106,15 +92,11 @@ $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click
 					if (null == event.text)
 						return;
 
-					editor.insert(event.text);
-					editor.scrollToLine(editor.getCursorPosition().row);
-					editor.focus();
+					$editor.cerbTextEditor('insertText', event.text);
 				});
 
 			} else {
-				editor.insert(json.text);
-				editor.scrollToLine(editor.getCursorPosition().row);
-				editor.focus();
+				$editor.cerbTextEditor('insertText', json.text);
 			}
 		});
 	});
@@ -140,7 +122,7 @@ $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click'
 	});
 
 	formData.append('broadcast_format', $frm.find('input[name=broadcast_format]').val());
-	formData.append('broadcast_message', editor.getValue());
+	formData.append('broadcast_message', $frm.find('textarea[name=broadcast_message]').val());
 
 	genericAjaxPopup(
 		'preview_broadcast',
@@ -162,8 +144,7 @@ $placeholder_menu.menu({
 		if(undefined == token || undefined == label)
 			return;
 
-		editor.insertSnippet('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
-		editor.focus();
+		$editor.cerbTextEditor('insertText', '{literal}{{{/literal}' + token + '{literal}}}{/literal}');
 
 		$placeholder_menu.hide();
 	}
