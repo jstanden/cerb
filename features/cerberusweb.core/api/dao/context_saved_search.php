@@ -1013,6 +1013,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 			$prefix = 'Saved Search:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.context.saved.search');
 
 		// Polymorph
@@ -1061,7 +1062,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = 'cerberusweb.contexts.context.saved.search';
 		$token_values['_types'] = $token_types;
@@ -1069,6 +1070,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		if($context_saved_search) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $context_saved_search->name;
+			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'saved_search', $context_saved_search->id), true) . '?v=' . $context_saved_search->updated_at;
 			$token_values['context'] = $context_saved_search->context;
 			$token_values['id'] = $context_saved_search->id;
 			$token_values['name'] = $context_saved_search->name;
