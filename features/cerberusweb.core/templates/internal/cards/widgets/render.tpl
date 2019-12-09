@@ -8,7 +8,9 @@
                     {$widget->name}<!--
                     --><span class="glyphicons glyphicons-chevron-down"></span>
                 </a>
-				<span class="glyphicons glyphicons-menu-hamburger" style="vertical-align:baseline;color:rgb(200,200,200);float:right;"></span>
+				{if $active_worker->is_superuser}
+				<span class="glyphicons glyphicons-menu-hamburger" style="vertical-align:baseline;color:rgb(200,200,200);float:right;display:none;"></span>
+				{/if}
 			</b>
 		</div>
 		<div>

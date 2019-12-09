@@ -9,6 +9,9 @@
 					{$widget->label}<!--
 					--><span class="glyphicons glyphicons-chevron-down"></span>
 				</a>
+				{if $is_widget_writeable}
+				<span class="glyphicons glyphicons-menu-hamburger" style="vertical-align:baseline;color:rgb(200,200,200);float:right;display:none;"></span>
+				{/if}
 			</b>
 		</div>
 		<div>

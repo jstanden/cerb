@@ -101,7 +101,7 @@ $(function() {
 			placeholder: 'ui-state-highlight',
 			forceHelperSize: true,
 			forcePlaceholderSize: true,
-			handle: '.cerb-workspace-widget--header',
+			handle: '.cerb-workspace-widget--header .glyphicons-menu-hamburger',
 			connectWith: '.cerb-workspace-layout-zone--widgets',
 			opacity: 0.7,
 			start: function(event, ui) {
@@ -180,18 +180,17 @@ $(function() {
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-workspace-widget--menu');
 		var $menu_link = $target.find('.cerb-workspace-widget--link');
+		var $handle = $target.find('.glyphicons-menu-hamburger');
 
 		{if $is_writeable}
-		$target.find('.cerb-workspace-widget--header.cerb-draggable').hoverIntent({
-			interval: 750,
+		$target.hoverIntent({
+			interval: 50,
 			timeout: 250,
 			over: function (e) {
-				$(this).css('cursor', 'move');
-				$(this).find('> b a').css('cursor', 'move');
+				$handle.show();
 			},
 			out: function (e) {
-				$(this).css('cursor', null);
-				$(this).find('> b a').css('cursor', null);
+				$handle.hide();
 			}
 		});
 		{/if}

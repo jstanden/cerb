@@ -178,6 +178,21 @@ $(function() {
             var $menu = $target.find('.cerb-card-widget--menu');
             var $menu_link = $target.find('.cerb-card-widget--link');
 
+            {if $active_worker->is_superuser}
+            $target.find('.cerb-card-widget').hoverIntent({
+                interval: 50,
+                timeout: 250,
+                over: function (e) {
+                    var $handle = $(this).find('.glyphicons-menu-hamburger');
+                    $handle.show();
+                },
+                out: function (e) {
+                    var $handle = $(this).find('.glyphicons-menu-hamburger');
+                    $handle.hide();
+                }
+            });
+            {/if}
+
             $menu
                 .menu({
                     select: function(event, ui) {

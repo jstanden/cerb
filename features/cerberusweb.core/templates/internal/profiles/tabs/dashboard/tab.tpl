@@ -67,7 +67,7 @@ $(function() {
 			placeholder: 'ui-state-highlight',
 			forceHelperSize: true,
 			forcePlaceholderSize: true,
-			handle: '.cerb-profile-widget--header',
+			handle: '.cerb-profile-widget--header .glyphicons-menu-hamburger',
 			connectWith: '.cerb-profile-layout-zone--widgets',
 			opacity: 0.7,
 			start: function(event, ui) {
@@ -126,16 +126,16 @@ $(function() {
 		var $menu_link = $target.find('.cerb-profile-widget--link');
 
 		{if $active_worker->is_superuser}
-		$target.find('.cerb-profile-widget--header.cerb-draggable').hoverIntent({
-			interval: 750,
+		$target.find('.cerb-profile-widget').hoverIntent({
+			interval: 50,
 			timeout: 250,
 			over: function (e) {
-				$(this).css('cursor', 'move');
-				$(this).find('> b a').css('cursor', 'move');
+				var $handle = $(this).find('.glyphicons-menu-hamburger');
+				$handle.show();
 			},
 			out: function (e) {
-				$(this).css('cursor', null);
-				$(this).find('> b a').css('cursor', null);
+				var $handle = $(this).find('.glyphicons-menu-hamburger');
+				$handle.hide();
 			}
 		});
 		{/if}
