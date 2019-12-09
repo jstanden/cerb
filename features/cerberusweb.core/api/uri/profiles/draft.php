@@ -154,10 +154,6 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		$hint_to = null;
 		$type = null;
 		
-		if(empty($to) && empty($subject)) {
-			return false;
-		}
-		
 		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','compose');
 
 		switch($type) {
@@ -238,7 +234,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	
 	function saveDraftAction() {
 		if(false == ($draft_id = $this->saveDraft())) {
-			echo json_encode(array());
+			echo json_encode([]);
 			return;
 		}
 		
@@ -246,7 +242,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		$tpl->assign('timestamp', time());
 		$html = $tpl->fetch('devblocks:cerberusweb.core::mail/queue/saved.tpl');
 		
-		echo json_encode(array('draft_id'=>$draft_id, 'html'=>$html));
+		echo json_encode(['draft_id'=>$draft_id, 'html'=>$html]);
 	}
 	
 	function deleteDraftAction() {
