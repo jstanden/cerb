@@ -2198,7 +2198,7 @@ var ajax = new cAjaxCalls();
 						var start = $editor.cerbTextEditor('getCursorPosition');
 						var value = $editor.val();
 
-						var lines = value.substring(start).split(/[\r?\n]/g);
+						var lines = value.substring(start).split(/\r?\n/g);
 						var remainder = [];
 						var finished = false;
 
