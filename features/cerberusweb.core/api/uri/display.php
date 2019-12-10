@@ -668,6 +668,10 @@ class ChDisplayPage extends CerberusPageExtension {
 			$params[$k] = $v;
 		}
 		
+		// Clear owner if not set
+		if(!array_key_exists('owner_id', $params))
+			$params['owner_id'] = 0;
+		
 		// We don't need to persist these fields
 		unset($params['c']);
 		unset($params['a']);
