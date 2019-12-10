@@ -52,6 +52,8 @@
 	</tr>
 	</thead>
 
+	{$has_target_req = $view->findParam(SearchFields_ContextActivityLog::VIRTUAL_TARGET, $view->getParamsRequired())}
+
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
 
@@ -67,8 +69,7 @@
 				<span class="subject">
 				{* If we're looking at the target context, hide the text in the entry *}
 				{$entry = json_decode($result.c_entry_json, true)}
-				{$params_req = $view->getParamsRequired()}
-				{if isset($params_req.{SearchFields_ContextActivityLog::TARGET_CONTEXT})}
+				{if $has_target_req}
 					{$scrub = ['target']}
 					{CerberusContexts::formatActivityLogEntry($entry,'html-cards',$scrub,true) nofilter}
 				{else}
