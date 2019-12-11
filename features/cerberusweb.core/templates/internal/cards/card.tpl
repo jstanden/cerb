@@ -152,7 +152,7 @@ $(function() {
             formData.append('record_type', '{$peek_context}');
 
             // Zones
-            $popup.find('> .cerb-card-layout-zone')
+            $popup.find('.cerb-card-layout-zone')
                 .each(function(d) {
                     var $cell = $(this);
                     var zone = $cell.attr('data-layout-zone');
@@ -177,17 +177,16 @@ $(function() {
         var addEvents = function($target) {
             var $menu = $target.find('.cerb-card-widget--menu');
             var $menu_link = $target.find('.cerb-card-widget--link');
+            var $handle = $target.find('.glyphicons-menu-hamburger');
 
             {if $active_worker->is_superuser}
-            $target.find('.cerb-card-widget').hoverIntent({
+            $target.hoverIntent({
                 interval: 50,
                 timeout: 250,
                 over: function (e) {
-                    var $handle = $(this).find('.glyphicons-menu-hamburger');
                     $handle.show();
                 },
                 out: function (e) {
-                    var $handle = $(this).find('.glyphicons-menu-hamburger');
                     $handle.hide();
                 }
             });
@@ -237,7 +236,9 @@ $(function() {
             return $target;
         }
 
-        addEvents($popup);
+        $popup.find('.cerb-card-widget').each(function() {
+            addEvents($(this));
+        });
 
         var jobs = [];
 

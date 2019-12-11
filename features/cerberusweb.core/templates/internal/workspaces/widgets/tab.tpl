@@ -243,9 +243,7 @@ $(function() {
 		
 		return $target;
 	}
-	
-	addEvents($container);
-	
+
 	{if $is_writeable}
 	$add_button
 		.cerbPeekTrigger()

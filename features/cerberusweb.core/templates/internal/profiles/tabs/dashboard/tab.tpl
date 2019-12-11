@@ -124,17 +124,16 @@ $(function() {
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-profile-widget--menu');
 		var $menu_link = $target.find('.cerb-profile-widget--link');
+		var $handle = $target.find('.glyphicons-menu-hamburger');
 
 		{if $active_worker->is_superuser}
-		$target.find('.cerb-profile-widget').hoverIntent({
+		$target.hoverIntent({
 			interval: 50,
 			timeout: 250,
 			over: function (e) {
-				var $handle = $(this).find('.glyphicons-menu-hamburger');
 				$handle.show();
 			},
 			out: function (e) {
-				var $handle = $(this).find('.glyphicons-menu-hamburger');
 				$handle.hide();
 			}
 		});
@@ -184,8 +183,10 @@ $(function() {
 		return $target;
 	}
 	
-	addEvents($container);
-	
+	$container.find('.cerb-profile-widget').each(function() {
+		addEvents($(this));
+	});
+
 	var jobs = [];
 	
 	{if $active_worker->is_superuser}
