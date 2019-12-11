@@ -1,0 +1,5772 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE tmx PUBLIC "-//LISA OSCAR:1998//DTD for Translation Memory eXchange//EN" "tmx14.dtd">
+<tmx version="1.4">
+    <header creationtool="Cerb" creationtoolversion="7.3.5" srclang="en_US" adminlang="en" datatype="unknown"
+            o-tmf="unknown" segtype="sentence" creationid="" creationdate=""/>
+    <body>
+        <tu tuid="acl.context.contact.worklist.broadcast">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="acl.context.org.worklist.broadcast">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="acl.context.worker.worklist.broadcast">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Może przeglądać książkę adresową</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.addy.actions.update">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Może modyfikować kontakty e-mailowe</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.addy.view.actions.broadcast">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Może zamieścić e-mail na liście adresowej</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.addy.view.actions.export">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Może eksportować adresy e-mail do CSV/XML</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.org.actions.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Możedelete organizacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.org.actions.merge">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Może łączyć organizacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.org.actions.update">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Może modyfikować organizacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.org.view.actions.export">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Może eksportować listy organizacji do CSV/XML</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.person.actions.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Możedelete zarejestrowane kontakty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.addybook.person.actions.update">
+            <tuv xml:lang="pl_PL">
+                <seg>[Książka Adresowa] Może modyfikować zarejestrowane kontakty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.display.actions.attachments.download">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wyświetl Zgłoszenie] Może ściągać załączniki do zgłoszeń</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.display.actions.comment">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wyświetl Zgłoszenie] Może komentować zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.display.actions.forward">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wyświetl Zgłoszenie] Może przekazywać zgłoszenia na zewnętrzne adresy e-mail</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.display.actions.note">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wyświetl Zgłoszenie] Może dodawać notatki do zgłoszeń</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.display.actions.reply">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wyświetl Zgłoszenie] Może odpowiadać na zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.display.actions.split">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wyświetl Zgłoszenie] Może dzielić zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.display.message.actions.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wyświetl Zgłoszenie] Może permanentniedelete wiadomości w zgłoszeniach</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.kb.articles.modify">
+            <tuv xml:lang="pl_PL">
+                <seg>[Baza wiedzy] Może zarzadzać artykułami</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.kb.categories.modify">
+            <tuv xml:lang="pl_PL">
+                <seg>[Baza wiedzy] Może zarządzać kategoriami</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.mail.draft.delete_all">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wiadomość] Możedelete szkice innych pracowników</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.mail.save_without_sending">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wiadomość] Może zapisywać odpowiedzi w historii zgłoszeń bez wysyłania wiadomości e-mail</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.mail.send">
+            <tuv xml:lang="pl_PL">
+                <seg>[Wiadomość] Może tworzyć nowe wiadomości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.rss">
+            <tuv xml:lang="pl_PL">
+                <seg>[RSS] Może eksportować listy jako RSS</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.snippets.actions.create">
+            <tuv xml:lang="pl_PL">
+                <seg>[Snippety] Może tworzyć snippety</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.tasks.actions.create">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zadania] Może tworzyć zadania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.tasks.actions.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zadania] Może usuwać zadania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.tasks.actions.update_all">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zadania] Może edytować zadania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.tasks.view.actions.export">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zadania] Może eksportować listy zadań do CSV/XML</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.actions.assign">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może przydzielać zgłoszenia do innym pracownikom</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.actions.close">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może zamykać zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.actions.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może usuwać zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.actions.move">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może przenosić zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.actions.spam">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może oznaczać zgłoszenia jako spam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.view.actions.broadcast_reply">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może zamieszczać odpowiedzi na liście zgłoszeń</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.view.actions.bulk_update">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może zbiorczo aktualizować zgłoszenia na listach</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.view.actions.export">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może eksportować listy zgłoszeń CSV/XML</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.view.actions.merge">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może łączyć zgłoszenia na listach</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.ticket.view.actions.pile_sort">
+            <tuv xml:lang="pl_PL">
+                <seg>[Zgłoszenia] Może używać sortowania stosu na listach</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.watchers.assign">
+            <tuv xml:lang="pl_PL">
+                <seg>[Obserwujący] Może dodawać innych pracowników jako obserwujących</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.core.watchers.unassign">
+            <tuv xml:lang="pl_PL">
+                <seg>[Obserwujący] Może usuwać innych pracowników z listy obserwujących</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.crm.opp.actions.create">
+            <tuv xml:lang="pl_PL">
+                <seg>[Okazje] Może tworzyć okazje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.crm.opp.actions.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>[Okazje] Może usuwać okazje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.crm.opp.actions.import">
+            <tuv xml:lang="pl_PL">
+                <seg>[Okazje] Może importować okazje z plików CSV</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.crm.opp.actions.update_all">
+            <tuv xml:lang="pl_PL">
+                <seg>[Okazje] Może edytować okazje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.crm.opp.view.actions.broadcast">
+            <tuv xml:lang="pl_PL">
+                <seg>[Okazje] Może przesuwać e-maile na listy okazji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.crm.opp.view.actions.export">
+            <tuv xml:lang="pl_PL">
+                <seg>[Okazje] Może eksportować listy okazji do CSV/XML</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.feedback.actions.create">
+            <tuv xml:lang="pl_PL">
+                <seg>[Feedback] Może tworzyć wpisy feedbackowe</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.feedback.actions.delete_all">
+            <tuv xml:lang="pl_PL">
+                <seg>[Feedback] Może usuwać dowolne wpisy feedbackowe</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.feedback.actions.update_all">
+            <tuv xml:lang="pl_PL">
+                <seg>[Feedback] Może edytować dowolne wpisy feedbackowe</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.feedback.view.actions.export">
+            <tuv xml:lang="pl_PL">
+                <seg>[Feedback] Może eksportować listy feedbackowe do CSV/XML</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.kb.articles.actions.update_all">
+            <tuv xml:lang="pl_PL">
+                <seg>[Baza wiedzy] Może zbiorczo aktualizować artykuły</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.bots">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.custom_fields">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Niestandardowe'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.groups">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Grupy'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.orgs">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Organizacja'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.snippets">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Snippety'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.spam">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Spam'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.tickets">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Zgłoszenie'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.virtual_attendants">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Wirtualny Operator'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.reports.group.workers">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Pracownik'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.timetracking.actions.create">
+            <tuv xml:lang="pl_PL">
+                <seg>[Śledzenie Czasu] Może śledzić czas</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.timetracking.actions.update_all">
+            <tuv xml:lang="pl_PL">
+                <seg>[Śledzenie Czasu] Może zarządzać opóźnieniami</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.timetracking.report.group.time">
+            <tuv xml:lang="pl_PL">
+                <seg>[Raporty] Może wyświetlać raporty w grupie 'Śledzenie Czasu'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="acl.timetracking.view.actions.export">
+            <tuv xml:lang="pl_PL">
+                <seg>[Śledzenie Czasu] Może eksportować listy śledzenia casu do CSV/XML</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.calendar_event.created">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} stworzył wydarzenie {{event}} w kalendarzu {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.calendar_event_recurring.created">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} stworzył okresowe wydarzenie {{event}} w kalendarzu {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.comment.create">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} skomentował {{object}} {{target}}: {{content}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.connection.link">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} połączył {{target_object}} {{target}} z {{link_object}} {{link}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.connection.unlink">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} rozłączył {{target_object}} {{target}} od {{link_object}} {{link}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.custom.other">
+            <tuv xml:lang="pl_PL">
+                <seg>{{message}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.mailbox.check.error">
+            <tuv xml:lang="pl_PL">
+                <seg>Skrzynka {{target}} nie zdołała pobrać wiadomości {{count}} razy pod rząd: {{error}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.opp.status">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zmienił status okazji {{target}} na {{status}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.org.merge">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} połączył organizację {{source}} z organizacją {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.record.recommendation.added">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zarekomendował {{worker}} do zajęcia się {{target_object}} {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.record.recommendation.removed">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} usunął rekomendację pracownika {{worker}} do zajęcia się {{target_object}} {{target}}
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.task.created">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} stworzył zadanie {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.task.status.completed">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} ukończył zadanie {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.assigned">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} przydzielił zgłoszenie {{target}} do pracownika {{worker}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.merge">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} połączył zgłoszenie {{source}} ze zgłoszeniem {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.message.inbound">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} dodał informację do zgłoszenia {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.message.outbound">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} odpowiedział na zgłoszenie {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.message.relay">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} przekazał zgłoszenie {{target}} do {{worker}} ({{worker_email}})</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.moved">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} przesunął zgłoszenie {{target}} do {{group}}: {{bucket}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.participant.added">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} dodał {{participant}} do zgłoszenia {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.participant.removed">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} usunął {{participant}} ze zgłoszenia {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.split">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} przeszedł ze zgłoszenia {{target}} do zgłoszenia {{source}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.split.from">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} przeszedł do zgłoszenia {{target}} ze zgłoszenia {{source}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.status">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zmienił status zgłoszenia {{target}} na {{status}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.ticket.unassigned">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} usunął przydział zgłoszenia {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.timetracking.status">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zmienił status śledzenia {{target}} na {{status}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.transport.delivery.error">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} nie doręczył wiadomości: {{error}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.watcher.assigned">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} dodał {{watcher}} jako obserwującego do {{target_object}} {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.watcher.follow">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zaczął obserwować {{target_object}} {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.watcher.unassigned">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} usunął {{watcher}} z listy obserwujących {{target_object}} {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.watcher.unfollow">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} przestał obserwować {{target_object}} {{target}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.worker.impersonated">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} wcielił się w {{target}} z {{ip}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.worker.logged_in">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} zalogował się z {{ip}} używając {{user_agent}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.worker.logged_out">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} wylogował się z {{ip}}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activities.worker.seat_expired">
+            <tuv xml:lang="pl_PL">
+                <seg>{{actor}} wylogował {{target}} aby zwolnić miejsce.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.activity">
+            <tuv xml:lang="pl_PL">
+                <seg>%s przegląda logi aktywności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.address_book">
+            <tuv xml:lang="pl_PL">
+                <seg>%s przegląda książkę adresową</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.config">
+            <tuv xml:lang="pl_PL">
+                <seg>%s konfiguruje aplikację</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.default">
+            <tuv xml:lang="pl_PL">
+                <seg>%s is przegląda</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.display_ticket">
+            <tuv xml:lang="pl_PL">
+                <seg>%s wyświetla zgłoszenie %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.kb">
+            <tuv xml:lang="pl_PL">
+                <seg>%s przegląda bazę wiedzy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.mail.search">
+            <tuv xml:lang="pl_PL">
+                <seg>%s szuka zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.mail.workflow">
+            <tuv xml:lang="pl_PL">
+                <seg>%s przegląda %s w Workflow</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.mail.workspaces">
+            <tuv xml:lang="pl_PL">
+                <seg>%s przegląda %s w obszarach roboczych</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.simulator">
+            <tuv xml:lang="pl_PL">
+                <seg>%s generuje symulację zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.tab.tasks">
+            <tuv xml:lang="pl_PL">
+                <seg>Zadania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="activity.tickets">
+            <tuv xml:lang="pl_PL">
+                <seg>%s przegląda %s zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.address">
+            <tuv xml:lang="pl_PL">
+                <seg>Adresy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.contact_org_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID organizacji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.email">
+            <tuv xml:lang="pl_PL">
+                <seg>Email</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.first_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Imię</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.full_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Pełne imię i nazwisko</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.is_banned">
+            <tuv xml:lang="pl_PL">
+                <seg>Zbanowany</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.is_contact">
+            <tuv xml:lang="pl_PL">
+                <seg>Kontaktuje się</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.is_defunct">
+            <tuv xml:lang="pl_PL">
+                <seg>Zlikwidowany</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.last_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwisko</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.num_nonspam">
+            <tuv xml:lang="pl_PL">
+                <seg># Nie spam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="address.num_spam">
+            <tuv xml:lang="pl_PL">
+                <seg># Spam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.address.add">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj kontakt</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.history.view.requester">
+            <tuv xml:lang="pl_PL">
+                <seg>Historia uczestnika: %s kontakt(ów)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.history.view.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Historia kontaktu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.org.add">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj organizację</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.org.tabs.mail_history">
+            <tuv xml:lang="pl_PL">
+                <seg>Historia emailowa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.org.tabs.people">
+            <tuv xml:lang="pl_PL">
+                <seg>Ludzie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.peek.compose">
+            <tuv xml:lang="pl_PL">
+                <seg>stwórz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.peek.count.closed_tickets">
+            <tuv xml:lang="pl_PL">
+                <seg>%s zamknął zgłoszenie/a</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.peek.count.open_tickets">
+            <tuv xml:lang="pl_PL">
+                <seg>%s otworzył zgłoszenie/a</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.peek.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Adres email</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.peek.view_full">
+            <tuv xml:lang="pl_PL">
+                <seg>zobacz całą historię</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.tab.addresses">
+            <tuv xml:lang="pl_PL">
+                <seg>Adresy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.tab.organizacje">
+            <tuv xml:lang="pl_PL">
+                <seg>organizacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.tab.organizations">
+            <tuv xml:lang="pl_PL">
+                <seg>organizacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="addy_book.tab.people">
+            <tuv xml:lang="pl_PL">
+                <seg>zarejestrowane kontakty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="attachment.display_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwa pliku</seg>
+            </tuv>
+        </tu>
+        <tu tuid="attachment.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID załącznika</seg>
+            </tuv>
+        </tu>
+        <tu tuid="attachment.mime_type">
+            <tuv xml:lang="pl_PL">
+                <seg>Typ MIME</seg>
+            </tuv>
+        </tu>
+        <tu tuid="attachment.storage_extension">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozszerzenia przechowywania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="attachment.storage_key">
+            <tuv xml:lang="pl_PL">
+                <seg>Klucz przechowywania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="attachment.storage_profile_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Profil przechowywania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="attachment.storage_sha1hash">
+            <tuv xml:lang="pl_PL">
+                <seg>Hash SHA-1</seg>
+            </tuv>
+        </tu>
+        <tu tuid="attachment.storage_size">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozmiar (w bajtach)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="comment.filters.content">
+            <tuv xml:lang="pl_PL">
+                <seg>Komentarze</seg>
+            </tuv>
+        </tu>
+        <tu tuid="comment.notify.at_mention">
+            <tuv xml:lang="pl_PL">
+                <seg>Użyj @mentions aby poinformować pracowników o tym komentarzu.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.access_denied">
+            <tuv xml:lang="pl_PL">
+                <seg>Brak dostepu.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.account">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.accounts">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.action">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.actions">
+            <tuv xml:lang="pl_PL">
+                <seg>działania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.active">
+            <tuv xml:lang="pl_PL">
+                <seg>aktywne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.activity">
+            <tuv xml:lang="pl_PL">
+                <seg>aktywność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.activity_log">
+            <tuv xml:lang="pl_PL">
+                <seg>Log aktywności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.actor">
+            <tuv xml:lang="pl_PL">
+                <seg>Użytkownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.add">
+            <tuv xml:lang="pl_PL">
+                <seg>dodaj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.alias">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.aliases">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.all">
+            <tuv xml:lang="pl_PL">
+                <seg>wszystkie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.anonymous">
+            <tuv xml:lang="pl_PL">
+                <seg>anonim</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.any">
+            <tuv xml:lang="pl_PL">
+                <seg>dowolne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.anybody">
+            <tuv xml:lang="pl_PL">
+                <seg>ktokolwiek</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.article">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.articles">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.assign">
+            <tuv xml:lang="pl_PL">
+                <seg>przydziel</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.assigned">
+            <tuv xml:lang="pl_PL">
+                <seg>Przydzielone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.attachment">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.attachments">
+            <tuv xml:lang="pl_PL">
+                <seg>Załączniki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.attribute">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.attributes">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.author">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.availability">
+            <tuv xml:lang="pl_PL">
+                <seg>Dostepność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.available">
+            <tuv xml:lang="pl_PL">
+                <seg>Dostępne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.behavior">
+            <tuv xml:lang="pl_PL">
+                <seg>Zachowanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.behaviors">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.bot">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.bots">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.broadcast">
+            <tuv xml:lang="pl_PL">
+                <seg>Przekaż</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.broadcasts">
+            <tuv xml:lang="pl_PL">
+                <seg>Przekazy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.bucket">
+            <tuv xml:lang="pl_PL">
+                <seg>Koszyk</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.buckets">
+            <tuv xml:lang="pl_PL">
+                <seg>Koszyki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.builder">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.bulk_update">
+            <tuv xml:lang="pl_PL">
+                <seg>Aktualizacja zbiorcza</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.bulk_update.do">
+            <tuv xml:lang="pl_PL">
+                <seg>Wykonaj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.bulk_update.filter.all">
+            <tuv xml:lang="pl_PL">
+                <seg>Pełna lista</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.bulk_update.filter.checked">
+            <tuv xml:lang="pl_PL">
+                <seg>Tylko zaznaczone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.bulk_update.filter.random">
+            <tuv xml:lang="pl_PL">
+                <seg>Losowe</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.bulk_update.with">
+            <tuv xml:lang="pl_PL">
+                <seg>Z</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.calendar">
+            <tuv xml:lang="pl_PL">
+                <seg>Kalendarz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.calendar.event">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.calendar.event.recurring">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.calendar.events">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.calendar.events.recurring">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.calendars">
+            <tuv xml:lang="pl_PL">
+                <seg>Kalendarze</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.cancel">
+            <tuv xml:lang="pl_PL">
+                <seg>Anuluj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.card">
+            <tuv xml:lang="pl_PL">
+                <seg>karta</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.cards">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.category">
+            <tuv xml:lang="pl_PL">
+                <seg>Kategoria</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.choose">
+            <tuv xml:lang="pl_PL">
+                <seg>wybierz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.classifier">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.classifier.classification">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.classifier.classifications">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.classifier.entities">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.classifier.entity">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.classifiers">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.clear">
+            <tuv xml:lang="pl_PL">
+                <seg>wyczyść</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.close">
+            <tuv xml:lang="pl_PL">
+                <seg>zamknij</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.color">
+            <tuv xml:lang="pl_PL">
+                <seg>kolor</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.comment">
+            <tuv xml:lang="pl_PL">
+                <seg>skomentuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.commented">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.comments">
+            <tuv xml:lang="pl_PL">
+                <seg>komentarze</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.condition">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.conditions">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.confidence">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.connected_account">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.connected_accounts">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.contact">
+            <tuv xml:lang="pl_PL">
+                <seg>kontakt</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.contacts">
+            <tuv xml:lang="pl_PL">
+                <seg>kontakty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.content">
+            <tuv xml:lang="pl_PL">
+                <seg>Zawartość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.context">
+            <tuv xml:lang="pl_PL">
+                <seg>Kontekst</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.contexts">
+            <tuv xml:lang="pl_PL">
+                <seg>konteksty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.context_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID kontekstu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.continue">
+            <tuv xml:lang="pl_PL">
+                <seg>kontynuuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.conversation">
+            <tuv xml:lang="pl_PL">
+                <seg>konwersacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.copy">
+            <tuv xml:lang="pl_PL">
+                <seg>kopiuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.created">
+            <tuv xml:lang="pl_PL">
+                <seg>utworzone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.customize">
+            <tuv xml:lang="pl_PL">
+                <seg>dostosuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.custom_field">
+            <tuv xml:lang="pl_PL">
+                <seg>Niestandardowe pole</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.custom_fields">
+            <tuv xml:lang="pl_PL">
+                <seg>Niestandardowe pola</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.custom_fieldset">
+            <tuv xml:lang="pl_PL">
+                <seg>Niestandardowy układ pól</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.custom_fieldsets">
+            <tuv xml:lang="pl_PL">
+                <seg>Niestandardowe układy pól</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.day">
+            <tuv xml:lang="pl_PL">
+                <seg>dzień</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.days">
+            <tuv xml:lang="pl_PL">
+                <seg>dni</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.default">
+            <tuv xml:lang="pl_PL">
+                <seg>Domyślne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>usuń</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.description">
+            <tuv xml:lang="pl_PL">
+                <seg>Opis</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.disabled">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyłączone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.discard">
+            <tuv xml:lang="pl_PL">
+                <seg>odrzuć</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.discussion">
+            <tuv xml:lang="pl_PL">
+                <seg>dyskusja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.dob">
+            <tuv xml:lang="pl_PL">
+                <seg>data urodzenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.dob.abbr">
+            <tuv xml:lang="pl_PL">
+                <seg>D.O.B.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.download">
+            <tuv xml:lang="pl_PL">
+                <seg>ściągnij</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.due">
+            <tuv xml:lang="pl_PL">
+                <seg>termin</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.duplicate">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.edit">
+            <tuv xml:lang="pl_PL">
+                <seg>edytuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.editor">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.email">
+            <tuv xml:lang="pl_PL">
+                <seg>Email</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.email_address">
+            <tuv xml:lang="pl_PL">
+                <seg>Adres email</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.email_addresses">
+            <tuv xml:lang="pl_PL">
+                <seg>Adresy email</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.enabled">
+            <tuv xml:lang="pl_PL">
+                <seg>Włączone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.entities">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.entity">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.error">
+            <tuv xml:lang="pl_PL">
+                <seg>błąd</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.event">
+            <tuv xml:lang="pl_PL">
+                <seg>zdarzenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.event.recurring">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.events">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.events.recurring">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.everyone">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.example">
+            <tuv xml:lang="pl_PL">
+                <seg>przykład</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.examples">
+            <tuv xml:lang="pl_PL">
+                <seg>przykłady</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.explore">
+            <tuv xml:lang="pl_PL">
+                <seg>eksploruj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.export">
+            <tuv xml:lang="pl_PL">
+                <seg>eksportuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.extension">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozszerzenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.field">
+            <tuv xml:lang="pl_PL">
+                <seg>pole</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.fieldset">
+            <tuv xml:lang="pl_PL">
+                <seg>Zestaw pól</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.fieldsets">
+            <tuv xml:lang="pl_PL">
+                <seg>Zestawy pól</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.file_bundle">
+            <tuv xml:lang="pl_PL">
+                <seg>Pakiet Plików</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.file_bundles">
+            <tuv xml:lang="pl_PL">
+                <seg>Pakiety Plików</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.filter">
+            <tuv xml:lang="pl_PL">
+                <seg>filtr</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.filter.add">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj Filtr</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.filters">
+            <tuv xml:lang="pl_PL">
+                <seg>filtry</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.fnr">
+            <tuv xml:lang="pl_PL">
+                <seg>pozyskaj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.for">
+            <tuv xml:lang="pl_PL">
+                <seg>dla</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.format">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.gender">
+            <tuv xml:lang="pl_PL">
+                <seg>płeć</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.gender.female">
+            <tuv xml:lang="pl_PL">
+                <seg>kobieta</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.gender.male">
+            <tuv xml:lang="pl_PL">
+                <seg>mężczyzna</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.group">
+            <tuv xml:lang="pl_PL">
+                <seg>Grupa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.groups">
+            <tuv xml:lang="pl_PL">
+                <seg>Grupy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.guid">
+            <tuv xml:lang="pl_PL">
+                <seg>GUID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.help">
+            <tuv xml:lang="pl_PL">
+                <seg>pomoc</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.help.comma_separated">
+            <tuv xml:lang="pl_PL">
+                <seg>oddzielone przecinkiem</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.help.one_per_line">
+            <tuv xml:lang="pl_PL">
+                <seg>jeden w linii</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.history">
+            <tuv xml:lang="pl_PL">
+                <seg>historia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.host">
+            <tuv xml:lang="pl_PL">
+                <seg>host</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.hours">
+            <tuv xml:lang="pl_PL">
+                <seg>godziny</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.image">
+            <tuv xml:lang="pl_PL">
+                <seg>obraz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.images">
+            <tuv xml:lang="pl_PL">
+                <seg>obrazy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.import">
+            <tuv xml:lang="pl_PL">
+                <seg>importuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.import.upload_csv">
+            <tuv xml:lang="pl_PL">
+                <seg>Załaduj plik .CSV</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.import.upload_csv.tip">
+            <tuv xml:lang="pl_PL">
+                <seg>(dowolna kolejność kolumn; w kolejnym kroku wybierzesz przypisanie danych)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.importance">
+            <tuv xml:lang="pl_PL">
+                <seg>priorytet</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.inactive">
+            <tuv xml:lang="pl_PL">
+                <seg>nieakatywne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.inbox">
+            <tuv xml:lang="pl_PL">
+                <seg>skrzynka przychodzących</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.inboxes">
+            <tuv xml:lang="pl_PL">
+                <seg>skrzynki przychodzących</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.is_closed">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknięte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.keyboard">
+            <tuv xml:lang="pl_PL">
+                <seg>Klawiatura</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.knowledgebase">
+            <tuv xml:lang="pl_PL">
+                <seg>Bazy wiedzy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.label">
+            <tuv xml:lang="pl_PL">
+                <seg>Etykieta</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.language">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.languages">
+            <tuv xml:lang="pl_PL">
+                <seg>Języki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.last_activity">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.last_activity_date">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.last_login">
+            <tuv xml:lang="pl_PL">
+                <seg>Ostatnie logowanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.link">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.links">
+            <tuv xml:lang="pl_PL">
+                <seg>Linki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.list">
+            <tuv xml:lang="pl_PL">
+                <seg>Lista</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.load">
+            <tuv xml:lang="pl_PL">
+                <seg>Załaduj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.localization">
+            <tuv xml:lang="pl_PL">
+                <seg>Lokalizacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.location">
+            <tuv xml:lang="pl_PL">
+                <seg>lokacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.log">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.macro">
+            <tuv xml:lang="pl_PL">
+                <seg>Makro</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.macros">
+            <tuv xml:lang="pl_PL">
+                <seg>Makra</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.mail">
+            <tuv xml:lang="pl_PL">
+                <seg>Poczta</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.mailbox">
+            <tuv xml:lang="pl_PL">
+                <seg>Skrzynka pocztowa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.manager">
+            <tuv xml:lang="pl_PL">
+                <seg>menadżer</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.managers">
+            <tuv xml:lang="pl_PL">
+                <seg>menadżerowie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.maximize">
+            <tuv xml:lang="pl_PL">
+                <seg>maksymalizuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.me">
+            <tuv xml:lang="pl_PL">
+                <seg>ja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.member">
+            <tuv xml:lang="pl_PL">
+                <seg>Członek</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.members">
+            <tuv xml:lang="pl_PL">
+                <seg>Członkowie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.message">
+            <tuv xml:lang="pl_PL">
+                <seg>Wiadomość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.messages">
+            <tuv xml:lang="pl_PL">
+                <seg>Wiadomości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.minimize">
+            <tuv xml:lang="pl_PL">
+                <seg>minimalizuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.minutes">
+            <tuv xml:lang="pl_PL">
+                <seg>minuty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.mobile">
+            <tuv xml:lang="pl_PL">
+                <seg>telefon komórkowy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.month">
+            <tuv xml:lang="pl_PL">
+                <seg>miesiąc</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.months">
+            <tuv xml:lang="pl_PL">
+                <seg>miesiące</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.more">
+            <tuv xml:lang="pl_PL">
+                <seg>Więcej</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.move">
+            <tuv xml:lang="pl_PL">
+                <seg>przesuń</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.move_to">
+            <tuv xml:lang="pl_PL">
+                <seg>przesuń do</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.name.first">
+            <tuv xml:lang="pl_PL">
+                <seg>Imię</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.name.full">
+            <tuv xml:lang="pl_PL">
+                <seg>Imię i nazwisko</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.name.last">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwisko</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.never">
+            <tuv xml:lang="pl_PL">
+                <seg>Nigdy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.next">
+            <tuv xml:lang="pl_PL">
+                <seg>następny</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.no">
+            <tuv xml:lang="pl_PL">
+                <seg>nie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.nobody">
+            <tuv xml:lang="pl_PL">
+                <seg>nikt</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.none">
+            <tuv xml:lang="pl_PL">
+                <seg>żaden</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.notification">
+            <tuv xml:lang="pl_PL">
+                <seg>powiadomienie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.notifications">
+            <tuv xml:lang="pl_PL">
+                <seg>powiadomienia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.notify_watchers_and">
+            <tuv xml:lang="pl_PL">
+                <seg>Powiadom obserwujących i</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.notify_workers">
+            <tuv xml:lang="pl_PL">
+                <seg>Powiadom pracowników</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.notspam">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie Spam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.no_thanks">
+            <tuv xml:lang="pl_PL">
+                <seg>nie dzięki!</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.no_title">
+            <tuv xml:lang="pl_PL">
+                <seg>(bez tytułu)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.object">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.objects">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.ok">
+            <tuv xml:lang="pl_PL">
+                <seg>OK</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.on">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.optional">
+            <tuv xml:lang="pl_PL">
+                <seg>opcjonalne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.options">
+            <tuv xml:lang="pl_PL">
+                <seg>Opcje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.or">
+            <tuv xml:lang="pl_PL">
+                <seg>lub</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.order">
+            <tuv xml:lang="pl_PL">
+                <seg>zamówienie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.organization">
+            <tuv xml:lang="pl_PL">
+                <seg>organizacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.organizations">
+            <tuv xml:lang="pl_PL">
+                <seg>organizacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.owner">
+            <tuv xml:lang="pl_PL">
+                <seg>właściciel</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.param">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.params">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.participant">
+            <tuv xml:lang="pl_PL">
+                <seg>uczestnik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.participants">
+            <tuv xml:lang="pl_PL">
+                <seg>uczestnicy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.password">
+            <tuv xml:lang="pl_PL">
+                <seg>hasło</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.password.salt">
+            <tuv xml:lang="pl_PL">
+                <seg>Ciąg Zaburzający</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.permalink">
+            <tuv xml:lang="pl_PL">
+                <seg>permalink</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.phone">
+            <tuv xml:lang="pl_PL">
+                <seg>telefon</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.photo">
+            <tuv xml:lang="pl_PL">
+                <seg>zdjęcie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.photos">
+            <tuv xml:lang="pl_PL">
+                <seg>zdjęcie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.plugin">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.plugins">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.portal">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.portals">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.preview">
+            <tuv xml:lang="pl_PL">
+                <seg>podgląd</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.previous">
+            <tuv xml:lang="pl_PL">
+                <seg>poprzedni</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.previous_short">
+            <tuv xml:lang="pl_PL">
+                <seg>poprzedni</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.print">
+            <tuv xml:lang="pl_PL">
+                <seg>Drukuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.priority">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.private">
+            <tuv xml:lang="pl_PL">
+                <seg>prywatne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.privileges">
+            <tuv xml:lang="pl_PL">
+                <seg>przywileje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.profile">
+            <tuv xml:lang="pl_PL">
+                <seg>Profil</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.profiles">
+            <tuv xml:lang="pl_PL">
+                <seg>Profile</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.properties">
+            <tuv xml:lang="pl_PL">
+                <seg>Właściwości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.public">
+            <tuv xml:lang="pl_PL">
+                <seg>publiczne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.quick_compose">
+            <tuv xml:lang="pl_PL">
+                <seg>Szybkie Tworzenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.quick_search">
+            <tuv xml:lang="pl_PL">
+                <seg>Szybkie Wyszukiwanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.recipient">
+            <tuv xml:lang="pl_PL">
+                <seg>odbiorca</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.recipients">
+            <tuv xml:lang="pl_PL">
+                <seg>odbiorcy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.recommend">
+            <tuv xml:lang="pl_PL">
+                <seg>rekomenduj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.recommendation">
+            <tuv xml:lang="pl_PL">
+                <seg>rekomendacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.recommendations">
+            <tuv xml:lang="pl_PL">
+                <seg>rekomendacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.recommended">
+            <tuv xml:lang="pl_PL">
+                <seg>rekomenduj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.record">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.records">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.refresh">
+            <tuv xml:lang="pl_PL">
+                <seg>odśwież</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.remove">
+            <tuv xml:lang="pl_PL">
+                <seg>usuń</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.reopen">
+            <tuv xml:lang="pl_PL">
+                <seg>Otwórz ponownie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.reset">
+            <tuv xml:lang="pl_PL">
+                <seg>reset</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.responsibilities">
+            <tuv xml:lang="pl_PL">
+                <seg>zakres odpowiedzialności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.responsibility">
+            <tuv xml:lang="pl_PL">
+                <seg>odpowiedzialność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.retry">
+            <tuv xml:lang="pl_PL">
+                <seg>spróbuj ponownie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.role">
+            <tuv xml:lang="pl_PL">
+                <seg>rola</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.roles">
+            <tuv xml:lang="pl_PL">
+                <seg>role</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.save">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.save_and_close">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisz &amp; Zamknij</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.save_and_continue">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisz &amp; Kontynuuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.save_changes">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisz Zmiany</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.script">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.scripts">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.search">
+            <tuv xml:lang="pl_PL">
+                <seg>szukaj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.search.fulltext">
+            <tuv xml:lang="pl_PL">
+                <seg>pełna treść</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.search_go">
+            <tuv xml:lang="pl_PL">
+                <seg>start!</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.search_results">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyniki Wyszukiwania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.security">
+            <tuv xml:lang="pl_PL">
+                <seg>bezpieczeństwo</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.sender">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.senders">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.service">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.service.provider">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.service.providers">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.services">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.session">
+            <tuv xml:lang="pl_PL">
+                <seg>sesja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.sessions">
+            <tuv xml:lang="pl_PL">
+                <seg>sesje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.setting">
+            <tuv xml:lang="pl_PL">
+                <seg>ustawienie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.settings">
+            <tuv xml:lang="pl_PL">
+                <seg>ustawienia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.signature">
+            <tuv xml:lang="pl_PL">
+                <seg>podpis</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.simulator">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.size">
+            <tuv xml:lang="pl_PL">
+                <seg>rozmiar</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.skill">
+            <tuv xml:lang="pl_PL">
+                <seg>umiejętność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.skills">
+            <tuv xml:lang="pl_PL">
+                <seg>umiejętności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.skillset">
+            <tuv xml:lang="pl_PL">
+                <seg>zbiór umiejętności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.skillsets">
+            <tuv xml:lang="pl_PL">
+                <seg>zbiory umiejętności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.snippet">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.snippets">
+            <tuv xml:lang="pl_PL">
+                <seg>snippety</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.spam">
+            <tuv xml:lang="pl_PL">
+                <seg>Spam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.status">
+            <tuv xml:lang="pl_PL">
+                <seg>Status</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.storage">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.subtotals">
+            <tuv xml:lang="pl_PL">
+                <seg>Podsuma</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.summary">
+            <tuv xml:lang="pl_PL">
+                <seg>Podsumowanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.synchronize">
+            <tuv xml:lang="pl_PL">
+                <seg>Synchronizuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.tag">
+            <tuv xml:lang="pl_PL">
+                <seg>Etykieta</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.target">
+            <tuv xml:lang="pl_PL">
+                <seg>Cel</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.task">
+            <tuv xml:lang="pl_PL">
+                <seg>Zadanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.tasks">
+            <tuv xml:lang="pl_PL">
+                <seg>Zadania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.test">
+            <tuv xml:lang="pl_PL">
+                <seg>Test</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.text">
+            <tuv xml:lang="pl_PL">
+                <seg>Tekst</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.ticket">
+            <tuv xml:lang="pl_PL">
+                <seg>zgłoszenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.tickets">
+            <tuv xml:lang="pl_PL">
+                <seg>zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.time.mins.num">
+            <tuv xml:lang="pl_PL">
+                <seg>%s min</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.time.secs.num">
+            <tuv xml:lang="pl_PL">
+                <seg>%s sek</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.timezone">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Tytuł</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.today">
+            <tuv xml:lang="pl_PL">
+                <seg>dziś</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.total">
+            <tuv xml:lang="pl_PL">
+                <seg>razem</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.train">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.training">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.type">
+            <tuv xml:lang="pl_PL">
+                <seg>Typ</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.ui">
+            <tuv xml:lang="pl_PL">
+                <seg>Interfejs Użytkownika</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.unassign">
+            <tuv xml:lang="pl_PL">
+                <seg>Cofnij przypisanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.undelete">
+            <tuv xml:lang="pl_PL">
+                <seg>Cofnij usunięcie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.unknown">
+            <tuv xml:lang="pl_PL">
+                <seg>nieznane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.update">
+            <tuv xml:lang="pl_PL">
+                <seg>aktualizuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.updated">
+            <tuv xml:lang="pl_PL">
+                <seg>zaktualizowane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.upload">
+            <tuv xml:lang="pl_PL">
+                <seg>załaduj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.upload.file">
+            <tuv xml:lang="pl_PL">
+                <seg>załąduj plik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.upload.files">
+            <tuv xml:lang="pl_PL">
+                <seg>załaduj pliki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.url">
+            <tuv xml:lang="pl_PL">
+                <seg>URL</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.url.record">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisz URL</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.user">
+            <tuv xml:lang="pl_PL">
+                <seg>Użytkownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.username">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwa użytkownika</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.variable">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.variables">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="common.virtual_attendant">
+            <tuv xml:lang="pl_PL">
+                <seg>Wirtualny Operator</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.virtual_attendants">
+            <tuv xml:lang="pl_PL">
+                <seg>Wirtualny Operators</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.watch">
+            <tuv xml:lang="pl_PL">
+                <seg>obserwuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.watcher">
+            <tuv xml:lang="pl_PL">
+                <seg>obserwujący</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.watchers">
+            <tuv xml:lang="pl_PL">
+                <seg>obserwujący</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.watching">
+            <tuv xml:lang="pl_PL">
+                <seg>obserwowanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.website">
+            <tuv xml:lang="pl_PL">
+                <seg>strona www</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.week">
+            <tuv xml:lang="pl_PL">
+                <seg>tydzień</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.worker">
+            <tuv xml:lang="pl_PL">
+                <seg>pracownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.workers">
+            <tuv xml:lang="pl_PL">
+                <seg>pracownicy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.worklist">
+            <tuv xml:lang="pl_PL">
+                <seg>worklista</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.workspace">
+            <tuv xml:lang="pl_PL">
+                <seg>Obszar pracy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.workspaces">
+            <tuv xml:lang="pl_PL">
+                <seg>Obszary pracy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.year">
+            <tuv xml:lang="pl_PL">
+                <seg>rok</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.yes">
+            <tuv xml:lang="pl_PL">
+                <seg>tak</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.zoom">
+            <tuv xml:lang="pl_PL">
+                <seg>zoom</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.zoom.in">
+            <tuv xml:lang="pl_PL">
+                <seg>powiększ</seg>
+            </tuv>
+        </tu>
+        <tu tuid="common.zoom.out">
+            <tuv xml:lang="pl_PL">
+                <seg>pomniejsz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="community_portal.code">
+            <tuv xml:lang="pl_PL">
+                <seg>ID profilu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="community_portal.extension_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozszerzenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="community_portal.name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="config.mail.pop3.error_hostname">
+            <tuv xml:lang="pl_PL">
+                <seg>Błąd: nie podano nazwy hosta</seg>
+            </tuv>
+        </tu>
+        <tu tuid="config.mail.pop3.failed">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie udało się połączyć ze skrzynką</seg>
+            </tuv>
+        </tu>
+        <tu tuid="config.mail.smtp.failed">
+            <tuv xml:lang="pl_PL">
+                <seg>Połączenie SMTP nieudane:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="config.mailboxes.error_hostname">
+            <tuv xml:lang="pl_PL">
+                <seg>Błąd: nie podano nazwy hosta</seg>
+            </tuv>
+        </tu>
+        <tu tuid="config.mailboxes.failed">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie udało się połączyć ze skrzynką.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.city">
+            <tuv xml:lang="pl_PL">
+                <seg>Miasto</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.country">
+            <tuv xml:lang="pl_PL">
+                <seg>Państwo</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.created">
+            <tuv xml:lang="pl_PL">
+                <seg>utworzone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.name">
+            <tuv xml:lang="pl_PL">
+                <seg>Organizacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.phone">
+            <tuv xml:lang="pl_PL">
+                <seg>Telefon</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.postal">
+            <tuv xml:lang="pl_PL">
+                <seg>Kod pocztowy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.province">
+            <tuv xml:lang="pl_PL">
+                <seg>Region</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.street">
+            <tuv xml:lang="pl_PL">
+                <seg>Ulica</seg>
+            </tuv>
+        </tu>
+        <tu tuid="contact_org.website">
+            <tuv xml:lang="pl_PL">
+                <seg>Strona www</seg>
+            </tuv>
+        </tu>
+        <tu tuid="core.menu.activity">
+            <tuv xml:lang="pl_PL">
+                <seg>aktywność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="core.menu.address_book">
+            <tuv xml:lang="pl_PL">
+                <seg>książka adresowa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="core.workspace.dashboard">
+            <tuv xml:lang="pl_PL">
+                <seg>Tablica</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.common.opportunity">
+            <tuv xml:lang="pl_PL">
+                <seg>Okazja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opp.add">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj okazję</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opp.status.closed.lost">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknięte/Stracona</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opp.status.closed.won">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknięte/Wykorzystana</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opp.status.open">
+            <tuv xml:lang="pl_PL">
+                <seg>Otwórz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opp.tab.properties">
+            <tuv xml:lang="pl_PL">
+                <seg>Właściwości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opp.tab.tasks">
+            <tuv xml:lang="pl_PL">
+                <seg>Zadania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.amount">
+            <tuv xml:lang="pl_PL">
+                <seg>Ilość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.closed_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data Zamknięcia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.contact_phone">
+            <tuv xml:lang="pl_PL">
+                <seg>Telefon</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.email_address">
+            <tuv xml:lang="pl_PL">
+                <seg>Email</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.is_closed">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknięte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.is_won">
+            <tuv xml:lang="pl_PL">
+                <seg>Wykorzystane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.name">
+            <tuv xml:lang="pl_PL">
+                <seg>Tytuł</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.org_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID Organizacji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.org_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Organizacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.primary_email_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Email ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.opportunity.worker_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Pracownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="crm.tab.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Okazje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="cron.ip_unauthorized">
+            <tuv xml:lang="pl_PL">
+                <seg>Twój adres IP (%s) nie jest upoważniony do kolejkowania zadań. Administrator musi autoryzować twój
+                    IP w menu "Bezpieczeństwo" lub w pliku framework.config.php pod adresem AUTHORIZED_IPS_DEFAULTS.
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="cron.nothing_to_do">
+            <tuv xml:lang="pl_PL">
+                <seg>Jeszcze nie ma nic do zrobienia! (Czekam %s sekund(y))</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_event.date_end">
+            <tuv xml:lang="pl_PL">
+                <seg>Data zakończenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_event.date_start">
+            <tuv xml:lang="pl_PL">
+                <seg>Data rozpoczęcia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_event.is_available">
+            <tuv xml:lang="pl_PL">
+                <seg>Jest dostępny</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_recurring_profile.event_end">
+            <tuv xml:lang="pl_PL">
+                <seg>Zakończ</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_recurring_profile.event_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwa wydarzenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_recurring_profile.event_start">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozpocznij</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_recurring_profile.is_available">
+            <tuv xml:lang="pl_PL">
+                <seg>Jest dostępny</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_recurring_profile.patterns">
+            <tuv xml:lang="pl_PL">
+                <seg>Wzorce</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_recurring_profile.recur_end">
+            <tuv xml:lang="pl_PL">
+                <seg>Koniec cyklu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_recurring_profile.recur_start">
+            <tuv xml:lang="pl_PL">
+                <seg>Początek cyklu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.calendar_recurring_profile.tz">
+            <tuv xml:lang="pl_PL">
+                <seg>Strefa czasowa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.cerb_plugin.author">
+            <tuv xml:lang="pl_PL">
+                <seg>Twórca</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.cerb_plugin.description">
+            <tuv xml:lang="pl_PL">
+                <seg>Opis</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.cerb_plugin.version">
+            <tuv xml:lang="pl_PL">
+                <seg>Wersja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.classifier.dictionary_size">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.classifier_class.training_count">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.classifier_example.expression">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.confirmation_code.confirmation_code">
+            <tuv xml:lang="pl_PL">
+                <seg>Kod potwierdzający</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.confirmation_code.namespace_key">
+            <tuv xml:lang="pl_PL">
+                <seg>Obszar nazw</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.contact_person.auth_password">
+            <tuv xml:lang="pl_PL">
+                <seg>Hasło</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.contact_person.auth_salt">
+            <tuv xml:lang="pl_PL">
+                <seg>Ciąg zaburzający</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.contact_person.last_login">
+            <tuv xml:lang="pl_PL">
+                <seg>Ostatnie logowanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_activity_log.activity_point">
+            <tuv xml:lang="pl_PL">
+                <seg>Aktywność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_activity_log.actor_context">
+            <tuv xml:lang="pl_PL">
+                <seg>Kontekst</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_activity_log.actor_context_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID kontekstu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_activity_log.entry">
+            <tuv xml:lang="pl_PL">
+                <seg>Wpis</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_activity_log.target_context">
+            <tuv xml:lang="pl_PL">
+                <seg>Kontekst obiektu docelowego</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_activity_log.target_context_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID kontekstu obiektu docelowego</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_bulk_update.batch_key">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_bulk_update.context_ids">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_bulk_update.num_records">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_scheduled_behavior.repeat_json">
+            <tuv xml:lang="pl_PL">
+                <seg>Powtórz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.context_scheduled_behavior.run_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data włączenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.decision_node.node_type">
+            <tuv xml:lang="pl_PL">
+                <seg>Typ węzła</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.decision_node.params">
+            <tuv xml:lang="pl_PL">
+                <seg>Parametry</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.decision_node.parent_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Id źródła</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.decision_node.trigger_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Id wyzwalacza</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.devblocks_session.session_data">
+            <tuv xml:lang="pl_PL">
+                <seg>Dane sesji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.devblocks_session.session_key">
+            <tuv xml:lang="pl_PL">
+                <seg>Klucz sesji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.devblocks_session.user_agent">
+            <tuv xml:lang="pl_PL">
+                <seg>Użytkownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.devblocks_session.user_ip">
+            <tuv xml:lang="pl_PL">
+                <seg>Adres IP</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.auth_disable_plain">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.checked_at">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.delay_until">
+            <tuv xml:lang="pl_PL">
+                <seg>Opóźnij do</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.max_msg_size_kb">
+            <tuv xml:lang="pl_PL">
+                <seg>Maksymalny rozmiar wiadomości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.num_fails">
+            <tuv xml:lang="pl_PL">
+                <seg>Błędy numeryczne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.port">
+            <tuv xml:lang="pl_PL">
+                <seg>Port</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.protocol">
+            <tuv xml:lang="pl_PL">
+                <seg>Protokół</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.ssl_ignore_validation">
+            <tuv xml:lang="pl_PL">
+                <seg>Ignorowanie walidacji SSL</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.mailbox.timeout_secs">
+            <tuv xml:lang="pl_PL">
+                <seg>Sekund do końca</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.plugin_library.icon_url">
+            <tuv xml:lang="pl_PL">
+                <seg>URL ikony</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.plugin_library.plugin_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID pluginu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.plugin_library.requirements_json">
+            <tuv xml:lang="pl_PL">
+                <seg>Wymagania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.snippet.total_uses">
+            <tuv xml:lang="pl_PL">
+                <seg>Wszystkie użycia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.snippet_use_history.uses.mine">
+            <tuv xml:lang="pl_PL">
+                <seg>Moje użycia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.trigger_event.is_disabled">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyłączony</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.trigger_event.is_private">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="dao.trigger_event.owner_context">
+            <tuv xml:lang="pl_PL">
+                <seg>Kontekst właściciela</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dao.trigger_event.owner_context_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID kontekstu właściciela</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard">
+            <tuv xml:lang="pl_PL">
+                <seg>Tablica</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.actions">
+            <tuv xml:lang="pl_PL">
+                <seg>Akcje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.active_dashboard">
+            <tuv xml:lang="pl_PL">
+                <seg>Aktywna tablica:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.add_dashboard">
+            <tuv xml:lang="pl_PL">
+                <seg>dodaj tablicę</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.add_view">
+            <tuv xml:lang="pl_PL">
+                <seg>dodaj listę zadań</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.choose_column">
+            <tuv xml:lang="pl_PL">
+                <seg>Wybierz kolumnę</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.choose_dashboard">
+            <tuv xml:lang="pl_PL">
+                <seg>Wybierz tablicę</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.columns">
+            <tuv xml:lang="pl_PL">
+                <seg>Kolumny</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.create_ticket">
+            <tuv xml:lang="pl_PL">
+                <seg>stwórz zgłoszenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.dashboards">
+            <tuv xml:lang="pl_PL">
+                <seg>Tablice</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>usuń obszar placy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.delete.confirm">
+            <tuv xml:lang="pl_PL">
+                <seg>Czy jesteś pewny, że chcesz usunąć cały ten obszar pracy?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.group_filters">
+            <tuv xml:lang="pl_PL">
+                <seg>Filtry grupy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.modify">
+            <tuv xml:lang="pl_PL">
+                <seg>Zmodyfikuj tablicę</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.num_rows">
+            <tuv xml:lang="pl_PL">
+                <seg>Pozycji na stronie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.remove_view">
+            <tuv xml:lang="pl_PL">
+                <seg>Usuń listę zgłoszeń z tablicy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="dashboard.switch">
+            <tuv xml:lang="pl_PL">
+                <seg>Przełącz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.button.read_all">
+            <tuv xml:lang="pl_PL">
+                <seg>Czytaj wszystkie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.button.split_ticket">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozdziel zgłoszenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.convo.brief_headers">
+            <tuv xml:lang="pl_PL">
+                <seg>przejrzyj nagłówki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.convo.full_headers">
+            <tuv xml:lang="pl_PL">
+                <seg>pełne nagłówki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.convo.no_messages">
+            <tuv xml:lang="pl_PL">
+                <seg>Brak wiadomości w zgłoszeniu.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.convo.order_newest">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozpoczynając od najświeższej aktywności:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.convo.order_oldest">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozpoczynając od najstarszej aktywności:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.convo.set_org">
+            <tuv xml:lang="pl_PL">
+                <seg>ustaw organizację</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.convo.skip_to_bottom">
+            <tuv xml:lang="pl_PL">
+                <seg>przeskocz na sam dół</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.convo.unknown_format">
+            <tuv xml:lang="pl_PL">
+                <seg>Nierozpoznany format</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.attachments_add">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj załączniki:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.attachments_forward">
+            <tuv xml:lang="pl_PL">
+                <seg>Przekaż dalej załączniki:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.attachments_limit">
+            <tuv xml:lang="pl_PL">
+                <seg>(Maksymalny rozmiar załączników to %s)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.attachments_more">
+            <tuv xml:lang="pl_PL">
+                <seg>załącz więcej</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.email_templates">
+            <tuv xml:lang="pl_PL">
+                <seg>Szablony maili</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.forward.banner">
+            <tuv xml:lang="pl_PL">
+                <seg>---- Przekazywana wiadomość ----</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.insert_sig">
+            <tuv xml:lang="pl_PL">
+                <seg>Wstaw Podpis</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.kb.all_topics">
+            <tuv xml:lang="pl_PL">
+                <seg>wszystkie tematy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.kb.search">
+            <tuv xml:lang="pl_PL">
+                <seg>Przeszukaj bazę wiedzy:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.next.move">
+            <tuv xml:lang="pl_PL">
+                <seg>Gdzie powinna znaleźć się ta konwersacja?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.next.move.current">
+            <tuv xml:lang="pl_PL">
+                <seg>(aktualny koszyk)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.next.move.no_thanks">
+            <tuv xml:lang="pl_PL">
+                <seg>nie, dzięki!</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.next.owner">
+            <tuv xml:lang="pl_PL">
+                <seg>Do kogo to powinno być przydzielone?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.next.resume">
+            <tuv xml:lang="pl_PL">
+                <seg>Kiedy chciałbyś wrócić do tej kowersacji?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.next.resume_blank">
+            <tuv xml:lang="pl_PL">
+                <seg>(pozostaw pole puste by zaczekać na odpowiedź nim napiszesz ponownie)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.next.resume_eg">
+            <tuv xml:lang="pl_PL">
+                <seg>(n.p. "Piątek", "7 dni", "Jutro 11:15AM", "Gru 31")</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.no_quote">
+            <tuv xml:lang="pl_PL">
+                <seg>Odpowiedz bez cytowania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.only_these_recipients">
+            <tuv xml:lang="pl_PL">
+                <seg>Zacytuj i odpowiedz tylko do tych odbiorców</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.quote">
+            <tuv xml:lang="pl_PL">
+                <seg>Zacytuj i odpowiedz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.reply.reply_banner">
+            <tuv xml:lang="pl_PL">
+                <seg>Dnia %s, %s napisał:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.shortcut.close">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknij to zgłoszenie (C)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.shortcut.delete">
+            <tuv xml:lang="pl_PL">
+                <seg>Usuń to zgłoszenie (X)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.shortcut.follow">
+            <tuv xml:lang="pl_PL">
+                <seg>Śledź to zgłoszenie (F)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.shortcut.print">
+            <tuv xml:lang="pl_PL">
+                <seg>Wydrukuj to zgłoszenie (P)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.shortcut.read_all">
+            <tuv xml:lang="pl_PL">
+                <seg>Przeczytaj wszystkie wiadomości w kolejności chronologicznej (A)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.shortcut.spam">
+            <tuv xml:lang="pl_PL">
+                <seg>Oznacz to zgłoszenie jako spam (S)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.shortcut.unfollow">
+            <tuv xml:lang="pl_PL">
+                <seg>Przestań śledzić to zgłoszenie (U)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.tab.comments">
+            <tuv xml:lang="pl_PL">
+                <seg>Komentarze (%s)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.tab.history">
+            <tuv xml:lang="pl_PL">
+                <seg>Historia uczestnika</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.tab.tasks">
+            <tuv xml:lang="pl_PL">
+                <seg>Zadania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.tab.timeline">
+            <tuv xml:lang="pl_PL">
+                <seg>Linia czasowa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.ui.add_to_recipients">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj do uczestników</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.ui.continue_later">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisz jako szkic</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.ui.discard">
+            <tuv xml:lang="pl_PL">
+                <seg>Odrzuć</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.ui.forward">
+            <tuv xml:lang="pl_PL">
+                <seg>Przekaż dalej</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.ui.reply">
+            <tuv xml:lang="pl_PL">
+                <seg>Odpowiedz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.ui.save_nosend">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisz bez wysyłania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.ui.send_message">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyślij wiadomość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="display.ui.sticky_note">
+            <tuv xml:lang="pl_PL">
+                <seg>Notatka</seg>
+            </tuv>
+        </tu>
+        <tu tuid="error.core.no_acl.edit">
+            <tuv xml:lang="pl_PL">
+                <seg>Brak zezwolenia na edycję tego wpisu.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback.activity.tab">
+            <tuv xml:lang="pl_PL">
+                <seg>Feedback</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback.button.capture">
+            <tuv xml:lang="pl_PL">
+                <seg>Przechwyć Feedback</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback.cfg.blank">
+            <tuv xml:lang="pl_PL">
+                <seg>(puste)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback.mood.criticism">
+            <tuv xml:lang="pl_PL">
+                <seg>Krytyka</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback.mood.neutral">
+            <tuv xml:lang="pl_PL">
+                <seg>Neutralne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback.mood.praise">
+            <tuv xml:lang="pl_PL">
+                <seg>Pochwała</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback.peek.quote.tooltip">
+            <tuv xml:lang="pl_PL">
+                <seg>opcjonalne; puste dla zgłoszenia anonimowego</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback_entry.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback_entry.log_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data logu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback_entry.quote_address">
+            <tuv xml:lang="pl_PL">
+                <seg>Autor Emaila</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback_entry.quote_mood">
+            <tuv xml:lang="pl_PL">
+                <seg>Nastrój</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback_entry.quote_text">
+            <tuv xml:lang="pl_PL">
+                <seg>Cytat</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback_entry.source_url">
+            <tuv xml:lang="pl_PL">
+                <seg>Link</seg>
+            </tuv>
+        </tu>
+        <tu tuid="feedback_entry.worker_id">
+            <tuv xml:lang="pl_PL">
+                <seg>stworzone przez</seg>
+            </tuv>
+        </tu>
+        <tu tuid="files.error_link_read">
+            <tuv xml:lang="pl_PL">
+                <seg>Błąd odczytu linka.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="files.error_resource_read">
+            <tuv xml:lang="pl_PL">
+                <seg>Błąd odczytu zasobów.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="files.error_temp_open">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie można otworzyć pliku tymczasowego.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="files.not_found">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie znaleziono pliku.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.config">
+            <tuv xml:lang="pl_PL">
+                <seg>Konfiguruj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.history">
+            <tuv xml:lang="pl_PL">
+                <seg>Historia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.last_viewed">
+            <tuv xml:lang="pl_PL">
+                <seg>ostatnio wyświetlane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.my_profile">
+            <tuv xml:lang="pl_PL">
+                <seg>mój profil</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.notifications.unread">
+            <tuv xml:lang="pl_PL">
+                <seg>nieodczytanych powiadomień: %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.not_signed_in">
+            <tuv xml:lang="pl_PL">
+                <seg>Niezalogowany</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.no_page">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie wybrano strony.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.preferences">
+            <tuv xml:lang="pl_PL">
+                <seg>Ustawienia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.signed_in">
+            <tuv xml:lang="pl_PL">
+                <seg>Zalogoway jako %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.signoff">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyloguj się</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.signoff.all.my">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyloguj mnie ze wszystkich moich sesji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="header.signon">
+            <tuv xml:lang="pl_PL">
+                <seg>Zaloguj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.my_notifications.button.mark_read">
+            <tuv xml:lang="pl_PL">
+                <seg>Oznacz jako przeczytane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.my_notifications.view.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Powiadomienia dla %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.my_tasks.view.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Zadania dla %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.my_tickets.view.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Emaile dla %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.tab.my_notifications">
+            <tuv xml:lang="pl_PL">
+                <seg>Powiadomienia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.tab.workspaces_intro">
+            <tuv xml:lang="pl_PL">
+                <seg>O obszarach pracy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.workspaces.worklist.add.new">
+            <tuv xml:lang="pl_PL">
+                <seg>Nowe</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.workspaces.worklist.name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwa listy pracy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="home.workspaces.worklist.type">
+            <tuv xml:lang="pl_PL">
+                <seg>Typ listy pracy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb.common.knowledgebase_article">
+            <tuv xml:lang="pl_PL">
+                <seg>Artykuł bazy wiedzy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb.view.articles">
+            <tuv xml:lang="pl_PL">
+                <seg>Artykuły: %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb.view.uncategorized">
+            <tuv xml:lang="pl_PL">
+                <seg>Artykuły bez kategorii</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb.workspace.tab.browser">
+            <tuv xml:lang="pl_PL">
+                <seg>Przeglądarka baz wiedzy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb_article.content">
+            <tuv xml:lang="pl_PL">
+                <seg>Zawartość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb_article.format">
+            <tuv xml:lang="pl_PL">
+                <seg>Format</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb_article.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb_article.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Tytuł</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb_article.topic">
+            <tuv xml:lang="pl_PL">
+                <seg>Temat</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb_article.updated">
+            <tuv xml:lang="pl_PL">
+                <seg>Zaktualizowane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="kb_article.views">
+            <tuv xml:lang="pl_PL">
+                <seg>Widoki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.create.on_behalf">
+            <tuv xml:lang="pl_PL">
+                <seg>#### Wiadomość została stworzona w twoim imieniu przez %s.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.drafts">
+            <tuv xml:lang="pl_PL">
+                <seg>Szkice</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.inbox_filter">
+            <tuv xml:lang="pl_PL">
+                <seg>Filtr skrzynki przychodzacej</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.log_message">
+            <tuv xml:lang="pl_PL">
+                <seg>Otwórz zgłoszenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.log_message.requesters">
+            <tuv xml:lang="pl_PL">
+                <seg>Uczestnicy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.log_message.send_to_requesters">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyślij kopię tej wiadomości do uczestników.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.merge">
+            <tuv xml:lang="pl_PL">
+                <seg>Połącz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.nav.search_mail">
+            <tuv xml:lang="pl_PL">
+                <seg>Szukaj:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.not_waiting">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie oczekuje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.overview.all_done_text">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie ma dostępnych zgłoszeń odpowiadających twoim kryteriom wyszukiwania.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.overview.all_groups">
+            <tuv xml:lang="pl_PL">
+                <seg>Wszystkie grupy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.overview.assigned.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Dla %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.overview.my_mail">
+            <tuv xml:lang="pl_PL">
+                <seg>moje wiadomości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.piles">
+            <tuv xml:lang="pl_PL">
+                <seg>Stosy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.quick_search.comments_all">
+            <tuv xml:lang="pl_PL">
+                <seg>Komentarze (wszystkie słowa)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.quick_search.comments_expert">
+            <tuv xml:lang="pl_PL">
+                <seg>Komentarze (zawiera)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.quick_search.comments_phrase">
+            <tuv xml:lang="pl_PL">
+                <seg>Komentarze (zwrot)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.quick_search.messages_all">
+            <tuv xml:lang="pl_PL">
+                <seg>Messages (wszystkie słowa)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.quick_search.messages_expert">
+            <tuv xml:lang="pl_PL">
+                <seg>Messages (zawiera)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.quick_search.messages_phrase">
+            <tuv xml:lang="pl_PL">
+                <seg>Messages (zwrot)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.received">
+            <tuv xml:lang="pl_PL">
+                <seg>Otrzymane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.saved">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.send_mail">
+            <tuv xml:lang="pl_PL">
+                <seg>Stwórz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.sent">
+            <tuv xml:lang="pl_PL">
+                <seg>Wysłane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.transport">
+            <tuv xml:lang="pl_PL">
+                <seg>Transport</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.transports">
+            <tuv xml:lang="pl_PL">
+                <seg>Transporty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.view.add_filter">
+            <tuv xml:lang="pl_PL">
+                <seg>-dodaj filtr-</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.waiting">
+            <tuv xml:lang="pl_PL">
+                <seg>Oczekujące</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.workflow">
+            <tuv xml:lang="pl_PL">
+                <seg>Workflow</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.worklist.draft_in_progress">
+            <tuv xml:lang="pl_PL">
+                <seg>%s odpowiada na zgłoszenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.workspaces.create">
+            <tuv xml:lang="pl_PL">
+                <seg>Kliknij tu by stworzyć swój pierwszy obszar pracy.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.workspaces.my">
+            <tuv xml:lang="pl_PL">
+                <seg>Moje obszary pracy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.workspaces.new">
+            <tuv xml:lang="pl_PL">
+                <seg>Nowy obszar pracy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.workspaces.new_list">
+            <tuv xml:lang="pl_PL">
+                <seg>Nowa lista</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail.workspaces.none">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie stworzyłeś własnych list pracy.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail_queue.is_queued">
+            <tuv xml:lang="pl_PL">
+                <seg>Zakolejkowany</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail_queue.params_json">
+            <tuv xml:lang="pl_PL">
+                <seg>Parametry</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail_queue.queue_delivery_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data dostarczenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail_queue.queue_fails">
+            <tuv xml:lang="pl_PL">
+                <seg># Nieudane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail_queue.ticket_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="mail_queue.type">
+            <tuv xml:lang="pl_PL">
+                <seg>Typ wiadomości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.content">
+            <tuv xml:lang="pl_PL">
+                <seg>Zawartość wiadomości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.created_date">
+            <tuv xml:lang="pl_PL">
+                <seg>stworzone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.header">
+            <tuv xml:lang="pl_PL">
+                <seg>Nagłówek</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.header.bcc">
+            <tuv xml:lang="pl_PL">
+                <seg>UDW</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.header.cc">
+            <tuv xml:lang="pl_PL">
+                <seg>DW</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.header.date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.header.from">
+            <tuv xml:lang="pl_PL">
+                <seg>Od</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.header.subject">
+            <tuv xml:lang="pl_PL">
+                <seg>Temat</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.header.to">
+            <tuv xml:lang="pl_PL">
+                <seg>Do</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.headers">
+            <tuv xml:lang="pl_PL">
+                <seg>Nagłówki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.headers.custom">
+            <tuv xml:lang="pl_PL">
+                <seg>Niestandardowe nagłówki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.is_broadcast">
+            <tuv xml:lang="pl_PL">
+                <seg>Jest nadawane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.is_not_sent">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie jest wysłane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.is_outgoing">
+            <tuv xml:lang="pl_PL">
+                <seg>Jest wysyłane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.note.content">
+            <tuv xml:lang="pl_PL">
+                <seg>Zawartość notatki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.queued.delivery_immediate">
+            <tuv xml:lang="pl_PL">
+                <seg>zaplanowano niezwłoczne doręczenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.queued.deliver_in">
+            <tuv xml:lang="pl_PL">
+                <seg>zaplanowano doręczenie za %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.response_time">
+            <tuv xml:lang="pl_PL">
+                <seg>Czas odpowiedzi</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.search.attachment_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwa załącznika</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.search.attachment_size">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozmiar załącznika</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.search.has_attachments">
+            <tuv xml:lang="pl_PL">
+                <seg>Ma załączniki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="message.search.header_message_id">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="message.storage_size">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozmiar</seg>
+            </tuv>
+        </tu>
+        <tu tuid="notification.created_date">
+            <tuv xml:lang="pl_PL">
+                <seg>stworzony</seg>
+            </tuv>
+        </tu>
+        <tu tuid="notification.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="notification.is_read">
+            <tuv xml:lang="pl_PL">
+                <seg>Jest przeczytany</seg>
+            </tuv>
+        </tu>
+        <tu tuid="notification.message">
+            <tuv xml:lang="pl_PL">
+                <seg>Wiadomość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="notification.worker_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Pracownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.add_new_situation">
+            <tuv xml:lang="pl_PL">
+                <seg>dodaj nową sytuację</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.add_tool">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj nowy portal społecznościowy:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.ask">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapytaj:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.captcha">
+            <tuv xml:lang="pl_PL">
+                <seg>CAPTCHA:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.captcha_hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(wyświetla w formularzu obraz CAPTCHA aby zminimalizować spam)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.confirm_delete">
+            <tuv xml:lang="pl_PL">
+                <seg>Czy jesteś pewny, że chcesz permanentnie usunąc ten portal społecznościowy?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.default_if_blank">
+            <tuv xml:lang="pl_PL">
+                <seg>(domyślnie puste)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.delete_situation">
+            <tuv xml:lang="pl_PL">
+                <seg>usuń tą sytuację</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.deliver_to">
+            <tuv xml:lang="pl_PL">
+                <seg>Dostarcz do:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.deliver_to_hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(adres e-mail helpdesku, puste dla %s)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.disabled">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyłączone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.enabled">
+            <tuv xml:lang="pl_PL">
+                <seg>Włączone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.favicon_url">
+            <tuv xml:lang="pl_PL">
+                <seg>Favicon URL:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.followup_questions">
+            <tuv xml:lang="pl_PL">
+                <seg>Pytania uzupełniające:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.htaccess_hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(opcjonalne, przyjazne URL dla użytkowników Apache Web Server)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.installation">
+            <tuv xml:lang="pl_PL">
+                <seg>Instalacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.installation_instructions">
+            <tuv xml:lang="pl_PL">
+                <seg>Umieść plik index.php w nowym katalogu na odpowiedniej stronie publicznej. Katalog ten może być
+                    nazwany dowolnie, ale zwykle opisuje typ strony.
+                    Na przykład: http://www.cerbweb.com/support/
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.language">
+            <tuv xml:lang="pl_PL">
+                <seg>Język:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.logo_url">
+            <tuv xml:lang="pl_PL">
+                <seg>URL logo:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.page_title">
+            <tuv xml:lang="pl_PL">
+                <seg>Tytuł przeglądarki:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.profile_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID profilu:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.send_to">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyślij do:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.url">
+            <tuv xml:lang="pl_PL">
+                <seg>URL:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.cfg.url_hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(gdzie planujesz zainstalować ten portal, np. http://website/portal/)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.common.open_ticket">
+            <tuv xml:lang="pl_PL">
+                <seg>Skontaktuj się z nami</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.kb.public.no_content">
+            <tuv xml:lang="pl_PL">
+                <seg>Brak zawartości.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.kb.public.top">
+            <tuv xml:lang="pl_PL">
+                <seg>Na górę</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.captcha_instructions">
+            <tuv xml:lang="pl_PL">
+                <seg>Proszę przepisać znaki z poniższego obrazka:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.logged_ip">
+            <tuv xml:lang="pl_PL">
+                <seg>Zalogowane IP:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.no_results">
+            <tuv xml:lang="pl_PL">
+                <seg>Brak wyników.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.open_ticket.additional_info">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodatkowe informacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.open_ticket.message">
+            <tuv xml:lang="pl_PL">
+                <seg>Wiadomość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.powered_by">
+            <tuv xml:lang="pl_PL">
+                <seg>Powered by %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.send_message">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyślij wiadomość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.what_email_reply">
+            <tuv xml:lang="pl_PL">
+                <seg>Na jaki adres e-mail mamy odpowiedzieć?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.public.your_reference_number">
+            <tuv xml:lang="pl_PL">
+                <seg>Twój numer zgłoszenia to: #%s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.add_contact_situation">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj sytuację kontaktu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.append_to_message">
+            <tuv xml:lang="pl_PL">
+                <seg>załącz do wiadomości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.choose_kb_topics">
+            <tuv xml:lang="pl_PL">
+                <seg>Wybierz jakie tematy baz wiedzy eksponować w tym portalu:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.example">
+            <tuv xml:lang="pl_PL">
+                <seg>Przykład:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.feeds_info">
+            <tuv xml:lang="pl_PL">
+                <seg>Możesz wyświetlać swoją zawartość RSS na stronie domowej swojej Obsługi Klienta, taką jak:
+                    najnowsze wpisy na blogach, popularne artykuły z baz wiedzy, najświeższe posty na forum i
+                    ogłoszenia, itd. Tutaj możesz zebrać wszystkie swoje interesujące i pomocne materiały związane z tym
+                    portalem, tak, by społeczność mogła się z nimi zapoznać.
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.feed_display_title">
+            <tuv xml:lang="pl_PL">
+                <seg>Tytuł kanała:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.feed_url">
+            <tuv xml:lang="pl_PL">
+                <seg>URL kanału:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.fnr.choose_resources">
+            <tuv xml:lang="pl_PL">
+                <seg>Wybierz, jakie zasoby wyeksponować na tym portalu:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.fnr.info">
+            <tuv xml:lang="pl_PL">
+                <seg>To centrum obsługi pozwoli Twojej społęczeności przeszukiwać Twoje zewnętrzne źródła wiedzy poprzez
+                    system "Pozyskaj" Cerba, dostarczając bezpośrednie linki do materiałów takich jak artykuły w bazach
+                    wiedzy, artykuły wiki, posty na forach, strony dokumentacji, wpisy na blogach, listy życzeń, raporty
+                    błędów itd.
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.fnr.not_configured">
+            <tuv xml:lang="pl_PL">
+                <seg>"Pozyskaj" nie zostało skonfigurowane.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.followup_questions_hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(rozpocznij od * by określic wymaganie, np. "*Nad jakimi produktami się zastanawiasz?")</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.login_registration">
+            <tuv xml:lang="pl_PL">
+                <seg>Login/Rejestracja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.open_ticket.allow_custom_subjects">
+            <tuv xml:lang="pl_PL">
+                <seg>Pozwól użytkownikom tworzyć ich własne tematy zgłoszeń.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.open_ticket.allow_headers">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.open_ticket.attachments">
+            <tuv xml:lang="pl_PL">
+                <seg>Zezwól na załączniki od:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.open_ticket.attachments.anybody">
+            <tuv xml:lang="pl_PL">
+                <seg>Każdego</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.open_ticket.attachments.logged_in">
+            <tuv xml:lang="pl_PL">
+                <seg>Zalogowanych gości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.open_ticket.attachments.nobody">
+            <tuv xml:lang="pl_PL">
+                <seg>Nikogo</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.reason_contacting">
+            <tuv xml:lang="pl_PL">
+                <seg>Przyczyna kontaktu:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.reason_contacting_hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(np. "Chciałbym uzyskać więcej informacji na temat waszych produktów")</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.situation.deleted">
+            <tuv xml:lang="pl_PL">
+                <seg>usunięte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.situation.hidden">
+            <tuv xml:lang="pl_PL">
+                <seg>ukryte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.cfg.situation.visible">
+            <tuv xml:lang="pl_PL">
+                <seg>widoczne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.announcements">
+            <tuv xml:lang="pl_PL">
+                <seg>Ogłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.common.source">
+            <tuv xml:lang="pl_PL">
+                <seg>Źródło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.contact.contact_us">
+            <tuv xml:lang="pl_PL">
+                <seg>Skontaktuj się z nami</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.contact.how_can_we_help">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.contact.how_może_we_help">
+            <tuv xml:lang="pl_PL">
+                <seg>W czym mogę pomóc?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.contact.message_received">
+            <tuv xml:lang="pl_PL">
+                <seg>Wiadomość otrzymana. Odpowiemy tak szybko, jak to możliwe.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.contact.text">
+            <tuv xml:lang="pl_PL">
+                <seg>Tekst:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.contact.thanks_for_contacting">
+            <tuv xml:lang="pl_PL">
+                <seg>Dziękujemy za kontakt</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.contact.write_to_us">
+            <tuv xml:lang="pl_PL">
+                <seg>Możesz do nas napisać na adres: %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.history.action">
+            <tuv xml:lang="pl_PL">
+                <seg>Akcja:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.history.add_message">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj wiadomość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.history.my_conversations">
+            <tuv xml:lang="pl_PL">
+                <seg>Moje konwersacje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.history.no_messages_from_email">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie otrzyamaliśmy wcześniej żadnych wiadomości od %s.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.history.reference">
+            <tuv xml:lang="pl_PL">
+                <seg>Uwagi:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.history.reply">
+            <tuv xml:lang="pl_PL">
+                <seg>Odpowiedz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.history.ticket_history">
+            <tuv xml:lang="pl_PL">
+                <seg>Historia zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.home">
+            <tuv xml:lang="pl_PL">
+                <seg>Strona domowa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.login.forgot">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapomniałeś hasła? Kliknij tu by je odzyskać.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.login.register">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie masz konta? Stwórz konto za darmo.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.my_account">
+            <tuv xml:lang="pl_PL">
+                <seg>Moje konto</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.my_account.change_password">
+            <tuv xml:lang="pl_PL">
+                <seg>Zmień hasło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.my_account.change_password_verify">
+            <tuv xml:lang="pl_PL">
+                <seg>Zweryfikuj hasło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.my_account.profile_picture">
+            <tuv xml:lang="pl_PL">
+                <seg>Obrazek profilowy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.my_account.settings_saved">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisano ustawienia konta!</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register">
+            <tuv xml:lang="pl_PL">
+                <seg>Zarejestruj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.already_have_confirmation">
+            <tuv xml:lang="pl_PL">
+                <seg>Masz już kod potwierdzający?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.confirm_registration">
+            <tuv xml:lang="pl_PL">
+                <seg>Potwierdź rejestrację</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.contacted_before">
+            <tuv xml:lang="pl_PL">
+                <seg>(jeśli kontaktowałeś się z nami w przeszłości, podaj te sam adres e-mail)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.create_account">
+            <tuv xml:lang="pl_PL">
+                <seg>stwórz konto</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.email_address">
+            <tuv xml:lang="pl_PL">
+                <seg>adres e-mail:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.enter_confirmation">
+            <tuv xml:lang="pl_PL">
+                <seg>Podaj swój kod potwierdzający:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.enter_confirmation.hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(to zostało wysłane na twój adres e-mail)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.password_choose">
+            <tuv xml:lang="pl_PL">
+                <seg>Wybierz hasło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.password_forgot">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapomniałem hasła</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.password_reset">
+            <tuv xml:lang="pl_PL">
+                <seg>Zresetuj hasło</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.password_verify">
+            <tuv xml:lang="pl_PL">
+                <seg>Zweryfikuj swoje hasło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.register.send_confirmation">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyslij e-mail potwierdzający</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.themes.log_in">
+            <tuv xml:lang="pl_PL">
+                <seg>Zaloguj się</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.themes.sign_in">
+            <tuv xml:lang="pl_PL">
+                <seg>zaloguj się</seg>
+            </tuv>
+        </tu>
+        <tu tuid="portal.sc.public.themes.sign_out">
+            <tuv xml:lang="pl_PL">
+                <seg>wyloguj się</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.assist">
+            <tuv xml:lang="pl_PL">
+                <seg>Tryb asysty:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.availability.calendar_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Określ moją dostępność na podstawie kalendarza:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.current">
+            <tuv xml:lang="pl_PL">
+                <seg>aktualne:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.email">
+            <tuv xml:lang="pl_PL">
+                <seg>Adresy e-mail</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.email.address">
+            <tuv xml:lang="pl_PL">
+                <seg>Adres</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.email.address.add">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj adres e-mail:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.email.address.confirmed">
+            <tuv xml:lang="pl_PL">
+                <seg>Potwierdzone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.email.address.resend.confirm">
+            <tuv xml:lang="pl_PL">
+                <seg>wyślij ponownie potwierdzenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.email.associated">
+            <tuv xml:lang="pl_PL">
+                <seg>Te adresy e-mail są powiązane z twoim kontem:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.keyboard.shortcuts">
+            <tuv xml:lang="pl_PL">
+                <seg>Skróty klawiszowe:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.language">
+            <tuv xml:lang="pl_PL">
+                <seg>Język:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail">
+            <tuv xml:lang="pl_PL">
+                <seg>Poczta:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.comments">
+            <tuv xml:lang="pl_PL">
+                <seg>Pokaż komentarze w konwersacji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.display">
+            <tuv xml:lang="pl_PL">
+                <seg>Gdy wyświetlam konwersację mailową:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.display.disable_html">
+            <tuv xml:lang="pl_PL">
+                <seg>Wiadomości zawsze pokazuj jako czysty tekst (wyłącz HTML)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.display.inline_log">
+            <tuv xml:lang="pl_PL">
+                <seg>W linii czasowej załącz logi aktywności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.no_discard_warning">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie ostrzegaj mnie o utracie niezapisanych zmian jeśli kliknę link podczas komponowania maila</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.readall">
+            <tuv xml:lang="pl_PL">
+                <seg>Zawsze uzywaj trybu 'czytaj wszystko' (rozwiń wiadomości i sortuj je chronologicznie)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.reply.html">
+            <tuv xml:lang="pl_PL">
+                <seg>Zawsze przełączaj w tryb HTML</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.reply_button">
+            <tuv xml:lang="pl_PL">
+                <seg>Gdy kliknę przycisk odpowiedzi:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.reply_textbox_size">
+            <tuv xml:lang="pl_PL">
+                <seg>Podczas odpowiadania:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.reply_textbox_size.auto">
+            <tuv xml:lang="pl_PL">
+                <seg>Automatycznie powiększaj pole tekstowe podczas pisania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.reply_textbox_size.inelastic">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie powiększaj automatycznie pola tekstowego podczas pisania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.reply_textbox_size.pixels">
+            <tuv xml:lang="pl_PL">
+                <seg>Ustaw początkową wysokość pola tekstowego na</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.signature">
+            <tuv xml:lang="pl_PL">
+                <seg>Wstaw mój podpis:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.signature.above">
+            <tuv xml:lang="pl_PL">
+                <seg>Nad cytowaną wiadomością</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.signature.above.cut">
+            <tuv xml:lang="pl_PL">
+                <seg>Nad cytowaną wiadomością z #cut</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.signature.below">
+            <tuv xml:lang="pl_PL">
+                <seg>Pod cytowaną wiadomością</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.signature.none">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie wstawiaj automatycznie mojego podpisu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.status.compose">
+            <tuv xml:lang="pl_PL">
+                <seg>Podczas tworzenia nowej wiadomości wychodzacej, ustaw status domyślny na:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.mail.status.reply">
+            <tuv xml:lang="pl_PL">
+                <seg>Podczas odpowiadania na wiadomość, ustaw domyślny status na:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.password.change">
+            <tuv xml:lang="pl_PL">
+                <seg>Zmień hasło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.password.new">
+            <tuv xml:lang="pl_PL">
+                <seg>Nowe hasło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.password.verify">
+            <tuv xml:lang="pl_PL">
+                <seg>Potwierdź hasło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.preferences">
+            <tuv xml:lang="pl_PL">
+                <seg>Preferencje</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.settings">
+            <tuv xml:lang="pl_PL">
+                <seg>Ustawienia konta</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.timeformat">
+            <tuv xml:lang="pl_PL">
+                <seg>Format czasu:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="preferences.account.timezone">
+            <tuv xml:lang="pl_PL">
+                <seg>Strefa czasowa:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="prefs.address.confirm.invalid_code">
+            <tuv xml:lang="pl_PL">
+                <seg>Kod potwierdzający który podałeś nie jest prawidłowy.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="prefs.address.confirm.mail.body">
+            <tuv xml:lang="pl_PL">
+                <seg>%s właśnie dodał ten adres e-mail do swojego konta w Cerb6.
+                    By potwierdzić i kontynuować, kliknij poniższy link:
+                    %s
+                    Jeśli nie wyrażałeś takiego życzenia, nie klikaj powyższego linku. Zgłoszenie wygaśnie w ciągu 24
+                    godzin.
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="prefs.address.confirm.mail.sent">
+            <tuv xml:lang="pl_PL">
+                <seg>Wiadomość potwierdzającą wysłano na %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="prefs.address.confirm.mail.subject">
+            <tuv xml:lang="pl_PL">
+                <seg>Potwierdź nowy e-mail pracownika (%s)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="prefs.address.confirm.tip">
+            <tuv xml:lang="pl_PL">
+                <seg>%s został potwierdzony!</seg>
+            </tuv>
+        </tu>
+        <tu tuid="prefs.address.exists">
+            <tuv xml:lang="pl_PL">
+                <seg>%s jest już przydzielony do pracownika.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="prefs.address.invalid">
+            <tuv xml:lang="pl_PL">
+                <seg>%s nie jest poprawnym adresem e-mail.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.activity">
+            <tuv xml:lang="pl_PL">
+                <seg>%s przegląda raporty.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.common.run_report">
+            <tuv xml:lang="pl_PL">
+                <seg>Włącz raport</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.menu.reports">
+            <tuv xml:lang="pl_PL">
+                <seg>raporty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.average_per_day">
+            <tuv xml:lang="pl_PL">
+                <seg>(średnio: %s/dzień)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.bot.usage">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.created_from">
+            <tuv xml:lang="pl_PL">
+                <seg>stworzone Od:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.custom_fields.usage">
+            <tuv xml:lang="pl_PL">
+                <seg>Niestandardowe użycie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.date_from">
+            <tuv xml:lang="pl_PL">
+                <seg>Od:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.date_past">
+            <tuv xml:lang="pl_PL">
+                <seg>Zaległe:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.date_to">
+            <tuv xml:lang="pl_PL">
+                <seg>Do:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.1_day">
+            <tuv xml:lang="pl_PL">
+                <seg>1 dzień</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.1_month">
+            <tuv xml:lang="pl_PL">
+                <seg>1 miesiąc</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.1_week">
+            <tuv xml:lang="pl_PL">
+                <seg>1 tydzień</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.1_year">
+            <tuv xml:lang="pl_PL">
+                <seg>1 rok</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.all_time">
+            <tuv xml:lang="pl_PL">
+                <seg>od zawsze</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.group">
+            <tuv xml:lang="pl_PL">
+                <seg>Grupy filtrów:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.n_months">
+            <tuv xml:lang="pl_PL">
+                <seg>%s miesięcy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.org">
+            <tuv xml:lang="pl_PL">
+                <seg>Filtruj organizacje:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.ticket.status">
+            <tuv xml:lang="pl_PL">
+                <seg>Filtruj status:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.filters.worker">
+            <tuv xml:lang="pl_PL">
+                <seg>Filtruj pracowników:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.bot">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.custom_fields">
+            <tuv xml:lang="pl_PL">
+                <seg>Niestandardowe raporty</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.group">
+            <tuv xml:lang="pl_PL">
+                <seg>Raporty grup</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.org">
+            <tuv xml:lang="pl_PL">
+                <seg>Raporty organizacji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.replies">
+            <tuv xml:lang="pl_PL">
+                <seg>Odpowiedzi grup w czasie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.roster">
+            <tuv xml:lang="pl_PL">
+                <seg>Listy grup</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.snippet">
+            <tuv xml:lang="pl_PL">
+                <seg>Raporty snippetów</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.spam">
+            <tuv xml:lang="pl_PL">
+                <seg>Raporty spamu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.ticket">
+            <tuv xml:lang="pl_PL">
+                <seg>Raporty zgłoszeń</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.virtual_attendant">
+            <tuv xml:lang="pl_PL">
+                <seg>Raporty Wirtualnego Operatora</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.group.worker">
+            <tuv xml:lang="pl_PL">
+                <seg>Raporty Pracowników</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.invalid_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Wprowadzono niewłaściwą datę. Proszę spróbować ponownie.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.org.shared_sender_domains">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęściej wspóldzielonych przez wysyłających domen</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.org.shared_sender_domains.domain">
+            <tuv xml:lang="pl_PL">
+                <seg>Domena</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.org.shared_sender_domains.num_orgs">
+            <tuv xml:lang="pl_PL">
+                <seg># Organizacji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.snippets.popularity">
+            <tuv xml:lang="pl_PL">
+                <seg>Najbardziej/Najmniej popularne snippety w określonym czasie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.domains">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych domen spamowych/nie-spamowych</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.domains.domain">
+            <tuv xml:lang="pl_PL">
+                <seg>Domena</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.domains.top_nonspam">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych domen nie-spamowych</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.domains.top_spam">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych domen spamowych</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.num_nonspam">
+            <tuv xml:lang="pl_PL">
+                <seg>#nonspam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.num_spam">
+            <tuv xml:lang="pl_PL">
+                <seg>#spam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.senders">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych źródeł Spamu/Nie-spamu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.senders.top_nonspam">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych źródeł Nie-spamu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.senders.top_spam">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych źródeł Spamu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.words">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych słów Spamowych/Nie-spamowych (wyrażenia wulgarne)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.words.num_nonspam_trained">
+            <tuv xml:lang="pl_PL">
+                <seg># Nie-spam wyuczony:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.words.num_spam_trained">
+            <tuv xml:lang="pl_PL">
+                <seg># Spam wyuczony:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.words.spam_training">
+            <tuv xml:lang="pl_PL">
+                <seg>Uczenie mechanizmu spamu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.words.top_nonspam">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych słów nie-spamowych</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.words.top_spam">
+            <tuv xml:lang="pl_PL">
+                <seg>100 najczęstszych słów spamowych</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.spam.words.word">
+            <tuv xml:lang="pl_PL">
+                <seg>Słowo</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.ticket.closed">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknięte zgłoszenia według grup w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.ticket.new_tickets">
+            <tuv xml:lang="pl_PL">
+                <seg>stworzone zgłoszenia według grup w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.ticket.top_contacts">
+            <tuv xml:lang="pl_PL">
+                <seg>Zgłoszenia stworzone przez najczęstsze kontakty w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.ticket.top_contacts.by_address">
+            <tuv xml:lang="pl_PL">
+                <seg>po adresie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.ticket.top_contacts.by_org">
+            <tuv xml:lang="pl_PL">
+                <seg>po organizacji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.virtual_attendant.usage">
+            <tuv xml:lang="pl_PL">
+                <seg>użycie Wirtualnego Operatora w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.worker.response_time">
+            <tuv xml:lang="pl_PL">
+                <seg>Średni czas odpowiedzi w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.worker.response_time.date_range">
+            <tuv xml:lang="pl_PL">
+                <seg>Zakres dat:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.worker.response_time.group_responses">
+            <tuv xml:lang="pl_PL">
+                <seg>Odpowiedzi grup</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.worker.response_time.worker_responses">
+            <tuv xml:lang="pl_PL">
+                <seg>Odpwoiedzi pracowników</seg>
+            </tuv>
+        </tu>
+        <tu tuid="reports.ui.worker.worker_history">
+            <tuv xml:lang="pl_PL">
+                <seg>Historia pracownika w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="rss.bad_feed">
+            <tuv xml:lang="pl_PL">
+                <seg>Niewłaściwe dane.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.date.between">
+            <tuv xml:lang="pl_PL">
+                <seg>pomiędzy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.date.between.and">
+            <tuv xml:lang="pl_PL">
+                <seg>a</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.date.between.not">
+            <tuv xml:lang="pl_PL">
+                <seg>nie pomiędzy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.date.examples">
+            <tuv xml:lang="pl_PL">
+                <seg>przykłady:
+                    teraz
+                    dziś
+                    -2 dni
+                    -1 miesiąc, 2 dni
+                    ostatni Piątek
+                    nastepny Poniedziałek
+                    Sty 9 2002
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.fulltext.examples">
+            <tuv xml:lang="pl_PL">
+                <seg>&lt;b&gt;Dowolne słowa:&lt;/b&gt;
+                    płatność rachunek zamówienie sprzedaż
+                    &lt;b&gt;Logiczne typy danych:&lt;/b&gt;
+                    +płatność -rachunek
+                    +kredyt kupiecki
+                    &lt;b&gt;Wieloznaczniki:&lt;/b&gt;
+                    sieć*
+                    &lt;b&gt;Dokładna fraza:&lt;/b&gt;
+                    "karta kredytowa"
+                    &lt;b&gt;Podbicie:&lt;/b&gt;
+                    cerberus &gt;helpdesk
+                    login &lt;ftp
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.no_saved">
+            <tuv xml:lang="pl_PL">
+                <seg>Brak zapisanych wyszukiwań</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.oper.equals">
+            <tuv xml:lang="pl_PL">
+                <seg>równe</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.oper.equals.not">
+            <tuv xml:lang="pl_PL">
+                <seg>nie jest równe</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.oper.equals.or_null">
+            <tuv xml:lang="pl_PL">
+                <seg>równe lub brak</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.oper.in_list">
+            <tuv xml:lang="pl_PL">
+                <seg>na liście</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.oper.in_list.not">
+            <tuv xml:lang="pl_PL">
+                <seg>nie na liście</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.oper.matches">
+            <tuv xml:lang="pl_PL">
+                <seg>zgadza się</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.oper.matches.not">
+            <tuv xml:lang="pl_PL">
+                <seg>nie zgadza się</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.oper.null">
+            <tuv xml:lang="pl_PL">
+                <seg>brak (nieustawiony)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.operator">
+            <tuv xml:lang="pl_PL">
+                <seg>operator</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.string.examples">
+            <tuv xml:lang="pl_PL">
+                <seg>Uzyj gwiazdki (*) dla wieloznaczników.
+                    Na przykład: *rachunek*
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.value">
+            <tuv xml:lang="pl_PL">
+                <seg>wartość</seg>
+            </tuv>
+        </tu>
+        <tu tuid="search.values">
+            <tuv xml:lang="pl_PL">
+                <seg>wartości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="signin.forgot.mail.body">
+            <tuv xml:lang="pl_PL">
+                <seg>Ten kod potwierdzający pozwoli ci zresetować login: %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="signin.forgot.mail.subject">
+            <tuv xml:lang="pl_PL">
+                <seg>Potwierdź odzyskiwanie hasła.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="simulator.common">
+            <tuv xml:lang="pl_PL">
+                <seg>Symulator</seg>
+            </tuv>
+        </tu>
+        <tu tuid="simulator.ui.cfg.flavor">
+            <tuv xml:lang="pl_PL">
+                <seg>Próbka Data Flavor:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="simulator.ui.cfg.generate">
+            <tuv xml:lang="pl_PL">
+                <seg>Generuj</seg>
+            </tuv>
+        </tu>
+        <tu tuid="simulator.ui.cfg.generate_wait">
+            <tuv xml:lang="pl_PL">
+                <seg>Proszę czekać. Generowanie zgłoszenia...</seg>
+            </tuv>
+        </tu>
+        <tu tuid="simulator.ui.cfg.how_many">
+            <tuv xml:lang="pl_PL">
+                <seg>Ile?</seg>
+            </tuv>
+        </tu>
+        <tu tuid="simulator.ui.cfg.sample_tickets">
+            <tuv xml:lang="pl_PL">
+                <seg>stwórz przykładowe zgłoszenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="simulator.ui.cfg.to_address">
+            <tuv xml:lang="pl_PL">
+                <seg>Na adres:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="status.closed">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknięte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="status.completed">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="status.deleted">
+            <tuv xml:lang="pl_PL">
+                <seg>usunięte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="status.open">
+            <tuv xml:lang="pl_PL">
+                <seg>Otwórz</seg>
+            </tuv>
+        </tu>
+        <tu tuid="status.resolved">
+            <tuv xml:lang="pl_PL">
+                <seg>Rozwiązane</seg>
+            </tuv>
+        </tu>
+        <tu tuid="status.waiting">
+            <tuv xml:lang="pl_PL">
+                <seg>Oczekujące na odpowiedź</seg>
+            </tuv>
+        </tu>
+        <tu tuid="status.waiting.abbr">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="task.completed_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data ukończenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="task.due_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data przedawnienia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="task.is_completed">
+            <tuv xml:lang="pl_PL">
+                <seg>Ukończone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="task.status.active">
+            <tuv xml:lang="pl_PL">
+                <seg>Aktywne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="task.status.completed">
+            <tuv xml:lang="pl_PL">
+                <seg>Ukończone</seg>
+            </tuv>
+        </tu>
+        <tu tuid="task.worker_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Pracownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="tasks.add">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj zadanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="tasks.complete">
+            <tuv xml:lang="pl_PL">
+                <seg>Kompletne</seg>
+            </tuv>
+        </tu>
+        <tu tuid="tasks.postpone">
+            <tuv xml:lang="pl_PL">
+                <seg>+24hrs</seg>
+            </tuv>
+        </tu>
+        <tu tuid="tasks.ticket.tab.view">
+            <tuv xml:lang="pl_PL">
+                <seg>Zgłoszenie zadania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.assignable">
+            <tuv xml:lang="pl_PL">
+                <seg>Do przypisania</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.closed_at">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknięte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.due">
+            <tuv xml:lang="pl_PL">
+                <seg>Ważne do</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.elapsed_resolution_first">
+            <tuv xml:lang="pl_PL">
+                <seg>Pierwsze rozwiązanie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.elapsed_response_first">
+            <tuv xml:lang="pl_PL">
+                <seg>Pierwsza odpowiedź</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.first_wrote">
+            <tuv xml:lang="pl_PL">
+                <seg>Pierwszy napisał</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.groups_of_worker">
+            <tuv xml:lang="pl_PL">
+                <seg>W grupach pracownika</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.interesting_words">
+            <tuv xml:lang="pl_PL">
+                <seg>Interesujące słowa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.last_action">
+            <tuv xml:lang="pl_PL">
+                <seg>Ostatnia akcja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.last_action.opened">
+            <tuv xml:lang="pl_PL">
+                <seg>Otwarte zgłoszenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.last_action.recipient_reply">
+            <tuv xml:lang="pl_PL">
+                <seg>Odbiorca odpowiedział</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.last_action.worker_reply">
+            <tuv xml:lang="pl_PL">
+                <seg>Prawcownik odpowiedział</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.last_wrote">
+            <tuv xml:lang="pl_PL">
+                <seg>Ostatni napisał</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.mask">
+            <tuv xml:lang="pl_PL">
+                <seg>Maska</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.num_messages">
+            <tuv xml:lang="pl_PL">
+                <seg># Wiadomości</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.recipients.empty">
+            <tuv xml:lang="pl_PL">
+                <seg>Nikt nie uczestniczy w tej konwersacji.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.reopen_at">
+            <tuv xml:lang="pl_PL">
+                <seg>Otwórz ponownie o</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.requester">
+            <tuv xml:lang="pl_PL">
+                <seg>Odbiorca</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.requesters">
+            <tuv xml:lang="pl_PL">
+                <seg>Odbiorcy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.spam_score">
+            <tuv xml:lang="pl_PL">
+                <seg>Współczynnik Spamu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.spam_training">
+            <tuv xml:lang="pl_PL">
+                <seg>Wyczuanie Spamu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.status">
+            <tuv xml:lang="pl_PL">
+                <seg>Status</seg>
+            </tuv>
+        </tu>
+        <tu tuid="ticket.subject">
+            <tuv xml:lang="pl_PL">
+                <seg>Tytuł</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.activity.tab">
+            <tuv xml:lang="pl_PL">
+                <seg>Śledzenie Czasu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.button.track">
+            <tuv xml:lang="pl_PL">
+                <seg>Śledzenie Czasu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.activities">
+            <tuv xml:lang="pl_PL">
+                <seg>Aktywności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.add_activity">
+            <tuv xml:lang="pl_PL">
+                <seg>Dodaj aktywność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.add_new_activity">
+            <tuv xml:lang="pl_PL">
+                <seg>dodaj nową aktywność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.currency">
+            <tuv xml:lang="pl_PL">
+                <seg>PLN$</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.modify">
+            <tuv xml:lang="pl_PL">
+                <seg>Modyfikuj '%s'</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwa:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.name.hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(np. "Rozwiązywanie problemów")</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.per_hour">
+            <tuv xml:lang="pl_PL">
+                <seg>na godzinę</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.cfg.rate">
+            <tuv xml:lang="pl_PL">
+                <seg>Szybkość:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.comment.activity">
+            <tuv xml:lang="pl_PL">
+                <seg>Aktywność:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.comment.not_set">
+            <tuv xml:lang="pl_PL">
+                <seg>(nie ustawiono)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.comment.organization">
+            <tuv xml:lang="pl_PL">
+                <seg>Organizacja:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.comment.time_spent">
+            <tuv xml:lang="pl_PL">
+                <seg>Czas spędzony (minut):</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.activity">
+            <tuv xml:lang="pl_PL">
+                <seg>Aktywność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.debit_time_client">
+            <tuv xml:lang="pl_PL">
+                <seg>Czas zapłaty:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.debit_time_client_hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(jeśli org znana; autouzupełnienie)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.mins">
+            <tuv xml:lang="pl_PL">
+                <seg>min</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.note">
+            <tuv xml:lang="pl_PL">
+                <seg>Notatka:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.note_hint">
+            <tuv xml:lang="pl_PL">
+                <seg>(opis wykonanej pracy)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.reference">
+            <tuv xml:lang="pl_PL">
+                <seg>Uwagi:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.resume">
+            <tuv xml:lang="pl_PL">
+                <seg>Przywróć</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.save_finish">
+            <tuv xml:lang="pl_PL">
+                <seg>Zapisz i zakończ</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.entry_panel.time_spent">
+            <tuv xml:lang="pl_PL">
+                <seg>Czas spędzony</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.generic_worker">
+            <tuv xml:lang="pl_PL">
+                <seg>Pracownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports">
+            <tuv xml:lang="pl_PL">
+                <seg>Raporty Śledzenia Czasu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.filters.1_day">
+            <tuv xml:lang="pl_PL">
+                <seg>1 dzień</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.filters.1_month">
+            <tuv xml:lang="pl_PL">
+                <seg>1 miesiąc</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.filters.1_week">
+            <tuv xml:lang="pl_PL">
+                <seg>1 tydzień</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.filters.1_year">
+            <tuv xml:lang="pl_PL">
+                <seg>1 rok</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.filters.n_months">
+            <tuv xml:lang="pl_PL">
+                <seg>%s miesięcy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.from">
+            <tuv xml:lang="pl_PL">
+                <seg>Od:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.invalid_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Podano niewłaściwą datę. Proszę spróbować ponownie.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.past">
+            <tuv xml:lang="pl_PL">
+                <seg>Minęło:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.time_spent_activity">
+            <tuv xml:lang="pl_PL">
+                <seg>Czas spędzony według aktywności w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.time_spent_activity.no_activity">
+            <tuv xml:lang="pl_PL">
+                <seg>(brak aktywności)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.time_spent_org">
+            <tuv xml:lang="pl_PL">
+                <seg>Czas spędzony według organizacji w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.time_spent_org.all_workers">
+            <tuv xml:lang="pl_PL">
+                <seg>Wszyscy pracownicy</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.time_spent_org.no_organization">
+            <tuv xml:lang="pl_PL">
+                <seg>(brak organizacji)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.time_spent_worker">
+            <tuv xml:lang="pl_PL">
+                <seg>Czas spędzony przez pracownika w przedziale czasowym</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.reports.to">
+            <tuv xml:lang="pl_PL">
+                <seg>Do:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.source.ticket.link_text">
+            <tuv xml:lang="pl_PL">
+                <seg>Zgłoszenie #%s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.timetracking">
+            <tuv xml:lang="pl_PL">
+                <seg>Śledzenie Czasu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.tracked_desc">
+            <tuv xml:lang="pl_PL">
+                <seg>%s śledzony %s dnia %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking.ui.worker">
+            <tuv xml:lang="pl_PL">
+                <seg>Pracownik:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking_entry.activity_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Aktywność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking_entry.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking_entry.is_closed">
+            <tuv xml:lang="pl_PL">
+                <seg>Zamknięte</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking_entry.log_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data logu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking_entry.time_actual_mins">
+            <tuv xml:lang="pl_PL">
+                <seg>Minut</seg>
+            </tuv>
+        </tu>
+        <tu tuid="timetracking_entry.worker_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Pracownik</seg>
+            </tuv>
+        </tu>
+        <tu tuid="training.not_spam">
+            <tuv xml:lang="pl_PL">
+                <seg>Nie Spam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="training.report_spam">
+            <tuv xml:lang="pl_PL">
+                <seg>Zgłoś Spam</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translate.id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translate.lang_code">
+            <tuv xml:lang="pl_PL">
+                <seg>Język</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translate.string_default">
+            <tuv xml:lang="pl_PL">
+                <seg>Tłumaczenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translate.string_id">
+            <tuv xml:lang="pl_PL">
+                <seg>ID tekstu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translate.string_override">
+            <tuv xml:lang="pl_PL">
+                <seg>Moje tłumaczenie</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translators.common">
+            <tuv xml:lang="pl_PL">
+                <seg>Edycja tłumaczenia</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translators.config.translate_from">
+            <tuv xml:lang="pl_PL">
+                <seg>Tłumaczenie z %s:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translators.language">
+            <tuv xml:lang="pl_PL">
+                <seg>Język</seg>
+            </tuv>
+        </tu>
+        <tu tuid="translators.languages">
+            <tuv xml:lang="pl_PL">
+                <seg>Języki</seg>
+            </tuv>
+        </tu>
+        <tu tuid="update.correct_errors">
+            <tuv xml:lang="pl_PL">
+                <seg>Proszę poprawić nastepujące błędy przed aktualizacją:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="update.ip_unauthorized">
+            <tuv xml:lang="pl_PL">
+                <seg>Twój adres IP (%s) nie jest upoważniony do aktualizacji tej aplikacji. Twój administrator musi
+                    autoryzować Twoje IP w menu Bezpieczeństwo w Ustawieniach lub w pliku framework.config.php pod
+                    AUTHORIZED_IPS_DEFAULTS.
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="update.locked_another">
+            <tuv xml:lang="pl_PL">
+                <seg>Inny administrator aktualnie przeprowadza aktualizację. Proszę czekać...</seg>
+            </tuv>
+        </tu>
+        <tu tuid="va.actions.ticket.relay.default_content">
+            <tuv xml:lang="pl_PL">
+                <seg>## Przekazane od {{ticket_url}}
+                    ## Twoja odpowiedź na tą wiadomość będzie przekazana do odbiorców.
+                    ## Instrukcje: http://wiki.cerbweb.com/Email_Relay
+                    ##
+                    {{%s}}
+                </seg>
+            </tuv>
+        </tu>
+        <tu tuid="views.jump_to_actions">
+            <tuv xml:lang="pl_PL">
+                <seg>przeskocz do akcji</seg>
+            </tuv>
+        </tu>
+        <tu tuid="views.new_list">
+            <tuv xml:lang="pl_PL">
+                <seg>Nowa lista</seg>
+            </tuv>
+        </tu>
+        <tu tuid="views.peek">
+            <tuv xml:lang="pl_PL">
+                <seg>(podgląd)</seg>
+            </tuv>
+        </tu>
+        <tu tuid="views.showing_from_to">
+            <tuv xml:lang="pl_PL">
+                <seg>Pokazuje %s-%s z %s</seg>
+            </tuv>
+        </tu>
+        <tu tuid="whos_online.currently_active">
+            <tuv xml:lang="pl_PL">
+                <seg/>
+            </tuv>
+        </tu>
+        <tu tuid="whos_online.heading">
+            <tuv xml:lang="pl_PL">
+                <seg>%s Pracownik(ów) zalogowanych:</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.at_mention_name">
+            <tuv xml:lang="pl_PL">
+                <seg>@Mention</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.auth_extension_id">
+            <tuv xml:lang="pl_PL">
+                <seg>Autentykacja</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.first_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Imię</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.full_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Imię i nazwisko</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.is_superuser">
+            <tuv xml:lang="pl_PL">
+                <seg>Administrator</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.language">
+            <tuv xml:lang="pl_PL">
+                <seg>Język</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.last_activity">
+            <tuv xml:lang="pl_PL">
+                <seg>Ostatnia aktywność</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.last_activity_date">
+            <tuv xml:lang="pl_PL">
+                <seg>Data ostatniej aktywności</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.last_name">
+            <tuv xml:lang="pl_PL">
+                <seg>Nazwisko</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.timezone">
+            <tuv xml:lang="pl_PL">
+                <seg>Strefa czasowa</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.time_format">
+            <tuv xml:lang="pl_PL">
+                <seg>Format czasu</seg>
+            </tuv>
+        </tu>
+        <tu tuid="worker.title">
+            <tuv xml:lang="pl_PL">
+                <seg>Tytuł</seg>
+            </tuv>
+        </tu>
+    </body>
+</tmx>
