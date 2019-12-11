@@ -124,7 +124,7 @@ $(function() {
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-profile-widget--menu');
 		var $menu_link = $target.find('.cerb-profile-widget--link');
-		var $handle = $target.find('.glyphicons-menu-hamburger');
+		var $handle = $target.find('.cerb-profile-widget--header .glyphicons-menu-hamburger');
 
 		{if $active_worker->is_superuser}
 		$target.hoverIntent({

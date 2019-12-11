@@ -180,7 +180,7 @@ $(function() {
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-workspace-widget--menu');
 		var $menu_link = $target.find('.cerb-workspace-widget--link');
-		var $handle = $target.find('.glyphicons-menu-hamburger');
+		var $handle = $target.find('.cerb-workspace-widget--header .glyphicons-menu-hamburger');
 
 		{if $is_writeable}
 		$target.hoverIntent({
