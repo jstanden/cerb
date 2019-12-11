@@ -1295,6 +1295,11 @@
 				<seg>format</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.format.markdown">
+			<tuv xml:lang="en_US">
+				<seg>Markdown</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.gender">
 			<tuv xml:lang="en_US">
 				<seg>gender</seg>

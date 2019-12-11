@@ -1390,6 +1390,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		return [
 			'created_at' => DAO_Bot::CREATED_AT,
 			'id' => DAO_Bot::ID,
+			'image' => '_image',
 			'is_disabled' => DAO_Bot::IS_DISABLED,
 			'links' => '_links',
 			'mention_name' => DAO_Bot::AT_MENTION_NAME,

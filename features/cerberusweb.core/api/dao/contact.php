@@ -2062,6 +2062,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'first_name' => DAO_Contact::FIRST_NAME,
 			'gender' => DAO_Contact::GENDER,
 			'id' => DAO_Contact::ID,
+			'image' => '_image',
 			'language' => DAO_Contact::LANGUAGE,
 			'last_login_at' => DAO_Contact::LAST_LOGIN_AT,
 			'last_name' => DAO_Contact::LAST_NAME,

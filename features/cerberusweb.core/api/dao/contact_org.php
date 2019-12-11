@@ -1771,6 +1771,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'created' => DAO_ContactOrg::CREATED,
 			'email_id' => DAO_ContactOrg::EMAIL_ID,
 			'id' => DAO_ContactOrg::ID,
+			'image' => '_image',
 			'links' => '_links',
 			'name' => DAO_ContactOrg::NAME,
 			'phone' => DAO_ContactOrg::PHONE,

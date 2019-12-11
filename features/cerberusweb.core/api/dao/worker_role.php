@@ -1287,6 +1287,14 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
+		
+		$keys['params'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'JSON-encoded key/value object',
+			'type' => 'object',
+		];
+		
 		return $keys;
 	}
 	

@@ -3522,6 +3522,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'gender' => DAO_Worker::GENDER,
 			'email_id' => DAO_Worker::EMAIL_ID,
 			'id' => DAO_Worker::ID,
+			'image' => '_image',
 			'is_disabled' => DAO_Worker::IS_DISABLED,
 			'is_mfa_required' => DAO_Worker::IS_MFA_REQUIRED,
 			'is_password_disabled' => DAO_Worker::IS_PASSWORD_DISABLED,

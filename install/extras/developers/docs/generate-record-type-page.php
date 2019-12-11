@@ -195,6 +195,22 @@ EOD;
 		);
 	}
 	
+	foreach($dao_fieldmap as $record_key => $key_meta) {
+		if(array_key_exists('_reference', $key_meta)) {
+			foreach($key_meta['_reference'] as $ref_title => $refs) {
+				$out .= "\n#### " . $ref_title . "\n\n";
+				$out .= sprintf("|---\n| Key | Value\n|-|-\n");
+				
+				foreach($refs as $ref_key => $ref_value) {
+					$out .= sprintf("| `%s` | %s\n",
+						$ref_key,
+						$ref_value
+					);
+				}
+			}
+		}
+	}
+	
 	$labels = $values = [];
 	
 	$context_ext->getContext(null, $labels, $values, '');

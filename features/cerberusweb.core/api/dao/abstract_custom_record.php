@@ -1325,6 +1325,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		return [
 			'created_at' => DAO_AbstractCustomRecord::CREATED_AT,
 			'id' => DAO_AbstractCustomRecord::ID,
+			'image' => '_image',
 			'links' => '_links',
 			'name' => DAO_AbstractCustomRecord::NAME,
 			'owner__context' => DAO_AbstractCustomRecord::OWNER_CONTEXT,

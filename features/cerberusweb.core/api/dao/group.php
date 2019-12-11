@@ -2100,6 +2100,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		return [
 			'created' => DAO_Group::CREATED,
 			'id' => DAO_Group::ID,
+			'image' => '_image',
 			'is_default' => DAO_Group::IS_DEFAULT,
 			'is_private' => DAO_Group::IS_PRIVATE,
 			'links' => '_links',
