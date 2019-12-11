@@ -501,6 +501,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		@$zones = DevblocksPlatform::importGPC($_REQUEST['zones'], 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		$cache = DevblocksPlatform::services()->cache();
 		
 		if(!$active_worker->is_superuser)
 			return;
@@ -514,6 +515,9 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		}
 		
 		DAO_CardWidget::reorder($new_zones);
+		
+		$cache_key = sprintf('card_widgets:' . $record_type);
+		$cache->remove($cache_key);
 	}
 	
 	function getFieldsTabsByContextAction() {
