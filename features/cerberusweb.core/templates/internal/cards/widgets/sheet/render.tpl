@@ -76,12 +76,13 @@
 <script type="text/javascript">
 $(function() {
 	var $widget = $('#cardWidget{$widget->getUniqueId($dict->id)}');
+	var $popup = genericAjaxPopupFind($widget);
 
 	$widget.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved cerb-peek-deleted', function(e) {
 			// Reload sheet via event
-			var $tab = $widget.closest('.cerb-profile-layout');
+			var $tab = $widget.closest('.cerb-card-layout');
 			$tab.triggerHandler($.Event('cerb-widget-refresh', { widget_id: {$widget->id} }));
 		})
 		;
@@ -92,22 +93,21 @@ $(function() {
 	
 	$widget.find('.cerb-paging')
 		.click(function(e) {
+			e.stopPropagation();
+
 			var $this = $(this);
-			var $tab = $this.closest('.cerb-profile-layout');
 			var page = $this.attr('data-page');
-			
+
 			if(undefined == page)
 				return;
-			
-			e.stopPropagation();
-			
+
 			var evt = $.Event('cerb-widget-refresh');
 			evt.widget_id = {$widget->id};
 			evt.refresh_options = {
 				'page': page
 			};
-			
-			$tab.triggerHandler(evt);
+
+			$popup.triggerHandler(evt);
 		})
 		;
 });
