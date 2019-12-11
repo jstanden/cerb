@@ -837,7 +837,7 @@ class Model_MailQueue {
 			'worker_id' => $this->worker_id,
 		];
 		
-		if($this->hasParam('ticket_id')) {
+		if($this->ticket_id) {
 			$properties['ticket_id'] = $this->ticket_id;
 		}
 		
