@@ -679,6 +679,7 @@ class ChDisplayPage extends CerberusPageExtension {
 		unset($params['draft_id']);
 		unset($params['is_ajax']);
 		unset($params['reply_mode']);
+		unset($params['_csrf_token']);
 		
 		@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'],'array',[]);
 		$field_ids = DevblocksPlatform::sanitizeArray($field_ids, 'integer', array('nonzero','unique'));
