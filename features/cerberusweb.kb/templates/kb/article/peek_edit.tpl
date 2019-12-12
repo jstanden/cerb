@@ -129,7 +129,10 @@ $(function() {
 		// Editor
 		var $editor = $popup.find('textarea[name=content]')
 			.cerbTextEditor()
-			;
+			.cerbTextEditorInlineImagePaster({
+				attachmentsContainer: $attachments
+			})
+		;
 
 		var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar--article')
 			.cerbTextEditorToolbarMarkdown()
