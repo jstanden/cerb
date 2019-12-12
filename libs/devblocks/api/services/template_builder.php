@@ -1348,6 +1348,9 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		if('id' == $type)
 			return $ctx_manifest->id;
 		
+		if('uri' == $type)
+			return $ctx_manifest->params['alias'];
+		
 		if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($ctx_manifest)))
 			return '';
 		
