@@ -1830,11 +1830,7 @@ abstract class C4_AbstractView {
 			$fields[$prefix]['options']['param_key'] = $param_key;
 		
 		foreach($context_mfts as $context_mft) {
-			$aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
-			
-			$alias = $aliases['uri'];
-			
-			if(empty($alias))
+			if(false == ($alias = $context_mft->params['alias']))
 				continue;
 			
 			$field = array(
