@@ -37,7 +37,7 @@
 
 {$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_KB_ARTICLE, $model->id)}
 
-<fieldset class="peek black" style="margin-top:10px;">
+<fieldset class="peek black cerb-attachments" style="margin-top:10px;">
 	<legend>{'common.attachments'|devblocks_translate|capitalize}:</legend>
 
 	<button type="button" class="chooser_file"><span class="glyphicons glyphicons-paperclip"></span></button>
@@ -120,7 +120,12 @@ $(function() {
 		$popup.find('.cerb-peek-trigger')
 			.cerbPeekTrigger()
 			;
-		
+
+		// Drag/drop attachments
+
+		var $attachments = $popup.find('fieldset.cerb-attachments');
+		$attachments.cerbAttachmentsDropZone();
+
 		// Editor
 		var $editor = $popup.find('textarea[name=content]')
 			.cerbTextEditor()
