@@ -106,7 +106,7 @@
 				<button type="button" title="Preview message" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
 			</div>
 
-			<textarea id="divComposeContent{$popup_uniqid}" name="content" style="box-sizing:border-box;">{if $draft}{$draft->getParam('content')}{else}{if $defaults.signature_pos}
+			<textarea id="divComposeContent{$popup_uniqid}" name="content" style="box-sizing:border-box;">{if $draft && $draft->getParam('content')}{$draft->getParam('content')}{else}{if $defaults.signature_pos}
 
 
 
