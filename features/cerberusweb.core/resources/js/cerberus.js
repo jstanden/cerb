@@ -300,7 +300,7 @@ var cerbAutocompleteSuggestions = {
 };
 
 $.fn.cerbDateInputHelper = function(options) {
-	var options = (typeof options == 'object') ? options : {};
+	options = (typeof options == 'object') ? options : {};
 	
 	return this.each(function() {
 		var $this = $(this);
@@ -553,7 +553,7 @@ var cAjaxCalls = function() {
 			
 			if(0 != $view_filters.length) {
 				$view_filters.html(o);
-				$view_filters.trigger('view_refresh')
+				$view_filters.trigger('view_refresh');
 			}
 		}
 		
@@ -633,12 +633,12 @@ var cAjaxCalls = function() {
 			options.source = function (request, response) {
 				// From the last comma (if exists)
 				var pos = request.term.lastIndexOf(',');
-				if(-1 != pos) {
+				if(-1 !== pos) {
 					// Split at the comma and trim
 					request.term = $.trim(request.term.substring(pos+1));
 				}
 				
-				if(0==request.term.length)
+				if(0 === request.term.length)
 					return;
 				
 				var ajax_options = {
@@ -655,7 +655,7 @@ var cAjaxCalls = function() {
 			options.select = function(event, ui) {
 				var value = $(this).val();
 				var pos = value.lastIndexOf(',');
-				if(-1 != pos) {
+				if(-1 !== pos) {
 					$(this).val(value.substring(0,pos)+', '+ui.item.label+', ');
 				} else {
 					$(this).val(ui.item.label+', ');
