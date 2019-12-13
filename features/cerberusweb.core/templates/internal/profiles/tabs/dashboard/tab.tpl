@@ -62,24 +62,34 @@ $(function() {
 	$container.find('.cerb-profile-layout-zone--widgets')
 		.sortable({
 			tolerance: 'pointer',
+			cursorAt: { top: 5, left: 5 },
 			items: '.cerb-profile-widget',
-			helper: 'clone',
-			placeholder: 'ui-state-highlight',
+			helper: function(event, element) {
+				return element.clone()
+					.css('outline','2px dashed gray')
+					.css('outline-offset','-2px')
+					.css('background-color', 'white')
+					;
+			},
+			placeholder: 'cerb-widget-drag-placeholder',
 			forceHelperSize: true,
 			forcePlaceholderSize: true,
 			handle: '.cerb-profile-widget--header .glyphicons-menu-hamburger',
 			connectWith: '.cerb-profile-layout-zone--widgets',
 			opacity: 0.7,
 			start: function(event, ui) {
+				ui.placeholder.css('flex', ui.item.css('flex'));
 				$container.find('.cerb-profile-layout-zone--widgets')
-					.css('border', '2px dashed orange')
+					.css('outline', '2px dashed orange')
+					.css('outline-offset', '-3px')
 					.css('background-color', 'rgb(250,250,250)')
-					.css('min-height', '100vh')
+					.css('min-height', '100px')
 					;
 			},
 			stop: function(event, ui) {
 				$container.find('.cerb-profile-layout-zone--widgets')
-					.css('border', '')
+					.css('outline', '')
+					.css('outline-offset', '')
 					.css('background-color', '')
 					.css('min-height', 'initial')
 					;

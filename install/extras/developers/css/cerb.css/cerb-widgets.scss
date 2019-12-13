@@ -15,3 +15,11 @@ TABLE.cerb-widget-data-table {
 		}
 	}
 }
+
+.cerb-widget-drag-placeholder {
+	flex:1 1 100%;
+	min-height:150px;
+	background-color:rgb(220,220,220);
+	outline:2px dashed rgb(150,150,150);
+	outline-offset:-10px;
+}

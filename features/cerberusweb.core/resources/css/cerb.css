@@ -2457,6 +2457,14 @@ TABLE.cerb-widget-data-table tbody:nth-child(even) td {
   background-color: whitesmoke;
 }
 
+.cerb-widget-drag-placeholder {
+  flex: 1 1 100%;
+  min-height: 150px;
+  background-color: gainsboro;
+  outline: 2px dashed #969696;
+  outline-offset: -10px;
+}
+
 /* jQueryUI (Redmond theme) */
 .ui-widget,
 .ui-widget input,
