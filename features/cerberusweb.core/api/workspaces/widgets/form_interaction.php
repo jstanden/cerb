@@ -22,13 +22,9 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	private function _getStateKey(Model_WorkspaceWidget $widget) {
 		$worker = CerberusApplication::getActiveWorker();
 		
-		if(false == $behavior_id = @$widget->params['behavior_id'])
-			return;
-		
-		$state_key = 'form:workspace:' . sha1(sprintf("%d:%d:%d",
+		$state_key = 'form:workspace:' . sha1(sprintf("%d:%d",
 			$worker->id,
-			$widget->id,
-			$behavior_id
+			$widget->id
 		));
 		
 		return $state_key;
