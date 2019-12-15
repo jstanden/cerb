@@ -2133,6 +2133,16 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'type' => 'Records',
 		];
 		
+		$lazy_keys['last_recipient_message'] = [
+			'label' => 'Latest Message Received',
+			'type' => 'Record',
+		];
+		
+		$lazy_keys['last_sender_message'] = [
+			'label' => 'Latest Message Sent',
+			'type' => 'Record',
+		];
+		
 		return $lazy_keys;
 	}
 	
@@ -2164,7 +2174,17 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 					$values['emails'][$model_id] = $model->email;
 				}
 				break;
-				
+			
+			case 'last_recipient_message':
+				$values['last_recipient_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
+				$values['last_recipient_message_id'] = intval(DAO_Message::getLatestIdByRecipientContactId($dictionary['id']));
+				break;
+			
+			case 'last_sender_message':
+				$values['last_sender_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
+				$values['last_sender_message_id'] = intval(DAO_Message::getLatestIdBySenderContactId($dictionary['id']));
+				break;
+			
 			default:
 				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
 				$values = array_merge($values, $defaults);
