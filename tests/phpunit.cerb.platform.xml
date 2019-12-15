@@ -11,6 +11,9 @@
 			<file>devblocks/services/DevblocksCacheTest.php</file>
 		</testsuite>
 		<testsuite>
+			<file>devblocks/services/DevblocksDateTest.php</file>
+		</testsuite>
+		<testsuite>
 			<file>devblocks/services/DevblocksStringTest.php</file>
 		</testsuite>
 		<testsuite>

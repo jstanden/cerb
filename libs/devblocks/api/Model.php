@@ -2338,26 +2338,18 @@ class DevblocksSearchCriteria {
 					return 0;
 					break;
 				}
-					
+			
 				$from_date = $this->value[0];
-				if(!is_numeric($from_date)) {
-					// Translate periods into dashes on string dates
-					if(false !== strpos($from_date,'.'))
-						$from_date = str_replace(".", "-", $from_date);
-						
-					if(false === ($from_date = strtotime($from_date)))
-						$from_date = 0;
-				}
-				
 				$to_date = $this->value[1];
 				
-				if(!is_numeric($to_date)) {
-					// Translate periods into dashes on string dates
-					if(false !== strpos($to_date,'.'))
-						$to_date = str_replace(".", "-", $to_date);
-						
-					if(false === ($to_date = strtotime($to_date)))
-						$to_date = strtotime("now");
+				if(!is_numeric($from_date) || !is_numeric($to_date)) {
+					if(false == ($dates = DevblocksPlatform::services()->date()->parseDateRange($this->value))) {
+						return 0;
+						break;
+					}
+					
+					$from_date = $dates['from_ts'];
+					$to_date = $dates['to_ts'];
 				}
 				
 				if(0 == $from_date) {

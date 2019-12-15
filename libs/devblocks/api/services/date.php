@@ -94,6 +94,112 @@ class _DevblocksDateManager {
 	public function getTimezones() {
 		return timezone_identifiers_list();
 	}
+	
+	/**
+	 * @param array $values
+	 * @return array|false
+	 */
+	private function _parseDateRangeArray(array $values) {
+		if(2 != count($values))
+			return false;
+		
+		$from_date = $values[0];
+		$to_date = $values[1];
+		
+		if(!is_numeric($from_date)) {
+			// Translate periods into dashes on string dates
+			if(false !== strpos($from_date,'.'))
+				$from_date = str_replace(".", "-", $from_date);
+			
+			// If we weren't given a time, assume it's 00:00:00
+			
+			if(false == ($from_date_parts = date_parse($from_date))) {
+				$from_date = 0;
+				
+			} else {
+				// If we weren't given a time, default to the last second of the day
+				if(
+					$from_date != 'now'
+					&& false == $from_date_parts['hour']
+					&& false == $from_date_parts['minute']
+					&& false == $from_date_parts['second']
+					&& '0:0:0' != implode(':', [$from_date_parts['hour'], $from_date_parts['minute'], $from_date_parts['second']])
+				) {
+					$from_date .= ' 00:00:00';
+				}
+				
+				if(false === ($from_date = strtotime($from_date)))
+					$from_date = -1;
+			}
+		}
+		
+		if(!is_numeric($to_date)) {
+			// Translate periods into dashes on string dates
+			if(false !== strpos($to_date,'.'))
+				$to_date = str_replace(".", "-", $to_date);
+			
+			// If we weren't given a time, assume it's 23:59:59
+			
+			if(false == ($to_date_parts = date_parse($to_date))) {
+				$to_date = strtotime("now");
+				
+			} else {
+				// If we weren't given a time, default to the last second of the day
+				if(
+					$to_date != 'now'
+					&& false == $to_date_parts['hour']
+					&& false == $to_date_parts['minute']
+					&& false == $to_date_parts['second']
+					&& '23:59:59' != implode(':', [$from_date_parts['hour'], $from_date_parts['minute'], $from_date_parts['second']])
+				) {
+					$to_date .= ' 23:59:59';
+				}
+				
+				if(false === ($to_date = strtotime($to_date)))
+					$to_date = strtotime("now");
+			}
+		}
+		
+		return [
+			'from_ts' => $from_date,
+			'from_string' => date('r', $from_date),
+			'to_ts' => $to_date,
+			'to_string' => date('r', $to_date),
+		];
+	}
+	
+	// [TODO] Optional timezone override
+	public function parseDateRange($value) {
+		if(is_array($value)) {
+			return $this->_parseDateRangeArray($value);
+			
+		} else if(is_string($value)) {
+			// Shortcuts
+			switch(DevblocksPlatform::strLower($value)) {
+				case 'this month':
+					$value = 'first day of this month to last day of this month';
+					break;
+					
+				case 'next month':
+					$value = 'first day of next month to last day of next month';
+					break;
+					
+				case 'last month':
+					$value = 'first day of last month to last day of last month';
+					break;
+			}
+			
+			if(false == ($value = explode(' to ', DevblocksPlatform::strLower($value), 2)))
+				return false;
+			
+			if(2 != count($value))
+				return false;
+			
+			return $this->_parseDateRangeArray($value);
+		}
+		
+		return false;
+	}
 };
 
 class DevblocksCalendarHelper {
