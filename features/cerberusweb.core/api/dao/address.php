@@ -2488,6 +2488,17 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['last_recipient_message'] = [
+			'label' => 'Latest Message Received',
+			'type' => 'Record',
+		];
+		
+		$lazy_keys['last_sender_message'] = [
+			'label' => 'Latest Message Sent',
+			'type' => 'Record',
+		];
+		
 		return $lazy_keys;
 	}
 	
@@ -2523,6 +2534,16 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			case 'last_name':
 				$dict = DevblocksDictionaryDelegate::instance($dictionary);
 				$values['last_name'] = $dict->contact_last_name;
+				break;
+				
+			case 'last_recipient_message':
+				$values['last_recipient_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
+				$values['last_recipient_message_id'] = intval(DAO_Message::getLatestIdByRecipientId($dictionary['id']));
+				break;
+				
+			case 'last_sender_message':
+				$values['last_sender_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
+				$values['last_sender_message_id'] = intval(DAO_Message::getLatestIdBySenderId($dictionary['id']));
 				break;
 			
 			default:

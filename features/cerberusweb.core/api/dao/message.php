@@ -334,6 +334,72 @@ class DAO_Message extends Cerb_ORMHelper {
 		);
 	}
 	
+	public static function getLatestIdByRecipientId(int $address_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$address_id)
+			return 0;
+		
+		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id = %d)",
+			$address_id
+		));
+	}
+	
+	public static function getLatestIdByRecipientContactId(int $contact_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$contact_id)
+			return 0;
+		
+		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id in (select id from address where contact_id = %d))",
+			$contact_id
+		));
+	}
+	
+	public static function getLatestIdByRecipientOrgId(int $org_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$org_id)
+			return 0;
+		
+		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id in (select id from address where contact_org_id = %d))",
+			$org_id
+		));
+	}
+	
+	public static function getLatestIdBySenderId(int $address_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$address_id)
+			return 0;
+		
+		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=0 and address_id = %d",
+			$address_id
+		));
+	}
+	
+	public static function getLatestIdBySenderContactId(int $contact_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$contact_id)
+			return 0;
+		
+		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=0 and address_id in (select id from address where contact_id = %d)",
+			$contact_id
+		));
+	}
+	
+	public static function getLatestIdBySenderOrgId(int $org_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!$org_id)
+			return 0;
+		
+		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=0 and address_id in (select id from address where contact_org_id = %d)",
+			$org_id
+		));
+	}
+	
 	static function countByTicketId($ticket_id) {
 		$db = DevblocksPlatform::services()->database();
 		
