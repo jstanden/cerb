@@ -270,7 +270,7 @@ $(function() {
 		
 		// Snippet syntax
 		$textarea
-			.cerbCodeEditor()
+			.cerbTextEditor()
 			;
 		
 		// Placeholder deletion
