@@ -1547,6 +1547,10 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($snippet, $token_values);
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=snippet&id=%d-%s",$snippet->id, DevblocksPlatform::strToPermalink($snippet->title)), true);
 		}
 
 		return true;
