@@ -11,6 +11,7 @@ class CardWidget_BehaviorTree extends Extension_CardWidget {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'record__context' => $context,
@@ -21,18 +22,19 @@ class CardWidget_BehaviorTree extends Extension_CardWidget {
 		
 		$target_behavior_id = $tpl_builder->build($target_behavior_id, $dict);
 		
-		if(false == ($model = DAO_TriggerEvent::get($target_behavior_id)))
+		if(false == ($behavior = DAO_TriggerEvent::get($target_behavior_id)))
 			return;
 		
-		if(false == ($event = $model->getEvent()))
+		if(false == ($event = $behavior->getEvent()))
 			return;
 		
-		if(false == ($bot = $model->getBot()))
+		if(false == ($bot = $behavior->getBot()))
 			$bot = new Model_Bot();
 		
-		$tpl->assign('behavior', $model);
+		$tpl->assign('behavior', $behavior);
 		$tpl->assign('event', $event->manifest);
 		$tpl->assign('va', $bot);
+		$tpl->assign('is_writeable', Context_Bot::isWriteableByActor($model, $active_worker));
 		
 		$tpl->assign('dict', $dict);
 		$tpl->assign('widget', $model);
