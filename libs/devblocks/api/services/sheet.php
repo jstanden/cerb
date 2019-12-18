@@ -239,17 +239,23 @@ class _DevblocksSheetServiceTypes {
 	
 	function date() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
 			@$column_params = $column['params'] ?: [];
 			
 			if(array_key_exists('value', $column_params)) {
 				$ts = $column_params['value'];
-				
 			} else if(array_key_exists('value_key', $column_params)) {
 				$ts = $sheet_dict->get($column_params['value_key']);
-				
+			} else if(array_key_exists('value_template', $column_params)) {
+				$ts = $tpl_builder->build($column_params['value_template'], $sheet_dict);
+				$ts = DevblocksPlatform::purifyHTML($ts, false, true);
 			} else {
 				$ts = $sheet_dict->get($column['key']);
 			}
+			
+			if(is_string($ts))
+				$ts = intval($ts);
 			
 			if(array_key_exists('format', $column_params) && false != ($date_str = @date($column_params['format'], $ts))) {
 				$value = DevblocksPlatform::strEscapeHtml($date_str);
