@@ -1540,6 +1540,10 @@ UL.cerb-popupmenu {
 		font-weight:bold;
 	}
 
+	PRE > CODE {
+		overflow-x: scroll;
+	}
+
 	BLOCKQUOTE {
 		font-style:italic;
 		color:rgb(50,50,50);
@@ -1646,6 +1650,7 @@ DIV.emailBodyHtml {
 
 	PRE > CODE {
 		display: block;
+		overflow-x: scroll;
 		border: 1px solid rgb(232,232,232);
 		background-color: rgb(246,242,240);
 		padding: 10px;
@@ -1707,6 +1712,7 @@ DIV.commentBodyHtml {
 	PRE > CODE {
 		clear: both;
 		display: block;
+		overflow-x: scroll;
 		border: 1px solid rgb(232,232,232);
 		background-color: rgb(246,242,240);
 		padding: 10px;

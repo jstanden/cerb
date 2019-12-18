@@ -1529,6 +1529,9 @@ UL.cerb-popupmenu > LI:hover A {
   padding: 0px 3px;
   font-weight: bold;
 }
+.cerb-kb-article-content PRE > CODE {
+  overflow-x: scroll;
+}
 .cerb-kb-article-content BLOCKQUOTE {
   font-style: italic;
   color: #323232;
@@ -1614,6 +1617,7 @@ DIV.emailBodyHtml BLOCKQUOTE {
 }
 DIV.emailBodyHtml PRE > CODE {
   display: block;
+  overflow-x: scroll;
   border: 1px solid #e8e8e8;
   background-color: #f6f2f0;
   padding: 10px;
@@ -1654,6 +1658,7 @@ DIV.commentBodyHtml BLOCKQUOTE {
 DIV.commentBodyHtml PRE > CODE {
   clear: both;
   display: block;
+  overflow-x: scroll;
   border: 1px solid #e8e8e8;
   background-color: #f6f2f0;
   padding: 10px;
