@@ -2536,19 +2536,19 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				$values['last_name'] = $dict->contact_last_name;
 				break;
 				
-			case 'last_recipient_message':
-				$values['last_recipient_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
-				$values['last_recipient_message_id'] = intval(DAO_Message::getLatestIdByRecipientId($dictionary['id']));
-				break;
-				
-			case 'last_sender_message':
-				$values['last_sender_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
-				$values['last_sender_message_id'] = intval(DAO_Message::getLatestIdBySenderId($dictionary['id']));
-				break;
-			
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
-				$values = array_merge($values, $defaults);
+				if($token == 'last_recipient_message' || DevblocksPlatform::strStartsWith($token, 'last_recipient_message_')) {
+					$values['last_recipient_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
+					$values['last_recipient_message_id'] = intval(DAO_Message::getLatestIdByRecipientId($dictionary['id']));
+					
+				} else if($token == 'last_sender_message' || DevblocksPlatform::strStartsWith($token, 'last_sender_message_')) {
+					$values['last_sender_message__context'] = CerberusContexts::CONTEXT_MESSAGE;
+					$values['last_sender_message_id'] = intval(DAO_Message::getLatestIdBySenderId($dictionary['id']));
+					
+				} else {
+					$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+					$values = array_merge($values, $defaults);
+				}
 				break;
 		}
 		
