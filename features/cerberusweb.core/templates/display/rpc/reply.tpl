@@ -295,10 +295,10 @@
 				<br>
 				<br>
 
-				<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
-				<input type="text" name="send_at" size="55" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
-				<br>
-				<br>
+				<div style="margin-bottom:1em;">
+					<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
+					<input type="text" name="send_at" size="55" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
+				</div>
 
 				{* [TODO] Expand custom field checkboxes *}
 				{if !empty($custom_fields)}
