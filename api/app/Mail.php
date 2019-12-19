@@ -921,6 +921,16 @@ class CerberusMail {
 				CerberusMail::handleComposeHashCommands($hash_commands, $ticket_id, $worker);
 		}
 		
+		self::_composeTriggerEvents($message_id, $group_id);
+		
+		// Remove the draft
+		if($draft_id)
+			DAO_MailQueue::delete($draft_id);
+		
+		return intval($ticket_id);
+	}
+	
+	static private function _composeTriggerEvents($message, $group) {
 		// Events
 		if(!empty($message_id) && !empty($group_id)) {
 			// After message sent (global)
@@ -928,19 +938,13 @@ class CerberusMail {
 			
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group_id);
-
+			
 			// Mail received
 			Event_MailReceived::trigger($message_id);
 			
 			// Mail received by group
 			Event_MailReceivedByGroup::trigger($message_id, $group_id);
 		}
-		
-		// Remove the draft
-		if($draft_id)
-			DAO_MailQueue::delete($draft_id);
-		
-		return intval($ticket_id);
 	}
 	
 	static function sendTicketMessage($properties=[]) {

@@ -4362,15 +4362,9 @@ class DevblocksEventHelper {
 
 		$message->body = $content;
 		
-		// Parse
-		$ticket_id = CerberusParser::parseMessage($message);
-		$ticket = DAO_Ticket::get($ticket_id);
-		
-		// Worker reply
+		// Properties
 		$properties = [
 			'to' => $requesters,
-			'message_id' => $ticket->first_message_id,
-			'ticket_id' => $ticket_id,
 			'group_id' => $group->id,
 			'bucket_id' => $group->getDefaultBucket()->id,
 			'worker_id' => 0,
@@ -4379,7 +4373,11 @@ class DevblocksEventHelper {
 			'ticket_reopen' => $reopen_at,
 		];
 		
-		DAO_Ticket::updateWithMessageProperties($properties, $ticket);
+		// Parse
+		$ticket_id = CerberusParser::parseMessage($message, [
+			'properties' => $properties,
+		]);
+		$ticket = DAO_Ticket::get($ticket_id);
 		
 		// Attachments
 		if(isset($params['attachment_vars']) && is_array($params['attachment_vars'])) {

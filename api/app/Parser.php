@@ -511,15 +511,20 @@ class CerberusParserModel {
 		if(!empty($this->_ticket_model))
 			return $this->_ticket_model;
 
-		if(empty($this->_ticket_id))
+		if(empty($this->_ticket_id)) {
+			$this->setTicketModel(null);
 			return null;
-		
-		// Lazy-load
-		if(!empty($this->_ticket_id)) {
-			$this->_ticket_model = DAO_Ticket::get($this->_ticket_id);
 		}
 		
-		return $this->_ticket_model;
+		$ticket = DAO_Ticket::get($this->_ticket_id);
+		
+		$this->setTicketModel($ticket);
+		
+		return $ticket;
+	}
+	
+	public function setTicketModel($model) {
+		$this->_ticket_model = $model;
 	}
 	
 	public function setMessageId($id) {
@@ -1668,9 +1673,23 @@ class CerberusParser {
 			}
 		
 			// Save properties
-			if(!empty($change_fields))
-				DAO_Ticket::update($model->getTicketId(), $change_fields);
+			if(array_key_exists('properties', $options)) {
+				$ticket_properties = $options['properties'];
 				
+				$ticket_properties['ticket_id'] = $model->getTicketId();
+				$ticket_properties['message_id'] = $model->getMessageId();
+				
+				$ticket = $model->getTicketModel();
+				
+				DAO_Ticket::updateWithMessageProperties($ticket_properties, $ticket, $change_fields);
+				
+				$model->setTicketModel($ticket);
+				
+			} else {
+				if($change_fields)
+					DAO_Ticket::update($model->getTicketId(), $change_fields);
+			}
+			
 		} else { // Reply
 		
 			// Re-open and update our date on new replies
