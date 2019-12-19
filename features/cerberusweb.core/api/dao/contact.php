@@ -221,6 +221,17 @@ class DAO_Contact extends Cerb_ORMHelper {
 		return true;
 	}
 	
+	static function onUpdateByActor($actor, $fields, $id) {
+		@$email_id = $fields[self::PRIMARY_EMAIL_ID];
+		
+		// If we're setting a primary email address on the contact, set the link in reverse on the address
+		if($email_id) {
+			DAO_Address::update($email_id, [
+				DAO_Address::CONTACT_ID => $id,
+			]);
+		}
+	}
+	
 	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
