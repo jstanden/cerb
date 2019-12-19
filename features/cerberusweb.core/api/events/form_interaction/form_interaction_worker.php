@@ -32,11 +32,12 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	 * @return Model_DevblocksEvent
 	 */
 	function generateSampleEventModel(Model_TriggerEvent $trigger) {
+		$active_worker = CerberusApplication::getActiveWorker();
 		$actions = [];
 		
 		return new Model_DevblocksEvent(
 			self::ID,
-			array(
+			[
 				'actions' => &$actions,
 				
 				'client_browser' => null,
@@ -44,8 +45,8 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				'client_ip' => null,
 				'client_platform' => null,
 				
-				'worker_id' => null,
-			)
+				'worker_id' => $active_worker ? $active_worker->id : 0,
+			]
 		);
 	}
 	
