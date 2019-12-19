@@ -531,6 +531,9 @@ class DAO_Comment extends Cerb_ORMHelper {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if($comment_file_ids && !$comment)
+			throw new Exception_DevblocksAjaxValidationError("A comment is required when attaching files.", "comment");
+		
 		if($context_id && $comment && $active_worker->hasPriv(sprintf("contexts.%s.comment", $context))) {
 			$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
 			
