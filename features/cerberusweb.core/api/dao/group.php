@@ -849,6 +849,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 		$cache->remove(self::CACHE_ROSTERS);
+		DAO_WorkerRole::clearWorkerCache();
 	}
 	
 	public static function random() {
