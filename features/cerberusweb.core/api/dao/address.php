@@ -177,6 +177,13 @@ class DAO_Address extends Cerb_ORMHelper {
 			$fields[self::HOST] = substr($full_address, strpos($full_address, '@')+1);
 		}
 		
+		// If we're setting a contact, make sure we also set their org if not provided
+		if(array_key_exists(self::CONTACT_ID, $fields) && !array_key_exists(self::CONTACT_ORG_ID, $fields)) {
+			if(false != ($contact = DAO_Contact::get($fields[self::CONTACT_ID]))) {
+				$fields[self::CONTACT_ORG_ID] = $contact->org_id;
+			}
+		}
+		
 		if(!isset($fields[DAO_Address::UPDATED]))
 			$fields[DAO_Address::UPDATED] = time();
 		
