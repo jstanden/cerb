@@ -2049,6 +2049,7 @@ var ajax = new cAjaxCalls();
 
 			$editor.autocomplete({
 				appendTo: $editor.parent(),
+				autoFocus: true,
 
 				_sourceCommand: function(request, response, token) {
 					var commands = [
