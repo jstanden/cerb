@@ -827,10 +827,16 @@ $(function() {
 		// Shortcuts
 
 		{if $pref_keyboard_shortcuts}
-			// Submit
-			$editor.bind('keydown', 'meta+return alt+return ctrl+shift+return', function(e) {
+			// Send focus
+			$editor.bind('keydown', 'ctrl+return alt+return meta+return', function(e) {
 				e.preventDefault();
 				$frm.find('button.send').focus();
+			});
+
+			// Send now
+			$editor.bind('keydown', 'ctrl+shift+return alt+shift+return meta+shift+return', function(e) {
+				e.preventDefault();
+				$frm.find('button.send').click();
 			});
 
 			// Status Close

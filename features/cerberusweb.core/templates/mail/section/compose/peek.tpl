@@ -565,11 +565,19 @@ $(function() {
 		// Shortcuts
 
 		{if $pref_keyboard_shortcuts}
-			// Send
-			$editor.bind('keydown', 'ctrl+shift+return alt+return meta+return', function(e) {
+			// Send focus
+			$editor.bind('keydown', 'ctrl+return alt+return meta+return', function(e) {
 				e.preventDefault();
 				try {
 					$frm.find('button.submit').focus();
+				} catch(ex) { }
+			});
+
+			// Send
+			$editor.bind('keydown', 'ctrl+shift+return alt+shift+return meta+shift+return', function(e) {
+				e.preventDefault();
+				try {
+					$frm.find('button.submit').click();
 				} catch(ex) { }
 			});
 
