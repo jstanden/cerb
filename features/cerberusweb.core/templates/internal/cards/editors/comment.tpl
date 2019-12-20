@@ -44,6 +44,7 @@
 <script type="text/javascript">
 $(function() {
     var $container = $('#{$comment_div}');
+    var $form = $container.closest('form');
 
     // Drag/drop attachments
     var $attachments = $container.find('.cerb-comment-attachments');
@@ -119,6 +120,20 @@ $(function() {
 
         $editor.autocomplete('search');
     });
+
+    {if $pref_keyboard_shortcuts}
+    // Save focus
+    $editor.bind('keydown', 'ctrl+return meta+return alt+return', function(e) {
+        e.preventDefault();
+        $form.find('button.submit').focus();
+    });
+
+    // Save click
+    $editor.bind('keydown', 'ctrl+shift+return meta+shift+return alt+shift+return', function(e) {
+        e.preventDefault();
+        $form.find('button.submit').click();
+    });
+    {/if}
 
     // Preview
     $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
