@@ -310,13 +310,19 @@ $(function() {
 		});
 
 		{if $pref_keyboard_shortcuts}
-
-			// Submit
-			$editor.bind('keydown', 'meta+return alt+return', function(e) {
+			// Save focus
+			$editor.bind('keydown', 'ctrl+return meta+return alt+return', function(e) {
 				e.preventDefault();
+				e.stopPropagation();
 				$popup.find('button.submit').focus();
 			});
 
+			// Save click
+			$editor.bind('keydown', 'ctrl+shift+return meta+shift+return alt+shift+return', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$popup.find('button.submit').click();
+			});
 		{/if}
 
 		// [UI] Editor behaviors
