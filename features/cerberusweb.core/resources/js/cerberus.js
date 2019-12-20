@@ -1889,6 +1889,7 @@ var ajax = new cAjaxCalls();
 
 			$editor.autocomplete({
 				appendTo: $editor.parent(),
+				autoFocus: true,
 
 				_sourceMentions: function(request, response, token) {
 					var term = token.substring(1);
