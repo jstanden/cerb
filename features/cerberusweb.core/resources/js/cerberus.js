@@ -1890,6 +1890,7 @@ var ajax = new cAjaxCalls();
 			$editor.autocomplete({
 				appendTo: $editor.parent(),
 				autoFocus: true,
+				delay: 150,
 
 				_sourceMentions: function(request, response, token) {
 					var term = token.substring(1);
@@ -2051,6 +2052,7 @@ var ajax = new cAjaxCalls();
 			$editor.autocomplete({
 				appendTo: $editor.parent(),
 				autoFocus: true,
+				delay: 150,
 
 				_sourceCommand: function(request, response, token) {
 					var commands = [
