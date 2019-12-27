@@ -1918,7 +1918,7 @@ var ajax = new cAjaxCalls();
 								results.push({
 									_type: 'worker',
 									label: worker['_label'],
-									value: '@' + worker['at_mention_name'],
+									value: '@' + worker['at_mention_name'] + ' ',
 									title: worker['title'],
 									mention: '@' + worker['at_mention_name'],
 									image_url: worker['_image_url'],
@@ -1952,7 +1952,7 @@ var ajax = new cAjaxCalls();
 								results.push({
 									_type: 'saved_search',
 									label: search['_label'],
-									value: '@' + search['tag'],
+									value: '@' + search['tag'] + ' ',
 									image_url: search['_image_url'],
 									mention: '@' + search['tag'],
 									id: search['id']
@@ -2129,7 +2129,7 @@ var ajax = new cAjaxCalls();
 								results.push({
 									_type: 'worker',
 									label: worker['_label'],
-									value: '@' + worker['at_mention_name'],
+									value: '@' + worker['at_mention_name'] + ' ',
 									title: worker['title'],
 									mention: '@' + worker['at_mention_name'],
 									image_url: worker['_image_url'],
@@ -2163,7 +2163,7 @@ var ajax = new cAjaxCalls();
 								results.push({
 									_type: 'saved_search',
 									label: search['_label'],
-									value: '@' + search['tag'],
+									value: '@' + search['tag'] + ' ',
 									image_url: search['_image_url'],
 									mention: '@' + search['tag'],
 									id: search['id']
