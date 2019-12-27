@@ -111,6 +111,8 @@ class ChDebugController extends DevblocksControllerExtension  {
 					array_walk($bot_behavior_counts, function(&$count) {
 						$count = intval($count);
 					});
+					
+					ksort($bot_behavior_counts);
 				}
 				
 				$status = array(
@@ -135,10 +137,8 @@ class ChDebugController extends DevblocksControllerExtension  {
 							'sent_24h' => intval($db->GetOneMaster(sprintf('SELECT count(id) FROM message WHERE is_outgoing=1 AND created_date >= %d', time()-86400))),
 						),
 						'portals' => intval(@$db->GetOneMaster('SELECT count(id) FROM community_tool')),
-						'project_boards' => intval(@$db->GetOneMaster('SELECT count(id) FROM project_board')),
 						'tickets' => intval($db->GetOneMaster('SELECT count(id) FROM ticket')),
 						'tickets_status' => $tickets_by_status,
-						'webhooks' => intval(@$db->GetOneMaster('SELECT count(id) FROM webhook_listener')),
 						'workers' => intval($db->GetOneMaster('SELECT count(id) FROM worker')),
 						'workers_active_15m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-900))),
 						'workers_active_30m' => intval($db->GetOneMaster(sprintf('SELECT count(DISTINCT actor_context_id) FROM context_activity_log WHERE actor_context = "cerberusweb.contexts.worker" AND created >= %d', time()-1800))),
@@ -156,6 +156,14 @@ class ChDebugController extends DevblocksControllerExtension  {
 						'message_content' => intval($db->GetOneMaster('SELECT sum(storage_size) FROM message')),
 					)
 				);
+				
+				if(DevblocksPlatform::isPluginEnabled('cerb.project_boards'))
+					$status['counts']['project_boards'] = intval(@$db->GetOneMaster('SELECT count(id) FROM project_board'));
+				
+				if(DevblocksPlatform::isPluginEnabled('cerb.webhooks'))
+					$status['counts']['webhooks'] = intval(@$db->GetOneMaster('SELECT count(id) FROM webhook_listener'));
+				
+				ksort($status['counts']);
 				
 				// Storage
 				
