@@ -131,6 +131,7 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 				echo json_encode(array(
 					'status' => true,
 					'id' => $id,
+					'context' => Context_ProjectBoardColumn::ID,
 					'label' => $name,
 					'view_id' => $view_id,
 				));

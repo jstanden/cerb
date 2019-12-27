@@ -4447,13 +4447,6 @@
 				<name>CardWidget_ClassifierTrainer</name>
 			</class>
 			<params>
-				<!--
-				<param key="contexts">
-					<value>
-						<data key="cerberusweb.contexts.classifier" />
-					</value>
-				</param>
-				-->
 			</params>
 		</extension>
 		

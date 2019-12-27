@@ -159,14 +159,17 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 							DAO_ProjectBoard::onUpdateByActor($active_worker, $fields, $id);
 						}
 						
-						// Custom field saves
-						@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-						if(!DAO_CustomFieldValue::handleFormPost(Context_ProjectBoard::ID, $id, $field_ids, $error))
-							throw new Exception_DevblocksAjaxValidationError($error);
+						if($id) {
+							// Custom field saves
+							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+							if(!DAO_CustomFieldValue::handleFormPost(Context_ProjectBoard::ID, $id, $field_ids, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+						}
 						
 						echo json_encode(array(
 							'status' => true,
 							'id' => $id,
+							'context' => Context_ProjectBoard::ID,
 							'label' => $name,
 							'view_id' => $view_id,
 						));

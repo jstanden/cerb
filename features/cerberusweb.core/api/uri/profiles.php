@@ -584,8 +584,10 @@ class ProfileTab_PortalConfigure extends Extension_ProfileTab {
 		$tpl->assign('page_context', $context);
 		$tpl->assign('page_context_id', $context_id);
 		
-		if(false != ($extension = $portal->getExtension()))
-			$tpl->assign('extension', $extension);
+		if(false == ($extension = $portal->getExtension()))
+			return;
+			
+		$tpl->assign('extension', $extension);
 		
 		$extension->configure($portal);
 	}
