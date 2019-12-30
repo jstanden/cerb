@@ -1440,6 +1440,34 @@ var ajax = new cAjaxCalls();
 			};
 		},
 
+		getCurrentLinePos: function() {
+			var start = this.editor.selectionStart-1;
+			var end = this.editor.selectionStart;
+
+			for(var x = start; x >= 0; x--) {
+				var char = this.editor.value[x];
+
+				if(char.match(/[\r\n^]/)) {
+					start = x + 1;
+					break;
+				}
+
+				if(0 === x) {
+					start = x;
+				}
+			}
+
+			return {
+				start: start,
+				end: end
+			};
+		},
+
+		getCurrentLine: function() {
+			var pos = this.getCurrentLinePos();
+			return this.editor.value.substring(pos.start,pos.end);
+		},
+
 		getCurrentWord: function() {
 			var pos = this.getCurrentWordPos();
 			return this.editor.value.substring(pos.start,pos.end);
@@ -1451,8 +1479,19 @@ var ajax = new cAjaxCalls();
 			this.editor.selectionEnd = pos.end;
 		},
 
+		selectCurrentLine: function() {
+			var pos = this.getCurrentLinePos();
+			this.editor.selectionStart = pos.start;
+			this.editor.selectionEnd = pos.end;
+		},
+
 		replaceCurrentWord: function(replaceWith) {
 			this.selectCurrentWord();
+			this.replaceSelection(replaceWith);
+		},
+
+		replaceCurrentLine: function(replaceWith) {
+			this.selectCurrentLine();
 			this.replaceSelection(replaceWith);
 		},
 
