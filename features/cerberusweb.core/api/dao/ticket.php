@@ -3534,6 +3534,11 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						'untrained',
 					)
 				),
+			'status.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_STATUS_ID),
+				),
 			'status' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
