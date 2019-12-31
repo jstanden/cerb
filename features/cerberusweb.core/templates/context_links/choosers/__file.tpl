@@ -2,7 +2,7 @@
 
 <fieldset class="peek">
 	<legend>{if $single}{'common.upload.file'|devblocks_translate|capitalize}{else}{'common.upload.files'|devblocks_translate|capitalize}{/if}</legend>
-	<input type="file" name="file_data[]" {if !$single}multiple="multiple"{/if}>
+	<input type="file" name="file_data[]" {if !$single}multiple="multiple"{/if} autofocus="autofocus">
 </fieldset>
 
 {if !$single}
