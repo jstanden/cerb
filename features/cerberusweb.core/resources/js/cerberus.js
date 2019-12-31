@@ -1688,6 +1688,21 @@ var ajax = new cAjaxCalls();
           $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--table').on('click', function () {
           	  $editor.cerbTextEditor('insertText', "Column | Column\n--- | ---\nValue | Value\n");
           });
+
+          // Keyboard shortcuts
+          $editor_toolbar.find('.cerb-code-editor-toolbar-button').each(function() {
+          	var $button = $(this);
+          	var shortcut = $button.attr('data-cerb-key-binding');
+
+          	if(!shortcut)
+          		return;
+
+          	$editor.bind('keydown', shortcut, function(e) {
+			  e.preventDefault();
+			  e.stopPropagation();
+			  $button.click();
+		 	});
+		  });
       });
     };
 
