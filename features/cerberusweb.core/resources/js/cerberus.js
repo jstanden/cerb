@@ -2052,6 +2052,12 @@ var ajax = new cAjaxCalls();
 
 				return $li;
 			};
+
+			$editor.on('click', function(e) {
+				if($editor.autocomplete('widget').is(':visible')) {
+					$editor.autocomplete('search');
+				}
+			});
 		});
 	}
 
@@ -2339,6 +2345,12 @@ var ajax = new cAjaxCalls();
 
 				return $li;
 			};
+
+			$editor.on('click', function(e) {
+				if($editor.autocomplete('widget').is(':visible')) {
+					$editor.autocomplete('search');
+				}
+			});
 		});
 	}
 
