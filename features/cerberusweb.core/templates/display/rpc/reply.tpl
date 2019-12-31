@@ -530,7 +530,7 @@ $(function() {
 				values: event.values
 			});
 
-			$popup.find('button.chooser_file').triggerHandler(new_event);
+			$reply.find('button.chooser_file').triggerHandler(new_event);
 
 			$editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
 		});
