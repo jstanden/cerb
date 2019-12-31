@@ -1598,7 +1598,12 @@ var ajax = new cAjaxCalls();
 				return;
 			  }
 
-              $editor.cerbTextEditor('replaceSelection', '[' + selectedText + '](https://example.com)');
+              var bounds = $editor.cerbTextEditor('getSelectionBounds');
+              var cursor_at = bounds.start + selectedText.length + 3;
+              var default_link = 'https://example.com';
+
+              $editor.cerbTextEditor('replaceSelection', '[' + selectedText + '](' + default_link + ')');
+              $editor.cerbTextEditor('setSelection', cursor_at, cursor_at + default_link.length);
 		  });
 
           // Image
@@ -1729,15 +1734,15 @@ var ajax = new cAjaxCalls();
               var selected_text = editor.getSelectedText();
 
               if (0 === selected_text.length) {
-                  editor.insertSnippet('[${1:link text}](${2:https://example.com})');
-                      editor.focus();
-                      return;
-                  }
+			  editor.insertSnippet('[${1:link text}](${2:https://example.com})');
+				  editor.focus();
+				  return;
+			  }
 
-                  editor.session.replace(editor.getSelectionRange(), '');
-                  editor.insertSnippet('[' + selected_text + '](${1:https://example.com})');
-                      editor.focus();
-                  });
+			  editor.session.replace(editor.getSelectionRange(), '');
+			  editor.insertSnippet('[' + selected_text + '](${1:https://example.com})');
+			  editor.focus();
+          });
 
           // List
           $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--list').on('click', function () {
