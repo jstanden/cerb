@@ -1475,14 +1475,12 @@ var ajax = new cAjaxCalls();
 
 		selectCurrentWord: function() {
 			var pos = this.getCurrentWordPos();
-			this.editor.selectionStart = pos.start;
-			this.editor.selectionEnd = pos.end;
+			this.setSelection(pos.start, pos.end);
 		},
 
 		selectCurrentLine: function() {
 			var pos = this.getCurrentLinePos();
-			this.editor.selectionStart = pos.start;
-			this.editor.selectionEnd = pos.end;
+			this.setSelection(pos.start, pos.end);
 		},
 
 		replaceCurrentWord: function(replaceWith) {
@@ -1495,10 +1493,16 @@ var ajax = new cAjaxCalls();
 			this.replaceSelection(replaceWith);
 		},
 
+		getSelectionBounds: function() {
+			return {
+				start: this.editor.selectionStart,
+				end: this.editor.selectionEnd
+			};
+		},
+
 		getSelection: function() {
-			var start = this.editor.selectionStart;
-			var end = this.editor.selectionEnd;
-			var selectedText = this.editor.value.substring(start,end);
+			var bounds = this.getSelectionBounds();
+			var selectedText = this.editor.value.substring(bounds.start,bounds.end);
 			return selectedText;
 		},
 
@@ -1520,27 +1524,24 @@ var ajax = new cAjaxCalls();
 
 			this.editor.value = newValue;
 
-			this.editor.selectionStart = start + offset;
-			this.editor.selectionEnd = start + offset;
+			this.setSelection(start + offset, start + offset);
 			this.editor.focus();
 		},
 
 		replaceSelection: function(replaceWith) {
-			var start = this.editor.selectionStart;
-			var end = this.editor.selectionEnd;
+			var bounds = this.getSelectionBounds();
 
 			var newValue =
-				this.editor.value.substring(0,start)
+				this.editor.value.substring(0,bounds.start)
 				+ replaceWith
-				+ this.editor.value.substring(end)
+				+ this.editor.value.substring(bounds.end)
 			;
 
 			var offset = newValue.length - this.editor.value.length;
 
 			this.editor.value = newValue;
 
-			this.editor.selectionStart = end + offset;
-			this.editor.selectionEnd = end + offset;
+			this.setSelection(bounds.end + offset, bounds.end + offset);
 			this.editor.focus();
 		},
 
