@@ -1690,6 +1690,12 @@ var ajax = new cAjaxCalls();
           });
 
           // Keyboard shortcuts
+		  $editor.bind('keydown', 'ctrl+space', function(e) {
+			  e.preventDefault();
+			  e.stopPropagation();
+			  $editor.autocomplete('search');
+		  });
+
           $editor_toolbar.find('.cerb-code-editor-toolbar-button').each(function() {
           	var $button = $(this);
           	var shortcut = $button.attr('data-cerb-key-binding');
