@@ -918,9 +918,9 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				$replace = $tpl_builder->build($params['replace'], $dict);
-				$replace_mode = $tpl_builder->build($params['replace_mode'], $dict);
-				$with = $tpl_builder->build($params['with'], $dict);
+				@$replace = $tpl_builder->build($params['replace'], $dict);
+				@$replace_mode = $tpl_builder->build($params['replace_mode'], $dict);
+				@$with = $tpl_builder->build($params['with'], $dict);
 				
 				if(!$replace_mode || $replace_mode == 'text') {
 					if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
