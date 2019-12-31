@@ -467,7 +467,9 @@ $(function() {
 
 		var $editor = $('#reply_{$message->id}')
 			.cerbTextEditor()
-			.cerbTextEditorAutocompleteReplies()
+			.cerbTextEditorAutocompleteReplies({
+				'mode': 'reply'
+			})
 			.cerbTextEditorInlineImagePaster({
 				attachmentsContainer: $attachments
 			})
@@ -540,9 +542,39 @@ $(function() {
 		});
 
 		// Snippets
+		$editor_toolbar.on('cerb-editor-toolbar-snippet-inserted', function(event) {
+			if(undefined == event.snippet_id)
+				return;
+
+			// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
+			var url = 'c=internal&a=snippetPaste&id='
+				+ encodeURIComponent(event.snippet_id)
+				+ "&context_ids[cerberusweb.contexts.ticket]={$ticket->id}"
+				+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
+			;
+
+			genericAjaxGet('', url, function (json) {
+				// If the content has placeholders, use that popup instead
+				if (json.has_custom_placeholders) {
+					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+
+					$popup_paste.bind('snippet_paste', function (event) {
+						if (null == event.text)
+							return;
+
+						$editor.cerbTextEditor('insertText', event.text);
+					});
+
+				} else {
+					$editor.cerbTextEditor('insertText', json.text);
+				}
+			});
+		});
+
+		// Snippets
 		var $editor_toolbar_button_snippets = $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
 			var context = 'cerberusweb.contexts.snippet';
-			var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,ticket,worker]') + '&single=1&context=' + encodeURIComponent(context);
+			var chooser_url = 'c=internal&a=chooserOpen&qr=' + encodeURIComponent('type:[plaintext,ticket,worker]') + '&single=1&context=' + encodeURIComponent(context);
 
 			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
@@ -555,29 +587,9 @@ $(function() {
 				if (null == snippet_id)
 					return;
 
-				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				var url = 'c=internal&a=snippetPaste&id='
-					+ encodeURIComponent(snippet_id)
-					+ "&context_ids[cerberusweb.contexts.ticket]={$ticket->id}"
-					+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
-					;
-
-				genericAjaxGet('', url, function (json) {
-					// If the content has placeholders, use that popup instead
-					if (json.has_custom_placeholders) {
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
-
-						$popup_paste.bind('snippet_paste', function (event) {
-							if (null == event.text)
-								return;
-
-							$editor.cerbTextEditor('insertText', event.text);
-						});
-
-					} else {
-						$editor.cerbTextEditor('insertText', json.text);
-					}
-				});
+				$editor_toolbar.triggerHandler(new $.Event('cerb-editor-toolbar-snippet-inserted', {
+					'snippet_id': snippet_id
+				}));
 			});
 		});
 

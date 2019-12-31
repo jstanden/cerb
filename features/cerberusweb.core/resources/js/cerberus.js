@@ -2083,7 +2083,10 @@ var ajax = new cAjaxCalls();
 		});
 	}
 
-	$.fn.cerbTextEditorAutocompleteReplies = function() {
+	$.fn.cerbTextEditorAutocompleteReplies = function(options) {
+		if(undefined == options)
+			options = {};
+
 		return this.each(function() {
 			var $editor = $(this);
 			var editor = $editor[0];
@@ -2119,6 +2122,11 @@ var ajax = new cAjaxCalls();
 							label: '#signature',
 							value: '#signature\n',
 							description: 'Insert the signature placeholder'
+						},
+						{
+							label: '#snippet',
+							value: '#snippet ',
+							description: 'Insert a snippet'
 						},
 						{
 							label: '#unwatch',
@@ -2223,10 +2231,61 @@ var ajax = new cAjaxCalls();
 					});
 				},
 
+				_sourceSnippet: function(request, response, token) {
+					var term = token;
+					var ajax_requests = [];
+
+					// [TODO] Sort by myUses
+					ajax_requests.push(function(callback) {
+						var types = 'reply' === options.mode ? '[plaintext,ticket,worker]' : '[plaintext,worker]';
+
+						var query = 'type:worklist.records of:snippet query:(type:' + types
+							+ (term.length === 0
+								? ' '
+								: ' title:"*{}*"'.replace(/\{\}/g, term)
+							)
+							+ ' sort:-totalUses)'
+						;
+
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
+							if ('object' != typeof json || !json.hasOwnProperty('data')) {
+								return callback(null, []);
+							}
+
+							var results = [];
+
+							for (var i in json.data) {
+								var snippet = json.data[i];
+
+								results.push({
+									_type: 'snippet',
+									label: snippet['_label'],
+									value: '#snippet ' + snippet['title'],
+									id: snippet['id']
+								});
+							}
+
+							return callback(null, results);
+						});
+					});
+
+					async.parallelLimit(ajax_requests, 2, function(err, json) {
+						if(err)
+							return response([]);
+
+						var results = json.reduce(function(arr,val) { return arr.concat(val); });
+
+						return response(results);
+					});
+				},
+
 				source: function(request, response) {
 					var token = $editor.cerbTextEditor('getCurrentWord');
+					var line = $editor.cerbTextEditor('getCurrentLine');
 
-					if(token.startsWith('#')) {
+					if(line.startsWith('#snippet ')) {
+						return this.options._sourceSnippet(request, response, line.substring(9));
+					} else if(token.startsWith('#')) {
 						return this.options._sourceCommand(request, response, token);
 					} else if(token.startsWith('@')) {
 						return this.options._sourceMention(request, response, token);
@@ -2236,7 +2295,26 @@ var ajax = new cAjaxCalls();
 				},
 
 				select: function(event, ui)  {
-					if('#delete_quote_from_here' === ui.item.value) {
+					if(ui.item.value.startsWith('#snippet ')) {
+						if(ui.item.value === '#snippet ') {
+							$editor.cerbTextEditor('replaceCurrentLine', ui.item.value);
+
+							setTimeout(function() {
+								$editor.autocomplete('search');
+							}, 50);
+
+						} else {
+							$editor.autocomplete('close');
+							$editor.cerbTextEditor('replaceCurrentLine', '');
+
+							var $editor_toolbar = $editor.prevAll('.cerb-code-editor-toolbar');
+
+							$editor_toolbar.triggerHandler(new $.Event('cerb-editor-toolbar-snippet-inserted', {
+								'snippet_id': ui.item.id
+							}));
+						}
+
+					} else if('#delete_quote_from_here' === ui.item.value) {
 						$editor.cerbTextEditor('replaceCurrentWord', '');
 						var start = $editor.cerbTextEditor('getCursorPosition');
 						var value = $editor.val();
