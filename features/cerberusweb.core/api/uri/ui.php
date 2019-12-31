@@ -117,6 +117,54 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo json_encode($results);
 	}
 	
+	function getMentionsJsonAction() {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = 'ui:autocomplete:mentions';
+		
+		header('Content-Type: application/json');
+		
+		if(false == ($results = $cache->load($cache_key))) {
+			$results = [];
+			
+			$workers = DAO_Worker::getAllActive();
+			
+			foreach ($workers as $worker) {
+				if (!$worker->at_mention_name)
+					continue;
+				
+				$results[] = [
+					'_type' => 'worker',
+					'label' => $worker->getName(),
+					'value' => '@' . $worker->at_mention_name . ' ',
+					'title' => $worker->title,
+					'mention' => '@' . $worker->at_mention_name,
+					'image_url' => $worker->getImageUrl(),
+					'id' => $worker->id,
+				];
+			}
+			
+			$saved_searches = DAO_ContextSavedSearch::getByContext(CerberusContexts::CONTEXT_WORKER);
+			
+			foreach ($saved_searches as $search) {
+				if (!$search->tag)
+					continue;
+				
+				$results[] = [
+					'_type' => 'saved_search',
+					'label' => $search->name,
+					'value' => '@' . $search->tag . ' ',
+					'image_url' => $search->getImageUrl(),
+					'mention' => '@' . $search->tag,
+					'id' => $search->id,
+				];
+			}
+			
+			$cache->save($results, $cache_key, ['schema_mentions'], 300);
+		}
+		
+		echo json_encode($results);
+	}
+	
 	function behaviorAction() {
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;

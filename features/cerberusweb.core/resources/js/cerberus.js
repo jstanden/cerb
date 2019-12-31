@@ -1922,6 +1922,8 @@ var ajax = new cAjaxCalls();
 	}
 
 	$.fn.cerbTextEditorAutocompleteComments = function() {
+		var mentions_cache = null;
+
 		return this.each(function() {
 			var $editor = $(this);
 			var editor = $editor[0];
@@ -1932,83 +1934,32 @@ var ajax = new cAjaxCalls();
 				delay: 150,
 
 				_sourceMentions: function(request, response, token) {
-					var term = token.substring(1);
-					var ajax_requests = [];
+					var term = token.substring(1).toLowerCase();
+					var steps = [];
 
-					ajax_requests.push(function(callback) {
-						var query = 'type:worklist.records of:worker query:(isDisabled:n'
-							+ (term.length === 0
-								? ' mention:!""'
-								: ' (mention:{}*)'.replace(/\{\}/g, term)
-							)
-							+ ')'
-						;
+					steps.push(function(callback) {
+						// Check local cache
+						if(mentions_cache && $.isArray(mentions_cache)) {
+							return callback(null, mentions_cache);
+						}
 
-						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
-							if ('object' != typeof json || !json.hasOwnProperty('data')) {
-								return callback(null, []);
+						genericAjaxGet('', 'c=ui&a=getMentionsJson', function(json) {
+							if ('object' != typeof json) {
+								return callback(true);
 							}
 
-							var results = [];
-
-							for (var i in json.data) {
-								var worker = json.data[i];
-
-								results.push({
-									_type: 'worker',
-									label: worker['_label'],
-									value: '@' + worker['at_mention_name'] + ' ',
-									title: worker['title'],
-									mention: '@' + worker['at_mention_name'],
-									image_url: worker['_image_url'],
-									id: worker['id']
-								});
-							}
-
-							return callback(null, results);
+							mentions_cache = json;
+							return callback(null, json);
 						});
 					});
 
-					ajax_requests.push(function(callback) {
-						var query = 'type:worklist.records of:saved_search query:(context:worker'
-							+ (term.length === 0
-									? ' tag:!""'
-									: ' (tag:{}*)'.replace(/\{\}/g, term)
-							)
-							+ ')'
-						;
-
-						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
-							if ('object' != typeof json || !json.hasOwnProperty('data')) {
-								return callback(null, []);
-							}
-
-							var results = [];
-
-							for (var i in json.data) {
-								var search = json.data[i];
-
-								results.push({
-									_type: 'saved_search',
-									label: search['_label'],
-									value: '@' + search['tag'] + ' ',
-									image_url: search['_image_url'],
-									mention: '@' + search['tag'],
-									id: search['id']
-								});
-							}
-
-							return callback(null, results);
-						});
-					});
-
-					async.parallelLimit(ajax_requests, 2, function(err, json) {
-						if(err)
+					async.series(steps, function(err, results) {
+						if(err || results.length !== 1)
 							return response([]);
 
-						var results = json.reduce(function(arr,val) { return arr.concat(val); });
-
-						return response(results);
+						return response(results[0].filter(function(mention) {
+							return mention.label.toLowerCase().startsWith(term);
+						}));
 					});
 				},
 
@@ -2087,6 +2038,8 @@ var ajax = new cAjaxCalls();
 		if(undefined == options)
 			options = {};
 
+		var mentions_cache = null;
+
 		return this.each(function() {
 			var $editor = $(this);
 			var editor = $editor[0];
@@ -2150,84 +2103,33 @@ var ajax = new cAjaxCalls();
 					return response(commands);
 				},
 
-				_sourceMention: function(request, response, token) {
-					var term = token.substring(1);
-					var ajax_requests = [];
+				_sourceMentions: function(request, response, token) {
+					var term = token.substring(1).toLowerCase();
+					var steps = [];
 
-					ajax_requests.push(function(callback) {
-						var query = 'type:worklist.records of:worker query:(isDisabled:n'
-							+ (term.length === 0
-								? ' mention:!""'
-								: ' (mention:{}*)'.replace(/\{\}/g, term)
-							)
-							+ ')'
-						;
+					steps.push(function(callback) {
+						// Check local cache
+						if(mentions_cache && $.isArray(mentions_cache)) {
+							return callback(null, mentions_cache);
+						}
 
-						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
-							if ('object' != typeof json || !json.hasOwnProperty('data')) {
-								return callback(null, []);
+						genericAjaxGet('', 'c=ui&a=getMentionsJson', function(json) {
+							if ('object' != typeof json) {
+								return callback(true);
 							}
 
-							var results = [];
-
-							for (var i in json.data) {
-								var worker = json.data[i];
-
-								results.push({
-									_type: 'worker',
-									label: worker['_label'],
-									value: '@' + worker['at_mention_name'] + ' ',
-									title: worker['title'],
-									mention: '@' + worker['at_mention_name'],
-									image_url: worker['_image_url'],
-									id: worker['id']
-								});
-							}
-
-							return callback(null, results);
+							mentions_cache = json;
+							return callback(null, json);
 						});
 					});
 
-					ajax_requests.push(function(callback) {
-						var query = 'type:worklist.records of:saved_search query:(context:worker'
-							+ (term.length === 0
-								? ' tag:!""'
-								: ' (tag:{}*)'.replace(/\{\}/g, term)
-							)
-							+ ')'
-						;
-
-						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
-							if ('object' != typeof json || !json.hasOwnProperty('data')) {
-								return callback(null, []);
-							}
-
-							var results = [];
-
-							for (var i in json.data) {
-								var search = json.data[i];
-
-								results.push({
-									_type: 'saved_search',
-									label: search['_label'],
-									value: '@' + search['tag'] + ' ',
-									image_url: search['_image_url'],
-									mention: '@' + search['tag'],
-									id: search['id']
-								});
-							}
-
-							return callback(null, results);
-						});
-					});
-
-					async.parallelLimit(ajax_requests, 2, function(err, json) {
-						if(err)
+					async.series(steps, function(err, results) {
+						if(err || results.length !== 1)
 							return response([]);
 
-						var results = json.reduce(function(arr,val) { return arr.concat(val); });
-
-						return response(results);
+						return response(results[0].filter(function(mention) {
+							return mention.label.toLowerCase().startsWith(term);
+						}));
 					});
 				},
 
@@ -2288,7 +2190,7 @@ var ajax = new cAjaxCalls();
 					} else if(token.startsWith('#')) {
 						return this.options._sourceCommand(request, response, token);
 					} else if(token.startsWith('@')) {
-						return this.options._sourceMention(request, response, token);
+						return this.options._sourceMentions(request, response, token);
 					} else {
 						response([]);
 					}

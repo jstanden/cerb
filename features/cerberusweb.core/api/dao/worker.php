@@ -250,6 +250,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
+		$cache->removeByTags(['schema_mentions']);
 		DAO_WorkerRole::clearWorkerCache();
 	}
 	

@@ -2433,7 +2433,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$cache->remove('devblocks:plugin:cerberusweb.core:params');
 			$cache->remove('devblocks:plugin:devblocks.core:params');
 			$cache->remove(_DevblocksClassLoadManager::CACHE_CLASS_MAP);
-			$cache->removeByTags(['schema_records','schema_workspaces','ui_search_menu']);
+			$cache->removeByTags(['schema_mentions','schema_records','schema_workspaces','ui_search_menu']);
 			
 			// Flush template cache
 			if(!APP_SMARTY_COMPILE_PATH_MULTI_TENANT) {

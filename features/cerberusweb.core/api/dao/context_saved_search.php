@@ -379,6 +379,7 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 	static function clearCache() {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
+		$cache->removeByTags(['schema_mentions']);
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -601,6 +602,11 @@ class Model_ContextSavedSearch {
 	public $owner_context = null;
 	public $owner_context_id = 0;
 	public $updated_at = 0;
+	
+	function getImageUrl() {
+		$url_writer = DevblocksPlatform::services()->url();
+		return $url_writer->write(sprintf('c=avatars&type=saved_search&id=%d', $this->id)) . '?v=' . $this->updated_at;
+	}
 	
 	public function getContextExtension($as_instance=true) {
 		if($as_instance) {
