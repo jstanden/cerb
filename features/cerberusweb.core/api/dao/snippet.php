@@ -238,11 +238,11 @@ class DAO_Snippet extends Cerb_ORMHelper {
 
 		// Update the per-worker usage-over-time data
 		$sql = sprintf("INSERT INTO snippet_use_history (snippet_id, worker_id, ts_day, uses) ".
-				"VALUES (%d,%d,%d,1) ".
-				"ON DUPLICATE KEY UPDATE uses=uses+1",
-				$id,
-				$worker_id,
-				time()-(time() % 86400) // start of today
+			"VALUES (%d,%d,%d,1) ".
+			"ON DUPLICATE KEY UPDATE uses=uses+1",
+			$id,
+			$worker_id,
+			time()-(time() % 86400) // start of today
 		);
 		$db->ExecuteMaster($sql);
 		
@@ -574,6 +574,10 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 				return self::_getWhereSQLFromFulltextField($param, Search_Snippet::ID, self::getPrimaryKey());
 				break;
 				
+			case self::USE_HISTORY_MINE:
+				return self::_getWhereSQLForMyUses($param, self::getPrimaryKey());
+				break;
+				
 			case self::VIRTUAL_USABLE_BY:
 				return self::_getWhereSQLForUsableBy($param, self::getPrimaryKey());
 				break;
@@ -586,7 +590,47 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 				}
 				break;
 		}
-		return false;
+	}
+	
+	static private function _getWhereSQLForMyUses($param, $pkey) {
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			return '0';
+		
+		$query = trim($param->value, '()');
+		
+		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
+		
+		$schema = [
+			'hits' => new DevblocksSearchField('hits', null, 'SUM(uses)', null, null, false),
+			'date' => new DevblocksSearchField('date', null, 'ts_day', null, null, false),
+		];
+		
+		$sql_wheres = [
+			sprintf('worker_id = %d', $active_worker)
+		];
+		$sql_havings = [];
+		
+		if(1 == count($fields) && 'text' == $fields[0]->key)
+			$fields[0]->key = 'hits';
+		
+		foreach($fields as $field) {
+			switch($field->key) {
+				case 'hits':
+					$param = DevblocksSearchCriteria::getNumberParamFromTokens('hits', $field->tokens);
+					$sql_havings[] = $param->getWhereSQL($schema, null);
+					break;
+					
+				case 'date':
+					$param = DevblocksSearchCriteria::getDateParamFromTokens('date', $field->tokens);
+					$sql_wheres[] = $param->getWhereSQL($schema, null);
+					break;
+			}
+		}
+		
+		return sprintf(' id IN (SELECT snippet_id FROM snippet_use_history WHERE %s GROUP BY snippet_id %s)',
+			implode(' AND ', $sql_wheres),
+			$sql_havings ? ('HAVING ' . implode(' AND ', $sql_havings)) : ''
+		);
 	}
 	
 	static private function _getWhereSQLForUsableBy($param, $pkey) {
@@ -700,7 +744,8 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 			self::TOTAL_USES => new DevblocksSearchField(self::TOTAL_USES, 'snippet', 'total_uses', $translate->_('dao.snippet.total_uses'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'snippet', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
-			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_use_history', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER, true),
+			// [TODO] Implement sorting for worklist.records data queries
+			self::USE_HISTORY_MINE => new DevblocksSearchField(self::USE_HISTORY_MINE, 'snippet_use_history', 'uses', $translate->_('dao.snippet_use_history.uses.mine'), Model_CustomField::TYPE_NUMBER, false),
 			
 			self::FULLTEXT_SNIPPET => new DevblocksSearchField(self::FULLTEXT_SNIPPET, 'ft', 'snippet', $translate->_('common.search.fulltext'), 'FT', false),
 				
@@ -1039,12 +1084,21 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Snippet::TITLE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'totalUses' => 
+			'myUses' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => ['param_key' => SearchFields_Snippet::USE_HISTORY_MINE],
+					'examples' => [
+						'>10',
+						'(hits:>10 date:"-30 days")',
+					],
+				),
+			'totalUses' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Snippet::TOTAL_USES),
 				),
-			'type' => 
+			'type' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Snippet::CONTEXT),
@@ -1110,6 +1164,10 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+				
+			case 'myUses':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Snippet::USE_HISTORY_MINE);
 				break;
 			
 			case 'type':

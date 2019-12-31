@@ -2071,7 +2071,11 @@ class DevblocksSearchCriteria {
 		if(!isset($fields[$this->field]))
 			return '';
 		
-		$db_field_name = $fields[$this->field]->db_table . '.' . $fields[$this->field]->db_column;
+		if($fields[$this->field]->db_table) {
+			$db_field_name = $fields[$this->field]->db_table . '.' . $fields[$this->field]->db_column;
+		} else {
+			$db_field_name = $fields[$this->field]->db_column;
+		}
 		
 		// This should be handled by SearchFields_*::getWhereSQL()
 		if('*_' == substr($this->field,0,2)) {
