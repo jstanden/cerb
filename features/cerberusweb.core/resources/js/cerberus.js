@@ -1691,6 +1691,9 @@ var ajax = new cAjaxCalls();
 
           // Keyboard shortcuts
 		  $editor.bind('keydown', 'ctrl+space', function(e) {
+		  	  if(e.metaKey)
+		  	  	return;
+
 			  e.preventDefault();
 			  e.stopPropagation();
 			  $editor.autocomplete('search');
