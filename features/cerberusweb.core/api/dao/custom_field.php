@@ -622,18 +622,14 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					if(!is_array($values))
 						$values = array($values);
 
-					// Protect from injection in cases where it's not desireable (controlled above)
+					// Protect from injection in cases where it's not desirable (controlled above)
 					foreach($values as $v) {
-						if(!isset($field->params['options']) || !in_array($v, $field->params['options']))
+						$v_trimmed = ltrim($v,'+-');
+						
+						if(!array_key_exists('options', $field->params) || !in_array($v_trimmed, $field->params['options']))
 							continue;
-
-						$is_unset = ('-'==substr($v,0,1)) ? true : false;
-						$v = ltrim($v,'+-');
-							
-						if($is_unset) {
-						} else {
-							$value[$v] = $v;
-						}
+						
+						$value[$v_trimmed] = $v;
 					}
 					break;
 					
