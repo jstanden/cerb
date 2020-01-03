@@ -1988,7 +1988,13 @@ var ajax = new cAjaxCalls();
 							return response([]);
 
 						return response(results[0].filter(function(mention) {
-							return mention.label.toLowerCase().startsWith(term);
+							if(mention.label.toLowerCase().startsWith(term))
+								return true;
+
+							if(mention.value.toLowerCase().startsWith('@' + term))
+								return true;
+
+							return false;
 						}));
 					});
 				},
@@ -2164,7 +2170,13 @@ var ajax = new cAjaxCalls();
 							return response([]);
 
 						return response(results[0].filter(function(mention) {
-							return mention.label.toLowerCase().startsWith(term);
+							if(mention.label.toLowerCase().startsWith(term))
+								return true;
+
+							if(mention.value.toLowerCase().startsWith('@' + term))
+								return true;
+
+							return false;
 						}));
 					});
 				},
