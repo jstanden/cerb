@@ -82,8 +82,12 @@
 		{$object_contacts = DAO_Contact::getIds($addy_contact_ids)}
 	{/if}
 	
-	{* Bulk lazy load contacts *}
-	
+	{* Bulk lazy load participants *}
+	{if in_array(SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH, $view->view_columns)}
+		{$ticket_ids = DevblocksPlatform::extractArrayValues($results, 't_id')}
+		{$participants = DAO_Ticket::getParticipantsByTickets($ticket_ids, false)}
+	{/if}
+
 	{* Bulk lazy load orgs *}
 	{$object_orgs = []}
 	{if in_array(SearchFields_Ticket::TICKET_ORG_ID, $view->view_columns)}
@@ -249,6 +253,22 @@
 				{'status.deleted'|devblocks_translate|lower}
 			{else}
 				{'status.open'|devblocks_translate|lower}
+			{/if}
+		</td>
+		{elseif $column=="*_participant_search"}
+		<td data-column="{$column}">
+			{if is_array($participants.{$result.t_id})}
+				{$participant_count = count($participants.{$result.t_id})}
+				{$participant_count_hidden = $participant_count - 3}
+
+				{foreach name=participants from=array_slice($participants.{$result.t_id},0,3) item=participant}
+					{*<img src="{devblocks_url}c=avatars&context=address&context_id={$participant->id}{/devblocks_url}?v={$participant->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">*}
+					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$participant->_context}" data-context-id="{$participant->id}" title="{$participant->email}">{$participant->email|truncate:45:'...':true:true}</a>{if !$smarty.foreach.participants.last}, {/if}
+				{/foreach}
+
+				{if $participant_count > 3}
+					and <a href="javascript:;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="ticket.id:{$result.t_id}">{$participant_count_hidden} {if 1 == $participant_count_hidden}other{else}others{/if}</a>
+				{/if}
 			{/if}
 		</td>
 		{else}

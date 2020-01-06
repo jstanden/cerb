@@ -334,6 +334,47 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	static function getParticipantsByTickets($ticket_ids, $with_workers=true) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$results = [];
+		$dicts = [];
+		$where_ticket_ids = implode(',', $ticket_ids) ?: '-1';
+		
+		$sql = sprintf("SELECT %s AS context, address_id AS context_id, ticket_id FROM requester WHERE ticket_id IN (%s) ",
+			$db->qstr(CerberusContexts::CONTEXT_ADDRESS),
+			$where_ticket_ids
+		);
+		
+		if($with_workers) {
+			$sql .= sprintf("UNION SELECT %s AS context, worker_id AS context_id, ticket_id FROM message WHERE is_outgoing = 1 AND worker_id > 0 AND ticket_id IN (%s) ",
+				$db->qstr(CerberusContexts::CONTEXT_WORKER),
+				$where_ticket_ids
+			);
+		}
+		
+		$rows = $db->GetArraySlave($sql);
+		
+		foreach($rows as $row) {
+			$ticket_id = $row['ticket_id'];
+			
+			if(!array_key_exists($ticket_id, $results))
+				$results[$ticket_id] = [];
+			
+			$dict = DevblocksDictionaryDelegate::instance([
+				'_context' => $row['context'],
+				'id' => $row['context_id']
+			]);
+			$dicts[] =& $dict;
+			
+			$results[$ticket_id][] = $dict;
+		}
+		
+		DevblocksDictionaryDelegate::bulkLazyLoad($dicts,'_label');
+		
+		return $results;
+	}
+	
 	static function countsByContactId($contact_id) {
 		$db = DevblocksPlatform::services()->database();
 		
@@ -2621,7 +2662,7 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_ORG_SEARCH, '*', 'org_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_OWNER_SEARCH, '*', 'owner_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_ID, '*', 'participant_id', null, null, false), // participant ID
-			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH, '*', 'participant_search', null, null, false),
+			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH, '*', 'participant_search', $translate->_('common.participants'), null, false),
 			SearchFields_Ticket::VIRTUAL_STATUS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_STATUS, '*', 'status', $translate->_('common.status'), null, false),
 			SearchFields_Ticket::VIRTUAL_WATCHERS => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 			SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT, '*', 'workers_count', null, null, false),
@@ -2903,7 +2944,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH,
 			SearchFields_Ticket::VIRTUAL_OWNER_SEARCH,
 			SearchFields_Ticket::VIRTUAL_ORG_SEARCH,
-			SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH,
 			SearchFields_Ticket::VIRTUAL_MESSAGE_LAST_SEARCH,

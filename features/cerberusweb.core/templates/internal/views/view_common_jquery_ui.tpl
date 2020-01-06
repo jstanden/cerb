@@ -188,6 +188,9 @@ $(function() {
 	
 	// Peeks
 	$view.find('.cerb-peek-trigger').cerbPeekTrigger({ view_id: '{$view->id}' });
+
+	// Searches
+	$view.find('.cerb-search-trigger').cerbSearchTrigger({ view_id: '{$view->id}' });
 });
 </script>
 
