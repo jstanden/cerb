@@ -1416,8 +1416,11 @@ class ChInternalController extends DevblocksControllerExtension {
 						break;
 						
 					case Model_CustomField::TYPE_MULTI_CHECKBOX:
-						// [TODO] Add where missing
-						$value = $val;
+						$value = DevblocksPlatform::parseCsvString(str_replace(
+							'\"',
+							'',
+							$val
+						));
 						break;
 						
 					case Model_CustomField::TYPE_MULTI_LINE:
@@ -1471,7 +1474,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				if($is_preview) {
 					echo sprintf("%s => %s<br>",
 						$keys[$key]['label'],
-						$value
+						is_array($value) ? sprintf('[%s]', implode(', ', $value)) : $value
 					);
 				}
 				
