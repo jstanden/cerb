@@ -117,8 +117,12 @@ $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click'
 		formData.append('broadcast_subject', $(this).val());
 	});
 
-	$frm.find('input[name=broadcast_group_id]').each(function() {
+	$frm.find('select[name=broadcast_group_id]').each(function() {
 		formData.append('broadcast_group_id', $(this).val());
+	});
+
+	$frm.find('select[name=broadcast_bucket_id]').each(function() {
+		formData.append('broadcast_bucket_id', $(this).val());
 	});
 
 	formData.append('broadcast_format', $frm.find('input[name=broadcast_format]').val());
@@ -150,9 +154,23 @@ $placeholder_menu.menu({
 	}
 });
 
-$popup.find('button.chooser-broadcast-group')
-	.cerbChooserTrigger()
-	;
+$frm.find('select[name=broadcast_group_id]').on('change', function(e) {
+	var $select = $(this);
+	var group_id = $select.val();
+	var $bucket_options = $select.siblings('select.broadcast-bucket-options').find('option')
+	var $bucket = $select.siblings('select[name=broadcast_bucket_id]');
+
+	$bucket.children().remove();
+
+	$bucket_options.each(function() {
+		var parent_id = $(this).attr('group_id');
+		if(parent_id == '*' || parent_id == group_id)
+			$(this).clone().appendTo($bucket);
+	});
+
+	$bucket.focus();
+});
+
 
 $popup.find('button.chooser_file').each(function() {
 	ajax.chooserFile(this,'broadcast_file_ids');

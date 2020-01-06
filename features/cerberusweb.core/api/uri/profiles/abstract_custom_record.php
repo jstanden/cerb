@@ -192,6 +192,12 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		$custom_fields = DAO_CustomField::getByContext($context, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
+		$groups = DAO_Group::getAll();
+		$tpl->assign('groups', $groups);
+		
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
 		// HTML templates
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
@@ -248,6 +254,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		if($active_worker->hasPriv(sprintf('contexts.%s.broadcast', $context))) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
 			@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
+			@$broadcast_bucket_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_bucket_id'],'integer',0);
 			@$broadcast_to = DevblocksPlatform::importGPC($_REQUEST['broadcast_to'],'array',[]);
 			@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
@@ -267,6 +274,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					'is_queued' => $broadcast_is_queued,
 					'status_id' => $broadcast_status_id,
 					'group_id' => $broadcast_group_id,
+					'bucket_id' => $broadcast_bucket_id,
 					'worker_id' => $active_worker->id,
 					'file_ids' => $broadcast_file_ids,
 				];

@@ -7,10 +7,24 @@
 		<b>{'message.header.from'|devblocks_translate|capitalize}:</b>
 
 		<div style="margin:0px 0px 5px 10px;">
-			<button type="button" class="chooser-broadcast-group" data-field-name="broadcast_group_id" data-context="{CerberusContexts::CONTEXT_GROUP}" data-single="true" data-query="" data-query-required="member:(id:{$active_worker->id})" data-autocomplete="member:(id:{$active_worker->id})" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-			
-			<ul class="bubbles chooser-container">
-			</ul>
+			<select name="broadcast_group_id">
+				{foreach from=$groups item=group key=group_id}
+					<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $ticket->group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+				{/foreach}
+			</select>
+			<select class="broadcast-bucket-options" style="display:none;">
+				{foreach from=$buckets item=bucket key=bucket_id}
+					<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
+				{/foreach}
+			</select>
+			<select name="broadcast_bucket_id">
+				{$first_group_id = key($groups)}
+				{foreach from=$buckets item=bucket key=bucket_id}
+					{if $bucket->group_id == $first_group_id}
+						<option value="{$bucket_id}">{$bucket->name}</option>
+					{/if}
+				{/foreach}
+			</select>
 		</div>
 		{/if}
 		

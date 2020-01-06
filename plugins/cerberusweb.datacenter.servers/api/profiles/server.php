@@ -144,6 +144,9 @@ class PageSection_ProfilesServer extends Extension_PageSection {
 		$groups = DAO_Group::getAll();
 		$tpl->assign('groups', $groups);
 		
+		$buckets = DAO_Bucket::getAll();
+		$tpl->assign('buckets', $buckets);
+		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SERVER, false);
 		$tpl->assign('custom_fields', $custom_fields);

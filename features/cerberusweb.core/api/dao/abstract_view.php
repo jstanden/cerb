@@ -3827,6 +3827,7 @@ abstract class C4_AbstractView {
 				'content' => $params['message'],
 				'content_format' => @$params['format'] ?: '',
 				'group_id' => @$params['group_id'] ?: 0,
+				'bucket_id' => @$params['bucket_id'] ?: 0,
 				'html_template_id' => @$params['html_template_id'] ?: 0,
 				'file_ids' => @$params['file_ids'] ?: [],
 			];
@@ -3860,6 +3861,7 @@ abstract class C4_AbstractView {
 						$json_params = array(
 							'to' => $dict->broadcast_email__label,
 							'group_id' => $message_properties['group_id'],
+							'bucket_id' => $message_properties['bucket_id'],
 							'status_id' => $status_id,
 							'subject' => $subject,
 							'content' => $body,

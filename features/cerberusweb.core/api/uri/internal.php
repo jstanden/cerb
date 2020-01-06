@@ -3028,6 +3028,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
 		@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
 		@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
+		@$broadcast_bucket_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_bucket_id'],'integer',0);
 		
 		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
@@ -3084,6 +3085,7 @@ class ChInternalController extends DevblocksControllerExtension {
 				'content' => $template,
 				'content_format' => $broadcast_format,
 				'group_id' => $broadcast_group_id ?: $dict->get('group_id', 0),
+				'bucket_id' => $broadcast_bucket_id ?: $dict->get('bucket_id', 0),
 				'html_template_id' => $broadcast_html_template_id,
 			];
 			
