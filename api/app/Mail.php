@@ -985,7 +985,6 @@ class CerberusMail {
 			$mail = $mail_service->createMessage();
 			
 			@$reply_message_id = $properties['message_id'];
-			@$send_at = strtotime($properties['send_at'] ?? 0);
 			@$draft_id = $properties['draft_id'];
 			
 			if(null == ($message = DAO_Message::get($reply_message_id))) {
@@ -1005,8 +1004,18 @@ class CerberusMail {
 			if(null == ($group = DAO_Group::get($ticket->group_id)))
 				return false;
 			
-			$worker = null;
-			$hash_commands = [];
+			// Message-Id
+			$mail->generateId();
+			$outgoing_message_id = $mail->getHeaders()->get('message-id')->getFieldBody();
+			$properties['outgoing_message_id'] = $outgoing_message_id;
+			
+			// Changing the outgoing message through a VA (global)
+			Event_MailBeforeSent::trigger($properties, $message->id, $ticket->id, $group->id);
+			
+			// Changing the outgoing message through a VA (group)
+			Event_MailBeforeSentByGroup::trigger($properties, $message->id, $ticket->id, $group->id);
+			
+			@$send_at = strtotime($properties['send_at'] ?? 0);
 			
 			DAO_Ticket::updateWithMessageProperties($properties, $ticket, [], false);
 			
@@ -1045,21 +1054,14 @@ class CerberusMail {
 				return true;
 			}
 			
+			$worker = null;
+			$hash_commands = [];
+			
 			if(array_key_exists('worker_id', $properties)) {
 				if(false != ($worker = DAO_Worker::get($properties['worker_id']))) {
 					CerberusMail::parseReplyHashCommands($worker, $properties, $hash_commands);
 				}
 			}
-			
-			$mail->generateId();
-			$outgoing_message_id = $mail->getHeaders()->get('message-id')->getFieldBody();
-			$properties['outgoing_message_id'] = $outgoing_message_id;
-			
-			// Changing the outgoing message through a VA (global)
-			Event_MailBeforeSent::trigger($properties, $message->id, $ticket->id, $group->id);
-			
-			// Changing the outgoing message through a VA (group)
-			Event_MailBeforeSentByGroup::trigger($properties, $message->id, $ticket->id, $group->id);
 			
 			// Handle content appends and prepends
 			self::_generateBodiesWithPrependsAppends($properties);

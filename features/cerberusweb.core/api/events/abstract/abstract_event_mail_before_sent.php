@@ -72,6 +72,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			'group_id' => $group_id,
 			'bucket_id' => $bucket_id,
 			'worker_id' => $active_worker->id,
+			'send_at' => '',
 		];
 		
 		return new Model_DevblocksEvent(
@@ -149,6 +150,9 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		
 		//$labels['worker_id'] = $prefix.'worker id';
 		$values['worker_id'] =& $properties['worker_id'];
+		
+		$labels['send_at'] = $prefix.'send at';
+		$values['send_at'] =& $properties['send_at'];
 		
 		// Ticket custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
@@ -345,6 +349,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$types['content_format'] = Model_CustomField::TYPE_CHECKBOX;
 		$types['subject'] = Model_CustomField::TYPE_SINGLE_LINE;
 		$types['message_id'] = Model_CustomField::TYPE_SINGLE_LINE;
+		$types['send_at'] = Model_CustomField::TYPE_DATE;
 		$types['to'] = Model_CustomField::TYPE_SINGLE_LINE;
 	
 		$types['ticket_org_watcher_count'] = null;
@@ -542,6 +547,17 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 						],
 					],
 				],
+				'set_send_at' => [
+					'label' => 'Set message send at',
+					'notes' => '',
+					'params' => [
+						'value' => [
+							'type' => 'date',
+							'required' => true,
+							'notes' => 'The datetime when to deliver the message, as a Unix timestamp or string',
+						],
+					],
+				],
 			]
 			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
@@ -576,6 +592,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 			case 'set_header':
 				$tpl->display('devblocks:cerberusweb.core::events/model/mail/action_set_header.tpl');
+				break;
+
+			case 'set_send_at':
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
 				break;
 
 			default:
@@ -722,6 +742,40 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 				return $out;
 				break;
+				
+			case 'set_send_at':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$mode = $params['mode'];
+				
+				$this->runActionExtension($token, $trigger, $params, $dict);
+				
+				switch($mode) {
+					case 'calendar':
+						@$calendar_reldate = $params['calendar_reldate'];
+						@$calendar_id = $params['calendar_id'];
+						
+						$calendar = DAO_Calendar::get($calendar_id);
+						
+						$out = sprintf(">>> Setting `send at` by calendar\nIn: %s (%s)\nUsing calendar: %s\n",
+							$calendar_reldate,
+							$dict->_properties['send_at'] ? date('r', $dict->_properties['send_at']) : '',
+							$calendar ? ($calendar->name . ' [#' . $calendar_id . ']') : $calendar_id
+						);
+						break;
+						
+					default:
+						@$value = $tpl_builder->build($params['value'], $dict);
+						
+						$out = sprintf(">>> Setting `send at`\n%s (%s)\n",
+							$value,
+							$dict->_properties['send_at'] ? date('r', $dict->_properties['send_at']) : ''
+						);
+						break;
+				}
+				
+				return $out;
+				break;
 		}
 
 		if(empty($ticket_id))
@@ -822,6 +876,30 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					$headers[$header] = $value;
 					
 				}
+				break;
+				
+			case 'set_send_at':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$mode = $params['mode'];
+				
+				switch($mode) {
+					case 'calendar':
+						@$rel_date = $params['calendar_reldate'];
+						@$calendar_id = $params['calendar_id'];
+						
+						$rel_now = $dict->get('_current_time', time());
+						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
+						
+						$dict->_properties['send_at'] = $value ? date('r', $value) : '';
+						break;
+					
+					default:
+						@$value = $tpl_builder->build($params['value'], $dict);
+						$dict->_properties['send_at'] = $value ? date('r', $value) : 0;
+						break;
+				}
+				
 				break;
 		}
 
