@@ -295,11 +295,6 @@
 				<br>
 				<br>
 
-				<div style="margin-bottom:1em;">
-					<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
-					<input type="text" name="send_at" size="55" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
-				</div>
-
 				{* [TODO] Expand custom field checkboxes *}
 				{if !empty($custom_fields)}
 					<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b><br>
@@ -311,6 +306,20 @@
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id bulk=true}
+
+<fieldset class="peek">
+	<legend>
+		<label>
+			<input type="checkbox" class="cerb-reply-deliver-later-toggle" value="1" {if $draft->params.send_at}checked="checked"{/if}>
+			Deliver later
+		</label>
+	</legend>
+
+	<div style="{if $draft->params.send_at}{else}display:none;{/if}">
+		<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
+		<input type="text" name="send_at" size="64" style="width:89%;" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
+	</div>
+</fieldset>
 
 <div id="reply{$message->id}_buttons">
 	<button type="button" class="send split-left" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-send"></span> {if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.send_message'|devblocks_translate}{/if}</button><!--
@@ -654,7 +663,21 @@ $(function() {
 			if(0 === $ul.find('li').length)
 				$ul.closest('div').remove();
 		});
-		
+
+		// Deliver later
+
+		$frm.find('.cerb-reply-deliver-later-toggle').on('click', function(e) {
+			e.stopPropagation();
+
+			var $div = $(this).closest('fieldset').find('> div');
+
+			$div
+				.toggle()
+				.find('input:text')
+					.focus()
+			;
+		});
+
 		// Focus
 		
 		{if !$recent_activity}

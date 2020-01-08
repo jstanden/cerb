@@ -180,12 +180,6 @@
 		</ul>
 	</div>
 
-	<div style="margin-top:10px;">
-		<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
-		<input type="text" name="send_at" size="55" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
-		<br>
-	</div>
-
 	<div style="margin-top:10px;{if empty($custom_fields) && empty($group_fields)}display:none;{/if}">
 		<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
 
@@ -198,6 +192,20 @@
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false}
+
+<fieldset class="peek">
+	<legend>
+		<label>
+			<input type="checkbox" class="cerb-compose-deliver-later-toggle" value="1" {if $draft->params.send_at}checked="checked"{/if}>
+			Deliver later
+		</label>
+	</legend>
+
+	<div style="{if $draft->params.send_at}{else}display:none;{/if}">
+		<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
+		<input type="text" name="send_at" size="64" style="width:89%;" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
+	</div>
+</fieldset>
 
 <div class="status"></div>
 
@@ -563,7 +571,21 @@ $(function() {
 			clearTimeout(draftComposeAutoSaveInterval);
 			draftComposeAutoSaveInterval = null;
 		}
-		
+
+		// Deliver later
+
+		$frm.find('.cerb-compose-deliver-later-toggle').on('click', function(e) {
+			e.stopPropagation();
+
+			var $div = $(this).closest('fieldset').find('> div');
+
+			$div
+				.toggle()
+				.find('input:text')
+				.focus()
+			;
+		});
+
 		draftComposeAutoSaveInterval = setInterval(function() {
 			$editor_toolbar_button_save_draft.click();
 		}, 30000); // and every 30 sec
