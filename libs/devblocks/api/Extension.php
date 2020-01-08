@@ -1232,7 +1232,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 							case CerberusContexts::CONTEXT_CONTACT:
 							case CerberusContexts::CONTEXT_ORG:
 							case CerberusContexts::CONTEXT_WORKER:
-								$results[$key] = $labels[$key . '__label'];
+								if(array_key_exists($key . '__label', $labels))
+									$results[$key] = $labels[$key . '__label'];
 								break;
 						}
 						break;
