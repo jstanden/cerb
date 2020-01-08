@@ -292,20 +292,30 @@
 					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
 					{/if}
 				</ul>
-				<br>
-				<br>
-
-				{* [TODO] Expand custom field checkboxes *}
-				{if !empty($custom_fields)}
-					<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b><br>
-					{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true custom_fields_expanded=$draft->params.custom_fields}
-				{/if}
 			</td>
 		</tr>
 	</table>
 </fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id bulk=true}
+{$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, CerberusContexts::CONTEXT_TICKET)}
+
+{if $custom_fields || $custom_fields_available}
+<fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0px;{/if}">
+	<legend>
+		<label>
+			{'common.custom_fields'|devblocks_translate|capitalize}
+		</label>
+	</legend>
+
+	<div style="padding-bottom:10px;{if $custom_fields}{else}display:none;{/if}">
+	{if !empty($custom_fields)}
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=true custom_fields_expanded=$draft->params.custom_fields}
+	{/if}
+	</div>
+
+	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id bulk=true custom_fieldsets_available=$custom_fieldsets_available}
+</fieldset>
+{/if}
 
 <fieldset class="peek">
 	<legend>

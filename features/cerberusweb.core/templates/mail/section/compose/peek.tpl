@@ -179,19 +179,28 @@
 			{/foreach}
 		</ul>
 	</div>
+</fieldset>
 
-	<div style="margin-top:10px;{if empty($custom_fields) && empty($group_fields)}display:none;{/if}">
-		<b>{'common.custom_fields'|devblocks_translate|capitalize}:</b>
+{$custom_field_values = $draft->params.custom_fields}
+{$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, CerberusContexts::CONTEXT_TICKET)}
 
-		{$custom_field_values = $draft->params.custom_fields}
+{if $custom_fields || $custom_fieldsets_available}
+<fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0px;{/if}">
+	<legend>
+		<label>
+			{'common.custom_fields'|devblocks_translate|capitalize}
+		</label>
+	</legend>
 
+	<div style="{if $custom_fields}{else}display:none;{/if}">
 		{if !empty($custom_fields)}
 			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
 		{/if}
 	</div>
-</fieldset>
 
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false}
+	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false custom_fieldsets_available=$custom_fieldsets_available}
+</fieldset>
+{/if}
 
 <fieldset class="peek">
 	<legend>

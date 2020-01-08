@@ -1,4 +1,6 @@
-{$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, $context)}
+{if !$custom_fieldsets_available}
+	{$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, $context)}
+{/if}
 {$bulk = $bulk|default:false}
 {if !empty($context_id)}
 	{$custom_fieldsets_linked = DAO_CustomFieldset::getUsedByContext($context, $context_id)}
