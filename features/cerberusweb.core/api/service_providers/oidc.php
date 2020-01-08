@@ -375,23 +375,28 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		
 		$id_token = $token->getIdToken();
 		
-		if(
-			false == ($email = $id_token->getClaim('email'))
-			|| false == ($worker = DAO_Worker::getByEmail($email))
-		) {
+		try {
+			if(false == ($email = $id_token->getClaim('email')))
+				throw new Exception_DevblocksValidationError();
+			
+			if(false == ($worker = DAO_Worker::getByEmail($email)))
+				throw new Exception_DevblocksValidationError();
+			
+			$login_state
+				->clearAuthState()
+				->setWorker($worker)
+				->setEmail($worker->getEmailString())
+				->setIsSSOAuthenticated(true)
+				->setIsMfaRequired(false)
+			;
+			
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')), 0);
+			
+		} catch(Exception $e) {
+			error_log($e->getMessage());
 			$query = ['error' => 'auth.failed'];
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login'], $query), 0);
 		}
-		
-		$login_state
-			->clearAuthState()
-			->setWorker($worker)
-			->setEmail($worker->getEmailString())
-			->setIsSSOAuthenticated(true)
-			->setIsMfaRequired(false)
-			;
-		
-		DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login','authenticated')), 0);
 	}
 	
 	public function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []): bool {
