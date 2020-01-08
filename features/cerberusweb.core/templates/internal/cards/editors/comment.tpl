@@ -1,5 +1,7 @@
 {if $active_worker->hasPriv("contexts.{$peek_context}.comment")}
 {$comment_div = uniqid('comment_editor_')}
+{$is_html = !DAO_WorkerPref::get($active_worker->id,'comment_disable_formatting',0)}
+
 <fieldset id="{$comment_div}" class="peek">
     <legend>
         <label>
@@ -10,9 +12,9 @@
 
     <div style="display:none;">
         <div class="cerb-code-editor-toolbar">
-            <button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--formatting" data-format="html">Formatting on</button>
+            <button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
 
-            <div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;">
+            <div class="cerb-code-editor-subtoolbar-format-html" style="{if $is_html}display:inline-block;{else}display:none;{/if}">
                 <button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
                 <button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
                 <button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>

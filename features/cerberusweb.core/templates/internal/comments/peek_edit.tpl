@@ -1,6 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_COMMENT}
 {$peek_context_id = $model->id}
-{$is_html = !$model->id || $model->is_markdown}
+{$is_html = (!$model->id && !DAO_WorkerPref::get($active_worker->id,'comment_disable_formatting',0)) || $model->is_markdown}
 
 {$form_id = uniqid('form')}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
@@ -59,7 +59,7 @@
 		<div class="cerb-code-editor-toolbar">
 			<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
 
-			<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
+			<div class="cerb-code-editor-subtoolbar-format-html" style="{if !$is_html}display:none;{else}display:inline-block;{/if}">
 				<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
 				<button type="button" title="Italics (Ctrl+I)" data-cerb-key-binding="ctrl+i" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
 				<button type="button" title="Link (Ctrl+K)" data-cerb-key-binding="ctrl+k" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>

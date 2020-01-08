@@ -776,6 +776,14 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/mail.tpl');
 				break;
 				
+			case 'records':
+				$prefs = [];
+				$prefs['comment_disable_formatting'] = DAO_WorkerPref::get($worker->id,'comment_disable_formatting',0);
+				$tpl->assign('prefs', $prefs);
+				
+				$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/tabs/records.tpl');
+				break;
+				
 			case 'search':
 				// Search
 				$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
@@ -1009,6 +1017,17 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					
 					@$mail_status_reply = DevblocksPlatform::importGPC($_REQUEST['mail_status_reply'],'string','waiting');
 					DAO_WorkerPref::set($worker->id, 'mail_status_reply', $mail_status_reply);
+					
+					echo json_encode([
+						'status' => true,
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
+					]);
+					return;
+					break;
+					
+				case 'records':
+					@$comment_disable_formatting = DevblocksPlatform::importGPC($_REQUEST['comment_disable_formatting'],'integer',0);
+					DAO_WorkerPref::set($worker->id, 'comment_disable_formatting', $comment_disable_formatting);
 					
 					echo json_encode([
 						'status' => true,
