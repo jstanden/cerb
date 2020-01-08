@@ -912,6 +912,22 @@ class ChInternalController extends DevblocksControllerExtension {
 				}
 			}
 			
+			// Always sort an updated column in descending order (most recent first)
+			foreach(['updated', 'updated_at', 'updated_date'] as $kk) {
+				if(array_key_exists($kk, $field_values)) {
+					arsort($field_values[$kk]['values']);
+				}
+			}
+			
+			// Always sort statuses in order
+			if(array_key_exists('status', $field_values) && in_array($context_ext->id, [CerberusContexts::CONTEXT_TICKET, CerberusContexts::CONTEXT_TASK])) {
+				uasort($field_values['status']['values'], function ($a, $b) {
+					$a_status_id = DAO_Ticket::getStatusIdFromText($a);
+					$b_status_id = DAO_Ticket::getStatusIdFromText($b);
+					return $a_status_id <=> $b_status_id;
+				});
+			}
+			
 			if($DEBUG) {
 				var_dump($field_values);
 			}
