@@ -86,10 +86,21 @@
 
 <script type="text/javascript">
 $(function() {
-	//var $popup = genericAjaxPopupFetch('peek');
 	var $frm = $('#frm{$uniq_id}');
 	
 	$frm.find('.cerb-peek-trigger').cerbPeekTrigger();
+
+	// Update the selected record label when we change targets
+	$frm.find('input[name=target_id]').on('click', function() {
+		var id = $(this).attr('value');
+
+		$frm.find('select[name="values[name]"], select[name="values[subject]"], select[name="values[title]"]').each(function() {
+			var $select = $(this);
+
+			if($select.find('option[value=' + id + ']').length > 0)
+				$select.val(id);
+		});
+	});
 	
 	$frm.find('BUTTON.submit').on('click', function() {
 		genericAjaxPost('frm{$uniq_id}','popuppeek','');
