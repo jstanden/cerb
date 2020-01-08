@@ -217,6 +217,28 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		return !empty($result);
 	}
 	
+	public static function getStatusTextFromId($status_id) {
+		$statuses = [
+			0 => 'open',
+			1 => 'waiting',
+			2 => 'closed',
+			3 => 'deleted',
+		];
+		
+		return $statuses[$status_id] ?? null;
+	}
+	
+	public static function getStatusIdFromText($status) {
+		$statuses = [
+			'open' => 0,
+			'waiting' => 1,
+			'closed' => 2,
+			'deleted' => 3,
+		];
+		
+		return $statuses[DevblocksPlatform::strLower($status)] ?? null;
+	}
+	
 	/**
 	 *
 	 * @param string $mask
@@ -5480,6 +5502,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// If we still don't have a default group, use the first group
 		if(empty($defaults['group_id']))
 			$defaults['group_id'] = key($groups);
+		
+		// Default status
+		if(array_key_exists('status_id', $draft->params))
+			$defaults['status'] = DAO_Ticket::getStatusTextFromId($draft->params['status_id']);
 		
 		$tpl->assign('defaults', $defaults);
 		
