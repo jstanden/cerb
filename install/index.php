@@ -431,7 +431,11 @@ switch($step) {
 						$errors[] = "Failed to empty the test table in the database.";
 					}
 					// ADD SPATIAL INDEX
-					if($db_passed && false === mysqli_query($_db, "ALTER TABLE _installer_test_suite ADD COLUMN pos POINT NOT NULL, ADD SPATIAL INDEX (pos)")) {
+					if($db_passed && false === mysqli_query($_db, "ALTER TABLE _installer_test_suite ADD COLUMN pos POINT NOT NULL")) {
+						$db_passed = false;
+						$errors[] = sprintf("The database engine doesn't support POINT columns.");
+					}
+					if($db_passed && false === mysqli_query($_db, "ALTER TABLE _installer_test_suite ADD SPATIAL INDEX (pos)")) {
 						$db_passed = false;
 						$errors[] = sprintf("The database engine doesn't support SPATIAL indexes.");
 					}
