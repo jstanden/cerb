@@ -131,19 +131,6 @@
 	</ul>
 </fieldset>
 
-{if $gpg && $gpg->isEnabled()}
-<fieldset class="peek">
-	<legend>{'common.encryption'|devblocks_translate|capitalize}</legend>
-	
-	<div>
-		<label style="margin-right:10px;">
-		<input type="checkbox" name="options_gpg_encrypt" value="1" {if $draft->params.options_gpg_encrypt}checked="checked"{/if}> 
-		Encrypt message using recipient public keys
-		</label>
-	</div>
-</fieldset>
-{/if}
-
 <fieldset class="peek">
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
@@ -199,6 +186,21 @@
 	</div>
 
 	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false custom_fieldsets_available=$custom_fieldsets_available}
+</fieldset>
+{/if}
+
+{if $gpg && $gpg->isEnabled()}
+<fieldset class="peek">
+	<legend>
+		<label>
+			<input type="checkbox" name="options_gpg_encrypt" value="1" {if $draft->params.options_gpg_encrypt}checked="checked"{/if}>
+			{'common.encrypt'|devblocks_translate|capitalize}
+		</label>
+	</legend>
+
+	<div style="{if $draft->params.options_gpg_encrypt}{else}display:none;{/if}">
+		This message will be encrypted with recipient public keys.
+	</div>
 </fieldset>
 {/if}
 
@@ -580,6 +582,19 @@ $(function() {
 			clearTimeout(draftComposeAutoSaveInterval);
 			draftComposeAutoSaveInterval = null;
 		}
+
+		// Encryption
+
+		$frm.find('input[name=options_gpg_encrypt]').on('click', function(e) {
+			e.stopPropagation();
+
+			var $div = $(this).closest('fieldset').find('> div');
+
+			$div
+				.toggle()
+				.focus()
+			;
+		});
 
 		// Deliver later
 
