@@ -2766,17 +2766,17 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 	static function read($id) {
 		$db = DevblocksPlatform::services()->database();
-
+		
 		if(!self::isReady())
 			return '';
-
+		
 		// [TODO] Don't set a cookie until logging in (redo session code)
 		// [TODO] Security considerations in book (don't allow non-SSL connections)
 		// [TODO] Allow Cerb to configure sticky IP sessions (or by subnet) as setting
 		// [TODO] Allow Cerb to enable user-agent comparisons as setting
 		// [TODO] Limit the IPs a worker can log in from (per-worker?)
 
-		if(null != ($session = $db->GetRowSlave(sprintf("SELECT * FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
+		if(null != (@$session = $db->GetRowSlave(sprintf("SELECT * FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 			//$is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 
@@ -2814,9 +2814,9 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		$user_agent = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
 
 		$db = DevblocksPlatform::services()->database();
-
+		
 		if(!self::isReady())
-			return '';
+			return true;
 
 		// Update
 		$sql = sprintf("UPDATE devblocks_session SET updated=%d, refreshed_at=%d, session_data=%s, user_id=%d, user_ip=%s, user_agent=%s WHERE session_key=%s",
