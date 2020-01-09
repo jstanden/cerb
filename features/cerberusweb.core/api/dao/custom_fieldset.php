@@ -1118,6 +1118,10 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 			// For lazy loading
 			$token_values['owner__context'] = $cfieldset->owner_context;
 			$token_values['owner_id'] = $cfieldset->owner_context_id;
+			
+			// URL
+			$url_writer = DevblocksPlatform::services()->url();
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=custom_fieldset&id=%d-%s",$cfieldset->id, DevblocksPlatform::strToPermalink($cfieldset->name)), true);
 		}
 
 		return true;
