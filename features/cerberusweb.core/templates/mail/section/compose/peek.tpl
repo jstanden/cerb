@@ -135,18 +135,13 @@
 	<legend>{'common.properties'|devblocks_translate|capitalize}</legend>
 	
 	<div>
-		<label>
-		<input type="checkbox" name="options_dont_send" value="1" {if $draft->params.options_dont_send}checked="checked"{/if}> 
-		Start a new conversation without sending a copy of this message to the recipients
-		</label>
-	</div>
-	
-	<div style="margin-top:10px;">
+		<b>Status:</b>
+
 		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if $defaults.status=='open'}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','none');"> {'status.open'|devblocks_translate}</label>
 		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if $defaults.status=='waiting'}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.waiting'|devblocks_translate}</label>
 		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if $defaults.status=='closed'}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.closed'|devblocks_translate}</label>{/if}
 
-		<div id="divComposeClosed{$popup_uniqid}" style="display:{if $defaults.status=='open'}none{else}block{/if};margin:5px 0px 0px 20px;">
+		<div id="divComposeClosed{$popup_uniqid}" style="display:{if $defaults.status=='open'}none{else}block{/if};margin:5px 0px 10px 20px;">
 			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
 			{'display.reply.next.resume_eg'|devblocks_translate}<br>
 			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
@@ -154,10 +149,9 @@
 		</div>
 	</div>
 
-	<div style="margin-top:10px;">
-		<b>Who should this be assigned to?</b><br>
+	<div style="margin-top:5px;">
+		<b>{'common.owner'|devblocks_translate|capitalize}:</b>
 
-		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="owner_id" data-autocomplete="" data-autocomplete-if-empty="true" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
 		<ul class="bubbles chooser-container">
 			{foreach from=$workers item=v key=k}
 				{if !$v->is_disabled && $draft->params.owner_id == $v->id}
@@ -165,6 +159,33 @@
 				{/if}
 			{/foreach}
 		</ul>
+		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="owner_id" data-autocomplete="isDisabled:n" data-autocomplete-if-empty="true" data-single="true"><span class="glyphicons glyphicons-search"></span></button>
+	</div>
+
+	<div style="margin-top:5px;">
+		<b>{'common.watchers'|devblocks_translate|capitalize}:</b>
+
+		<ul class="bubbles chooser-container">
+			{if is_array($draft->params.watcher_ids)}
+			{foreach from=$workers item=v key=k}
+				{if !$v->is_disabled && in_array($v->id,$draft->params.watcher_ids)}
+					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$v->id}{/devblocks_url}?v={$v->updated}"><input type="hidden" name="watcher_ids[]" value="{$v->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$v->id}">{$v->getName()}</a></li>
+				{/if}
+			{/foreach}
+			{/if}
+		</ul>
+		<button type="button" class="chooser-abstract" data-context="{CerberusContexts::CONTEXT_WORKER}" data-query="isDisabled:n" data-field-name="watcher_ids[]" data-autocomplete="isDisabled:n"><span class="glyphicons glyphicons-search"></span></button>
+	</div>
+
+	<div style="margin-top:5px;">
+		<b>{'common.options'|devblocks_translate|capitalize}:</b><br>
+
+		<div style="padding-left:10px;">
+			<label>
+				<input type="checkbox" name="options_dont_send" value="1" {if $draft->params.options_dont_send}checked="checked"{/if}>
+				Start a new conversation without sending a copy of this message to the recipients
+			</label>
+		</div>
 	</div>
 </fieldset>
 
@@ -175,7 +196,7 @@
 <fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0px;{/if}">
 	<legend>
 		<label>
-			{'common.custom_fields'|devblocks_translate|capitalize}
+			{'common.update'|devblocks_translate|capitalize}
 		</label>
 	</legend>
 

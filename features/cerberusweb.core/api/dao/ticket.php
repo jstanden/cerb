@@ -1040,6 +1040,16 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if($unset)
 			unset($properties['custom_fields']);
 		
+		if(array_key_exists('watcher_ids', $properties)) {
+			@$watcher_ids = DevblocksPlatform::importVar($properties['watcher_ids'], 'array', []);
+			$watcher_ids = DevblocksPlatform::sanitizeArray($watcher_ids, 'int');
+			
+			CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id, $watcher_ids);
+			
+			if($unset)
+				unset($properties['watcher_ids']);
+		}
+		
 		return true;
 	}
 	

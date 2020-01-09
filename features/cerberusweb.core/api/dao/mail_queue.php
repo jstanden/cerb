@@ -894,6 +894,9 @@ class Model_MailQueue {
 		if($this->hasParam('owner_id'))
 			$properties['owner_id'] = $this->getParam('owner_id');
 		
+		if($this->hasParam('watcher_ids'))
+			$properties['watcher_ids'] = $this->getParam('watcher_ids');
+		
 		if($this->hasParam('ticket_reopen'))
 			$properties['ticket_reopen'] = $this->getParam('ticket_reopen');
 		
