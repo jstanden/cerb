@@ -30,11 +30,18 @@ class BotAction_RecordCreate extends Extension_DevblocksEventAction {
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('params', $params);
 		
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
 		
+		if(!$params) {
+			$params = [
+				'changeset_json' => "{# See: https://cerb.ai/docs/records/types/ #}\n{% set json = {\n  key: 'value',\n} %}\n{{json|json_encode|json_pretty}}",
+				'object_placeholder' => '_record',
+			];
+		}
+		
+		$tpl->assign('params', $params);
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_record_create.tpl');
 	}
 	
@@ -197,11 +204,18 @@ class BotAction_RecordUpdate extends Extension_DevblocksEventAction {
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('params', $params);
 		
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
 		
+		if(!$params) {
+			$params = [
+				'changeset_json' => "{# See: https://cerb.ai/docs/records/types/ #}\n{% set json = {\n  key: 'value',\n} %}\n{{json|json_encode|json_pretty}}",
+				'object_placeholder' => '_record',
+			];
+		}
+		
+		$tpl->assign('params', $params);
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_record_update.tpl');
 	}
 	
@@ -378,11 +392,18 @@ class BotAction_RecordUpsert extends Extension_DevblocksEventAction {
 	
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('params', $params);
 		
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
 		
+		if(!$params) {
+			$params = [
+				'changeset_json' => "{# See: https://cerb.ai/docs/records/types/ #}\n{% set json = {\n  key: 'value',\n} %}\n{{json|json_encode|json_pretty}}",
+				'object_placeholder' => '_record',
+			];
+		}
+		
+		$tpl->assign('params', $params);
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_record_upsert.tpl');
 	}
 	
