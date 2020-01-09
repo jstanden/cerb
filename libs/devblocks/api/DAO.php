@@ -732,6 +732,10 @@ abstract class DevblocksORMHelper {
 			$db->qstr($context),
 			implode(',', $from_ids)
 		));
+		$db->ExecuteMaster(sprintf("DELETE FROM context_link WHERE to_context = %s AND to_context_id = %d AND to_context=from_context AND to_context_id=from_context_id",
+			$db->qstr($context),
+			$to_id
+		));
 		
 		// Merge context_saved_search
 		$db->ExecuteMaster(sprintf("UPDATE context_saved_search SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
