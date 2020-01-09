@@ -220,65 +220,69 @@
 	<table cellpadding="2" cellspacing="0" border="0" id="replyStatus{$message->id}">
 		<tr>
 			<td nowrap="nowrap" valign="top">
-				<div style="margin-bottom:10px;">
+				<div>
+					<b>{'common.status'|devblocks_translate|capitalize}:</b>
+
+					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
+					{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
+					<br>
+
+					<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin:5px 0px 10px 20px;">
+						<div style="display:flex;flex-flow:row wrap;">
+							<div style="flex:1 1 45%;padding-right:10px;">
+								<b>{'display.reply.next.resume'|devblocks_translate}</b>
+							</div>
+							<div style="flex:1 1 45%;">
+								{'display.reply.next.resume_eg'|devblocks_translate}
+							</div>
+						</div>
+
+						<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
+						{'display.reply.next.resume_blank'|devblocks_translate}<br>
+					</div>
+				</div>
+
+				<div style="margin-top:5px;">
+					<b>{'common.move'|devblocks_translate|capitalize}:</b>
+
+					<select name="group_id">
+						{foreach from=$groups item=group key=group_id}
+						<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $ticket->group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+						{/foreach}
+					</select>
+					<select class="ticket-reply-bucket-options" style="display:none;">
+						{foreach from=$buckets item=bucket key=bucket_id}
+						<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
+						{/foreach}
+					</select>
+					<select name="bucket_id">
+						{foreach from=$buckets item=bucket key=bucket_id}
+							{if $bucket->group_id == $ticket->group_id}
+							<option value="{$bucket_id}" {if $ticket->bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
+							{/if}
+						{/foreach}
+					</select>
+				</div>
+
+				<div style="margin-top:5px;">
+					<b>{'common.owner'|devblocks_translate|capitalize}:</b>
+					<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+					<ul class="bubbles chooser-container">
+						{$owner = $workers.{$ticket->owner_id}}
+						{if $owner}
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
+						{/if}
+					</ul>
+				</div>
+
+				<div style="margin-top:5px;">
+					<b>{'common.watchers'|devblocks_translate|capitalize}:</b>
 					<span>
 						{$watchers_btn_domid = uniqid()}
-						{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id full_label=true watchers_btn_domid=$watchers_btn_domid watchers_group_id=$ticket->group_id watchers_bucket_id=$ticket->bucket_id}
+						{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" object_watchers=$object_watchers context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id watchers_btn_domid=$watchers_btn_domid watchers_group_id=$ticket->group_id watchers_bucket_id=$ticket->bucket_id}
 					</span>
 				</div>
-
-				<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
-				<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
-				{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
-				<br>
-
-				<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin:5px 0px 0px 20px;">
-
-				<div style="display:flex;flex-flow:row wrap;">
-					<div style="flex:1 1 45%;padding-right:10px;">
-						<b>{'display.reply.next.resume'|devblocks_translate}</b>
-					</div>
-					<div style="flex:1 1 45%;">
-						{'display.reply.next.resume_eg'|devblocks_translate}
-					</div>
-				</div>
-				<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
-				{'display.reply.next.resume_blank'|devblocks_translate}<br>
-				</div>
-
-				<div style="margin-bottom:10px;"></div>
-
-				<b>{'display.reply.next.move'|devblocks_translate}</b>
-				<br>
-
-				<select name="group_id">
-					{foreach from=$groups item=group key=group_id}
-					<option value="{$group_id}" {if $active_worker->isGroupMember($group_id)}member="true"{/if} {if $ticket->group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
-					{/foreach}
-				</select>
-				<select class="ticket-reply-bucket-options" style="display:none;">
-					{foreach from=$buckets item=bucket key=bucket_id}
-					<option value="{$bucket_id}" group_id="{$bucket->group_id}">{$bucket->name}</option>
-					{/foreach}
-				</select>
-				<select name="bucket_id">
-					{foreach from=$buckets item=bucket key=bucket_id}
-						{if $bucket->group_id == $ticket->group_id}
-						<option value="{$bucket_id}" {if $ticket->bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
-						{/if}
-					{/foreach}
-				</select>
-				<br>
-				<br>
-
-				<b>{'display.reply.next.owner'|devblocks_translate}</b><br>
-				<button type="button" class="chooser-abstract" data-field-name="owner_id" data-context="{CerberusContexts::CONTEXT_WORKER}" data-single="true" data-query="isDisabled:n" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
-				<ul class="bubbles chooser-container">
-					{$owner = $workers.{$ticket->owner_id}}
-					{if $owner}
-					<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
-					{/if}
-				</ul>
 			</td>
 		</tr>
 	</table>
@@ -290,7 +294,7 @@
 <fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0px;{/if}">
 	<legend>
 		<label>
-			{'common.custom_fields'|devblocks_translate|capitalize}
+			{'common.update'|devblocks_translate|capitalize}
 		</label>
 	</legend>
 
