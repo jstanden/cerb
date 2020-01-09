@@ -1,7 +1,7 @@
 <b>Header:</b><br>
-<input type="text" name="{$namePrefix}[header]" value="{$params.header}" size="45" style="width:100%;" class="placeholders">
+<textarea name="{$namePrefix}[header]" style="width:100%;" class="placeholders">{$params.header}</textarea>
 <br>
 
 <b>Value:</b><br>
-<input type="text" name="{$namePrefix}[value]" value="{$params.value}" size="45" style="width:100%;" class="placeholders">
+<textarea name="{$namePrefix}[value]" style="width:100%;" class="placeholders">{$params.value}</textarea>
 <br>
