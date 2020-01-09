@@ -2115,6 +2115,12 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			),
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['created'] = array(
 			'label' => mb_ucfirst($translate->_('common.created')),
 			'type' => Model_CustomField::TYPE_DATE,

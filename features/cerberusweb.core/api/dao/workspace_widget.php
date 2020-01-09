@@ -1075,6 +1075,12 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			'value' => $model->zone
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

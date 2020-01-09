@@ -1776,7 +1776,13 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 				'context' => CerberusContexts::CONTEXT_CONTACT
 			],
 		);
-			
+		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['email'] = array(
 			'label' => mb_ucfirst($translate->_('common.email')),
 			'type' => Model_CustomField::TYPE_LINK,

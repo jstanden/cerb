@@ -997,6 +997,12 @@ class Context_CallEntry extends Extension_DevblocksContext implements IDevblocks
 			'value' => $model->updated_date,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

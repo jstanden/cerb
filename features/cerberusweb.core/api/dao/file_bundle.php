@@ -1007,6 +1007,12 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['tag'] = array(
 			'label' => mb_ucfirst($translate->_('common.tag')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

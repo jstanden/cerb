@@ -1818,6 +1818,12 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['send_from'] = array(
 			'label' => mb_ucfirst($translate->_('common.send.from')),
 			'type' => Model_CustomField::TYPE_LINK,

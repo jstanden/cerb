@@ -936,6 +936,12 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['extension_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.type')),
 			'type' => 'extension',

@@ -3268,6 +3268,12 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->calendar_id,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

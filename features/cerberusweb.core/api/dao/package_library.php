@@ -939,6 +939,12 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 			],
 		];
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['description'] = [
 			'label' => mb_ucfirst($translate->_('common.description')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

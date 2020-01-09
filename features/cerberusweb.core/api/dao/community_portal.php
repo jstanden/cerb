@@ -1063,6 +1063,12 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['extension'] = array(
 			'label' => mb_ucfirst($translate->_('common.extension')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

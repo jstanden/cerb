@@ -1792,6 +1792,12 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['mime_type'] = array(
 			'label' => mb_ucfirst($translate->_('attachment.mime_type')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

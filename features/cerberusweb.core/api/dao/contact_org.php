@@ -1512,6 +1512,12 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			),
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['street'] = array(
 			'label' => mb_ucfirst($translate->_('contact_org.street')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

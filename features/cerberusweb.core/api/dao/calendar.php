@@ -1353,6 +1353,12 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['owner'] = array(
 			'label' => mb_ucfirst($translate->_('common.owner')),
 			'type' => Model_CustomField::TYPE_LINK,

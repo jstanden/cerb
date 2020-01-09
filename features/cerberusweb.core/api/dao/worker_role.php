@@ -1165,6 +1165,12 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 			'value' => $model->updated_at,
 		];
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

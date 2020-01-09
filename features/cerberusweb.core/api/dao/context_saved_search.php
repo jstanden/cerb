@@ -948,6 +948,12 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['owner'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.owner'),
 			'type' => Model_CustomField::TYPE_LINK,

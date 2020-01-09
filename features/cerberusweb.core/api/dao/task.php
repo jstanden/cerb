@@ -1308,6 +1308,12 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['status'] = array(
 			'label' => mb_ucfirst($translate->_('common.status')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

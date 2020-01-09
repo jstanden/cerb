@@ -982,7 +982,7 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		);
 		
 		$properties['id'] = array(
-			'label' => $translate->_('common.id'),
+			'label' => DevblocksPlatform::translate('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $model->id,
 		);

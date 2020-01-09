@@ -918,6 +918,12 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['symbol'] = array(
 			'label' => mb_ucfirst($translate->_('dao.currency.symbol')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

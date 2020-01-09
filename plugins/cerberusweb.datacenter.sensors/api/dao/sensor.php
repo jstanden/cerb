@@ -1265,6 +1265,12 @@ class Context_Sensor extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->metric_type,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

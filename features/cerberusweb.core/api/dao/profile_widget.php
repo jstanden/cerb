@@ -1001,6 +1001,12 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['profile_tab_id'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.tab'),
 			'type' => Model_CustomField::TYPE_LINK,

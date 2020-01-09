@@ -1362,6 +1362,12 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 			'value' => $model->updated,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

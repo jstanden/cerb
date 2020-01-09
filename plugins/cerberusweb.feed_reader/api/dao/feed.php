@@ -659,6 +659,12 @@ class Context_Feed extends Extension_DevblocksContext implements IDevblocksConte
 			'value' => $model->url,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

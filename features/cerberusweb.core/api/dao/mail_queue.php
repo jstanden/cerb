@@ -1350,6 +1350,12 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['queue_fails'] = array(
 			'label' => mb_ucfirst($translate->_('mail_queue.queue_fails')),
 			'type' => Model_CustomField::TYPE_NUMBER,

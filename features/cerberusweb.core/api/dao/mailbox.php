@@ -1056,6 +1056,12 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['enabled'] = array(
 			'label' => mb_ucfirst($translate->_('common.enabled')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,

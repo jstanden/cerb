@@ -930,6 +930,12 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['classifier_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.classifier')),
 			'type' => Model_CustomField::TYPE_LINK,

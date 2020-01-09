@@ -959,6 +959,12 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['remind_at'] = array(
 			'label' => mb_ucfirst($translate->_('common.remind_at')),
 			'type' => Model_CustomField::TYPE_DATE,

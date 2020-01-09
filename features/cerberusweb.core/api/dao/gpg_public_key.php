@@ -818,6 +818,12 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['fingerprint'] = array(
 			'label' => mb_ucfirst($translate->_('dao.gpg_public_key.fingerprint')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

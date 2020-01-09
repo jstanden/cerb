@@ -894,6 +894,12 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['context'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.record'),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,

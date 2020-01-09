@@ -1219,7 +1219,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		];
 		
 		$properties['id'] = [
-			'label' => $translate->_('common.id'),
+			'label' => DevblocksPlatform::translate('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $model->id,
 		];

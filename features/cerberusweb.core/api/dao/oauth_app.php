@@ -902,6 +902,12 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['url'] = array(
 			'label' => mb_ucfirst($translate->_('common.url')),
 			'type' => Model_CustomField::TYPE_URL,

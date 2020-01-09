@@ -1048,6 +1048,12 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 			'value' => $model->updated_at,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

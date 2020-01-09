@@ -1174,6 +1174,12 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['calendar_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.calendar')),
 			'type' => Model_CustomField::TYPE_LINK,

@@ -895,6 +895,12 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $model->updated_at,
 		);
+  
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
 		
 		return $properties;
 	}

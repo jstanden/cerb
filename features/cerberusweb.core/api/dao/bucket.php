@@ -990,6 +990,12 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['group'] = array(
 			'label' => mb_ucfirst($translate->_('common.group')),
 			'type' => Model_CustomField::TYPE_LINK,

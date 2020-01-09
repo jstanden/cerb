@@ -923,6 +923,12 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			],
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['is_default'] = array(
 			'label' => mb_ucfirst($translate->_('common.is_default')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,

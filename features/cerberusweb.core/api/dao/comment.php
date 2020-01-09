@@ -1417,6 +1417,12 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			'value' => $model->created,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['is_markdown'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('dao.comment.is_markdown'),
 			'type' => Model_CustomField::TYPE_CHECKBOX,

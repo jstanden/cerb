@@ -788,6 +788,12 @@ class Context_TimeTrackingActivity extends Extension_DevblocksContext implements
 			'value' => $model->updated_at,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

@@ -1278,6 +1278,12 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'value' => $model->time_actual_mins,
 		);
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		return $properties;
 	}
 	

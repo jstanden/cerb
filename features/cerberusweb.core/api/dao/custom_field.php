@@ -2100,6 +2100,12 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		if(is_null($model))
 			$model = new Model_CustomField();
 		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_LINK,

@@ -914,7 +914,13 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 				'context' => CerberusContexts::CONTEXT_CLASSIFIER,
 			),
 		);
-			
+		
+		$properties['id'] = array(
+			'label' => DevblocksPlatform::translate('common.id'),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->id,
+		);
+		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
