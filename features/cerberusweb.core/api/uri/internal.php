@@ -4129,7 +4129,7 @@ class ChInternalController extends DevblocksControllerExtension {
 							$map[$k] = $v['label'];
 						
 						if(array_key_exists('scope', $v) && 'global' == $v['scope'])
-							$map[$k] = '(Global) ' . $map[$k];
+							$map[$k] = '(Common) ' . $map[$k];
 					});
 					
 					$actions_menu = Extension_DevblocksContext::getPlaceholderTree($map);

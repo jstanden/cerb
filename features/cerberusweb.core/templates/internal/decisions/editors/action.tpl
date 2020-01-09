@@ -380,7 +380,7 @@ $(function() {
 		$actions_menu.menu({
 			select: function(event, ui) {
 				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label');
+				var label = ui.item.attr('data-label').replace('(Common) ','');
 				
 				if(undefined == token || undefined == label)
 					return;
