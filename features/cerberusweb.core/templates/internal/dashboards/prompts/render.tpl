@@ -16,6 +16,8 @@
 				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_picklist_single.tpl" prompt=$prompt}
 			{elseif $prompt.type == 'picklist' && $prompt.params.multiple}
 				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_picklist_multiple.tpl" prompt=$prompt}
+			{elseif $prompt.type == 'text'}
+				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_text.tpl" prompt=$prompt}
 			{/if}
 		{/foreach}
 		

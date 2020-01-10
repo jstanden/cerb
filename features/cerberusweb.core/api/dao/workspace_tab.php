@@ -687,6 +687,7 @@ class Model_WorkspaceTab {
 					
 				case 'chooser':
 				case 'date_range':
+				case 'text':
 				default:
 					$prefs[$result['pref_key']] = $result['pref_value'];
 					break;
@@ -712,6 +713,10 @@ class Model_WorkspaceTab {
 					if(@$prompt['params']['multiple']) {
 						$prefs[$pref_key] = json_encode($pref_value);
 					}
+					break;
+					
+				case 'text':
+					$prefs[$pref_key] = str_replace('"','',$pref_value);
 					break;
 					
 				case 'date_range':

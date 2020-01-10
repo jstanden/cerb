@@ -21,6 +21,7 @@ var cerbAutocompleteSuggestions = {
 		'type:': [
 			'date_range',
 			'picklist',
+			'text',
 			'chooser'
 		]
 	},
