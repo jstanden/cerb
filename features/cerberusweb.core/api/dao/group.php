@@ -386,23 +386,34 @@ class DAO_Group extends Cerb_ORMHelper {
 				@$roster_members = DevblocksPlatform::parseCsvString($roster_changes['member']);
 				@$roster_remove = DevblocksPlatform::parseCsvString($roster_changes['remove']);
 				
+				$changed_member_ids = [];
+				
 				if(is_array($roster_managers))
 				foreach($ids as $group_id)
-					foreach($roster_managers as $worker_id)
+					foreach($roster_managers as $worker_id) {
 						DAO_Group::setGroupMember($group_id, $worker_id, true);
+						$changed_member_ids[$worker_id] = $worker_id;
+					}
 				
 				if(is_array($roster_members))
 				foreach($ids as $group_id)
-					foreach($roster_members as $worker_id)
+					foreach($roster_members as $worker_id) {
 						DAO_Group::setGroupMember($group_id, $worker_id, false);
+						$changed_member_ids[$worker_id] = $worker_id;
+					}
 				
 				if(is_array($roster_remove))
 				foreach($ids as $group_id)
-					foreach($roster_remove as $worker_id)
+					foreach($roster_remove as $worker_id) {
 						DAO_Group::unsetGroupMember($group_id, $worker_id);
+						$changed_member_ids[$worker_id] = $worker_id;
+					}
 			}
 			
 			unset($fields[self::_MEMBERS]);
+			
+			foreach($changed_member_ids as $member_id)
+				DAO_WorkerRole::clearWorkerCache($member_id);
 		}
 		
 		// Make a diff for the requested objects in batches
@@ -849,7 +860,6 @@ class DAO_Group extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::CACHE_ALL);
 		$cache->remove(self::CACHE_ROSTERS);
-		DAO_WorkerRole::clearWorkerCache();
 	}
 	
 	public static function random() {

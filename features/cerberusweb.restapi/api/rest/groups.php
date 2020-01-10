@@ -308,6 +308,8 @@ class ChRest_Groups extends Extension_RestController implements IExtensionRestCo
 						DAO_Group::unsetGroupMember($group_id, $worker_id);
 						break;
 				}
+				
+				DAO_WorkerRole::clearWorkerCache($worker_id);
 			}
 		}
 		

@@ -127,26 +127,29 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				$group_members = DAO_Group::getGroupMembers($group_id);
 				
 				// Update group memberships
-				if(is_array($group_memberships))
-				foreach($group_memberships as $member_id => $membership) {
-					$is_member = 0 != $membership;
-					$is_manager = 2 == $membership;
-					
-					// If this worker shouldn't be a member
-					if(!$is_member) {
-						// If they were previously a member, remove them
-						if(isset($group_members[$member_id])) {
-							DAO_Group::unsetGroupMember($group_id, $member_id);
+				if(is_array($group_memberships)) {
+					foreach ($group_memberships as $member_id => $membership) {
+						$is_member = 0 != $membership;
+						$is_manager = 2 == $membership;
+						
+						// If this worker shouldn't be a member
+						if (!$is_member) {
+							// If they were previously a member, remove them
+							if (isset($group_members[$member_id])) {
+								DAO_Group::unsetGroupMember($group_id, $member_id);
+							}
+							
+							// If this worker should be a member/manager
+						} else {
+							DAO_Group::setGroupMember($group_id, $member_id, $is_manager);
+							
+							// If the worker wasn't previously a member/manager
+							if (!isset($group_members[$member_id])) {
+								DAO_Group::setMemberDefaultResponsibilities($group_id, $member_id);
+							}
 						}
 						
-					// If this worker should be a member/manager
-					} else {
-						DAO_Group::setGroupMember($group_id, $member_id, $is_manager);
-						
-						// If the worker wasn't previously a member/manager
-						if(!isset($group_members[$member_id])) {
-							DAO_Group::setMemberDefaultResponsibilities($group_id, $member_id);
-						}
+						DAO_WorkerRole::clearWorkerCache($member_id);
 					}
 				}
 				
