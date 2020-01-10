@@ -2373,6 +2373,12 @@ var ajax = new cAjaxCalls();
 					$editor.autocomplete('search');
 				}
 			});
+
+			$editor.bind('keydown', 'ctrl+shift+.', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$editor.cerbTextEditor('insertText', '#snippet ');
+			});
 		});
 	}
 

@@ -98,7 +98,7 @@
 				</div>
 
 				<button type="button" title="Insert #command" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--commands"><span class="glyphicons glyphicons-sampler"></span></button>
-				<button type="button" title="Insert snippet" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
+				<button type="button" title="Insert snippet (Ctrl+Shift+Period)" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
 				{*<button type="button" title="Track time" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="glyphicons glyphicons-stopwatch"></span></button>*}
 				<button type="button" title="Save draft (Ctrl+S)" data-cerb-key-binding="ctrl+s" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="glyphicons glyphicons-floppy-save"></span></button>
 				<div class="cerb-code-editor-toolbar-divider"></div>
