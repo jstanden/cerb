@@ -896,6 +896,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					
 					default:
 						@$value = $tpl_builder->build($params['value'], $dict);
+						
+						if(!is_numeric($value))
+							$value = time();
+						
 						$dict->_properties['send_at'] = $value ? date('r', $value) : 0;
 						break;
 				}

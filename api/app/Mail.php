@@ -1028,7 +1028,7 @@ class CerberusMail {
 			
 			if($send_at && $send_at >= time()) {
 				// If we're not resuming a draft from the UI, generate a draft
-				if(!$draft_id || false == (DAO_MailQueue::get($draft_id))) {
+				if(false == ($draft = DAO_MailQueue::get($draft_id))) {
 					if (!array_key_exists('subject', $properties))
 						$properties['subject'] = $ticket->subject;
 					
@@ -1051,11 +1051,17 @@ class CerberusMail {
 					}
 					
 				} else {
-					DAO_MailQueue::update($draft_id, [
+					// Update the draft sending date
+					$draft->params['send_at'] = date('r', $send_at);
+					
+					$draft_fields = [
 						DAO_MailQueue::IS_QUEUED => 1,
 						DAO_MailQueue::QUEUE_FAILS => 0,
 						DAO_MailQueue::QUEUE_DELIVERY_DATE => $send_at,
-					]);
+						DAO_MailQueue::PARAMS_JSON => json_encode($draft->params),
+					];
+					
+					DAO_MailQueue::update($draft->id, $draft_fields);
 				}
 				
 				return true;
