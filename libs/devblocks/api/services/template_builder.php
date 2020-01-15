@@ -145,6 +145,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_record_writeable',
 				'cerb_url',
 				'dict_set',
+				'dict_unset',
 				'json_decode',
 				'jsonpath_set',
 				'placeholders_list',
@@ -944,6 +945,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
 			new Twig_SimpleFunction('cerb_url', [$this, 'function_cerb_url']),
 			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
+			new Twig_SimpleFunction('dict_unset', [$this, 'function_dict_unset']),
 			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
 			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
 			new Twig_SimpleFunction('placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
@@ -1144,6 +1146,10 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	function function_dict_set($var, $path, $val) {
 		return DevblocksPlatform::arrayDictSet($var, $path, $val);
+	}
+	
+	function function_dict_unset($var, $path) {
+		return DevblocksPlatform::arrayDictUnset($var, $path);
 	}
 	
 	function function_regexp_match_all($pattern, $text, $group = 0) {

@@ -919,6 +919,52 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $var;
 	}
 	
+	static function arrayDictUnset($var, $paths) {
+		if(empty($var))
+			$var = is_array($var) ? [] : new stdClass();
+		
+		if(!is_array($paths))
+			$paths = [$paths];
+		
+		foreach($paths as $path) {
+			$parts = explode('.', $path);
+			
+			if (empty($path) || 0 == count($parts))
+				continue;
+			
+			$parts_last_idx = array_slice(array_keys($parts), -1)[0];
+			$ptr =& $var;
+			
+			if(is_array($parts))
+			foreach ($parts as $part_idx => $part) {
+				$part = str_replace('{DOT}', '.', $part);
+				
+				if (is_array($ptr)) {
+					if (!isset($ptr[$part]))
+						continue;
+					
+					if ($part_idx == $parts_last_idx) {
+						unset($ptr[$part]);
+					} else {
+						$ptr =& $ptr[$part];
+					}
+					
+				} elseif (is_object($ptr)) {
+					if (!isset($ptr->$part))
+						continue;
+					
+					if ($part_idx == $parts_last_idx) {
+						unset($ptr->$part);
+					} else {
+						$ptr =& $ptr->$part;
+					}
+				}
+			}
+		}
+		
+		return $var;
+	}
+	
 	static function arrayBuildQueryString(array $args, $sort=true, $fix_numeric_indices=true) {
 		if($sort)
 			ksort($args);

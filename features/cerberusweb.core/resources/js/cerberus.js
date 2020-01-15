@@ -1138,6 +1138,7 @@ var ajax = new cAjaxCalls();
 					{ value: "cycle(position)", meta: "function" },
 					{ value: "date(date,timezone)", meta: "function" },
 					{ value: "dict_set(obj,keypath,value)", meta: "function" },
+					{ value: "dict_unset(obj,keypaths)", meta: "function" },
 					{ value: "json_decode(string)", meta: "function" },
 					{ value: "jsonpath_set(json,keypath,value)", meta: "function" },
 					{ value: "max(array)", meta: "function" },

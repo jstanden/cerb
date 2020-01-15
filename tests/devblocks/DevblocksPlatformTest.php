@@ -1370,6 +1370,75 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	public function testArrayDictUnset() {
+		$object = [
+			'person' => [
+				'name' => [
+					'first' => 'Bob',
+					'last' => 'Tester',
+				],
+				'age' => 50,
+			]
+		];
+		
+		// Empty key
+		
+		$actual = DevblocksPlatform::arrayDictUnset($object, null);
+		$this->assertEquals($object, $actual);
+		
+		// Nested dot notation
+		
+		$expected = [
+			'person' => [
+				'name' => [
+					'first' => 'Bob',
+					'last' => 'Tester',
+				],
+			]
+		];
+		
+		$key = "person.age";
+		
+		$actual = DevblocksPlatform::arrayDictUnset($object, $key);
+		$this->assertEquals($expected, $actual);
+		
+		// Chained
+		
+		$expected = [
+			'person' => []
+		];
+		
+		$actual = DevblocksPlatform::arrayDictUnset($object, 'person.name');
+		$actual = DevblocksPlatform::arrayDictUnset($actual, 'person.age');
+		$this->assertEquals($expected, $actual);
+		
+		// Multiple keys
+		
+		$expected = [
+			'person' => []
+		];
+		
+		$actual = DevblocksPlatform::arrayDictUnset($object, ['person.name','person.age']);
+		$this->assertEquals($expected, $actual);
+		
+		// Not found deep key
+		
+		$expected = [
+			'person' => [
+				'name' => [
+					'first' => 'Bob',
+					'last' => 'Tester',
+				],
+				'age' => 50,
+			]
+		];
+		
+		$key = "person.something.invalid";
+		
+		$actual = DevblocksPlatform::arrayDictUnset($object, $key);
+		$this->assertEquals($expected, $actual);
+	}
+	
 	public function testStrParseDecimal() {
 		// comma thousands, no dot, two decimal places
 		$string = '525,000';
