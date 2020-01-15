@@ -3431,6 +3431,7 @@ var ajax = new cAjaxCalls();
 		return this.each(function() {
 			var $cursor = $(this);
 			var $attachments = options['attachmentsContainer'];
+			var $toolbar = options['toolbar'];
 			var $ul = $attachments.find('ul.chooser-container');
 
 			$cursor.on('paste', function(e) {
@@ -3503,6 +3504,11 @@ var ajax = new cAjaxCalls();
 									// Paste at cursor
 									if(file_type.lastIndexOf("image/", 0) === 0) {
 										$cursor.cerbTextEditor('insertText', '![inline-image](' + url + ")\n");
+
+										// Enable formatting if not already
+										if($toolbar && 'object' == typeof $toolbar) {
+											$toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: true }));
+										}
 									}
 
 									// Add to attachments container

@@ -57,7 +57,7 @@
 		</label>
 
 		<div class="cerb-code-editor-toolbar">
-			<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
+			<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
 
 			<div class="cerb-code-editor-subtoolbar-format-html" style="{if !$is_html}display:none;{else}display:inline-block;{/if}">
 				<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
@@ -187,9 +187,6 @@ $(function() {
 		$editor
 			.cerbTextEditor()
 			.cerbTextEditorAutocompleteComments()
-			.cerbTextEditorInlineImagePaster({
-				attachmentsContainer: $attachments
-			})
 			;
 
 		// Comment editor toolbar
@@ -197,20 +194,36 @@ $(function() {
 			.cerbTextEditorToolbarMarkdown()
 			;
 
+		// Paste images
+		$editor.cerbTextEditorInlineImagePaster({
+			attachmentsContainer: $attachments,
+			toolbar: $editor_toolbar
+		})
+
 		// Formatting
-		$editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
+		$editor_toolbar.find('.cerb-editor-toolbar-button--formatting').on('click', function() {
 			var $button = $(this);
 
 			if('html' === $button.attr('data-format')) {
-				$frm.find('input:hidden[name=is_markdown]').val('0');
-				$button.attr('data-format', 'plaintext');
-				$button.text('Formatting off');
-				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+				$editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: false }));
 			} else {
+				$editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: true }));
+			}
+		});
+
+		$editor_toolbar.on('cerb-editor-toolbar-formatting-set', function(e) {
+			var $button = $editor_toolbar.find('.cerb-editor-toolbar-button--formatting');
+
+			if(e.enabled) {
 				$frm.find('input:hidden[name=is_markdown]').val('1');
 				$button.attr('data-format', 'html');
 				$button.text('Formatting on');
 				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+			} else {
+				$frm.find('input:hidden[name=is_markdown]').val('0');
+				$button.attr('data-format', 'plaintext');
+				$button.text('Formatting off');
+				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
 			}
 		});
 

@@ -129,14 +129,18 @@ $(function() {
 		// Editor
 		var $editor = $popup.find('textarea[name=content]')
 			.cerbTextEditor()
-			.cerbTextEditorInlineImagePaster({
-				attachmentsContainer: $attachments
-			})
-		;
+			;
 
 		var $editor_toolbar = $popup.find('.cerb-code-editor-toolbar--article')
 			.cerbTextEditorToolbarMarkdown()
 			;
+
+		// Paste images
+
+		$editor.cerbTextEditorInlineImagePaster({
+			attachmentsContainer: $attachments,
+			toolbar: $editor_toolbar
+		})
 
 		// Upload image
 		$editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {

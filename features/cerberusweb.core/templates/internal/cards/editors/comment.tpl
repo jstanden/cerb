@@ -12,7 +12,7 @@
 
     <div style="display:none;">
         <div class="cerb-code-editor-toolbar">
-            <button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
+            <button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
 
             <div class="cerb-code-editor-subtoolbar-format-html" style="{if $is_html}display:inline-block;{else}display:none;{/if}">
                 <button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
@@ -56,9 +56,6 @@ $(function() {
     var $editor = $container.find('textarea[name=comment]')
         .cerbTextEditor()
         .cerbTextEditorAutocompleteComments()
-        .cerbTextEditorInlineImagePaster({
-            attachmentsContainer: $attachments
-        })
     ;
 
     // Toggle
@@ -81,21 +78,38 @@ $(function() {
         .cerbTextEditorToolbarMarkdown()
     ;
 
+    // Paste images
+
+    $editor.cerbTextEditorInlineImagePaster({
+        attachmentsContainer: $attachments,
+        toolbar: $editor_toolbar
+    });
+
     // Formatting
-    $editor_toolbar.find('.cerb-reply-editor-toolbar-button--formatting').on('click', function() {
+    $editor_toolbar.find('.cerb-editor-toolbar-button--formatting').on('click', function() {
         var $button = $(this);
 
         if('html' === $button.attr('data-format')) {
-            $container.find('input:hidden[name=comment_is_markdown]').val('0');
-            $button.attr('data-format', 'plaintext');
-            $button.text('Formatting off');
-            $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+            $editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: false }));
         } else {
-            $container.find('input:hidden[name=comment_is_markdown]').val('1');
-            $button.attr('data-format', 'html');
-            $button.text('Formatting on');
-            $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+            $editor_toolbar.triggerHandler($.Event('cerb-editor-toolbar-formatting-set', { enabled: true }));
         }
+    });
+
+    $editor_toolbar.on('cerb-editor-toolbar-formatting-set', function(e) {
+       var $button = $editor_toolbar.find('.cerb-editor-toolbar-button--formatting');
+
+       if(e.enabled) {
+           $container.find('input:hidden[name=comment_is_markdown]').val('1');
+           $button.attr('data-format', 'html');
+           $button.text('Formatting on');
+           $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+       } else {
+           $container.find('input:hidden[name=comment_is_markdown]').val('0');
+           $button.attr('data-format', 'plaintext');
+           $button.text('Formatting off');
+           $editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+       }
     });
 
     // Upload image
