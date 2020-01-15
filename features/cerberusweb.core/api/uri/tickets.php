@@ -419,6 +419,9 @@ class ChTicketsPage extends CerberusPageExtension {
 			if(!$to && ($cc || $bcc))
 				throw new Exception_DevblocksAjaxValidationError("'To:' is required if you specify a 'Cc/Bcc:' recipient.");
 			
+			if(!@$properties['group_id'])
+				throw new Exception_DevblocksAjaxValidationError("'From:' is required.");
+			
 			// Validate GPG if used (we need public keys for all recipients)
 			// [TODO] Share this between compose/reply
 			if(array_key_exists('gpg_encrypt', $properties)) {

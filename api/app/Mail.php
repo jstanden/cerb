@@ -1641,7 +1641,11 @@ class CerberusMail {
 								break;
 							
 							default:
-								$line = $group->getReplySignature($bucket->id, $worker, false);
+								if($group instanceof Model_Group) {
+									$line = $group->getReplySignature($bucket->id, $worker, false);
+								} else {
+									$line = null;
+								}
 								break;
 						}
 						break;
@@ -1731,7 +1735,11 @@ class CerberusMail {
 								break;
 							
 							default:
-								$line = $group->getReplySignature($bucket_id, $worker, false);
+								if($group instanceof Model_Group) {
+									$line = $group->getReplySignature($bucket_id, $worker, false);
+								} else {
+									$line = null;
+								}
 								break;
 						}
 						break;
@@ -1861,10 +1869,11 @@ class CerberusMail {
 								break;
 							
 							default:
-								if($group instanceof Model_Group)
+								if($group instanceof Model_Group) {
 									$line = $group->getReplySignature($bucket_id, $worker, false);
-								else
-									$line = '';
+								} else {
+									$line = null;
+								}
 								break;
 						}
 						break;
