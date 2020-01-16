@@ -265,10 +265,12 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							];
 							break;
 							
+						case 'hour':
 						case 'day':
 						case 'month':
 						case 'year':
 							$date_format = [
+								'hour' => '%Y-%m-%d %H:00',
 								'day' => '%Y-%m-%d',
 								'month' => '%Y-%m',
 								'year' => '%Y',
@@ -411,10 +413,12 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						];
 						break;
 						
+					case 'hour':
 					case 'day':
 					case 'month':
 					case 'year':
 						$date_format = [
+							'hour' => '%Y-%m-%d %H:00',
 							'day' => '%Y-%m-%d',
 							'month' => '%Y-%m',
 							'year' => '%Y',

@@ -449,6 +449,9 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							$from_date = $to_date = $query_value;
 							
 							switch($by['timestamp_step']) {
+								case 'hour':
+									$to_date = str_replace(':00',':59:59',$from_date);
+									break;
 								case 'day':
 									$to_date .= ' 23:59:59';
 									break;
