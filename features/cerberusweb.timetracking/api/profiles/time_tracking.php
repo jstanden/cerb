@@ -46,6 +46,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
 			@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'integer',0);
 			
+			@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
+			
 			// Date
 			@$log_date = DevblocksPlatform::importGPC($_REQUEST['log_date'],'string','now');
 			if(false == (@$log_date = strtotime($log_date)))
@@ -126,7 +128,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 								$time_actual_mins,
 								$translate->_('timetracking.ui.comment.activity'),
 								(!empty($activity) ? $activity->name : ''),
-								(!empty($comment) ? sprintf("%s: %s\n", $translate->_('common.comment'), $comment) : ''),
+								(!empty($comment) ? sprintf("%s: %s\n", DevblocksPlatform::translateCapitalized('common.comment'), $comment) : ''),
 								$url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $id), true)
 							);
 							$fields = array(
