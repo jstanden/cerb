@@ -2168,6 +2168,16 @@
 				<seg>points</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.policies">
+			<tuv xml:lang="en_US">
+				<seg>policies</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.policy">
+			<tuv xml:lang="en_US">
+				<seg>policy</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.portal">
 			<tuv xml:lang="en_US">
 				<seg>portal</seg>

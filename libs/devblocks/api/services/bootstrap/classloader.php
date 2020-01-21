@@ -143,6 +143,10 @@ class _DevblocksClassLoadManager {
 	}
 	
 	private function _initServices() {
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/automation.php', [
+			'CerbAutomationPolicy',
+		]);
+		$this->registerAutoloadPath(DEVBLOCKS_PATH . 'api/services/automation/', 'Cerb\\AutomationBuilder\\');
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/bayes_classifier.php', array(
 			'_DevblocksBayesClassifierService',
 		));
