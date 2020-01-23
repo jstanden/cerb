@@ -123,13 +123,15 @@ class _DevblocksDateManager {
 					&& false == $from_date_parts['hour']
 					&& false == $from_date_parts['minute']
 					&& false == $from_date_parts['second']
+					&& (!array_key_exists('relative', $from_date_parts)
+						|| '0:0:0' == implode(':', [$from_date_parts['relative']['hour'], $from_date_parts['relative']['minute'], $from_date_parts['relative']['second']]))
 					&& '0:0:0' != implode(':', [$from_date_parts['hour'], $from_date_parts['minute'], $from_date_parts['second']])
 				) {
 					$from_date .= ' 00:00:00';
 				}
 				
 				if(false === ($from_date = strtotime($from_date)))
-					$from_date = -1;
+					$from_date = 0;
 			}
 		}
 		
@@ -150,7 +152,9 @@ class _DevblocksDateManager {
 					&& false == $to_date_parts['hour']
 					&& false == $to_date_parts['minute']
 					&& false == $to_date_parts['second']
-					&& '23:59:59' != implode(':', [$from_date_parts['hour'], $from_date_parts['minute'], $from_date_parts['second']])
+					&& (!array_key_exists('relative', $to_date_parts)
+						|| '0:0:0' == implode(':', [$to_date_parts['relative']['hour'], $to_date_parts['relative']['minute'], $to_date_parts['relative']['second']]))
+					&& '23:59:59' != implode(':', [$to_date_parts['hour'], $to_date_parts['minute'], $to_date_parts['second']])
 				) {
 					$to_date .= ' 23:59:59';
 				}

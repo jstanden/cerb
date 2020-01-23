@@ -14,7 +14,7 @@ class DevblocksDateTest extends PHPUnit_Framework_TestCase {
 			strtotime('Dec 31 2019 23:59:59')
 		];
 		
-		$results = $date->parseDateRange('Jan 1 2019 to Dec 31 2019');;
+		$results = $date->parseDateRange('Jan 1 2019 to Dec 31 2019');
 		
 		$this->assertTrue(is_array($results));
 		
@@ -97,6 +97,168 @@ class DevblocksDateTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertEquals($expected, $actual);
 		
+		// Big bang, relative seconds, string input, explicit end time
+		
+		$expected = [
+			0,
+			strtotime('-30 seconds')
+		];
+		
+		$results = $date->parseDateRange('big bang to -30 secs');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Big bang, relative mins, string input, explicit end time
+		
+		$expected = [
+			0,
+			strtotime('-5 minutes')
+		];
+		
+		$results = $date->parseDateRange('big bang to -5 mins');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Big bang, relative start, string input
+		
+		$expected = [
+			strtotime('-10 minutes'),
+			time()
+		];
+		
+		$results = $date->parseDateRange('-10 mins to now');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Big bang, relative start, string input
+		
+		$expected = [
+			strtotime('-10 minutes'),
+			time()
+		];
+		
+		$results = $date->parseDateRange('-10 mins to now');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Big bang, relative hours, string input, explicit end time
+		
+		$expected = [
+			0,
+			strtotime('-6 hours')
+		];
+		
+		$results = $date->parseDateRange('big bang to -6 hours');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Big bang, relative days, string input, explicit end time
+		
+		$expected = [
+			0,
+			strtotime('-2 days 23:59:59')
+		];
+		
+		$results = $date->parseDateRange('big bang to -2 days');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Relative hours range, string input, explicit start/end time
+		
+		$expected = [
+			strtotime('-12 hours'),
+			strtotime('-6 hours')
+		];
+		
+		$results = $date->parseDateRange('-12 hours to -6 hours');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Relative compound range, string input
+		
+		$expected = [
+			strtotime('-12 hours 30 mins'),
+			strtotime('-6 hours 15 mins 20 seconds')
+		];
+		
+		$results = $date->parseDateRange('-12 hours 30 mins to -6 hours 15 mins 20 secs');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Relative compound range, string input
+		
+		$expected = [
+			strtotime('-2 days 08:00:00'),
+			strtotime('-1 day 12:00:00')
+		];
+		
+		$results = $date->parseDateRange('-2 days 8am to -1 day noon');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
 		// Relative and current days, string input, implied times
 		
 		$expected = [
@@ -105,6 +267,24 @@ class DevblocksDateTest extends PHPUnit_Framework_TestCase {
 		];
 		
 		$results = $date->parseDateRange('yesterday to now');
+		
+		$this->assertTrue(is_array($results));
+		
+		$actual = [
+			$results['from_ts'],
+			$results['to_ts'],
+		];
+		
+		$this->assertEquals($expected, $actual);
+		
+		// Relative and current days, string input, implied times
+		
+		$expected = [
+			strtotime('-2 days 03:00:00'),
+			strtotime('yesterday 03:00:00')
+		];
+		
+		$results = $date->parseDateRange('-2 days 3am to yesterday +3 hours');
 		
 		$this->assertTrue(is_array($results));
 		
