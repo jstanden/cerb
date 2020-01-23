@@ -194,7 +194,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
 						$id = DAO_WorkspaceTab::create($fields);
-						DAO_WorkspaceTab::onUpdateByActor($active_worker, $id, $fields);
+						DAO_WorkspaceTab::onUpdateByActor($active_worker, $fields, $id);
 						
 						if(false == ($tab = DAO_WorkspaceTab::get($id)))
 							throw new Exception_DevblocksAjaxValidationError("Failed to load tab.");
@@ -238,7 +238,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							$id = DAO_WorkspaceTab::create($fields);
-							DAO_WorkspaceTab::onUpdateByActor($active_worker, $id, $fields);
+							DAO_WorkspaceTab::onUpdateByActor($active_worker, $fields, $id);
 							
 							if(!empty($view_id) && !empty($id))
 								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_TAB, $id);
@@ -256,7 +256,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							DAO_WorkspaceTab::update($id, $fields);
-							DAO_WorkspaceTab::onUpdateByActor($active_worker, $id, $fields);
+							DAO_WorkspaceTab::onUpdateByActor($active_worker, $fields, $id);
 						}
 						
 						$tab_url = $url_writer->write(sprintf('ajax.php?c=pages&a=showWorkspaceTab&id=%d&_csrf_token=%s', $id, $_SESSION['csrf_token']));

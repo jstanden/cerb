@@ -71,7 +71,7 @@ class PageSection_ProfilesTimeTrackingActivity extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_TimeTrackingActivity::create($fields);
-					DAO_TimeTrackingActivity::onUpdateByActor($active_worker, $id, $fields);
+					DAO_TimeTrackingActivity::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TIMETRACKING_ACTIVITY, $id);
@@ -89,7 +89,7 @@ class PageSection_ProfilesTimeTrackingActivity extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_TimeTrackingActivity::update($id, $fields);
-					DAO_TimeTrackingActivity::onUpdateByActor($active_worker, $id, $fields);
+					DAO_TimeTrackingActivity::onUpdateByActor($active_worker, $fields, $id);
 					
 				}
 	

@@ -158,7 +158,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
 						$id = DAO_CardWidget::create($fields);
-						DAO_CardWidget::onUpdateByActor($active_worker, $id, $fields);
+						DAO_CardWidget::onUpdateByActor($active_worker, $fields, $id);
 						
 						if(!empty($view_id) && !empty($id))
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CARD_WIDGET, $id);
@@ -204,7 +204,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							$id = DAO_CardWidget::create($fields);
-							DAO_CardWidget::onUpdateByActor($active_worker, $id, $fields);
+							DAO_CardWidget::onUpdateByActor($active_worker, $fields, $id);
 							
 							if(!empty($view_id) && !empty($id))
 								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CARD_WIDGET, $id);
@@ -233,7 +233,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							DAO_CardWidget::update($id, $fields);
-							DAO_CardWidget::onUpdateByActor($active_worker, $id, $fields);
+							DAO_CardWidget::onUpdateByActor($active_worker, $fields, $id);
 						}
 						
 						if($id) {

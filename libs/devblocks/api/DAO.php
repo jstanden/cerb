@@ -69,6 +69,7 @@ abstract class DevblocksORMHelper {
 	
 	/**
 	 * @abstract
+	 * @param mixed $actor
 	 * @param array $fields
 	 * @param integer $id
 	 */

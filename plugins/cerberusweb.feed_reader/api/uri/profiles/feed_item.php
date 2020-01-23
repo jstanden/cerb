@@ -68,7 +68,7 @@ class PageSection_ProfilesFeedItem extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_FeedItem::create($fields);
-					DAO_FeedItem::onUpdateByActor($active_worker, $id, $fields);
+					DAO_FeedItem::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_FEED_ITEM, $id);
@@ -86,7 +86,7 @@ class PageSection_ProfilesFeedItem extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_FeedItem::update($id, $fields);
-					DAO_FeedItem::onUpdateByActor($active_worker, $id, $fields);
+					DAO_FeedItem::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom field saves

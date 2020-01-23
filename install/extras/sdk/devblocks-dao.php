@@ -1571,7 +1571,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_<?php echo $class_name; ?>::create($fields);
-					DAO_<?php echo $class_name; ?>::onUpdateByActor($active_worker, $id, $fields);
+					DAO_<?php echo $class_name; ?>::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, '<?php echo $ctx_ext_id; ?>', $id);
@@ -1589,7 +1589,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_<?php echo $class_name; ?>::update($id, $fields);
-					DAO_<?php echo $class_name; ?>::onUpdateByActor($active_worker, $id, $fields);
+					DAO_<?php echo $class_name; ?>::onUpdateByActor($active_worker, $fields, $id);
 					
 				}
 				

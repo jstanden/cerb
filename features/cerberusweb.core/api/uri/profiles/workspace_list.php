@@ -72,7 +72,7 @@ class PageSection_ProfilesWorkspaceList extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_WorkspaceList::create($fields);
-					DAO_WorkspaceList::onUpdateByActor($active_worker, $id, $fields);
+					DAO_WorkspaceList::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_WORKLIST, $id);
@@ -92,7 +92,7 @@ class PageSection_ProfilesWorkspaceList extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_WorkspaceList::update($id, $fields);
-					DAO_WorkspaceList::onUpdateByActor($active_worker, $id, $fields);
+					DAO_WorkspaceList::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom field saves

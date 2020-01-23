@@ -76,7 +76,7 @@ class PageSection_ProfilesJiraProject extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_JiraProject::create($fields);
-					DAO_JiraProject::onUpdateByActor($active_worker, $id, $fields);
+					DAO_JiraProject::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.jira.project', $id);
@@ -97,7 +97,7 @@ class PageSection_ProfilesJiraProject extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_JiraProject::update($id, $fields);
-					DAO_JiraProject::onUpdateByActor($active_worker, $id, $fields);
+					DAO_JiraProject::onUpdateByActor($active_worker, $fields, $id);
 					
 				}
 				

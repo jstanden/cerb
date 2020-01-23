@@ -75,7 +75,7 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_ContextScheduledBehavior::create($fields);
-					DAO_ContextScheduledBehavior::onUpdateByActor($active_worker, $id, $fields);
+					DAO_ContextScheduledBehavior::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED, $id);
@@ -96,7 +96,7 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_ContextScheduledBehavior::update($id, $fields);
-					DAO_ContextScheduledBehavior::onUpdateByActor($active_worker, $id, $fields);
+					DAO_ContextScheduledBehavior::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// Custom field saves

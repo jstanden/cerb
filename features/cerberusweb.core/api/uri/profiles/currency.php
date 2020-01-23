@@ -77,7 +77,7 @@ class PageSection_ProfilesCurrency extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_Currency::create($fields);
-					DAO_Currency::onUpdateByActor($active_worker, $id, $fields);
+					DAO_Currency::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_CURRENCY, $id);
@@ -99,7 +99,7 @@ class PageSection_ProfilesCurrency extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_Currency::update($id, $fields);
-					DAO_Currency::onUpdateByActor($active_worker, $id, $fields);
+					DAO_Currency::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				if($id) {

@@ -109,7 +109,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					$id = DAO_PackageLibrary::create($fields);
-					DAO_PackageLibrary::onUpdateByActor($active_worker, $id, $fields);
+					DAO_PackageLibrary::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PACKAGE, $id);
@@ -132,7 +132,7 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_PackageLibrary::update($id, $fields);
-					DAO_PackageLibrary::onUpdateByActor($active_worker, $id, $fields);
+					DAO_PackageLibrary::onUpdateByActor($active_worker, $fields, $id);
 					
 				}
 				

@@ -80,7 +80,7 @@ class PageSection_ProfilesOAuthApp extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 						
 					$id = DAO_OAuthApp::create($fields);
-					DAO_OAuthApp::onUpdateByActor($active_worker, $id, $fields);
+					DAO_OAuthApp::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, Context_OAuthApp::ID, $id);
@@ -103,7 +103,7 @@ class PageSection_ProfilesOAuthApp extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					DAO_OAuthApp::update($id, $fields);
-					DAO_OAuthApp::onUpdateByActor($active_worker, $id, $fields);
+					DAO_OAuthApp::onUpdateByActor($active_worker, $fields, $id);
 					
 				}
 	

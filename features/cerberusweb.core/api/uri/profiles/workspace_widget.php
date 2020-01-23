@@ -172,7 +172,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
 						$id = DAO_WorkspaceWidget::create($fields);
-						DAO_WorkspaceWidget::onUpdateByActor($active_worker, $id, $fields);
+						DAO_WorkspaceWidget::onUpdateByActor($active_worker, $fields, $id);
 						
 						if(!empty($view_id) && !empty($id))
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $id);
@@ -209,7 +209,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							$id = DAO_WorkspaceWidget::create($fields);
-							DAO_WorkspaceWidget::onUpdateByActor($active_worker, $id, $fields);
+							DAO_WorkspaceWidget::onUpdateByActor($active_worker, $fields, $id);
 							
 							if(!empty($view_id) && !empty($id))
 								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $id);
@@ -229,7 +229,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							DAO_WorkspaceWidget::update($id, $fields);
-							DAO_WorkspaceWidget::onUpdateByActor($active_worker, $id, $fields);
+							DAO_WorkspaceWidget::onUpdateByActor($active_worker, $fields, $id);
 						}
 						
 						// Widget extensions
