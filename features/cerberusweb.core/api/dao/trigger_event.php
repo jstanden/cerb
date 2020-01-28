@@ -964,7 +964,7 @@ class Model_TriggerEvent {
 				settype($value, 'integer');
 				
 				// Also add a key for the context when suffixed `_id`
-				if($context && DevblocksPlatform::strEndsWith($var['key'], '_id')) {
+				if($dict instanceof DevblocksDictionaryDelegate && $context && DevblocksPlatform::strEndsWith($var['key'], '_id')) {
 					$ctx_key = mb_substr($var['key'], 0, -3) . '__context';
 					$dict->set($ctx_key, $context);
 				}
