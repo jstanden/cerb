@@ -664,10 +664,18 @@ class Cerb_Packages {
 		foreach($workspaces as $workspace) {
 			$uid = $workspace['uid'];
 			
+			@$owner_context = $workspace['owner__context'];
+			@$owner_context_id = $workspace['owner_id'];
+			
+			if(!$owner_context) {
+				$owner_context = CerberusContexts::CONTEXT_APPLICATION;
+				$owner_context_id = 0;
+			}
+			
 			$workspace_id = DAO_WorkspacePage::create([
 				DAO_WorkspacePage::NAME => $workspace['name'],
-				DAO_WorkspacePage::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
-				DAO_WorkspacePage::OWNER_CONTEXT_ID => 0,
+				DAO_WorkspacePage::OWNER_CONTEXT => $owner_context,
+				DAO_WorkspacePage::OWNER_CONTEXT_ID => $owner_context_id,
 			]);
 			
 			$uids[$uid] = $workspace_id;
