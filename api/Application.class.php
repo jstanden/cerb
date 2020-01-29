@@ -547,8 +547,7 @@ class CerberusApplication extends DevblocksApplication {
 	 * @return string
 	 * @test CerberusApplicationTest
 	 */
-	static function generatePassword($length=8) {
-		$chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
+	static function generatePassword($length=8, $chars='ABCDEFGHJKLMNPQRSTUVWXYZ123456789') {
 		$len = strlen($chars)-1;
 		$password = '';
 
