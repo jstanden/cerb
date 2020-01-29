@@ -790,6 +790,14 @@ class DAO_Worker extends Cerb_ORMHelper {
 	 * @param integer $id
 	 */
 	static public function onUpdateByActor($actor, $fields, $id) {
+		// If we set 'email_id', link the address
+		if(array_key_exists(DAO_Worker::EMAIL_ID, $fields) && $fields[DAO_Worker::EMAIL_ID]) {
+			DAO_Address::update($fields[DAO_Worker::EMAIL_ID], [
+				DAO_Address::MAIL_TRANSPORT_ID => 0,
+				DAO_Address::WORKER_ID => $id,
+			]);
+		}
+		
 		// Rebuild all role rosters
 		DAO_WorkerRole::updateRosters();
 	}
