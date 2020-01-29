@@ -407,7 +407,7 @@ class DevblocksCacheEngine_Disk extends Extension_DevblocksCacheEngine {
 			return false;
 		
 		// Set the permissions more securely
-		chmod($cache_file, 0660);
+		@chmod($cache_file, 0660);
 		
 		fclose($fp);
 		
