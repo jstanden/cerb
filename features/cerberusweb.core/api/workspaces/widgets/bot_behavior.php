@@ -46,7 +46,7 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 				if(!isset($widget_behavior->variables[$k]))
 					continue;
 				
-				$value = $widget_behavior->formatVariable($widget_behavior->variables[$k], $v);
+				$value = $widget_behavior->formatVariable($widget_behavior->variables[$k], $v, $dict);
 				$dict->set($k, $value);
 			}
 		}
