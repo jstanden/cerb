@@ -66,7 +66,7 @@ class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 				if(!isset($behavior->variables[$k]))
 					continue;
 				
-				$value = $behavior->formatVariable($behavior->variables[$k], $v);
+				$value = $behavior->formatVariable($behavior->variables[$k], $v, $dict);
 				$dict->set($k, $value);
 			}
 		}
