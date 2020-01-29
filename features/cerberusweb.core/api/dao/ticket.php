@@ -5201,6 +5201,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				if(is_array($reqs))
 				foreach($reqs as $req) { /* @var $req Model_Address */
 					$values['requesters'][$req->id] = array(
+						'id' => $req->id,
 						'email' => $req->email,
 						'name' => $req->getName(),
 						'contact_id' => $req->contact_id,
