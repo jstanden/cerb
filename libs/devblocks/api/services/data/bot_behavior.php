@@ -81,7 +81,7 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 				if(!isset($data_behavior->variables[$k]))
 					continue;
 				
-				$value = $data_behavior->formatVariable($data_behavior->variables[$k], $v);
+				$value = $data_behavior->formatVariable($data_behavior->variables[$k], $v, $dict);
 				$dict->set($k, $value);
 			}
 		}
