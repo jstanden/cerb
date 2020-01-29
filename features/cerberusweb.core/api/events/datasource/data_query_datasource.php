@@ -187,16 +187,25 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 	
 	function renderActionExtension($token, $trigger, $params=[], $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('params', $params);
-
+		
 		if(!is_null($seq))
 			$tpl->assign('namePrefix','action'.$seq);
 
 		$labels = $this->getLabels($trigger);
 		$tpl->assign('token_labels', $labels);
-			
+		
 		switch($token) {
 			case 'return_data':
+				if(is_null($params)) {
+					$params['data'] = "{% set json = {\n".
+						"\t\"results\": [\n".
+						"\t]\n".
+						"} %}\n".
+						"{{json|json_encode|json_pretty}}"
+					;
+				}
+				
+				$tpl->assign('params', $params);
 				$tpl->display('devblocks:cerberusweb.core::events/datasource/action_return_data.tpl');
 				break;
 		}
