@@ -458,7 +458,7 @@ if(!isset($columns['is_default'])) {
 	
 	foreach($lists as $list) {
 		$list_id = $list['id'];
-		$list_view = unserialize($list['list_view']);
+		@$list_view = unserialize($list['list_view']);
 		
 		if(
 			_700_migrate_inbox_buckets($list_view->params, $group_inboxes)
