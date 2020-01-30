@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
+namespace Twig;
+
 /**
  * Holds information about a non-compiled Twig template.
  *
- * @final
- *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Twig_Source
+final class Source
 {
     private $code;
     private $name;
@@ -27,24 +27,24 @@ class Twig_Source
      * @param string $name The template logical name
      * @param string $path The filesystem path of the template if any
      */
-    public function __construct($code, $name, $path = '')
+    public function __construct(string $code, string $name, string $path = '')
     {
         $this->code = $code;
         $this->name = $name;
         $this->path = $path;
     }
 
-    public function getCode()
+    public function getCode(): string
     {
         return $this->code;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }

@@ -10,18 +10,16 @@
  * file that was distributed with this source code.
  */
 
+namespace Twig;
+
 /**
- * Represents a Token.
- *
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @final
  */
-class Twig_Token
+final class Token
 {
-    protected $value;
-    protected $type;
-    protected $lineno;
+    private $value;
+    private $type;
+    private $lineno;
 
     const EOF_TYPE = -1;
     const TEXT_TYPE = 0;
@@ -36,13 +34,9 @@ class Twig_Token
     const PUNCTUATION_TYPE = 9;
     const INTERPOLATION_START_TYPE = 10;
     const INTERPOLATION_END_TYPE = 11;
+    const ARROW_TYPE = 12;
 
-    /**
-     * @param int    $type   The type of the token
-     * @param string $value  The token value
-     * @param int    $lineno The line position in the source
-     */
-    public function __construct($type, $value, $lineno)
+    public function __construct(int $type, $value, int $lineno)
     {
         $this->type = $type;
         $this->value = $value;
@@ -62,58 +56,39 @@ class Twig_Token
      *  * type and value (or array of possible values)
      *  * just value (or array of possible values) (NAME_TYPE is used as type)
      *
-     * @param array|int         $type   The type to test
+     * @param array|string|int  $type   The type to test
      * @param array|string|null $values The token value
-     *
-     * @return bool
      */
-    public function test($type, $values = null)
+    public function test($type, $values = null): bool
     {
-        if (null === $values && !is_int($type)) {
+        if (null === $values && !\is_int($type)) {
             $values = $type;
             $type = self::NAME_TYPE;
         }
 
         return ($this->type === $type) && (
             null === $values ||
-            (is_array($values) && in_array($this->value, $values)) ||
+            (\is_array($values) && \in_array($this->value, $values)) ||
             $this->value == $values
         );
     }
 
-    /**
-     * @return int
-     */
-    public function getLine()
+    public function getLine(): int
     {
         return $this->lineno;
     }
 
-    /**
-     * @return int
-     */
-    public function getType()
+    public function getType(): int
     {
         return $this->type;
     }
 
-    /**
-     * @return string
-     */
     public function getValue()
     {
         return $this->value;
     }
 
-    /**
-     * Returns the constant representation (internal) of a given type.
-     *
-     * @param int  $type  The type as an integer
-     * @param bool $short Whether to return a short representation or not
-     *
-     * @return string The string representation
-     */
-    public static function typeToString($type, $short = false)
+    public static function typeToString(int $type, bool $short = false): string
     {
         switch ($type) {
             case self::EOF_TYPE:
@@ -155,21 +130,17 @@ class Twig_Token
             case self::INTERPOLATION_END_TYPE:
                 $name = 'INTERPOLATION_END_TYPE';
                 break;
+            case self::ARROW_TYPE:
+                $name = 'ARROW_TYPE';
+                break;
             default:
-                throw new LogicException(sprintf('Token of type "%s" does not exist.', $type));
+                throw new \LogicException(sprintf('Token of type "%s" does not exist.', $type));
         }
 
-        return $short ? $name : 'Twig_Token::'.$name;
+        return $short ? $name : 'Twig\Token::'.$name;
     }
 
-    /**
-     * Returns the English representation of a given type.
-     *
-     * @param int $type The type as an integer
-     *
-     * @return string The string representation
-     */
-    public static function typeToEnglish($type)
+    public static function typeToEnglish(int $type): string
     {
         switch ($type) {
             case self::EOF_TYPE:
@@ -198,8 +169,10 @@ class Twig_Token
                 return 'begin of string interpolation';
             case self::INTERPOLATION_END_TYPE:
                 return 'end of string interpolation';
+            case self::ARROW_TYPE:
+                return 'arrow function';
             default:
-                throw new LogicException(sprintf('Token of type "%s" does not exist.', $type));
+                throw new \LogicException(sprintf('Token of type "%s" does not exist.', $type));
         }
     }
 }

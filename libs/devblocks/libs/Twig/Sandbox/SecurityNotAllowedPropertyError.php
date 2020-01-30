@@ -9,24 +9,26 @@
  * file that was distributed with this source code.
  */
 
+namespace Twig\Sandbox;
+
 /**
  * Exception thrown when a not allowed class property is used in a template.
  *
  * @author Kit Burton-Senior <mail@kitbs.com>
  */
-class Twig_Sandbox_SecurityNotAllowedPropertyError extends Twig_Sandbox_SecurityError
+final class SecurityNotAllowedPropertyError extends SecurityError
 {
     private $className;
     private $propertyName;
 
-    public function __construct($message, $className, $propertyName, $lineno = -1, $filename = null, Exception $previous = null)
+    public function __construct(string $message, string $className, string $propertyName)
     {
-        parent::__construct($message, $lineno, $filename, $previous);
+        parent::__construct($message);
         $this->className = $className;
         $this->propertyName = $propertyName;
     }
 
-    public function getClassName()
+    public function getClassName(): string
     {
         return $this->className;
     }
