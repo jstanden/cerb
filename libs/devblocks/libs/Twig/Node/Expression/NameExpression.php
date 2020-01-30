@@ -38,9 +38,12 @@ class NameExpression extends AbstractExpression
                 $compiler->repr(true);
             } elseif (\PHP_VERSION_ID >= 700400) {
                 $compiler
-                    ->raw('array_key_exists(')
+                    ->raw('(array_key_exists(')
                     ->string($name)
-                    ->raw(', $context)')
+                    ->raw(', $context) || !is_null(')
+					->raw('$this->env->getUndefinedVariable(')
+                    ->string($name)
+                    ->raw(')))')
                 ;
             } else {
                 $compiler
@@ -48,7 +51,10 @@ class NameExpression extends AbstractExpression
                     ->string($name)
                     ->raw(']) || array_key_exists(')
                     ->string($name)
-                    ->raw(', $context))')
+                    ->raw(', $context) || !is_null(')
+					->raw('$this->env->getUndefinedVariable(')
+                    ->string($name)
+					->raw(')))')
                 ;
             }
         } elseif ($this->isSpecial()) {
@@ -64,7 +70,10 @@ class NameExpression extends AbstractExpression
                 $compiler
                     ->raw('($context[')
                     ->string($name)
-                    ->raw('] ?? null)')
+                    ->raw('] ?? ')
+                    ->raw('$this->env->getUndefinedVariable(')
+                    ->string($name)
+                    ->raw('))')
                 ;
             } else {
                 $compiler

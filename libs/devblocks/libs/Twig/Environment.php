@@ -719,6 +719,26 @@ class Environment
     {
         $this->extensionSet->registerUndefinedFunctionCallback($callable);
     }
+    
+    public function registerUndefinedVariableCallback(callable $callable)
+    {
+        $this->extensionSet->registerUndefinedVariableCallback($callable);
+    }
+	
+	/**
+	 * Attempts to get a value for an undefined variable from a callback.
+	 *
+	 * @param string $name The undefined variable
+	 * @return mixed
+	 */
+	public function getUndefinedVariable($name)
+	{
+		return $this->extensionSet->getVariable($name);
+	}
+	
+	public function getUndefinedVariableCallbacks() {
+		return $this->extensionSet->getUndefinedVariableCallbacks();
+	}
 
     /**
      * Gets registered functions.
