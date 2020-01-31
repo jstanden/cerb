@@ -1827,6 +1827,24 @@ class DevblocksSearchCriteria {
 			$oper = null;
 			$value = null;
 			CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
+			
+			if(is_array($value) && 1 == count($value)) {
+				if(in_array($value[0], ['*','yes','y','true','any','y'])) {
+					return new DevblocksSearchCriteria(
+						$search_field_key,
+						DevblocksSearchCriteria::OPER_IS_NOT_NULL,
+						[]
+					);
+				}
+				
+				if(in_array($value[0], ['null','no','n','none'])) {
+					return new DevblocksSearchCriteria(
+						$search_field_key,
+						DevblocksSearchCriteria::OPER_IS_NULL,
+						[]
+					);
+				}
+			}
 
 			$opers_valid = [
 				DevblocksSearchCriteria::OPER_IN => true,

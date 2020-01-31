@@ -816,12 +816,12 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 			);
 		}
 		
-		if($param->operator != DevblocksSearchCriteria::OPER_TRUE) {
+		if(!in_array($param->operator, [DevblocksSearchCriteria::OPER_TRUE, DevblocksSearchCriteria::OPER_IS_NOT_NULL])) {
 			if(empty($param->value) || !is_array($param->value))
 				$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
 		}
 		
-		$where_contexts = array();
+		$where_contexts = [];
 		
 		if(is_array($param->value))
 		foreach($param->value as $context_data) {
@@ -831,7 +831,7 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 				return;
 			
 			if(!isset($where_contexts[$context]))
-				$where_contexts[$context] = array();
+				$where_contexts[$context] = [];
 			
 			if($context_id)
 				$where_contexts[$context][] = $context_id;
@@ -839,10 +839,20 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 		
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_TRUE:
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				return sprintf("EXISTS (SELECT 1 FROM attachment_link WHERE attachment_link.attachment_id=%s) ",
+					$pkey
+				);
 				break;
-	
+				
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				return sprintf("NOT EXISTS (SELECT 1 FROM attachment_link WHERE attachment_link.attachment_id=%s) ",
+					$pkey
+				);
+				break;
+				
 			case DevblocksSearchCriteria::OPER_IN:
-				$where_sqls = array();
+				$where_sqls = [];
 				
 				foreach($where_contexts as $context => $ids) {
 					$ids = DevblocksPlatform::sanitizeArray($ids, 'integer');
@@ -1591,7 +1601,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 				
 			case SearchFields_Attachment::VIRTUAL_ON:
-				$this->_renderVirtualContextLinks($param, 'On', 'On', 'On');
+				$this->_renderVirtualContextLinks($param, 'On', 'On', 'On', 'attachment links');
 				break;
 		}
 	}
