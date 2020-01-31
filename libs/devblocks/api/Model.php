@@ -947,7 +947,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			}
 		}
 		
-		if($param->operator != DevblocksSearchCriteria::OPER_TRUE) {
+		if(!in_array($param->operator,[DevblocksSearchCriteria::OPER_TRUE, DevblocksSearchCriteria::OPER_IS_NOT_NULL])) {
 			if(empty($param->value) || !is_array($param->value))
 				$param->operator = DevblocksSearchCriteria::OPER_IS_NULL;
 		}
@@ -970,15 +970,18 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 		
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_TRUE:
-				break;
-	
-			case DevblocksSearchCriteria::OPER_IS_NULL:
-				/*
-				$where_sql .= sprintf("AND (SELECT count(*) FROM context_link WHERE context_link.to_context=%s AND context_link.to_context_id=%s) = 0 ",
-					self::qstr($to_context),
-					$to_index
+			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
+				return sprintf("EXISTS (SELECT 1 FROM context_link WHERE context_link.to_context=%s AND context_link.to_context_id=%s) ",
+					Cerb_ORMHelper::qstr($from_context),
+					$pkey
 				);
-				*/
+				break;
+			
+			case DevblocksSearchCriteria::OPER_IS_NULL:
+				return sprintf("NOT EXISTS (SELECT 1 FROM context_link WHERE context_link.to_context=%s AND context_link.to_context_id=%s) ",
+					Cerb_ORMHelper::qstr($from_context),
+					$pkey
+				);
 				break;
 	
 			case DevblocksSearchCriteria::OPER_IN:
@@ -1850,25 +1853,42 @@ class DevblocksSearchCriteria {
 	
 	public static function getContextLinksParamFromTokens($field_key, $tokens) {
 		// Is this a nested subquery?
-		if(substr($field_key,0,6) == 'links.') {
+		if(DevblocksPlatform::strStartsWith($field_key,'links.')) {
 			@list(, $alias) = explode('.', $field_key);
 			
 			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 			
-			$param = new DevblocksSearchCriteria(
+			return new DevblocksSearchCriteria(
 				'*_context_link',
 				DevblocksSearchCriteria::OPER_CUSTOM,
 				sprintf('%s:%s', $alias, $query)
 			);
-			return $param;
 			
 		} else {
 			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
-			$link_contexts = array();
+			$link_contexts = [];
 			
 			$oper = null;
 			$value = null;
 			CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value);
+			
+			if(is_array($value) && 1 == count($value)) {
+				if(in_array($value[0], ['*','yes','y','true','any','y'])) {
+					return new DevblocksSearchCriteria(
+						'*_context_link',
+						DevblocksSearchCriteria::OPER_IS_NOT_NULL,
+						[]
+					);
+				}
+				
+				if(in_array($value[0], ['null','no','n','none'])) {
+					return new DevblocksSearchCriteria(
+						'*_context_link',
+						DevblocksSearchCriteria::OPER_IS_NULL,
+						[]
+					);
+				}
+			}
 			
 			if(is_array($value))
 			foreach($value as $alias) {
@@ -1876,12 +1896,11 @@ class DevblocksSearchCriteria {
 					$link_contexts[$aliases[$alias]] = true;
 			}
 			
-			$param = new DevblocksSearchCriteria(
+			return new DevblocksSearchCriteria(
 				'*_context_link',
 				DevblocksSearchCriteria::OPER_IN,
 				array_keys($link_contexts)
 			);
-			return $param;
 		}
 	}
 	

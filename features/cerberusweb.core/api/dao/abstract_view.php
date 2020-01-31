@@ -1462,8 +1462,11 @@ abstract class C4_AbstractView {
 		echo $list_of_strings;
 	}
 	
-	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links', $label_verb='Linked to') {
+	protected function _renderVirtualContextLinks($param, $label_singular='Link', $label_plural='Links', $label_verb='Linked to', $label_null=null) {
 		$strings = [];
+		
+		if(is_null($label_null))
+			$label_null = $label_plural;
 		
 		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
 			@list($alias, $query) = explode(':', $param->value, 2);
@@ -1523,12 +1526,13 @@ abstract class C4_AbstractView {
 		switch($param->operator) {
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				echo sprintf("There are no <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_plural))
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_null))
 				);
 				break;
+			case DevblocksSearchCriteria::OPER_TRUE:
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 				echo sprintf("There are <b>%s</b>",
-					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_plural))
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strLower($label_null))
 				);
 				break;
 			case DevblocksSearchCriteria::OPER_IN:
