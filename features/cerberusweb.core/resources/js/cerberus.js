@@ -745,6 +745,8 @@ var cAjaxCalls = function() {
 		
 		var $button = $(button);
 
+		$button.attr('data-field-name', field_name);
+
 		// The <ul> buffer
 		var $ul = $button.siblings('ul.chooser-container');
 		
@@ -823,6 +825,8 @@ var cAjaxCalls = function() {
 			options = { };
 		
 		var $button = $(button);
+
+		$button.attr('data-field-name', field_name);
 
 		// The <ul> buffer
 		var $ul = $button.next('ul.chooser-container');
@@ -3513,7 +3517,10 @@ var ajax = new cAjaxCalls();
 
 									// Add to attachments container
 									if($ul && 0 === $ul.find('input:hidden[value="' + file_id + '"]').length) {
-										var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(file_id);
+										var $hidden = $('<input type="hidden"/>')
+											.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
+											.val(file_id)
+										;
 										var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 										var $a = $('<a href="javascript:;"/>')
 											.attr('data-context', 'attachment')
@@ -3623,7 +3630,10 @@ var ajax = new cAjaxCalls();
 
 									// Add to attachments container
 									if($ul && 0 === $ul.find('input:hidden[value="' + file_id + '"]').length) {
-										var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(file_id);
+										var $hidden = $('<input type="hidden"/>')
+											.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
+											.val(file_id)
+											;
 										var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 										var $a = $('<a href="javascript:;"/>')
 											.attr('data-context', 'attachment')
@@ -3746,7 +3756,10 @@ var ajax = new cAjaxCalls();
 					
 					for(var i = 0; i < json.length; i++) {
 						if(0 == $ul.find('input:hidden[value="' + json[i].id + '"]').length) {
-							var $hidden = $('<input type="hidden" name="file_ids[]"/>').val(json[i].id);
+							var $hidden = $('<input type="hidden"/>')
+								.attr('name', $attachments.find('button[data-field-name]').attr('data-field-name') + '[]')
+								.val(json[i].id)
+								;
 							var $remove = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 							var $a = $('<a href="javascript:;"/>')
 								.attr('data-context', 'attachment')
