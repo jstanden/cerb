@@ -71,7 +71,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>Allowed Endpoints:</b></td>
 		<td width="100%">
-			<textarea rows="8" cols="60" style="width:100%;" name="params[allowed_paths]">{if empty($model)}*{elseif is_array($model->params.allowed_paths)}{$model->params.allowed_paths|implode:"\n"}{/if}</textarea>
+			<textarea rows="8" cols="60" style="width:100%;" name="params[allowed_paths]">{if empty($model)}*{elseif is_array($model->params.allowed_paths)}{implode("\n", $model->params.allowed_paths)}{/if}</textarea>
 			<div>
 				<i>(one per line; use * for wildcards; e.g. tasks/*)</i>
 			</div>

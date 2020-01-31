@@ -2056,7 +2056,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getRandom() {
-		return DAO_TriggerEvent::random();
+		return 0; // DAO_TriggerEvent::random();
 	}
 	
 	function profileGetUrl($context_id) {

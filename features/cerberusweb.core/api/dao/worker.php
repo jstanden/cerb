@@ -2059,7 +2059,7 @@ class Model_Worker {
 
 		while(0 != strlen($mins)) {
 			$from = 0;
-			$is_available = $mins{$from} == 1;
+			$is_available = $mins[$from] == 1;
 			
 			if(false === ($to = strpos($mins, $is_available ? '0' : '1'))) {
 				$to = strlen($mins);

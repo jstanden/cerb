@@ -447,9 +447,14 @@ class _DevblocksDatabaseManager {
 
 	private function _GetOne($rs) {
 		if($rs instanceof mysqli_result) {
+			if(0 == mysqli_num_rows($rs))
+				return false;
+				
 			$row = mysqli_fetch_row($rs);
 			mysqli_free_result($rs);
-			return $row[0];
+			
+			if(count($row))
+				return $row[0];
 		}
 		
 		return false;

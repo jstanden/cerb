@@ -117,7 +117,7 @@
 			
 			<div style="margin:3px 0px 0px 10px;{if !in_array($model->params.events.mode,['allow','deny'])}display:none;{/if}" class="va-events">
 				{foreach from=$event_extensions item=event_ext key=event_ext_id}
-					<label style="{if !isset($event_ext->params['contexts'][0][$model->owner_context])}display:none;{/if}" contexts="{if isset($event_ext->params['contexts'][0])}{$event_ext->params['contexts'][0]|array_keys|implode:' '}{/if}"><input type="checkbox" name="itemized_events[]" value="{$event_ext_id}" {if is_array($model->params.events.items) && in_array($event_ext_id, $model->params.events.items)}checked="checked"{/if}> {$event_ext->name}<br></label>
+					<label style="{if !isset($event_ext->params['contexts'][0][$model->owner_context])}display:none;{/if}" contexts="{if isset($event_ext->params['contexts'][0])}{implode(' ',$event_ext->params['contexts'][0]|array_keys)}{/if}"><input type="checkbox" name="itemized_events[]" value="{$event_ext_id}" {if is_array($model->params.events.items) && in_array($event_ext_id, $model->params.events.items)}checked="checked"{/if}> {$event_ext->name}<br></label>
 				{/foreach}
 			</div>
 		</fieldset>
@@ -133,7 +133,7 @@
 			
 			<div style="margin:3px 0px 0px 10px;{if empty($model->params.actions.mode) || $model->params.actions.mode == 'all'}display:none;{/if}" class="va-actions">
 				{foreach from=$action_extensions item=action_ext key=action_ext_id}
-					<label events="{if isset($action_ext->params['events'][0])}{$action_ext->params['events'][0]|array_keys|implode:' '}{/if}"><input type="checkbox" name="itemized_actions[]" value="{$action_ext->id}" {if is_array($model->params.actions.items) && in_array($action_ext_id, $model->params.actions.items)}checked="checked"{/if}> {$action_ext->params.label}<br></label>
+					<label events="{if isset($action_ext->params['events'][0])}{implode(' ', $action_ext->params['events'][0]|array_keys)}{/if}"><input type="checkbox" name="itemized_actions[]" value="{$action_ext->id}" {if is_array($model->params.actions.items) && in_array($action_ext_id, $model->params.actions.items)}checked="checked"{/if}> {$action_ext->params.label}<br></label>
 				{/foreach}
 			</div>
 		</fieldset>

@@ -19,7 +19,7 @@
 				<textarea name="{$field_name}[{$var.key}]" style="height:50px;width:98%;" class="{if $with_placeholders}placeholders {/if}">{$variable_values.$var_key}</textarea>
 				{if is_array($options)}
 				<div>
-					<small><b>Options:</b> {$options|implode:', '}</small>
+					<small><b>Options:</b> {implode(', ', $options)}</small>
 				</div>
 				{/if}
 			{else}
@@ -65,6 +65,8 @@
 			<ul class="bubbles chooser-container" style="display:inline-block;">
 				{if is_array($variable_values.$var_key)}
 				{foreach from=$variable_values.$var_key item=context_id}
+					{$null = []}
+					{$var_values = []}
 					{CerberusContexts::getContext($context, $context_id, $null, $var_values, true)}
 					<li>{$var_values._label}<input type="hidden" name="{$field_name}[{$var.key}][]" title="{$var_values._label}" value="{$context_id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 				{/foreach}

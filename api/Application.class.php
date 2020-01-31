@@ -1763,9 +1763,12 @@ class CerberusContexts {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$url_writer = DevblocksPlatform::services()->url();
 		$translate = DevblocksPlatform::getTranslationService();
+		
+		if(!is_array($entry)) {
+			return '';
+		}
 
 		// Load the translated version of the message
-
 		$entry['message'] = $translate->_($entry['message']);
 
 		// Scrub desired tokens

@@ -48,7 +48,7 @@
 					{'common.aliases'|devblocks_translate|capitalize}:
 				</td>
 				<td width="99%" valign="top">
-					<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{$aliases|implode:"\n"}</textarea>
+					<textarea name="aliases" cols="45" rows="3" style="width:98%;" placeholder="(one per line)">{implode("\n", $aliases)}</textarea>
 				</td>
 			</tr>
 			<tr>

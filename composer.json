@@ -22,6 +22,7 @@
 		"ext-json": "*",
 		"ext-mbstring": "*",
 		"ext-mysqli": "*",
+      	"ext-simplexml": "*",
 		"smarty/smarty" : "3.1.31",
 		"swiftmailer/swiftmailer" : "5.4.9",
 		"mtdowling/cron-expression" : "^1.2",

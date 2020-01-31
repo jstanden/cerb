@@ -1450,7 +1450,7 @@ class CerberusParser {
 		
 		if(!isset($message->headers['message-id'])) {
 			$new_message_id = sprintf("<%s.%s@%s>", 
-				base_convert(microtime(true)*1000, 10, 36),
+				base_convert(intval(microtime(true))*1000, 10, 36),
 				base_convert(bin2hex(openssl_random_pseudo_bytes(8)), 16, 36),
 				DevblocksPlatform::getHostname()
 			);

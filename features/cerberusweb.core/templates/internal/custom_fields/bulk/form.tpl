@@ -82,6 +82,8 @@
 					
 					<ul class="bubbles chooser-container">
 						{if $custom_field_values.$f_id}
+							{$cf_link_labels = []}
+							{$cf_link_values = []}
 							{CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
 							<li><img src="{devblocks_url}c=avatars&context=worker&context_id={$custom_field_values.$f_id}{/devblocks_url}?v=" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;"> <input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">{$cf_link_values._label} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 						{/if}
@@ -91,6 +93,8 @@
 					
 					<ul class="bubbles chooser-container">
 						{if $custom_field_values.$f_id}
+							{$cf_link_labels = []}
+							{$cf_link_values = []}
 							{CerberusContexts::getContext($f->params.context, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
 							<li>
 								<a href="javascript:;" class="peek-cfield-link no-underline" data-context="{$cf_link_values._context}" data-context-id="{$cf_link_values.id}">{$cf_link_values._label}</a>

@@ -105,7 +105,7 @@
 			{elseif $column == "c_patterns"}
 				<td data-column="{$column}">
 					{$patterns = DevblocksPlatform::parseCrlfString($result.$column)}
-					{$patterns|implode:', '}
+					{implode(', ', $patterns)}
 				</td>
 			{elseif $column == "c_recur_start" || $column == "c_recur_end"}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">

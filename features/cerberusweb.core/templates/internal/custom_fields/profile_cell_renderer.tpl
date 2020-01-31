@@ -51,11 +51,11 @@
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LIST}
 	{if is_array($v.value)}
-		{$v.value|implode:', '}
+		{implode(', ', $v.value)}
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_MULTI_CHECKBOX}
 	{if is_array($v.value)}
-		{$v.value|implode:', '}
+		{implode(', ', $v.value)}
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LINK}
 	{$link_context_ext = Extension_DevblocksContext::get($v.params.context)}
