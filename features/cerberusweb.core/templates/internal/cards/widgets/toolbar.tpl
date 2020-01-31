@@ -103,7 +103,7 @@ $(function() {
 				var $this = $(this);
 				
 				if($this.is($field)) {
-					genericAjaxPost($div.closest('form'), divTester, 'c=profiles&a=handleSectionAction&section=profile_widget&action=testWidgetTemplate&template_key=' + encodeURIComponent(field_key) + '&index=' + index);
+					genericAjaxPost($div.closest('form'), divTester, 'c=profiles&a=handleSectionAction&section=card_widget&action=testWidgetTemplate&template_key=' + encodeURIComponent(field_key) + '&index=' + index);
 				}
 			}
 		);
