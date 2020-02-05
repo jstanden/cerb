@@ -801,6 +801,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				foreach($chart_model['by'] as $column_index => $column) {
 					$key_prefix = str_replace('.', '_', $column['key_query']);
 					@$type = $column['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
+					$value = null;
 					
 					if($column_index == $depth) {
 						$value = $node['hits'];
@@ -819,8 +820,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					
 					switch($type) {
 						case DevblocksSearchCriteria::TYPE_CONTEXT:
-							$name = $node['name'];
-							$value = intval($node['value']);
+							$name = $parents[$column_index]['name'];
+							$value = intval($parents[$column_index]['value']);
 							
 							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
 								$key_prefix = substr($key_prefix, 0, -3) . '_';
@@ -844,8 +845,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							break;
 							
 						case DevblocksSearchCriteria::TYPE_WORKER:
-							$name = $node['name'];
-							$value = intval($node['value']);
+							$name = $parents[$column_index]['name'];
+							$value = intval($parents[$column_index]['value']);
 							
 							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
 								$key_prefix = substr($key_prefix, 0, -3) . '_';
@@ -860,8 +861,8 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							
 						default:
 							if(array_key_exists($column_index, $parents)) {
-								$name = $node['name'];
-								$value = $node['value'];
+								$name = $parents[$column_index]['name'];
+								$value = $parents[$column_index]['value'];
 								
 								$row[$key_prefix] = $value;
 								$row[$key_prefix . '_label'] = $name;
@@ -869,7 +870,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							} else {
 								$row[$key_prefix] = $value;
 							}
-							
 							break;
 					}
 				}
