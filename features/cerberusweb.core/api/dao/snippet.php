@@ -1119,7 +1119,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Snippet::VIRTUAL_USABLE_BY),
 					'examples' => [
-						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
+						'me',
 					]
 				),
 		);
@@ -1204,6 +1204,12 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$oper = $value = null;
 				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
 				$worker_id = intval($value);
+				
+				if(in_array(DevblocksPlatform::strLower($value),['me','self'])) {
+					if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+						$worker_id = $active_worker->id;
+					}
+				}
 				
 				return new DevblocksSearchCriteria(
 					SearchFields_Snippet::VIRTUAL_USABLE_BY,
