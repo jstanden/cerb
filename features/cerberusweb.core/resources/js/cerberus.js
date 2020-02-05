@@ -2523,7 +2523,11 @@ var ajax = new cAjaxCalls();
 									var value = json.data[i][key];
 									
 									results.push({
-										value: -1 != value.indexOf(' ') ? ('"' + value + '"') : value
+										caption: value,
+										value: -1 !== value.indexOf(' ') ? ('"' + value + '"') : value,
+										completer: {
+											insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
+										}
 									});
 								}
 								
@@ -2872,7 +2876,11 @@ var ajax = new cAjaxCalls();
 										var value = json.data[i][key];
 										
 										results.push({
-											value: -1 != value.indexOf(' ') ? ('"' + value + '"') : value
+											caption: value,
+											value: -1 != value.indexOf(' ') ? ('"' + value + '"') : value,
+											completer: {
+												insertMatch: Devblocks.cerbCodeEditor.insertMatchAndAutocomplete
+											}
 										});
 									}
 									
