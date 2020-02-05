@@ -45,6 +45,11 @@ if(version_compare(PHP_VERSION, "7.2", "<")) {
 	die("Cerb requires PHP 7.2 or later.");
 }
 
+if(version_compare(PHP_VERSION, "7.4", ">=")) {
+	http_response_code(500);
+	die("Cerb is currently incompatible with PHP 7.4 (use 7.2 or 7.3)");
+}
+
 if(!extension_loaded('mysqli')) {
 	http_response_code(500);
 	die("Cerb requires the 'mysqli' PHP extension.  Please enable it.");
