@@ -603,8 +603,28 @@ function DevblocksClass() {
 	this.cerbCodeEditor = {
 		insertMatchAndAutocomplete: function(editor, data) {
 			delete data.completer;
-			editor.completer.insertMatch(data);
-			
+
+			var pos = editor.getCursorPosition();
+			var token = editor.session.getTokenAt(pos.row, pos.column);
+
+			var suggestion = data;
+
+			// If the suggestion and the current token start with a quote
+			if((token.type === 'text' || token.type === 'string')
+				&& token.value.substr(0,1) === '"'
+				&& data.value.substr(0,1) === '"'
+				) {
+				suggestion = JSON.parse(JSON.stringify(suggestion));
+
+				// If the suggestion and token both end with a quote, only keep one
+				var end = (data.value.substr(-1,1) === '"' && token.value.substr(-1,1) === '"') ? 2 : 1;
+
+				// Strip the leading quote
+				suggestion.value = suggestion.value.substr(1, suggestion.value.length-end);
+			}
+
+			editor.completer.insertMatch(suggestion);
+
 			if(data.suppress_autocomplete)
 				return;
 			
