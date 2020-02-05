@@ -2200,7 +2200,7 @@ var ajax = new cAjaxCalls();
 								? ' '
 								: ' title:"*{}*"'.replace(/\{\}/g, term)
 							)
-							+ ' sort:-totalUses)'
+							+ ' usableBy.worker:me sort:-totalUses)'
 						;
 
 						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
