@@ -1,9 +1,5 @@
 .idea/*
 .tmp*
 .htaccess
-.settings/*
-.externalToolBuilders
 /phpunit.phar
-/tags
 /vendor/
-storage/logo
