@@ -25,6 +25,9 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 		$date = DevblocksPlatform::services()->date();
 		$tpl->assign('timezones', $date->getTimezones());
 		
+		if(is_null($trigger))
+			$trigger = new Model_TriggerEvent();
+		
 		if(!isset($trigger->event_params['repeat_patterns']) || !$trigger->event_params['repeat_patterns'])
 			$trigger->event_params['repeat_patterns'] = sprintf("# https://en.wikipedia.org/wiki/Cron#CRON_expression\r\n# [min] [hour] [dom] [month] [dow]\r\n");
 		

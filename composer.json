@@ -25,7 +25,7 @@
       	"ext-simplexml": "*",
 		"smarty/smarty" : "3.1.31",
 		"swiftmailer/swiftmailer" : "5.4.9",
-		"mtdowling/cron-expression" : "^1.2",
+		"dragonmantank/cron-expression": "^2.3",
 		"onelogin/php-saml" : "^3.0",
 		"defuse/php-encryption" : "^2.1",
 		"league/oauth2-server": "^7.2",
