@@ -3767,11 +3767,3 @@ function devblocks_autoload($className) {
 
 // Register Devblocks class loader
 spl_autoload_register('devblocks_autoload');
-
-/*
- * Twig Extensions
- * This must come after devblocks_autoload
- */
-if(class_exists('Twig_Autoloader', true) && method_exists('Twig_Autoloader','register')) {
-	Twig_Autoloader::register();
-}

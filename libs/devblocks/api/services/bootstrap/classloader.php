@@ -137,9 +137,7 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
 		));
-		$this->registerClasses(DEVBLOCKS_PATH . 'libs/Twig/Autoloader.php', array(
-			'Twig_Autoloader',
-		));
+		$this->registerAutoloadPath(DEVBLOCKS_PATH . 'libs/Twig/', 'Twig\\');
 		
 		return true;
 	}
@@ -232,6 +230,7 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/template_builder.php', array(
 			'_DevblocksTemplateBuilder',
 			'_DevblocksTwigExtensions',
+			'_DevblocksTwigSecurityPolicy',
 			'DevblocksDictionaryDelegate',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/template.php', array(

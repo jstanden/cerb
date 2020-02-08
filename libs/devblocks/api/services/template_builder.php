@@ -1,18 +1,99 @@
 <?php
-class _DevblocksTwigSecurityPolicy extends Twig_Sandbox_SecurityPolicy {
-	function checkMethodAllowed($obj, $method) {
-		if ($obj instanceof Twig_TemplateInterface || $obj instanceof Twig_Markup) {
-			return true;
+
+use Twig\Markup;
+use Twig\NodeVisitor\NodeVisitorInterface;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Sandbox\SecurityNotAllowedMethodError;
+use Twig\Sandbox\SecurityNotAllowedPropertyError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityPolicyInterface;
+use Twig\Template;
+
+class _DevblocksTwigSecurityPolicy implements SecurityPolicyInterface {
+	private $allowedTags;
+	private $allowedFilters;
+	private $allowedMethods;
+	private $allowedProperties;
+	private $allowedFunctions;
+	
+	public function __construct(array $allowedTags = [], array $allowedFilters = [], array $allowedMethods = [], array $allowedProperties = [], array $allowedFunctions = []) {
+		$this->allowedTags = $allowedTags;
+		$this->allowedFilters = $allowedFilters;
+		$this->setAllowedMethods($allowedMethods);
+		$this->allowedProperties = $allowedProperties;
+		$this->allowedFunctions = $allowedFunctions;
+	}
+	
+	public function setAllowedTags(array $tags): void {
+		$this->allowedTags = $tags;
+	}
+	
+	public function setAllowedFilters(array $filters): void {
+		$this->allowedFilters = $filters;
+	}
+	
+	public function setAllowedMethods(array $methods): void {
+		$this->allowedMethods = [];
+		foreach ($methods as $class => $m) {
+			$this->allowedMethods[$class] = array_map(function ($value) { return strtr($value, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'); }, \is_array($m) ? $m : [$m]);
+		}
+	}
+	
+	public function setAllowedProperties(array $properties): void {
+		$this->allowedProperties = $properties;
+	}
+	
+	public function setAllowedFunctions(array $functions): void {
+		$this->allowedFunctions = $functions;
+	}
+	
+	public function checkSecurity($tags, $filters, $functions): void {
+		foreach ($tags as $tag) {
+			if (!\in_array($tag, $this->allowedTags)) {
+				throw new SecurityNotAllowedTagError(sprintf('Tag "%s" is not allowed.', $tag), $tag);
+			}
+		}
+		
+		foreach ($filters as $filter) {
+			if (!\in_array($filter, $this->allowedFilters)) {
+				throw new SecurityNotAllowedFilterError(sprintf('Filter "%s" is not allowed.', $filter), $filter);
+			}
+		}
+		
+		foreach ($functions as $function) {
+			if (!\in_array($function, $this->allowedFunctions)) {
+				throw new SecurityNotAllowedFunctionError(sprintf('Function "%s" is not allowed.', $function), $function);
+			}
+		}
+	}
+	
+	public function checkMethodAllowed($obj, $method): void {
+		if ($obj instanceof Template || $obj instanceof Markup) {
+			return;
 		}
 		
 		// Allow
 		if($method == '__toString')
-			return true;
+			return;
 		
-		throw new Twig_Sandbox_SecurityError(sprintf('Calling "%s" method on a "%s" object is not allowed.', $method, get_class($obj)));
+		$allowed = false;
+		$method = strtr($method, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
+		foreach ($this->allowedMethods as $class => $methods) {
+			if ($obj instanceof $class) {
+				$allowed = \in_array($method, $methods);
+				
+				break;
+			}
+		}
+		
+		if (!$allowed) {
+			$class = \get_class($obj);
+			throw new SecurityNotAllowedMethodError(sprintf('Calling "%s" method on a "%s" object is not allowed.', $method, $class), $class, $method);
+		}
 	}
 	
-	function checkPropertyAllowed($obj, $property) {
+	public function checkPropertyAllowed($obj, $property): void {
 		// Everything in our dictionary is okay
 		if($obj instanceof DevblocksDictionaryDelegate)
 			return;
@@ -21,8 +102,19 @@ class _DevblocksTwigSecurityPolicy extends Twig_Sandbox_SecurityPolicy {
 		if($obj instanceof SimpleXMLElement)
 			return;
 		
-		// Deny everything else
-		throw new Twig_Sandbox_SecurityError(sprintf('Calling "%s" property on a "%s" object is not allowed.', $property, get_class($obj)));
+		$allowed = false;
+		foreach ($this->allowedProperties as $class => $properties) {
+			if ($obj instanceof $class) {
+				$allowed = \in_array($property, \is_array($properties) ? $properties : [$properties]);
+				
+				break;
+			}
+		}
+		
+		if (!$allowed) {
+			$class = \get_class($obj);
+			throw new SecurityNotAllowedPropertyError(sprintf('Calling "%s" property on a "%s" object is not allowed.', $property, $class), $class, $property);
+		}
 	}
 }
 
@@ -31,14 +123,14 @@ class _DevblocksTemplateBuilder {
 	private $_errors = [];
 	
 	private function __construct($autoescaping=false) {
-		$this->_twig = new Twig_Environment(new Twig_Loader_String(), array(
+		$this->_twig = new \Twig\Environment(new \Twig\Loader\ArrayLoader([]), [
 			'cache' => false,
 			'debug' => false,
 			'strict_variables' => false,
 			'auto_reload' => true,
 			'trim_blocks' => true,
 			'autoescape' => $autoescaping,
-		));
+		]);
 		
 		if(class_exists('_DevblocksTwigExtensions', true)) {
 			$this->_twig->addExtension(new _DevblocksTwigExtensions());
@@ -178,11 +270,16 @@ class _DevblocksTemplateBuilder {
 				//'template_from_string',
 			];
 			
-			$methods = [];
-			$properties = [];
+			$methods = [
+				'SimpleXMLElement' => ['__toString'],
+			];
+			
+			$properties = [
+				'SimpleXMLElement' => ['*'],
+			];
 			
 			$policy = new _DevblocksTwigSecurityPolicy($tags, $filters, $methods, $properties, $functions);
-			$sandbox = new Twig_Extension_Sandbox($policy, true);
+			$sandbox = new \Twig\Extension\SandboxExtension($policy, true);
 			$this->_twig->addExtension($sandbox);
 		}
 	}
@@ -204,7 +301,7 @@ class _DevblocksTemplateBuilder {
 	}
 
 	/**
-	 * @return Twig_Environment
+	 * @return \Twig\Environment
 	 */
 	public function getEngine() {
 		return $this->_twig;
@@ -224,11 +321,7 @@ class _DevblocksTemplateBuilder {
 	private function _tearDown() {
 	}
 	
-	function getLexer() {
-		return $this->_twig->getLexer();
-	}
-	
-	function setLexer(Twig_Lexer $lexer) {
+	function setLexer(\Twig\Lexer $lexer) {
 		$this->_twig->setLexer($lexer);
 	}
 	
@@ -240,11 +333,12 @@ class _DevblocksTemplateBuilder {
 
 		foreach($templates as $template) {
 			try {
-				$token_stream = $this->_twig->tokenize($template); /* @var $token_stream Twig_TokenStream */
-				$node_stream = $this->_twig->parse($token_stream); /* @var $node_stream Twig_Node_Module */
+				
+				$token_stream = $this->_twig->tokenize($template); /* @var $token_stream \Twig\TokenStream */
+				$node_stream = $this->_twig->parse($token_stream); /* @var $node_stream \Twig\Node\ModuleNode */
 	
 				$visitor = new _DevblocksTwigExpressionVisitor();
-				$traverser = new Twig_NodeTraverser($this->_twig);
+				$traverser = new \Twig\NodeTraverser($this->_twig);
 				$traverser->addVisitor($visitor);
 				$traverser->traverse($node_stream);
 				
@@ -272,12 +366,12 @@ class _DevblocksTemplateBuilder {
 		}
 	}
 	
-	function addFilter($name, $filter) {
-		return $this->_twig->addFilter($name, $filter);
+	function addFilter(\Twig\TwigFilter $filter) {
+		$this->_twig->addFilter($filter);
 	}
 	
-	function addFunction($name, $function) {
-		return $this->_twig->addFunction($name, $function);
+	function addFunction(\Twig\TwigFunction $function) {
+		$this->_twig->addFunction($function);
 	}
 	
 	/**
@@ -288,18 +382,22 @@ class _DevblocksTemplateBuilder {
 	 */
 	function build($template, $dict, $lexer = null) {
 		if($lexer && is_array($lexer)) {
-			$this->setLexer(new Twig_Lexer($this->_twig, $lexer));
+			$this->setLexer(new \Twig\Lexer($this->_twig, $lexer));
 		}
 		
 		$this->_setUp();
+		$out = '';
 		
 		if(is_array($dict))
 			$dict = new DevblocksDictionaryDelegate($dict);
 		
 		try {
-			$template = $this->_twig->loadTemplate($template); /* @var $template Twig_Template */
-			$this->_twig->registerUndefinedVariableCallback(array($dict, 'delegateUndefinedVariable'), true);
-			$out = $template->render([]);
+			if(!is_null($template)) {
+				$template = $this->_twig->createTemplate($template);
+				$this->_twig->registerUndefinedVariableCallback([$dict, 'delegateUndefinedVariable']);
+				
+				$out = $template->render([]);
+			}
 			
 		} catch(Exception $e) {
 			$this->_errors[] = $e->getMessage();
@@ -307,7 +405,7 @@ class _DevblocksTemplateBuilder {
 		$this->_tearDown();
 		
 		if($lexer) {
-			$this->setLexer(new Twig_Lexer($this->_twig));
+			$this->setLexer(new \Twig\Lexer($this->_twig));
 		}
 
 		if(!empty($this->_errors))
@@ -897,21 +995,21 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 	}
 };
 
-class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {
+class _DevblocksTwigExpressionVisitor implements NodeVisitorInterface {
 	protected $_tokens = [];
 	
-	public function enterNode(Twig_NodeInterface $node, Twig_Environment $env) {
-		if($node instanceof Twig_Node_Expression_Name) {
+	public function enterNode(\Twig\Node\Node $node, \Twig\Environment $env) : \Twig\Node\Node {
+		if($node instanceof \Twig\Node\Expression\NameExpression) {
 			$this->_tokens[$node->getAttribute('name')] = true;
 			
-		} elseif($node instanceof Twig_Node_SetTemp) {
+		} elseif($node instanceof \Twig\Node\SetNode) {
 			$this->_tokens[$node->getAttribute('name')] = true;
 			
 		}
 		return $node;
 	}
 	
-	public function leaveNode(Twig_NodeInterface $node, Twig_Environment $env) {
+	public function leaveNode(\Twig\Node\Node $node, \Twig\Environment $env) : \Twig\Node\Node  {
 		return $node;
 	}
 	
@@ -924,46 +1022,45 @@ class _DevblocksTwigExpressionVisitor implements Twig_NodeVisitorInterface {
 	}
 };
 
-if(class_exists('Twig_Extension', true)):
-class _DevblocksTwigExtensions extends Twig_Extension {
+class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	public function getName() {
 		return 'devblocks_twig';
 	}
 	
 	public function getFunctions() {
 		return array(
-			new Twig_SimpleFunction('array_column', [$this, 'function_array_column']),
-			new Twig_SimpleFunction('array_combine', [$this, 'function_array_combine']),
-			new Twig_SimpleFunction('array_diff', [$this, 'function_array_diff']),
-			new Twig_SimpleFunction('array_intersect', [$this, 'function_array_intersect']),
-			new Twig_SimpleFunction('array_sort_keys', [$this, 'function_array_sort_keys']),
-			new Twig_SimpleFunction('array_unique', [$this, 'function_array_unique']),
-			new Twig_SimpleFunction('array_values', [$this, 'function_array_values']),
-			new Twig_SimpleFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
-			new Twig_SimpleFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
-			new Twig_SimpleFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
-			new Twig_SimpleFunction('cerb_has_priv', [$this, 'function_cerb_has_priv']),
-			new Twig_SimpleFunction('cerb_placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
-			new Twig_SimpleFunction('cerb_record_readable', [$this, 'function_cerb_record_readable']),
-			new Twig_SimpleFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
-			new Twig_SimpleFunction('cerb_url', [$this, 'function_cerb_url']),
-			new Twig_SimpleFunction('dict_set', [$this, 'function_dict_set']),
-			new Twig_SimpleFunction('dict_unset', [$this, 'function_dict_unset']),
-			new Twig_SimpleFunction('json_decode', [$this, 'function_json_decode']),
-			new Twig_SimpleFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
-			new Twig_SimpleFunction('placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
-			new Twig_SimpleFunction('random_string', [$this, 'function_random_string']),
-			new Twig_SimpleFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
-			new Twig_SimpleFunction('shuffle', [$this, 'function_shuffle']),
-			new Twig_SimpleFunction('validate_email', [$this, 'function_validate_email']),
-			new Twig_SimpleFunction('validate_number', [$this, 'function_validate_number']),
-			new Twig_SimpleFunction('xml_attr', [$this, 'function_xml_attr']),
-			new Twig_SimpleFunction('xml_attrs', [$this, 'function_xml_attrs']),
-			new Twig_SimpleFunction('xml_decode', [$this, 'function_xml_decode']),
-			new Twig_SimpleFunction('xml_encode', [$this, 'function_xml_encode']),
-			new Twig_SimpleFunction('xml_tag', [$this, 'function_xml_tag']),
-			new Twig_SimpleFunction('xml_xpath_ns', [$this, 'function_xml_xpath_ns']),
-			new Twig_SimpleFunction('xml_xpath', [$this, 'function_xml_xpath']),
+			new \Twig\TwigFunction('array_column', [$this, 'function_array_column']),
+			new \Twig\TwigFunction('array_combine', [$this, 'function_array_combine']),
+			new \Twig\TwigFunction('array_diff', [$this, 'function_array_diff']),
+			new \Twig\TwigFunction('array_intersect', [$this, 'function_array_intersect']),
+			new \Twig\TwigFunction('array_sort_keys', [$this, 'function_array_sort_keys']),
+			new \Twig\TwigFunction('array_unique', [$this, 'function_array_unique']),
+			new \Twig\TwigFunction('array_values', [$this, 'function_array_values']),
+			new \Twig\TwigFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
+			new \Twig\TwigFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
+			new \Twig\TwigFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
+			new \Twig\TwigFunction('cerb_has_priv', [$this, 'function_cerb_has_priv']),
+			new \Twig\TwigFunction('cerb_placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
+			new \Twig\TwigFunction('cerb_record_readable', [$this, 'function_cerb_record_readable']),
+			new \Twig\TwigFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
+			new \Twig\TwigFunction('cerb_url', [$this, 'function_cerb_url']),
+			new \Twig\TwigFunction('dict_set', [$this, 'function_dict_set']),
+			new \Twig\TwigFunction('dict_unset', [$this, 'function_dict_unset']),
+			new \Twig\TwigFunction('json_decode', [$this, 'function_json_decode']),
+			new \Twig\TwigFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
+			new \Twig\TwigFunction('placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
+			new \Twig\TwigFunction('random_string', [$this, 'function_random_string']),
+			new \Twig\TwigFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
+			new \Twig\TwigFunction('shuffle', [$this, 'function_shuffle']),
+			new \Twig\TwigFunction('validate_email', [$this, 'function_validate_email']),
+			new \Twig\TwigFunction('validate_number', [$this, 'function_validate_number']),
+			new \Twig\TwigFunction('xml_attr', [$this, 'function_xml_attr']),
+			new \Twig\TwigFunction('xml_attrs', [$this, 'function_xml_attrs']),
+			new \Twig\TwigFunction('xml_decode', [$this, 'function_xml_decode']),
+			new \Twig\TwigFunction('xml_encode', [$this, 'function_xml_encode']),
+			new \Twig\TwigFunction('xml_tag', [$this, 'function_xml_tag']),
+			new \Twig\TwigFunction('xml_xpath_ns', [$this, 'function_xml_xpath_ns']),
+			new \Twig\TwigFunction('xml_xpath', [$this, 'function_xml_xpath']),
 		);
 	}
 	
@@ -1147,7 +1244,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return $var;
 	}
 	
-	function function_cerb_placeholders_list(Twig_Environment $env) {
+	function function_cerb_placeholders_list(\Twig\Environment $env) {
 		if(false == (@$callback = $env->getUndefinedVariableCallbacks()[0]) || !is_array($callback))
 			return [];
 		
@@ -1304,31 +1401,31 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getFilters() {
 		return array(
-			new Twig_SimpleFilter('alphanum', [$this, 'filter_alphanum']),
-			new Twig_SimpleFilter('base_convert', [$this, 'filter_base_convert']),
-			new Twig_SimpleFilter('base64_encode', [$this, 'filter_base64_encode']),
-			new Twig_SimpleFilter('base64_decode', [$this, 'filter_base64_decode']),
-			new Twig_SimpleFilter('base64url_encode', [$this, 'filter_base64url_encode']),
-			new Twig_SimpleFilter('base64url_decode', [$this, 'filter_base64url_decode']),
-			new Twig_SimpleFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
-			new Twig_SimpleFilter('cerb_translate', [$this, 'filter_cerb_translate']),
-			new Twig_SimpleFilter('context_alias', [$this, 'filter_context_alias']),
-			new Twig_SimpleFilter('context_name', [$this, 'filter_context_name']),
-			new Twig_SimpleFilter('date_pretty', [$this, 'filter_date_pretty']),
-			new Twig_SimpleFilter('hash_hmac', [$this, 'filter_hash_hmac']),
-			new Twig_SimpleFilter('json_pretty', [$this, 'filter_json_pretty']),
-			new Twig_SimpleFilter('md5', [$this, 'filter_md5']),
-			new Twig_SimpleFilter('parse_emails', [$this, 'filter_parse_emails']),
-			new Twig_SimpleFilter('permalink', [$this, 'filter_permalink']),
-			new Twig_SimpleFilter('quote', [$this, 'filter_quote']),
-			new Twig_SimpleFilter('regexp', [$this, 'filter_regexp']),
-			new Twig_SimpleFilter('secs_pretty', [$this, 'filter_secs_pretty']),
-			new Twig_SimpleFilter('sha1', [$this, 'filter_sha1']),
-			new Twig_SimpleFilter('split_crlf', [$this, 'filter_split_crlf']),
-			new Twig_SimpleFilter('split_csv', [$this, 'filter_split_csv']),
-			new Twig_SimpleFilter('truncate', [$this, 'filter_truncate']),
-			new Twig_SimpleFilter('unescape', [$this, 'filter_unescape']),
-			new Twig_SimpleFilter('url_decode', [$this, 'filter_url_decode']),
+			new \Twig\TwigFilter('alphanum', [$this, 'filter_alphanum']),
+			new \Twig\TwigFilter('base_convert', [$this, 'filter_base_convert']),
+			new \Twig\TwigFilter('base64_encode', [$this, 'filter_base64_encode']),
+			new \Twig\TwigFilter('base64_decode', [$this, 'filter_base64_decode']),
+			new \Twig\TwigFilter('base64url_encode', [$this, 'filter_base64url_encode']),
+			new \Twig\TwigFilter('base64url_decode', [$this, 'filter_base64url_decode']),
+			new \Twig\TwigFilter('bytes_pretty', [$this, 'filter_bytes_pretty']),
+			new \Twig\TwigFilter('cerb_translate', [$this, 'filter_cerb_translate']),
+			new \Twig\TwigFilter('context_alias', [$this, 'filter_context_alias']),
+			new \Twig\TwigFilter('context_name', [$this, 'filter_context_name']),
+			new \Twig\TwigFilter('date_pretty', [$this, 'filter_date_pretty']),
+			new \Twig\TwigFilter('hash_hmac', [$this, 'filter_hash_hmac']),
+			new \Twig\TwigFilter('json_pretty', [$this, 'filter_json_pretty']),
+			new \Twig\TwigFilter('md5', [$this, 'filter_md5']),
+			new \Twig\TwigFilter('parse_emails', [$this, 'filter_parse_emails']),
+			new \Twig\TwigFilter('permalink', [$this, 'filter_permalink']),
+			new \Twig\TwigFilter('quote', [$this, 'filter_quote']),
+			new \Twig\TwigFilter('regexp', [$this, 'filter_regexp']),
+			new \Twig\TwigFilter('secs_pretty', [$this, 'filter_secs_pretty']),
+			new \Twig\TwigFilter('sha1', [$this, 'filter_sha1']),
+			new \Twig\TwigFilter('split_crlf', [$this, 'filter_split_crlf']),
+			new \Twig\TwigFilter('split_csv', [$this, 'filter_split_csv']),
+			new \Twig\TwigFilter('truncate', [$this, 'filter_truncate']),
+			new \Twig\TwigFilter('unescape', [$this, 'filter_unescape']),
+			new \Twig\TwigFilter('url_decode', [$this, 'filter_url_decode']),
 		);
 	}
 	
@@ -1570,7 +1667,7 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	
 	public function getTests() {
 		return array(
-			new Twig_SimpleTest('numeric', [$this, 'test_numeric']),
+			new \Twig\TwigTest('numeric', [$this, 'test_numeric']),
 		);
 	}
 	
@@ -1578,4 +1675,3 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 		return is_numeric($value);
 	}
 };
-endif;

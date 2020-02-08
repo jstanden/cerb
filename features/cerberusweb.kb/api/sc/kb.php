@@ -128,7 +128,7 @@ class UmScKbController extends Extension_UmScController {
 				
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
-				$function_cerb_file_url = new Twig_SimpleFunction('cerb_file_url', function ($id) {
+				$function_cerb_file_url = new \Twig\TwigFunction('cerb_file_url', function ($id) {
 					$url_writer = DevblocksPlatform::services()->url();
 					
 					if(false == ($file = DAO_Attachment::get($id)))
@@ -137,7 +137,7 @@ class UmScKbController extends Extension_UmScController {
 					return $url_writer->write(sprintf('c=ajax&a=downloadFile&hash=%s&name=%s', rawurlencode($file->storage_sha1hash), rawurlencode($file->name)), true, true);
 				});
 				
-				$tpl_builder->addFunction('cerb_file_url', $function_cerb_file_url);
+				$tpl_builder->addFunction($function_cerb_file_url);
 				
 				// Attachments
 
