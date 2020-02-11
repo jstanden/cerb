@@ -295,9 +295,11 @@ class DAO_Contact extends Cerb_ORMHelper {
 			DAO_Contact::delete($ids);
 			
 		} else {
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CONTACT, $ids);
+			
 			// Fields
 			if(!empty($change_fields))
-				DAO_Contact::update($ids, $change_fields);
+				DAO_Contact::update($ids, $change_fields, false);
 	
 			// Custom Fields
 			if(!empty($custom_fields))
@@ -310,6 +312,8 @@ class DAO_Contact extends Cerb_ORMHelper {
 			// Broadcast
 			if(isset($do['broadcast']))
 				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_CONTACT, $do['broadcast'], $ids);
+			
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CONTACT, $ids);
 		}
 		
 		$update->markCompleted();

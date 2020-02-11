@@ -299,8 +299,10 @@ class DAO_Address extends Cerb_ORMHelper {
 					}
 			}
 		}
+		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ADDRESS, $ids);
 	
-		DAO_Address::update($ids, $change_fields);
+		DAO_Address::update($ids, $change_fields, false);
 		
 		// Custom Fields
 		C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ADDRESS, $custom_fields, $ids);
@@ -312,6 +314,8 @@ class DAO_Address extends Cerb_ORMHelper {
 		// Broadcast
 		if(isset($do['broadcast']))
 			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_ADDRESS, $do['broadcast'], $ids);
+		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ADDRESS, $ids);
 		
 		$update->markCompleted();
 		return true;

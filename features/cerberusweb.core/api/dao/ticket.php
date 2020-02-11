@@ -1167,10 +1167,12 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			}
 		}
 		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TICKET, $ids);
+		
 		// Fields
 		if(!empty($change_fields) || !empty($custom_fields)) {
 			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
-			DAO_Ticket::update($ids, $change_fields);
+			DAO_Ticket::update($ids, $change_fields, false);
 		}
 		
 		// Custom Fields
@@ -1253,6 +1255,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				
 			}
 		}
+		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $ids);
 
 		$update->markCompleted();
 		return true;

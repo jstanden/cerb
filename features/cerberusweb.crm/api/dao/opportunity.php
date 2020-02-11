@@ -234,9 +234,11 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		}
 		
 		if(!$deleted) {
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
+			
 			// Fields
 			if(!empty($change_fields))
-				DAO_CrmOpportunity::update($ids, $change_fields);
+				DAO_CrmOpportunity::update($ids, $change_fields, false);
 			
 			// Custom Fields
 			if(!empty($custom_fields))
@@ -253,6 +255,8 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			// Broadcast
 			if(isset($do['broadcast']))
 				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_OPPORTUNITY, $do['broadcast'], $ids);
+			
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
 			
 		} else {
 			DAO_CrmOpportunity::delete($ids);

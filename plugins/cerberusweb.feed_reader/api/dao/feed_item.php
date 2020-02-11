@@ -163,10 +163,12 @@ class DAO_FeedItem extends Cerb_ORMHelper {
 					break;
 			}
 		}
-
+		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_FEED_ITEM, $ids);
+		
 		// Fields
 		if(!empty($change_fields))
-			DAO_FeedItem::update($ids, $change_fields);
+			DAO_FeedItem::update($ids, $change_fields, false);
 	
 		// Custom Fields
 		if(!empty($custom_fields))
@@ -179,6 +181,8 @@ class DAO_FeedItem extends Cerb_ORMHelper {
 		// Watchers
 		if(isset($do['watchers']))
 			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_FEED_ITEM, $do['watchers'], $ids);
+		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_FEED_ITEM, $ids);
 		
 		$update->markCompleted();
 		return true;

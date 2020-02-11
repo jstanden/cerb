@@ -199,9 +199,11 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 					}
 			}
 		}
-
+		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CALL, $ids);
+		
 		if(!empty($change_fields))
-			DAO_CallEntry::update($ids, $change_fields);
+			DAO_CallEntry::update($ids, $change_fields, false);
 		
 		// Custom Fields
 		if(!empty($custom_fields))
@@ -214,6 +216,8 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 		// Watchers
 		if(isset($do['watchers']))
 			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_CALL, $do['watchers'], $ids);
+		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CALL, $ids);
 		
 		$update->markCompleted();
 		return true;

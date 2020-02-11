@@ -492,7 +492,9 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			DAO_Attachment::delete($ids);
 			
 		} else {
-			DAO_Attachment::update($ids, $change_fields);
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ATTACHMENT, $ids);
+			
+			DAO_Attachment::update($ids, $change_fields, false);
 			
 			// Custom Fields
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ATTACHMENT, $custom_fields, $ids);
@@ -500,6 +502,8 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			// Scheduled behavior
 			if(isset($do['behavior']))
 				C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_ATTACHMENT, $do['behavior'], $ids);
+			
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ATTACHMENT, $ids);
 		}
 		
 		$update->markCompleted();

@@ -321,8 +321,10 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		}
 
 		if(!$deleted) {
+			CerberusContexts::checkpointChanges($context, $ids);
+			
 			if(!empty($change_fields))
-				self::update($ids, $change_fields);
+				self::update($ids, $change_fields, false);
 
 			// Custom Fields
 			if(!empty($custom_fields))
@@ -339,6 +341,8 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			// Broadcast
 			if(isset($do['broadcast']))
 				C4_AbstractView::_doBulkBroadcast($context, $do['broadcast'], $ids);
+			
+			DevblocksPlatform::markContextChanged($context, $ids);
 			
 		} else {
 			self::delete($ids);

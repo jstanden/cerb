@@ -124,15 +124,26 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		$context = CerberusContexts::CONTEXT_DRAFT;
 		
 		if(!array_key_exists(self::UPDATED, $fields))
 			$fields[self::UPDATED] = time();
 		
+		// Send events
+		if($check_deltas) {
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_DRAFT, $ids);
+		}
+		
 		self::_updateAbstract($context, $ids, $fields);
 		
 		parent::_update($ids, 'mail_queue', $fields);
+		
+		// Send events
+		if($check_deltas) {
+			// Log the context update
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_DRAFT, $ids);
+		}
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -210,8 +221,12 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		}
 		
 		if(!$deleted) {
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_DRAFT, $ids);
+			
 			if(!empty($change_fields))
-				DAO_MailQueue::update($ids, $change_fields);
+				DAO_MailQueue::update($ids, $change_fields, false);
+			
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_DRAFT, $ids);
 		} else {
 			DAO_MailQueue::delete($ids);
 		}

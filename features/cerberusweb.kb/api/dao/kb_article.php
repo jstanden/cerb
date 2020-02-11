@@ -262,9 +262,11 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 					break;
 			}
 		}
-
+		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_KB_ARTICLE, $ids);
+		
 		if(!empty($change_fields))
-			DAO_KbArticle::update($ids, $change_fields);
+			DAO_KbArticle::update($ids, $change_fields, false);
 		
 		// Category deltas
 		if(isset($do['category_delta']))
@@ -276,6 +278,8 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		// Scheduled behavior
 		if(isset($do['behavior']))
 			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_KB_ARTICLE, $do['behavior'], $ids);
+		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_KB_ARTICLE, $ids);
 		
 		$update->markCompleted();
 		return true;

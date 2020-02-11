@@ -217,13 +217,17 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			}
 		}
 		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_SNIPPET, $ids);
+		
 		// Fields
 		if(!empty($change_fields))
-			DAO_Snippet::update($ids, $change_fields);
+			DAO_Snippet::update($ids, $change_fields, false);
 
 		// Custom Fields
 		if(!empty($custom_fields))
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_SNIPPET, $custom_fields, $ids);
+		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_SNIPPET, $ids);
 		
 		$update->markCompleted();
 		return true;

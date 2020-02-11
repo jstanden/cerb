@@ -283,7 +283,9 @@ class DAO_Task extends Cerb_ORMHelper {
 			DAO_Task::delete($ids);
 			
 		} else {
-			DAO_Task::update($ids, $change_fields);
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $ids);
+			
+			DAO_Task::update($ids, $change_fields, false);
 			
 			// Custom Fields
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TASK, $custom_fields, $ids);
@@ -295,6 +297,8 @@ class DAO_Task extends Cerb_ORMHelper {
 			// Watchers
 			if(isset($do['watchers']))
 				C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_TASK, $do['watchers'], $ids);
+			
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TASK, $ids);
 		}
 		
 		$update->markCompleted();

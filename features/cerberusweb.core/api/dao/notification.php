@@ -226,8 +226,10 @@ class DAO_Notification extends Cerb_ORMHelper {
 			}
 		}
 		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_NOTIFICATION, $ids);
+		
 		if(!empty($change_fields))
-			DAO_Notification::update($ids, $change_fields);
+			DAO_Notification::update($ids, $change_fields, false);
 		
 		// Custom Fields
 		if(!empty($custom_fields))
@@ -236,6 +238,8 @@ class DAO_Notification extends Cerb_ORMHelper {
 		if(isset($change_fields[DAO_Notification::IS_READ]))
 			if(null != ($active_worker = CerberusApplication::getActiveWorker()))
 				DAO_Notification::clearCountCache($active_worker->id);
+		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_NOTIFICATION, $ids);
 		
 		$update->markCompleted();
 		return true;

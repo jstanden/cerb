@@ -864,8 +864,10 @@ class DAO_Worker extends Cerb_ORMHelper {
 			}
 		}
 		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $ids);
+		
 		if(!empty($change_fields))
-			DAO_Worker::update($ids, $change_fields);
+			DAO_Worker::update($ids, $change_fields, 0,false);
 		
 		// Custom Fields
 		if(!empty($custom_fields))
@@ -874,6 +876,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		// Broadcast
 		if(isset($do['broadcast']))
 			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_WORKER, $do['broadcast'], $ids);
+		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WORKER, $ids);
 		
 		$update->markCompleted();
 		return true;

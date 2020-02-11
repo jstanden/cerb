@@ -183,13 +183,17 @@ class DAO_TwitterMessage extends Cerb_ORMHelper {
 					break;
 			}
 		}
-
+		
+		DevblocksPlatform::markContextChanged(Context_TwitterMessage::ID, $ids);
+		
 		if(!empty($change_fields))
-			DAO_TwitterMessage::update($ids, $change_fields);
+			DAO_TwitterMessage::update($ids, $change_fields, false);
 
 		// Custom Fields
 		if(!empty($custom_fields))
 			C4_AbstractView::_doBulkSetCustomFields(Context_TwitterMessage::ID, $custom_fields, $ids);
+		
+		CerberusContexts::checkpointChanges(Context_TwitterMessage::ID, $ids);
 		
 		$update->markCompleted();
 		return true;

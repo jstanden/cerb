@@ -566,8 +566,10 @@ class DAO_Server extends Cerb_ORMHelper {
 			DAO_Server::delete($ids);
 			
 		} else {
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_SERVER, $ids);
+			
 			if(!empty($change_fields))
-				DAO_Server::update($ids, $change_fields);
+				DAO_Server::update($ids, $change_fields, false);
 	
 			// Custom Fields
 			if(!empty($custom_fields))
@@ -580,6 +582,8 @@ class DAO_Server extends Cerb_ORMHelper {
 			// Watchers
 			if(isset($do['watchers']))
 				C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_SERVER, $do['watchers'], $ids);
+			
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_SERVER, $ids);
 		}
 		
 		$update->markCompleted();

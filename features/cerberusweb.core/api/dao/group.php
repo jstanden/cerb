@@ -617,8 +617,10 @@ class DAO_Group extends Cerb_ORMHelper {
 					}
 			}
 		}
+		
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_GROUP, $ids);
 	
-		DAO_Group::update($ids, $change_fields);
+		DAO_Group::update($ids, $change_fields, false);
 		
 		// Custom Fields
 		C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_GROUP, $custom_fields, $ids);
@@ -626,6 +628,8 @@ class DAO_Group extends Cerb_ORMHelper {
 		// Scheduled behavior
 		if(isset($do['behavior']))
 			C4_AbstractView::_doBulkScheduleBehavior(CerberusContexts::CONTEXT_GROUP, $do['behavior'], $ids);
+		
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_GROUP, $ids);
 		
 		$update->markCompleted();
 		return true;

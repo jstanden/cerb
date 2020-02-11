@@ -689,8 +689,10 @@ class DAO_Domain extends Cerb_ORMHelper {
 		}
 
 		if(!$deleted) {
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_DOMAIN, $ids);
+			
 			if(!empty($change_fields))
-				DAO_Domain::update($ids, $change_fields);
+				DAO_Domain::update($ids, $change_fields, false);
 
 			// Custom Fields
 			if(!empty($custom_fields))
@@ -707,6 +709,8 @@ class DAO_Domain extends Cerb_ORMHelper {
 			// Broadcast
 			if(isset($do['broadcast']))
 				C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_DOMAIN, $do['broadcast'], $ids);
+			
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_DOMAIN, $ids);
 			
 		} else {
 			DAO_Domain::delete($ids);
