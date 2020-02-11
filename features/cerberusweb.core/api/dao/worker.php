@@ -533,7 +533,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->calendar_id = intval($row['calendar_id']);
 			$object->dob = $row['dob'];
 			$object->email_id = intval($row['email_id']);
-			$object->first_name = $row['first_name'];
+			$object->first_name = trim($row['first_name']);
 			$object->gender = $row['gender'];
 			$object->id = intval($row['id']);
 			$object->is_disabled = intval($row['is_disabled']);
@@ -541,7 +541,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			$object->is_password_disabled = intval($row['is_password_disabled']);
 			$object->is_superuser = intval($row['is_superuser']);
 			$object->language = $row['language'];
-			$object->last_name = $row['last_name'];
+			$object->last_name = trim($row['last_name']);
 			$object->location = $row['location'];
 			$object->mobile = $row['mobile'];
 			$object->phone = $row['phone'];
