@@ -323,7 +323,7 @@ function DevblocksClass() {
 		
 		var $button = $(e.target);
 		var $popup = genericAjaxPopupFind($button);
-		var $frm = $popup.find('form').first();
+		var $frm = $button.closest('form');
 		var options = e.data;
 		var is_delete = (options && options.mode == 'delete');
 		var is_create = (options && (options.mode == 'create' || options.mode == 'create_continue'));
@@ -585,7 +585,7 @@ function DevblocksClass() {
 				return callback(false);
 			
 			resources.js.forEach(function(url) {
-				if(url.substring(0,1) == '/')
+				if(url.substring(0,1) === '/')
 					url = DevblocksWebPath + url.substring(1);
 				
 				jobs.push(async.apply($instance.loadScript.bind($instance), url));
@@ -630,8 +630,8 @@ function DevblocksClass() {
 			
 			// If we're inserting a field, trigger autocompletion
 			if(
-				(data.value && -1 != data.value.indexOf(':'))
-				|| (data.snippet && -1 != data.snippet.indexOf(':'))
+				(data.value && -1 !== data.value.indexOf(':'))
+				|| (data.snippet && -1 !== data.snippet.indexOf(':'))
 			) {
 				setTimeout(function() {
 					editor.commands.byName.startAutocomplete.exec(editor);

@@ -742,7 +742,16 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		return CerberusContexts::isActorAnAdmin($actor);
+		// Only admins can modify
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEverything($models);
+		
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+		
+		return CerberusContexts::denyEverything($models);
 	}
 
 	function getRandom() {

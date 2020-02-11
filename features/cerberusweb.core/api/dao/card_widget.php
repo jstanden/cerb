@@ -945,8 +945,16 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Only admins
-		return CerberusContexts::isActorAnAdmin($actor);
+		// Only admins can modify
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEverything($models);
+		
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+		
+		return CerberusContexts::denyEverything($models);
 	}
 	
 	function getRandom() {

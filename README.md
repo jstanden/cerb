@@ -42,7 +42,7 @@
 
 * ... Time tracking, call logging, opportunity management, __and much more__.
 
-Cerb has continuously evolved for more than 17 years based on community feedback from thousands of teams.
+Cerb has continuously evolved for more than 18 years based on community feedback from thousands of teams.
 
 The software is distributed under the [Devblocks Public License](https://cerb.ai/license) as a commercial open source project. The full source code is publicly available on GitHub.
 

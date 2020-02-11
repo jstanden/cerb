@@ -88,25 +88,30 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
-		
-		// Actions
-		$values['_actions'] =& $event_model->params['actions'];
-		
-		// Client
-		@$client_browser = $event_model->params['client_browser'];
-		@$client_browser_version = $event_model->params['client_browser_version'];
-		@$client_ip = $event_model->params['client_ip'];
-		@$client_platform = $event_model->params['client_platform'];
+			
+		if($event_model) {
+			// Actions
+			$values['_actions'] =& $event_model->params['actions'];
+			
+			// Client
+			@$client_browser = $event_model->params['client_browser'];
+			@$client_browser_version = $event_model->params['client_browser_version'];
+			@$client_ip = $event_model->params['client_ip'];
+			@$client_platform = $event_model->params['client_platform'];
+			
+			$values['client_browser'] = $client_browser;
+			$values['client_browser_version'] = $client_browser_version;
+			$values['client_ip'] = $client_ip;
+			$values['client_platform'] = $client_platform;
+			
+		} else {
+			$values['_actions'] = [];
+		}
 		
 		$labels['client_browser'] = 'Client Browser';
 		$labels['client_browser_version'] = 'Client Browser Version';
 		$labels['client_ip'] = 'Client IP';
 		$labels['client_platform'] = 'Client Platform';
-		
-		$values['client_browser'] = $client_browser;
-		$values['client_browser_version'] = $client_browser_version;
-		$values['client_ip'] = $client_ip;
-		$values['client_platform'] = $client_platform;
 		
 		/**
 		 * Return

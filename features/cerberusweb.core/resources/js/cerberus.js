@@ -472,7 +472,7 @@ var cAjaxCalls = function() {
 			default:
 				break;
 		}
-	}
+	};
 	
 	this.viewCloseTickets = function(view_id,mode) {
 		var divName = 'view'+view_id;
@@ -500,7 +500,7 @@ var cAjaxCalls = function() {
 				});
 				break;
 		}
-	}
+	};
 	
 	this.viewAddQuery = function(view_id, query, replace) {
 		var $view = $('#view'+view_id);
@@ -516,7 +516,7 @@ var cAjaxCalls = function() {
 		var cb = function(o) {
 			var $view_filters = $('#viewCustomFilters'+view_id);
 			
-			if(0 != $view_filters.length) {
+			if(0 !== $view_filters.length) {
 				$view_filters.html(o);
 				$view_filters.trigger('view_refresh')
 			}
@@ -535,11 +535,9 @@ var cAjaxCalls = function() {
 		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 		
 		$.ajax(options);
-	}
+	};
 	
 	this.viewAddFilter = function(view_id, field, oper, values, replace) {
-		var $view = $('#view'+view_id);
-		
 		var post_str = 'c=internal' +
 		'&a=viewAddFilter' + 
 		'&id=' + view_id +
@@ -552,11 +550,11 @@ var cAjaxCalls = function() {
 		var cb = function(o) {
 			var $view_filters = $('#viewCustomFilters'+view_id);
 			
-			if(0 != $view_filters.length) {
+			if(0 !== $view_filters.length) {
 				$view_filters.html(o);
 				$view_filters.trigger('view_refresh');
 			}
-		}
+		};
 		
 		var options = {};
 		options.type = 'POST';
@@ -571,28 +569,26 @@ var cAjaxCalls = function() {
 		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 		
 		$.ajax(options);
-	}
+	};
 	
 	this.viewRemoveFilter = function(view_id, fields) {
-		var $view = $('#view'+view_id);
-		
 		var post_str = 'c=internal' +
 			'&a=viewAddFilter' + 
 			'&id=' + view_id
 			;
 		
-		for(field in fields) {
+		for(var field in fields) {
 			post_str += '&field_deletes[]=' + encodeURIComponent(fields[field]);
 		}
 		
-		cb = function(o) {
+		var cb = function(o) {
 			var $view_filters = $('#viewCustomFilters'+view_id);
 			
-			if(0 != $view_filters.length) {
+			if(0 !== $view_filters.length) {
 				$view_filters.html(o);
 				$view_filters.trigger('view_refresh')
 			}
-		}
+		};
 		
 		var options = {};
 		options.type = 'POST';
@@ -607,7 +603,7 @@ var cAjaxCalls = function() {
 		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 		
 		$.ajax(options);
-	}	
+	};
 	
 	this.viewUndo = function(view_id) {
 		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
@@ -615,7 +611,7 @@ var cAjaxCalls = function() {
 				$('#view'+view_id).html(html).trigger('view_refresh');
 			}
 		);		
-	}
+	};
 
 	this.emailAutoComplete = function(sel, options) {
 		var url = DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.address&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
@@ -652,7 +648,7 @@ var cAjaxCalls = function() {
 				};
 				
 				$.ajax(ajax_options);
-			}
+			};
 			options.select = function(event, ui) {
 				var value = $(this).val();
 				var pos = value.lastIndexOf(',');
@@ -662,7 +658,7 @@ var cAjaxCalls = function() {
 					$(this).val(ui.item.label+', ');
 				}
 				return false;
-			}
+			};
 			
 			options.focus = function(event, ui) {
 				// Don't replace the textbox value
@@ -681,11 +677,11 @@ var cAjaxCalls = function() {
 				};
 				
 				$.ajax(ajax_options);
-			}
+			};
 			options.select = function(event, ui) {
 				$(this).val(ui.item.label);
 				return false;
-			}
+			};
 			
 			options.focus = function(event, ui) {
 				// Don't replace the textbox value
@@ -2486,7 +2482,7 @@ var ajax = new cAjaxCalls();
 					autocomplete_suggestions = editor.completer.autocomplete_suggestions;
 					
 					editor.completer.isDynamic = false;
-					
+
 					// Do we need to lazy load?
 					if(autocomplete_suggestions.hasOwnProperty(scope_key)) {
 						if($.isArray(autocomplete_suggestions[scope_key])) {
@@ -2508,14 +2504,14 @@ var ajax = new cAjaxCalls();
 							
 							genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
 								var results = [];
-								
+
 								if('object' != typeof json || !json.hasOwnProperty('data')) {
 									callback('error');
 									return;
 								}
 								
-								for(i in json.data) {
-									if(!json.data[i].hasOwnProperty(key) || 0 == json.data[i][key].length)
+								for(var i in json.data) {
+									if(!json.data[i].hasOwnProperty(key) || 0 === json.data[i][key].length)
 										continue;
 									
 									var value = json.data[i][key];
@@ -2530,13 +2526,13 @@ var ajax = new cAjaxCalls();
 								}
 								
 								// If we have the full set, persist it
-								if('' == prefix && limit && limit > json.data.length) {
+								if('' === prefix && limit && limit > json.data.length) {
 									autocomplete_suggestions[scope_key] = results;
 									
 								} else {
 									editor.completer.isDynamic = true;
 								}
-								
+
 								callback(null, results);
 							});
 						}
@@ -2859,14 +2855,14 @@ var ajax = new cAjaxCalls();
 								
 								genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
 									var results = [];
-									
+
 									if('object' != typeof json || !json.hasOwnProperty('data')) {
 										callback(null, []);
 										return;
 									}
 									
 									for(var i in json.data) {
-										if(!json.data[i].hasOwnProperty(key) || 0 == json.data[i][key].length)
+										if(!json.data[i].hasOwnProperty(key) || 0 === json.data[i][key].length)
 											continue;
 										
 										var value = json.data[i][key];
@@ -3402,13 +3398,13 @@ var ajax = new cAjaxCalls();
 				var layer = $trigger.attr('data-layer');
 				var query = $trigger.attr('data-query');
 				var query_req = $trigger.attr('data-query-required');
-				
+
 				// Context
-				if(!(typeof context == "string") || 0 == context.length)
+				if(!(typeof context == "string") || 0 === context.length)
 					return;
 				
 				// Layer
-				if(!(typeof layer == "string") || 0 == layer.length)
+				if(!(typeof layer == "string") || 0 === layer.length)
 					layer = "search" + Devblocks.uniqueId();
 				
 				var search_url = 'c=search&a=openSearchPopup&context=' + encodeURIComponent(context) + '&id=' + layer;

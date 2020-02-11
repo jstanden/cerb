@@ -377,8 +377,8 @@ abstract class DevblocksORMHelper {
 			
 			foreach($sortBy as $idx => $field) {
 				// We can't sort on virtual fields, the field must exist, and must be flagged sortable
-				if('*'==substr($field,0,1) 
-						|| !isset($fields[$field]) 
+				if('*'==substr($field,0,1)
+						|| !isset($fields[$field])
 						|| !$fields[$field]->is_sortable) {
 					continue;
 				}

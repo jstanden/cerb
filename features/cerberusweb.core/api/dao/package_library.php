@@ -907,7 +907,15 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 	
 	static function isWriteableByActor($models, $actor) {
 		// Only admins can modify
-		return CerberusContexts::isActorAnAdmin($actor);
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEverything($models);
+		
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+		
+		return CerberusContexts::denyEverything($models);
 	}
 
 	function getRandom() {

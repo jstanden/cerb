@@ -62,7 +62,7 @@ class _DevblocksEmailManager {
 			return false;
 		}
 		
-		if(false == ($result = $transport->send($message, $model, $this->_lastErrorMessage))) {
+		if(false == ($result = $transport->send($message, $model))) {
 			$this->_lastErrorMessage = $transport->getLastError();
 			
 			if(!empty($this->_lastErrorMessage)) {
