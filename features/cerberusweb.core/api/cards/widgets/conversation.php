@@ -12,6 +12,7 @@ class CardWidget_Conversation extends Extension_CardWidget {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'record__context' => $context,
@@ -34,6 +35,12 @@ class CardWidget_Conversation extends Extension_CardWidget {
 			} else {
 				if(false == ($ticket = DAO_Ticket::get($target_context_id)))
 					return;
+			}
+			
+			// Worker permissions
+			if(!Context_Ticket::isReadableByActor($ticket, $active_worker)) {
+				echo DevblocksPlatform::translate('error.core.no_acl.view');
+				return;
 			}
 			
 			$ticket_timeline = $ticket->getTimeline(true, $target_context, $target_context_id, $start_at);
