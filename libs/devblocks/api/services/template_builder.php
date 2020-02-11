@@ -976,6 +976,12 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function function_array_diff($arr1, $arr2) {
+		if(!is_array($arr1) && is_null($arr1))
+			$arr1 = [];
+		
+		if(!is_array($arr2) && is_null($arr2))
+			$arr2 = [];
+		
 		if(!is_array($arr1) || !is_array($arr2))
 			return;
 		
@@ -983,6 +989,12 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 	}
 	
 	function function_array_intersect($arr1, $arr2) {
+		if(!is_array($arr1) && is_null($arr1))
+			$arr1 = [];
+		
+		if(!is_array($arr2) && is_null($arr2))
+			$arr2 = [];
+
 		if(!is_array($arr1) || !is_array($arr2))
 			return;
 		
