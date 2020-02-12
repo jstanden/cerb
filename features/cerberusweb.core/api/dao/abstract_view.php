@@ -3706,14 +3706,19 @@ abstract class C4_AbstractView {
 	public static function _doBulkSetCustomFields($context, $custom_fields, $ids) {
 		$fields = DAO_CustomField::getAll();
 		
-		if(!empty($custom_fields))
+		$custom_fieldset_ids = array_unique(array_column(array_intersect_key($fields, $custom_fields), 'custom_fieldset_id'));
+		
+		// Link any custom fieldsets we bulk update
+		if($custom_fieldset_ids) {
+			DAO_CustomFieldset::addToContext($custom_fieldset_ids, $context, $ids);
+		}
+		
+		if(is_array($custom_fields))
 		foreach($custom_fields as $cf_id => $params) {
-			if(!is_array($params) || !isset($params['value']))
+			if(!is_array($params) || !array_key_exists('value', $params))
 				continue;
 			
-			@$cf_field = $fields[$cf_id];
-			
-			if(empty($cf_field))
+			if(false == ($cf_field = @$fields[$cf_id]))
 				continue;
 			
 			$cf_val = $params['value'];

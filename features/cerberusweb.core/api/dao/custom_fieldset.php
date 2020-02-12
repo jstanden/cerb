@@ -225,17 +225,22 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return $fieldsets;
 	}
 	
-	static function addToContext($ids, $context, $context_id) {
+	static function addToContext($fieldset_ids, $context, $context_ids) {
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!is_array($context_ids))
+			$context_ids = [$context_ids];
 		
 		$values = [];
 		
-		foreach($ids as $id) {
-			$values[] = sprintf("(%d, %s, %d)",
-				$id,
-				$db->qstr($context),
-				$context_id
-			);
+		foreach($fieldset_ids as $fieldset_id) {
+			foreach($context_ids as $context_id) {
+				$values[] = sprintf("(%d, %s, %d)",
+					$fieldset_id,
+					$db->qstr($context),
+					$context_id
+				);
+			}
 		}
 		
 		if($values) {
