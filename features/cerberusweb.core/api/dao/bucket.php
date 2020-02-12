@@ -501,10 +501,10 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			$bucket->id = intval($row['id']);
 			$bucket->name = $row['name'];
 			$bucket->group_id = intval($row['group_id']);
-			$bucket->reply_address_id = $row['reply_address_id'];
+			$bucket->reply_address_id = intval($row['reply_address_id']);
 			$bucket->reply_personal = $row['reply_personal'];
-			$bucket->reply_signature_id = $row['reply_signature_id'];
-			$bucket->reply_html_template_id = $row['reply_html_template_id'];
+			$bucket->reply_signature_id = intval($row['reply_signature_id']);
+			$bucket->reply_html_template_id = intval($row['reply_html_template_id']);
 			$bucket->is_default = !empty($row['is_default']) ? 1 : 0;
 			$bucket->updated_at = intval($row['updated_at']);
 			$buckets[$bucket->id] = $bucket;
@@ -1002,7 +1002,40 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'params' => array('context' => CerberusContexts::CONTEXT_GROUP),
 			'value' => $model->group_id,
 		);
-			
+		
+		$properties['send_from'] = array(
+			'label' => mb_ucfirst($translate->_('common.send.from')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->reply_address_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_ADDRESS,
+			],
+		);
+		
+		$properties['send_as'] = array(
+			'label' => mb_ucfirst($translate->_('common.send.as')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->reply_personal,
+		);
+		
+		$properties['template_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.email_template')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->reply_html_template_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
+			],
+		);
+		
+		$properties['signature_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.signature')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->reply_signature_id,
+			'params' => [
+				'context' => CerberusContexts::CONTEXT_EMAIL_SIGNATURE,
+			],
+		);
+		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
