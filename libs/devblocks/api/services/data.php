@@ -163,8 +163,6 @@ class _DevblocksDataService {
 		
 		CerbQuickSearchLexer::getOperStringFromTokens($type_field->tokens, $oper, $chart_type);
 		
-		$results = [];
-		
 		switch($chart_type) {
 			case 'calendar.events':
 				$provider = new _DevblocksDataProviderCalendarEvents();

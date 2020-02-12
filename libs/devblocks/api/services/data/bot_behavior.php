@@ -20,35 +20,42 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 				'value' => $var_key,
 			];
 			
-			// [TODO] Types
 			$schema[$var_key][] = [
 				'caption' => '(' . $var['label'] . ')',
 				'snippet' => '"${1:' . $var['type'] . '}"',
 			];
 		}
 		
+		$schema[''][] = 'format:';
+		$schema['format:'] = [];
+		
 		return $schema;
 	}
 	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
-		$tpl = DevblocksPlatform::services()->template();
-		
 		@$behavior_alias = $options['behavior_alias'];
 		
 		if(false == ($data_behavior = Event_DataQueryDatasource::getByAlias($behavior_alias)))
 			throw new Exception_DevblocksValidationError("A bot behavior isn't configured.");
 		
 		$behavior_vars = [];
+		$query_format = null;
 		
 		foreach($chart_fields as $chart_field) {
-			if($chart_field->key == 'type')
+			if($chart_field->key == 'type') {
 				continue;
-			
-			$var_key = 'var_' . $chart_field->key;
-			
-			if(array_key_exists($var_key, $data_behavior->variables)) {
+				
+			} else if ('format' == $chart_field->key) {
 				CerbQuickSearchLexer::getOperStringFromTokens($chart_field->tokens, $oper, $value);
-				$behavior_vars[$var_key] = $value;
+				$query_format = $value;
+				
+			} else {
+				$var_key = 'var_' . $chart_field->key;
+				
+				if(array_key_exists($var_key, $data_behavior->variables)) {
+					CerbQuickSearchLexer::getOperStringFromTokens($chart_field->tokens, $oper, $value);
+					$behavior_vars[$var_key] = $value;
+				}
 			}
 		}
 		
@@ -60,6 +67,7 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 			Event_DataQueryDatasource::ID,
 			[
 				'_variables' => $behavior_vars,
+				'query_format' => $query_format,
 				'actions' => &$actions,
 			]
 		);
@@ -88,7 +96,7 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 		
 		// Run tree
 		
-		$result = $data_behavior->runDecisionTree($dict, false, $event);
+		$data_behavior->runDecisionTree($dict, false, $event);
 		
 		foreach($actions as $action) {
 			switch($action['_action']) {
@@ -96,8 +104,8 @@ class _DevblocksDataProviderBotBehavior extends _DevblocksDataProvider {
 					$data = @json_decode($action['data'], true);
 					
 					return ['data' => $data, '_' => [
-						// [TOOD] Variables?
 						'type' => 'behavior.' . $behavior_alias,
+						'format' => $query_format,
 					]];
 					break;
 			}

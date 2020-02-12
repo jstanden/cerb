@@ -81,6 +81,9 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 		$labels = [];
 		$values = [];
 		
+		$labels['query_format'] = 'Query format';
+		$values['query_format'] = @$event_model->params['query_format'];
+		
 		/**
 		 * Behavior
 		 */
@@ -99,8 +102,12 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 				$values
 			);
 		
-		// Actions
-		$values['_actions'] =& $event_model->params['actions'];
+		if($event_model) {
+			// Actions
+			$values['_actions'] =& $event_model->params['actions'];
+		} else {
+			$values['_actions'] = [];
+		}
 		
 		/**
 		 * Return
