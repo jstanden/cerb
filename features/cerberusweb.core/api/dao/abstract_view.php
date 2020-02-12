@@ -2453,6 +2453,8 @@ abstract class C4_AbstractView {
 						foreach($query_field['examples'] as $example) {
 							$suggestions[$suggestion_key][] = $example;
 						}
+					} else {
+						$suggestions[$suggestion_key] = [];
 					}
 					break;
 					
