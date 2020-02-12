@@ -3733,31 +3733,44 @@ abstract class C4_AbstractView {
 					$cf_val = (0==strlen($cf_val)) ? '' : intval($cf_val);
 					break;
 			}
-
-			// If multi-selection types, handle delta changes
-			if(Model_CustomField::hasMultipleValues($cf_field->type)) {
-				if(is_array($cf_val))
-				foreach($cf_val as $val) {
-					$op = substr($val,0,1);
-					$val = substr($val,1);
+			
+			
+			if(false != ($cf_type = $cf_field->getTypeExtension())) {
+				if(is_array($ids))
+				foreach($ids as $id)
+					$cf_type->setFieldValue($cf_field, $context, $id, $cf_val);
 				
+			} else {
+				// If multi-selection types, handle delta changes
+				if(Model_CustomField::hasMultipleValues($cf_field->type)) {
+					if(is_array($cf_val))
+					foreach($cf_val as $val) {
+						if(DevblocksPlatform::strStartsWith($val,'+-')) {
+							$op = substr($val,0,1);
+							$val = substr($val,1);
+						} else {
+							$op = '+';
+						}
+					
+						if(is_array($ids))
+						foreach($ids as $id) {
+							if($op=='-') {
+								DAO_CustomFieldValue::unsetFieldValue($context, $id, $cf_id, $val);
+							} else {
+								DAO_CustomFieldValue::setFieldValue($context, $id, $cf_id, $val, true);
+							}
+						}
+					}
+					
+				// Otherwise, set/unset as a single field
+				} else {
 					if(is_array($ids))
 					foreach($ids as $id) {
-						if($op=='+')
-							DAO_CustomFieldValue::setFieldValue($context,$id,$cf_id,$val,true);
-						elseif($op=='-')
-							DAO_CustomFieldValue::unsetFieldValue($context,$id,$cf_id,$val);
+						if(0 != strlen($cf_val))
+							DAO_CustomFieldValue::setFieldValue($context,$id,$cf_id,$cf_val);
+						else
+							DAO_CustomFieldValue::unsetFieldValue($context,$id,$cf_id);
 					}
-				}
-					
-			// Otherwise, set/unset as a single field
-			} else {
-				if(is_array($ids))
-				foreach($ids as $id) {
-					if(0 != strlen($cf_val))
-						DAO_CustomFieldValue::setFieldValue($context,$id,$cf_id,$cf_val);
-					else
-						DAO_CustomFieldValue::unsetFieldValue($context,$id,$cf_id);
 				}
 			}
 		}

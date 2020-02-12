@@ -1188,9 +1188,15 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 					
 				default:
-					if(false !== ($fields[$field_id]->getTypeExtension())) {
-						@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
-						$do['cf_'.$field_id] = array('value' => $field_value);
+					if(false !== ($field_extension = $fields[$field_id]->getTypeExtension())) {
+						// [TODO] handleBulkPost / parseFormPost
+						if($field_extension->hasMultipleValues()) {
+							@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
+							$do['cf_'.$field_id] = ['value' => $field_value];
+						} else {
+							@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+							$do['cf_'.$field_id] = ['value' => $field_value];
+						}
 					}
 					break;
 			}
