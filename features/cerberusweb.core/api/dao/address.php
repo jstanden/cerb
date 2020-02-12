@@ -893,6 +893,16 @@ class DAO_Address extends Cerb_ORMHelper {
 			
 			$view->addParams($params);
 			
+		// Does it start with a number?
+		} else if (is_numeric(substr($term,0,1))) {
+			$params = [
+				SearchFields_Address::EMAIL => new DevblocksSearchCriteria(SearchFields_Address::EMAIL, DevblocksSearchCriteria::OPER_LIKE, $term.'*'),
+				SearchFields_Address::IS_BANNED => new DevblocksSearchCriteria(SearchFields_Address::IS_BANNED, DevblocksSearchCriteria::OPER_EQ, 0),
+				SearchFields_Address::IS_DEFUNCT => new DevblocksSearchCriteria(SearchFields_Address::IS_DEFUNCT, DevblocksSearchCriteria::OPER_EQ, 0),
+			];
+			
+			$view->addParams($params);
+			
 		// Otherwise, use fulltext
 		} else {
 			$params = [
