@@ -138,6 +138,7 @@ class _DevblocksTemplateBuilder {
 			// Sandbox Twig
 			
 			$tags = [
+				'apply',
 				//'autoescape',
 				//'block',
 				'do',
@@ -153,7 +154,6 @@ class _DevblocksTemplateBuilder {
 				//'macro',
 				'sandbox',
 				'set',
-				'spaceless',
 				//'use',
 				'verbatim',
 				'with',
@@ -180,6 +180,7 @@ class _DevblocksTemplateBuilder {
 				'regexp',
 				'secs_pretty',
 				'sha1',
+				'spaceless',
 				'split_crlf',
 				'split_csv',
 				'truncate',

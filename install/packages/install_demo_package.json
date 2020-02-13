@@ -4173,7 +4173,7 @@
 					"cerberusweb.contexts.task": "status:[o,w]"
 				},
 				"card_templates": {
-					"cerberusweb.contexts.task": "{% spaceless %}\n{% if is_completed %}\n<div style=\"font-size:120%;\">\n\t<span class=\"glyphicons glyphicons-circle-ok\" style=\"color:rgb(0,150,0);\"></span> Completed!\n</div>\n{% elseif column__label == 'TODO' %}\n<div>\n\tDrag this to <b>In Progress</b> to start <span class=\"glyphicons glyphicons-right-arrow\"></span>\n</div>\n{% else %}\n{{custom_{{{uid.field_getting_started_notes}}}}}\n{% endif %}\n{% endspaceless %}"
+					"cerberusweb.contexts.task": "{% apply spaceless %}\n{% if is_completed %}\n<div style=\"font-size:120%;\">\n\t<span class=\"glyphicons glyphicons-circle-ok\" style=\"color:rgb(0,150,0);\"></span> Completed!\n</div>\n{% elseif column__label == 'TODO' %}\n<div>\n\tDrag this to <b>In Progress</b> to start <span class=\"glyphicons glyphicons-right-arrow\"></span>\n</div>\n{% else %}\n{{custom_{{{uid.field_getting_started_notes}}}}}\n{% endif %}\n{% endapply %}"
 				},
 				"contexts": [
 					"cerberusweb.contexts.task"

@@ -567,7 +567,7 @@
 														"actions": [
 															{
 																"action": "_set_custom_var",
-																"value": "{% spaceless %}\r\n{% set filters = [] %}\r\n{% set date = _prediction.params.date|first %}\r\n{% set org = _prediction.params.org|first|keys|first %}\r\n{% set owner = _prediction.params.worker|first|keys|first %}\r\n{% set status = _prediction.params.status|keys %}\r\n\r\n{% if owner is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"owner.id:\" ~ owner) %}\r\n{% endif %}\r\n\r\n{% if status is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"status:[\" ~ status|join(',') ~ \"]\") %}\r\n{% endif %}\r\n\r\n{% if org is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"org.id:\" ~ org) %}\r\n{% endif %}\r\n\r\n{% if date is not empty %}\r\n  {% set filters = dict_set(filters, '[]', 'updated:\"' ~ date.date ~ '\"') %}\r\n{% endif %}\r\n\r\n{% endspaceless %}\r\n{{filters|join(' ')}}",
+																"value": "{% apply spaceless %}\r\n{% set filters = [] %}\r\n{% set date = _prediction.params.date|first %}\r\n{% set org = _prediction.params.org|first|keys|first %}\r\n{% set owner = _prediction.params.worker|first|keys|first %}\r\n{% set status = _prediction.params.status|keys %}\r\n\r\n{% if owner is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"owner.id:\" ~ owner) %}\r\n{% endif %}\r\n\r\n{% if status is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"status:[\" ~ status|join(',') ~ \"]\") %}\r\n{% endif %}\r\n\r\n{% if org is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"org.id:\" ~ org) %}\r\n{% endif %}\r\n\r\n{% if date is not empty %}\r\n  {% set filters = dict_set(filters, '[]', 'updated:\"' ~ date.date ~ '\"') %}\r\n{% endif %}\r\n\r\n{% endapply %}\r\n{{filters|join(' ')}}",
 																"format": "",
 																"is_simulator_only": "0",
 																"var": "_query"
@@ -624,7 +624,7 @@
 														"actions": [
 															{
 																"action": "_set_custom_var",
-																"value": "{% spaceless %}\r\n{% set filters = [] %}\r\n{% set date = _prediction.params.date|first %}\r\n{% set worker = _prediction.params.worker|first|keys|first %}\r\n{% set status = _prediction.params.status|keys %}\r\n\r\n{% if worker is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"worker.id:\" ~ worker) %}\r\n{% endif %}\r\n\r\n{% if status is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"ticket:(status:[\" ~ status|join(',') ~ \"])\") %}\r\n{% endif %}\r\n\r\n{% if date is not empty %}\r\n  {% set filters = dict_set(filters, '[]', 'created:\"' ~ date.date ~ '\"') %}\r\n{% endif %}\r\n\r\n{% endspaceless %}\r\n{{filters|join(' ')}}",
+																"value": "{% apply spaceless %}\r\n{% set filters = [] %}\r\n{% set date = _prediction.params.date|first %}\r\n{% set worker = _prediction.params.worker|first|keys|first %}\r\n{% set status = _prediction.params.status|keys %}\r\n\r\n{% if worker is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"worker.id:\" ~ worker) %}\r\n{% endif %}\r\n\r\n{% if status is not empty %}\r\n  {% set filters = dict_set(filters, '[]', \"ticket:(status:[\" ~ status|join(',') ~ \"])\") %}\r\n{% endif %}\r\n\r\n{% if date is not empty %}\r\n  {% set filters = dict_set(filters, '[]', 'created:\"' ~ date.date ~ '\"') %}\r\n{% endif %}\r\n\r\n{% endapply %}\r\n{{filters|join(' ')}}",
 																"format": "",
 																"is_simulator_only": "0",
 																"var": "_query"
@@ -681,7 +681,7 @@
 														"actions": [
 															{
 																"action": "_set_custom_var",
-																"value": "{% spaceless %}\r\n{% set filters = [] %}\r\n{% set date = _prediction.params.date|first %}\r\n{% set owner = _prediction.params.worker|first|keys|first %}\r\n\r\n{% if owner is not empty %}\r\n{% set filters = dict_set(filters, '[]', \"actor.worker:(id:\" ~ owner ~ \")\") %}\r\n{% endif %}\r\n\r\n{% if date is not empty %}\r\n  {% set filters = dict_set(filters, '[]', 'created:\"' ~ date.date ~ '\"') %}\r\n{% endif %}\r\n\r\n{% endspaceless %}\r\n{{filters|join(' ')}}",
+																"value": "{% apply spaceless %}\r\n{% set filters = [] %}\r\n{% set date = _prediction.params.date|first %}\r\n{% set owner = _prediction.params.worker|first|keys|first %}\r\n\r\n{% if owner is not empty %}\r\n{% set filters = dict_set(filters, '[]', \"actor.worker:(id:\" ~ owner ~ \")\") %}\r\n{% endif %}\r\n\r\n{% if date is not empty %}\r\n  {% set filters = dict_set(filters, '[]', 'created:\"' ~ date.date ~ '\"') %}\r\n{% endif %}\r\n\r\n{% endapply %}\r\n{{filters|join(' ')}}",
 																"format": "",
 																"is_simulator_only": "0",
 																"var": "_query"
@@ -738,7 +738,7 @@
 														"actions": [
 															{
 																"action": "_set_custom_var",
-																"value": "{% spaceless %}\r\n{% set filters = [] %}\r\n{% set status = _prediction.params.status|keys|first %}\r\n{% set owner = _prediction.params.worker|first|keys|first %}\r\n\r\n{% if owner is not empty %}\r\n{% set filters = dict_set(filters, '[]', \"worker.id:\" ~ owner) %}\r\n{% else %}\r\n{% set filters = dict_set(filters, '[]', \"worker:me\") %}\r\n{% endif %}\r\n\r\n{% if status is not empty and status == 'closed' %}\r\n  {% set filters = dict_set(filters, '[]', \"isRead:1\") %}\r\n{% else %}\r\n  {% set filters = dict_set(filters, '[]', \"isRead:0\") %}\r\n{% endif %}\r\n\r\n{% endspaceless %}\r\n{{filters|join(' ')}}",
+																"value": "{% apply spaceless %}\r\n{% set filters = [] %}\r\n{% set status = _prediction.params.status|keys|first %}\r\n{% set owner = _prediction.params.worker|first|keys|first %}\r\n\r\n{% if owner is not empty %}\r\n{% set filters = dict_set(filters, '[]', \"worker.id:\" ~ owner) %}\r\n{% else %}\r\n{% set filters = dict_set(filters, '[]', \"worker:me\") %}\r\n{% endif %}\r\n\r\n{% if status is not empty and status == 'closed' %}\r\n  {% set filters = dict_set(filters, '[]', \"isRead:1\") %}\r\n{% else %}\r\n  {% set filters = dict_set(filters, '[]', \"isRead:0\") %}\r\n{% endif %}\r\n\r\n{% endapply %}\r\n{{filters|join(' ')}}",
 																"format": "",
 																"is_simulator_only": "0",
 																"var": "_query"
@@ -795,7 +795,7 @@
 														"actions": [
 															{
 																"action": "_set_custom_var",
-																"value": "{% spaceless %}\r\n{% set filters = [] %}\r\n{% set date = _prediction.params.date|first %}\r\n{% set status = _prediction.params.status|keys|first %}\r\n{% set owner = _prediction.params.worker|first|keys|first %}\r\n\r\n{% if owner is not empty %}\r\n{% set filters = dict_set(filters, '[]', \"owner.id:\" ~ owner) %}\r\n{% endif %}\r\n\r\n{% if status is not empty %}\r\n  {% if status == 'closed' %}\r\n  {% set filters = dict_set(filters, '[]', \"isCompleted:1\") %}\r\n  {% else %}\r\n  {% set filters = dict_set(filters, '[]', \"isCompleted:0\") %}\r\n  {% endif %}\r\n{% endif %}\r\n\r\n{% if date is not empty %}\r\n  {% set filters = dict_set(filters, '[]', 'due:\"big bang to ' ~ date.date ~ '\"') %}\r\n{% endif %}\r\n\r\n{% endspaceless %}\r\n{{filters|join(' ')}}",
+																"value": "{% apply spaceless %}\r\n{% set filters = [] %}\r\n{% set date = _prediction.params.date|first %}\r\n{% set status = _prediction.params.status|keys|first %}\r\n{% set owner = _prediction.params.worker|first|keys|first %}\r\n\r\n{% if owner is not empty %}\r\n{% set filters = dict_set(filters, '[]', \"owner.id:\" ~ owner) %}\r\n{% endif %}\r\n\r\n{% if status is not empty %}\r\n  {% if status == 'closed' %}\r\n  {% set filters = dict_set(filters, '[]', \"isCompleted:1\") %}\r\n  {% else %}\r\n  {% set filters = dict_set(filters, '[]', \"isCompleted:0\") %}\r\n  {% endif %}\r\n{% endif %}\r\n\r\n{% if date is not empty %}\r\n  {% set filters = dict_set(filters, '[]', 'due:\"big bang to ' ~ date.date ~ '\"') %}\r\n{% endif %}\r\n\r\n{% endapply %}\r\n{{filters|join(' ')}}",
 																"format": "",
 																"is_simulator_only": "0",
 																"var": "_query"
