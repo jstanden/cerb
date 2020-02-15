@@ -606,6 +606,7 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 
 	// Virtuals
 	const VIRTUAL_ALIAS = '*_alias';
+	const VIRTUAL_CONTACTS_SEARCH = '*_contacts_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -635,6 +636,11 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 			
 			case self::VIRTUAL_ALIAS:
 				return  self::_getWhereSQLFromAliasesField($param, CerberusContexts::CONTEXT_ORG, self::getPrimaryKey());
+				break;
+			
+			case self::VIRTUAL_CONTACTS_SEARCH:
+				$sql = "SELECT contact.org_id FROM contact WHERE contact.id IN (%s)";
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CONTACT, $sql, 'c.id');
 				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
@@ -719,6 +725,7 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 			self::FULLTEXT_ORG => new DevblocksSearchField(self::FULLTEXT_ORG, 'ft', 'org', $translate->_('common.search.fulltext'), 'FT', false),
 
 			self::VIRTUAL_ALIAS => new DevblocksSearchField(self::VIRTUAL_ALIAS, '*', 'alias', $translate->_('common.aliases'), null, false),
+			self::VIRTUAL_CONTACTS_SEARCH => new DevblocksSearchField(self::VIRTUAL_CONTACTS_SEARCH, '*', 'contacts_search', null, null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -1009,6 +1016,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_ContactOrg::FULLTEXT_ORG,
 			SearchFields_ContactOrg::VIRTUAL_ALIAS,
+			SearchFields_ContactOrg::VIRTUAL_CONTACTS_SEARCH,
 			SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK,
 			SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET,
@@ -1143,7 +1151,15 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_FULLTEXT,
 					'options' => array('param_key' => SearchFields_ContactOrg::FULLTEXT_COMMENT_CONTENT),
 				),
-			'country' => 
+			'contacts' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ContactOrg::VIRTUAL_CONTACTS_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CONTACT, 'q' => ''],
+					]
+				),
+			'country' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContactOrg::COUNTRY, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PREFIX),
@@ -1293,6 +1309,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			case 'alias':
 				return DevblocksSearchCriteria::getContextAliasParamFromTokens(SearchFields_ContactOrg::VIRTUAL_ALIAS, $tokens);
 				break;
+			
+			case 'contacts':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_CONTACTS_SEARCH);
+				break;
 				
 			case 'email':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH);
@@ -1348,6 +1368,13 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.alias')),
 					DevblocksPlatform::strEscapeHtml($param->operator),
 					DevblocksPlatform::strEscapeHtml(json_encode($param->value))
+				);
+				break;
+			
+			case SearchFields_ContactOrg::VIRTUAL_CONTACTS_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.contacts')),
+					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
 				
