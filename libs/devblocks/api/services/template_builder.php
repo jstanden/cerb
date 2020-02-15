@@ -154,8 +154,11 @@ class _DevblocksTemplateBuilder {
 				'shuffle',
 				'validate_email',
 				'validate_number',
+				'xml_attr',
+				'xml_attrs',
 				'xml_decode',
 				'xml_encode',
+				'xml_tag',
 				'xml_xpath',
 				'xml_xpath_ns',
 				
@@ -954,8 +957,11 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			new Twig_SimpleFunction('shuffle', [$this, 'function_shuffle']),
 			new Twig_SimpleFunction('validate_email', [$this, 'function_validate_email']),
 			new Twig_SimpleFunction('validate_number', [$this, 'function_validate_number']),
+			new Twig_SimpleFunction('xml_attr', [$this, 'function_xml_attr']),
+			new Twig_SimpleFunction('xml_attrs', [$this, 'function_xml_attrs']),
 			new Twig_SimpleFunction('xml_decode', [$this, 'function_xml_decode']),
 			new Twig_SimpleFunction('xml_encode', [$this, 'function_xml_encode']),
+			new Twig_SimpleFunction('xml_tag', [$this, 'function_xml_tag']),
 			new Twig_SimpleFunction('xml_xpath_ns', [$this, 'function_xml_xpath_ns']),
 			new Twig_SimpleFunction('xml_xpath', [$this, 'function_xml_xpath']),
 		);
@@ -1211,6 +1217,36 @@ class _DevblocksTwigExtensions extends Twig_Extension {
 			$xml->registerXPathNamespace($prefix, $ns);
 		
 		return $xml;
+	}
+	
+	function function_xml_tag($xml) {
+		if(!($xml instanceof SimpleXMLElement))
+			return false;
+		
+		return $xml->getName();
+	}
+	
+	function function_xml_attr($xml, $attr, $default=null) {
+		if(!($xml instanceof SimpleXMLElement))
+			return false;
+		
+		if(isset($xml[$attr]))
+			return $xml[$attr];
+		
+		return $default;
+	}
+	
+	function function_xml_attrs($xml) {
+		if(!($xml instanceof SimpleXMLElement))
+			return false;
+		
+		$attrs = [];
+		
+		foreach($xml->attributes() as $attr) {
+			$attrs[$attr->getName()] = $attr->__toString();
+		}
+
+		return $attrs;
 	}
 	
 	function function_xml_xpath_ns($xml, $prefix, $ns) {

@@ -1150,10 +1150,13 @@ var ajax = new cAjaxCalls();
 					{ value: "shuffle(array)", meta: "function" },
 					{ value: "validate_email(string)", meta: "function" },
 					{ value: "validate_number(string)", meta: "function" },
+					{ value: "xml_attr(xml,name,default)", meta: "function" },
+					{ value: "xml_attrs(xml)", meta: "function" },
 					{ value: "xml_decode(string,namespaces)", meta: "function" },
 					{ value: "xml_encode(xml)", meta: "function" },
-					{ value: "xml_path(xml,path,element)", meta: "function" },
-					{ value: "xml_path_ns(xml,prefix,ns)", meta: "function" },
+					{ value: "xml_xpath(xml,path,element)", meta: "function" },
+					{ value: "xml_xpath_ns(xml,prefix,ns)", meta: "function" },
+					{ value: "xml_tag(xml)", meta: "function" },
 				];
 				
 				var autocompleterTwig = {
