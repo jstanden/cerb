@@ -184,7 +184,8 @@ class ChFilesController extends DevblocksControllerExtension {
 						}
 					}
 					
-					$clean_html = DevblocksPlatform::purifyHTML($fp, true, true);
+					$filters = [new Cerb_HTMLPurifier_URIFilter_Email()];
+					$clean_html = DevblocksPlatform::purifyHTML($fp, true, true, $filters);
 					
 					header("Content-Length: " . strlen($clean_html));
 					echo $clean_html;

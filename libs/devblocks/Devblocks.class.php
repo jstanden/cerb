@@ -1035,24 +1035,36 @@ class DevblocksPlatform extends DevblocksEngine {
 		return mb_convert_case($string, MB_CASE_LOWER);
 	}
 	
-	static function strStartsWith($string, $prefixes) {
+	static function strStartsWith($string, $prefixes, $case_sensitive=true) {
 		if(!is_array($prefixes))
 			$prefixes = [$prefixes];
 		
-		foreach($prefixes as $prefix)
-			if(substr($string, 0, strlen($prefix)) == $prefix)
-				return $prefix; // true
+		foreach($prefixes as $prefix) {
+			if($case_sensitive) {
+				if(0 == strcmp(substr($string, 0, strlen($prefix)), $prefix))
+					return $prefix;
+			} else {
+				if(0 == strcasecmp(substr($string, 0, strlen($prefix)), $prefix))
+					return $prefix;
+			}
+		}
 		
 		return false;
 	}
 	
-	static function strEndsWith($string, $suffixes) {
+	static function strEndsWith($string, $suffixes, $case_sensitive=true) {
 		if(!is_array($suffixes))
 			$suffixes = [$suffixes];
 		
-		foreach($suffixes as $suffix)
-			if(substr($string, -strlen($suffix)) == $suffix)
-				return $suffix; // true
+		foreach($suffixes as $suffix) {
+			if($case_sensitive) {
+				if(0 == strcmp(substr($string, -strlen($suffix)), $suffix))
+					return $suffix;
+			} else {
+				if(0 == strcasecmp(substr($string, -strlen($suffix)), $suffix))
+					return $suffix;
+			}
+		}
 		
 		return false;
 	}
@@ -1738,6 +1750,8 @@ class DevblocksPlatform extends DevblocksEngine {
 				));
 			}
 			
+			$config->set('URI.Host', DevblocksPlatform::getHostname());
+			
 			$config->set('URI.AllowedSchemes', array(
 				'http' => true,
 				'https' => true,
@@ -1790,11 +1804,12 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * 
 	 * @param string $dirty_html
 	 * @param boolean $inline_css
-	 * @param array $options
+	 * @param boolean $is_untrusted
+	 * @param array $filters
 	 * @return string
 	 * @test DevblocksPlatformTest
 	 */
-	static function purifyHTML($dirty_html, $inline_css=false, $is_untrusted=true) {
+	static function purifyHTML($dirty_html, $inline_css=false, $is_untrusted=true, array $filters=[]) {
 		// If we're passed a file pointer, load the literal string
 		if(is_resource($dirty_html)) {
 			$fp = $dirty_html;
@@ -1812,6 +1827,19 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 		
 		$config = self::purifyHTMLOptions($inline_css, $is_untrusted);
+		
+		if($is_untrusted && !$filters) {
+			$filters = [
+				new Cerb_HTMLPurifier_URIFilter_Email()
+			];
+		}
+		
+		if($filters) {
+			foreach ($filters as $filter) {
+				$config->getURIDefinition()->addFilter($filter, $config);
+			}
+		}
+		
 		$purifier = new HTMLPurifier($config);
 		
 		$dirty_html = $purifier->purify($dirty_html);
@@ -3532,7 +3560,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	}
 	
 	static function getHttpMethod() {
-		return $_SERVER['REQUEST_METHOD'];
+		return DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']);
 	}
 	
 	static function getHttpParams() {

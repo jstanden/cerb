@@ -29,16 +29,19 @@ class PageSection_ProfilesCall extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$is_outgoing = DevblocksPlatform::importGPC($_REQUEST['is_outgoing'], 'integer', 0);
-		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'], 'integer', 0);
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'], 'string', '');
-		@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$is_outgoing = DevblocksPlatform::importGPC($_POST['is_outgoing'], 'integer', 0);
+		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'], 'integer', 0);
+		@$subject = DevblocksPlatform::importGPC($_POST['subject'], 'string', '');
+		@$phone = DevblocksPlatform::importGPC($_POST['phone'], 'string', '');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

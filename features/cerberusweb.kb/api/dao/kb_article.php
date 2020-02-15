@@ -922,8 +922,9 @@ class Model_KbArticle {
 				break;
 		}
 		
-		if($sanitized)
+		if($sanitized) {
 			$html = DevblocksPlatform::purifyHTML($html, true, true);
+		}
 		
 		return $html;
 	}

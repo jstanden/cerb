@@ -29,12 +29,15 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		if(!$active_worker || !$active_worker->is_superuser)
 			throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
@@ -56,7 +59,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$auth_disable_plain = DevblocksPlatform::importGPC($_REQUEST['auth_disable_plain'],'integer',0);
+				@$auth_disable_plain = DevblocksPlatform::importGPC($_POST['auth_disable_plain'],'integer',0);
 				@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
 				@$host = DevblocksPlatform::importGPC($_POST['host'],'string');
 				@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer');
@@ -64,7 +67,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 				@$port = DevblocksPlatform::importGPC($_POST['port'],'integer');
 				@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string');
-				@$ssl_ignore_validation = DevblocksPlatform::importGPC($_REQUEST['ssl_ignore_validation'],'integer',0);
+				@$ssl_ignore_validation = DevblocksPlatform::importGPC($_POST['ssl_ignore_validation'],'integer',0);
 				@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer');
 				@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
 				
@@ -184,15 +187,15 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			
 			$translate = DevblocksPlatform::getTranslationService();
 			
-			@$protocol = DevblocksPlatform::importGPC($_REQUEST['protocol'],'string','');
-			@$host = DevblocksPlatform::importGPC($_REQUEST['host'],'string','');
-			@$port = DevblocksPlatform::importGPC($_REQUEST['port'],'integer',110);
-			@$user = DevblocksPlatform::importGPC($_REQUEST['username'],'string','');
-			@$pass = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
-			@$timeout_secs = DevblocksPlatform::importGPC($_REQUEST['timeout_secs'],'integer',0);
-			@$max_msg_size_kb = DevblocksPlatform::importGPC($_REQUEST['max_msg_size_kb'],'integer',25600);
-			@$ssl_ignore_validation = DevblocksPlatform::importGPC($_REQUEST['ssl_ignore_validation'],'integer',0);
-			@$auth_disable_plain = DevblocksPlatform::importGPC($_REQUEST['auth_disable_plain'],'integer',0);
+			@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string','');
+			@$host = DevblocksPlatform::importGPC($_POST['host'],'string','');
+			@$port = DevblocksPlatform::importGPC($_POST['port'],'integer',110);
+			@$user = DevblocksPlatform::importGPC($_POST['username'],'string','');
+			@$pass = DevblocksPlatform::importGPC($_POST['password'],'string','');
+			@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer',0);
+			@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer',25600);
+			@$ssl_ignore_validation = DevblocksPlatform::importGPC($_POST['ssl_ignore_validation'],'integer',0);
+			@$auth_disable_plain = DevblocksPlatform::importGPC($_POST['auth_disable_plain'],'integer',0);
 			
 			// Defaults
 			if(empty($port)) {

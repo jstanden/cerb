@@ -31,6 +31,9 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 	function savePeekJsonAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
+		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
@@ -38,18 +41,18 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			if(empty($active_worker) || empty($active_worker->id))
 				throw new Exception_DevblocksAjaxValidationError("You must be logged in to edit records.");
 			
-			@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-			@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+			@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+			@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+			@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 				
 			@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
 			@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
 			@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'integer',0);
 			
-			@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
+			@$comment = DevblocksPlatform::importGPC(@$_POST['comment'],'string','');
 			
 			// Date
-			@$log_date = DevblocksPlatform::importGPC($_REQUEST['log_date'],'string','now');
+			@$log_date = DevblocksPlatform::importGPC($_POST['log_date'],'string','now');
 			if(false == (@$log_date = strtotime($log_date)))
 				$log_date = time();
 			
@@ -97,8 +100,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				$url_writer = DevblocksPlatform::services()->url();
 				
 				// Context Link (if given)
-				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
-				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
+				@$link_context = DevblocksPlatform::importGPC($_POST['link_context'],'string','');
+				@$link_context_id = DevblocksPlatform::importGPC($_POST['link_context_id'],'integer','');
 				
 				// Procedurally create a comment
 				// [TODO] Check context for 'comment' option

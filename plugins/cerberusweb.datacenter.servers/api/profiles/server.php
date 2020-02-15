@@ -30,11 +30,14 @@ class PageSection_ProfilesServer extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,7 +56,7 @@ class PageSection_ProfilesServer extends Extension_PageSection {
 				return;
 				
 			} else { // create | update
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
+				@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
 				
 				$fields = array(
 					DAO_Server::NAME => $name,

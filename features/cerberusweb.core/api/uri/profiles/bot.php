@@ -29,11 +29,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		if(!$active_worker)
 			return false;
@@ -54,8 +57,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'],'string', '');
 				
 				$mode = 'build';
 				
@@ -68,8 +71,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
-						@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+						@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -142,15 +145,15 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-						@$at_mention_name = DevblocksPlatform::importGPC($_REQUEST['at_mention_name'], 'string', '');
-						@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
-						@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'], 'integer', 0);
-						@$allowed_events = DevblocksPlatform::importGPC($_REQUEST['allowed_events'], 'string', '');
-						@$itemized_events = DevblocksPlatform::importGPC($_REQUEST['itemized_events'], 'array', array());
-						@$allowed_actions = DevblocksPlatform::importGPC($_REQUEST['allowed_actions'], 'string', '');
-						@$itemized_actions = DevblocksPlatform::importGPC($_REQUEST['itemized_actions'], 'array', array());
-						@$config_json = DevblocksPlatform::importGPC($_REQUEST['config_json'], 'string', '');
+						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+						@$at_mention_name = DevblocksPlatform::importGPC($_POST['at_mention_name'], 'string', '');
+						@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
+						@$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'], 'integer', 0);
+						@$allowed_events = DevblocksPlatform::importGPC($_POST['allowed_events'], 'string', '');
+						@$itemized_events = DevblocksPlatform::importGPC($_POST['itemized_events'], 'array', array());
+						@$allowed_actions = DevblocksPlatform::importGPC($_POST['allowed_actions'], 'string', '');
+						@$itemized_actions = DevblocksPlatform::importGPC($_POST['itemized_actions'], 'array', array());
+						@$config_json = DevblocksPlatform::importGPC($_POST['config_json'], 'string', '');
 						
 						$is_disabled = DevblocksPlatform::intClamp($is_disabled, 0, 1);
 						
@@ -253,7 +256,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 								throw new Exception_DevblocksAjaxValidationError($error);
 							
 							// Avatar image
-							@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+							@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 							DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_BOT, $id, $avatar_image);
 						}
 						

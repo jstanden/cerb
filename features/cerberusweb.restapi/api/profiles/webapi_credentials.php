@@ -29,12 +29,15 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,10 +56,10 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',[]);
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
 				@$allowed_paths = DevblocksPlatform::importGPC($params['allowed_paths'],'string','');
-				@$generate_new_keys = DevblocksPlatform::importGPC($_REQUEST['regenerate_keys'],'integer',0);
+				@$generate_new_keys = DevblocksPlatform::importGPC($_POST['regenerate_keys'],'integer',0);
 				
 				$params = [
 					'allowed_paths' => DevblocksPlatform::parseCrlfString($allowed_paths)
@@ -69,7 +72,7 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 				];
 				
 				if(empty($id)) { // New
-					@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+					@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'integer',0);
 					$fields[DAO_WebApiCredentials::WORKER_ID] = $worker_id;
 				
 					if(!DAO_WebApiCredentials::validate($fields, $error))

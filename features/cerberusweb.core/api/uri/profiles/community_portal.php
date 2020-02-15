@@ -29,12 +29,15 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,13 +56,13 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$path = DevblocksPlatform::importGPC($_REQUEST['path'], 'string', '');
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$path = DevblocksPlatform::importGPC($_POST['path'], 'string', '');
 				
 				$error = null;
 				
 				if(empty($id)) { // New
-					@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+					@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
 					
 					$fields = array(
 						DAO_CommunityTool::EXTENSION_ID => $extension_id,

@@ -29,11 +29,14 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer','');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -61,8 +64,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 				$fields = [];
 				
 				// Fields
-				@$is_queued = DevblocksPlatform::importGPC($_REQUEST['is_queued'], 'bit', 0);
-				@$send_at = DevblocksPlatform::importGPC($_REQUEST['send_at'], 'string', '');
+				@$is_queued = DevblocksPlatform::importGPC($_POST['is_queued'], 'bit', 0);
+				@$send_at = DevblocksPlatform::importGPC($_POST['send_at'], 'string', '');
 				
 				$fields[DAO_MailQueue::IS_QUEUED] = $is_queued;
 				$fields[DAO_MailQueue::QUEUE_FAILS] = 0;

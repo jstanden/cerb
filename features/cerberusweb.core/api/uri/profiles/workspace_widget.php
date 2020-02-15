@@ -44,12 +44,15 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -74,9 +77,9 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$workspace_tab_id = DevblocksPlatform::importGPC($_REQUEST['workspace_tab_id'], 'integer', 0);
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
+				@$workspace_tab_id = DevblocksPlatform::importGPC($_POST['workspace_tab_id'], 'integer', 0);
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'], 'string', '');
 				
 				$mode = 'build';
 				
@@ -88,7 +91,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -187,9 +190,9 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 						break;
 					
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
-						@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
+						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+						@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
+						@$width_units = DevblocksPlatform::importGPC($_POST['width_units'], 'integer', 1);
 						
 						$width_units = DevblocksPlatform::intClamp($width_units, 1, 4);
 						

@@ -29,13 +29,15 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$bayes = DevblocksPlatform::services()->bayesClassifier();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -60,9 +62,9 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$expression = DevblocksPlatform::importGPC($_REQUEST['expression'], 'string', '');
-				@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
-				@$class_id = DevblocksPlatform::importGPC($_REQUEST['class_id'], 'integer', 0);
+				@$expression = DevblocksPlatform::importGPC($_POST['expression'], 'string', '');
+				@$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'], 'integer', 0);
+				@$class_id = DevblocksPlatform::importGPC($_POST['class_id'], 'integer', 0);
 				
 				if(false == ($classifier = DAO_Classifier::get($classifier_id)))
 					throw new Exception_DevblocksAjaxValidationError("The 'Classifier' is invalid.", 'classifier_id');

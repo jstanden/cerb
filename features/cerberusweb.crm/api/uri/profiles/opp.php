@@ -30,15 +30,15 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['opp_id'],'integer',0);
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
-		@$currency_amount = DevblocksPlatform::importGPC($_REQUEST['currency_amount'],'string','0.00');
-		@$currency_id = DevblocksPlatform::importGPC($_REQUEST['currency_id'],'integer',0);
-		@$closed_date_str = DevblocksPlatform::importGPC($_REQUEST['closed_date'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['opp_id'],'integer',0);
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer',0);
+		@$currency_amount = DevblocksPlatform::importGPC($_POST['currency_amount'],'string','0.00');
+		@$currency_id = DevblocksPlatform::importGPC($_POST['currency_id'],'integer',0);
+		@$closed_date_str = DevblocksPlatform::importGPC($_POST['closed_date'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		if(false != ($currency = DAO_Currency::get($currency_id))) {
 			$currency_amount = DevblocksPlatform::strParseDecimal($currency_amount, $currency->decimal_at);
@@ -54,6 +54,9 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 			
 		// Worker
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 

@@ -29,11 +29,14 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -46,7 +49,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				throw new Exception_DevblocksAjaxValidationError("You do not have permission to delete this bucket.");
 			
 			if($id && !empty($do_delete)) { // Delete
-				@$delete_moveto = DevblocksPlatform::importGPC($_REQUEST['delete_moveto'],'integer',0);
+				@$delete_moveto = DevblocksPlatform::importGPC($_POST['delete_moveto'],'integer',0);
 				$buckets = DAO_Bucket::getAll();
 				
 				// Destination must exist
@@ -65,16 +68,17 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-				@$enable_mail = DevblocksPlatform::importGPC($_REQUEST['enable_mail'],'integer',0);
+				@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+				@$enable_mail = DevblocksPlatform::importGPC($_POST['enable_mail'],'integer',0);
 				
 				$fields = [];
 				
 				if($enable_mail) {
-					@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
-					@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
-					@$reply_signature_id = DevblocksPlatform::importGPC($_REQUEST['reply_signature_id'],'integer',0);
-					@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
+					@$reply_address_id = DevblocksPlatform::importGPC($_POST['reply_address_id'],'integer',0);
+					@$reply_personal = DevblocksPlatform::importGPC($_POST['reply_personal'],'string','');
+					@$reply_signature_id = DevblocksPlatform::importGPC($_POST['reply_signature_id'],'integer',0);
+					@$reply_html_template_id = DevblocksPlatform::importGPC($_POST['reply_html_template_id'],'integer',0);
+					@$reply_signing_key_id = DevblocksPlatform::importGPC($_POST['reply_signing_key_id'],'integer',0);
 				} else {
 					$reply_address_id = 0;
 					$reply_personal = '';
@@ -88,7 +92,7 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 				$fields[DAO_Bucket::REPLY_HTML_TEMPLATE_ID] = $reply_html_template_id;
 				
 				if(empty($id)) { // New
-					@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
+					@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
 					
 					$fields[DAO_Bucket::NAME] = $name;
 					$fields[DAO_Bucket::GROUP_ID] = $group_id;

@@ -29,12 +29,15 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -54,21 +57,21 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'], 'string', '');
-				@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'], 'string', '');
-				@$aliases = DevblocksPlatform::importGPC($_REQUEST['aliases'],'string','');
-				@$title = DevblocksPlatform::importGPC($_REQUEST['title'], 'string', '');
-				@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'], 'integer', 0);
-				@$primary_email_id = DevblocksPlatform::importGPC($_REQUEST['primary_email_id'], 'integer', 0);
-				@$username = DevblocksPlatform::importGPC($_REQUEST['username'], 'string', '');
-				@$gender = DevblocksPlatform::importGPC($_REQUEST['gender'], 'string', '');
-				@$dob = DevblocksPlatform::importGPC($_REQUEST['dob'], 'string', '');
-				@$location = DevblocksPlatform::importGPC($_REQUEST['location'], 'string', '');
-				@$language = DevblocksPlatform::importGPC($_REQUEST['language'], 'string', '');
-				@$timezone = DevblocksPlatform::importGPC($_REQUEST['timezone'], 'string', '');
-				@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'], 'string', '');
-				@$mobile = DevblocksPlatform::importGPC($_REQUEST['mobile'], 'string', '');
-				@$password = DevblocksPlatform::importGPC($_REQUEST['password'], 'string', '');
+				@$first_name = DevblocksPlatform::importGPC($_POST['first_name'], 'string', '');
+				@$last_name = DevblocksPlatform::importGPC($_POST['last_name'], 'string', '');
+				@$aliases = DevblocksPlatform::importGPC($_POST['aliases'],'string','');
+				@$title = DevblocksPlatform::importGPC($_POST['title'], 'string', '');
+				@$org_id = DevblocksPlatform::importGPC($_POST['org_id'], 'integer', 0);
+				@$primary_email_id = DevblocksPlatform::importGPC($_POST['primary_email_id'], 'integer', 0);
+				@$username = DevblocksPlatform::importGPC($_POST['username'], 'string', '');
+				@$gender = DevblocksPlatform::importGPC($_POST['gender'], 'string', '');
+				@$dob = DevblocksPlatform::importGPC($_POST['dob'], 'string', '');
+				@$location = DevblocksPlatform::importGPC($_POST['location'], 'string', '');
+				@$language = DevblocksPlatform::importGPC($_POST['language'], 'string', '');
+				@$timezone = DevblocksPlatform::importGPC($_POST['timezone'], 'string', '');
+				@$phone = DevblocksPlatform::importGPC($_POST['phone'], 'string', '');
+				@$mobile = DevblocksPlatform::importGPC($_POST['mobile'], 'string', '');
+				@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
 				
 				$error = null;
 				
@@ -162,7 +165,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONTACT, $id, $avatar_image);
 					
 					// Index immediately

@@ -29,12 +29,15 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		$error = null;
 		
@@ -55,7 +58,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
 				
 				$mode = 'build';
 				
@@ -64,7 +67,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -106,10 +109,10 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
-						@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
-						@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'], 'string', '');
+						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+						@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
+						@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+						@$uri = DevblocksPlatform::importGPC($_POST['uri'], 'string', '');
 						
 						$service = new Model_ConnectedService();
 						$service->id = 0;

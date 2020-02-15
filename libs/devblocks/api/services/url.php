@@ -242,3 +242,68 @@ class _DevblocksUrlManager {
 		return $url;
 	}
 };
+
+class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
+	/**
+	 * @type string
+	 */
+	public $name = 'CerbEmail';
+	
+	/**
+	 * @type bool
+	 */
+	public $post = true;
+	
+	/**
+	 * @type HTMLPurifier_URIParser
+	 */
+	private $parser;
+	
+	/**
+	 * @type _DevblocksUrlManager
+	 */
+	protected $urlWriter = null;
+	
+	protected $cerbUri = null;
+	protected $cerbFilesPath = null;
+	
+	/**
+	 * @param HTMLPurifier_Config $config
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function prepare($config) {
+		$this->parser = new HTMLPurifier_URIParser();
+		$this->urlWriter = DevblocksPlatform::services()->url();
+
+		$this->cerbUri = $this->parser->parse($this->urlWriter->write('', true));
+		$this->cerbFilesPath = $this->urlWriter->write('c=files', false);
+		return true;
+	}
+	
+	/**
+	 * @param HTMLPurifier_URI $uri
+	 * @param HTMLPurifier_Config $config
+	 * @param HTMLPurifier_Context $context
+	 * @return bool
+	 */
+	public function filter(&$uri, $config, $context) {
+		if(!$uri->host) {
+			$uri = $this->parser->parse(null);
+			return false;
+		}
+		
+		if(0 == strcasecmp($uri->host, $this->cerbUri->host)) {
+			if(DevblocksPlatform::strStartsWith($uri->path, $this->cerbUri->path, false)) {
+				if(DevblocksPlatform::strStartsWith($uri->path, $this->cerbFilesPath, false)) {
+					return true;
+				} else {
+					$uri = $this->parser->parse(null);
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+}

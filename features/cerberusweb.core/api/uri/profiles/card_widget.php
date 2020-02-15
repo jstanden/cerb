@@ -29,12 +29,15 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		if(!$active_worker->is_superuser)
 			return;
@@ -56,8 +59,8 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
 				
 				$mode = 'build';
 				
@@ -70,8 +73,8 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$record_type = DevblocksPlatform::importGPC($_REQUEST['record_type'], 'string', '');
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$record_type = DevblocksPlatform::importGPC($_POST['record_type'], 'string', '');
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -118,7 +121,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 						break;
 					
 					case 'import':
-						@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
+						@$import_json = DevblocksPlatform::importGPC($_POST['import_json'], 'string', '');
 						
 						$error = null;
 						
@@ -173,11 +176,11 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 						break;
 					
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-						@$record_type = DevblocksPlatform::importGPC($_REQUEST['record_type'], 'string', '');
-						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
-						@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
-						@$width_units = DevblocksPlatform::importGPC($_REQUEST['width_units'], 'integer', 1);
+						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+						@$record_type = DevblocksPlatform::importGPC($_POST['record_type'], 'string', '');
+						@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
+						@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+						@$width_units = DevblocksPlatform::importGPC($_POST['width_units'], 'integer', 1);
 						
 						$error = null;
 						

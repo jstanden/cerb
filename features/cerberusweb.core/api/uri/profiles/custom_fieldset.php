@@ -29,15 +29,18 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'],'string','');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+		@$owner = DevblocksPlatform::importGPC($_POST['owner'],'string','');
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

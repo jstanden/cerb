@@ -229,24 +229,27 @@ class ChTicketsPage extends CerberusPageExtension {
 	
 	// Ajax
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
-			@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
-			@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
-			@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
-			@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
-			@$participants = DevblocksPlatform::importGPC($_REQUEST['participants'],'array',[]);
-			@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-			@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
-			@$spam_training = DevblocksPlatform::importGPC($_REQUEST['spam_training'],'string','');
-			@$ticket_reopen = DevblocksPlatform::importGPC(@$_REQUEST['ticket_reopen'],'string','');
+			@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
+			@$org_id = DevblocksPlatform::importGPC($_POST['org_id'],'integer',0);
+			@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer',0);
+			@$importance = DevblocksPlatform::importGPC($_POST['importance'],'integer',0);
+			@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer',0);
+			@$participants = DevblocksPlatform::importGPC($_POST['participants'],'array',[]);
+			@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
+			@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer',0);
+			@$spam_training = DevblocksPlatform::importGPC($_POST['spam_training'],'string','');
+			@$ticket_reopen = DevblocksPlatform::importGPC(@$_POST['ticket_reopen'],'string','');
 			
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.update', CerberusContexts::CONTEXT_TICKET)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
@@ -476,7 +479,7 @@ class ChTicketsPage extends CerberusPageExtension {
 	function saveComposePeekAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', null);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', null);
 		
 		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			return;

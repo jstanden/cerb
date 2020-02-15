@@ -47,6 +47,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
+		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
@@ -287,7 +290,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					DAO_ContextAlias::set(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, DevblocksPlatform::parseCrlfString(sprintf("%s%s", $first_name, $last_name ? (' '.$last_name) : '') . "\n" . $aliases));
 					
 					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $updated_worker->id, $avatar_image);
 					
 					// Flush caches

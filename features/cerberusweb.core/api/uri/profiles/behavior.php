@@ -30,11 +30,14 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	
 	// [TODO] Merge with the version on c=internal
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -59,8 +62,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'],'string', '');
 				
 				$mode = 'build';
 				
@@ -73,8 +76,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
-						@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'],'integer', 0);
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+						@$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'],'integer', 0);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -131,8 +134,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						break;
 					
 					case 'import':
-						@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'],'integer', 0);
-						@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', []);
+						@$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'],'integer', 0);
+						@$configure = DevblocksPlatform::importGPC($_POST['configure'],'array', []);
 						
 						if(empty($import_json))
 							throw new Exception_DevblocksAjaxValidationError("The JSON to import is required.", "import_json");
@@ -272,23 +275,23 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
-						@$uri = DevblocksPlatform::importGPC($_REQUEST['uri'],'string', '');
-						@$is_disabled = DevblocksPlatform::importGPC($_REQUEST['is_disabled'],'integer', 0);
-						@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'integer', 0);
-						@$priority = DevblocksPlatform::importGPC($_REQUEST['priority'],'integer', 0);
-						@$event_params = DevblocksPlatform::importGPC($_REQUEST['event_params'],'array', array());
-						@$json = DevblocksPlatform::importGPC($_REQUEST['json'],'integer', 0);
+						@$title = DevblocksPlatform::importGPC($_POST['title'],'string', '');
+						@$uri = DevblocksPlatform::importGPC($_POST['uri'],'string', '');
+						@$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'integer', 0);
+						@$is_private = DevblocksPlatform::importGPC($_POST['is_private'],'integer', 0);
+						@$priority = DevblocksPlatform::importGPC($_POST['priority'],'integer', 0);
+						@$event_params = DevblocksPlatform::importGPC($_POST['event_params'],'array', array());
+						@$json = DevblocksPlatform::importGPC($_POST['json'],'integer', 0);
 			
 						$priority = DevblocksPlatform::intClamp($priority, 1, 99);
 						
 						// Variables
 			
-						@$var_idxs = DevblocksPlatform::importGPC($_REQUEST['var'],'array',array());
-						@$var_keys = DevblocksPlatform::importGPC($_REQUEST['var_key'],'array',array());
-						@$var_types = DevblocksPlatform::importGPC($_REQUEST['var_type'],'array',array());
-						@$var_labels = DevblocksPlatform::importGPC($_REQUEST['var_label'],'array',array());
-						@$var_is_private = DevblocksPlatform::importGPC($_REQUEST['var_is_private'],'array',array());
+						@$var_idxs = DevblocksPlatform::importGPC($_POST['var'],'array',array());
+						@$var_keys = DevblocksPlatform::importGPC($_POST['var_key'],'array',array());
+						@$var_types = DevblocksPlatform::importGPC($_POST['var_type'],'array',array());
+						@$var_labels = DevblocksPlatform::importGPC($_POST['var_label'],'array',array());
+						@$var_is_private = DevblocksPlatform::importGPC($_POST['var_is_private'],'array',array());
 						
 						$variables = [];
 						
@@ -302,7 +305,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 							
 							// Variable params
 							@$var_idx = $var_idxs[$idx];
-							$var_params = isset($_REQUEST['var_params'.$var_idx]) ? DevblocksPlatform::importGPC($_REQUEST['var_params'.$var_idx],'array',array()) : array();
+							$var_params = isset($_POST['var_params'.$var_idx]) ? DevblocksPlatform::importGPC($_POST['var_params'.$var_idx],'array',array()) : array();
 							
 							$variables[$key] = array(
 								'key' => $key,
@@ -315,8 +318,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 						
 						// Create behavior
 						if(empty($id)) {
-							@$bot_id = DevblocksPlatform::importGPC($_REQUEST['bot_id'], 'integer', 0);
-							@$event_point = DevblocksPlatform::importGPC($_REQUEST['event_point'],'string', '');
+							@$bot_id = DevblocksPlatform::importGPC($_POST['bot_id'], 'integer', 0);
+							@$event_point = DevblocksPlatform::importGPC($_POST['event_point'],'string', '');
 							
 							$error = null;
 							

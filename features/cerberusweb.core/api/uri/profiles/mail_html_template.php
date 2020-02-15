@@ -29,12 +29,15 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,9 +56,9 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'], 'string', '');
+				@$content = DevblocksPlatform::importGPC($_POST['content'], 'string', '');
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$signature = DevblocksPlatform::importGPC($_POST['signature'], 'string', '');
 				
 				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
 				$owner_ctx_id = 0;
@@ -102,7 +105,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					// Files
-					@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array', array());
+					@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'], 'array', array());
 					if(is_array($file_ids))
 						DAO_Attachment::setLinks(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id, $file_ids);
 				}

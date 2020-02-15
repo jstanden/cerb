@@ -29,12 +29,15 @@ class PageSection_ProfilesJiraProject extends Extension_PageSection {
 	}
 	
 		function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,10 +56,10 @@ class PageSection_ProfilesJiraProject extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$jira_key = DevblocksPlatform::importGPC($_REQUEST['jira_key'], 'string', '');
-				@$connected_account_id = DevblocksPlatform::importGPC($_REQUEST['connected_account_id'], 'integer', 0);
-				@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', '');
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$jira_key = DevblocksPlatform::importGPC($_POST['jira_key'], 'string', '');
+				@$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'], 'integer', 0);
+				@$url = DevblocksPlatform::importGPC($_POST['url'], 'string', '');
 				
 				$error = null;
 				

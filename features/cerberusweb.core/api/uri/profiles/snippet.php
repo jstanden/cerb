@@ -123,15 +123,18 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -152,7 +155,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				));
 				
 			} else { // Create || Update
-				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
 			
 				switch($owner_context) {
 					case CerberusContexts::CONTEXT_APPLICATION:
@@ -180,13 +183,13 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				// Custom placeholders
 				
 				$placeholders = array();
-				@$placeholder_keys = DevblocksPlatform::importGPC($_REQUEST['placeholder_keys'],'array',array());
+				@$placeholder_keys = DevblocksPlatform::importGPC($_POST['placeholder_keys'],'array',array());
 				
 				if(is_array($placeholder_keys) && !empty($placeholder_keys)) {
-					@$placeholder_types = DevblocksPlatform::importGPC($_REQUEST['placeholder_types'],'array',array());
-					@$placeholder_labels = DevblocksPlatform::importGPC($_REQUEST['placeholder_labels'],'array',array());
-					@$placeholder_defaults = DevblocksPlatform::importGPC($_REQUEST['placeholder_defaults'],'array',array());
-					@$placeholder_deletes = DevblocksPlatform::importGPC($_REQUEST['placeholder_deletes'],'array',array());
+					@$placeholder_types = DevblocksPlatform::importGPC($_POST['placeholder_types'],'array',array());
+					@$placeholder_labels = DevblocksPlatform::importGPC($_POST['placeholder_labels'],'array',array());
+					@$placeholder_defaults = DevblocksPlatform::importGPC($_POST['placeholder_defaults'],'array',array());
+					@$placeholder_deletes = DevblocksPlatform::importGPC($_POST['placeholder_deletes'],'array',array());
 					
 					foreach($placeholder_keys as $placeholder_idx => $placeholder_key) {
 						@$placeholder_type = $placeholder_types[$placeholder_idx];

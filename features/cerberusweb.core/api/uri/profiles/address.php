@@ -33,14 +33,17 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
+		
 		try {
-			@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string', '');
-			@$email = mb_convert_case(trim(DevblocksPlatform::importGPC($_REQUEST['email'],'string','')), MB_CASE_LOWER);
-			@$contact_id = DevblocksPlatform::importGPC($_REQUEST['contact_id'],'integer',0);
-			@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'integer',0);
-			@$is_banned = DevblocksPlatform::importGPC($_REQUEST['is_banned'],'bit',0);
-			@$is_defunct = DevblocksPlatform::importGPC($_REQUEST['is_defunct'],'bit',0);
+			@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+			@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string', '');
+			@$email = mb_convert_case(trim(DevblocksPlatform::importGPC($_POST['email'],'string','')), MB_CASE_LOWER);
+			@$contact_id = DevblocksPlatform::importGPC($_POST['contact_id'],'integer',0);
+			@$org_id = DevblocksPlatform::importGPC($_POST['org_id'],'integer',0);
+			@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'bit',0);
+			@$is_defunct = DevblocksPlatform::importGPC($_POST['is_defunct'],'bit',0);
 			
 			// Common fields
 			$fields = [
@@ -51,19 +54,19 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 			];
 			
 			if($active_worker->is_superuser) {
-				@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+				@$type = DevblocksPlatform::importGPC($_POST['type'],'string', '');
 				
 				$fields[DAO_Address::MAIL_TRANSPORT_ID] = 0;
 				$fields[DAO_Address::WORKER_ID] = 0;
 				
 				switch($type) {
 					case 'transport':
-						@$mail_transport_id = DevblocksPlatform::importGPC($_REQUEST['mail_transport_id'],'integer',0);
+						@$mail_transport_id = DevblocksPlatform::importGPC($_POST['mail_transport_id'],'integer',0);
 						$fields[DAO_Address::MAIL_TRANSPORT_ID] = $mail_transport_id;
 						break;
 						
 					case 'worker':
-						@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+						@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'integer',0);
 						$fields[DAO_Address::WORKER_ID] = $worker_id;
 						break;
 						

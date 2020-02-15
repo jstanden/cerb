@@ -29,14 +29,17 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-		@$tag = DevblocksPlatform::importGPC($_REQUEST['tag'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+		@$tag = DevblocksPlatform::importGPC($_POST['tag'], 'string', '');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -61,7 +64,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 				
 			} else {
 				// Owner
-				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+				@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
 				
 				switch($owner_context) {
 					case CerberusContexts::CONTEXT_APPLICATION:
@@ -114,7 +117,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 	
 				// Attachments
 				
-				@$file_ids = DevblocksPlatform::importGPC($_REQUEST['file_ids'], 'array:integer', []);
+				@$file_ids = DevblocksPlatform::importGPC($_POST['file_ids'], 'array:integer', []);
 				
 				if(is_array($file_ids))
 					DAO_Attachment::setLinks(CerberusContexts::CONTEXT_FILE_BUNDLE, $id, $file_ids);

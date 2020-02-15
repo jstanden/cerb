@@ -29,12 +29,15 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,11 +56,11 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 				return;
 				
 			} else {
-				@$behavior_id = DevblocksPlatform::importGPC($_REQUEST['behavior_id'], 'integer', 0);
-				@$behavior_params = DevblocksPlatform::importGPC($_REQUEST['behavior_params'], 'array', []);
-				@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-				@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-				@$run_date = DevblocksPlatform::importGPC($_REQUEST['run_date'], 'string', '');
+				@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'], 'integer', 0);
+				@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'], 'array', []);
+				@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+				@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
+				@$run_date = DevblocksPlatform::importGPC($_POST['run_date'], 'string', '');
 				
 				if(empty($id)) { // New
 					$fields = [

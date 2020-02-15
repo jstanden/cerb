@@ -29,12 +29,15 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,12 +56,12 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-				@$custom_fieldset_id = DevblocksPlatform::importGPC($_REQUEST['custom_fieldset_id'], 'integer', 0);
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$pos = DevblocksPlatform::importGPC($_REQUEST['pos'], 'integer', 0);
-				@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
-				@$type = DevblocksPlatform::importGPC($_REQUEST['type'], 'string', '');
+				@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+				@$custom_fieldset_id = DevblocksPlatform::importGPC($_POST['custom_fieldset_id'], 'integer', 0);
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$pos = DevblocksPlatform::importGPC($_POST['pos'], 'integer', 0);
+				@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+				@$type = DevblocksPlatform::importGPC($_POST['type'], 'string', '');
 				
 				// [TODO] Validate param keys by type
 				if(isset($params['options']))

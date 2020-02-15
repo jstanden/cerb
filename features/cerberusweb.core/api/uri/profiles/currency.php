@@ -29,12 +29,15 @@ class PageSection_ProfilesCurrency extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,12 +56,12 @@ class PageSection_ProfilesCurrency extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$name_plural = DevblocksPlatform::importGPC($_REQUEST['name_plural'], 'string', '');
-				@$symbol = DevblocksPlatform::importGPC($_REQUEST['symbol'], 'string', '');
-				@$code = DevblocksPlatform::importGPC($_REQUEST['code'], 'string', '');
-				@$decimal_at = DevblocksPlatform::importGPC($_REQUEST['decimal_at'], 'integer', 0);
-				@$is_default = DevblocksPlatform::importGPC($_REQUEST['is_default'], 'integer', 0);
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$name_plural = DevblocksPlatform::importGPC($_POST['name_plural'], 'string', '');
+				@$symbol = DevblocksPlatform::importGPC($_POST['symbol'], 'string', '');
+				@$code = DevblocksPlatform::importGPC($_POST['code'], 'string', '');
+				@$decimal_at = DevblocksPlatform::importGPC($_POST['decimal_at'], 'integer', 0);
+				@$is_default = DevblocksPlatform::importGPC($_POST['is_default'], 'integer', 0);
 				
 				if(empty($id)) { // New
 					$fields = array(

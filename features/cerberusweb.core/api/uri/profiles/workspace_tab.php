@@ -49,13 +49,16 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -74,9 +77,9 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$workspace_page_id = DevblocksPlatform::importGPC($_REQUEST['workspace_page_id'], 'integer', 0);
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'], 'string', '');
+				@$workspace_page_id = DevblocksPlatform::importGPC($_POST['workspace_page_id'], 'integer', 0);
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'], 'string', '');
 				
 				$mode = 'build';
 				
@@ -109,7 +112,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -219,8 +222,8 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-						@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
+						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+						@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
 						
 						if(empty($id)) { // New
 							$fields = [

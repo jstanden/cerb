@@ -29,23 +29,26 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		$default_tz = DevblocksPlatform::getTimezone();
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['calendar_id'], 'integer', 0);
-		@$event_name = DevblocksPlatform::importGPC($_REQUEST['event_name'], 'string', '');
-		@$event_start = DevblocksPlatform::importGPC($_REQUEST['event_start'], 'string', '');
-		@$event_end = DevblocksPlatform::importGPC($_REQUEST['event_end'], 'string', '');
-		@$tz = DevblocksPlatform::importGPC($_REQUEST['tz'], 'string', $default_tz);
-		@$recur_start = intval(strtotime(DevblocksPlatform::importGPC($_REQUEST['recur_start'], 'string', '')));
-		@$recur_end = intval(strtotime(DevblocksPlatform::importGPC($_REQUEST['recur_end'], 'string', '')));
-		@$is_available = DevblocksPlatform::importGPC($_REQUEST['is_available'], 'integer', 0);
-		@$patterns = DevblocksPlatform::importGPC($_REQUEST['patterns'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'], 'integer', 0);
+		@$event_name = DevblocksPlatform::importGPC($_POST['event_name'], 'string', '');
+		@$event_start = DevblocksPlatform::importGPC($_POST['event_start'], 'string', '');
+		@$event_end = DevblocksPlatform::importGPC($_POST['event_end'], 'string', '');
+		@$tz = DevblocksPlatform::importGPC($_POST['tz'], 'string', $default_tz);
+		@$recur_start = intval(strtotime(DevblocksPlatform::importGPC($_POST['recur_start'], 'string', '')));
+		@$recur_end = intval(strtotime(DevblocksPlatform::importGPC($_POST['recur_end'], 'string', '')));
+		@$is_available = DevblocksPlatform::importGPC($_POST['is_available'], 'integer', 0);
+		@$patterns = DevblocksPlatform::importGPC($_POST['patterns'], 'string', '');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header("Content-type: application/json");
 		

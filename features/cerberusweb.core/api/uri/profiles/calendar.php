@@ -29,15 +29,18 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-		@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+		@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -56,7 +59,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
 				
 				$mode = 'build';
 				
@@ -86,7 +89,7 @@ class PageSection_ProfilesCalendar extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");

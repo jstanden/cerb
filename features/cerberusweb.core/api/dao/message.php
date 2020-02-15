@@ -1132,7 +1132,8 @@ class Model_Message {
 			$dirty_html = $tidy->repairString($dirty_html, $config, DB_CHARSET_CODE);
 		}
 		
-		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true, true);
+		$filters = [new Cerb_HTMLPurifier_URIFilter_Email()];
+		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true, true, $filters);
 		return $dirty_html;
 	}
 

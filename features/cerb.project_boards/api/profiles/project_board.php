@@ -29,11 +29,14 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -52,7 +55,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
 				
 				$mode = 'build';
 				
@@ -61,7 +64,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -103,8 +106,8 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 						break;
 						
 					case 'build':
-						@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-						@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+						@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 						
 						// Sanitize $add_contexts
 						if(isset($params['add_contexts'])) {

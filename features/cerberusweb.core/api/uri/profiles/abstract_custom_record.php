@@ -37,13 +37,16 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$record_id = DevblocksPlatform::importGPC($_REQUEST['_record_id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$record_id = DevblocksPlatform::importGPC($_POST['_record_id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -71,9 +74,9 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$owner = DevblocksPlatform::importGPC($_REQUEST['owner'], 'string', '');
-				@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array()), 'int');
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', '');
+				@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'],'array',array()), 'int');
 				
 				// Owner
 			
@@ -138,7 +141,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 					DAO_ContextAvatar::upsertWithImage($context, $id, $avatar_image);
 				}
 				

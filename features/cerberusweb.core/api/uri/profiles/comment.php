@@ -29,13 +29,16 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -57,12 +60,12 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 				return;
 			}
 				
-			@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-			@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-			@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string','');
-			@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['file_ids'],'array',array()), 'int');
-			@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
-			@$is_markdown = DevblocksPlatform::importGPC($_REQUEST['is_markdown'],'integer',0);
+			@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
+			@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
+			@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string','');
+			@$file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['file_ids'],'array',array()), 'int');
+			@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
+			@$is_markdown = DevblocksPlatform::importGPC($_POST['is_markdown'],'integer',0);
 			
 			$error = null;
 			

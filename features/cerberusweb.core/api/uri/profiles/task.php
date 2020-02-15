@@ -29,11 +29,14 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer','');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -52,7 +55,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				return;
 				
 			} else { // create/edit
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
 				
 				$mode = 'build';
 				$error = null;
@@ -62,7 +65,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -113,12 +116,12 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						$fields = [];
 			
 						// Title
-						@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string','');
+						@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
 						
 						$fields[DAO_Task::TITLE] = $title;
 						
 						// Completed
-						@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer',0);
+						@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer',0);
 						$status_id = DevblocksPlatform::intClamp($status_id, 0, 2);
 						$fields[DAO_Task::STATUS_ID] = $status_id;
 						
@@ -134,19 +137,19 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						$fields[DAO_Task::UPDATED_DATE] = time();
 						
 						// Reopen Date
-						@$reopen_at = DevblocksPlatform::importGPC($_REQUEST['reopen_at'],'string','');
+						@$reopen_at = DevblocksPlatform::importGPC($_POST['reopen_at'],'string','');
 						@$fields[DAO_Task::REOPEN_AT] = empty($reopen_at) ? 0 : intval(strtotime($reopen_at));
 						
 						// Due Date
-						@$due_date = DevblocksPlatform::importGPC($_REQUEST['due_date'],'string','');
+						@$due_date = DevblocksPlatform::importGPC($_POST['due_date'],'string','');
 						@$fields[DAO_Task::DUE_DATE] = empty($due_date) ? 0 : intval(strtotime($due_date));
 				
 						// Importance
-						@$importance = DevblocksPlatform::importGPC($_REQUEST['importance'],'integer',0);
+						@$importance = DevblocksPlatform::importGPC($_POST['importance'],'integer',0);
 						$fields[DAO_Task::IMPORTANCE] = $importance;
 						
 						// Owner
-						@$owner_id = DevblocksPlatform::importGPC($_REQUEST['owner_id'],'integer',0);
+						@$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'],'integer',0);
 						$fields[DAO_Task::OWNER_ID] = $owner_id;
 				
 						// Save
@@ -173,7 +176,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 							DAO_Task::onUpdateByActor($active_worker, $fields, $id);
 							
 							// Watchers
-							@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
+							@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST ['add_watcher_ids'], 'array', []), 'integer', ['unique','nonzero']);
 							if(!empty($add_watcher_ids))
 								CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TASK, $id, $add_watcher_ids);
 			

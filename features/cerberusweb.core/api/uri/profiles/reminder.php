@@ -29,12 +29,15 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -56,11 +59,11 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$remind_at = DevblocksPlatform::importGPC($_REQUEST['remind_at'], 'string', '');
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', 0);
-				@$behavior_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['behavior_ids'], 'array', []), 'int');
-				@$behaviors_params = DevblocksPlatform::importGPC($_REQUEST['behavior_params'], 'array', []);
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$remind_at = DevblocksPlatform::importGPC($_POST['remind_at'], 'string', '');
+				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', 0);
+				@$behavior_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['behavior_ids'], 'array', []), 'int');
+				@$behaviors_params = DevblocksPlatform::importGPC($_POST['behavior_params'], 'array', []);
 				
 				$remind_at = !empty($remind_at) ? @strtotime($remind_at) : '';
 				$is_closed = ($remind_at && $remind_at <= time()) ? 1 : 0;

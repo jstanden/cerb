@@ -29,12 +29,15 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -53,13 +56,13 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$member_query_worker = DevblocksPlatform::importGPC($_REQUEST['member_query_worker'], 'string', '');
-				@$editor_query_worker = DevblocksPlatform::importGPC($_REQUEST['editor_query_worker'], 'string', '');
-				@$reader_query_worker = DevblocksPlatform::importGPC($_REQUEST['reader_query_worker'], 'string', '');
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$member_query_worker = DevblocksPlatform::importGPC($_POST['member_query_worker'], 'string', '');
+				@$editor_query_worker = DevblocksPlatform::importGPC($_POST['editor_query_worker'], 'string', '');
+				@$reader_query_worker = DevblocksPlatform::importGPC($_POST['reader_query_worker'], 'string', '');
 				
-				@$privs_mode = DevblocksPlatform::importGPC($_REQUEST['privs_mode'],'string','');
-				@$acl_privs = DevblocksPlatform::importGPC($_REQUEST['acl_privs'],'array', []);
+				@$privs_mode = DevblocksPlatform::importGPC($_POST['privs_mode'],'string','');
+				@$acl_privs = DevblocksPlatform::importGPC($_POST['acl_privs'],'array', []);
 				
 				if(in_array($privs_mode, ['all','']))
 					$acl_privs = [];
@@ -116,7 +119,7 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError($error);
 				
 				// Avatar image
-				@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+				@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 				DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ROLE, $id, $avatar_image);
 				
 				echo json_encode(array(

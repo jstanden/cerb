@@ -29,11 +29,14 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 	}
 	
 	function savePeekJsonAction() {
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$group_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -45,7 +48,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_GROUP)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				@$move_deleted_buckets = DevblocksPlatform::importGPC($_REQUEST['move_deleted_buckets'],'array',array());
+				@$move_deleted_buckets = DevblocksPlatform::importGPC($_POST['move_deleted_buckets'],'array',array());
 				$buckets = DAO_Bucket::getAll();
 				
 				if(false == ($deleted_group = DAO_Group::get($group_id)))
@@ -71,12 +74,13 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-				@$is_private = DevblocksPlatform::importGPC($_REQUEST['is_private'],'bit',0);
-				@$reply_address_id = DevblocksPlatform::importGPC($_REQUEST['reply_address_id'],'integer',0);
-				@$reply_html_template_id = DevblocksPlatform::importGPC($_REQUEST['reply_html_template_id'],'integer',0);
-				@$reply_personal = DevblocksPlatform::importGPC($_REQUEST['reply_personal'],'string','');
-				@$reply_signature_id = DevblocksPlatform::importGPC($_REQUEST['reply_signature_id'],'integer',0);
+				@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+				@$is_private = DevblocksPlatform::importGPC($_POST['is_private'],'bit',0);
+				@$reply_address_id = DevblocksPlatform::importGPC($_POST['reply_address_id'],'integer',0);
+				@$reply_html_template_id = DevblocksPlatform::importGPC($_POST['reply_html_template_id'],'integer',0);
+				@$reply_personal = DevblocksPlatform::importGPC($_POST['reply_personal'],'string','');
+				@$reply_signature_id = DevblocksPlatform::importGPC($_POST['reply_signature_id'],'integer',0);
+				@$reply_signing_key_id = DevblocksPlatform::importGPC($_POST['reply_signing_key_id'],'integer',0);
 			
 				$fields = array(
 					DAO_Group::NAME => $name,
@@ -123,7 +127,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				
 				// Members
 				
-				@$group_memberships = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['group_memberships'], 'array', []), 'int');
+				@$group_memberships = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['group_memberships'], 'array', []), 'int');
 				$group_members = DAO_Group::getGroupMembers($group_id);
 				
 				// Update group memberships
@@ -156,8 +160,8 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				if($group_id) {
 					// Settings
 					
-					@$subject_has_mask = DevblocksPlatform::importGPC($_REQUEST['subject_has_mask'],'integer',0);
-					@$subject_prefix = DevblocksPlatform::importGPC($_REQUEST['subject_prefix'],'string','');
+					@$subject_has_mask = DevblocksPlatform::importGPC($_POST['subject_has_mask'],'integer',0);
+					@$subject_prefix = DevblocksPlatform::importGPC($_POST['subject_prefix'],'string','');
 			
 					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK, $subject_has_mask);
 					DAO_GroupSettings::set($group_id, DAO_GroupSettings::SETTING_SUBJECT_PREFIX, $subject_prefix);
@@ -168,7 +172,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
 					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_GROUP, $group_id, $avatar_image);
 				}
 			} // end new/edit
