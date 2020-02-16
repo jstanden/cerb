@@ -87,7 +87,14 @@ $(function() {
 			return;
  		
  		$('#divImportPreview').text('Loading...');
- 		genericAjaxPost('frmImport', '', 'c=internal&a=doImport&context={$context}&is_preview=1', function(o) {
+
+ 		var formData = new FormData($frm[0]);
+ 		formData.set('c', 'internal');
+ 		formData.set('a', 'doImport');
+ 		formData.set('context', '{$context}');
+ 		formData.set('is_preview', '1');
+
+ 		genericAjaxPost(formData, '', '', function(o) {
  			$('#divImportPreview').html(o).fadeIn();
  		});
  	});

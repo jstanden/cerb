@@ -49,8 +49,14 @@ $(function() {
 		
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
-			
-			genericAjaxGet('', 'c=internal&a=serializeView&view_id={$view->id}&context={$context}', function(json) {
+
+			var formData = new FormData();
+			formData.append('c', 'internal');
+			formData.append('a', 'serializeView');
+			formData.append('view_id', '{$view->id}');
+			formData.append('context', '{$context}');
+
+			genericAjaxPost(formData, '', '', function(json) {
 				// Trigger event
 				var event = jQuery.Event('chooser_save');
 				event.view_name = json.view_name;

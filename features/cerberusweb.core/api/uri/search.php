@@ -119,8 +119,8 @@ class Page_Search extends CerberusPageExtension {
 	}
 	
 	function ajaxQuickSearchAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$query = DevblocksPlatform::importGPC($_REQUEST['query'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$query = DevblocksPlatform::importGPC($_POST['query'],'string','');
 
 		header("Content-type: application/json");
 		

@@ -1283,18 +1283,21 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function doImportAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$is_preview = DevblocksPlatform::importGPC($_REQUEST['is_preview'],'integer',0);
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$is_preview = DevblocksPlatform::importGPC($_POST['is_preview'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'array',array());
-		@$column = DevblocksPlatform::importGPC($_REQUEST['column'],'array',array());
-		@$column_custom = DevblocksPlatform::importGPC($_REQUEST['column_custom'],'array',array());
-		@$sync_dupes = DevblocksPlatform::importGPC($_REQUEST['sync_dupes'],'array',array());
+		@$field = DevblocksPlatform::importGPC($_POST['field'],'array',array());
+		@$column = DevblocksPlatform::importGPC($_POST['column'],'array',array());
+		@$column_custom = DevblocksPlatform::importGPC($_POST['column_custom'],'array',array());
+		@$sync_dupes = DevblocksPlatform::importGPC($_POST['sync_dupes'],'array',array());
 		
 		$visit = CerberusApplication::getVisit();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -1733,8 +1736,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	function serializeViewAction() {
 		header("Content-type: application/json");
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			echo json_encode(array(
@@ -2905,6 +2908,9 @@ class ChInternalController extends DevblocksControllerExtension {
 	function viewDoCopyAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
@@ -3222,7 +3228,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function doViewExportAction() {
-		@$cursor_key = DevblocksPlatform::importGPC($_REQUEST['cursor_key'], 'string', '');
+		@$cursor_key = DevblocksPlatform::importGPC($_POST['cursor_key'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -3230,10 +3236,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		try {
 			if(empty($cursor_key)) {
-				@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-				@$tokens = DevblocksPlatform::importGPC($_REQUEST['tokens'], 'array', []);
-				@$export_as = DevblocksPlatform::importGPC($_REQUEST['export_as'], 'string', 'csv');
-				@$format_timestamps = DevblocksPlatform::importGPC($_REQUEST['format_timestamps'], 'integer', 0);
+				@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+				@$tokens = DevblocksPlatform::importGPC($_POST['tokens'], 'array', []);
+				@$export_as = DevblocksPlatform::importGPC($_POST['export_as'], 'string', 'csv');
+				@$format_timestamps = DevblocksPlatform::importGPC($_POST['format_timestamps'], 'integer', 0);
 				
 				if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
 					return;
@@ -3686,11 +3692,11 @@ class ChInternalController extends DevblocksControllerExtension {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'string');
-		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'array', []);
-		@$num_rows = DevblocksPlatform::importGPC($_REQUEST['num_rows'],'integer',10);
-		@$options = DevblocksPlatform::importGPC($_REQUEST['view_options'],'array', []);
-		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',[]);
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'string');
+		@$columns = DevblocksPlatform::importGPC($_POST['columns'],'array', []);
+		@$num_rows = DevblocksPlatform::importGPC($_POST['num_rows'],'integer',10);
+		@$options = DevblocksPlatform::importGPC($_POST['view_options'],'array', []);
+		@$field_deletes = DevblocksPlatform::importGPC($_POST['field_deletes'],'array',[]);
 		
 		// Sanitize
 		$num_rows = DevblocksPlatform::intClamp($num_rows, 1, 500);
@@ -3726,12 +3732,12 @@ class ChInternalController extends DevblocksControllerExtension {
 		$is_trigger = DevblocksPlatform::strStartsWith($id, '_trigger_');
 		
 		if($is_custom || $is_trigger) {
-			@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', $translate->_('views.new_list'));
+			@$title = DevblocksPlatform::importGPC($_POST['title'],'string', $translate->_('views.new_list'));
 			$view->name = $title;
 		}
 		
 		if($is_custom) {
-			@$params_required_query = DevblocksPlatform::importGPC($_REQUEST['params_required_query'],'string', '');
+			@$params_required_query = DevblocksPlatform::importGPC($_POST['params_required_query'],'string', '');
 			$view->setParamsRequiredQuery($params_required_query);
 		}
 		
