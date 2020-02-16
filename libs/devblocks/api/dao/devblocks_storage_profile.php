@@ -160,15 +160,6 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 			case SearchFields_DevblocksStorageProfile::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
-				
-			case 'placeholder_date':
-				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
 		}
 
 		if(!empty($criteria)) {

@@ -1138,13 +1138,8 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
@@ -1153,7 +1148,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				break;
 				
 			case SearchFields_ContextScheduledBehavior::VIRTUAL_TARGET:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				

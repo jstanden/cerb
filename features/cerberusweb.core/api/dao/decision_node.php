@@ -619,7 +619,7 @@ class View_DecisionNode extends C4_AbstractView {
 				break;
 				
 			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				

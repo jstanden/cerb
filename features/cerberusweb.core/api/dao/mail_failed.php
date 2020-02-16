@@ -336,22 +336,17 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 				break;
 				
 			case SearchFields_MailParseFail::SIZE:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['value'],'integer',0);
+				@$bool = DevblocksPlatform::importGPC($_POST['value'],'integer',0);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 			
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
 			case SearchFields_MailParseFail::CTIME:
 			case SearchFields_MailParseFail::MTIME:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
 			case 'placeholder_fulltext':
-				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 		}

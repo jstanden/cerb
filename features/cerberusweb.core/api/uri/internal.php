@@ -2741,17 +2741,17 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 
 	function viewAddFilterAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id']);
-		@$is_custom = DevblocksPlatform::importGPC($_REQUEST['is_custom'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id']);
+		@$is_custom = DevblocksPlatform::importGPC($_POST['is_custom'],'integer',0);
 
-		@$add_mode = DevblocksPlatform::importGPC($_REQUEST['add_mode'], 'string', null);
-		@$query = DevblocksPlatform::importGPC($_REQUEST['query'], 'string', null);
+		@$add_mode = DevblocksPlatform::importGPC($_POST['add_mode'], 'string', null);
+		@$query = DevblocksPlatform::importGPC($_POST['query'], 'string', null);
 		
-		@$field = DevblocksPlatform::importGPC($_REQUEST['field'], 'string', null);
-		@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'], 'string', null);
-		@$value = DevblocksPlatform::importGPC($_REQUEST['value']);
-		@$replace = DevblocksPlatform::importGPC($_REQUEST['replace'], 'string', '');
-		@$field_deletes = DevblocksPlatform::importGPC($_REQUEST['field_deletes'],'array',[]);
+		@$field = DevblocksPlatform::importGPC($_POST['field'], 'string', null);
+		@$oper = DevblocksPlatform::importGPC($_POST['oper'], 'string', null);
+		@$value = DevblocksPlatform::importGPC($_POST['value']);
+		@$replace = DevblocksPlatform::importGPC($_POST['replace'], 'string', '');
+		@$field_deletes = DevblocksPlatform::importGPC($_POST['field_deletes'],'array',[]);
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;

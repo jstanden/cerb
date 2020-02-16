@@ -1993,12 +1993,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 
 			case SearchFields_TriggerEvent::IS_DISABLED:
 			case SearchFields_TriggerEvent::IS_PRIVATE:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
+				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				

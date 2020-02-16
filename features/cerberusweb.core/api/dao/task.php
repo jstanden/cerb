@@ -1219,7 +1219,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				break;
 				
 			case SearchFields_Task::IMPORTANCE:
-				@$value = DevblocksPlatform::importGPC($_REQUEST['value'],'integer',0);
+				@$value = DevblocksPlatform::importGPC($_POST['value'],'integer',0);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -1232,28 +1232,28 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				break;
 
 			case SearchFields_Task::STATUS_ID:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Task::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Task::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Task::OWNER_ID:
 			case SearchFields_Task::VIRTUAL_WATCHERS:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
+				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
 				break;
 				
 			case SearchFields_Task::FULLTEXT_COMMENT_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				

@@ -2980,34 +2980,34 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Worker::IS_MFA_REQUIRED:
 			case SearchFields_Worker::IS_PASSWORD_DISABLED:
 			case SearchFields_Worker::IS_SUPERUSER:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_Worker::FULLTEXT_WORKER:
-				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_CALENDAR_AVAILABILITY:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','now');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
-				@$is_available = DevblocksPlatform::importGPC($_REQUEST['is_available'],'integer',0);
+				@$from = DevblocksPlatform::importGPC($_POST['from'],'string','now');
+				@$to = DevblocksPlatform::importGPC($_POST['to'],'string','now');
+				@$is_available = DevblocksPlatform::importGPC($_POST['is_available'],'integer',0);
 				$criteria = new DevblocksSearchCriteria($field,null,array($from,$to,$is_available));
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_GROUPS:
-				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['group_id'],'array',[]);
+				@$group_ids = DevblocksPlatform::importGPC($_POST['group_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,'in', $group_ids);
 				break;
 				
 			case SearchFields_Worker::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				

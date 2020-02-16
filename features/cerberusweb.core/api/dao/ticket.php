@@ -4297,7 +4297,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 
 			case SearchFields_Ticket::TICKET_SPAM_SCORE:
-				@$score = DevblocksPlatform::importGPC($_REQUEST['score'],'integer',null);
+				@$score = DevblocksPlatform::importGPC($_POST['score'],'integer',null);
 				if(!is_null($score) && is_numeric($score)) {
 					$criteria = new DevblocksSearchCriteria($field,$oper,$score/100);
 				}
@@ -4305,17 +4305,17 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 			case SearchFields_Ticket::TICKET_SPAM_TRAINING:
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 			
 			case SearchFields_Ticket::TICKET_ORG_ID:
-				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',[]), 'integer', array('unique'));
+				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['context_id'],'array',[]), 'integer', array('unique'));
 				$criteria = new DevblocksSearchCriteria($field,$oper,$context_ids);
 				break;
 
 			case SearchFields_Ticket::TICKET_GROUP_ID:
-				@$group_ids = DevblocksPlatform::importGPC($_REQUEST['options'],'array');
+				@$group_ids = DevblocksPlatform::importGPC($_POST['options'],'array');
 
 				// Groups
 				if(!empty($group_ids)) {
@@ -4326,7 +4326,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::TICKET_BUCKET_ID:
-				@$bucket_ids = DevblocksPlatform::importGPC($_REQUEST['options'],'array');
+				@$bucket_ids = DevblocksPlatform::importGPC($_POST['options'],'array');
 
 				// Buckets
 				if(!empty($bucket_ids)) {
@@ -4339,7 +4339,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
 			case SearchFields_Ticket::FULLTEXT_NOTE_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
@@ -4348,24 +4348,24 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'string','');
+				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'string','');
 				$criteria = new DevblocksSearchCriteria($field, '=', $worker_id);
 				break;
 
 			case SearchFields_Ticket::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_WATCHERS:
 			case SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED:
 			case SearchFields_Ticket::VIRTUAL_WORKER_REPLIED:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
+				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field, $oper, $worker_ids);
 				break;
 				

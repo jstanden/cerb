@@ -1267,12 +1267,12 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 				break;
 				
 			case SearchFields_MailQueue::IS_QUEUED:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_MailQueue::WORKER_ID:
-				@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
+				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 		}

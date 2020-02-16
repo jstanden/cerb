@@ -951,39 +951,29 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_WorkspaceWidget::EXTENSION_ID:
-			case SearchFields_WorkspaceWidget::ID:
 			case SearchFields_WorkspaceWidget::LABEL:
-			case SearchFields_WorkspaceWidget::PARAMS_JSON:
-			case SearchFields_WorkspaceWidget::POS:
-			case SearchFields_WorkspaceWidget::UPDATED_AT:
-			case SearchFields_WorkspaceWidget::WIDTH_UNITS:
-			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
 			case SearchFields_WorkspaceWidget::ZONE:
-			case 'placeholder_string':
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
+			case SearchFields_WorkspaceWidget::EXTENSION_ID:
+			case SearchFields_WorkspaceWidget::ID:
+			case SearchFields_WorkspaceWidget::POS:
+			case SearchFields_WorkspaceWidget::WIDTH_UNITS:
+			case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_WorkspaceWidget::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
 			case SearchFields_WorkspaceWidget::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
 			case SearchFields_WorkspaceWidget::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				

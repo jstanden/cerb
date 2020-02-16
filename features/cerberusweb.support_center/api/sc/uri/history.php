@@ -491,19 +491,19 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 				break;
 				
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-				@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','expert');
+				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
 				
 			case SearchFields_Ticket::VIRTUAL_STATUS:
-				@$statuses = DevblocksPlatform::importGPC($_REQUEST['value'],'array',array());
+				@$statuses = DevblocksPlatform::importGPC($_POST['value'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field, $oper, $statuses);
 				break;
 				
 			case SearchFields_Ticket::TICKET_CREATED_DATE:
 			case SearchFields_Ticket::TICKET_UPDATED_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+				@$from = DevblocksPlatform::importGPC($_POST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_POST['to'],'string','');
 
 				if(empty($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
 					$from = 0;
@@ -514,17 +514,8 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 				$criteria = new DevblocksSearchCriteria($field,$oper,array($from,$to));
 				break;
 				
-			case 'placeholder_number':
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-				
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
 			case SearchFields_Ticket::REQUESTER_ID:
-				@$requester_ids = DevblocksPlatform::importGPC($_REQUEST['requester_ids'],'array',array());
+				@$requester_ids = DevblocksPlatform::importGPC($_POST['requester_ids'],'array',array());
 				
 				// If blank, this is pointless.
 				if(empty($active_contact) || empty($requester_ids))

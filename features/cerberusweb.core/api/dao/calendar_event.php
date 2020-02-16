@@ -911,17 +911,17 @@ class View_CalendarEvent extends C4_AbstractView implements IAbstractView_Subtot
 				break;
 				
 			case SearchFields_CalendarEvent::IS_AVAILABLE:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_CalendarEvent::CALENDAR_ID:
-				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array()), 'integer', array('nonzero','unique'));
+				@$context_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['context_id'],'array',array()), 'integer', array('nonzero','unique'));
 				$criteria = new DevblocksSearchCriteria($field,$oper,$context_ids);
 				break;
 				
 			case SearchFields_CalendarEvent::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',array());
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				

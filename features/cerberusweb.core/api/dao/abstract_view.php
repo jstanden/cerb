@@ -1688,8 +1688,8 @@ abstract class C4_AbstractView {
 			default:
 			case DevblocksSearchCriteria::OPER_BETWEEN:
 			case DevblocksSearchCriteria::OPER_NOT_BETWEEN:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','big bang');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','now');
+				@$from = DevblocksPlatform::importGPC($_POST['from'],'string','big bang');
+				@$to = DevblocksPlatform::importGPC($_POST['to'],'string','now');
 		
 				if(is_null($from) || (!is_numeric($from) && @false === strtotime(str_replace('.','-',$from))))
 					$from = 'big bang';
@@ -1708,7 +1708,7 @@ abstract class C4_AbstractView {
 	}
 	
 	protected function _doSetCriteriaWorker($field, $oper) {
-		@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'array',[]);
+		@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
 		
 		switch($oper) {
 			case DevblocksSearchCriteria::OPER_IN:
@@ -1733,7 +1733,7 @@ abstract class C4_AbstractView {
 				break;
 			case DevblocksSearchCriteria::OPER_EQ:
 			case DevblocksSearchCriteria::OPER_NEQ:
-				@$worker_ids = DevblocksPlatform::importGPC($_REQUEST['worker_id'],'integer',0);
+				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'integer',0);
 				break;
 		}
 		
@@ -1767,8 +1767,8 @@ abstract class C4_AbstractView {
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
-				@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-				@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
+				@$from = DevblocksPlatform::importGPC($_POST['from'],'string','');
+				@$to = DevblocksPlatform::importGPC($_POST['to'],'string','');
 	
 				if(empty($from)) $from = 0;
 				if(empty($to)) $to = 'today';
@@ -1786,7 +1786,7 @@ abstract class C4_AbstractView {
 				break;
 				
 			case Model_CustomField::TYPE_WORKER:
-				@$oper = DevblocksPlatform::importGPC($_REQUEST['oper'],'string','eq');
+				@$oper = DevblocksPlatform::importGPC($_POST['oper'],'string','eq');
 				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
 				
 				if(empty($worker_ids)) {

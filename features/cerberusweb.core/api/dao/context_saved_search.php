@@ -889,7 +889,7 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 				break;
 				
 			case SearchFields_ContextSavedSearch::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				

@@ -970,31 +970,22 @@ class View_WorkspacePage extends C4_AbstractView implements IAbstractView_QuickS
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 
-			case 'placeholder_number':
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-
 			case SearchFields_WorkspacePage::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
 			case SearchFields_WorkspacePage::VIRTUAL_CONTEXT_LINK:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 			
 			case SearchFields_WorkspacePage::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_WorkspacePage::VIRTUAL_OWNER:
-				@$owner_contexts = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'array',[]);
+				@$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 		}

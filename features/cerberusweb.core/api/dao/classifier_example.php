@@ -871,7 +871,7 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 				break;
 				
 			case SearchFields_ClassifierExample::VIRTUAL_HAS_FIELDSET:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				

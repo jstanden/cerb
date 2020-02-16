@@ -718,7 +718,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 				break;
 				
 			case SearchFields_Translation::LANG_CODE:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 		}

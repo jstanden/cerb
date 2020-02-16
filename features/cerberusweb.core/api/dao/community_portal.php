@@ -992,7 +992,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 				break;
 				
 			case SearchFields_CommunityTool::EXTENSION_ID:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',array());
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',array());
 				$criteria = new DevblocksSearchCriteria($field,$oper,$options);
 				break;
 				

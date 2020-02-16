@@ -689,18 +689,9 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
-				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
-				break;
-				
 			case SearchFields_DevblocksSession::CREATED:
 			case SearchFields_DevblocksSession::UPDATED:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_DevblocksSession::USER_ID:

@@ -1026,25 +1026,20 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-
 			case SearchFields_ContextActivityLog::ACTIVITY_POINT:
-				@$options = DevblocksPlatform::importGPC($_REQUEST['options'],'array',[]);
+				@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
 				break;
 				
 			case SearchFields_ContextActivityLog::ACTOR_CONTEXT:
 			case SearchFields_ContextActivityLog::TARGET_CONTEXT:
-				@$contexts = DevblocksPlatform::importGPC($_REQUEST['contexts'],'array',[]);
+				@$contexts = DevblocksPlatform::importGPC($_POST['contexts'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$contexts);
 				break;
 				
 			case SearchFields_ContextActivityLog::VIRTUAL_ACTOR:
 			case SearchFields_ContextActivityLog::VIRTUAL_TARGET:
-				@$context_links = DevblocksPlatform::importGPC($_REQUEST['context_link'],'array',[]);
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 		}
