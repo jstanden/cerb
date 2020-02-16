@@ -484,25 +484,34 @@ var cAjaxCalls = function() {
 	this.viewCloseTickets = function(view_id,mode) {
 		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
+		var $frm = $('#' + formName);
+
+		if(0 === $frm.length)
+			return;
 
 		showLoadingPanel();
 
 		switch(mode) {
 			case 1: // spam
 				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets&view_id=' + view_id, function(html) {
-					$('#'+divName).html(html).trigger('view_refresh');
+					$frm.html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			case 2: // delete
-				genericAjaxPost(formName, '', 'c=tickets&a=viewDeleteTickets&view_id=' + view_id, function(html) {
-					$('#'+divName).html(html).trigger('view_refresh');
+				var formData = new FormData($frm[0]);
+				formData.set('c', 'tickets');
+				formData.set('a', 'viewDeleteTickets');
+				formData.set('view_id', view_id);
+
+				genericAjaxPost(formData, '', '', function(html) {
+					$frm.html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
 			default: // close
 				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(html) {
-					$('#'+divName).html(html).trigger('view_refresh');
+					$frm.html(html).trigger('view_refresh');
 					hideLoadingPanel();
 				});
 				break;
@@ -510,8 +519,6 @@ var cAjaxCalls = function() {
 	};
 	
 	this.viewAddQuery = function(view_id, query, replace) {
-		var $view = $('#view'+view_id);
-		
 		var post_str = 'c=internal' +
 			'&a=viewAddFilter' + 
 			'&id=' + view_id +

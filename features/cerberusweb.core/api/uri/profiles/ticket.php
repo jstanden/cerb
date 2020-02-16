@@ -196,7 +196,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	}
 	
 	function saveResendMessagePopupJsonAction() {
-		$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

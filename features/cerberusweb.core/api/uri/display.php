@@ -820,10 +820,10 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	function saveRelayMessagePopupAction() {
-		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$emails = DevblocksPlatform::importGPC($_REQUEST['emails'],'array',[]);
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'], 'string', '');
-		@$include_attachments = DevblocksPlatform::importGPC($_REQUEST['include_attachments'], 'integer', 0);
+		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$emails = DevblocksPlatform::importGPC($_POST['emails'],'array',[]);
+		@$content = DevblocksPlatform::importGPC($_POST['content'], 'string', '');
+		@$include_attachments = DevblocksPlatform::importGPC($_POST['include_attachments'], 'integer', 0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -850,7 +850,7 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	function doSplitMessageAction() {
-		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1046,31 +1046,9 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 	
 	function requesterAddAction() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string');
+		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
 		
 		DAO_Ticket::createRequester($email, $ticket_id);
 	}
-	
-	function requesterRemoveAction() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		@$address_id = DevblocksPlatform::importGPC($_REQUEST['address_id'],'integer');
-		
-		DAO_Ticket::deleteRequester($ticket_id, $address_id);
-	}
-	
-	function requestersRefreshAction() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'integer');
-		
-		$requesters = DAO_Ticket::getRequestersByTicket($ticket_id);
-
-		$tpl = DevblocksPlatform::services()->template();
-				
-		$tpl->assign('ticket_id', $ticket_id);
-		$tpl->assign('requesters', $requesters);
-		$tpl->assign('is_refresh', true);
-		
-		$tpl->display('devblocks:cerberusweb.core::display/rpc/requester_list.tpl');
-	}
-	
 };

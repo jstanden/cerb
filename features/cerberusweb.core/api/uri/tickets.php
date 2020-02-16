@@ -789,8 +789,11 @@ class ChTicketsPage extends CerberusPageExtension {
 	}
 	
 	function viewDeleteTicketsAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$ticket_ids = DevblocksPlatform::importGPC($_REQUEST['ticket_id'],'array:integer');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$ticket_ids = DevblocksPlatform::importGPC($_POST['ticket_id'],'array:integer');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 
 		$fields = array(
 			DAO_Ticket::STATUS_ID => Model_Ticket::STATUS_DELETED,

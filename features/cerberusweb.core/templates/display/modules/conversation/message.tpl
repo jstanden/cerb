@@ -161,7 +161,7 @@
 				<td align="left" id="{$message->id}act">
 					{* If not requester *}
 					{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
-						<button type="button" onclick="$(this).remove(); genericAjaxGet('','c=display&a=requesterAdd&ticket_id={$ticket->id}&email='+encodeURIComponent('{$sender->email}'),function(o) { genericAjaxGet('displayTicketRequesterBubbles','c=display&a=requestersRefresh&ticket_id={$ticket->id}'); } );"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
+						<button type="button" data-cerb-button="requester-add"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
 					{/if}
 
 					{if $active_worker->hasPriv('core.display.actions.reply')}
@@ -245,7 +245,8 @@ $(function() {
 		if($('#{$message->id}act').visible()) {
 			$('#{$message->id}skip').hide();
 		}
-	} catch(e) {}
+	} catch(e) {
+	}
 });
 </script>
 {/if}
@@ -291,6 +292,18 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
+
+	$actions.find('[data-cerb-button=requester-add]').on('click', function() {
+		$(this).remove();
+
+		var formData = new FormData();
+		formData.append('c', 'display');
+		formData.append('a', 'requesterAdd');
+		formData.append('ticket_id', '{$ticket->id}');
+		formData.append('email', '{$sender->email}');
+
+		genericAjaxPost(formData, '', '');
+	});
 	
 	$actions
 		.find('ul.cerb-popupmenu')

@@ -952,12 +952,12 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function doRecordsMergeAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'array',[]);
-		@$target_id = DevblocksPlatform::importGPC($_REQUEST['target_id'],'integer',0);
-		@$keys = DevblocksPlatform::importGPC($_REQUEST['keys'],'array',[]);
-		@$values = DevblocksPlatform::importGPC($_REQUEST['values'],'array',[]);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
+		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'array',[]);
+		@$target_id = DevblocksPlatform::importGPC($_POST['target_id'],'integer',0);
+		@$keys = DevblocksPlatform::importGPC($_POST['keys'],'array',[]);
+		@$values = DevblocksPlatform::importGPC($_POST['values'],'array',[]);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -965,6 +965,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		$DEBUG = false;
 		
 		try {
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			if($ids)
 				$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 			
