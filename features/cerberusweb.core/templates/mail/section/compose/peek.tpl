@@ -383,10 +383,17 @@ $(function() {
 
 			$this.attr('disabled','disabled');
 
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'profiles');
+			formData.set('a', 'handleSectionAction');
+			formData.set('section', 'draft');
+			formData.set('action', 'saveDraft');
+			formData.set('type', 'compose');
+
 			genericAjaxPost(
-				'frmComposePeek{$popup_uniqid}',
+				formData,
 				null,
-				'c=profiles&a=handleSectionAction&section=draft&action=saveDraft&type=compose',
+				'',
 				function(json) {
 					var obj = $.parseJSON(json);
 
@@ -395,7 +402,7 @@ $(function() {
 
 					$('#divDraftStatus{$popup_uniqid}').html(obj.html);
 
-					$('#frmComposePeek{$popup_uniqid} input[name=draft_id]').val(obj.draft_id);
+					$frm.find('input[name=draft_id]').val(obj.draft_id);
 
 					$this.removeAttr('disabled');
 				}
@@ -863,10 +870,17 @@ $(function() {
 
 			showLoadingPanel();
 
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'profiles');
+			formData.set('a', 'handleSectionAction');
+			formData.set('section', 'draft');
+			formData.set('action', 'saveDraft');
+			formData.set('type', 'compose');
+
 			genericAjaxPost(
-				'frmComposePeek{$popup_uniqid}',
+				formData,
 				null,
-				'c=profiles&a=handleSectionAction&section=draft&action=saveDraft&type=compose',
+				'',
 				function(json) {
 					hideLoadingPanel();
 					genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
@@ -888,14 +902,17 @@ $(function() {
 
 				var draft_id = $frm.find('input:hidden[name=draft_id]').val();
 
-				genericAjaxGet(
-						'',
-						'c=profiles&a=handleSectionAction&section=draft&action=deleteDraft&draft_id=' + encodeURIComponent(draft_id),
-						function(o) {
-							genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
-							genericAjaxPopupClose($popup);
-						}
-				);
+				var formData = new FormData();
+				formData.append('c', 'profiles');
+				formData.append('a', 'handleSectionAction');
+				formData.append('section', 'draft');
+				formData.append('action', 'deleteDraft');
+				formData.append('draft_id', draft_id);
+
+				genericAjaxPost(formData, '', '', function(o) {
+					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+					genericAjaxPopupClose($popup);
+				});
 			}
 		});
 

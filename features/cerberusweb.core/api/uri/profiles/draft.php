@@ -147,17 +147,17 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	
 	function saveDraft() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer',0);
+		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer',0);
 
-		@$to = DevblocksPlatform::importGPC($_REQUEST['to'],'string','');
-		@$subject = DevblocksPlatform::importGPC($_REQUEST['subject'],'string','');
+		@$to = DevblocksPlatform::importGPC($_POST['to'],'string','');
+		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
 
 		$params = [];
 		
 		$hint_to = null;
 		$type = null;
 		
-		@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string','compose');
+		@$type = DevblocksPlatform::importGPC($_POST['type'],'string','compose');
 
 		switch($type) {
 			case 'compose':
@@ -178,7 +178,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 				
 				// Custom fields
 				
-				@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'],'array',array());
+				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'],'array',array());
 				$field_ids = DevblocksPlatform::sanitizeArray($field_ids, 'integer', array('nonzero','unique'));
 
 				if(!empty($field_ids)) {
@@ -250,7 +250,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	}
 	
 	function deleteDraftAction() {
-		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'],'integer');
+		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
