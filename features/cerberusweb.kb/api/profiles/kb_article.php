@@ -140,7 +140,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 	}
 	
 	function previewAction() {
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string');
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
