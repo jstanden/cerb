@@ -55,10 +55,10 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 	}
 	
 	function saveContextWatchersPopupJsonAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		@$initial_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['initial_sample'], 'array', array()), 'int');
-		@$current_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['current_sample'], 'array', array()), 'int');
+		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
+		@$initial_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['initial_sample'], 'array', array()), 'int');
+		@$current_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['current_sample'], 'array', array()), 'int');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -82,8 +82,8 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 	}
 	
 	function toggleCurrentWorkerAsWatcherAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
+		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
