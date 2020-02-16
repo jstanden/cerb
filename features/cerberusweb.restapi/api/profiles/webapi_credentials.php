@@ -135,20 +135,6 @@ class PageSection_ProfilesWebApiCredentials extends Extension_PageSection {
 		}
 	}
 	
-	function revealSecretKeyAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$id || false == ($api_key = DAO_WebApiCredentials::get($id)))
-			return false;
-		
-		if($api_key->worker_id != $active_worker->id)
-			return false;
-		
-		echo DevblocksPlatform::strEscapeHtml($api_key->secret_key);
-	}
-	
 	function viewExploreAction() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		

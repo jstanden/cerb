@@ -621,25 +621,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 	}
 	
-	function initConnectionsViewAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		@$to_context = DevblocksPlatform::importGPC($_REQUEST['to_context'],'string');
-		
-		if(empty($context) || empty($context_id) || empty($to_context))
-			return;
-			
-		if(null == ($ext_context = Extension_DevblocksContext::get($to_context)))
-			return;
-			
-		if(null != ($view = $ext_context->getView($context, $context_id))) {
-			$tpl = DevblocksPlatform::services()->template();
-			$tpl->assign('view', $view);
-			$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
-			$tpl->clearAssign('view');
-		}
-	}
-	
 	/*
 	 * Popups
 	 */
@@ -2310,78 +2291,6 @@ class ChInternalController extends DevblocksControllerExtension {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 
-	// Context Activity Log
-	
-	function showTabActivityLogAction() {
-		@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','target');
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
-		
-		$tpl = DevblocksPlatform::services()->template();
-
-		if(empty($context) || empty($context_id))
-			return;
-		
-		switch($scope) {
-			case 'target':
-				$params = array(
-					SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT,'=',$context),
-					SearchFields_ContextActivityLog::TARGET_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,'=',$context_id),
-				);
-				break;
-				
-			case 'both':
-				$params = array(
-					array(
-						DevblocksSearchCriteria::GROUP_OR,
-						array(
-							DevblocksSearchCriteria::GROUP_AND,
-							SearchFields_ContextActivityLog::TARGET_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT,'=',$context),
-							SearchFields_ContextActivityLog::TARGET_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,'=',$context_id),
-						),
-						array(
-							DevblocksSearchCriteria::GROUP_AND,
-							SearchFields_ContextActivityLog::ACTOR_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT,'=',$context),
-							SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,'=',$context_id),
-						),
-					),
-				);
-				break;
-				
-			default:
-			case 'actor':
-				$params = array(
-					SearchFields_ContextActivityLog::ACTOR_CONTEXT => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT,'=',$context),
-					SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID => new DevblocksSearchCriteria(SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,'=',$context_id),
-				);
-				break;
-		}
-		
-		$defaults = C4_AbstractViewModel::loadFromClass('View_ContextActivityLog');
-		$defaults->id = 'context_activity_log_'.str_replace('.','_',$context.'_'.$context_id);
-		$defaults->is_ephemeral = true;
-		$defaults->view_columns = array(
-			SearchFields_ContextActivityLog::CREATED
-		);
-		$defaults->renderLimit = 10;
-		$defaults->renderSortBy = SearchFields_ContextActivityLog::CREATED;
-		$defaults->renderSortAsc = false;
-		
-		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
-			$view->addColumnsHidden(array(
-				SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
-				SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
-				SearchFields_ContextActivityLog::ID,
-			), true);
-			
-			$view->addParamsRequired($params, true);
-			
-			$tpl->assign('view', $view);
-		}
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/activity_log/tab.tpl');
-	}
-	
 	// Autocomplete
 	
 	function autocompleteAction() {
@@ -4802,20 +4711,6 @@ class ChInternalController extends DevblocksControllerExtension {
 			$tpl->assign('trigger_id', $trigger_id);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/menu.tpl');
-	}
-	
-	function deleteDecisionNodeAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		
-		if(!empty($id)) {
-			DAO_DecisionNode::delete($id);
-			
-		} elseif(isset($_REQUEST['trigger_id'])) {
-			@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-			// [TODO] Make sure this worker owns the trigger (or is group mgr)
-			if(!empty($trigger_id))
-				DAO_TriggerEvent::delete($trigger_id);
-		}
 	}
 	
 	function getTriggerEventParamsAction() {

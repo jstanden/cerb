@@ -796,7 +796,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$message_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(false == ($message = DAO_Message::get($message_id)))
 			return;
@@ -830,25 +829,6 @@ class ChDisplayPage extends CerberusPageExtension {
 		CerberusMail::relay($message_id, $emails, $include_attachments, $content, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
 	}
 	
-	function doDeleteMessageAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.message.delete'))
-			return;
-		
-		if(null == ($message = DAO_Message::get($id)))
-			return;
-			
-		if(null == ($ticket = DAO_Ticket::get($message->ticket_id)))
-			return;
-			
-		DAO_Message::delete($id);
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
-	}
-	
 	function doSplitMessageAction() {
 		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		
@@ -866,18 +846,6 @@ class ChDisplayPage extends CerberusPageExtension {
 			return;
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$results['mask'])));
-	}
-	
-	function doTicketHistoryScopeAction() {
-		@$ticket_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
-		@$scope = DevblocksPlatform::importGPC($_REQUEST['scope'],'string','');
-		
-		$visit = CerberusApplication::getVisit();
-		$visit->set('display.history.scope', $scope);
-
-		$ticket = DAO_Ticket::get($ticket_id);
-
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask,'history')));
 	}
 	
 	// Display actions

@@ -244,7 +244,7 @@ function DevblocksClass() {
 			activate: function(event, ui) {
 				var tabsId = ui.newPanel.closest('.ui-tabs').attr('id');
 				
-				if(0 == tabsId.length)
+				if(!tabsId || 0 == tabsId.length)
 					return;
 				
 				var index = ui.newTab.index();

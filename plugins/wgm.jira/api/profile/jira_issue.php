@@ -137,23 +137,4 @@ class PageSection_ProfilesJiraIssue extends Extension_PageSection {
 		
 		$tpl->display('devblocks:wgm.jira::jira_issue/profile/tab_discussion.tpl');
 	}
-	
-	function getIssueCreateFieldsAction() {
-		@$name_prefix = DevblocksPlatform::importGPC($_REQUEST['name_prefix'],'string','');
-		@$params = DevblocksPlatform::importGPC($_REQUEST[$name_prefix],'array',[]);
-
-		@$project_key = $params['project_key'];
-		
-		if(empty($project_key) || false == ($project = DAO_JiraProject::getByJiraKey($project_key)))
-			return;
-		
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('namePrefix', $name_prefix);
-		$tpl->assign('params', $params);
-		
-		$tpl->assign('project', $project);
-		
-		$tpl->display('devblocks:wgm.jira::events/action_create_jira_issue_fields.tpl');
-	}
 };
