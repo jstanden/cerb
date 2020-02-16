@@ -358,8 +358,8 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 	}
 	
 	function viewMarkCompletedAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
 
 		try {
 			if(is_array($row_ids))

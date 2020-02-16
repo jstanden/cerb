@@ -169,7 +169,7 @@
 		<button type="button" class="action-always-show action-explore"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=handleSectionAction&section=task&action=showBulkPopup&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=showRecordsMergePopup&view_id={$view->id}&context={$view_context}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|lower}</button>{/if}
-		<button type="button" class="action-close" onclick="genericAjaxPost($(this).closest('form'),'view{$view->id}','c=profiles&a=handleSectionAction&section=task&action=viewMarkCompleted');"><span class="glyphicons glyphicons-circle-ok"></span> {'status.closed'|devblocks_translate|lower}</button>
+		<button type="button" class="action-close"><span class="glyphicons glyphicons-circle-ok"></span> {'status.closed'|devblocks_translate|lower}</button>
 	</div>
 	{/if}
 </div>
@@ -183,12 +183,27 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#viewForm{$view->id}');
-	
+	var $actions = $('#{$view->id}_actions');
+
 	$frm.find('button.action-explore').click(function() {
 		var id = $frm.find('tbody input:checkbox:checked:first').val();
 		$frm.find('input:hidden[name=explore_from]').val(id);
 		$frm.find('input:hidden[name=action]').val('viewTasksExplore');
 		$frm.submit();
+	});
+
+	$actions.find('.action-close').on('click', function() {
+		var formData = new FormData($frm[0]);
+		formData.set('c','profiles');
+		formData.set('a','handleSectionAction');
+		formData.set('section','task');
+		formData.set('action','viewMarkCompleted');
+
+		genericAjaxPost(
+			formData,
+			'view{$view->id}',
+			''
+		);
 	});
 	
 	{if $pref_keyboard_shortcuts}
