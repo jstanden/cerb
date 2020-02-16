@@ -47,7 +47,7 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 	}
 	
 	function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
-		@$edit_params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$edit_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		if(true !== ($result = $this->_testLdap($edit_params))) {
 			$error = $result;
