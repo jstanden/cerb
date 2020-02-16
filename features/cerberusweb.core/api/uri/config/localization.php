@@ -30,10 +30,13 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 	}
 	
 	function saveJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$worker = CerberusApplication::getActiveWorker();
+		
 		try {
-			$worker = CerberusApplication::getActiveWorker();
-			
-			header('Content-Type: application/json; charset=utf-8');
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));

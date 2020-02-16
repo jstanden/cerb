@@ -32,7 +32,10 @@ class PageSection_SetupDevelopersBotScriptingTester extends Extension_PageSectio
 	}
 	
 	function runScriptAction() {
-		@$bot_script = DevblocksPlatform::importGPC($_REQUEST['bot_script'], 'string', null);
+		@$bot_script = DevblocksPlatform::importGPC($_POST['bot_script'], 'string', null);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

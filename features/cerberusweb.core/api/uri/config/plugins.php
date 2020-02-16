@@ -93,20 +93,21 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 	}
 	
 	function savePopupAction() {
-		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string','');
-		@$enabled = DevblocksPlatform::importGPC($_REQUEST['enabled'],'integer',0);
-		@$uninstall = DevblocksPlatform::importGPC($_REQUEST['uninstall'],'integer',0);
+		@$plugin_id = DevblocksPlatform::importGPC($_POST['plugin_id'],'string','');
+		@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
+		@$uninstall = DevblocksPlatform::importGPC($_POST['uninstall'],'integer',0);
 
 		@$worker = CerberusApplication::getActiveWorker();
 		
 		header("Content-Type: application/json");
 		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
-		$errors = array();
+		if(!$worker || !$worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(403);
+		
+		$errors = [];
 		
 		switch($plugin_id) {
 			case 'devblocks.core':

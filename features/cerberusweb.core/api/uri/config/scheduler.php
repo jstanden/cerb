@@ -45,17 +45,21 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 	
 	function saveJobJsonAction() {
 		try {
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			$worker = CerberusApplication::getActiveWorker();
+			
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			// Save the job changes
-			@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
-			@$enabled = DevblocksPlatform::importGPC($_REQUEST['enabled'],'integer',0);
-			@$locked = DevblocksPlatform::importGPC($_REQUEST['locked'],'integer',0);
-			@$duration = DevblocksPlatform::importGPC($_REQUEST['duration'],'integer',5);
-			@$term = DevblocksPlatform::importGPC($_REQUEST['term'],'string','m');
-			@$starting = DevblocksPlatform::importGPC($_REQUEST['starting'],'string','');
+			@$id = DevblocksPlatform::importGPC($_POST['id'],'string','');
+			@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
+			@$locked = DevblocksPlatform::importGPC($_POST['locked'],'integer',0);
+			@$duration = DevblocksPlatform::importGPC($_POST['duration'],'integer',5);
+			@$term = DevblocksPlatform::importGPC($_POST['term'],'string','m');
+			@$starting = DevblocksPlatform::importGPC($_POST['starting'],'string','');
 					
 			$manifest = DevblocksPlatform::getExtension($id);
 			$job = $manifest->createInstance(); /* @var $job CerberusCronPageExtension */

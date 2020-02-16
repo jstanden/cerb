@@ -38,6 +38,9 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		try {
 			$worker = CerberusApplication::getActiveWorker();
 			
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
@@ -164,9 +167,9 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			return;
 		}
 		
-		@$deletes = DevblocksPlatform::importGPC($_REQUEST['deletes'],'array',array());
-		@$sticky_ids = DevblocksPlatform::importGPC($_REQUEST['sticky_ids'],'array',array());
-		@$sticky_order = DevblocksPlatform::importGPC($_REQUEST['sticky_order'],'array',array());
+		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
+		@$sticky_ids = DevblocksPlatform::importGPC($_POST['sticky_ids'],'array',array());
+		@$sticky_order = DevblocksPlatform::importGPC($_POST['sticky_order'],'array',array());
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
 		if(!$active_worker->is_superuser)
@@ -231,7 +234,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	function saveMailRoutingRuleAddAction() {
 		$translate = DevblocksPlatform::getTranslationService();
 
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
 		if(!$active_worker->is_superuser)
@@ -268,7 +271,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			switch($rule) {
 				case 'dayofweek':
 					// days
-					$days = DevblocksPlatform::importGPC($_REQUEST['value_dayofweek'],'array',array());
+					$days = DevblocksPlatform::importGPC($_POST['value_dayofweek'],'array',array());
 					if(in_array(0,$days)) $criteria['sun'] = 'Sunday';
 					if(in_array(1,$days)) $criteria['mon'] = 'Monday';
 					if(in_array(2,$days)) $criteria['tue'] = 'Tuesday';
@@ -280,8 +283,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 					break;
 					
 				case 'timeofday':
-					$from = DevblocksPlatform::importGPC($_REQUEST['timeofday_from'],'string','');
-					$to = DevblocksPlatform::importGPC($_REQUEST['timeofday_to'],'string','');
+					$from = DevblocksPlatform::importGPC($_POST['timeofday_from'],'string','');
+					$to = DevblocksPlatform::importGPC($_POST['timeofday_to'],'string','');
 					$criteria['from'] = $from;
 					$criteria['to'] = $to;
 					unset($criteria['value']);
@@ -320,20 +323,20 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 							case Model_CustomField::TYPE_SINGLE_LINE:
 							case Model_CustomField::TYPE_MULTI_LINE:
 							case Model_CustomField::TYPE_URL:
-								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','regexp');
+								$oper = DevblocksPlatform::importGPC($_POST['value_cf_'.$field_id.'_oper'],'string','regexp');
 								$criteria['oper'] = $oper;
 								break;
 								
 							case Model_CustomField::TYPE_CURRENCY:
 							case Model_CustomField::TYPE_DECIMAL:
-								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
+								$oper = DevblocksPlatform::importGPC($_POST['value_cf_'.$field_id.'_oper'],'string','=');
 								$criteria['oper'] = $oper;
 								break;
 								
 							case Model_CustomField::TYPE_DROPDOWN:
 							case Model_CustomField::TYPE_MULTI_CHECKBOX:
 							case Model_CustomField::TYPE_WORKER:
-								$in_array = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id],'array',[]);
+								$in_array = DevblocksPlatform::importGPC($_POST['value_cf_'.$field_id],'array',[]);
 								$out_array = [];
 								
 								// Hash key on the option for quick lookup later
@@ -346,15 +349,15 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 								break;
 								
 							case Model_CustomField::TYPE_DATE:
-								$from = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_from'],'string','0');
-								$to = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_to'],'string','now');
+								$from = DevblocksPlatform::importGPC($_POST['value_cf_'.$field_id.'_from'],'string','0');
+								$to = DevblocksPlatform::importGPC($_POST['value_cf_'.$field_id.'_to'],'string','now');
 								$criteria['from'] = $from;
 								$criteria['to'] = $to;
 								unset($criteria['value']);
 								break;
 								
 							case Model_CustomField::TYPE_NUMBER:
-								$oper = DevblocksPlatform::importGPC($_REQUEST['value_cf_'.$field_id.'_oper'],'string','=');
+								$oper = DevblocksPlatform::importGPC($_POST['value_cf_'.$field_id.'_oper'],'string','=');
 								$criteria['oper'] = $oper;
 								$criteria['value'] = intval($value);
 								break;
@@ -382,7 +385,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			switch($act) {
 				// Move group/bucket
 				case 'move':
-					@$group_id = DevblocksPlatform::importGPC($_REQUEST['do_move'],'string',null);
+					@$group_id = DevblocksPlatform::importGPC($_POST['do_move'],'string',null);
 					if(0 != strlen($group_id) && false != ($group = DAO_Group::get($group_id))) {
 						$action = array(
 							'group_id' => $group->id,
@@ -410,12 +413,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 							case Model_CustomField::TYPE_SINGLE_LINE:
 							case Model_CustomField::TYPE_URL:
 							case Model_CustomField::TYPE_WORKER:
-								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$value = DevblocksPlatform::importGPC($_POST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
 								break;
 								
 							case Model_CustomField::TYPE_MULTI_CHECKBOX:
-								$in_array = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'array',array());
+								$in_array = DevblocksPlatform::importGPC($_POST['do_cf_'.$field_id],'array',array());
 								$out_array = array();
 								
 								// Hash key on the option for quick lookup later
@@ -428,13 +431,13 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 								break;
 								
 							case Model_CustomField::TYPE_DATE:
-								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$value = DevblocksPlatform::importGPC($_POST['do_cf_'.$field_id],'string','');
 								$action['value'] = $value;
 								break;
 								
 							case Model_CustomField::TYPE_NUMBER:
 							case Model_CustomField::TYPE_CHECKBOX:
-								$value = DevblocksPlatform::importGPC($_REQUEST['do_cf_'.$field_id],'string','');
+								$value = DevblocksPlatform::importGPC($_POST['do_cf_'.$field_id],'string','');
 								$action['value'] = intval($value);
 								break;
 						}
@@ -513,7 +516,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$log = null;
 		
 		try {
-			@$message_source = DevblocksPlatform::importGPC($_REQUEST['message_source'],'string','');
+			@$message_source = DevblocksPlatform::importGPC($_POST['message_source'],'string','');
 	
 			$dict = CerberusParser::parseMessageSource($message_source, true, true);
 			$json = null;
@@ -610,6 +613,10 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		// Resolve any symbolic links
 		
 		try {
+			$active_worker = CerberusApplication::getActiveWorker();
+			
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(403);
 
 			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
 				throw new Exception("Path not found.");
@@ -645,9 +652,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$log = null;
 		
 		try {
-			@$file = DevblocksPlatform::importGPC($_REQUEST['file'],'string','');
-			@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-	
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+
+			@$file = DevblocksPlatform::importGPC($_POST['file'],'string','');
+			@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+			
 			// Resolve any symbolic links
 			
 			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
@@ -713,10 +723,19 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 	function deleteMessageJsonAction() {
 		header("Content-Type: application/json");
 		
-		@$file = basename(DevblocksPlatform::importGPC($_REQUEST['file'],'string',''));
-		@$view_id = basename(DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',''));
+		@$file = basename(DevblocksPlatform::importGPC($_POST['file'],'string',''));
+		@$view_id = basename(DevblocksPlatform::importGPC($_POST['view_id'],'string',''));
+		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError(403);
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		try {
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			// Resolve any symbolic links
 			
 			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))

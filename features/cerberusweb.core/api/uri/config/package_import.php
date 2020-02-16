@@ -32,6 +32,9 @@ class PageSection_SetupPackageImport extends Extension_PageSection {
 			$worker = CerberusApplication::getActiveWorker();
 			$tpl = DevblocksPlatform::services()->template();
 			
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			

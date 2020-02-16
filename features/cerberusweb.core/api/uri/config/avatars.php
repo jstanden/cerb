@@ -26,10 +26,13 @@ class PageSection_SetupAvatars extends Extension_PageSection {
 	}
 	
 	function saveJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
+		
 		try {
-			$worker = CerberusApplication::getActiveWorker();
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
-			header('Content-Type: application/json; charset=utf-8');
+			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));

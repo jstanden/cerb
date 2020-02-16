@@ -29,6 +29,9 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			$worker = CerberusApplication::getActiveWorker();
 			
 			if(!$worker || !$worker->is_superuser)

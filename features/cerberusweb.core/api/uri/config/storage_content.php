@@ -111,7 +111,10 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
+		
+		@$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'],'string','');
 		
 		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
 		/* @var $extension Extension_DevblocksStorageSchema */

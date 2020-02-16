@@ -55,9 +55,9 @@ class PageSection_SetupSearch extends Extension_PageSection {
 		if(DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		@$schema_extension_id = DevblocksPlatform::importGPC($_REQUEST['schema_extension_id'],'string','');
-		@$engine_extension_id = DevblocksPlatform::importGPC($_REQUEST['engine_extension_id'],'string','');
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',array());
+		@$schema_extension_id = DevblocksPlatform::importGPC($_POST['schema_extension_id'],'string','');
+		@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');
+		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
 
 		header('Content-Type: application/json');
 		

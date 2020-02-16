@@ -31,6 +31,9 @@ class PageSection_SetupLicense extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 
 		try {
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 				

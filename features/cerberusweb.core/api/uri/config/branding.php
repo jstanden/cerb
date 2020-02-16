@@ -30,6 +30,9 @@ class PageSection_SetupBranding extends Extension_PageSection {
 			$settings = DevblocksPlatform::services()->pluginSettings();
 			$worker = CerberusApplication::getActiveWorker();
 			
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			if(!$worker || !$worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			

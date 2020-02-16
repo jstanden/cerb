@@ -101,7 +101,7 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 	
 	function testProfileJsonAction() {
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 
 		try {
 			if(null == ($profile = DAO_DevblocksStorageProfile::get($id)))

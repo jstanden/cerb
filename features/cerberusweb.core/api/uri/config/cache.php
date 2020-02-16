@@ -57,12 +57,15 @@ class PageSection_SetupCache extends Extension_PageSection {
 		if(DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
-
 		header('Content-Type: application/json');
 		
 		try {
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
+			@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');
+			@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
+	
 			if(false == ($engine = Extension_DevblocksCacheEngine::get($engine_extension_id)))
 				throw new Exception_DevblocksAjaxError("Failed to load the cache engine.");
 			

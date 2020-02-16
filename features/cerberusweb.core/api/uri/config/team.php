@@ -32,28 +32,6 @@ class PageSection_SetupTeam extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/team/index.tpl');
 	}
 	
-	function saveSettingsJsonAction() {
-		try {
-			$worker = CerberusApplication::getActiveWorker();
-			
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
-			
-			//@$mail_default_from_id = DevblocksPlatform::importGPC($_POST['mail_default_from_id'],'integer',0);
-			
-			//$settings = DevblocksPlatform::services()->pluginSettings();
-			//$settings->set('cerberusweb.core',CerberusSettings::MAIL_DEFAULT_FROM_ID, $mail_default_from_id);
-			
-			echo json_encode(array('status'=>true));
-			return;
-			
-		} catch (Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
-			return;
-			
-		}
-	}
-	
 	function renderTabRolesAction() {
 		$tpl = DevblocksPlatform::services()->template();
 		

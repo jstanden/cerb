@@ -56,7 +56,6 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	}
 	
 	function saveAction() {
-		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string');
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 		exit;
 	}
@@ -88,8 +87,8 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		if(empty($active_worker) || empty($active_worker->id))
 			return;
 
-		@$lang_codes = DevblocksPlatform::importGPC($_REQUEST['lang_codes'],'array',array());
-		@$lang_actions = DevblocksPlatform::importGPC($_REQUEST['lang_actions'],'array',array());
+		@$lang_codes = DevblocksPlatform::importGPC($_POST['lang_codes'],'array',array());
+		@$lang_actions = DevblocksPlatform::importGPC($_POST['lang_actions'],'array',array());
 			
 		$strings_en = DAO_Translation::getMapByLang('en_US');
 
@@ -164,9 +163,9 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		
 		$codes = DAO_Translation::getDefinedLangCodes();
 			
-		@$add_lang_code = DevblocksPlatform::importGPC($_REQUEST['add_lang_code'],'string','');
-		@$copy_lang_code = DevblocksPlatform::importGPC($_REQUEST['copy_lang_code'],'string','');
-		@$del_lang_ids = DevblocksPlatform::importGPC($_REQUEST['del_lang_ids'],'array',array());
+		@$add_lang_code = DevblocksPlatform::importGPC($_POST['add_lang_code'],'string','');
+		@$copy_lang_code = DevblocksPlatform::importGPC($_POST['copy_lang_code'],'string','');
+		@$del_lang_ids = DevblocksPlatform::importGPC($_POST['del_lang_ids'],'array',array());
 		
 		if(!empty($del_lang_ids)) {
 			if(is_array($del_lang_ids))
@@ -350,8 +349,8 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	}
 	
 	function saveViewAction() {
-		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_ids'],'array',array());
-		@$translations = DevblocksPlatform::importGPC($_REQUEST['translations'],'array',array());
+		@$row_ids = DevblocksPlatform::importGPC($_POST['row_ids'],'array',array());
+		@$translations = DevblocksPlatform::importGPC($_POST['translations'],'array',array());
 
 		// Save the form strings
 		if(is_array($row_ids))

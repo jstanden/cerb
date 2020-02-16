@@ -77,6 +77,9 @@ class PageSection_SetupAuth extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+			
 			@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 			
 			$worker = CerberusApplication::getActiveWorker();

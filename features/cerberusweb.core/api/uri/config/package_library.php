@@ -22,8 +22,6 @@ class PageSection_SetupPackageLibrary extends Extension_PageSection {
 		
 		$visit->set(ChConfigurationPage::ID, 'package_library');
 		
-		$tpl = DevblocksPlatform::services()->template();
-		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_PackageLibrary');
 		$defaults->id = 'package_library';
 		$defaults->name = DevblocksPlatform::translateCapitalized('common.package.library');
