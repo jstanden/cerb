@@ -53,8 +53,14 @@ $(function() {
 		var $fieldset = $(this);
 		var context = $fieldset.attr('data-context');
 		var context_id = $fieldset.attr('data-context-id');
+
+		var formData = new FormData();
+		formData.append('c', 'internal');
+		formData.append('a', 'getLinkCountsJson');
+		formData.append('context', context);
+		formData.append('context_id', context_id);
 		
-		genericAjaxGet(null, 'c=internal&a=getLinkCountsJson&context=' + context + '&context_id=' + context_id, function(json) {
+		genericAjaxPost(formData, null, '', function(json) {
 			var $buttonbar = $fieldset.find('div.cerb-buttonbar');
 			$buttonbar.find('> *').remove();
 			
@@ -66,7 +72,7 @@ $(function() {
 						.attr('data-context', row.context)
 						.text(' ' + row.label)
 						;
-					var $count = $('<div class="badge-count"/>').text(row.count).prependTo($btn);
+					$('<div class="badge-count"/>').text(row.count).prependTo($btn);
 					$buttonbar.append($btn);
 				}
 				
@@ -89,7 +95,15 @@ $(function() {
 			return;
 		
 		var popup_id = 'links_' + context.replace(/\./g, '_');
-		var $popup = genericAjaxPopup(popup_id,'c=internal&a=linksOpen&context=' + from_context + '&context_id=' + from_context_id + '&to_context=' + context,null,false,'90%');
+
+		var formData = new FormData();
+		formData.append('c', 'internal');
+		formData.append('a', 'linksOpen');
+		formData.append('context', from_context);
+		formData.append('context_id', from_context_id);
+		formData.append('to_context', context);
+
+		var $popup = genericAjaxPopup(popup_id,formData,null,false,'90%');
 		
 		$popup.on('links_save', function(e) {
 			$div.find('fieldset').trigger('cerb-redraw');

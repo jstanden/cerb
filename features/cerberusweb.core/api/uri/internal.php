@@ -1560,9 +1560,12 @@ class ChInternalController extends DevblocksControllerExtension {
 	 */
 	
 	function linksOpenAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
-		@$to_context = DevblocksPlatform::importGPC($_REQUEST['to_context'],'string');
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer');
+		@$to_context = DevblocksPlatform::importGPC($_POST['to_context'],'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 
 		if(null == ($to_context_extension = Extension_DevblocksContext::get($to_context))
 			|| null == ($from_context_extension = Extension_DevblocksContext::get($context)))
@@ -1581,8 +1584,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function getLinkCountsJsonAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer');
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer');
 		
 		$contexts = Extension_DevblocksContext::getAll(false);
 		
@@ -2015,10 +2018,10 @@ class ChInternalController extends DevblocksControllerExtension {
 	function contextAddLinksJsonAction() {
 		header('Content-type: application/json');
 		
-		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string','');
-		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer',0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_ids = DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array());
+		@$from_context = DevblocksPlatform::importGPC($_POST['from_context'],'string','');
+		@$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'],'integer',0);
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
+		@$context_ids = DevblocksPlatform::importGPC($_POST['context_id'],'array',array());
 
 		if(is_array($context_ids))
 		foreach($context_ids as $context_id)
@@ -2030,10 +2033,10 @@ class ChInternalController extends DevblocksControllerExtension {
 	function contextDeleteLinksJsonAction() {
 		header('Content-type: application/json');
 		
-		@$from_context = DevblocksPlatform::importGPC($_REQUEST['from_context'],'string','');
-		@$from_context_id = DevblocksPlatform::importGPC($_REQUEST['from_context_id'],'integer',0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_ids = DevblocksPlatform::importGPC($_REQUEST['context_id'],'array',array());
+		@$from_context = DevblocksPlatform::importGPC($_POST['from_context'],'string','');
+		@$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'],'integer',0);
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
+		@$context_ids = DevblocksPlatform::importGPC($_POST['context_id'],'array',array());
 
 		if(is_array($context_ids))
 		foreach($context_ids as $context_id)
