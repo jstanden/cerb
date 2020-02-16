@@ -3020,7 +3020,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function viewBroadcastTestAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -3044,16 +3044,16 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		$search_class = $context_ext->getSearchClass();
 		
-		@$broadcast_to = DevblocksPlatform::importGPC($_REQUEST['broadcast_to'],'array',[]);
-		@$broadcast_subject = DevblocksPlatform::importGPC($_REQUEST['broadcast_subject'],'string',null);
-		@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
-		@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
-		@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
-		@$broadcast_group_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_group_id'],'integer',0);
-		@$broadcast_bucket_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_bucket_id'],'integer',0);
+		@$broadcast_to = DevblocksPlatform::importGPC($_POST['broadcast_to'],'array',[]);
+		@$broadcast_subject = DevblocksPlatform::importGPC($_POST['broadcast_subject'],'string',null);
+		@$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'],'string',null);
+		@$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'],'string',null);
+		@$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'],'integer',0);
+		@$broadcast_group_id = DevblocksPlatform::importGPC($_POST['broadcast_group_id'],'integer',0);
+		@$broadcast_bucket_id = DevblocksPlatform::importGPC($_POST['broadcast_bucket_id'],'integer',0);
 		
-		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids'],'string','');
+		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
+		@$ids = DevblocksPlatform::importGPC($_POST['ids'],'string','');
 		
 		// Filter to checked
 		if('checks' == $filter && !empty($ids)) {
