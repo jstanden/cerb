@@ -23,7 +23,15 @@ $(function() {
         if(13 == keycode) {
             e.preventDefault();
 
-            genericAjaxGet($output, 'c=profiles&a=handleSectionAction&section=classifier&action=predict&classifier_id={$classifier->id}&text=' + encodeURIComponent($input.val()), function(json) {
+            var formData = new FormData();
+            formData.set('c', 'profiles');
+            formData.set('a', 'handleSectionAction');
+            formData.set('section', 'classifier');
+            formData.set('action', 'predict');
+            formData.set('classifier_id', '{$classifier->id}');
+            formData.set('text', $input.val());
+
+            genericAjaxPost(formData, $output, '', function(json) {
                 $input.select().focus();
             });
         }
