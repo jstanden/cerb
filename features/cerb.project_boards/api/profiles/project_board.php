@@ -201,10 +201,10 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	function moveCardAction() {
-		@$card_context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$card_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$from_column_id = DevblocksPlatform::importGPC($_REQUEST['from'],'integer',0);
-		@$to_column_id = DevblocksPlatform::importGPC($_REQUEST['to'],'integer',0);
+		@$card_context = DevblocksPlatform::importGPC($_POST['context'],'string','');
+		@$card_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$from_column_id = DevblocksPlatform::importGPC($_POST['from'],'integer',0);
+		@$to_column_id = DevblocksPlatform::importGPC($_POST['to'],'integer',0);
 		
 		// [TODO] Validate everything (context/id/privs)
 		
@@ -234,9 +234,9 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	function refreshCardAction() {
-		@$board_id = DevblocksPlatform::importGPC($_REQUEST['board_id'],'integer',0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string',null);
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		@$board_id = DevblocksPlatform::importGPC($_POST['board_id'],'integer',0);
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string',null);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -269,8 +269,8 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	function reorderBoardAction() {
-		@$board_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$columns = DevblocksPlatform::importGPC($_REQUEST['columns'],'string','');
+		@$board_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$columns = DevblocksPlatform::importGPC($_POST['columns'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -287,8 +287,8 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 	}
 	
 	function reorderColumnAction() {
-		@$column_id = DevblocksPlatform::importGPC($_REQUEST['column_id'],'integer',0);
-		@$cards = DevblocksPlatform::importGPC($_REQUEST['cards'],'array',[]);
+		@$column_id = DevblocksPlatform::importGPC($_POST['column_id'],'integer',0);
+		@$cards = DevblocksPlatform::importGPC($_POST['cards'],'array',[]);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

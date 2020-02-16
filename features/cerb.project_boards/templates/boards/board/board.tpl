@@ -112,9 +112,18 @@ $(function() {
 
 			var $to_column = $(this);
 			var to_column_id = $to_column.attr('data-column-id');
-			
-			genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=project_board&action=moveCard&context=' + encodeURIComponent(card_context) + '&id=' + encodeURIComponent(card_id) + '&from=' + encodeURIComponent(from_column_id) + '&to=' + encodeURIComponent(to_column_id), function() {
-				//console.log("Moved from ", ui.sender, "To ", $column);
+
+			var formData = new FormData();
+			formData.append('c', 'profiles');
+			formData.append('a', 'handleSectionAction');
+			formData.append('section', 'project_board');
+			formData.append('action', 'moveCard');
+			formData.append('context', card_context);
+			formData.append('id', card_id);
+			formData.append('from', from_column_id);
+			formData.append('to', to_column_id);
+
+			genericAjaxPost(formData, '', null, function() {
 				$card.trigger('cerb-refresh');
 			});
 		},
@@ -123,8 +132,15 @@ $(function() {
 			var column_id = $column.attr('data-column-id');
 			
 			var $form = $column.find('form');
-			
-			genericAjaxPost($form, '', 'c=profiles&a=handleSectionAction&section=project_board&action=reorderColumn&column_id=' + encodeURIComponent(column_id), function() {
+
+			var formData = new FormData();
+			formData.set('c', 'project_board');
+			formData.set('a', 'handleSectionAction');
+			formData.set('section', 'project_board');
+			formData.set('action', 'reorderColumn');
+			formData.set('column_id', column_id);
+
+			genericAjaxPost(formData, '', '', function() {
 				//console.log("Reordered ", $column);
 			});
 		}
@@ -183,8 +199,16 @@ $(function() {
 			.get()
 			.join()
 		;
-		
-		genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=project_board&action=reorderBoard&id={$board->id|escape:'url'}&columns=' + encodeURIComponent(column_ids), function() {
+
+		var formData = new FormData();
+		formData.append('c', 'profiles');
+		formData.append('a', 'handleSectionAction');
+		formData.append('section', 'project_board');
+		formData.append('action', 'reorderBoard');
+		formData.append('id', '{$board->id}');
+		formData.append('columns', column_ids);
+
+		genericAjaxPost(formData, '', '', function() {
 		});
 	});
 	
@@ -232,23 +256,19 @@ $(function() {
 		
 		var $card = $(this);
 
-		var $trigger = $card.find('h3 a.cerb-peek-trigger');
-		var context = $trigger.attr('data-context');
-		var context_id = $trigger.attr('data-context-id');
-		
-		genericAjaxGet($card, 'c=profiles&a=handleSectionAction&section=project_board&action=refreshCard&board_id={$board->id}&context=' + encodeURIComponent(context) + '&id=' + encodeURIComponent(context_id), function() {
-			$card
-				.find('.cerb-bot-trigger')
-					.cerbBotTrigger()
-			;
-			$card
-				.find('.cerb-peek-trigger')
-					.cerbPeekTrigger()
-			;
-			$card
-				.find('.cerb-search-trigger')
-					.cerbSearchTrigger()
-			;
+		var context = $card.attr('data-context');
+		var context_id = $card.attr('data-context-id');
+
+		var formData = new FormData();
+		formData.append('c', 'profiles');
+		formData.append('a', 'handleSectionAction');
+		formData.append('section', 'project_board');
+		formData.append('action', 'refreshCard');
+		formData.append('board_id', '{$board->id}');
+		formData.append('context', context);
+		formData.append('id', context_id);
+
+		genericAjaxPost(formData, $card, '', function() {
 		});
 	});
 	
