@@ -477,10 +477,10 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 	}
 	
 	function renderWidgetAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
-		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'bool', false);
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
+		@$full = DevblocksPlatform::importGPC($_POST['full'], 'bool', false);
 		
 		if(false == ($widget = DAO_ProfileWidget::get($id)))
 			return;
@@ -508,8 +508,8 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 	}
 	
 	function reorderWidgetsAction() {
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'integer', 0);
-		@$zones = DevblocksPlatform::importGPC($_REQUEST['zones'], 'array', []);
+		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'], 'integer', 0);
+		@$zones = DevblocksPlatform::importGPC($_POST['zones'], 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

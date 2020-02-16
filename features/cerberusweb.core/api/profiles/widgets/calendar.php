@@ -58,8 +58,8 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 			}
 		}
 		
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
+		@$month = DevblocksPlatform::importGPC($_POST['month'],'integer', 0);
+		@$year = DevblocksPlatform::importGPC($_POST['year'],'integer', 0);
 		
 		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);

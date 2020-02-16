@@ -61,8 +61,8 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 			}
 		}
 		
-		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
-		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
+		@$month = DevblocksPlatform::importGPC($_POST['month'],'integer', 0);
+		@$year = DevblocksPlatform::importGPC($_POST['year'],'integer', 0);
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);

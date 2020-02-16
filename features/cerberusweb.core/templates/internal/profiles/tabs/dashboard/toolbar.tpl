@@ -104,7 +104,15 @@ $(function() {
 				var $this = $(this);
 				
 				if($this.is($field)) {
-					genericAjaxPost($div.closest('form'), divTester, 'c=profiles&a=handleSectionAction&section=profile_widget&action=testWidgetTemplate&template_key=' + encodeURIComponent(field_key) + '&index=' + index);
+					var formData = new FormData($div.closest('form')[0]);
+					formData.set('c', 'profiles');
+					formData.set('a', 'handleSectionAction');
+					formData.set('section', 'profile_widget');
+					formData.set('action', 'testWidgetTemplate');
+					formData.set('template_key', field_key);
+					formData.set('index', index);
+
+					genericAjaxPost(formData, divTester, '');
 				}
 			}
 		);

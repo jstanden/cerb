@@ -14,8 +14,8 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		$display_options = [];
 		
-		if(array_key_exists('expand_all', $_REQUEST))
-			$display_options['expand_all'] = DevblocksPlatform::importGPC($_REQUEST['expand_all'], 'bit', 0);
+		if(array_key_exists('expand_all', $_POST))
+			$display_options['expand_all'] = DevblocksPlatform::importGPC($_POST['expand_all'], 'bit', 0);
 		
 		$display_options['comments_mode'] = DevblocksPlatform::importVar(@$model->extension_params['comments_mode'], 'int', 0);
 		

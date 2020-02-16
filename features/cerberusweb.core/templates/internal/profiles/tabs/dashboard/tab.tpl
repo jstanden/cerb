@@ -216,18 +216,29 @@ $(function() {
 	
 	var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
 		var $widget = $('#profileWidget' + widget_id).empty();
-		var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($widget);
-		
-		var request_url = 'c=profiles&a=handleProfileTabAction&tab_id={$model->id}&action=renderWidget&context={$context}&context_id={$context_id}&id=' 
-			+ encodeURIComponent(widget_id) 
-			+ '&full=' + encodeURIComponent(is_full ? 1 : 0)
-			;
-		
-		if(typeof refresh_options == 'object')
-			request_url += '&' + $.param(refresh_options);
-		
-		genericAjaxGet('', request_url, function(html) {
-			if(0 == html.length) {
+		$('<span class="cerb-ajax-spinner"/>').appendTo($widget);
+
+		if(refresh_options instanceof FormData) {
+			var formData = refresh_options;
+		} else {
+			var formData = new FormData();
+		}
+
+		formData.append('c', 'profiles');
+		formData.append('a', 'handleProfileTabAction');
+		formData.append('tab_id', '{$model->id}');
+		formData.append('action', 'renderWidget');
+		formData.append('context', '{$context}');
+		formData.append('context_id', '{$context_id}');
+		formData.append('id', widget_id);
+		formData.append('full', is_full ? '1' : '0');
+
+		if(refresh_options instanceof Object) {
+			Devblocks.objectToFormData(refresh_options, formData);
+		}
+
+		genericAjaxPost(formData, '', '', function(html) {
+			if(0 === html.length) {
 				$widget.empty();
 				
 			} else {

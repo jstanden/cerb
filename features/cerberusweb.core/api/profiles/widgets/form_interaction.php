@@ -44,7 +44,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		$tpl->assign('dict', $dict);
 		$tpl->assign('widget', $widget);
 		$tpl->assign('widget_ext', $this);
-		$tpl->assign('is_refresh', array_key_exists('prompts', $_REQUEST) ? true : false);
+		$tpl->assign('is_refresh', array_key_exists('prompts', $_POST) ? true : false);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/form_interaction/render.tpl');
 	}
 	
@@ -91,7 +91,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		$state_ttl = time() + 7200;
 		
 		// If we're resetting the scope, delete the session and state key
-		if(array_key_exists('reset', $_REQUEST)) {
+		if(array_key_exists('reset', $_POST)) {
 			if(false != ($state_id = DevblocksPlatform::getRegistryKey($state_key, DevblocksRegistryEntry::TYPE_STRING, null)))
 				DAO_BotSession::delete($state_id);
 			
@@ -100,10 +100,10 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		
 		// If the state key doesn't exist, show the interactions menu
 		if(
-			array_key_exists('reset', $_REQUEST)
+			array_key_exists('reset', $_POST)
 			||  null == ($state_id = DevblocksPlatform::getRegistryKey($state_key, DevblocksRegistryEntry::TYPE_STRING, null))
 		) {
-			@$interaction_key = DevblocksPlatform::importGPC($_REQUEST['interaction'], 'string', null);
+			@$interaction_key = DevblocksPlatform::importGPC($_POST['interaction'], 'string', null);
 			
 			if($interaction_key) {
 				$interactions = $this->getInteractions($widget, $dict);
@@ -311,7 +311,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 		
 		// Load our default behavior for this interaction
 		if(false == (@$behavior_id = $interaction->session_data['behavior_id']))

@@ -335,12 +335,12 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 	}
 	
 	function testWidgetTemplateAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
-		@$profile_tab_id = DevblocksPlatform::importGPC($_REQUEST['profile_tab_id'], 'int', 0);
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
-		@$template_key = DevblocksPlatform::importGPC($_REQUEST['template_key'], 'string', '');
-		@$index = DevblocksPlatform::importGPC($_REQUEST['index'], 'integer', 0);
-		@$format = DevblocksPlatform::importGPC($_REQUEST['format'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'int', 0);
+		@$profile_tab_id = DevblocksPlatform::importGPC($_POST['profile_tab_id'], 'int', 0);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		@$template_key = DevblocksPlatform::importGPC($_POST['template_key'], 'string', '');
+		@$index = DevblocksPlatform::importGPC($_POST['index'], 'integer', 0);
+		@$format = DevblocksPlatform::importGPC($_POST['format'], 'string', '');
 		
 		@$placeholders_yaml = DevblocksPlatform::importVar($params['placeholder_simulator_yaml'], 'string', '');
 		

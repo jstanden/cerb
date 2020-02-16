@@ -122,7 +122,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 	
 	/*
 	function saveConfig(array $fields, $id, &$error=null) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		DAO_ProfileWidget::update($id, array(
 			DAO_ProfileWidget::PARAMS_JSON => json_encode($params),
