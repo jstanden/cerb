@@ -12,15 +12,21 @@
 	</div>
 	
 	<div style="float:left;">
+		{if is_array($suggested_photos) && !empty($suggested_photos)}
+		<fieldset class="peek">
+			<legend>{'common.library'|devblocks_translate|capitalize}:</legend>
+			<div>
+				<div class="cerb-avatar-suggested-photos"></div>
+			</div>
+		</fieldset>
+		{/if}
+
 		<fieldset class="peek">
 			<legend>Get image from a URL:</legend>
 			<div>
 				<input type="text" class="cerb-avatar-img-url" size="64" placeholder="http://example.com/image.png" />
 				<button type="button" class="cerb-avatar-img-fetch">Fetch</button>
 			</div>
-			{if is_array($suggested_photos) && !empty($suggested_photos)}
-			<div class="cerb-avatar-suggested-photos"></div>
-			{/if}
 		</fieldset>
 	
 		<fieldset class="peek">
@@ -211,14 +217,14 @@ $(function() {
 		});
 		
 		{foreach from=$suggested_photos item=photo}
-		var $img = $('<img style="cursor:pointer;margin-right:5px;" width="48" height="48">')
+		$('<img style="cursor:pointer;margin-right:5px;" width="50" height="50">')
 			.attr('title',"{$photo.title}")
-			.load(function(e) {
+			.load(function() {
+				var $this = $(this);
 				// When successful, add to suggestions
-				$(this)
+				$this
 					.click(function() {
-						$popup.find('input.cerb-avatar-img-url').val($(this).attr('src'));
-						$popup.find('button.cerb-avatar-img-fetch').click();
+						context.drawImage($this[0], 0, 0);
 					})
 					.appendTo($suggested)
 					;
