@@ -181,9 +181,9 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 	}
 	
 	function previewAction() {
-		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'],'string');
-		@$is_markdown = DevblocksPlatform::importGPC($_REQUEST['is_markdown'],'integer', 0);
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string');
+		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string');
+		@$is_markdown = DevblocksPlatform::importGPC($_POST['is_markdown'],'integer', 0);
+		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();

@@ -521,10 +521,10 @@ class DAO_Comment extends Cerb_ORMHelper {
 	}
 	
 	public static function handleFormPost($context, $context_id) {
-		@$comment = DevblocksPlatform::importGPC(@$_REQUEST['comment'],'string','');
-		@$comment_enabled = DevblocksPlatform::importGPC(@$_REQUEST['comment_enabled'],'bit',0);
-		@$comment_is_markdown = DevblocksPlatform::importGPC(@$_REQUEST['comment_is_markdown'],'bit',0);
-		@$comment_file_ids = DevblocksPlatform::importGPC(@$_REQUEST['comment_file_ids'],'array',[]);
+		@$comment = DevblocksPlatform::importGPC(@$_POST['comment'],'string','');
+		@$comment_enabled = DevblocksPlatform::importGPC(@$_POST['comment_enabled'],'bit',0);
+		@$comment_is_markdown = DevblocksPlatform::importGPC(@$_POST['comment_is_markdown'],'bit',0);
+		@$comment_file_ids = DevblocksPlatform::importGPC(@$_POST['comment_file_ids'],'array',[]);
 		
 		if(!$comment_enabled)
 			return null;
