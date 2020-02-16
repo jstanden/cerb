@@ -66,7 +66,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	}
 	
 	function parseDateJsonAction() {
-		@$date_string = DevblocksPlatform::importGPC($_REQUEST['date'], 'string', '');
+		@$date_string = DevblocksPlatform::importGPC($_POST['date'], 'string', '');
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
 		$date = DevblocksPlatform::services()->date();

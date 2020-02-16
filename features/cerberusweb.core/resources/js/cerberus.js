@@ -396,7 +396,14 @@ $.fn.cerbDateInputHelper = function(options) {
 					return;
 				
 				// Send the text to the server for translation
-				genericAjaxGet('', 'c=internal&a=handleSectionAction&section=calendars&action=parseDateJson&date=' + encodeURIComponent(val), function(json) {
+				var formData = new FormData();
+				formData.set('c', 'internal');
+				formData.set('a', 'handleSectionAction');
+				formData.set('section', 'calendars');
+				formData.set('action', 'parseDateJson');
+				formData.set('date', val);
+
+				genericAjaxPost(formData, '', '', function(json) {
 					if(json == false) {
 						// [TODO] Color it red for failed, and display an error somewhere
 						$input_date.val('');
