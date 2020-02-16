@@ -215,8 +215,24 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		if(false == ($extension = $portal->getExtension()))
 			return;
 		
-		if($extension instanceof Extension_CommunityPortal && method_exists($extension, $tab_action.'Action')) {
-			call_user_func(array($extension, $tab_action.'Action'));
+		if(!($extension instanceof Extension_CommunityPortal))
+			return;
+		
+		$action = sprintf("%sAction",
+			$tab_action
+		);
+		
+		if(method_exists($extension, $action)) {
+			call_user_func(array($extension, $action));
+			
+		} else {
+			trigger_error(
+				sprintf("Unknown controller action `%s.%s`",
+					get_class($extension),
+					$action
+				),
+				E_USER_WARNING
+			);
 		}
 	}
 };

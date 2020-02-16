@@ -189,33 +189,10 @@ class Portal_Webhook extends Extension_CommunityPortal {
 	 * @return DevblocksHttpResponse
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {
-		$path = $request->path;
-		
-		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
-		
-		if(empty($a)) {
-			@$action = array_shift($path) . 'Action';
-		} else {
-			@$action = $a . 'Action';
-		}
-
-		switch($action) {
-			case NULL:
-				// [TODO] Index/page render
-				break;
-
-			default:
-				// Default action, call arg as a method suffixed with Action
-				if(method_exists($this, $action)) {
-					call_user_func(array(&$this, $action)); // [TODO] Pass HttpRequest as arg?
-				}
-				break;
-		}
 	}
 	
 	public function writeResponse(DevblocksHttpResponse $response) {
 		$path = $response->path;
-		//$stack = array_shift($path);
 		
 		$config = $this->getConfig();
 		
@@ -294,7 +271,7 @@ class Portal_Webhook extends Extension_CommunityPortal {
 	}
 	
 	public function saveConfiguration(Model_CommunityTool $instance) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',[]);
+		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
 		
 		if(isset($params[self::PARAM_WEBHOOK_BEHAVIOR_ID])) {
 			$behavior_id = $params[self::PARAM_WEBHOOK_BEHAVIOR_ID];
@@ -309,10 +286,16 @@ class Portal_Webhook extends Extension_CommunityPortal {
 	}
 	
 	public function saveConfigTabJsonAction() {
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
+		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'], 'integer', 0);
+		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError('', 403);
 		
 		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
 			return;
+		
+		if(!Context_CommunityTool::isWriteableByActor($portal, $active_worker))
+			DevblocksPlatform::dieWithHttpError('', 403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

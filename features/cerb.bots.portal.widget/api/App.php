@@ -25,38 +25,12 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 	 * @return DevblocksHttpResponse
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {
-		$path = $request->path;
-		
 		$config = $this->getConfig();
 		
 		if(isset($config[self::PARAM_CORS_ALLOW_ORIGIN])) {
 			$origin = $config[self::PARAM_CORS_ALLOW_ORIGIN] ?: '*';
-			// [TODO] Handle HTTP and HTTPS (via ENV)
 			header('Access-Control-Allow-Origin: ' . $origin);
 			header('Access-Control-Allow-Credentials: true');
-			//header('Access-Control-Allow-Headers: User-Agent, Content-Type');
-			//header('Access-Control-Allow-Methods: GET,OPTIONS,POST');
-		}
-		
-		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
-		
-		if(empty($a)) {
-			@$action = array_shift($path) . 'Action';
-		} else {
-			@$action = $a . 'Action';
-		}
-
-		switch($action) {
-			case NULL:
-				// [TODO] Index/page render
-				break;
-
-			default:
-				// Default action, call arg as a method suffixed with Action
-				if(method_exists($this, $action)) {
-					call_user_func(array(&$this, $action)); // [TODO] Pass HttpRequest as arg?
-				}
-				break;
 		}
 	}
 	
@@ -204,8 +178,8 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 						break;
 						
 					case 'message':
-						@$session_id = DevblocksPlatform::importGPC($_REQUEST['session_id'], 'string', '');
-						@$message = DevblocksPlatform::importGPC($_REQUEST['message'], 'string', '');
+						@$session_id = DevblocksPlatform::importGPC($_POST['session_id'], 'string', '');
+						@$message = DevblocksPlatform::importGPC($_POST['message'], 'string', '');
 						
 						$tpl = DevblocksPlatform::services()->template();
 						
@@ -531,7 +505,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 	}
 	
 	public function saveConfiguration(Model_CommunityTool $instance) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',[]);
+		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
 		
 		if(isset($params[self::PARAM_BOT_NAME])) {
 			$value = strval($params[self::PARAM_BOT_NAME]);
@@ -570,19 +544,17 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 		}
 	}
 	
-	public function profileRenderTab($tab_id, Model_CommunityTool $portal) {
-		switch($tab_id) {
-			case 'configuration':
-				$this->configure($portal);
-				break;
-		}
-	}
-	
-	public function saveConfigTabJsonAction() {
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
+	public function saveConfigTabJson_WorkerPostAction() {
+		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'], 'integer', 0);
+		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError('', 403);
 		
 		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
 			return;
+		
+		if(!Context_CommunityTool::isWriteableByActor($portal, $active_worker))
+			DevblocksPlatform::dieWithHttpError('', 403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

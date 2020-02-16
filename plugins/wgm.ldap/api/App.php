@@ -27,7 +27,7 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		@$ldap_service_id = DevblocksPlatform::importGPC($params['ldap_service_id'], 'int', 0);
 		
@@ -46,8 +46,8 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		$umsession->logout();
 		
 		try {
-			@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-			@$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
+			@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+			@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
 			
 			// Check for extension
 			if(!extension_loaded('ldap'))

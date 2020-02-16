@@ -4987,10 +4987,10 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function saveTemplatePeekAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -5046,8 +5046,8 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function saveImportTemplatesPeekAction() {
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'],'integer',0);
-		@$file_id = DevblocksPlatform::importGPC($_REQUEST['file_id'],'integer',0);
+		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'],'integer',0);
+		@$file_id = DevblocksPlatform::importGPC($_POST['file_id'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -5099,12 +5099,15 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function saveExportTemplatesPeekAction() {
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()) || !$active_worker->is_superuser)
-			exit;
+			DevblocksPlatform::dieWithHttpError(403);
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$filename = DevblocksPlatform::importGPC($_REQUEST['filename'],'string','');
-		@$author = DevblocksPlatform::importGPC($_REQUEST['author'],'string','');
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$filename = DevblocksPlatform::importGPC($_POST['filename'],'string','');
+		@$author = DevblocksPlatform::importGPC($_POST['author'],'string','');
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		
 		// Build XML file
 		$xml = simplexml_load_string(

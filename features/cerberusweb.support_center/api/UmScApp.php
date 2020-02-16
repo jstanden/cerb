@@ -387,11 +387,17 @@ class UmScApp extends Extension_CommunityPortal {
 	}
 	
 	function saveConfigTabJsonAction() {
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
-		@$config_tab = DevblocksPlatform::importGPC($_REQUEST['config_tab'], 'string', '');
+		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'], 'integer', 0);
+		@$config_tab = DevblocksPlatform::importGPC($_POST['config_tab'], 'string', '');
 		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError('', 403);
+
 		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
 			return;
+		
+		if(!Context_CommunityTool::isWriteableByActor($portal, $active_worker))
+			DevblocksPlatform::dieWithHttpError('', 403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -579,9 +585,9 @@ class UmScApp extends Extension_CommunityPortal {
 	}
 	
 	function saveAddTemplatePeekAction() {
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$template = DevblocksPlatform::importGPC($_REQUEST['template'],'string','');
+		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$template = DevblocksPlatform::importGPC($_POST['template'],'string','');
 		
 		list($plugin_id, $template_path) = explode(':', $template, 2);
 		
@@ -656,7 +662,6 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-		$url_writer = DevblocksPlatform::services()->url();
 		$umsession = ChPortalHelper::getSession();
 		
 		try {
@@ -707,8 +712,8 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
 		@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string','');
 		@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string','');
-		@$password = DevblocksPlatform::importGPC($_REQUEST['password'],'string','');
-		@$password2 = DevblocksPlatform::importGPC($_REQUEST['password2'],'string','');
+		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
+		@$password2 = DevblocksPlatform::importGPC($_POST['password2'],'string','');
 		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -796,7 +801,6 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-		$url_writer = DevblocksPlatform::services()->url();
 		
 		try {
 			// Verify email is a contact
@@ -895,10 +899,9 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	function authenticateAction() {
 		$umsession = ChPortalHelper::getSession();
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-		$url_writer = DevblocksPlatform::services()->url();
 
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email']);
-		@$pass = DevblocksPlatform::importGPC($_REQUEST['password']);
+		@$email = DevblocksPlatform::importGPC($_POST['email']);
+		@$pass = DevblocksPlatform::importGPC($_POST['password']);
 		
 		// Clear the past session
 		$umsession->logout();
