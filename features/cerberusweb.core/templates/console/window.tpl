@@ -2,7 +2,7 @@
 	<div class="bot-chat-window-convo"></div>
 	
 	<div class="bot-chat-window-input">
-		<form class="bot-chat-window-input-form" action="javascript:;" onsubmit="return false;">
+		<form class="bot-chat-window-input-form" action="javascript:;" onsubmit="return false;" method="post">
 			<input type="hidden" name="c" value="internal">
 			<input type="hidden" name="a" value="consoleSendMessage">
 			<input type="hidden" name="layer" value="{$layer}">

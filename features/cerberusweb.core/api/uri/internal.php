@@ -3934,7 +3934,7 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function saveDecisionReorderPopupAction() {
-		@$child_ids = DevblocksPlatform::importGPC($_REQUEST['child_id'],'array', array());
+		@$child_ids = DevblocksPlatform::importGPC($_POST['child_id'],'array', array());
 		
 		if(!empty($child_ids))
 		foreach($child_ids as $pos => $child_id) {
@@ -4547,10 +4547,10 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function saveDecisionPopupAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$title = DevblocksPlatform::importGPC($_REQUEST['title'],'string', '');
-		@$status_id = DevblocksPlatform::importGPC($_REQUEST['status_id'],'integer', 0);
-		@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$title = DevblocksPlatform::importGPC($_POST['title'],'string', '');
+		@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer', 0);
+		@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
 
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -4561,10 +4561,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		
 		switch($mode) {
 			case 'library':
-				@$behavior_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-				@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
-				@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
-				@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+				@$behavior_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
+				@$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'],'integer', 0);
+				@$type = DevblocksPlatform::importGPC($_POST['type'],'string', '');
+				@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 				
 				header('Content-Type: application/json; charset=utf-8');
 				
@@ -4662,10 +4662,10 @@ class ChInternalController extends DevblocksControllerExtension {
 						));
 					}
 					
-				} elseif(isset($_REQUEST['parent_id'])) { // Create
-					@$parent_id = DevblocksPlatform::importGPC($_REQUEST['parent_id'],'integer', 0);
-					@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-					@$type = DevblocksPlatform::importGPC($_REQUEST['type'],'string', '');
+				} elseif(isset($_POST['parent_id'])) { // Create
+					@$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'],'integer', 0);
+					@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
+					@$type = DevblocksPlatform::importGPC($_POST['type'],'string', '');
 					
 					// Security
 					
@@ -4704,14 +4704,14 @@ class ChInternalController extends DevblocksControllerExtension {
 						break;
 						
 					case 'loop':
-						@$params = DevblocksPlatform::importGPC($_REQUEST['params'],'array',array());
+						@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
 						DAO_DecisionNode::update($id, array(
 							DAO_DecisionNode::PARAMS_JSON => json_encode($params),
 						));
 						break;
 						
 					case 'outcome':
-						@$nodes = DevblocksPlatform::importGPC($_REQUEST['nodes'],'array',array());
+						@$nodes = DevblocksPlatform::importGPC($_POST['nodes'],'array',array());
 						
 						$groups = [];
 						$group_key = null;
@@ -4744,7 +4744,7 @@ class ChInternalController extends DevblocksControllerExtension {
 						break;
 						
 					case 'action':
-						@$action_ids = DevblocksPlatform::importGPC($_REQUEST['actions'],'array',array());
+						@$action_ids = DevblocksPlatform::importGPC($_POST['actions'],'array',array());
 						$params = [];
 						$params['actions'] = $this->_parseActions($action_ids, $_POST);
 						DAO_DecisionNode::update($id, array(
@@ -4849,28 +4849,28 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function testDecisionEventSnippetsAction() {
-		@$prefix = DevblocksPlatform::importGPC($_REQUEST['prefix'],'string','');
-		@$response_format = DevblocksPlatform::importGPC($_REQUEST['format'],'string','');
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer',0);
+		@$prefix = DevblocksPlatform::importGPC($_POST['prefix'],'string','');
+		@$response_format = DevblocksPlatform::importGPC($_POST['format'],'string','');
+		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer',0);
 		
-		@$placeholders_yaml = DevblocksPlatform::importVar($_REQUEST[$prefix]['placeholder_simulator_yaml'], 'string', '');
+		@$placeholders_yaml = DevblocksPlatform::importVar($_POST[$prefix]['placeholder_simulator_yaml'], 'string', '');
 		$placeholders = DevblocksPlatform::services()->string()->yamlParse($placeholders_yaml, 0);
 		
 		$content = '';
 		
-		if(array_key_exists('field', $_REQUEST) && is_array($_REQUEST['field'])) {
-			@$fields = DevblocksPlatform::importGPC($_REQUEST['field'],'array',[]);
+		if(array_key_exists('field', $_POST) && is_array($_POST['field'])) {
+			@$fields = DevblocksPlatform::importGPC($_POST['field'],'array',[]);
 		
 			if(is_array($fields))
 			foreach($fields as $field) {
-				@$append = $this->_getValueFromNestedArray($field, $_REQUEST[$prefix]);
-				@$append = DevblocksPlatform::importGPC($_REQUEST[$prefix][$field],'string','');
+				@$append = $this->_getValueFromNestedArray($field, $_POST[$prefix]);
+				@$append = DevblocksPlatform::importGPC($_POST[$prefix][$field],'string','');
 				$content .= !empty($append) ? ('[' . $field . ']: ' . PHP_EOL . $append . PHP_EOL . PHP_EOL) : '';
 			}
 			
 		} else {
-			@$field = DevblocksPlatform::importGPC($_REQUEST['field'],'string','');
-			@$content = $this->_getValueFromNestedArray($field, $_REQUEST[$prefix]);
+			@$field = DevblocksPlatform::importGPC($_POST['field'],'string','');
+			@$content = $this->_getValueFromNestedArray($field, $_POST[$prefix]);
 		}
 		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
@@ -4905,9 +4905,9 @@ class ChInternalController extends DevblocksControllerExtension {
 				$success = true;
 				$output = $out;
 				
-				if(isset($_REQUEST['is_editor'])) {
-					@$is_editor = DevblocksPlatform::importGPC($_REQUEST['is_editor'],'string','');
-					@$format = DevblocksPlatform::importGPC($_REQUEST[$prefix][$is_editor],'string','');
+				if(isset($_POST['is_editor'])) {
+					@$is_editor = DevblocksPlatform::importGPC($_POST['is_editor'],'string','');
+					@$format = DevblocksPlatform::importGPC($_POST[$prefix][$is_editor],'string','');
 					
 					switch($format) {
 						case 'parsedown':
@@ -4915,15 +4915,15 @@ class ChInternalController extends DevblocksControllerExtension {
 
 								// HTML template
 
-								@$html_template_id = DevblocksPlatform::importGPC($_REQUEST[$prefix]['html_template_id'],'integer',0);
+								@$html_template_id = DevblocksPlatform::importGPC($_POST[$prefix]['html_template_id'],'integer',0);
 								$html_template = null;
 								
 								// Key mapping
 								
-								@$_group_key = DevblocksPlatform::importGPC($_REQUEST['_group_key'],'string','');
+								@$_group_key = DevblocksPlatform::importGPC($_POST['_group_key'],'string','');
 								@$_group_id = intval($values[$_group_key]);
 
-								@$_bucket_key = DevblocksPlatform::importGPC($_REQUEST['_bucket_key'],'string','');
+								@$_bucket_key = DevblocksPlatform::importGPC($_POST['_bucket_key'],'string','');
 								@$_bucket_id = intval($values[$_bucket_key]);
 								
 								// Try the given HTML template

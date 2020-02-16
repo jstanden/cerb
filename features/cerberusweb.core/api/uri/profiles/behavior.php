@@ -491,10 +491,10 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	}
 	
 	function saveBehaviorImportPopupJsonAction() {
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-		@$node_id = DevblocksPlatform::importGPC($_REQUEST['node_id'],'integer', 0);
-		@$behavior_json = DevblocksPlatform::importGPC($_REQUEST['behavior_json'],'string', null);
-		@$configure = DevblocksPlatform::importGPC($_REQUEST['configure'],'array', array());
+		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
+		@$node_id = DevblocksPlatform::importGPC($_POST['node_id'],'integer', 0);
+		@$behavior_json = DevblocksPlatform::importGPC($_POST['behavior_json'],'string', null);
+		@$configure = DevblocksPlatform::importGPC($_POST['configure'],'array', array());
 		$parent = null;
 		
 		header('Content-Type: application/json');

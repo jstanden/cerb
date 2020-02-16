@@ -1,4 +1,4 @@
-<form id="frmDecisionNodeReorder" onsubmit="return false;">
+<form id="frmDecisionNodeReorder" onsubmit="return false;" method="post">
 <input type="hidden" name="c" value="internal">
 <input type="hidden" name="a" value="saveDecisionReorderPopup">
 {if isset($node)}<input type="hidden" name="id" value="{$node->id}">{/if}
