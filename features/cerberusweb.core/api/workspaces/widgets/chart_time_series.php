@@ -160,7 +160,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		// [TODO] Validate prompted placeholders JSON?
 		

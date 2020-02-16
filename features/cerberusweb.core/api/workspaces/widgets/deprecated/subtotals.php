@@ -82,7 +82,7 @@ class WorkspaceWidget_Subtotals extends Extension_WorkspaceWidget implements ICe
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		// Convert the serialized model to proper JSON before saving
 		

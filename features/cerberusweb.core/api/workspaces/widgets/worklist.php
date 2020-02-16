@@ -87,7 +87,7 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		// Remove worker view models
 		$view_id = sprintf('widget_%d_worklist', $widget->id);

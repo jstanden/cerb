@@ -72,7 +72,7 @@ class WorkspaceWidget_Scatterplot extends Extension_WorkspaceWidget implements I
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		// [TODO] The extension should be able to filter the properties here
 		

@@ -31,7 +31,7 @@ class WorkspaceWidget_Countdown extends Extension_WorkspaceWidget implements ICe
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		if(isset($params['target_timestamp'])) {
 			@$timestamp = intval(strtotime($params['target_timestamp']));

@@ -199,8 +199,8 @@ class Page_Custom extends CerberusPageExtension {
 	}
 	
 	function setTabOrderAction() {
-		@$page_id = DevblocksPlatform::importGPC($_REQUEST['page_id'],'integer','0');
-		@$tab_ids_str = DevblocksPlatform::importGPC($_REQUEST['tabs'],'string','');
+		@$page_id = DevblocksPlatform::importGPC($_POST['page_id'],'integer','0');
+		@$tab_ids_str = DevblocksPlatform::importGPC($_POST['tabs'],'string','');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

@@ -151,7 +151,7 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		@$topic_id = intval($params['topic_id']);
 		

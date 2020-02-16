@@ -299,8 +299,8 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	}
 	
 	function renderWidgetAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$full = DevblocksPlatform::importGPC($_REQUEST['full'], 'bool', false);
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$full = DevblocksPlatform::importGPC($_POST['full'], 'bool', false);
 		
 		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
 			return;
@@ -325,8 +325,8 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	}
 	
 	function reorderWidgetsAction() {
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'integer', 0);
-		@$zones = DevblocksPlatform::importGPC($_REQUEST['zones'], 'array', []);
+		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'], 'integer', 0);
+		@$zones = DevblocksPlatform::importGPC($_POST['zones'], 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -390,11 +390,11 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	}
 	
 	function testWidgetTemplateAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
-		@$template_key = DevblocksPlatform::importGPC($_REQUEST['template_key'], 'string', '');
-		@$index = DevblocksPlatform::importGPC($_REQUEST['index'], 'integer', 0);
-		@$format = DevblocksPlatform::importGPC($_REQUEST['format'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'int', 0);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		@$template_key = DevblocksPlatform::importGPC($_POST['template_key'], 'string', '');
+		@$index = DevblocksPlatform::importGPC($_POST['index'], 'integer', 0);
+		@$format = DevblocksPlatform::importGPC($_POST['format'], 'string', '');
 		
 		@$placeholders_yaml = DevblocksPlatform::importVar($params['placeholder_simulator_yaml'], 'string', '');
 		
@@ -490,6 +490,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	function exportWidgetDataAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
 		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
@@ -499,6 +500,9 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			return;
 		
 		if(!($extension instanceof ICerbWorkspaceWidget_ExportData))
+			return;
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($widget, $active_worker))
 			return;
 		
 		$tpl->assign('widget', $widget);

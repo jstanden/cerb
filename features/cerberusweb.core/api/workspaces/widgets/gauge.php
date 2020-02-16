@@ -54,7 +54,7 @@ class WorkspaceWidget_Gauge extends Extension_WorkspaceWidget implements ICerbWo
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		// Convert the serialized model to proper JSON before saving
 		

@@ -159,7 +159,13 @@ $(function() {
 				return $(this).attr('tab_id');
 			}).get().join(',');
 
-			genericAjaxGet('', 'c=pages&a=setTabOrder&page_id={$page->id}&tabs=' + page_tab_ids);
+			var formData = new FormData();
+			formData.set('c', 'pages');
+			formData.set('a', 'setTabOrder');
+			formData.set('page_id', '{$page_id}');
+			formData.set('tabs', page_tab_ids);
+
+			genericAjaxPost(formData, '', '');
 		}
 	});
 	{/if}

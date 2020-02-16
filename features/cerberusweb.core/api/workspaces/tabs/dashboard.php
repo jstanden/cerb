@@ -10,7 +10,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	}
 	
 	function saveTabConfig(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		DAO_WorkspaceTab::update($tab->id, array(
 			DAO_WorkspaceTab::PARAMS_JSON => json_encode($params),

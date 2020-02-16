@@ -46,7 +46,7 @@ class WorkspaceWidget_Clock extends Extension_WorkspaceWidget implements ICerbWo
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),

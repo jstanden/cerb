@@ -83,12 +83,19 @@ $(function() {
 		
 		var query_editor = ace.edit($query_editor.attr('id'));
 		$query_placeholders_editor.parent().show();
-		
-		var $frm = $config.closest('form');
+
 		var field_key = 'params[data_query]';
-		
-		genericAjaxPost($frm, '', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=testWidgetTemplate&format=json&template_key=' + encodeURIComponent(field_key), function(json) {
-			if(false == json.status) {
+
+		var formData = new FormData($config.closest('form').get(0));
+		formData.set('c', 'profiles');
+		formData.set('a', 'handleSectionAction');
+		formData.set('section', 'workspace_widget');
+		formData.set('action', 'testWidgetTemplate');
+		formData.append('template_key', field_key);
+		formData.append('format', 'json');
+
+		genericAjaxPost(formData, '', '', function(json) {
+			if(false === json.status) {
 				var editor = ace.edit($json_results.attr('id'));
 				
 				editor.session.setMode('ace/mode/text');

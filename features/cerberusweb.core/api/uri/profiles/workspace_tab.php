@@ -312,8 +312,8 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 	}
 	
 	function saveDashboardTabPrefsAction() {
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'int', 0);
-		@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'],'array', []);
+		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'],'int', 0);
+		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'],'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

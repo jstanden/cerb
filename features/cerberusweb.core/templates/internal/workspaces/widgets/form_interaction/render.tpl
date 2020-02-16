@@ -24,11 +24,11 @@ $(function() {
 		var $tab = $this.closest('.cerb-workspace-layout');
 		
 		// Grab the entire form params
-		var form_elements = $form.serializeArray();
+		var formData = new FormData($form.get(0));
 
 		var evt = $.Event('cerb-widget-refresh');
 		evt.widget_id = {$widget->id};
-		evt.refresh_options = form_elements;
+		evt.refresh_options = formData;
 		
 		$tab.triggerHandler(evt);
 	});

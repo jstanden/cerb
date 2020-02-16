@@ -37,7 +37,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$page = DevblocksPlatform::importGPC($_REQUEST['page'], 'integer', 0);
+		@$page = DevblocksPlatform::importGPC($_POST['page'], 'integer', 0);
 		
 		$error = null;
 		
@@ -121,7 +121,7 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', []);
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
