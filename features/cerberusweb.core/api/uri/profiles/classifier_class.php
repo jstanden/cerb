@@ -131,7 +131,7 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 	}
 	
 	function viewExploreAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -144,7 +144,7 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 		$view->setAutoPersist(false);
 
 		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_REQUEST['explore_from'],'integer',0);
+		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
 		if(empty($explore_from)) {
 			$orig_pos = 1+($view->renderPage * $view->renderLimit);
 		} else {
