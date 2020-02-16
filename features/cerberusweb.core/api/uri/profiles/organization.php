@@ -29,9 +29,9 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 	}
 	
 	function savePeekPopupJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -52,16 +52,16 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				return;
 				
 			} else { // create/edit
-				@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string','');
-				@$aliases = DevblocksPlatform::importGPC($_REQUEST['aliases'],'string','');
-				@$street = DevblocksPlatform::importGPC($_REQUEST['street'],'string','');
-				@$city = DevblocksPlatform::importGPC($_REQUEST['city'],'string','');
-				@$province = DevblocksPlatform::importGPC($_REQUEST['province'],'string','');
-				@$postal = DevblocksPlatform::importGPC($_REQUEST['postal'],'string','');
-				@$country = DevblocksPlatform::importGPC($_REQUEST['country'],'string','');
-				@$phone = DevblocksPlatform::importGPC($_REQUEST['phone'],'string','');
-				@$website = DevblocksPlatform::importGPC($_REQUEST['website'],'string','');
-				@$email_id = DevblocksPlatform::importGPC($_REQUEST['email_id'],'integer',0);
+				@$org_name = DevblocksPlatform::importGPC($_POST['org_name'],'string','');
+				@$aliases = DevblocksPlatform::importGPC($_POST['aliases'],'string','');
+				@$street = DevblocksPlatform::importGPC($_POST['street'],'string','');
+				@$city = DevblocksPlatform::importGPC($_POST['city'],'string','');
+				@$province = DevblocksPlatform::importGPC($_POST['province'],'string','');
+				@$postal = DevblocksPlatform::importGPC($_POST['postal'],'string','');
+				@$country = DevblocksPlatform::importGPC($_POST['country'],'string','');
+				@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string','');
+				@$website = DevblocksPlatform::importGPC($_POST['website'],'string','');
+				@$email_id = DevblocksPlatform::importGPC($_POST['email_id'],'integer',0);
 				
 				$error = null;
 				
@@ -117,7 +117,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					DAO_ContextAlias::set(CerberusContexts::CONTEXT_ORG, $id, DevblocksPlatform::parseCrlfString($org_name . "\n" . $aliases));
 					
 					// Avatar image
-					@$avatar_image = DevblocksPlatform::importGPC($_REQUEST['avatar_image'], 'string', '');
+					@$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'], 'string', '');
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_ORG, $id, $avatar_image);
 					
 					// Comments

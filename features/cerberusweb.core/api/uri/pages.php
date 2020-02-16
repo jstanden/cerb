@@ -393,8 +393,8 @@ class Page_Custom extends CerberusPageExtension {
 				return;
 		
 			} else { // Create/Edit
-				@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_REQUEST['import_json'],'string', '');
+				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
+				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'],'string', '');
 				
 				$mode = 'build';
 				
@@ -406,7 +406,7 @@ class Page_Custom extends CerberusPageExtension {
 				
 				switch($mode) {
 					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_REQUEST['prompts'], 'array', []);
+						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 						
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
@@ -418,7 +418,7 @@ class Page_Custom extends CerberusPageExtension {
 							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
 						
 						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
 						
 						switch($owner_context) {
 							case CerberusContexts::CONTEXT_APPLICATION:
@@ -483,7 +483,7 @@ class Page_Custom extends CerberusPageExtension {
 							throw new Exception_DevblocksAjaxValidationError("Invalid workspace page extension.");
 						
 						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
 						
 						switch($owner_context) {
 							case CerberusContexts::CONTEXT_APPLICATION:
@@ -548,7 +548,7 @@ class Page_Custom extends CerberusPageExtension {
 						];
 						
 						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_REQUEST['owner'],'string',''));
+						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
 						
 						switch($owner_context) {
 							case CerberusContexts::CONTEXT_APPLICATION:

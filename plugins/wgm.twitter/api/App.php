@@ -39,10 +39,10 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 	}
 	
 	function savePeekPopupAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_reply = DevblocksPlatform::importGPC($_REQUEST['do_reply'], 'integer', 0);
-		@$reply = DevblocksPlatform::importGPC($_REQUEST['reply'], 'string', '');
-		@$is_closed = DevblocksPlatform::importGPC($_REQUEST['is_closed'], 'integer', 0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_reply = DevblocksPlatform::importGPC($_POST['do_reply'], 'integer', 0);
+		@$reply = DevblocksPlatform::importGPC($_POST['reply'], 'string', '');
+		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'], 'integer', 0);
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		

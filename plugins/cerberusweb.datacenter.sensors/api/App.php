@@ -177,13 +177,13 @@ class Page_Sensors extends CerberusPageExtension {
 	
 	// [TODO] Card/verify
 	function savePeekAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
-		@$tag = DevblocksPlatform::importGPC($_REQUEST['tag'],'string','');
-		@$name = DevblocksPlatform::importGPC($_REQUEST['name'],'string','');
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string','');
-		@$params = DevblocksPlatform::importGPC($_REQUEST['params'], 'array', array());
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'],'integer',0);
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
+		@$tag = DevblocksPlatform::importGPC($_POST['tag'],'string','');
+		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
+		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
+		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

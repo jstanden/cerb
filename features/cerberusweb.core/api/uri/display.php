@@ -106,10 +106,10 @@ class ChDisplayPage extends CerberusPageExtension {
 
 	// [TODO] Move to profiles
 	function saveMessagePeekJsonAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
