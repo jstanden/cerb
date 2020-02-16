@@ -226,9 +226,9 @@ class UmScHistoryController extends Extension_UmScController {
 	}
 	
 	function doReplyAction() {
-		@$from = DevblocksPlatform::importGPC($_REQUEST['from'],'string','');
-		@$mask = DevblocksPlatform::importGPC($_REQUEST['mask'],'string','');
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
+		@$from = DevblocksPlatform::importGPC($_POST['from'],'string','');
+		@$mask = DevblocksPlatform::importGPC($_POST['mask'],'string','');
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
 		
 		$umsession = ChPortalHelper::getSession();
 		if(false == ($active_contact = $umsession->getProperty('sc_login', null)))
