@@ -257,11 +257,11 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 	
 	function startBulkUpdateJsonAction() {
 		// Filter: whole list or check
-		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
 		$ids = array();
 		
 		// View
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
@@ -273,13 +273,13 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$do = array();
 
 		// Categories
-		@$category_ids = DevblocksPlatform::importGPC($_REQUEST['category_ids'],'array',array());
+		@$category_ids = DevblocksPlatform::importGPC($_POST['category_ids'],'array',array());
 		
 		if(is_array($category_ids)) {
 			$do['category_delta'] = array();
 			
 			foreach($category_ids as $cat_id) {
-				@$cat_mode = DevblocksPlatform::importGPC($_REQUEST['category_ids_'.$cat_id],'string','');
+				@$cat_mode = DevblocksPlatform::importGPC($_POST['category_ids_'.$cat_id],'string','');
 				if(!empty($cat_mode))
 					$do['category_delta'][] = $cat_mode . $cat_id;
 			}
@@ -300,12 +300,12 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		switch($filter) {
 			// Checked rows
 			case 'checks':
-				@$ids_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
+				@$ids_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 				
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
 				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;

@@ -282,10 +282,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	function startBulkUpdateJsonAction() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$ticket_id_str = DevblocksPlatform::importGPC($_REQUEST['ids'],'string');
-		@$filter = DevblocksPlatform::importGPC($_REQUEST['filter'],'string','');
+		@$ticket_id_str = DevblocksPlatform::importGPC($_POST['ids'],'string');
+		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
 
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		
@@ -337,12 +337,12 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Broadcast: Mass Reply
 		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
-			@$do_broadcast = DevblocksPlatform::importGPC($_REQUEST['do_broadcast'],'string',null);
-			@$broadcast_message = DevblocksPlatform::importGPC($_REQUEST['broadcast_message'],'string',null);
-			@$broadcast_format = DevblocksPlatform::importGPC($_REQUEST['broadcast_format'],'string',null);
-			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_REQUEST['broadcast_html_template_id'],'integer',0);
-			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
-			@$broadcast_is_queued = DevblocksPlatform::importGPC($_REQUEST['broadcast_is_queued'],'integer',0);
+			@$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'],'string',null);
+			@$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'],'string',null);
+			@$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'],'string',null);
+			@$broadcast_html_template_id = DevblocksPlatform::importGPC($_POST['broadcast_html_template_id'],'integer',0);
+			@$broadcast_file_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['broadcast_file_ids'],'array',array()), 'integer', array('nonzero','unique'));
+			@$broadcast_is_queued = DevblocksPlatform::importGPC($_POST['broadcast_is_queued'],'integer',0);
 			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_message)) {
 				$do['broadcast'] = array(
@@ -364,7 +364,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				$ids = DevblocksPlatform::parseCsvString($ticket_id_str);
 				break;
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_REQUEST['filter_sample_size'],'integer',0),9999);
+				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
 				$filter = '';
 				$ids = $view->getDataSample($sample_size);
 				break;

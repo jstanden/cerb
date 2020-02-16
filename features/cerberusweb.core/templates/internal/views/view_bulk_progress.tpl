@@ -16,7 +16,13 @@ $(function() {
 	$('#viewForm{$view_id}').hide().remove();
 	
 	var nextCursor = function() {
-		genericAjaxGet('', 'c=internal&a=viewBulkUpdateNextCursorJson&cursor={$cursor}&view_id={$view_id}', function(json) {
+		var formData = new FormData();
+		formData.set('c', 'internal');
+		formData.set('a', 'viewBulkUpdateNextCursorJson');
+		formData.set('cursor', '{$cursor}');
+		formData.set('view_id', '{$view_id}');
+
+		genericAjaxPost(formData, '', '', function(json) {
 			if(json.completed) {
 				genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
 				
