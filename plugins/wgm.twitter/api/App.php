@@ -101,8 +101,8 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 	}
 	
 	function viewMarkClosedAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
 
 		try {
 			if(is_array($row_ids))
@@ -287,7 +287,7 @@ class Cron_WgmTwitterChecker extends CerberusCronPageExtension {
 	
 	public function saveConfiguration() {
 		try {
-			@$sync_account_ids = DevblocksPlatform::importGPC($_REQUEST['sync_account_ids'],'array',[]);
+			@$sync_account_ids = DevblocksPlatform::importGPC($_POST['sync_account_ids'],'array',[]);
 			
 			$sync_account_ids = DevblocksPlatform::sanitizeArray($sync_account_ids, 'int');
 			DevblocksPlatform::setPluginSetting('wgm.twitter', 'sync_account_ids_json', $sync_account_ids, true);
