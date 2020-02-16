@@ -2477,11 +2477,14 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function snippetPlaceholdersPreviewAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		@$placeholders = DevblocksPlatform::importGPC($_REQUEST['placeholders'],'array',array());
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
+		@$placeholders = DevblocksPlatform::importGPC($_POST['placeholders'],'array',array());
 
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
 		
 		if(!$id || false == ($snippet = DAO_Snippet:: get($id)))
 			return;
