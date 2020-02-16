@@ -145,6 +145,8 @@ $(function() {
 			var editor = ace.edit($yaml_editor.attr('id'));
 			
 			var formData = new FormData();
+			formData.set('c', 'ui');
+			formData.set('a', 'sheet');
 			formData.append('data_query', json.response);
 			formData.append('sheet_yaml', editor.getValue());
 			formData.append('types[]', 'card');
@@ -157,7 +159,7 @@ $(function() {
 			formData.append('types[]', 'text');
 			formData.append('types[]', 'time_elapsed');
 			
-			genericAjaxPost(formData, '', 'c=ui&a=sheet', function(html) {
+			genericAjaxPost(formData, '', '', function(html) {
 				$sheet_preview.html(html);
 			});
 		});

@@ -453,9 +453,9 @@ class Controller_UI extends DevblocksControllerExtension {
 	}
 	
 	function sheetAction() {
-		@$data_query = DevblocksPlatform::importGPC($_REQUEST['data_query'], 'string', '');
-		@$sheet_yaml = DevblocksPlatform::importGPC($_REQUEST['sheet_yaml'], 'string', '');
-		@$types = DevblocksPlatform::importGPC($_REQUEST['types'], 'array', []);
+		@$data_query = DevblocksPlatform::importGPC($_POST['data_query'], 'string', '');
+		@$sheet_yaml = DevblocksPlatform::importGPC($_POST['sheet_yaml'], 'string', '');
+		@$types = DevblocksPlatform::importGPC($_POST['types'], 'array', []);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$data = DevblocksPlatform::services()->data();

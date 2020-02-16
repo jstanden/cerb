@@ -98,7 +98,7 @@ $(function() {
 			var $this = $(this);
 			var page = $this.attr('data-page');
 
-			if(undefined == page)
+			if(undefined === page)
 				return;
 
 			var evt = $.Event('cerb-widget-refresh');
