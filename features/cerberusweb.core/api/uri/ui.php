@@ -182,18 +182,6 @@ class Controller_UI extends DevblocksControllerExtension {
 		$this->_runBehavior($behavior);
 	}
 	
-	function ajaxBotBehaviorAction() {
-		@$behavior_id = DevblocksPlatform::importGPC($_REQUEST['behavior_id'], 'integer', 0);
-		
-		if(!$behavior_id || false == ($behavior = DAO_TriggerEvent::get($behavior_id))) {
-			http_response_code(503);
-			echo "<h1>503: Temporarily unavailable</h1>";
-			return;
-		}
-		
-		$this->_runBehavior($behavior);
-	}
-
 	private function _runBehavior(Model_TriggerEvent $behavior) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
