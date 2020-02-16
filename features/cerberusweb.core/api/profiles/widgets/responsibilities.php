@@ -109,9 +109,9 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 	}
 	
 	function saveResponsibilityJsonAction(Model_ProfileWidget $model) {
-		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', '');
-		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'], 'integer', '');
-		@$responsibility = DevblocksPlatform::importGPC($_REQUEST['responsibility'], 'integer', '');
+		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', '');
+		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'], 'integer', '');
+		@$responsibility = DevblocksPlatform::importGPC($_POST['responsibility'], 'integer', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -134,8 +134,8 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 	}
 	
 	function saveResponsibilitiesPopupAction(Model_ProfileWidget $model) {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'string', '');
+		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
+		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 
@@ -144,7 +144,7 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 				if(!$active_worker->isGroupManager($context_id))
 					return;
 				
-				@$responsibilities = DevblocksPlatform::importGPC($_REQUEST['responsibilities'], 'array', []);
+				@$responsibilities = DevblocksPlatform::importGPC($_POST['responsibilities'], 'array', []);
 				
 				if(false == ($group = DAO_Group::get($context_id)))
 					return;
@@ -156,7 +156,7 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 				if(!$active_worker->is_superuser)
 					return;
 				
-				@$responsibilities = DevblocksPlatform::importGPC($_REQUEST['responsibilities'], 'array', []);
+				@$responsibilities = DevblocksPlatform::importGPC($_POST['responsibilities'], 'array', []);
 				
 				if(false == ($worker = DAO_Worker::get($context_id)))
 					return;
