@@ -331,7 +331,7 @@ class UmScAccountController extends Extension_UmScController {
 					if(!empty($contact_fields))
 						DAO_Contact::update($active_contact->id, $contact_fields);
 					if(!empty($contact_customfields))
-						DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_CONTACT, $contact->id, $contact_customfields, true, false, false);
+						DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_CONTACT, $active_contact->id, $contact_customfields, true, false, false);
 						
 					// Addy
 					if(!empty($addy_fields))
