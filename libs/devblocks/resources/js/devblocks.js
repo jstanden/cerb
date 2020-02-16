@@ -599,6 +599,28 @@ function DevblocksClass() {
 			finished();
 		});
 	}
+
+	// https://gist.github.com/ghinda/8442a57f22099bdb2e34#gistcomment-2386093
+	this.objectToFormData = function(model, form, namespace) {
+		let formData = form || new FormData();
+		for (let propertyName in model) {
+			if (!model.hasOwnProperty(propertyName) || !model[propertyName]) continue;
+			let formKey = namespace ? `${namespace}[${propertyName}]` : propertyName;
+			if (model[propertyName] instanceof Date)
+				formData.append(formKey, model[propertyName].toISOString());
+			else if (model[propertyName] instanceof Array) {
+				model[propertyName].forEach((element, index) => {
+					const tempFormKey = `${formKey}[${index}]`;
+					this.objectToFormData(element, formData, tempFormKey);
+				});
+			}
+			else if (typeof model[propertyName] === 'object' && !(model[propertyName] instanceof File))
+				this.objectToFormData(model[propertyName], formData, formKey);
+			else
+				formData.append(formKey, model[propertyName].toString());
+		}
+		return formData;
+	}
 	
 	this.cerbCodeEditor = {
 		insertMatchAndAutocomplete: function(editor, data) {
