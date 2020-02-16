@@ -139,8 +139,8 @@ class Page_Login extends CerberusPageExtension {
 	}
 	
 	private function _routeAuthenticate() {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'], 'string', '');
-		@$password = DevblocksPlatform::importGPC($_REQUEST['password'], 'string', '');
+		@$email = DevblocksPlatform::importGPC($_POST['email'], 'string', '');
+		@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
 		
 		$login_state = CerbLoginWorkerAuthState::getInstance()
 			->setEmail($email)
@@ -707,13 +707,13 @@ class Page_Login extends CerberusPageExtension {
 					DevblocksPlatform::redirect(new DevblocksHttpRequest(['login','recover']), 0);
 				}
 				
-				@$password = DevblocksPlatform::importGPC($_REQUEST['password'], 'string', '');
+				@$password = DevblocksPlatform::importGPC($_POST['password'], 'string', '');
 				
 				if(!$password) {
 					$tpl->display('devblocks:cerberusweb.core::login/recover/recover_reset.tpl');
 					
 				} else {
-					@$password_verify = DevblocksPlatform::importGPC($_REQUEST['password_verify'], 'string', '');
+					@$password_verify = DevblocksPlatform::importGPC($_POST['password_verify'], 'string', '');
 					
 					$validation = DevblocksPlatform::services()->validation();
 					
