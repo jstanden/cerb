@@ -74,7 +74,7 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	}
 	
 	function parseFormPost(Model_CustomField $field) {
-		@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field->id],'string','');
+		@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field->id],'string','');
 		return $field_value;
 	}
 }

@@ -173,7 +173,7 @@ class CustomField_Slider extends Extension_CustomField {
 	}
 	
 	function parseFormPost(Model_CustomField $field) {
-		@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field->id],'integer',0);
+		@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field->id],'integer',0);
 		return $field_value;
 	}
 	
@@ -331,7 +331,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 	}
 	
 	function parseFormPost(Model_CustomField $field) {
-		@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field->id],'array',[]);
+		@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field->id],'array',[]);
 		return DevblocksPlatform::sanitizeArray($field_value, 'int', ['nonzero', 'unique']);
 	}
 	

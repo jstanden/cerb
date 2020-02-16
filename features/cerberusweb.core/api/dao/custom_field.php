@@ -1220,7 +1220,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_FILES:
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
 				case Model_CustomField::TYPE_LIST:
-					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'array',[]);
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
 					break;
 					
 				case Model_CustomField::TYPE_CHECKBOX:
@@ -1235,7 +1235,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_URL:
 				case Model_CustomField::TYPE_WORKER:
-					@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
+					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					break;
 					
 				default:
@@ -1243,7 +1243,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 						$field_value = $field_ext->parseFormPost($fields[$field_id]);
 						
 					} else {
-						@$field_value = DevblocksPlatform::importGPC($_REQUEST['field_'.$field_id],'string','');
+						@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
 					}
 					break;
 			}
