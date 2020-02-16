@@ -101,8 +101,15 @@ $(function() {
 		
 		var $frm = $config.closest('form');
 		var field_key = 'params[data_query]';
-		
-		genericAjaxPost($frm, '', 'c=profiles&a=handleSectionAction&section=card_widget&action=testWidgetTemplate&format=json&template_key=' + encodeURIComponent(field_key), function(json) {
+
+		var formData = new FormData($frm[0]);
+		formData.set('c', 'profiles');
+		formData.set('a', 'handleSectionAction');
+		formData.set('section', 'card_widget');
+		formData.set('action', 'testWidgetTemplate');
+		formData.set('template_key', field_key);
+
+		genericAjaxPost(formData, '', '', function(json) {
 			if(false == json.status) {
 				var editor = ace.edit($json_results.attr('id'));
 				
@@ -155,10 +162,14 @@ $(function() {
 		}
 		
 		var formData = new FormData($frm.get(0));
+		formData.set('c', 'profiles');
+		formData.set('a', 'handleSectionAction');
+		formData.set('section', 'card_widget');
+		formData.set('action', 'testWidgetTemplate');
 		formData.append('template_key', 'params[data_query]');
 		formData.append('format', 'json');
 		
-		genericAjaxPost(formData, '', 'c=profiles&a=handleSectionAction&section=card_widget&action=testWidgetTemplate', function(json) {
+		genericAjaxPost(formData, '', '', function(json) {
 			if(false == json.status) {
 				$sheet_preview.text(json.response);
 				return;

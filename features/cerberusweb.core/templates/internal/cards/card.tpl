@@ -269,17 +269,28 @@ $(function() {
 
         var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
             var $widget = $popup.find('.cerb-card-widget[data-widget-id=' + widget_id + '] .cerb-card-widget--content').empty();
-            var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($widget);
+            $('<span class="cerb-ajax-spinner"/>').appendTo($widget);
 
-            var request_url = 'c=profiles&a=handleSectionAction&section=card_widget&action=renderWidget&context={$peek_context}&context_id={$peek_context_id}&id='
-                + encodeURIComponent(widget_id)
-                + '&full=' + encodeURIComponent(is_full ? 1 : 0)
-            ;
+            if(refresh_options instanceof FormData) {
+                var formData = refresh_options;
+            } else {
+                var formData = new FormData();
+            }
 
-            if(typeof refresh_options == 'object')
-                request_url += '&' + $.param(refresh_options);
+            formData.append('c', 'profiles');
+            formData.append('a', 'handleSectionAction');
+            formData.append('section', 'card_widget');
+            formData.append('action', 'renderWidget');
+            formData.append('context', '{$peek_context}');
+            formData.append('context_id', '{$peek_context_id}');
+            formData.append('id', widget_id);
+            formData.append('full', is_full ? '1' : '0');
 
-            genericAjaxGet('', request_url, function(html) {
+            if(refresh_options instanceof Object) {
+                Devblocks.objectToFormData(refresh_options, formData);
+            }
+
+            genericAjaxPost(formData, '', '', function(html) {
                 if(0 === html.length) {
                     $widget.empty();
 

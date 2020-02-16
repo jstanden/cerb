@@ -37,7 +37,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {
-		@$page = DevblocksPlatform::importGPC($_REQUEST['page'], 'integer', 0);
+		@$page = DevblocksPlatform::importGPC($_POST['page'], 'integer', 0);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		
