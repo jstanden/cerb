@@ -867,11 +867,10 @@ class Page_Login extends CerberusPageExtension {
 	}
 	
 	function signoutAction() {
-		$request = DevblocksPlatform::getHttpRequest();
-		$stack = $request->path;
-		@array_shift($stack); // login
-		@array_shift($stack); // signout
-		@$option = DevblocksPlatform::strLower(array_shift($stack));
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError('', 403);
+		
+		@$scope = DevblocksPlatform::importGPC($_POST['scope'], 'string', '');
 		
 		/*
 		 * Log activity (worker.logged_out)
@@ -891,7 +890,7 @@ class Page_Login extends CerberusPageExtension {
 		
 		$session = DevblocksPlatform::services()->session();
 		
-		switch($option) {
+		switch($scope) {
 			case 'all':
 				if(null != ($active_worker = CerberusApplication::getActiveWorker()))
 					Cerb_DevblocksSessionHandler::destroyByWorkerIds($active_worker->id);

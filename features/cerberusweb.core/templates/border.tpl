@@ -28,8 +28,8 @@
 				<li><a href="{devblocks_url}c=profiles&w=worker&me=me&tab=settings{/devblocks_url}">{'common.settings'|devblocks_translate|lower}</a></li>
 				<li><a href="javascript:;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_NOTIFICATION}" data-layer="notifications_me" data-query="*" data-query-required="worker.id:{$active_worker->id}">{'home.tab.my_notifications'|devblocks_translate|lower}</a></li>
 				<li><a href="javascript:;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ACTIVITY_LOG}" data-query="actor.worker:(id:{$active_worker->id}) created:&quot;-1 day&quot;">{'common.activity_log'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=login&a=signout{/devblocks_url}">{'header.signoff'|devblocks_translate|lower}</a></li>
-				<li><a href="{devblocks_url}c=login&a=signout&w=all{/devblocks_url}">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
+				<li><a href="javascript:;" data-cerb-action="signout">{'header.signoff'|devblocks_translate|lower}</a></li>
+				<li><a href="javascript:;" data-cerb-action="signout-all">{'header.signoff.all.my'|devblocks_translate|lower}</a></li>
 			</ul>
 	</div>
 </div>
@@ -92,7 +92,26 @@ $(function(e) {
 			}
 		)
 		;
-	
+
+	$menu.find('[data-cerb-action=signout]').on('click', function() {
+		var formData = new FormData();
+		formData.set('c', 'login');
+		formData.set('a', 'signout');
+		genericAjaxPost(formData, '', '', function() {
+			window.document.location.reload();
+		});
+	});
+
+	$menu.find('[data-cerb-action=signout-all]').on('click', function() {
+		var formData = new FormData();
+		formData.set('c', 'login');
+		formData.set('a', 'signout');
+		formData.set('scope', 'all');
+		genericAjaxPost(formData, '', '', function() {
+			window.document.location.reload();
+		});
+	});
+
 	$menu.find('.cerb-peek-trigger').cerbPeekTrigger();
 	$menu.find('.cerb-search-trigger').cerbSearchTrigger();
 });
