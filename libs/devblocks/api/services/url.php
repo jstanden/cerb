@@ -288,11 +288,37 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 	 * @return bool
 	 */
 	public function filter(&$uri, $config, $context) {
+		$is_embedded = $context->get('EmbeddedURI', true);
+		
+		// Block empty schemes
+		if(false == ($scheme = DevblocksPlatform::strLower($uri->scheme))) {
+			$uri = $this->parser->parse(null);
+			return false;
+		}
+		
+		// Allow data protocol images
+		if($is_embedded && 0 == strcasecmp('data', $uri->scheme)) {
+			return true;
+		}
+		
+		// Allow mailto links
+		if(!$is_embedded && in_array($scheme, ['mailto'])) {
+			return true;
+		}
+		
+		// Block non-HTTP links
+		if(!$is_embedded && !in_array($scheme, ['http', 'https'])) {
+			$uri = $this->parser->parse(null);
+			return false;
+		}
+		
+		// Block other URIs with no host
 		if(!$uri->host) {
 			$uri = $this->parser->parse(null);
 			return false;
 		}
 		
+		// Allow Cerb inline images
 		if(0 == strcasecmp($uri->host, $this->cerbUri->host)) {
 			if(DevblocksPlatform::strStartsWith($uri->path, $this->cerbUri->path, false)) {
 				if(DevblocksPlatform::strStartsWith($uri->path, $this->cerbFilesPath, false)) {
