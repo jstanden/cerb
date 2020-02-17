@@ -614,6 +614,13 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 							implode(',', $category_ids)
 						);
 						break;
+						
+					case DevblocksSearchCriteria::OPER_IS_NULL:
+						return sprintf("NOT EXISTS (SELECT * FROM kb_article_to_category WHERE kb_article_to_category.kb_article_id=%s)", 
+							self::getPrimaryKey()
+						);
+						break;
+						
 				}
 				return 0;
 				break;
