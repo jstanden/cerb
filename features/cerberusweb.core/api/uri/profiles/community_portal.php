@@ -205,9 +205,8 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function handleProfileTabActionAction() {
+	function showConfigTabAction() {
 		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
-		@$tab_action = DevblocksPlatform::importGPC($_REQUEST['tab_action'], 'string', '');
 		
 		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
 			return;
@@ -218,21 +217,33 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		if(!($extension instanceof Extension_CommunityPortal))
 			return;
 		
-		$action = sprintf("%sAction",
-			$tab_action
-		);
+		$extension->configure($portal);
+	}
+	
+	function saveConfigTabJsonAction() {
+		header('Content-Type: application/json; charset=utf-8');
 		
-		if(method_exists($extension, $action)) {
-			call_user_func(array($extension, $action));
-			
-		} else {
-			trigger_error(
-				sprintf("Unknown controller action `%s.%s`",
-					get_class($extension),
-					$action
-				),
-				E_USER_WARNING
-			);
-		}
+		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
+		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
+			return;
+		
+		if(!(Context_CommunityTool::isWriteableByActor($portal, $active_worker)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(false == ($extension = $portal->getExtension()))
+			return;
+		
+		if(!($extension instanceof Extension_CommunityPortal))
+			return;
+		
+		$extension->saveConfiguration($portal);
+		
+		echo json_encode([
+			'message' => 'Saved!',
+		]);
 	}
 };

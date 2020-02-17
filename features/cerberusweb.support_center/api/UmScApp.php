@@ -339,71 +339,69 @@ class UmScApp extends Extension_CommunityPortal {
 	public function configure(Model_CommunityTool $portal) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		//$tpl->assign('tab_id', $tab_id);
-		$tpl->assign('portal', $portal);
-		
-		$modules = Extension_UmScController::getAll(false, ['configurable']);
-		
-		$config_tabs = [
-			'templates' => 'Templates',
-		];
-		
-		foreach($modules as $module) {
-			$config_tabs[$module->params['uri']] = DevblocksPlatform::translateCapitalized($module->params['menu_title']);
-		}
-		
-		asort($config_tabs);
-		
-		$config_tabs = array_merge(['website' => 'Website'], $config_tabs);
-		
-		$tpl->assign('config_tabs', $config_tabs);
-		
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration.tpl");
-	}
-	
-	public function showConfigTabAction() {
-		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'], 'integer', 0);
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'string', '');
 		@$config_tab = DevblocksPlatform::importGPC($_REQUEST['config_tab'], 'string', '');
 		
-		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
-			return;
+		$tpl->assign('portal', $portal);
 		
 		switch($config_tab) {
+			case '':
+				$modules = Extension_UmScController::getAll(false, ['configurable']);
+				
+				$config_tabs = [
+					'templates' => 'Templates',
+				];
+				
+				foreach($modules as $module) {
+					$config_tabs[$module->params['uri']] = DevblocksPlatform::translateCapitalized($module->params['menu_title']);
+				}
+				
+				asort($config_tabs);
+				
+				$config_tabs = array_merge(['website' => 'Website'], $config_tabs);
+				
+				$tpl->assign('config_tabs', $config_tabs);
+				
+				$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration.tpl");
+				break;
+			
 			case 'website':
-				$this->_profileRenderConfigTabWebsite($tab_id, $portal);
+				$this->_profileRenderConfigTabWebsite($portal);
 				break;
-				
+			
 			case 'templates':
-				$this->_profileRenderConfigTabTemplates($tab_id, $portal);
+				$this->_profileRenderConfigTabTemplates($portal);
 				break;
-				
+			
 			default:
 				if(false != ($controller = Extension_UmScController::getByUri($config_tab, true))) {
 					$controller->configure($portal);
 				}
-				break;
 		}
 	}
 	
-	function saveConfigTabJsonAction() {
+	function saveConfiguration(Model_CommunityTool $portal) {
 		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'], 'integer', 0);
 		@$config_tab = DevblocksPlatform::importGPC($_POST['config_tab'], 'string', '');
 		
 		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
 			DevblocksPlatform::dieWithHttpError('', 403);
 
-		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
-			return;
-		
 		if(!Context_CommunityTool::isWriteableByActor($portal, $active_worker))
 			DevblocksPlatform::dieWithHttpError('', 403);
-		
-		header('Content-Type: application/json; charset=utf-8');
 		
 		switch($config_tab) {
 			case 'website':
 				$this->_profileSaveConfigTabWebsite($portal);
+				break;
+				
+			case 'templates':
+				@$tab_action = DevblocksPlatform::importGPC($_REQUEST['tab_action'], 'string', '');
+				
+				switch($tab_action) {
+					case 'saveAddTemplatePeek':
+						$this->_saveAddTemplatePeek();
+						break;
+				}
 				break;
 				
 			default:
@@ -412,15 +410,10 @@ class UmScApp extends Extension_CommunityPortal {
 				}
 				break;
 		}
-		
-		echo json_encode([
-			'message' => 'Saved!',
-		]);
 	}
 	
-	private function _profileRenderConfigTabWebsite($tab_id, Model_CommunityTool $portal) {
+	private function _profileRenderConfigTabWebsite(Model_CommunityTool $portal) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('tab_id', $tab_id);
 		$tpl->assign('portal', $portal);
 
 		// Locales
@@ -499,49 +492,39 @@ class UmScApp extends Extension_CommunityPortal {
 		DAO_CommunityToolProperty::set($portal->code, self::PARAM_DEFAULT_LOCALE, $sDefaultLocale);
 	}
 	
-	private function _profileRenderConfigTabTemplates($tab_id, Model_CommunityTool $portal) {
+	private function _profileRenderConfigTabTemplates(Model_CommunityTool $portal) {
+		@$config_tab = DevblocksPlatform::importGPC($_REQUEST['config_tab'], 'string', '');
+		@$tab_action = DevblocksPlatform::importGPC($_REQUEST['tab_action'], 'string', '');
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('portal', $portal);
 		
-		$defaults = C4_AbstractViewModel::loadFromClass('View_DevblocksTemplate');
-		$defaults->id = 'portal_templates';
-		$defaults->renderLimit = 15;
-		
-		if(false != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
-			$view->name = 'Custom Templates';
-			
-			$view->addParamsRequired(array(
-				new DevblocksSearchCriteria(SearchFields_DevblocksTemplate::TAG,'=','portal_'.$portal->code),
-			), true);
+		switch($tab_action) {
+			case 'showAddTemplatePeek':
+				$this->_showAddTemplatePeek();
+				break;
+				
+			default:
+				$defaults = C4_AbstractViewModel::loadFromClass('View_DevblocksTemplate');
+				$defaults->id = 'portal_templates';
+				$defaults->renderLimit = 15;
+				
+				if(false != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+					$view->name = 'Custom Templates';
+					
+					$view->addParamsRequired(array(
+						new DevblocksSearchCriteria(SearchFields_DevblocksTemplate::TAG,'=','portal_'.$portal->code),
+					), true);
+				}
+				
+				$tpl->assign('view', $view);
+				
+				$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/templates.tpl");
+				break;
 		}
-		
-		$tpl->assign('view', $view);
-		
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/templates.tpl");
 	}
 	
-	function addContactSituationAction() {
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
-		
-		// Contact: Fields
-		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
-		$tpl->assign('ticket_fields', $ticket_fields);
-		
-		// Custom field types
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('field_types', $types);
-		
-		// Default reply-to
-		$replyto_default = DAO_Address::getDefaultLocalAddress();
-		$tpl->assign('replyto_default', $replyto_default);
-		
-		$tpl->display('devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/contact/situation.tpl');
-	}
-	
-	function showAddTemplatePeekAction() {
+	private function _showAddTemplatePeek() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$portal_id = DevblocksPlatform::importGPC($_REQUEST['portal_id'],'integer',0);
 		
@@ -584,7 +567,7 @@ class UmScApp extends Extension_CommunityPortal {
 		$tpl->display('devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/templates/add.tpl');
 	}
 	
-	function saveAddTemplatePeekAction() {
+	private function _saveAddTemplatePeek() {
 		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		@$template = DevblocksPlatform::importGPC($_POST['template'],'string','');
@@ -622,8 +605,6 @@ class UmScApp extends Extension_CommunityPortal {
 
 		$template = DAO_DevblocksTemplate::get($id);
 		$tpl->assign('template', $template);
-		
-		$tpl->display('devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/templates/peek.tpl');
 	}
 };
 

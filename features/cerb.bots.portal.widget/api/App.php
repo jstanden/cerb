@@ -517,7 +517,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 			DAO_CommunityToolProperty::set($instance->code, self::PARAM_CORS_ALLOW_ORIGIN, $value);
 		}
 		
-		if(isset($params[self::PARAM_INTERACTION_BEHAVIOR_ID])) {
+		if(array_key_exists(self::PARAM_INTERACTION_BEHAVIOR_ID, $params)) {
 			$behavior_id = $params[self::PARAM_INTERACTION_BEHAVIOR_ID];
 			
 			if(false !== ($behavior = DAO_TriggerEvent::get($behavior_id))) {
@@ -526,6 +526,8 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 					DAO_CommunityToolProperty::set($instance->code, self::PARAM_INTERACTION_BEHAVIOR_ID, $behavior->id);
 				}
 			}
+		} else {
+			DAO_CommunityToolProperty::set($instance->code, self::PARAM_INTERACTION_BEHAVIOR_ID, 0);
 		}
 		
 		if(isset($params[self::PARAM_PAGE_CSS])) {
@@ -542,26 +544,5 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 			$value = strval($params[self::PARAM_PAGE_TITLE]);
 			DAO_CommunityToolProperty::set($instance->code, self::PARAM_PAGE_TITLE, $value);
 		}
-	}
-	
-	public function saveConfigTabJson_WorkerPostAction() {
-		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'], 'integer', 0);
-		
-		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
-			DevblocksPlatform::dieWithHttpError('', 403);
-		
-		if(false == ($portal = DAO_CommunityTool::get($portal_id)))
-			return;
-		
-		if(!Context_CommunityTool::isWriteableByActor($portal, $active_worker))
-			DevblocksPlatform::dieWithHttpError('', 403);
-		
-		header('Content-Type: application/json; charset=utf-8');
-		
-		$this->saveConfiguration($portal);
-		
-		echo json_encode([
-			'message' => 'Saved!',
-		]);
 	}
 }

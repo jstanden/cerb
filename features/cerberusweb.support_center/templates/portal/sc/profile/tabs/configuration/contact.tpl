@@ -3,9 +3,7 @@
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="community_portal">
-<input type="hidden" name="action" value="handleProfileTabAction">
-<input type="hidden" name="tab_id" value="{$tab_id}">
-<input type="hidden" name="tab_action" value="saveConfigTabJson">
+<input type="hidden" name="action" value="saveConfigTabJson">
 <input type="hidden" name="portal_id" value="{$portal->id}">
 <input type="hidden" name="config_tab" value="contact">
 
@@ -71,7 +69,16 @@ $(function() {
 	
 	$frm.find('BUTTON#btnAddSituation')
 	.click(function() {
-		genericAjaxGet('','c=profiles&a=handleSectionAction&section=community_portal&action=handleProfileTabAction&tab_id=configuration&tab_action=addContactSituation&portal_id={$portal->id}',function(html) {
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'handleSectionAction');
+		formData.set('section', 'community_portal');
+		formData.set('action', 'showConfigTab');
+		formData.set('config_tab', 'contact');
+		formData.set('tab_action', 'addContactSituation');
+		formData.set('portal_id', '{$portal->id}');
+
+		genericAjaxPost(formData, '', '', function(html) {
 			$clone = $(html);
 			$container = $('DIV#situations');
 			$container.append($clone);

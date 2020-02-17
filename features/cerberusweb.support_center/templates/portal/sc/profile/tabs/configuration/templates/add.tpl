@@ -4,8 +4,9 @@
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="handleSectionAction">
 		<input type="hidden" name="section" value="community_portal">
-		<input type="hidden" name="action" value="handleProfileTabAction">
+		<input type="hidden" name="action" value="saveConfigTabJson">
 		<input type="hidden" name="portal_id" value="{$portal->id}">
+		<input type="hidden" name="config_tab" value="templates">
 		<input type="hidden" name="tab_action" value="saveAddTemplatePeek">
 		<input type="hidden" name="view_id" value="{$view_id}">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -39,8 +40,11 @@ $(function() {
 		$popup.dialog('option','title',"Add Custom Template");
 		
 		$popup.find('button.submit').click(function() {
-			genericAjaxPost('frmPortalAddTemplatePeek', 'divPortalAddTemplate', '', function() {
-				$popup.trigger('popup_open');
+			genericAjaxPost('frmPortalAddTemplatePeek', '', '', function() {
+				{if !empty($view_id)}
+				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+				{/if}
+				genericAjaxPopupClose($popup);
 			});
 		});
 	});

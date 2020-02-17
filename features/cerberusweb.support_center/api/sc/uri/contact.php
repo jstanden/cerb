@@ -114,41 +114,68 @@ class UmScContactController extends Extension_UmScController {
 	}
 
 	function configure(Model_CommunityTool $portal) {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('portal', $portal);
-
-		$captcha_enabled = DAO_CommunityToolProperty::get($portal->code, self::PARAM_CAPTCHA_ENABLED, 1);
-		$tpl->assign('captcha_enabled', $captcha_enabled);
-
-		$allow_cc = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ALLOW_CC, 0);
-		$tpl->assign('allow_cc', $allow_cc);
-
-		$allow_subjects = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ALLOW_SUBJECTS, 0);
-		$tpl->assign('allow_subjects', $allow_subjects);
-
-		$attachments_mode = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ATTACHMENTS_MODE, 0);
-		$tpl->assign('attachments_mode', $attachments_mode);
-
-		$sDispatch = DAO_CommunityToolProperty::get($portal->code,self::PARAM_SITUATIONS, '');
-		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
-		$tpl->assign('dispatch', $dispatch);
+		@$tab_action = DevblocksPlatform::importGPC($_POST['tab_action'], 'string', '');
 		
-		$groups = DAO_Group::getAll();
-		$tpl->assign('groups', $groups);
+		switch($tab_action) {
+			case 'addContactSituation':
+				$tpl = DevblocksPlatform::services()->template();
+				
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				
+				// Contact: Fields
+				$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
+				$tpl->assign('ticket_fields', $ticket_fields);
+				
+				// Custom field types
+				$types = Model_CustomField::getTypes();
+				$tpl->assign('field_types', $types);
+				
+				// Default reply-to
+				$replyto_default = DAO_Address::getDefaultLocalAddress();
+				$tpl->assign('replyto_default', $replyto_default);
+				
+				$tpl->display('devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/contact/situation.tpl');
+				break;
+				
+			default:
+				$tpl = DevblocksPlatform::services()->template();
+				$tpl->assign('portal', $portal);
 		
-		// Default reply-to
-		$replyto_default = DAO_Address::getDefaultLocalAddress();
-		$tpl->assign('replyto_default', $replyto_default);
+				$captcha_enabled = DAO_CommunityToolProperty::get($portal->code, self::PARAM_CAPTCHA_ENABLED, 1);
+				$tpl->assign('captcha_enabled', $captcha_enabled);
 		
-		// Contact: Fields
-		$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
-		$tpl->assign('ticket_fields', $ticket_fields);
+				$allow_cc = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ALLOW_CC, 0);
+				$tpl->assign('allow_cc', $allow_cc);
 		
-		// Custom field types
-		$types = Model_CustomField::getTypes();
-		$tpl->assign('field_types', $types);
+				$allow_subjects = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ALLOW_SUBJECTS, 0);
+				$tpl->assign('allow_subjects', $allow_subjects);
 		
-		$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/contact.tpl");
+				$attachments_mode = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ATTACHMENTS_MODE, 0);
+				$tpl->assign('attachments_mode', $attachments_mode);
+		
+				$sDispatch = DAO_CommunityToolProperty::get($portal->code,self::PARAM_SITUATIONS, '');
+				$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
+				$tpl->assign('dispatch', $dispatch);
+				
+				$groups = DAO_Group::getAll();
+				$tpl->assign('groups', $groups);
+				
+				// Default reply-to
+				$replyto_default = DAO_Address::getDefaultLocalAddress();
+				$tpl->assign('replyto_default', $replyto_default);
+				
+				// Contact: Fields
+				$ticket_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
+				$tpl->assign('ticket_fields', $ticket_fields);
+				
+				// Custom field types
+				$types = Model_CustomField::getTypes();
+				$tpl->assign('field_types', $types);
+				
+				$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/contact.tpl");
+				break;
+		}
 	}
 	
 	function saveConfiguration(Model_CommunityTool $instance) {
