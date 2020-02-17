@@ -21,12 +21,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 
 class Controller_OAuth extends DevblocksControllerExtension {
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		$active_worker = CerberusApplication::getActiveWorker();
-		return !is_null($active_worker);
-	}
-	
 	private function _getOAuth() {
 		$encrypt = DevblocksPlatform::services()->encryption();
 		

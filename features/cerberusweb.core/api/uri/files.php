@@ -16,14 +16,6 @@
 ***********************************************************************/
 
 class ChFilesController extends DevblocksControllerExtension {
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		if(null == (CerberusApplication::getActiveWorker()))
-			return false;
-		
-		return true;
-	}
-	
 	/*
 	 * Request Overload
 	 */
@@ -36,12 +28,12 @@ class ChFilesController extends DevblocksControllerExtension {
 		$is_download = isset($request->query['download']) ? true : false;
 		$handled = false;
 		
-		if(40 == strlen($file_id))
-			$file_id = DAO_Attachment::getBySha1Hash($file_id);
-		
 		// Security
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()))
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
+		
+		if(40 == strlen($file_id))
+			$file_id = DAO_Attachment::getBySha1Hash($file_id);
 		
 		if(empty($file_id) || empty($file_name))
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('files.not_found'), 404);

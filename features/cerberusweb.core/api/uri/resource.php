@@ -16,10 +16,6 @@
 ***********************************************************************/
 
 class Controller_Resource extends DevblocksControllerExtension {
-	function isVisible() {
-		return true;
-	}
-	
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path; // URLs like: /resource/cerberusweb.core/images/images.png
 		
@@ -45,7 +41,8 @@ class Controller_Resource extends DevblocksControllerExtension {
 			if(!is_dir($dir))
 				DevblocksPlatform::dieWithHttpError(null, 403); // basedir security
 			
-			$resource = $dir . DIRECTORY_SEPARATOR . $file;
+			if(false == ($resource = realpath($dir . DIRECTORY_SEPARATOR . $file)))
+				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			if(!DevblocksPlatform::strStartsWith($resource, $dir))
 				DevblocksPlatform::dieWithHttpError(null, 403);
@@ -64,9 +61,12 @@ class Controller_Resource extends DevblocksControllerExtension {
 			switch($ext) {
 				case 'css':
 				case 'gif':
+				case 'ico':
 				case 'jpg':
+				case 'jpeg':
 				case 'js':
 				case 'png':
+				case 'svg':
 				case 'ttf':
 				case 'woff':
 				case 'woff2':
@@ -80,8 +80,14 @@ class Controller_Resource extends DevblocksControllerExtension {
 				case 'css':
 					header('Content-type: text/css');
 					break;
+				case 'eot':
+					header('Content-type: application/vnd.ms-fontobject');
+					break;
 				case 'gif':
 					header('Content-type: image/gif');
+					break;
+				case 'ico':
+					header('Content-type: image/x-icon');
 					break;
 				case 'jpeg':
 				case 'jpg':
@@ -90,11 +96,14 @@ class Controller_Resource extends DevblocksControllerExtension {
 				case 'js':
 					header('Content-type: text/javascript');
 					break;
-				case 'pdf':
-					header('Content-type: application/pdf');
+				case 'json':
+					header('Content-type: application/json');
 					break;
 				case 'png':
 					header('Content-type: image/png');
+					break;
+				case 'svg':
+					header('Content-type: image/svg+xml');
 					break;
 				case 'ttf':
 					header('Content-type: application/x-font-ttf');
@@ -105,8 +114,8 @@ class Controller_Resource extends DevblocksControllerExtension {
 				case 'woff2':
 					header('Content-type: font/woff2');
 					break;
-				case 'xml':
-					header('Content-type: text/xml');
+				default:
+					DevblocksPlatform::dieWithHttpError(null, 403);
 					break;
 			}
 			

@@ -16,20 +16,11 @@
 ***********************************************************************/
 
 class ChExplorerController extends DevblocksControllerExtension {
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		if(null == (CerberusApplication::getActiveWorker()))
-			return false;
-		return true;
-	}
-	
 	/*
 	 * Request Overload
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
-		$worker = CerberusApplication::getActiveWorker();
-		
-		if(empty($worker)) {
+		if(false == ($worker = CerberusApplication::getActiveWorker())) {
 			$query = array();
 			// Must be a valid page controller
 			if(!empty($request->path)) {
@@ -62,8 +53,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->template();
 
-		$worker = CerberusApplication::getActiveWorker();
-		if(empty($worker)) {
+		if(false == ($worker = CerberusApplication::getActiveWorker())) {
 			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
 			exit;
 		}

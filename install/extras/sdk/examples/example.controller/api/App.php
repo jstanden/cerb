@@ -1,12 +1,5 @@
 <?php
 class ExampleController extends DevblocksControllerExtension {
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
-			return false;
-		return true;
-	}
-
 	/*
 	 * Request Overload
 	 */

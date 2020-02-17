@@ -16,10 +16,6 @@
 ***********************************************************************/
 
 class ChCronController extends DevblocksControllerExtension {
-	function isVisible() {
-		// [TODO] This should restrict by IP rather than session
-	}
-	
 	/*
 	 * Request Overload
 	 */

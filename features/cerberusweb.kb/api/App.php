@@ -240,43 +240,6 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 	}
 }
 
-// [TODO] This should just be merged into KbPage
-class ChKbAjaxController extends DevblocksControllerExtension {
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		if(null == (CerberusApplication::getActiveWorker()))
-			return false;
-		return true;
-	}
-	
-	/*
-	 * Request Overload
-	 */
-	function handleRequest(DevblocksHttpRequest $request) {
-		if(!$this->isVisible())
-			return;
-		
-		$path = $request->path;
-		
-		array_shift($path); // Controller
-		
-		@$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
-
-		switch($action) {
-			case NULL:
-				// [TODO] Index/page render
-				break;
-				
-			default:
-				// Default action, call arg as a method suffixed with Action
-				if(method_exists($this,$action)) {
-					call_user_func(array(&$this, $action));
-				}
-				break;
-		}
-	}
-};
-
 class EventListener_Kb extends DevblocksEventListenerExtension {
 	/**
 	 * @param Model_DevblocksEvent $event

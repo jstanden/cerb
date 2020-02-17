@@ -273,20 +273,6 @@
 			</params>
 		</extension>
 		
-		<!-- Controllers -->
-		
-		<extension point="devblocks.controller">
-			<id>cerberusweb.kb.controller.ajax</id>
-			<name>KB Ajax Controller</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbAjaxController</name>
-			</class>
-			<params>
-				<param key="uri" value="kb.ajax" />
-			</params>
-		</extension>
-		
 		<!-- Support Center Module -->
 		
 		<extension point="usermeet.sc.controller">

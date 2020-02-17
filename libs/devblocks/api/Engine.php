@@ -568,11 +568,6 @@ abstract class DevblocksEngine {
 		}
 
 		// Resource / Proxy
-		/*
-		 * [TODO] Run this code through another audit.  Is it worth a tiny hit per resource
-		 * to verify the plugin matches exactly in the DB?  If so, make sure we cache the
-		 * resulting file.
-		 */
 		switch(current($parts)) {
 			case 'resource':
 				$resource_request = new DevblocksHttpRequest($parts);

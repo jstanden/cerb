@@ -562,6 +562,9 @@ class Model_ConnectedService {
 	public $updated_at;
 	public $params_json_encrypted;
 	
+	/**
+	 * @return Extension_ConnectedServiceProvider
+	 */
 	public function getExtension() {
 		return Extension_ConnectedServiceProvider::get($this->extension_id);
 	}
