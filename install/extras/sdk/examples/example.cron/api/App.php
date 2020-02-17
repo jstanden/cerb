@@ -18,7 +18,7 @@ class ExCron extends CerberusCronPageExtension {
 		$tpl->display('devblocks:example.cron::cron/config.tpl');
 	}
 	
-	public function saveConfigurationAction() {
+	public function saveConfiguration() {
 		//@$example_waitdays = DevblocksPlatform::importGPC($_POST['example_waitdays'], 'integer');
 		//$this->setParam('example_waitdays', $example_waitdays);
 	}

@@ -63,7 +63,7 @@ class StorageCron extends CerberusCronPageExtension {
 	function configure($instance) {
 	}
 
-	function saveConfigurationAction() {
+	function saveConfiguration() {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','jobs')));
 	}
 };

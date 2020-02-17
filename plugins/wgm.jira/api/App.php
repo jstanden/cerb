@@ -411,7 +411,7 @@ class WgmJira_Cron extends CerberusCronPageExtension {
 		*/
 	}
 
-	public function saveConfigurationAction() {
+	public function saveConfiguration() {
 		/*
 		@$clients_updated_from = DevblocksPlatform::importGPC($_POST['clients_updated_from'], 'string', '');
 

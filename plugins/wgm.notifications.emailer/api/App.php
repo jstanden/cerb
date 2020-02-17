@@ -84,6 +84,6 @@ class WgmNotifEmailerCron extends CerberusCronPageExtension {
 		//$tpl->display('devblocks:wgm.notifications.emailer::cron/config.tpl');
 	}
 	
-	public function saveConfigurationAction() {
+	public function saveConfiguration() {
 	}
 }

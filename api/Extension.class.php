@@ -973,7 +973,7 @@ abstract class CerberusCronPageExtension extends DevblocksExtension {
 	
 	public function configure($instance) {}
 	
-	public function saveConfigurationAction() {}
+	public function saveConfiguration() {}
 };
 
 abstract class Extension_CommunityPortal extends DevblocksExtension implements DevblocksHttpRequestHandler {

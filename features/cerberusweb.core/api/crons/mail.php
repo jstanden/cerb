@@ -268,7 +268,7 @@ class MailboxCron extends CerberusCronPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::cron/mailbox/config.tpl');
 	}
 
-	function saveConfigurationAction() {
+	function saveConfiguration() {
 
 		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
 		$this->setParam('max_messages', $max_messages);
@@ -483,7 +483,7 @@ class ParseCron extends CerberusCronPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::cron/parser/config.tpl');
 	}
 
-	function saveConfigurationAction() {
+	function saveConfiguration() {
 		@$max_messages = DevblocksPlatform::importGPC($_POST['max_messages'],'integer');
 		$this->setParam('max_messages', $max_messages);
 	}

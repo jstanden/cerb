@@ -285,7 +285,7 @@ class Cron_WgmTwitterChecker extends CerberusCronPageExtension {
 		$tpl->display('devblocks:wgm.twitter::setup/cron_setup.tpl');
 	}
 	
-	public function saveConfigurationAction() {
+	public function saveConfiguration() {
 		try {
 			@$sync_account_ids = DevblocksPlatform::importGPC($_REQUEST['sync_account_ids'],'array',[]);
 			

@@ -81,7 +81,7 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 			$job->setParam(CerberusCronPageExtension::PARAM_DURATION, $duration);
 			$job->setParam(CerberusCronPageExtension::PARAM_TERM, $term);
 			
-			$job->saveConfigurationAction();
+			$job->saveConfiguration();
 				
 			echo json_encode(array('status'=>true));
 			return;

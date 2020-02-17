@@ -91,6 +91,6 @@ class Cron_Packages extends CerberusCronPageExtension {
 	function configure($instance) {
 	}
 
-	function saveConfigurationAction() {
+	function saveConfiguration() {
 	}
 };

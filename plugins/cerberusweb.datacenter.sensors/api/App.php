@@ -156,7 +156,7 @@ class Cron_WgmDatacenterSensors extends CerberusCronPageExtension {
 		//$tpl->display('devblocks:cerberusweb.datacenter.sensors::cron/config.tpl');
 	}
 	
-	public function saveConfigurationAction() {
+	public function saveConfiguration() {
 		//@$example_waitdays = DevblocksPlatform::importGPC($_POST['example_waitdays'], 'integer');
 		//$this->setParam('example_waitdays', $example_waitdays);
 	}

@@ -109,7 +109,7 @@ class MaintCron extends CerberusCronPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::cron/maint/config.tpl');
 	}
 
-	function saveConfigurationAction() {
+	function saveConfiguration() {
 		@$purge_waitdays = DevblocksPlatform::importGPC($_POST['purge_waitdays'],'integer');
 		$this->setParam('purge_waitdays', $purge_waitdays);
 	}

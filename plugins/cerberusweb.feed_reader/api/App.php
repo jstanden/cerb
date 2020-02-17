@@ -63,7 +63,7 @@ class FeedsCron extends CerberusCronPageExtension {
 	public function configure($instance) {
 	}
 	
-	public function saveConfigurationAction() {
+	public function saveConfiguration() {
 	}
 };
 
