@@ -911,6 +911,7 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_WORKER, $worker->id, $avatar_image);
 					
 					echo json_encode([
+						'message' => DevblocksPlatform::translate('success.saved_changes'),
 						'status' => true,
 					]);
 					return;

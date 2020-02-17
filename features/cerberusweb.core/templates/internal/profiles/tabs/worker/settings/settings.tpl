@@ -13,7 +13,6 @@
 
 <script type="text/javascript">
 $(function() {
-	var $tabs = $('#worker{$worker->id}SettingsTabs');
-	$tabs.tabs();
+	$('#worker{$worker->id}SettingsTabs').tabs();
 });
 </script>
