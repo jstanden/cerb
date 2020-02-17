@@ -112,6 +112,7 @@
 					<li><a href="{devblocks_url}c=config&a=data_query_tester{/devblocks_url}">Data Query Tester</a></li>
 					<li><a href="{devblocks_url}c=config&a=oauth2_token_generator{/devblocks_url}">OAuth2 Token Generator</a></li>
 					<li><a href="{devblocks_url}c=config&a=reference_icons{/devblocks_url}">Icon Reference</a></li>
+					<li><a href="{devblocks_url}c=config&a=export_bots{/devblocks_url}">Export Bots</a></li>
 
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.developers')}
 					{if !empty($exts)}<li><hr></li>{/if}

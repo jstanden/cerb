@@ -355,22 +355,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 				
 				break;
 				
-			case 'export_bots':
-				header("Content-type: application/json");
-				
-				$output = [
-					'bots' => [],
-				];
-				
-				$bots = DAO_Bot::getAll();
-				
-				foreach($bots as $bot) {
-					$output['bots'][$bot->id] = json_decode($bot->exportToJson());
-				}
-				
-				echo DevblocksPlatform::strFormatJson($output);
-				break;
-				
 			default:
 				$url_service = DevblocksPlatform::services()->url();
 				
@@ -391,7 +375,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 								<li><a href='%s'>Requirements Checker</a></li>
 								<li><a href='%s'>Debug Report (for technical support)</a></li>
 								<li><a href='%s'>phpinfo()</a></li>
-								<li><a href='%s'>Export Bots</a></li>
 							</ul>
 						</form>
 					</body>
@@ -401,7 +384,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 					$url_service->write('c=debug&a=check'),
 					$url_service->write('c=debug&a=report'),
 					$url_service->write('c=debug&a=phpinfo'),
-					$url_service->write('c=debug&a=export_bots')
 				);
 				break;
 		}
