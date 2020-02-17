@@ -50,7 +50,7 @@ $(function() {
 		var issuer = $issuer.val();
 		
 		$status_discovery.html('');
-		
+
 		genericAjaxGet(null, 'c=profiles&a=handleSectionAction&section=connected_service&action=ajax&ajax=runDiscovery&id={$service->extension_id}&issuer=' + encodeURIComponent(issuer), function(json) {
 			var $input_authorization_url = $fieldset.find('input:text[name="params[authorization_url]"]');
 			var $input_access_token_url = $fieldset.find('input:text[name="params[access_token_url]"]');

@@ -264,8 +264,6 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		if(empty($id))
 			return null;
 		
-		// [TODO] Pull from cache
-		
 		$objects = self::getWhere(sprintf("%s = %d",
 			self::ID,
 			$id

@@ -85,7 +85,8 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 			
 		// Actions
 		
-		$values['_actions'] =& $event_model->params['actions'];
+		if($event_model && array_key_exists('actions', $event_model->params))
+			$values['_actions'] =& $event_model->params['actions'];
 		
 		/**
 		 * Return

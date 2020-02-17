@@ -21,32 +21,14 @@ class ChExplorerController extends DevblocksControllerExtension {
 	 */
 	function handleRequest(DevblocksHttpRequest $request) {
 		if(false == ($worker = CerberusApplication::getActiveWorker())) {
-			$query = array();
+			$query = [];
 			// Must be a valid page controller
 			if(!empty($request->path)) {
 				if(is_array($request->path) && !empty($request->path))
-					$query = array('url'=> implode('/',$request->path));
+					$query = ['url'=> implode('/',$request->path)];
 			}
-			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'),$query));
+			DevblocksPlatform::redirect(new DevblocksHttpRequest(['login'],$query));
 			exit;
-		}
-		
-		$stack = $request->path;
-		array_shift($stack); // explorer
-		
-		@$action = array_shift($stack) . 'Action';
-
-		switch($action) {
-			case NULL:
-				// [TODO] Index/page render
-				break;
-				
-			default:
-				// Default action, call arg as a method suffixed with Action
-				if(method_exists($this,$action)) {
-					call_user_func(array(&$this, $action));
-				}
-				break;
 		}
 	}
 	
@@ -54,7 +36,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 		$tpl = DevblocksPlatform::services()->template();
 
 		if(false == ($worker = CerberusApplication::getActiveWorker())) {
-			DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
+			DevblocksPlatform::redirect(new DevblocksHttpResponse(['login']));
 			exit;
 		}
 		
@@ -66,7 +48,7 @@ class ChExplorerController extends DevblocksControllerExtension {
 		if(empty($p))
 			$p = 1;
 		
-		$items = DAO_ExplorerSet::get($hashset, array(0, $p));
+		$items = DAO_ExplorerSet::get($hashset, [0, $p]);
 		$total = 0;
 		
 		$tpl->assign('hashset', $hashset);

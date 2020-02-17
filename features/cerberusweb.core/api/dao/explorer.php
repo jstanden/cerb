@@ -76,7 +76,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 	/**
 	 *
 	 * @param string $hash
-	 * @param integer $pos
+	 * @param array $pos
 	 * @return Model_ExplorerSet
 	 */
 	static function get($hash, $pos) {

@@ -27,16 +27,6 @@ class ChDisplayPage extends CerberusPageExtension {
 	function render() {
 	}
 	
-	/*
-	 * [TODO] Proxy any func requests to be handled by the tab directly,
-	 * instead of forcing tabs to implement controllers.  This should check
-	 * for the *Action() functions just as a handleRequest would
-	 */
-	/*
-	function handleTabActionAction() {
-	}
-	*/
-
 	function getMessageAction() {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // message id
 		@$hide = DevblocksPlatform::importGPC($_REQUEST['hide'],'integer',0);

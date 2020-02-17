@@ -261,7 +261,7 @@ $(function() {
 	$msg.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		;
-	
+
 	$msg.find('.cerb-sticky-trigger')
 		.cerbPeekTrigger()
 			.on('cerb-peek-saved', function(e) {

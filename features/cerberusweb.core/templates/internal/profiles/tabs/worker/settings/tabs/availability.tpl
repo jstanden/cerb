@@ -3,6 +3,7 @@
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleProfileTabAction">
 <input type="hidden" name="tab_id" value="{$tab->id}">
+<input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="saveSettingsSectionTabJson">
 <input type="hidden" name="worker_id" value="{$worker->id}">
 <input type="hidden" name="tab" value="availability">
