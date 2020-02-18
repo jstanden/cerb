@@ -222,6 +222,9 @@ class Page_Profiles extends CerberusPageExtension {
 	}
 	
 	function configTabsSaveJsonAction() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
 		@$profile_tabs = DevblocksPlatform::importGPC($_POST['profile_tabs'],'array',[]);
 		

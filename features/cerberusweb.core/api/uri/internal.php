@@ -5015,10 +5015,10 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function saveExportTemplatesPeekAction() {
 		if(null == ($active_worker = CerberusApplication::getActiveWorker()) || !$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		@$filename = DevblocksPlatform::importGPC($_POST['filename'],'string','');
