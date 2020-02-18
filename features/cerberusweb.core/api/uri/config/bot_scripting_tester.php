@@ -32,13 +32,17 @@ class PageSection_SetupDevelopersBotScriptingTester extends Extension_PageSectio
 	}
 	
 	function runScriptAction() {
-		@$bot_script = DevblocksPlatform::importGPC($_POST['bot_script'], 'string', null);
-		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$bot_script = DevblocksPlatform::importGPC($_POST['bot_script'], 'string', null);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

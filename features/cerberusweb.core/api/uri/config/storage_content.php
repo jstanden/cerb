@@ -112,7 +112,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 			return;
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		@$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'],'string','');
 		

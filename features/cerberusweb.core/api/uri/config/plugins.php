@@ -102,10 +102,10 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		header("Content-Type: application/json");
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(!$worker || !$worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$errors = [];
 		

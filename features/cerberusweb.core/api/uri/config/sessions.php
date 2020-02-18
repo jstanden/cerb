@@ -37,7 +37,7 @@ class PageSection_SetupSessions extends Extension_PageSection {
 		@$session_ids = DevblocksPlatform::importGPC($_POST['row_id'],' array', []);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$session = DevblocksPlatform::services()->session();
 		
