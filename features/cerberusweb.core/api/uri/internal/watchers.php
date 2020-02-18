@@ -57,10 +57,16 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 	function saveContextWatchersPopupJsonAction() {
 		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
-		@$initial_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['initial_sample'], 'array', array()), 'int');
-		@$current_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['current_sample'], 'array', array()), 'int');
+		@$initial_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['initial_sample'], 'array', []), 'int');
+		@$current_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['current_sample'], 'array', []), 'int');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!CerberusContexts::isWriteableByActor($context, $context_id, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Added
 		$additions = array_diff($current_sample, $initial_sample);
