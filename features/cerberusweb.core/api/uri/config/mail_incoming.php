@@ -727,10 +727,10 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		@$view_id = basename(DevblocksPlatform::importGPC($_POST['view_id'],'string',''));
 		
 		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(!$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		try {
 			if('POST' != DevblocksPlatform::getHttpMethod())

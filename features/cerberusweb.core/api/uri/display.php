@@ -605,6 +605,9 @@ class ChDisplayPage extends CerberusPageExtension {
 	}
 
 	function sendReplyAction() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		// Save the draft one last time
 		if(false == ($result = $this->_saveDraft()))
 			return false;
@@ -760,6 +763,9 @@ class ChDisplayPage extends CerberusPageExtension {
 	function saveDraftReplyAction() {
 		@$is_ajax = DevblocksPlatform::importGPC($_POST['is_ajax'],'integer',0);
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		if(false === ($results = $this->_saveDraft()))
 			return;
 		
@@ -813,14 +819,20 @@ class ChDisplayPage extends CerberusPageExtension {
 		@$emails = DevblocksPlatform::importGPC($_POST['emails'],'array',[]);
 		@$content = DevblocksPlatform::importGPC($_POST['content'], 'string', '');
 		@$include_attachments = DevblocksPlatform::importGPC($_POST['include_attachments'], 'integer', 0);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		$active_worker = CerberusApplication::getActiveWorker();
-
+		
 		CerberusMail::relay($message_id, $emails, $include_attachments, $content, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
 	}
 	
 	function doSplitMessageAction() {
 		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1006,6 +1018,17 @@ class ChDisplayPage extends CerberusPageExtension {
 	function requesterAddAction() {
 		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(false == ($ticket = DAO_Ticket::get($ticket_id)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		DAO_Ticket::createRequester($email, $ticket_id);
 	}

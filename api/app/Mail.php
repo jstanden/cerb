@@ -1963,6 +1963,11 @@ class CerberusMail {
 		
 		if(false == ($sender = $message->getSender()))
 			return;
+		
+		if($actor_context) {
+			if (!Context_Ticket::isWriteableByActor($ticket, [$actor_context, $actor_context_id]))
+				return;
+		}
 
 		$sender_name = $sender->getName();
 		

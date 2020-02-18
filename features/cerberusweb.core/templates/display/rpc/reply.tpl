@@ -23,7 +23,7 @@
 	</div>
 {/if}
 
-<form id="reply{$message->id}_form" onsubmit="return false;">
+<form id="reply{$message->id}_form" onsubmit="return false;" method="post">
 <input type="hidden" name="c" value="display">
 <input type="hidden" name="a" value="sendReply">
 <input type="hidden" name="id" value="{$message->id}">
@@ -784,9 +784,13 @@ $(function() {
 			Devblocks.clearAlerts();
 			showLoadingPanel();
 			$button.closest('td').hide();
-			
+
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'display');
+			formData.set('a', 'validateReplyJson');
+
 			// Validate via Ajax before sending
-			genericAjaxPost($frm, '', 'c=display&a=validateReplyJson', function(json) {
+			genericAjaxPost(formData, '', '', function(json) {
 				if(json && json.status) {
 					if(null != draftAutoSaveInterval) {
 						clearTimeout(draftAutoSaveInterval);
