@@ -490,8 +490,8 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(false == ($widget = DAO_ProfileWidget::get($id)))
-			return;
+		if(false == ($widget = DAO_ProfileWidget::get($id, $context)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_ProfileWidget::isReadableByActor($widget, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
