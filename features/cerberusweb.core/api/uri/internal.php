@@ -1278,7 +1278,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$visit = CerberusApplication::getVisit();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		if(null == ($context_ext = Extension_DevblocksContext::get($context)))
 			return;
@@ -1720,6 +1720,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			echo json_encode(array(
 				'view_name' => $view->name,
@@ -2105,7 +2108,7 @@ class ChInternalController extends DevblocksControllerExtension {
 
 	function startNotificationsBulkUpdateJsonAction() {
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
@@ -2680,6 +2683,9 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$replace = DevblocksPlatform::importGPC($_POST['replace'], 'string', '');
 		@$field_deletes = DevblocksPlatform::importGPC($_POST['field_deletes'],'array',[]);
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		if(null == ($view = C4_AbstractViewLoader::getView($id)))
 			return;
 
@@ -2825,7 +2831,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
@@ -3144,6 +3150,9 @@ class ChInternalController extends DevblocksControllerExtension {
 	
 	function doViewExportAction() {
 		@$cursor_key = DevblocksPlatform::importGPC($_POST['cursor_key'], 'string', '');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -3604,6 +3613,9 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function viewSaveCustomizeAction() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 
