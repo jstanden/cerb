@@ -131,17 +131,14 @@ $(function() {
 			var $column = $(this);
 			var column_id = $column.attr('data-column-id');
 			
-			var $form = $column.find('form');
-
-			var formData = new FormData();
-			formData.set('c', 'project_board');
+			var formData = new FormData($column.find('form').get(0));
+			formData.set('c', 'profiles');
 			formData.set('a', 'handleSectionAction');
 			formData.set('section', 'project_board');
 			formData.set('action', 'reorderColumn');
 			formData.set('column_id', column_id);
 
 			genericAjaxPost(formData, '', '', function() {
-				//console.log("Reordered ", $column);
 			});
 		}
 	};
@@ -217,8 +214,16 @@ $(function() {
 		
 		var $column = $(this);
 		var column_id = $column.attr('data-column-id');
-		
-		genericAjaxGet($column, 'c=profiles&a=handleSectionAction&section=project_board&action=refreshColumn&column_id=' + encodeURIComponent(column_id), function() {
+		var is_new = 0 == $column.find('> form').length;
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'handleSectionAction');
+		formData.set('section', 'project_board');
+		formData.set('action', 'refreshColumn');
+		formData.set('column_id', column_id);
+
+		genericAjaxPost(formData, $column, '', function() {
 			//console.log("Moved from ", ui.sender, "To ", $column);
 			
 			// [TODO] Redundant
