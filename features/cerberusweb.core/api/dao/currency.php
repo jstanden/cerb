@@ -885,8 +885,16 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		// Everyone can modify
-		return CerberusContexts::allowEverything($models);
+		// Only admins can modify
+		
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			CerberusContexts::denyEverything($models);
+		
+		// Admins can do whatever they want
+		if(CerberusContexts::isActorAnAdmin($actor))
+			return CerberusContexts::allowEverything($models);
+		
+		return CerberusContexts::denyEverything($models);
 	}
 
 	function getRandom() {
@@ -898,8 +906,7 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=currency&id='.$context_id, true);
-		return $url;
+		return $url_writer->writeNoProxy('c=profiles&type=currency&id='.$context_id, true);
 	}
 	
 	function profileGetFields($model=null) {
@@ -1175,18 +1182,25 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_CURRENCY;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_CURRENCY;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_Currency::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_Currency::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
+			if($model) {
+				if(!Context_Currency::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

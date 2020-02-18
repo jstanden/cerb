@@ -156,8 +156,14 @@ $(function() {
 				$button.hide();
 		
 				Devblocks.showSuccess($status, "Testing mailbox... please wait.", false, false);
-				
-				genericAjaxPost($frm,'','c=profiles&a=handleSectionAction&section=mailbox&action=testMailboxJson',function(json) {
+
+				var formData = new FormData($frm[0]);
+				formData.set('c', 'profiles');
+				formData.set('a', 'handleSectionAction');
+				formData.set('section', 'mailbox');
+				formData.set('action', 'testMailboxJson');
+
+				genericAjaxPost(formData,'','',function(json) {
 					if(false == json || false == json.status) {
 						Devblocks.showError($status, json.error);
 					} else {

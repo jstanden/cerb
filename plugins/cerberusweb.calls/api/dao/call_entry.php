@@ -1253,18 +1253,25 @@ class Context_CallEntry extends Extension_DevblocksContext implements IDevblocks
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_CALL;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_CALL;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_CallEntry::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_CallEntry::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(isset($model))
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_CallEntry::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

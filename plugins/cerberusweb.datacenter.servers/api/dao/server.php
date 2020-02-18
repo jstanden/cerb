@@ -302,29 +302,37 @@ class Context_Server extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$id = $context_id;
-		
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_SERVER;
 		
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		// Model
 		$model = null;
-		if(empty($id) || null == ($model = DAO_Server::get($id)))
-			$model = new Model_Server();
 		
-		if(empty($context_id) || $edit) {
+		// Model
+		if($context_id) {
+			if (false == ($model = DAO_Server::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+		} else {
+			$model = new Model_Server();
+		}
+		
+		if(!$context_id || $edit) {
+			if($model && $model->id) {
+				if(!Context_Server::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			$tpl->assign('model', $model);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SERVER, false);
 			$tpl->assign('custom_fields', $custom_fields);
 	
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SERVER, $id);
-			if(isset($custom_field_values[$id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$id]);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SERVER, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);

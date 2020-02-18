@@ -2929,26 +2929,35 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
-		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_MESSAGE;
-		$message = null;
 		
 		$tpl->assign('view_id', $view_id);
 		
-		if(!empty($context_id) && null != ($message = DAO_Message::get($context_id))) {
+		$message = null;
+		
+		if($context_id) {
+			if(false == ($message = DAO_Message::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
 			$tpl->assign('model', $message);
 		}
 		
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
-		if(!empty($context_id)) {
+		if($context_id) {
 			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_MESSAGE, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
 		
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
+			if($message) {
+				if(!Context_Message::isWriteableByActor($message, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			$tpl->display('devblocks:cerberusweb.core::internal/messages/peek_edit.tpl');
 			
 		} else {

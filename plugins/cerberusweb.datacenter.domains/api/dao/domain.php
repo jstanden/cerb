@@ -391,21 +391,27 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$id = $context_id; // [TODO] Cleanup
-		
 		$tpl = DevblocksPlatform::services()->template();
-		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_DOMAIN;
 
-		$tpl->assign('view_id', $view_id);
-
-		// Model
 		$model = null;
-		if(empty($id) || null == ($model = DAO_Domain::get($id)))
+		
+		$tpl->assign('view_id', $view_id);
+		
+		if($context_id) {
+			if(false == ($model = DAO_Domain::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+		} else {
 			$model = new Model_Domain();
-		
-		
-		if(empty($context_id) || $edit) {
+		}
+
+		if(!$context_id || $edit) {
+			if($model && $model->id) {
+				if(!Context_Domain::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			$tpl->assign('model', $model);
 			
 			// Servers
@@ -416,17 +422,17 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 			$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_DOMAIN, false);
 			$tpl->assign('custom_fields', $custom_fields);
 	
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_DOMAIN, $id);
-			if(isset($custom_field_values[$id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$id]);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_DOMAIN, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
 			// Context: Addresses
-			$results = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_DOMAIN, $id, CerberusContexts::CONTEXT_ADDRESS);
-			if(isset($results[$id])) {
-				$contact_addresses = DAO_Address::getIds(array_keys($results[$id]));
+			$results = DAO_ContextLink::getContextLinks(CerberusContexts::CONTEXT_DOMAIN, $context_id, CerberusContexts::CONTEXT_ADDRESS);
+			if(isset($results[$context_id])) {
+				$contact_addresses = DAO_Address::getIds(array_keys($results[$context_id]));
 				$tpl->assign('contact_addresses', $contact_addresses);
 			}
 			

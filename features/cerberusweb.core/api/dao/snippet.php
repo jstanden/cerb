@@ -1763,12 +1763,18 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_SNIPPET;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_SNIPPET;
 		$model = null;
 
-		if(empty($context_id) || null == ($model = DAO_Snippet::get($context_id))) {
+		if($context_id) {
+			if(false == ($model = DAO_Snippet::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+		} else {
 			@$text = DevblocksPlatform::importGPC($_REQUEST['text'], 'string', '');
 			
 			$model = new Model_Snippet();
@@ -1776,9 +1782,13 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			$model->content = $text;
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(isset($model))
+		if(!$context_id || $edit) {
+			if($model && $model->id) {
+				if(!Context_Snippet::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			// Owner
 			$owners_menu = Extension_DevblocksContext::getOwnerTree();

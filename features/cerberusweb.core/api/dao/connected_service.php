@@ -1195,13 +1195,20 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		$context = CerberusContexts::CONTEXT_CONNECTED_SERVICE;
 		
 		if(!empty($context_id)) {
-			$model = DAO_ConnectedService::get($context_id);
+			if(false == ($model = DAO_ConnectedService::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
 		} else {
 			$model = new Model_ConnectedService();
 			$model->id = 0;
 		}
 		
 		if(empty($context_id) || $edit) {
+			if($model && $model->id) {
+				if(!Context_ConnectedService::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);

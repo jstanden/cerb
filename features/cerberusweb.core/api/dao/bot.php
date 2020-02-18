@@ -1538,8 +1538,11 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		
 		$context = CerberusContexts::CONTEXT_BOT;
 		$active_worker = CerberusApplication::getActiveWorker();
-
-		if(!empty($context_id) && false != ($model = DAO_Bot::get($context_id))) {
+		
+		if($context_id) {
+			if(false == ($model = DAO_Bot::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
 		} else {
 			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
 			@$owner_context_id = DevblocksPlatform::importGPC($_REQUEST['owner_context_id'],'integer',0);
@@ -1550,10 +1553,11 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(!$active_worker || !$active_worker->is_superuser)
-				return;
+			if(!$active_worker || !$active_worker->is_superuser) {
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			}
 			
-			if(isset($model))
+			if($model)
 				$tpl->assign('model', $model);
 			
 			// Custom Fields

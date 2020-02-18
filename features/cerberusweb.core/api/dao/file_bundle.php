@@ -1241,17 +1241,27 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_FILE_BUNDLE;
+		
 		$model = null;
 		
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
-		if(!empty($context_id) && null != ($model = DAO_FileBundle::get($context_id))) {
+		if($context_id) {
+			if(false == ($model = DAO_FileBundle::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
 			$tpl->assign('model', $model);
 		}
 		
 		if($edit) {
+			if($model) {
+				if(!Context_FileBundle::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			// Custom fields
 			
 			$custom_fields = DAO_CustomField::getByContext($context, false);

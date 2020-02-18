@@ -1769,17 +1769,26 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_CALENDAR;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_CALENDAR;
 		$calendar = null;
 		
-		if(!empty($context_id)) {
-			$calendar = DAO_Calendar::get($context_id);
-			$tpl->assign('model', $calendar);
+		if($context_id) {
+			if(false == ($calendar = DAO_Calendar::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
+			if($calendar) {
+				if(!Context_Calendar::isWriteableByActor($calendar, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+				$tpl->assign('model', $calendar);
+			}
+			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);

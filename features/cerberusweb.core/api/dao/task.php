@@ -1706,22 +1706,28 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_TASK;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_TASK;
 		$task = null;
 		
-		if(!empty($context_id)) {
-			$task = DAO_Task::get($context_id);
-			$tpl->assign('task', $task);
+		if($context_id) {
+			if(false == ($task = DAO_Task::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+		} else {
+			$task = new Model_Task();
+			$task->importance = 50;
 		}
-
-		if(empty($context_id) || $edit) {
-			if(!isset($task)) {
-				$task = new Model_Task();
-				$task->importance = 50;
-				$tpl->assign('task', $task);
+		
+		if(!$context_id || $edit) {
+			if($task && $task->id) {
+				if(!Context_Task::isWriteableByActor($task, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
 			}
+			
+			$tpl->assign('task', $task);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

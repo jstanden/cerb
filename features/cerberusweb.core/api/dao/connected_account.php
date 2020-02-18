@@ -1401,14 +1401,23 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$tpl->assign('view_id', $view_id);
 		
 		$context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($context_id)) {
-			$model = DAO_ConnectedAccount::get($context_id);
+			if(false == ($model = DAO_ConnectedAccount::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		} else {
 			$model = new Model_ConnectedAccount();
+			$model->owner_context = CerberusContexts::CONTEXT_WORKER;
+			$model->owner_context_id = $active_worker->id;
 		}
 		
 		if(empty($context_id) || $edit) {
+			if($model && $model->id) {
+				if (!Context_ConnectedAccount::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			if(!empty($edit)) {
 				$tokens = explode(' ', trim($edit));
 				
@@ -1432,7 +1441,6 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 				$service_manifests = Extension_ConnectedServiceProvider::getAll(false);
 				
 				// Only instantiatable
-				// [TODO] Cache this?
 				$services = array_filter(
 					DAO_ConnectedService::getAll(),
 					function($service) use ($service_manifests) {

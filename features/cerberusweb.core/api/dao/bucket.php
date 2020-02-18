@@ -1350,27 +1350,27 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
-		
-		$context = CerberusContexts::CONTEXT_BUCKET;
+		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_BUCKET;
+		
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		$bucket = null;
 		
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		if($context_id) {
-			if(null != ($bucket = DAO_Bucket::get($context_id))) {
-				$tpl->assign('bucket', $bucket);
-				
-				if(false != ($group = $bucket->getGroup())) {
-					$tpl->assign('group', $group);
-					$tpl->assign('members', $group->getMembers());
-				}
-			} else {
+			if(false == ($bucket = DAO_Bucket::get($context_id))) {
 				$tpl->assign('error_message', DevblocksPlatform::translate('error.core.record.not_found'));
 				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
 				return;
+			}
+			
+			$tpl->assign('bucket', $bucket);
+			
+			if(false != ($group = $bucket->getGroup())) {
+				$tpl->assign('group', $group);
+				$tpl->assign('members', $group->getMembers());
 			}
 		}
 		
@@ -1399,15 +1399,13 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		// Template
 		
 		if($edit) {
-			// ACL
-			
-			if(empty($bucket) && !$active_worker->isGroupManager()) {
+			if(!$bucket && !$active_worker->isGroupManager()) {
 				$tpl->assign('error_message', "You can only create new buckets if you're the manager of at least one group.");
 				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
 				return;
 			}
 			
-			if(!empty($bucket) && !$active_worker->isGroupManager($bucket->group_id)) {
+			if($bucket && !$active_worker->isGroupManager($bucket->group_id)) {
 				$tpl->assign('error_message', "Only group managers can modify this bucket.");
 				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
 				return;
@@ -1415,8 +1413,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			
 			// Signature
 			
-			$worker_token_labels = array();
-			$worker_token_values = array();
+			$worker_token_labels = [];
+			$worker_token_values = [];
 			CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, null, $worker_token_labels, $worker_token_values);
 	
 			$placeholders = Extension_DevblocksContext::getPlaceholderTree($worker_token_labels);

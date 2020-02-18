@@ -1469,35 +1469,27 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('view_id', $view_id);
-		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
 		
-		if(!empty($context_id)) {
-			$model = DAO_ContextScheduledBehavior::get($context_id);
+		$tpl->assign('view_id', $view_id);
+		
+		$model = null;
+		
+		if($context_id) {
+			if(false == ($model = DAO_ContextScheduledBehavior::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
 			$model = new Model_ContextScheduledBehavior();
-			
-			if(!empty($edit)) {
-				$tokens = explode(' ', trim($edit));
-				
-				foreach($tokens as $token) {
-					@list($k,$v) = explode(':', $token);
-					
-					if($v)
-					switch($k) {
-						/*
-						case 'email':
-							$model->primary_email_id = intval($v);
-							break;
-						*/
-					}
-				}
-			}
 		}
 		
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
+			if($model && $model->id) {
+				if(!Context_ContextScheduledBehavior::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			// Contexts
 			$contexts = Extension_DevblocksContext::getByMacros(false);
 			$tpl->assign('contexts', $contexts);

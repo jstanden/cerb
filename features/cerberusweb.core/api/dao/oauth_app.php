@@ -1136,17 +1136,24 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = Context_OAuthApp::ID;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = Context_OAuthApp::ID;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_OAuthApp::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_OAuthApp::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(!isset($model)) {
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_OAuthApp::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+			} else {
 				$model = new Model_OAuthApp();
 				
 				$model->client_id = DevblocksPlatform::strLower(CerberusApplication::generatePassword(32));

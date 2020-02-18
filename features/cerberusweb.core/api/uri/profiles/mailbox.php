@@ -37,7 +37,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(!$active_worker || !$active_worker->is_superuser)
 			throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
@@ -182,10 +182,17 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 	function testMailboxJsonAction() {
 		header('Content-Type: application/json');
 		
+		@$error_reporting = error_reporting(E_ERROR & ~E_NOTICE);
+		
 		try {
-			$error_reporting = error_reporting(E_ERROR & ~E_NOTICE);
+			if('POST' != DevblocksPlatform::getHttpMethod())
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
 			$translate = DevblocksPlatform::getTranslationService();
+			$active_worker = CerberusApplication::getActiveWorker();
+			
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
 			@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string','');
 			@$host = DevblocksPlatform::importGPC($_POST['host'],'string','');
@@ -234,6 +241,8 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
 			return;
 			
+		} finally {
+			error_reporting($error_reporting);
 		}
 	}
 	

@@ -1180,17 +1180,24 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_ClassifierClass::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_ClassifierClass::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(!isset($model)) {
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_ClassifierClass::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+			} else {
 				$model = new Model_ClassifierClass();
 				
 				if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
@@ -1203,6 +1210,7 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 					}
 				}
 			}
+			
 			$tpl->assign('model', $model);
 			
 			$classifiers = DAO_Classifier::getAll();

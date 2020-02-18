@@ -1468,17 +1468,24 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_ROLE;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_ROLE;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_WorkerRole::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_WorkerRole::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(!isset($model)) {
+			if($model) {
+				if(!Context_WorkerRole::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+			} else {
 				$model = new Model_WorkerRole();
 				$model->member_query_worker = 'isDisabled:n';
 				$model->reader_query_worker = 'isDisabled:n';

@@ -1164,20 +1164,27 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) { // @audited
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = Context_ProjectBoard::ID;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = Context_ProjectBoard::ID;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_ProjectBoard::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_ProjectBoard::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(isset($model))
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_ProjectBoard::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			// Link contexts
 			$contexts = Extension_DevblocksContext::getAll(false, 'links');

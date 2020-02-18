@@ -1266,17 +1266,24 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_CalendarEvent::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_CalendarEvent::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(empty($context_id)) {
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_CalendarEvent::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+			} else {
 				$model = new Model_CalendarEvent();
 			
 				if($view_id && false != ($view = C4_AbstractViewLoader::getView($view_id))) {

@@ -1342,18 +1342,25 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_KbArticle::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_KbArticle::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(isset($model))
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_KbArticle::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			$article_categories = DAO_KbArticle::getCategoriesByArticleId($context_id);
 			$tpl->assign('article_categories', $article_categories);

@@ -232,10 +232,10 @@ class ChTicketsPage extends CerberusPageExtension {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -249,7 +249,7 @@ class ChTicketsPage extends CerberusPageExtension {
 			@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
 			@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer',0);
 			@$spam_training = DevblocksPlatform::importGPC($_POST['spam_training'],'string','');
-			@$ticket_reopen = DevblocksPlatform::importGPC(@$_POST['ticket_reopen'],'string','');
+			@$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'],'string','');
 			
 			if(!$active_worker->hasPriv(sprintf('contexts.%s.update', CerberusContexts::CONTEXT_TICKET)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));

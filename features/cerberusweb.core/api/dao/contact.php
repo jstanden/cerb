@@ -2258,18 +2258,23 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_CONTACT;
+		
 		$contact = null;
 		
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
-		
-		if(!empty($context_id) && null != ($contact = DAO_Contact::get($context_id))) {
-			$tpl->assign('model', $contact);
-		}
 		
 		$custom_fields = DAO_CustomField::getByContext($context, false);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		if($context_id) {
+			if(false == ($contact = DAO_Contact::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			$tpl->assign('model', $contact);
+		}
 		
 		if(!empty($context_id)) {
 			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
@@ -2289,8 +2294,13 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		$date = DevblocksPlatform::services()->date();
 		$tpl->assign('timezones', $date->getTimezones());
 		
-		if(empty($context_id) || $edit) {
-			if(empty($context_id) && !empty($edit)) {
+		if(!$context_id || $edit) {
+			if($contact) {
+				if(!Context_Contact::isWriteableByActor($contact, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
+			if(!$context_id && $edit) {
 				$tokens = explode(' ', trim($edit));
 				
 				$model = new Model_Contact();

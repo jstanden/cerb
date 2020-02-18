@@ -1332,10 +1332,10 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_WorkspaceWidget::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_WorkspaceWidget::CONTEXT_LINK_ID,'=',$context_id),
-			);
+//			$params_req = array(
+//				new DevblocksSearchCriteria(SearchFields_WorkspaceWidget::CONTEXT_LINK,'=',$context),
+//				new DevblocksSearchCriteria(SearchFields_WorkspaceWidget::CONTEXT_LINK_ID,'=',$context_id),
+//			);
 		}
 		
 		$view->addParamsRequired($params_req, true);
@@ -1346,15 +1346,20 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
-		$model = new Model_WorkspaceWidget();
+		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_WorkspaceWidget::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_WorkspaceWidget::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
+			$model = new Model_WorkspaceWidget();
+			
 			if(!empty($edit)) {
 				$tokens = explode(' ', trim($edit));
 				
@@ -1373,8 +1378,12 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
-				$tpl->assign('model', $model);
+			if($model && $model->id) {
+				if(!Context_WorkspaceWidget::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
+			$tpl->assign('model', $model);
 			
 			$widget_extensions = Extension_WorkspaceWidget::getAll(false);
 			$tpl->assign('widget_extensions', $widget_extensions);

@@ -902,20 +902,27 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_KB_CATEGORY;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_KB_CATEGORY;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_KbCategory::get($context_id);
-		}
-		
-		if(!$model) {
+		if($context_id) {
+			if(false == ($model = DAO_KbCategory::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+		} else {
 			$model = new Model_KbCategory();
 		}
 		
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
+			if($model && $model->id) {
+				if(!Context_KbCategory::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			if(!empty($edit)) {
 				$tokens = explode(' ', trim($edit));
 				
@@ -931,8 +938,7 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 				}
 			}
 			
-			if(isset($model))
-				$tpl->assign('model', $model);
+			$tpl->assign('model', $model);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

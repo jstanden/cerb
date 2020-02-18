@@ -1946,12 +1946,25 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_ORG;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_ORG;
-		$contact = DAO_ContactOrg::get($context_id);
+		$contact = null;
 		
-		if(empty($context_id) || $edit) {
+		if($context_id) {
+			if(false == ($contact = DAO_ContactOrg::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+		}
+		
+		if(!$context_id || $edit) {
+			if($contact) {
+				if(!Context_Org::isWriteableByActor($contact, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+			}
+			
 			$tpl->assign('org', $contact);
 			
 			// Custom fields

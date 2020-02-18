@@ -616,7 +616,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			$active_worker = CerberusApplication::getActiveWorker();
 			
 			if(!$active_worker->is_superuser)
-				DevblocksPlatform::dieWithHttpError(403);
+				DevblocksPlatform::dieWithHttpError(null, 403);
 
 			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
 				throw new Exception("Path not found.");

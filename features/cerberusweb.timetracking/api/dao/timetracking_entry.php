@@ -1557,16 +1557,24 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_TIMETRACKING;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_TIMETRACKING;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_TimeTrackingEntry::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_TimeTrackingEntry::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_TimeTracking::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
@@ -1579,8 +1587,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$tpl->assign('types', $types);
 			
 			// Activities
-			// [TODO] Cache w/ ::getAll()
-			$activities = DAO_TimeTrackingActivity::getWhere();
+			$activities = DAO_TimeTrackingActivity::getAll();
 			$tpl->assign('activities', $activities);
 			
 			// Default model

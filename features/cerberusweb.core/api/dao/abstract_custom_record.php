@@ -1434,25 +1434,32 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$tpl->assign('view_id', $view_id);
 		
 		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$tpl->assign('custom_record', $custom_record);
 		
 		$context = self::_getContextName();
 		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
 		
-		if(!empty($context_id)) {
-			$model = $dao_class::get($context_id);
-		} else {
-			$model = null;
+		$model = null;
+		
+		if($context_id) {
+			if(false == ($model = $dao_class::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(isset($model))
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

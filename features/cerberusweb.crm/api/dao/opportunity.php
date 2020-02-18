@@ -1576,18 +1576,28 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
+		
+		$opp = null;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_OPPORTUNITY;
-		$opp = new Model_CrmOpportunity();
-		
-		if(!empty($context_id)) {
-			$opp = DAO_CrmOpportunity::get($context_id);
+		if($context_id) {
+			if(false == ($opp = DAO_CrmOpportunity::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 		} else {
+			$opp = new Model_CrmOpportunity();
 			$opp->currency_id = DAO_Currency::getDefaultId();
 		}
 		
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
+			if($opp && $opp->id) {
+				if(!Context_Opportunity::isWriteableByActor($opp, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);

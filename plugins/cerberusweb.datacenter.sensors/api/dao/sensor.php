@@ -1521,24 +1521,35 @@ class Context_Sensor extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$id = $context_id; // [TODO] Cleanup
-		
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = Context_Sensor::ID;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		if(null != ($model = DAO_DatacenterSensor::get($id))) {
+		$model = null;
+		
+		if($context_id) {
+			if(false == ($model = DAO_DatacenterSensor::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+		}
+		
+		if($model) {
+			if(!Context_Sensor::isWriteableByActor($model, $active_worker))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			$tpl->assign('model', $model);
 		}
 		
 		// Custom fields
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_SENSOR, false);
+		$custom_fields = DAO_CustomField::getByContext($context, false);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		if(!empty($model)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_SENSOR, $model->id);
-			if(isset($custom_field_values[$id]))
-				$tpl->assign('custom_field_values', $custom_field_values[$id]);
+		if($model) {
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $context_id);
+			if(isset($custom_field_values[$context_id]))
+				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
 		
 		// Sensor extensions

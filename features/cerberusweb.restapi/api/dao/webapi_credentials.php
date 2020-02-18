@@ -1004,9 +1004,9 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_WebApiCredentials::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
-			);
+//			$params_req = array(
+//				new DevblocksSearchCriteria(SearchFields_WebApiCredentials::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+//			);
 		}
 		
 		$view->addParamsRequired($params_req, true);
@@ -1017,20 +1017,22 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
-		$active_worker = CerberusApplication::getActiveWorker();
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_WebApiCredentials::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_WebApiCredentials::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(isset($model)) {
+		if(!$context_id || $edit) {
+			if($model) {
 				if(!Context_WebApiCredentials::isWriteableByActor($model, $active_worker))
-					return;
+					DevblocksPlatform::dieWithHttpError(null, 403);
 				
 				$tpl->assign('model', $model);
 			}

@@ -1277,13 +1277,16 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_CustomFieldset::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_CustomFieldset::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		} else {
 			@$owner_context = DevblocksPlatform::importGPC($_REQUEST['owner_context'],'string','');
@@ -1296,8 +1299,12 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
+			if($model) {
+				if(!Context_CustomFieldset::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);

@@ -1148,18 +1148,23 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_MailTransport::get($context_id);
-		}
+		if($context_id && false == ($model = DAO_MailTransport::get($context_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(empty($context_id) || $edit) {
-			if(isset($model))
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_MailTransport::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

@@ -2638,26 +2638,28 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
 		@$org_id = DevblocksPlatform::importGPC($_REQUEST['org_id'],'string','');
 		
-		$context = CerberusContexts::CONTEXT_ADDRESS;
-		$active_worker = CerberusApplication::getActiveWorker();
-		$address = null;
-		
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_ADDRESS;
+		
+		$address = null;
+		$email = '';
+		
 		$tpl->assign('view_id', $view_id);
 		
-		if(!empty($context_id)) {
-			$email = '';
-			if(null != ($addy = DAO_Address::get($context_id))) {
-				@$email = $addy->email;
-			}
+		if($context_id) {
+			if(false == ($addy = DAO_Address::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			@$email = $addy->email;
 		}
 		$tpl->assign('email', $email);
 		
-		if(!empty($email)) {
+		if($email) {
 			$address = DAO_Address::getByEmail($email);
 			$tpl->assign('address', $address);
 			
-			if(empty($context_id) && $address instanceof Model_Address) {
+			if(!$context_id && $address instanceof Model_Address) {
 				$context_id = $address->id;
 			}
 		}
@@ -2665,11 +2667,17 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		// Display
 		$tpl->assign('id', $context_id);
 		
-		if(empty($context_id) || $edit) {
-			if (!empty($org_id)) {
-				$org = DAO_ContactOrg::get($org_id);
-				$tpl->assign('org_name',$org->name);
-				$tpl->assign('org_id',$org->id);
+		if(!$context_id || $edit) {
+			if($address) {
+				if(!Context_Address::isWriteableByActor($address, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
+			if($org_id) {
+				if(false != ($org = DAO_ContactOrg::get($org_id))) {
+					$tpl->assign('org_name', $org->name);
+					$tpl->assign('org_id', $org->id);
+				}
 			}
 			
 			// Custom fields

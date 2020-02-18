@@ -1639,26 +1639,32 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = Context_JiraIssue::ID;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = Context_JiraIssue::ID;
-		$active_worker = CerberusApplication::getActiveWorker();
+		$jira_issue = null;
 		
 		// Model
 		
-		if(empty($context_id) || null == ($jira_issue = DAO_JiraIssue::get($context_id)))
-			return;
-		
-		$tpl->assign('model', $jira_issue);
+		if($context_id) {
+			if(false == ($jira_issue = DAO_JiraIssue::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+		}
 		
 		if($jira_issue) {
+			if(!Context_JiraIssue::isWriteableByActor($jira_issue, $active_worker))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+			$tpl->assign('model', $jira_issue);
+			
 			if(false != ($jira_project = $jira_issue->getProject()))
 				$tpl->assign('jira_base_url', $jira_project->getBaseUrl());
 		}
 		
 		// Dictionary
-		$labels = [];
-		$values = [];
+		$labels = $values = [];
 		CerberusContexts::getContext($context, $jira_issue, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);

@@ -34,7 +34,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		try {
 			@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);

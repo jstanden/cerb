@@ -1735,21 +1735,28 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function renderPeekPopup($context_id = 0, $view_id = '', $edit = false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_DRAFT;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_DRAFT;
 		$draft = null;
 		
-		if(!empty($context_id)) {
-			$draft = DAO_MailQueue::get($context_id);
-			$tpl->assign('draft', $draft);
+		if($context_id) {
+			if(false == ($draft = DAO_MailQueue::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(!isset($draft)) {
+		if(!$context_id || $edit) {
+			if($draft) {
+				if(!Context_Draft::isWriteableByActor($draft, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+			} else {
 				$draft = new Model_MailQueue();
-				$tpl->assign('draft', $draft);
 			}
+			
+			$tpl->assign('draft', $draft);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

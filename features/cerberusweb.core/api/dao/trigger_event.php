@@ -2387,17 +2387,26 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_BEHAVIOR;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_BEHAVIOR;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_TriggerEvent::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_TriggerEvent::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
 			$tpl->assign('model', $model);
 		}
 		
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_TriggerEvent::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			// Custom Fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);

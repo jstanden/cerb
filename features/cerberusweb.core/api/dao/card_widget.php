@@ -1256,16 +1256,23 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('view_id', $view_id);
-		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_CARD_WIDGET;
 		
+		$model = null;
+		$tpl->assign('view_id', $view_id);
+		
 		if($context_id) {
-			$model = DAO_CardWidget::get($context_id);
+			if(false == ($model = DAO_CardWidget::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
-			if(!$context_id) {
+		if(!$context_id || $edit) {
+			if($model) {
+				if(!Context_CardWidget::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+			} else {
 				$model = new Model_CardWidget();
 			}
 			
@@ -1305,7 +1312,7 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 			
 			// Placeholder menu
 			
-			if(isset($model)) {
+			if($model) {
 				$labels = $values = [];
 				
 				// Record dictionary

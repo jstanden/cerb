@@ -1409,16 +1409,22 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_MAILBOX;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = 'cerberusweb.contexts.mailbox';
 		$model = null;
 		
 		if(!empty($context_id)) {
-			$model = DAO_Mailbox::get($context_id);
+			if(false == ($model = DAO_Mailbox::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
 		if(empty($context_id) || $edit) {
+			if(!$active_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			if(isset($model))
 				$tpl->assign('model', $model);
 			

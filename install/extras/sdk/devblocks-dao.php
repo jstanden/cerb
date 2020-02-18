@@ -1098,17 +1098,23 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+        $active_worker = CerberusApplication::getActiveWorker();
+		$context = '<?php echo $ctx_ext_id; ?>';
+  
 		$tpl->assign('view_id', $view_id);
 		
-		$context = '<?php echo $ctx_ext_id; ?>';
-		
-		if(!empty($context_id)) {
-			$model = DAO_<?php echo $class_name; ?>::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_<?php echo $class_name; ?>::get($context_id)))
+                DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
+			if($model) {
+                if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
+                    DevblocksPlatform::dieWithHttpError(null, 403);
+                
 				$tpl->assign('model', $model);
+            }
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
@@ -1538,7 +1544,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$active_worker = CerberusApplication::getActiveWorker();
   
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -1546,6 +1552,9 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", '<?php echo $ctx_ext_id; ?>')))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+    
+                if(!CerberusContexts::isWriteableByActor('<?php echo $ctx_ext_id; ?>', $id, $active_worker))
+                    DevblocksPlatform::dieWithHttpError(null, 403);
 				
 				DAO_<?php echo $class_name; ?>::delete($id);
 				
@@ -1629,7 +1638,6 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 			return;
 			
 		}
-	
 	}
 	
 	function viewExploreAction() {

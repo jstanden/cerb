@@ -2375,18 +2375,28 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('view_id', $view_id);
-		
+		$active_worker = CerberusApplication::getActiveWorker();
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
 		
-		if(!empty($context_id)) {
-			$model = DAO_CustomField::get($context_id);
+		$tpl->assign('view_id', $view_id);
+		
+		$model = null;
+		
+		if($context_id) {
+			if(false == ($model = DAO_CustomField::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
 		} else {
 			$model = new Model_CustomField();
 			$model->pos = 50;
 		}
 		
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
+			if($model && $model->id) {
+				if(!Context_CustomField::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
+			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			

@@ -5594,9 +5594,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		@$edit_mode = DevblocksPlatform::importGPC($_REQUEST['edit'],'string',null);
 		
 		$tpl = DevblocksPlatform::services()->template();
-
-		$context = CerberusContexts::CONTEXT_TICKET;
 		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_TICKET;
 		
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('edit_mode', $edit_mode);
@@ -5609,8 +5608,13 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			return false;
 		}
 		
-		if(empty($context_id) || $edit_mode) {
+		if(!$context_id || $edit_mode) {
 			$field_overrides = [];
+			
+			if($model) {
+				if(!Context_Ticket::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+			}
 			
 			if($model && $edit_mode) {
 				$tokens = explode(' ', trim($edit_mode));

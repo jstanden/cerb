@@ -38,7 +38,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -60,8 +60,8 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
-				@$public_key = DevblocksPlatform::importGPC($_REQUEST['public_key'], 'string', '');
+				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
+				@$key_text = DevblocksPlatform::importGPC($_POST['key_text'], 'string', '');
 				
 				if(empty($id)) { // New
 					if(!$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_GPG_PUBLIC_KEY)))

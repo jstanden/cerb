@@ -1193,18 +1193,25 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_PACKAGE;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_PACKAGE;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_PackageLibrary::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_PackageLibrary::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(isset($model))
+			if($model) {
+				if(!Context_PackageLibrary::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('model', $model);
+			}
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);

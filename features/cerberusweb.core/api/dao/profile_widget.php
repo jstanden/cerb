@@ -1278,18 +1278,26 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$context = CerberusContexts::CONTEXT_PROFILE_WIDGET;
+		
 		$tpl->assign('view_id', $view_id);
 		
-		$context = CerberusContexts::CONTEXT_PROFILE_WIDGET;
 		$model = null;
 		
-		if(!empty($context_id)) {
-			$model = DAO_ProfileWidget::get($context_id);
+		if($context_id) {
+			if(false == ($model = DAO_ProfileWidget::get($context_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
 		if(empty($context_id) || $edit) {
-			if(empty($context_id))
+			if($model) {
+				if(!Context_ProfileWidget::isWriteableByActor($model, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+			} else {
 				$model = new Model_ProfileWidget();
+			}
 			
 			if(!empty($edit)) {
 				$tokens = explode(' ', trim($edit));
