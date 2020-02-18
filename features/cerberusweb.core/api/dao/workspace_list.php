@@ -72,7 +72,6 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		$validation
 			->addField(self::RENDER_LIMIT)
 			->uint(2)
-			->setRequired(true)
 			->setMin(1)
 			->setMax(250)
 			;
