@@ -348,13 +348,17 @@ $(function() {
 				var token = ui.item.attr('data-token');
 				var label = ui.item.attr('data-label');
 				
-				if(undefined == token || undefined == label)
+				if(undefined === token || undefined === label)
 					return;
 				
 				var $frmDecAdd = $('#frmDecisionOutcomeAdd{$id}');
 				$frmDecAdd.find('input[name=condition]').val(token);
-				
-				genericAjaxPost('frmDecisionOutcomeAdd{$id}','','c=internal&a=doDecisionAddCondition',function(html) {
+
+				var formData = new FormData($frmDecAdd[0]);
+				formData.set('c', 'internal');
+				formData.set('a', 'doDecisionAddCondition');
+
+				genericAjaxPost(formData,'','',function(html) {
 					var $ul = $('#frmDecisionOutcome{$id} UL.rules:last');
 					
 					var seq = parseInt($frmDecAdd.find('input[name=seq]').val());

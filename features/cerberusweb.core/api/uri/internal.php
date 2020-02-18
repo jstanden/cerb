@@ -3870,10 +3870,45 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function saveDecisionReorderPopupAction() {
-		@$child_ids = DevblocksPlatform::importGPC($_POST['child_id'],'array', array());
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
+		@$node_id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
+		@$child_ids = DevblocksPlatform::importGPC($_POST['child_id'],'array', []);
+		
+		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+			DevblocksPlatform::dieWithHttpError('', 403);
+		
+		if(!$trigger_id && !$node_id) {
+			DevblocksPlatform::dieWithHttpError('', 403);
+			
+		} else if(!$trigger_id && $node_id) {
+			if(false == ($node = DAO_DecisionNode::get($node_id)))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+			if(false == ($trigger = DAO_TriggerEvent::get($node->trigger_id)))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+		} else {
+			if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+		}
+		
+		if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null,403);
+		
+		if(false == ($children = DAO_DecisionNode::getIds($child_ids)))
+			DevblocksPlatform::dieWithHttpError(null,403);
 		
 		if(!empty($child_ids))
 		foreach($child_ids as $pos => $child_id) {
+			if(false == ($child = $children[$child_id]))
+				continue;
+			
+			if($child->trigger_id != $trigger->id)
+				continue;
+			
 			DAO_DecisionNode::update($child_id, array(
 				DAO_DecisionNode::POS => $pos,
 			));
@@ -4197,30 +4232,34 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function runBehaviorSimulatorAction() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
 		@$event_params_json = DevblocksPlatform::importGPC($_POST['event_params_json'],'string', '');
 		@$custom_values = DevblocksPlatform::importGPC($_POST['values'],'array', []);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$logger = DevblocksPlatform::services()->log('Bot');
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$logger->setLogLevel(6);
 		
 		ob_start();
 		
-		$tpl->assign('trigger_id', $trigger_id);
-		
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
 		
+		if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$tpl->assign('trigger_id', $trigger_id);
 		$tpl->assign('trigger', $trigger);
 		
 		if(null == ($ext_event = Extension_DevblocksEvent::get($trigger->event_point, true))) /* @var $ext_event Extension_DevblocksEvent */
 			return;
 		
 		// Set the base event scope
-		
-		// [TODO] This is hacky and needs to be handled by the extensions
 		
 		switch($trigger->event_point) {
 			case Event_MailReceivedByApp::ID:
@@ -4281,8 +4320,6 @@ class ChInternalController extends DevblocksControllerExtension {
 				
 			} catch(Exception $e) {}
 		}
-		
-		// [TODO] Update variables/values on assocated worklists
 		
 		// Behavior data
 
@@ -4388,15 +4425,19 @@ class ChInternalController extends DevblocksControllerExtension {
 	}
 	
 	function doDecisionAddConditionAction() {
-		@$condition = DevblocksPlatform::importGPC($_REQUEST['condition'],'string', '');
-		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
-		@$seq = DevblocksPlatform::importGPC($_REQUEST['seq'],'integer', 0);
-		@$nonce = DevblocksPlatform::importGPC($_REQUEST['nonce'],'string', '');
+		@$condition = DevblocksPlatform::importGPC($_POST['condition'],'string', '');
+		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
+		@$seq = DevblocksPlatform::importGPC($_POST['seq'],'integer', 0);
+		@$nonce = DevblocksPlatform::importGPC($_POST['nonce'],'string', '');
 
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		if(null == ($trigger = DAO_TriggerEvent::get($trigger_id)))
 			return;
+		
+		if(!Context_TriggerEvent::isWriteableByActor($trigger, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 			
 		if(null == ($event = Extension_DevblocksEvent::get($trigger->event_point, true)))
 			return; /* @var $event Extension_DevblocksEvent */
