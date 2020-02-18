@@ -1552,7 +1552,7 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$to_context = DevblocksPlatform::importGPC($_POST['to_context'],'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		if(null == ($to_context_extension = Extension_DevblocksContext::get($to_context))
 			|| null == ($from_context_extension = Extension_DevblocksContext::get($context)))
@@ -2008,7 +2008,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$from_context = DevblocksPlatform::importGPC($_POST['from_context'],'string','');
 		@$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'],'integer',0);
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$context_ids = DevblocksPlatform::importGPC($_POST['context_id'],'array',array());
+		@$context_ids = DevblocksPlatform::importGPC($_POST['context_id'],'array',[]);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		if(is_array($context_ids))
 		foreach($context_ids as $context_id)
@@ -2023,7 +2026,10 @@ class ChInternalController extends DevblocksControllerExtension {
 		@$from_context = DevblocksPlatform::importGPC($_POST['from_context'],'string','');
 		@$from_context_id = DevblocksPlatform::importGPC($_POST['from_context_id'],'integer',0);
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
-		@$context_ids = DevblocksPlatform::importGPC($_POST['context_id'],'array',array());
+		@$context_ids = DevblocksPlatform::importGPC($_POST['context_id'],'array',[]);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		if(is_array($context_ids))
 		foreach($context_ids as $context_id)
