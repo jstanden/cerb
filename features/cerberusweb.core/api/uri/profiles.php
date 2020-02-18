@@ -485,8 +485,19 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
 		@$full = DevblocksPlatform::importGPC($_POST['full'], 'bool', false);
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(false == ($widget = DAO_ProfileWidget::get($id)))
 			return;
+		
+		if(!Context_ProfileWidget::isReadableByActor($widget, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!CerberusContexts::isReadableByActor($context, $context_id, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(false == ($extension = $widget->getExtension()))
 			return;
@@ -514,10 +525,13 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'], 'integer', 0);
 		@$zones = DevblocksPlatform::importGPC($_POST['zones'], 'array', []);
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
+		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker->is_superuser)
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$widgets = DAO_ProfileWidget::getByTab($tab_id);
 		$new_zones = [];

@@ -299,11 +299,17 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	}
 	
 	function renderWidgetAction() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$full = DevblocksPlatform::importGPC($_POST['full'], 'bool', false);
 		
 		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
 			return;
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($widget, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(false == ($extension = $widget->getExtension()))
 			return;
@@ -325,6 +331,9 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	}
 	
 	function reorderWidgetsAction() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(403);
+		
 		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'], 'integer', 0);
 		@$zones = DevblocksPlatform::importGPC($_POST['zones'], 'array', []);
 		

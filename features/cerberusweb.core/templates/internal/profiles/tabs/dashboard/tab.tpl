@@ -105,6 +105,7 @@ $(function() {
 		var formData = new FormData();
 		formData.append('c', 'profiles');
 		formData.append('a', 'handleProfileTabAction');
+		formData.append('section', 'profile_widget');
 		formData.append('tab_id', '{$model->id}');
 		formData.append('action', 'reorderWidgets');
 
