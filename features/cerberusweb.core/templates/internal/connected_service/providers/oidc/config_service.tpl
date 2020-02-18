@@ -51,7 +51,16 @@ $(function() {
 		
 		$status_discovery.html('');
 
-		genericAjaxGet(null, 'c=profiles&a=handleSectionAction&section=connected_service&action=ajax&ajax=runDiscovery&id={$service->extension_id}&issuer=' + encodeURIComponent(issuer), function(json) {
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'handleSectionAction');
+		formData.set('section', 'connected_service');
+		formData.set('action', 'ajax');
+		formData.set('ajax', 'runDiscovery');
+		formData.set('id', '{$service->extension_id}');
+		formData.set('issuer', issuer);
+
+		genericAjaxPost(formData, '', '', function(json) {
 			var $input_authorization_url = $fieldset.find('input:text[name="params[authorization_url]"]');
 			var $input_access_token_url = $fieldset.find('input:text[name="params[access_token_url]"]');
 			var $input_userinfo_url = $fieldset.find('input:text[name="params[userinfo_url]"]');

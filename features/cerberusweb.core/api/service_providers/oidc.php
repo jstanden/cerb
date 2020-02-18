@@ -285,7 +285,10 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 	}
 	
 	public function runDiscoveryAction() {
-		@$issuer = DevblocksPlatform::importGPC($_REQUEST['issuer'], 'string', '');
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$issuer = DevblocksPlatform::importGPC($_POST['issuer'], 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

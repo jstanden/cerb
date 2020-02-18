@@ -221,9 +221,12 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		$ext->renderConfigForm($service);
 	}
 	
-	function ajaxAction() {
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
-		@$ajax = DevblocksPlatform::importGPC($_REQUEST['ajax'],'string','');
+	function ajaxAction() { // @audited
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$extension_id = DevblocksPlatform::importGPC($_POST['id'],'string','');
+		@$ajax = DevblocksPlatform::importGPC($_POST['ajax'],'string','');
 		
 		if(!$extension_id || false == ($ext = Extension_ConnectedServiceProvider::get($extension_id)))
 			return;
