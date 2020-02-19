@@ -10,6 +10,12 @@
 
 <div>
 	<div id="board{$board->id}_{$widget->id}" class="cerb-board">
+		<div style="float:right;">
+			<span class="glyphicons glyphicons-edit"></span>
+			<a href="javascript:;" class="cerb-button-edit-board" data-context="project_board" data-context-id="{$board->id}">
+				edit board
+			</a>
+		</div>
 		<div style="width:100%;overflow-x:auto;">
 			<div class="cerb-board-columns">
 				{foreach from=$columns item=column}
@@ -172,7 +178,14 @@ $(function() {
 			;
 		$card.remove();
 	});
-	
+
+	$board.find('.cerb-button-edit-board')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function() {
+			// [TODO] Refresh board
+		})
+	;
+
 	$board.find('> div')
 		.sortable({
 			tolerance: 'pointer',
