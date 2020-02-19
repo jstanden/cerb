@@ -305,6 +305,8 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$full = DevblocksPlatform::importGPC($_POST['full'], 'bool', false);
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
 			return;
 		

@@ -481,9 +481,6 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		
 		return array($results,$total);
 	}
-
-	static function clearCache() {
-	}
 };
 
 class SearchFields_ProfileWidget extends DevblocksSearchFields {
