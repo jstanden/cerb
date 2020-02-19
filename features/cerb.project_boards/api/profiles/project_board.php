@@ -268,16 +268,16 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		@$column = array_shift(array_intersect_key($columns, $links[$id]));
 		
 		$card = new DevblocksDictionaryDelegate($dict);
-		$tpl->assign('card', $card);
 		
 		if($column) {
-			$dict['column__context'] = Context_ProjectBoardColumn::ID;
-			$dict['column_id'] = $column->id;
+			$card->set('column__context', Context_ProjectBoardColumn::ID);
+			$card->set('column_id', $column->id);
 			
 		} else { // Not on this board anymore
 			$tpl->assign('card_is_removed', true);
 		}
 		
+		$tpl->assign('card', $card);
 		$tpl->display('devblocks:cerb.project_boards::boards/board/card.tpl');
 	}
 	

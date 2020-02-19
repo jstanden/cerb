@@ -526,7 +526,9 @@ class Model_ProjectBoard {
 			
 			$tpl->assign('card', $card);
 			
-			$context_ext = Extension_DevblocksContext::get($context);
+			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+				return;
+				
 			$tpl->assign('context_ext', $context_ext);
 			
 			$html = $tpl->fetch('devblocks:cerb.project_boards::boards/board/card_default.tpl');

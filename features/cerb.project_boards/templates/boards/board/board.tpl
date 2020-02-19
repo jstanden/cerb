@@ -273,9 +273,13 @@ $(function() {
 		e.stopPropagation();
 		
 		var $card = $(this);
+		
+		var $trigger = $card.find('h3 a.cerb-peek-trigger');
+		var context = $trigger.attr('data-context');
+		var context_id = $trigger.attr('data-context-id');
 
-		var context = $card.attr('data-context');
-		var context_id = $card.attr('data-context-id');
+		// var context = $card.attr('data-context');
+		// var context_id = $card.attr('data-context-id');
 
 		var formData = new FormData();
 		formData.append('c', 'profiles');
@@ -287,6 +291,17 @@ $(function() {
 		formData.append('id', context_id);
 
 		genericAjaxPost(formData, $card, '', function() {
+			$card
+				.find('.cerb-bot-trigger')
+				.cerbBotTrigger()
+				;
+			$card
+				.find('.cerb-peek-trigger')
+				.cerbPeekTrigger()
+				;
+			$card
+				.find('.cerb-search-trigger')
+				.cerbSearchTrigger()
 		});
 	});
 	
