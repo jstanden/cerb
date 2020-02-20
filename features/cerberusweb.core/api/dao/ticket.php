@@ -4418,6 +4418,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	const ID = 'cerberusweb.contexts.ticket';
 	
 	static function isReadableByActor($models, $actor) {
+		$group_rosters = DAO_Group::getRosters();
+		
 		// Only admins and group members can see, unless public
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
@@ -4428,8 +4430,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_TICKET)))
 			return CerberusContexts::denyEverything($models);
-		
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'group_members');
 		
 		$results = array_fill_keys(array_keys($dicts), false);
 			
@@ -4460,7 +4460,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 					}
 					
 					// A group member can read messages
-					if(is_array($dict->group_members) && isset($dict->group_members[$actor->id])) {
+					if(array_key_exists($dict->group_id, $group_rosters)
+						&& array_key_exists($actor->id, $group_rosters[$dict->group_id])) {
 						$results[$context_id] = true;
 					}
 				}
@@ -4475,6 +4476,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	}
 	
 	static function isWriteableByActor($models, $actor) {
+		$group_rosters = DAO_Group::getRosters();
+		
 		// Only admins and group members can edit
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
@@ -4485,8 +4488,6 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		
 		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_TICKET)))
 			return CerberusContexts::denyEverything($models);
-		
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'group_members');
 		
 		$results = array_fill_keys(array_keys($dicts), false);
 		
@@ -4500,10 +4501,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				}
 				break;
 			
-			// A worker can edit if they're a manager of the group
 			case CerberusContexts::CONTEXT_WORKER:
 				foreach($dicts as $context_id => $dict) {
-					if(is_array($dict->group_members) && isset($dict->group_members[$actor->id])) {
+					if(array_key_exists($dict->group_id, $group_rosters)
+						&& array_key_exists($actor->id, $group_rosters[$dict->group_id])) {
 						$results[$context_id] = true;
 					}
 				}
