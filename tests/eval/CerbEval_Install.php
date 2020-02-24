@@ -92,7 +92,6 @@ class CerbEval_Install extends PHPUnit_Framework_TestCase {
 				case 'cerberusweb.feedback':
 				case 'cerberusweb.kb':
 				case 'cerberusweb.support_center':
-				case 'cerberusweb.simulator':
 				case 'cerberusweb.timetracking':
 				case 'cerb.bots.portal.widget':
 				case 'cerb.project_boards':
