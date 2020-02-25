@@ -1373,8 +1373,6 @@ function genericAjaxGet(divRef,args,cb,options) {
 	if(null == options.headers)
 		options.headers = {};
 		
-	options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
-	
 	var $ajax = $.ajax(options);
 	
 	if(typeof cb == 'function') {

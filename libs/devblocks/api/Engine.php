@@ -579,7 +579,7 @@ abstract class DevblocksEngine {
 		$method = DevblocksPlatform::strUpper(@$_SERVER['REQUEST_METHOD']);
 		
 		$request = new DevblocksHttpRequest($parts,$queryArgs,$method);
-		$request->csrf_token = isset($_SERVER['HTTP_X_CSRF_TOKEN']) ? $_SERVER['HTTP_X_CSRF_TOKEN'] : @$_REQUEST['_csrf_token'];
+		@$request->csrf_token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['_csrf_token'];
 		
 		DevblocksPlatform::setHttpRequest($request);
 
@@ -614,49 +614,53 @@ abstract class DevblocksEngine {
 		
 		// Security: CSRF
 		
-		// If we are running a controller action with an active session...
-		if(!in_array($controller_uri, array('sso', 'oauth', 'cron', 'portal')) && (isset($_REQUEST['c']) || isset($_REQUEST['a']))) {
+		// Exclude public controllers
+		if(!in_array($controller_uri, array('cron', 'oauth', 'portal', 'sso', 'webhooks'))) {
 			
 			// ...and we're not in DEVELOPMENT_MODE
 			if(!DEVELOPMENT_MODE_ALLOW_CSRF) {
 				@$origin = DevblocksPlatform::strLower($_SERVER['HTTP_ORIGIN']);
 				@$referer = DevblocksPlatform::strLower($_SERVER['HTTP_REFERER']);
-				//@$verb = DevblocksPlatform::strLower($_SERVER['REQUEST_METHOD']);
+				@$http_method = DevblocksPlatform::getHttpMethod();
 				
 				// Normalize the scheme and host (e.g. ignore /index.php/)
 				$base_url_parts = parse_url($url_writer->write('', true));
-				$base_url_port = isset($base_url_parts['port']) ? (':' . $base_url_parts['port']) : ''; 
-				
+				$base_url_port = isset($base_url_parts['port']) ? (':' . $base_url_parts['port']) : '';
 				$base_url = DevblocksPlatform::strLower(sprintf("%s://%s%s/", $base_url_parts['scheme'], $base_url_parts['host'], $base_url_port));
 				
-				if($origin) {
-					// If origin doesn't match, freak out
-					if($base_url != (rtrim($origin, '/') . '/')) {
-						error_log(sprintf("[Cerb] CSRF Block: Origin (%s) doesn't match (%s)", $origin, $base_url), E_USER_WARNING);
+				// Always compare the origin on non-GET, Ajax, or when adding controller/action to the URL
+				if('GET' != $http_method || $is_ajax || array_key_exists('c', $_REQUEST) || array_key_exists('a', $_REQUEST)) {
+					if ($origin) {
+						// If origin doesn't match, freak out
+						if ($base_url != (rtrim($origin, '/') . '/')) {
+							error_log(sprintf("[Cerb] CSRF Block: Origin (%s) doesn't match (%s)", $origin, $base_url), E_USER_WARNING);
+							DevblocksPlatform::dieWithHttpError("Access denied", 403);
+						}
+						
+					} elseif ($referer) {
+						// Referer of a POST doesn't match, freak out
+						if (!DevblocksPlatform::strStartsWith($referer, $base_url)) {
+							error_log(sprintf("[Cerb] CSRF Block: Referer (%s) doesn't match (%s)", $referer, $base_url), E_USER_WARNING);
+							DevblocksPlatform::dieWithHttpError("Access denied", 403);
+						}
+						
+					} else {
+						// No origin or referer, reject
+						error_log(sprintf("[Cerb] CSRF Block: No origin or referrer."), E_USER_WARNING);
 						DevblocksPlatform::dieWithHttpError("Access denied", 403);
 					}
-					
-				} elseif ($referer) {
-					// Referer of a POST doesn't match, freak out
-					if(!DevblocksPlatform::strStartsWith($referer, $base_url)) {
-						error_log(sprintf("[Cerb] CSRF Block: Referer (%s) doesn't match (%s)", $referer, $base_url), E_USER_WARNING);
-						DevblocksPlatform::dieWithHttpError("Access denied", 403);
-					}
-					
-				} else {
-					// No origin or referer, reject
-					//if('POST' == DevblocksPlatform::strUpper($verb))
-					error_log(sprintf("[Cerb] CSRF Block: No origin or referrer."), E_USER_WARNING);
-					DevblocksPlatform::dieWithHttpError("Access denied", 403);
 				}
 				
-				// ...and the CSRF token is invalid for this session, freak out
-				if(!isset($_SESSION['csrf_token']) || $_SESSION['csrf_token'] != $request->csrf_token) {
-					@$referer = $_SERVER['HTTP_REFERER'];
-					@$remote_addr = DevblocksPlatform::getClientIp();
-					
-					//error_log(sprintf("[Cerb] Possible CSRF attack from IP %s using referer %s", $remote_addr, $referer), E_USER_WARNING);
-					DevblocksPlatform::dieWithHttpError("Access denied", 403);
+				// Always check the CSRF token on non-GET
+				if ('GET' != $http_method) {
+					// ...if the CSRF token is invalid for this session, freak out
+					if (!array_key_exists('csrf_token', $_SESSION) || $_SESSION['csrf_token'] != $request->csrf_token) {
+						@$referer = $_SERVER['HTTP_REFERER'];
+						@$remote_addr = DevblocksPlatform::getClientIp();
+						
+						//error_log(sprintf("[Cerb] Possible CSRF attack from IP %s using referer %s", $remote_addr, $referer), E_USER_WARNING);
+						DevblocksPlatform::dieWithHttpError("Access denied", 403);
+					}
 				}
 			}
 		}
