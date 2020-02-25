@@ -76,7 +76,7 @@ $editor_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
 // Snippets
 $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
 	var context = 'cerberusweb.contexts.snippet';
-	var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,ticket,worker]') + '&single=1&context=' + encodeURIComponent(context);
+	var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&q=' + encodeURIComponent('type:[plaintext,ticket,worker]') + '&single=1&context=' + encodeURIComponent(context);
 
 	var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
@@ -89,17 +89,19 @@ $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click
 		if (null == snippet_id)
 			return;
 
-		// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-		var url = 'c=internal&a=snippetPaste&id='
-			+ encodeURIComponent(snippet_id)
-			+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
-			+ "&context_ids[{$context}]="
-			;
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'snippet');
+		formData.set('action', 'paste');
+		formData.set('id', snippet_id);
+		formData.set('context_ids[cerberusweb.contexts.worker]', '{$active_worker->id}');
+		formData.set('context_ids[{$context}]', '');
 
-		genericAjaxGet('', url, function (json) {
+		genericAjaxPost(formData, null, null, function (json) {
 			// If the content has placeholders, use that popup instead
 			if (json.has_custom_placeholders) {
-				var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+				var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
 
 				$popup_paste.bind('snippet_paste', function (event) {
 					if (null == event.text)
@@ -118,28 +120,30 @@ $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click
 // Preview
 $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
 	var formData = new FormData();
-	formData.append('c', 'internal');
-	formData.append('a', 'viewBroadcastTest');
-	formData.append('view_id', $frm.find('input[name=view_id]').val());
+	formData.set('c', 'internal');
+	formData.set('a', 'invoke');
+	formData.set('module', 'worklists');
+	formData.set('action', 'broadcastTest');
+	formData.set('view_id', $frm.find('input[name=view_id]').val());
 
 	$frm.find('input[name="broadcast_to[]"]:checked').each(function() {
 		formData.append('broadcast_to[]', $(this).val());
 	});
 
 	$frm.find('input[name=broadcast_subject]').each(function() {
-		formData.append('broadcast_subject', $(this).val());
+		formData.set('broadcast_subject', $(this).val());
 	});
 
 	$frm.find('select[name=broadcast_group_id]').each(function() {
-		formData.append('broadcast_group_id', $(this).val());
+		formData.set('broadcast_group_id', $(this).val());
 	});
 
 	$frm.find('select[name=broadcast_bucket_id]').each(function() {
-		formData.append('broadcast_bucket_id', $(this).val());
+		formData.set('broadcast_bucket_id', $(this).val());
 	});
 
-	formData.append('broadcast_format', $frm.find('input[name=broadcast_format]').val());
-	formData.append('broadcast_message', $frm.find('textarea[name=broadcast_message]').val());
+	formData.set('broadcast_format', $frm.find('input[name=broadcast_format]').val());
+	formData.set('broadcast_message', $frm.find('textarea[name=broadcast_message]').val());
 
 	genericAjaxPopup(
 		'preview_broadcast',

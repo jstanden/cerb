@@ -15,7 +15,7 @@
 				{'common.behavior'|devblocks_translate|capitalize}:
 			</td>
 			<td width="99%" nowrap="nowrap" valign="top">
-				<select name="behavior_id" onchange="$div=$(this).next('div');$val=$(this).val();if($val.length==0){ $div.html(''); return; };genericAjaxGet($div,'c=internal&a=showScheduleBehaviorBulkParams&trigger_id=' + $val);">
+				<select name="behavior_id" onchange="$div=$(this).next('div');$val=$(this).val();if($val.length==0){ $div.html(''); return; };genericAjaxGet($div,'c=profiles&a=invoke&module=scheduled_behavior&action=getBulkParams&trigger_id=' + $val);">
 				<option value=""></option>
 				{$smarty.capture.macro_behaviors nofilter}
 				</select>
