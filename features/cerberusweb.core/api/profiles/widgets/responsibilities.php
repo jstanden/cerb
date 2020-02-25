@@ -6,6 +6,21 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 
+	function invoke(string $action, Model_ProfileWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		switch($action) {
+			case 'renderPopup':
+				return $this->_profileWidgetAction_renderPopup($model);
+			case 'savePopupJson':
+				return $this->_profileWidgetAction_savePopupJson($model);
+		}
+		return false;
+	}
+	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -58,19 +73,23 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 		//$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/responsibilities/config.tpl');
 	}
 	
-	function showResponsibilitiesPopupAction(Model_ProfileWidget $model) {
+	private function _profileWidgetAction_renderPopup(Model_ProfileWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'string', '');
-		
-		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('widget', $model);
 		
 		switch($context) {
 			case CerberusContexts::CONTEXT_GROUP:
 				if(false == ($group = DAO_Group::get($context_id)))
-					return;
-					
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+				if(!Context_Group::isWriteableByActor($group, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$tpl->assign('group', $group);
 				
 				$buckets = $group->getBuckets();
@@ -87,10 +106,13 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 				
 				$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/responsibilities/peek_by_group_editable.tpl');
 				break;
-				
+			
 			case CerberusContexts::CONTEXT_WORKER:
 				if(false == ($worker = DAO_Worker::get($context_id)))
-					return;
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+				if(!Context_Worker::isWriteableByActor($worker, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
 					
 				$tpl->assign('worker', $worker);
 				
@@ -108,12 +130,12 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 		}
 	}
 	
-	function saveResponsibilityJsonAction(Model_ProfileWidget $model) {
+	private function _profileWidgetAction_savePopupJson(Model_ProfileWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', '');
 		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'], 'integer', '');
 		@$responsibility = DevblocksPlatform::importGPC($_POST['responsibility'], 'integer', '');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -130,39 +152,6 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode([ 'status' => false, 'error' => $e->getMessage() ]);
-		}
-	}
-	
-	function saveResponsibilitiesPopupAction(Model_ProfileWidget $model) {
-		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
-		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'string', '');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-
-		switch($context) {
-			case CerberusContexts::CONTEXT_GROUP:
-				if(!$active_worker->isGroupManager($context_id))
-					return;
-				
-				@$responsibilities = DevblocksPlatform::importGPC($_POST['responsibilities'], 'array', []);
-				
-				if(false == ($group = DAO_Group::get($context_id)))
-					return;
-				
-				$group->setResponsibilities($responsibilities);
-				break;
-				
-			case CerberusContexts::CONTEXT_WORKER:
-				if(!$active_worker->is_superuser)
-					return;
-				
-				@$responsibilities = DevblocksPlatform::importGPC($_POST['responsibilities'], 'array', []);
-				
-				if(false == ($worker = DAO_Worker::get($context_id)))
-					return;
-				
-				$worker->setResponsibilities($responsibilities);
-				break;
 		}
 	}
 }

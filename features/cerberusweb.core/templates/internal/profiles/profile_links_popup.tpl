@@ -36,42 +36,31 @@ $(function() {
 					}).get();
 					
 					// Ajax unlink
-					
-					var $data = [ 
-						'c=internal',
-						'a=contextDeleteLinksJson',
-						'from_context={$from_context_extension->id}',
-						'from_context_id={$from_context_id}', 
-						'context={$to_context_extension->id}'
-					];
-					
-					for(idx in ids) {
-						if(null != ids[idx] && ids[idx] > 0) {
-							$data.push('context_id[]='+ids[idx]);
+
+					var formData = new FormData();
+					formData.set('c', 'internal');
+					formData.set('a', 'invoke');
+					formData.set('module', 'records');
+					formData.set('action', 'contextDeleteLinksJson');
+					formData.set('from_context', '{$from_context_extension->id}');
+					formData.set('from_context_id', '{$from_context_id}');
+					formData.set('context', '{$to_context_extension->id}');
+
+					for(var idx in ids) {
+						if(ids.hasOwnProperty(idx)) {
+							if (null != ids[idx] && ids[idx] > 0) {
+								formData.append('context_id[]', ids[idx]);
+							}
 						}
 					}
 					
-					var options = { };
-					options.type = 'POST';
-					options.async = false;
-					options.data = $data.join('&');
-					options.url = DevblocksAppPath+'ajax.php',
-					options.cache = false;
-					options.success = function(json) {
+					genericAjaxPost(formData, null, null, function() {
 						// Refresh the popup's worklist
 						$view.find('table.worklist span.glyphicons-refresh').closest('a').click();
 						
 						// Tell the parent
 						$popup.trigger('links_save');
-					};
-					
-					if(null == options.headers)
-						options.headers = {};
-				
-					options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
-					
-					$.ajax(options);
-					
+					});
 				})
 				.prependTo($worklist_actions)
 				;

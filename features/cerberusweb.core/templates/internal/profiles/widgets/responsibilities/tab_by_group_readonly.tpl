@@ -56,7 +56,7 @@ $(function() {
 	
 	$frm.find('button').click(function() {
 		// Open popup
-		var $popup = genericAjaxPopup('peek', 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showResponsibilitiesPopup&context={$tab_context}&context_id={$tab_context_id}', null, false, '90%');
+		var $popup = genericAjaxPopup('peek', 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=renderPopup&context={$tab_context}&context_id={$tab_context_id}', null, false, '90%');
 		
 		// When the popup saves, reload the tab
 		$popup.one('responsibilities_save', function() {

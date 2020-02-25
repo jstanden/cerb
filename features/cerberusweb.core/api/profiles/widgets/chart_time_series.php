@@ -6,6 +6,15 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
+	function invoke(string $action, Model_ProfileWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		@$data_query = DevblocksPlatform::importGPC($model->extension_params['data_query'], 'string', null);
 		@$chart_as = DevblocksPlatform::importGPC($model->extension_params['chart_as'], 'string', 'line');

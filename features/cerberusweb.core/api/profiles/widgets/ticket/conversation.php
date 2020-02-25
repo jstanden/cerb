@@ -6,6 +6,15 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		parent::__construct($manifest);
 	}
 	
+	function invoke(string $action, Model_ProfileWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('widget', $model);
@@ -19,10 +28,10 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		$display_options['comments_mode'] = DevblocksPlatform::importVar(@$model->extension_params['comments_mode'], 'int', 0);
 		
-		$this->_showConversationAction($context_id, $display_options);
+		$this->_showConversation($context_id, $display_options);
 	}
 	
-	private function _showConversationAction($id, $display_options=[]) {
+	private function _showConversation($id, $display_options=[]) {
 		@$expand_all = DevblocksPlatform::importVar($display_options['expand_all'], 'bit', 0);
 		@$comments_mode = DevblocksPlatform::importVar($display_options['comments_mode'], 'int', 0);
 		

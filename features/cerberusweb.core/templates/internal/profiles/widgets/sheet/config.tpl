@@ -91,11 +91,11 @@ $(function() {
 
 		var formData = new FormData($frm.get(0));
 		formData.set('c', 'profiles');
-		formData.set('a', 'handleSectionAction');
-		formData.set('section', 'profile_widget');
+		formData.set('a', 'invoke');
+		formData.set('module', 'profile_widget');
 		formData.set('action', 'testWidgetTemplate');
-		formData.append('template_key', field_key);
-		formData.append('format', 'json');
+		formData.set('template_key', field_key);
+		formData.set('format', 'json');
 
 		genericAjaxPost(formData, '', '', function(json) {
 			if(false === json.status) {
@@ -114,7 +114,7 @@ $(function() {
 			var formData = new FormData();
 			formData.set('c', 'ui');
 			formData.set('a', 'dataQuery');
-			formData.append('q', json.response);
+			formData.set('q', json.response);
 
 			genericAjaxPost(formData, '', '', function(json) {
 				var editor = ace.edit($json_results.attr('id'));
@@ -153,11 +153,11 @@ $(function() {
 
 		var formData = new FormData($frm.get(0));
 		formData.set('c', 'profiles');
-		formData.set('a', 'handleSectionAction');
-		formData.set('section', 'profile_widget');
+		formData.set('a', 'invoke');
+		formData.set('module', 'profile_widget');
 		formData.set('action', 'testWidgetTemplate');
-		formData.append('template_key', 'params[data_query]');
-		formData.append('format', 'json');
+		formData.set('template_key', 'params[data_query]');
+		formData.set('format', 'json');
 
 		genericAjaxPost(formData, '', '', function(json) {
 			if(false === json.status) {
@@ -170,8 +170,8 @@ $(function() {
 			var formData = new FormData();
 			formData.set('c', 'ui');
 			formData.set('a', 'sheet');
-			formData.append('data_query', json.response);
-			formData.append('sheet_yaml', editor.getValue());
+			formData.set('data_query', json.response);
+			formData.set('sheet_yaml', editor.getValue());
 			formData.append('types[]', 'card');
 			formData.append('types[]', 'date');
 			formData.append('types[]', 'icon');

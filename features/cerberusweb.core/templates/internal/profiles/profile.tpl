@@ -72,7 +72,7 @@
 		
 		{foreach from=$profile_tabs item=profile_tab}
 			{$tabs[] = "{$profile_tab->name|lower|devblocks_permalink}"}
-			<li><a href="{devblocks_url}ajax.php?c=profiles&a=showProfileTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$profile_tab->name}</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=profiles&a=renderTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$profile_tab->name}</a></li>
 		{/foreach}
 		
 		{if $active_worker->is_superuser}

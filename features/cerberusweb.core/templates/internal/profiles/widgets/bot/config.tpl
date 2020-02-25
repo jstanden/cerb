@@ -46,7 +46,7 @@ $(function() {
 			var id = $bubble.first().val();
 			
 			if(id) {
-				genericAjaxGet('','c=internal&a=showBehaviorParamsAsJson&trigger_id=' + encodeURIComponent(id), function(txt) {
+				genericAjaxGet('','c=profiles&a=invoke&module=behavior&action=getParamsAsJson&trigger_id=' + encodeURIComponent(id), function(txt) {
 					var evt = new jQuery.Event('cerb.insertAtCursor');
 					evt.replace = true;
 					evt.content = txt;

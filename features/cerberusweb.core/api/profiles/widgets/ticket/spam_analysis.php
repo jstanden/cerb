@@ -5,7 +5,16 @@ class ProfileWidget_TicketSpamAnalysis extends Extension_ProfileWidget {
 	function __construct($manifest=null) {
 		parent::__construct($manifest);
 	}
-
+	
+	function invoke(string $action, Model_ProfileWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		if(0 != strcasecmp($context, CerberusContexts::CONTEXT_TICKET))
 			return;

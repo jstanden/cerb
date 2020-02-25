@@ -12,9 +12,9 @@
 	</div>
 
 	<div style="float:right;">
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');"><span class="glyphicons glyphicons-chevron-left"></span></button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');"><span class="glyphicons glyphicons-chevron-right"></span></button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');"><span class="glyphicons glyphicons-chevron-left"></span></button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
+		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');"><span class="glyphicons glyphicons-chevron-right"></span></button>
 	</div>
 	
 	<br clear="all">
@@ -104,7 +104,7 @@ $(function() {
 			var month = (e.month) ? e.month : '{$calendar_properties.month}';
 			var year = (e.year) ? e.year : '{$calendar_properties.year}';
 			
-			genericAjaxGet($('#frm{$guid}').closest('div.cerb-profile-widget--content'), 'c=profiles&a=handleProfileWidgetAction&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
+			genericAjaxGet($('#frm{$guid}').closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
 			event.stopPropagation();
 		})
 		.on('cerb-peek-closed', function(e) {

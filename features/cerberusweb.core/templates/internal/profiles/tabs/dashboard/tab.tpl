@@ -103,11 +103,11 @@ $(function() {
 	
 	$container.on('cerb-reorder', function(e) {
 		var formData = new FormData();
-		formData.append('c', 'profiles');
-		formData.append('a', 'handleProfileTabAction');
-		formData.append('section', 'profile_widget');
-		formData.append('tab_id', '{$model->id}');
-		formData.append('action', 'reorderWidgets');
+		formData.set('c', 'profiles');
+		formData.set('a', 'invokeTab');
+		formData.set('section', 'profile_widget');
+		formData.set('tab_id', '{$model->id}');
+		formData.set('action', 'reorderWidgets');
 
 		// Zones
 		$container.find('> .cerb-profile-layout-zone')
@@ -180,7 +180,7 @@ $(function() {
 							// Done
 						});
 					} else if($li.is('.cerb-profile-widget-menu--export-widget')) {
-						genericAjaxPopup('export_widget', 'c=profiles&a=handleSectionAction&section=profile_widget&action=exportWidget&id=' + widget_id, null, false);
+						genericAjaxPopup('export_widget', 'c=profiles&a=invoke&module=profile_widget&action=exportWidget&id=' + widget_id, null, false);
 					}
 				}
 			})
@@ -225,14 +225,14 @@ $(function() {
 			var formData = new FormData();
 		}
 
-		formData.append('c', 'profiles');
-		formData.append('a', 'handleProfileTabAction');
-		formData.append('tab_id', '{$model->id}');
-		formData.append('action', 'renderWidget');
-		formData.append('context', '{$context}');
-		formData.append('context_id', '{$context_id}');
-		formData.append('id', widget_id);
-		formData.append('full', is_full ? '1' : '0');
+		formData.set('c', 'profiles');
+		formData.set('a', 'invokeTab');
+		formData.set('tab_id', '{$model->id}');
+		formData.set('action', 'renderWidget');
+		formData.set('context', '{$context}');
+		formData.set('context_id', '{$context_id}');
+		formData.set('id', widget_id);
+		formData.set('full', is_full ? '1' : '0');
 
 		if(refresh_options instanceof Object) {
 			Devblocks.objectToFormData(refresh_options, formData);

@@ -55,10 +55,12 @@ $(function() {
 		var context_id = $fieldset.attr('data-context-id');
 
 		var formData = new FormData();
-		formData.append('c', 'internal');
-		formData.append('a', 'getLinkCountsJson');
-		formData.append('context', context);
-		formData.append('context_id', context_id);
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'records');
+		formData.set('action', 'getLinkCountsJson');
+		formData.set('context', context);
+		formData.set('context_id', context_id);
 		
 		genericAjaxPost(formData, null, '', function(json) {
 			var $buttonbar = $fieldset.find('div.cerb-buttonbar');
@@ -97,11 +99,13 @@ $(function() {
 		var popup_id = 'links_' + context.replace(/\./g, '_');
 
 		var formData = new FormData();
-		formData.append('c', 'internal');
-		formData.append('a', 'linksOpen');
-		formData.append('context', from_context);
-		formData.append('context_id', from_context_id);
-		formData.append('to_context', context);
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'records');
+		formData.set('action', 'linksOpen');
+		formData.set('context', from_context);
+		formData.set('context_id', from_context_id);
+		formData.set('to_context', context);
 
 		var $popup = genericAjaxPopup(popup_id,formData,null,false,'90%');
 		
@@ -152,44 +156,34 @@ $(function() {
 			
 			var context = $target.attr('data-context');
 			
-			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&link_context=' + from_context + '&link_context_id=' + from_context_id,null,false,'90%');
+			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context) + '&link_context=' + from_context + '&link_context_id=' + from_context_id,null,false,'90%');
 			$popup.one('chooser_save', function(event) {
 				event.stopPropagation();
 				var $id = context.replace(/\./g,'_');
-				var $view = $('#view' + encodeURIComponent($id));
+
+				var formData = new FormData();
+				formData.set('c', 'internal');
+				formData.set('a', 'invoke');
+				formData.set('module', 'records');
+				formData.set('action', 'contextAddLinksJson');
+				formData.set('from_context', from_context);
+				formData.set('from_context_id', from_context_id);
+				formData.set('context', context);
+
+				for(var idx in event.values) {
+					if(event.values.hasOwnProperty(idx)) {
+						formData.append('context_id[]', event.values[idx]);
+					}
+				}
 				
-				var $data = [ 
-					'c=internal',
-					'a=contextAddLinksJson',
-					'from_context=' + from_context,
-					'from_context_id=' + from_context_id,
-					'context=' + context
-				];
-				
-				for(idx in event.values)
-					$data.push('context_id[]='+encodeURIComponent(event.values[idx]));
-				
-				var options = { };
-				options.type = 'POST';
-				options.async = false;
-				options.data = $data.join('&');
-				options.url = DevblocksAppPath+'ajax.php',
-				options.cache = false;
-				options.success = function(json) {
+				genericAjaxPost(formData, null, null, function() {
 					$div.find('fieldset').trigger('cerb-redraw');
 					
 					var evt = jQuery.Event('cerb-links-changed');
 					evt.context = from_context;
 					evt.context_id = from_context_id;
 					$div.trigger(evt);
-				};
-				
-				if(null == options.headers)
-					options.headers = {};
-
-				options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
-				
-				$.ajax(options);
+				});
 			});
 		});
 		

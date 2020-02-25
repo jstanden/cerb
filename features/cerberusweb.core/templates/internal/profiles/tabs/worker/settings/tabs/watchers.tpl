@@ -1,7 +1,7 @@
 {$form_id = uniqid()}
 <form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleProfileTabAction">
+<input type="hidden" name="a" value="invokeTab">
 <input type="hidden" name="tab_id" value="{$tab->id}">
 <input type="hidden" name="section" value="worker">
 <input type="hidden" name="action" value="saveSettingsSectionTabJson">

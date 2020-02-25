@@ -2,6 +2,21 @@
 use function GuzzleHttp\Psr7\parse_query;
 
 class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
+	const ID = 'cerb.profile.tab.widget.form_interaction';
+	
+	function __construct($manifest = null) {
+		parent::__construct($manifest);
+	}
+	
+	function invoke(string $action, Model_ProfileWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+	
 	function renderConfig(Model_ProfileWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		

@@ -112,9 +112,9 @@ $(function() {
 					if($input.val() != value) {
 						var form_data = new FormData();
 						form_data.append('c', 'profiles');
-						form_data.append('a', 'handleProfileWidgetAction');
+						form_data.append('a', 'invokeWidget');
 						form_data.append('widget_id', '{$widget->id}');
-						form_data.append('action', 'saveResponsibilityJson');
+						form_data.append('action', 'savePopupJson');
 						form_data.append('worker_id', $input.attr('data-worker-id'));
 						form_data.append('bucket_id', $input.attr('data-bucket-id'));
 						form_data.append('responsibility', value);
