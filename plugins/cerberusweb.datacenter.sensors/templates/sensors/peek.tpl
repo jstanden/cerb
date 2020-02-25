@@ -1,7 +1,9 @@
 {$peek_context = CerberusContexts::CONTEXT_SENSOR}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSensor" onsubmit="return false;">
-<input type="hidden" name="c" value="datacenter.sensors">
-<input type="hidden" name="a" value="savePeek">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="sensor">
+<input type="hidden" name="action" value="savePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">
@@ -104,7 +106,7 @@ $(function() {
 		});
 		
 		$popup.find('select[name=extension_id]').change(function() {
-			genericAjaxGet($(this).next('DIV.params'), 'c=datacenter.sensors&a=renderConfigExtension&extension_id=' + $(this).val() + "&sensor_id={$model->id}");
+			genericAjaxGet($(this).next('DIV.params'), 'c=profiles&a=invoke&module=sensor&action=renderConfigExtension&extension_id=' + $(this).val() + "&sensor_id={$model->id}");
 		});
 		
 		$popup.find('input:text:first').focus();

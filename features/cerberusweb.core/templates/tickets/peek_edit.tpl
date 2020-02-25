@@ -2,8 +2,10 @@
 {$peek_context_id = $ticket->id}
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmTicketPeek" onsubmit="return false;">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="savePeekJson">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="ticket">
+<input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="id" value="{$ticket->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">

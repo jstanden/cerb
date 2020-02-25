@@ -3,8 +3,8 @@
 {$form_id = "formGroupsPeek{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="group">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="group">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($group) && !empty($group->id)}<input type="hidden" name="id" value="{$group->id}">{/if}

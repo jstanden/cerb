@@ -3,8 +3,8 @@
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="custom_field">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="custom_field">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
@@ -143,7 +143,7 @@ $(function() {
 		$popup.find('select[name=type]').on('change', function(e) {
 			var $this = $(this);
 			var $params = $popup.find('div.params');
-			genericAjaxGet($params, 'c=profiles&a=handleSectionAction&section=custom_field&action=getFieldParams&type=' + $this.val());
+			genericAjaxGet($params, 'c=profiles&a=invoke&module=custom_field&action=getFieldParams&type=' + $this.val());
 		});
 		
 		// [UI] Editor behaviors

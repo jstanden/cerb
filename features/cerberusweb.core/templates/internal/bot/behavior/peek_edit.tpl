@@ -2,8 +2,8 @@
 {$peek_context_id = $model->id}
 <form id="frmDecisionBehavior{$model->id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="behavior">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="behavior">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
@@ -237,7 +237,7 @@ $(function() {
 					var $hidden = $ul.find('li input[name=bot_id]');
 					var bot_id = $hidden.val();
 					
-					genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=behavior&action=getEventsMenuByBot&bot_id=' + bot_id, function(html) {
+					genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=getEventsMenuByBot&bot_id=' + bot_id, function(html) {
 						$popup.find('div.events-widget').html(html).fadeIn();
 						$popup.trigger('events-menu-refresh');
 					});
@@ -298,7 +298,7 @@ $(function() {
 					var field_type = $li.attr('data-token');
 					
 					if(null != field_type) {
-						genericAjaxGet('', 'c=internal&a=addTriggerVariable&type=' +  encodeURIComponent(field_type), function(o) {
+						genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=getTriggerVariableParams&type=' +  encodeURIComponent(field_type), function(o) {
 							var $html = $(o).appendTo($variables);
 						});
 					}
@@ -350,7 +350,7 @@ $(function() {
 					$events_ul.append($li);
 					$events_ul.show();
 					
-					genericAjaxGet('', 'c=internal&a=getTriggerEventParams&id=' + encodeURIComponent(token), function(o) {
+					genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=getTriggerEventParams&id=' + encodeURIComponent(token), function(o) {
 						var $params = $frm.find('div.event-params');
 						$params.html(o).fadeIn();
 					});

@@ -3,8 +3,8 @@
 {$form_id = "formAddressPeek{uniqid()}"}
 <form action="#" method="POST" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="address">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="address">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="id" value="{$address->id}">
 <input type="hidden" name="view_id" value="{$view_id}">

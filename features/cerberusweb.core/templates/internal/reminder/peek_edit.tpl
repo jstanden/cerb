@@ -3,8 +3,8 @@
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="reminder">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="reminder">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
@@ -143,7 +143,7 @@ $(function() {
 				var qr = $trigger.attr('data-query-required');
 				var single = $trigger.attr('data-single') != null ? '1' : '';
 				var width = $(window).width()-100;
-				var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&qr=' + encodeURIComponent(qr) + '&single=' + encodeURIComponent(single),null,true,width);
+				var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&qr=' + encodeURIComponent(qr) + '&single=' + encodeURIComponent(single),null,true,width);
 				
 				$behaviors.find('.cerb-peek-trigger').cerbPeekTrigger();
 				
@@ -181,7 +181,7 @@ $(function() {
 						
 						$fieldset.appendTo($behaviors);
 						
-						genericAjaxGet($div, 'c=internal&a=showBehaviorParams&name_prefix=' + encodeURIComponent(name_prefix) + '&trigger_id=' + encodeURIComponent(behavior_id));
+						genericAjaxGet($div, 'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix=' + encodeURIComponent(name_prefix) + '&trigger_id=' + encodeURIComponent(behavior_id));
 					}
 				});
 			})

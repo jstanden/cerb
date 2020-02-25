@@ -2,8 +2,10 @@
 {$is_html = ($draft && $draft->params.format == 'parsedown') || $mail_reply_html}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmComposePeek{$popup_uniqid}" onsubmit="return false;">
-<input type="hidden" name="c" value="tickets">
-<input type="hidden" name="a" value="saveComposePeek">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="draft">
+<input type="hidden" name="action" value="saveComposePeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="draft_id" value="{$draft->id}">
 <input type="hidden" name="format" value="{if $is_html}parsedown{/if}">
@@ -307,7 +309,7 @@ $(function() {
 				var context = $trigger.attr('data-context');
 				var query = $trigger.attr('data-query');
 				var query_req = $trigger.attr('data-query-required');
-				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context);
+				var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context);
 				
 				if(typeof query == 'string' && query.length > 0) {
 					chooser_url += '&q=' + encodeURIComponent(query);
@@ -385,10 +387,9 @@ $(function() {
 
 			var formData = new FormData($frm[0]);
 			formData.set('c', 'profiles');
-			formData.set('a', 'handleSectionAction');
-			formData.set('section', 'draft');
-			formData.set('action', 'saveDraft');
-			formData.set('type', 'compose');
+			formData.set('a', 'invoke');
+			formData.set('module', 'draft');
+			formData.set('action', 'saveDraftCompose');
 
 			genericAjaxPost(
 				formData,
@@ -462,16 +463,18 @@ $(function() {
 			if(undefined == event.snippet_id)
 				return;
 
-			// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-			var url = 'c=internal&a=snippetPaste&id='
-				+ encodeURIComponent(event.snippet_id)
-				+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
-			;
+			var formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'snippet');
+			formData.set('action', 'paste');
+			formData.set('id', event.snippet_id);
+			formData.set('context_ids[cerberusweb.contexts.worker]', '{$active_worker->id}');
 
-			genericAjaxGet('', url, function (json) {
+			genericAjaxGet(formData, null, null, function (json) {
 				// If the content has placeholders, use that popup instead
 				if (json.has_custom_placeholders) {
-					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
 
 					$popup_paste.bind('snippet_paste', function (event) {
 						if (null == event.text)
@@ -489,7 +492,7 @@ $(function() {
 		// Snippets
 		var $editor_toolbar_button_snippets = $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
 			var context = 'cerberusweb.contexts.snippet';
-			var chooser_url = 'c=internal&a=chooserOpen&qr=' + encodeURIComponent('type:[plaintext,worker]') + '&single=1&context=' + encodeURIComponent(context);
+			var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&qr=' + encodeURIComponent('type:[plaintext,worker]') + '&single=1&context=' + encodeURIComponent(context);
 
 			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
@@ -511,14 +514,14 @@ $(function() {
 		// Preview
 		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
 			var formData = new FormData();
-			formData.append('c', 'profiles');
-			formData.append('a', 'handleSectionAction');
-			formData.append('section', 'ticket');
-			formData.append('action', 'previewReplyMessage');
-			formData.append('format', $frm.find('input[name=format]').val());
-			formData.append('group_id', $frm.find('select[name=group_id]').val());
-			formData.append('bucket_id', $frm.find('select[name=bucket_id]').val());
-			formData.append('content', $frm.find('textarea[name=content]').val());
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'ticket');
+			formData.set('action', 'previewReplyMessage');
+			formData.set('format', $frm.find('input[name=format]').val());
+			formData.set('group_id', $frm.find('select[name=group_id]').val());
+			formData.set('bucket_id', $frm.find('select[name=bucket_id]').val());
+			formData.set('content', $frm.find('textarea[name=content]').val());
 
 			genericAjaxPopup(
 				'preview_reply',
@@ -563,7 +566,7 @@ $(function() {
 		});
 		
 		$frm.find('input:text[name=org_name]').bind('autocompletechange',function(event, ui) {
-			genericAjaxGet('', 'c=contacts&a=getTopContactsByOrgJson&org_name=' + encodeURIComponent($(this).val()), function(json) {
+			genericAjaxGet('', 'c=profiles&a=invoke&module=org&action=getTopContactsByOrgJson&org_name=' + encodeURIComponent($(this).val()), function(json) {
 				var $sug = $('#compose_suggested{$popup_uniqid}');
 				
 				$sug.find('ul.bubbles li').remove();
@@ -838,11 +841,18 @@ $(function() {
 		$frm.find('button.submit').click(function() {
 			var $status = $frm.find('div.status').html('').hide();
 			$status.text('').hide();
-			
+
+			Devblocks.clearAlerts();
 			showLoadingPanel();
-			
+
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'draft');
+			formData.set('action', 'validateComposeJson');
+
 			// Validate via Ajax before sending
-			genericAjaxPost($frm, '', 'c=tickets&a=validateComposeJson', function(json) {
+			genericAjaxPost(formData, '', '', function(json) {
 				if(json && json.status) {
 					if(null != draftComposeAutoSaveInterval) {
 						clearTimeout(draftComposeAutoSaveInterval);
@@ -853,7 +863,7 @@ $(function() {
 					
 				} else {
 					hideLoadingPanel();
-					$status.text(json.message).addClass('error').fadeIn();
+					Devblocks.createAlertError(json.message);
 				}
 			});
 		});
@@ -872,18 +882,17 @@ $(function() {
 
 			var formData = new FormData($frm[0]);
 			formData.set('c', 'profiles');
-			formData.set('a', 'handleSectionAction');
-			formData.set('section', 'draft');
-			formData.set('action', 'saveDraft');
-			formData.set('type', 'compose');
+			formData.set('a', 'invoke');
+			formData.set('module', 'draft');
+			formData.set('action', 'saveDraftCompose');
 
 			genericAjaxPost(
 				formData,
 				null,
 				'',
-				function(json) {
+				function() {
 					hideLoadingPanel();
-					genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+					genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 					genericAjaxPopupClose($popup);
 				}
 			);
@@ -903,14 +912,14 @@ $(function() {
 				var draft_id = $frm.find('input:hidden[name=draft_id]').val();
 
 				var formData = new FormData();
-				formData.append('c', 'profiles');
-				formData.append('a', 'handleSectionAction');
-				formData.append('section', 'draft');
-				formData.append('action', 'deleteDraft');
-				formData.append('draft_id', draft_id);
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'draft');
+				formData.set('action', 'deleteDraft');
+				formData.set('draft_id', draft_id);
 
 				genericAjaxPost(formData, '', '', function(o) {
-					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 					genericAjaxPopupClose($popup);
 				});
 			}

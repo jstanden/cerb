@@ -3,8 +3,8 @@
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="mailbox">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="mailbox">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
@@ -159,8 +159,8 @@ $(function() {
 
 				var formData = new FormData($frm[0]);
 				formData.set('c', 'profiles');
-				formData.set('a', 'handleSectionAction');
-				formData.set('section', 'mailbox');
+				formData.set('a', 'invoke');
+				formData.set('module', 'mailbox');
 				formData.set('action', 'testMailboxJson');
 
 				genericAjaxPost(formData,'','',function(json) {

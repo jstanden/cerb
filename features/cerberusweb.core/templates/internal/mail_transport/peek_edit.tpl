@@ -3,8 +3,8 @@
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="mail_transport">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="mail_transport">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
@@ -85,10 +85,17 @@ $(function() {
 		
 		$popup.find('select[name=extension_id]').change(function() {
 			// Load the parameters for the given transport extension
+
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'mail_transport');
+			formData.set('action', 'getTransportParams');
+
 			genericAjaxPost(
-				$popup.find('form:first'),
+				formData,
 				$popup.find('div.mail-transport-params'),
-				'c=profiles&a=handleSectionAction&section=mail_transport&action=getTransportParams'
+				null
 			);
 		});
 		

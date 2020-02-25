@@ -2,10 +2,10 @@
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
     <input type="hidden" name="c" value="profiles">
-    <input type="hidden" name="a" value="handleSectionAction">
-    <input type="hidden" name="section" value="card_widget">
-    <input type="hidden" name="action" value="savePeekJson">
-    <input type="hidden" name="view_id" value="{$view_id}">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="card_widget">
+<input type="hidden" name="action" value="savePeekJson">
+<input type="hidden" name="view_id" value="{$view_id}">
     {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
     <input type="hidden" name="do_delete" value="0">
     <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -208,7 +208,7 @@
                         if(id) {
                             genericAjaxGet($toolbar,'c=profiles&a=handleSectionAction&section=card_widget&action=getPlaceholderToolbarForTab');
 
-                            genericAjaxGet('', 'c=profiles&a=handleSectionAction&section=card_widget&action=getExtensionsByTabContextJson&tab_id=' + encodeURIComponent(id), function(json) {
+                            genericAjaxGet('', 'c=profiles&a=invoke&module=card_widget&action=getExtensionsByTabContextJson&tab_id=' + encodeURIComponent(id), function(json) {
                                 for(k in json) {
                                     if(json.hasOwnProperty(k)) {
                                         var $option = $('<option/>')
@@ -248,7 +248,7 @@
                 }
 
                 // Fetch via Ajax
-                genericAjaxGet($params, 'c=profiles&a=handleSectionAction&section=card_widget&action=renderWidgetConfig&extension=' + encodeURIComponent(extension_id), function(html) {
+                genericAjaxGet($params, 'c=profiles&a=invoke&module=card_widget&action=renderWidgetConfig&extension=' + encodeURIComponent(extension_id), function(html) {
                     $params.find('button.chooser-abstract').cerbChooserTrigger();
                     $params.find('.cerb-peek-trigger').cerbPeekTrigger();
                     $params.fadeIn();

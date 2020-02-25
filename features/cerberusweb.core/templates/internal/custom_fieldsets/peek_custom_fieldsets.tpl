@@ -59,7 +59,7 @@ $('#{$btn_cfield_group_domid}')
 			var $ul = $li.closest('ul.cerb-popupmenu');
 			var cf_group_id = $li.attr('cf_group_id');
 			
-			genericAjaxGet('', 'c=internal&a=handleSectionAction&section=custom_fieldsets&action=getCustomFieldSet&bulk={if !empty($bulk)}1{else}0{/if}&id=' + cf_group_id, function(html) {
+			genericAjaxGet('', 'c=internal&a=invoke&module=records&action=getCustomFieldSet&bulk={if !empty($bulk)}1{else}0{/if}&id=' + cf_group_id, function(html) {
 				if(undefined == html || null == html)
 					return;
 

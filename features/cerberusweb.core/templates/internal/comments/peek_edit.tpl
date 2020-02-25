@@ -5,8 +5,8 @@
 {$form_id = uniqid('form')}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="comment">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="comment">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="is_markdown" value="{if $is_html}1{else}0{/if}">
@@ -255,7 +255,7 @@ $(function() {
 		// Snippets
 		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
 			var context = 'cerberusweb.contexts.snippet';
-			var chooser_url = 'c=internal&a=chooserOpen&q=' + encodeURIComponent('type:[plaintext,comment]') + '&single=1&context=' + encodeURIComponent(context);
+			var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&q=' + encodeURIComponent('type:[plaintext,comment]') + '&single=1&context=' + encodeURIComponent(context);
 
 			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
@@ -268,16 +268,18 @@ $(function() {
 				if (null == snippet_id)
 					return;
 
-				// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-				var url = 'c=internal&a=snippetPaste&id='
-					+ encodeURIComponent(snippet_id)
-					+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
-				;
+				var formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'snippet');
+				formData.set('action', 'paste');
+				formData.set('id', snippet_id);
+				formData.set('context_ids[cerberusweb.contexts.worker]', '{$active_worker->id}');
 
-				genericAjaxGet('', url, function (json) {
+				genericAjaxPost(formData, null, null, function (json) {
 					// If the content has placeholders, use that popup instead
 					if (json.has_custom_placeholders) {
-						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+						var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
 
 						$popup_paste.bind('snippet_paste', function (event) {
 							if (null == event.text)
@@ -296,13 +298,13 @@ $(function() {
 		// Preview
 		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
 			var formData = new FormData();
-			formData.append('c', 'profiles');
-			formData.append('a', 'handleSectionAction');
-			formData.append('section', 'comment');
-			formData.append('action', 'preview');
-			formData.append('context', $frm.find('input:hidden[name=context]').val());
-			formData.append('comment', $frm.find('textarea[name=comment]').val());
-			formData.append('is_markdown', $frm.find('input:hidden[name=is_markdown]').val());
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'comment');
+			formData.set('action', 'preview');
+			formData.set('context', $frm.find('input:hidden[name=context]').val());
+			formData.set('comment', $frm.find('textarea[name=comment]').val());
+			formData.set('is_markdown', $frm.find('input:hidden[name=is_markdown]').val());
 
 			genericAjaxPopup(
 				'comment_preview',

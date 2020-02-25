@@ -4,8 +4,8 @@
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="custom_fieldset">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="custom_fieldset">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}

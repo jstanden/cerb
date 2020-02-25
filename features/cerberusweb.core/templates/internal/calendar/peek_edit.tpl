@@ -3,8 +3,8 @@
 {$form_id = "frmCalendarPeek{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="calendar">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="calendar">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
@@ -236,7 +236,7 @@ $(function() {
 		$popup.find('select.datasource-selector').change(function(e) {
 			var $select = $(this);
 			var params_prefix = $select.attr('params_prefix');
-			genericAjaxGet($select.siblings('div.calendar-datasource-params'), 'c=internal&a=handleSectionAction&section=calendars&action=getCalendarDatasourceParams&extension_id=' + $select.val() + '&params_prefix=' + params_prefix);
+			genericAjaxGet($select.siblings('div.calendar-datasource-params'), 'c=internal&a=invoke&module=calendars&action=getCalendarDatasourceParams&extension_id=' + $select.val() + '&params_prefix=' + params_prefix);
 		});
 		
 		$popup.find('input:radio[name="params[manual_disabled]"]').change(function() {

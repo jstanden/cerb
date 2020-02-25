@@ -3,8 +3,8 @@
 {$frm_id = "form{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="{$frm_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="snippet">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="snippet">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="id" value="{$model->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
@@ -246,11 +246,11 @@ $(function() {
 		var $change_dropdown = $popup.find("form select[name=context]");
 		$change_dropdown.change(function(e) {
 			var ctx = $(this).val();
-			genericAjaxGet($popup.find('DIV.toolbar'), 'c=profiles&a=handleSectionAction&section=snippet&action=showSnippetsPeekToolbar&form_id={$frm_id}&context=' + ctx);
+			genericAjaxGet($popup.find('DIV.toolbar'), 'c=profiles&a=invoke&module=snippet&action=renderToolbar&form_id={$frm_id}&context=' + ctx);
 		});
 		
 		// If editing and a target context is known
-		genericAjaxGet($popup.find('DIV.toolbar'), 'c=profiles&a=handleSectionAction&section=snippet&action=showSnippetsPeekToolbar&form_id={$frm_id}&context={$model->context}');
+		genericAjaxGet($popup.find('DIV.toolbar'), 'c=profiles&a=invoke&module=snippet&action=renderToolbar&form_id={$frm_id}&context={$model->context}');
 		
 		$popup.find('fieldset.placeholders button.add').click(function() {
 			var $parent = $(this).closest('tr');

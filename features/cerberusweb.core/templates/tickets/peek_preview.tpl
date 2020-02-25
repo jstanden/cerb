@@ -34,15 +34,25 @@ $(function() {
 		var draft_id = 0;
 		var reply_mode = 0;
 		var is_confirmed = 0;
-		
-		var url = 'c=display&a=reply&forward='+is_forward+'&draft_id='+draft_id+'&reply_mode='+reply_mode+'&is_confirmed='+is_confirmed+'&timestamp={time()}&id=' + msgid;
-		
-		var $popup_reply = genericAjaxPopup('reply' + msgid, url, null, false, '70%');
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'ticket');
+		formData.set('action', 'reply');
+		formData.set('forward', is_forward);
+		formData.set('draft_id', draft_id);
+		formData.set('reply_mode', reply_mode);
+		formData.set('is_confirmed', is_confirmed);
+		formData.set('timestamp', '{time()}');
+		formData.set('id', msgid);
+
+		var $popup_reply = genericAjaxPopup('reply' + msgid, formData, null, false, '70%');
 		
 		$popup_reply.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
-			genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$message->ticket_id}&view_id={$view_id}','reuse',false,'50%');
+			genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id={$message->ticket_id}&view_id={$view_id}','reuse',false,'50%');
 			{if $view_id}
-			genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+			genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 			{/if}
 		});
 	});

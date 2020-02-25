@@ -4,8 +4,8 @@
 
 <form action="#" method="POST" id="{$form_id}" name="{$form_id}" onsubmit="return false;" class="calendar_popup">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="calendar_event">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="calendar_event">
 <input type="hidden" name="action" value="savePeekJson">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">

@@ -2,8 +2,10 @@
 {$peek_context_id = $model->id}
 {$form_id = "frmMessagePeek{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
-<input type="hidden" name="c" value="display">
-<input type="hidden" name="a" value="saveMessagePeekJson">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="message">
+<input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
 <input type="hidden" name="do_delete" value="0">

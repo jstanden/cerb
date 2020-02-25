@@ -2,8 +2,8 @@
 {$is_writeable = Context_ConnectedAccount::isReadableByActor($message->connected_account_id, $active_worker)}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmTwitterMessage" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="twitter_message">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="twitter_message">
 <input type="hidden" name="action" value="savePeekPopup">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="view_id" value="{$view_id}">

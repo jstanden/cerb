@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupMailFailed" onsubmit="return false;" enctype="multipart/form-data">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="mail_incoming">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="mail_incoming">
 <input type="hidden" name="action" value="saveMailFailedPeekPopup">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">
@@ -10,7 +10,7 @@
 <b>storage/mail/fail/{$filename}:</b>
 <div>
 	<input type="hidden" name="file" value="{$filename}">
-	<iframe sandbox src="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=mail_incoming&action=getRawMessageSource&file={$filename}{/devblocks_url}" style="width:100%;height:250px;margin:0;padding:0;border:1px solid rgb(150,150,150);"></iframe>
+	<iframe sandbox src="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_incoming&action=getRawMessageSource&file={$filename}{/devblocks_url}" style="width:100%;height:250px;margin:0;padding:0;border:1px solid rgb(150,150,150);"></iframe>
 </div>
 
 <div class="output" style="display:none;"></div>
@@ -59,7 +59,7 @@ $(function() {
 				
 				// If successful, reload worklist
 				if(undefined != json.status && true == json.status) {
-					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 					genericAjaxPopupClose('peek');
 					
 				// If an error, display it
@@ -84,7 +84,7 @@ $(function() {
 				
 				// If successful, reload worklist
 				if(undefined != json.status && true == json.status) {
-					genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 					genericAjaxPopupClose('peek');
 					
 				// If an error, display it

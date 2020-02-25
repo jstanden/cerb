@@ -3,8 +3,8 @@
 {$form_id = "frm{uniqid()}"}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="bot">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="bot">
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
@@ -174,7 +174,7 @@ $(function() {
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.export').click(function() {
-			genericAjaxPopup('export_bot', 'c=profiles&a=handleSectionAction&section=bot&action=showExportBotPopup&id={$model->id}',null,false,'50%');
+			genericAjaxPopup('export_bot', 'c=profiles&a=invoke&module=bot&action=showExportBotPopup&id={$model->id}',null,false,'50%');
 		});
 
 		// Abstract choosers
