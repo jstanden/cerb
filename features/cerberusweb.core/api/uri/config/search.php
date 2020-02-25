@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -17,29 +17,47 @@
 
 class PageSection_SetupSearch extends Extension_PageSection {
 	function render() {
+		$tpl = DevblocksPlatform::services()->template();
+		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		$tpl = DevblocksPlatform::services()->template();
-		$visit = CerberusApplication::getVisit();
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'search');
 
 		$schemas = Extension_DevblocksSearchSchema::getAll(true);
 		$tpl->assign('schemas', $schemas);
 		
-		// [TODO] Render schema properties via engine?
-		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/search/index.tpl');
 	}
 	
-	function showSearchSchemaPeekAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'showSearchSchemaPeek':
+					return $this->_configAction_showSearchSchemaPeek();
+				case 'saveSearchSchemaPeek':
+					return $this->_configAction_saveSearchSchemaPeek();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_showSearchSchemaPeek() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$tpl = DevblocksPlatform::services()->template();
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$schema = Extension_DevblocksSearchSchema::get($ext_id);
 		$tpl->assign('schema', $schema);
@@ -51,9 +69,17 @@ class PageSection_SetupSearch extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/search/peek.tpl');
 	}
 	
-	function saveSearchSchemaPeekAction() {
+	private function _configAction_saveSearchSchemaPeek() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE)
 			return;
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$schema_extension_id = DevblocksPlatform::importGPC($_POST['schema_extension_id'],'string','');
 		@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');

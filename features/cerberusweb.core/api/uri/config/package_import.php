@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -18,26 +18,40 @@
 class PageSection_SetupPackageImport extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'package_import');
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/package_import/index.tpl');
 	}
 	
-	function importJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'importJson':
+					return $this->_configAction_importJson();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_importJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			$worker = CerberusApplication::getActiveWorker();
-			$tpl = DevblocksPlatform::services()->template();
-			
-			if('POST' != DevblocksPlatform::getHttpMethod())
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
-			
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
-			
 			@$json_string = DevblocksPlatform::importGPC($_POST['json'],'string','');
 			@$prompts = DevblocksPlatform::importGPC($_POST['prompts'],'array',[]);
 			

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -20,7 +20,11 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
-
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$visit->set(ChConfigurationPage::ID, 'mail_incoming');
 		
 		$stack = $response->path;
@@ -32,16 +36,58 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/index.tpl');
 	}
 	
-	function saveSettingsJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'deleteMessageJson':
+					return $this->_configAction_deleteMessageJson();
+				case 'getRawMessageSource':
+					return $this->_configAction_getRawMessageSource();
+				case 'parseFailedMessageJson':
+					return $this->_configAction_parseFailedMessageJson();
+				case 'parseMessageJson':
+					return $this->_configAction_parseMessageJson();
+				case 'renderTabMailboxes':
+					return $this->_configAction_renderTabMailboxes();
+				case 'renderTabMailFailed':
+					return $this->_configAction_renderTabMailFailed();
+				case 'renderTabMailFiltering':
+					return $this->_configAction_renderTabMailFiltering();
+				case 'renderTabMailImport':
+					return $this->_configAction_renderTabMailImport();
+				case 'renderTabMailRelay':
+					return $this->_configAction_renderTabMailRelay();
+				case 'saveMailRelayJson':
+					return $this->_configAction_saveMailRelayJson();
+				case 'renderTabRouting':
+					return $this->_configAction_renderTabMailRouting();
+				case 'saveMailRoutingRuleAdd':
+					return $this->_configAction_saveMailRoutingRuleAdd();
+				case 'showMailRoutingRulePanel':
+					return $this->_configAction_showMailRoutingRulePanel();
+				case 'saveRouting':
+					return $this->_configAction_saveRouting();
+				case 'saveSettingsJson':
+					return $this->_configAction_saveSettingsJson();
+				case 'showMailFailedPeekPopup':
+					return $this->_configAction_showMailFailedPeekPopup();
+				case 'testMask':
+					return $this->_configAction_testMask();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_saveSettingsJson() {
 		header('Content-Type: application/json; charset=utf-8');
 			
 		try {
-			$worker = CerberusApplication::getActiveWorker();
+			$active_worker = CerberusApplication::getActiveWorker();
 			
 			if('POST' != DevblocksPlatform::getHttpMethod())
 				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
-			if(!$worker || !$worker->is_superuser)
+			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$default_group_id = DevblocksPlatform::importGPC($_POST['default_group_id'],'integer',0);
@@ -91,10 +137,15 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		}
 	}
 	
-	function testMaskAction() {
+	private function _configAction_testMask() {
 		@$ticket_mask_format = DevblocksPlatform::importGPC($_POST['ticket_mask_format'],'string','');
 		
 		header('Content-Type: application/json; charset=utf-8');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		try {
 			$cardinality = CerberusApplication::generateTicketMaskCardinality($ticket_mask_format);
@@ -124,8 +175,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		}
 	}
 	
-	function renderTabMailboxesAction() {
+	private function _configAction_renderTabMailboxes() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// View
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Mailbox');
@@ -138,8 +193,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function renderTabMailRoutingAction() {
+	private function _configAction_renderTabMailRouting() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$rules = DAO_MailToGroupRule::getAll();
 		$tpl->assign('rules', $rules);
@@ -157,23 +216,18 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_routing.tpl');
 	}
 	
-	// Form Submit
-	function saveRoutingAction() {
-		$translate = DevblocksPlatform::getTranslationService();
-		$worker = CerberusApplication::getActiveWorker();
+	private function _configAction_saveRouting() {
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$deletes = DevblocksPlatform::importGPC($_POST['deletes'],'array',array());
 		@$sticky_ids = DevblocksPlatform::importGPC($_POST['sticky_ids'],'array',array());
 		@$sticky_order = DevblocksPlatform::importGPC($_POST['sticky_order'],'array',array());
-		
-		@$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->is_superuser)
-			return;
 		
 		// Deletes
 		if(!empty($deletes)) {
@@ -192,11 +246,14 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('config','mail_incoming','routing')));
 	}
 	
-	function showMailRoutingRulePanelAction() {
+	private function _configAction_showMailRoutingRulePanel() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-
-		$active_worker = CerberusApplication::getActiveWorker();
 
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('group_id', $group_id);
@@ -230,15 +287,18 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_routing_peek.tpl');
 	}
-
-	function saveMailRoutingRuleAddAction() {
+	
+	private function _configAction_saveMailRoutingRuleAdd() {
 		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
 
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$active_worker = CerberusApplication::getActiveWorker();
-		if(!$active_worker->is_superuser)
-			return;
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 
 		/*****************************/
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string','');
@@ -476,8 +536,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','mail_incoming','routing')));
 	}
 	
-	function renderTabMailFilteringAction() {
+	private function _configAction_renderTabMailFiltering() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$view_id = 'setup_mail_filtering';
 		
@@ -498,12 +562,25 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function renderTabMailImportAction() {
+	private function _configAction_renderTabMailImport() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_import.tpl');
 	}
 	
-	function parseMessageJsonAction() {
+	private function _configAction_parseMessageJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		header("Content-Type: application/json");
 		
 		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_APPLICATION, 0);
@@ -564,8 +641,12 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		CerberusContexts::popActivityDefaultActor();
 	}
 	
-	function renderTabMailFailedAction() {
+	private function _configAction_renderTabMailFailed() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_MailParseFail');
 		$defaults->id = 'setup_mail_failed';
@@ -579,11 +660,16 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function showMailFailedPeekPopupAction() {
+	private function _configAction_showMailFailedPeekPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$file = basename(DevblocksPlatform::importGPC($_REQUEST['file'],'string',''));
 		@$view_id = basename(DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',''));
 		
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		// Resolve any symbolic links
@@ -607,17 +693,17 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/mail_failed/peek.tpl');
 	}
 	
-	function getRawMessageSourceAction() {
+	private function _configAction_getRawMessageSource() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$file = basename(DevblocksPlatform::importGPC($_REQUEST['file'],'string',''));
 		
 		// Resolve any symbolic links
 		
 		try {
-			$active_worker = CerberusApplication::getActiveWorker();
-			
-			if(!$active_worker->is_superuser)
-				DevblocksPlatform::dieWithHttpError(null, 403);
-
 			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
 				throw new Exception("Path not found.");
 			
@@ -641,7 +727,15 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		}
 	}
 	
-	function parseFailedMessageJsonAction() {
+	private function _configAction_parseFailedMessageJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		header("Content-Type: application/json");
 		
 		$logger = DevblocksPlatform::services()->log('Parser');
@@ -652,9 +746,6 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$log = null;
 		
 		try {
-			if('POST' != DevblocksPlatform::getHttpMethod())
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
-
 			@$file = DevblocksPlatform::importGPC($_POST['file'],'string','');
 			@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 			
@@ -720,22 +811,21 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$logger->setLogLevel(0);
 	}
 	
-	function deleteMessageJsonAction() {
+	private function _configAction_deleteMessageJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		header("Content-Type: application/json");
 		
 		@$file = basename(DevblocksPlatform::importGPC($_POST['file'],'string',''));
 		@$view_id = basename(DevblocksPlatform::importGPC($_POST['view_id'],'string',''));
 		
-		if(false == ($active_worker = CerberusApplication::getActiveWorker()))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		if(!$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
 		try {
-			if('POST' != DevblocksPlatform::getHttpMethod())
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
-			
 			// Resolve any symbolic links
 			
 			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
@@ -756,21 +846,24 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 				$file
 			));
 			
-			echo json_encode(array(
+			echo json_encode([
 				'status' => true,
-			));
+			]);
 			
 		} catch(Exception $e) {
-			echo json_encode(array(
+			echo json_encode([
 				'status' => false,
 				'message' => $e->getMessage(),
-			));
-			
+			]);
 		}
 	}
 	
-	function renderTabMailRelayAction() {
+	private function _configAction_renderTabMailRelay() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$replyto_default = DAO_Address::getDefaultLocalAddress();
 		$tpl->assign('replyto_default', $replyto_default);
@@ -778,15 +871,18 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_relay.tpl');
 	}
 	
-	function saveMailRelayJsonAction() {
+	private function _configAction_saveMailRelayJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			$worker = CerberusApplication::getActiveWorker();
-			
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
-			
 			@$relay_disable = DevblocksPlatform::importGPC($_POST['relay_disable'],'integer',0);
 			@$relay_disable_auth = DevblocksPlatform::importGPC($_POST['relay_disable_auth'],'integer',0);
 			@$relay_spoof_from = DevblocksPlatform::importGPC($_POST['relay_spoof_from'],'integer',0);

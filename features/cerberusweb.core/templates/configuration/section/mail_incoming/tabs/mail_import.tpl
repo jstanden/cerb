@@ -1,7 +1,7 @@
 <form id="frmSetupMailImport" action="javascript:;" method="POST" onsubmit="return false;" enctype="multipart/form-data">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="mail_incoming">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="mail_incoming">
 <input type="hidden" name="action" value="parseMessageJson">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 

@@ -10,8 +10,8 @@
 	{$extid = $job->manifest->id|replace:'.':'_'}
 	<form id="frmJob{$extid}" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
 	<input type="hidden" name="c" value="config">
-	<input type="hidden" name="a" value="handleSectionAction">
-	<input type="hidden" name="section" value="scheduler">
+	<input type="hidden" name="a" value="invoke">
+	<input type="hidden" name="module" value="scheduler">
 	<input type="hidden" name="action" value="saveJobJson">
 	<input type="hidden" name="id" value="{$job->manifest->id}">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -58,8 +58,7 @@
 				if(false == $o || false == $o.status) {
 					Devblocks.showError('#frmJob{$extid} div.status',$o.error);
 				} else {
-					//Devblocks.showSuccess('#frmJob{$extid} div.status','Your changes have been saved.');
-					genericAjaxGet('job_{$extid}','c=config&a=handleSectionAction&section=scheduler&action=getJob&id={$job->manifest->id}');
+					genericAjaxGet('job_{$extid}','c=config&a=invoke&module=scheduler&action=getJob&id={$job->manifest->id}');
 				}
 			});
 		})

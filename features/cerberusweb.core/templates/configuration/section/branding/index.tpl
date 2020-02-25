@@ -2,8 +2,8 @@
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupBranding" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="branding">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="branding">
 <input type="hidden" name="action" value="saveJson">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -51,7 +51,7 @@ $(function() {
 	
 	$frm.find('button.button-file-upload')
 		.on('click', function() {
-			var $chooser = genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'750');
+			var $chooser = genericAjaxPopup('chooser','c=internal&a=invoke&module=records&action=chooserOpenFile&single=1',null,true,'750');
 			
 			$chooser.one('chooser_save', function(event) {
 				var file_id = event.values[0];
@@ -68,7 +68,7 @@ $(function() {
 			$button_logo_remove.hide();
 		});
 	
-	$frm.find('BUTTON.submit')
+	$frm.find('button.submit')
 		.click(function(e) {
 			Devblocks.saveAjaxForm($frm);
 		})

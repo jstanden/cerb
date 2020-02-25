@@ -19,22 +19,36 @@ class PageSection_SetupAvatars extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'avatars');
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/avatars/index.tpl');
 	}
 	
-	function saveJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'saveJson':
+					return $this->_configAction_saveJson();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_saveJson() {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 			if('POST' != DevblocksPlatform::getHttpMethod())
 				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
-			$worker = CerberusApplication::getActiveWorker();
+			$active_worker = CerberusApplication::getActiveWorker();
 			
-			if(!$worker || !$worker->is_superuser)
+			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$avatar_default_style_contact = DevblocksPlatform::importGPC($_POST['avatar_default_style_contact'],'string',CerberusSettingsDefaults::AVATAR_DEFAULT_STYLE_CONTACT);

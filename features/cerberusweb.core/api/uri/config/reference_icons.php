@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -637,8 +637,8 @@ class PageSection_SetupDevelopersReferenceIcons extends Extension_PageSection {
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->is_superuser)
-			return;
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$stack = $response->path;
 		
@@ -653,4 +653,8 @@ class PageSection_SetupDevelopersReferenceIcons extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/reference/icons/index.tpl');
 	}
-};
+	
+	function handleActionForPage(string $action, string $scope=null) {
+		return false;
+	}
+}

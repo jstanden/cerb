@@ -2,10 +2,10 @@
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupExportBots" onsubmit="return false;">
     <input type="hidden" name="c" value="config">
-    <input type="hidden" name="a" value="handleSectionAction">
-    <input type="hidden" name="section" value="export_bots">
-    <input type="hidden" name="action" value="">
-    <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="export_bots">
+<input type="hidden" name="action" value="">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
     <textarea data-editor-mode="ace/mode/json">{$bots_json}</textarea>
 </form>

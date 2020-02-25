@@ -22,7 +22,11 @@ class PageSection_SetupCache extends Extension_PageSection {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$cache = DevblocksPlatform::services()->cache();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'cache');
 		
@@ -33,7 +37,19 @@ class PageSection_SetupCache extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/cache/index.tpl');
 	}
 	
-	function showCachePeekAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'showCachePeek':
+					return $this->_configAction_showCachePeek();
+				case 'saveCachePeek':
+					return $this->_configAction_saveCachePeek();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_showCachePeek() {
 		if(DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE)
 			return;
 		
@@ -41,6 +57,10 @@ class PageSection_SetupCache extends Extension_PageSection {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$cache = DevblocksPlatform::services()->cache();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// All engines
 		$engines = Extension_DevblocksCacheEngine::getAll(true);
@@ -53,15 +73,20 @@ class PageSection_SetupCache extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/cache/peek.tpl');
 	}
 	
-	function saveCachePeekAction() {
+	private function _configAction_saveCachePeek() {
 		if(DEVBLOCKS_CACHE_ENGINE_PREVENT_CHANGE)
 			return;
 		
 		header('Content-Type: application/json');
 		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		try {
 			if('POST' != DevblocksPlatform::getHttpMethod())
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
+				throw new Exception_DevblocksAjaxError(DevblocksPlatform::translate('common.access_denied'));
 			
 			@$engine_extension_id = DevblocksPlatform::importGPC($_POST['engine_extension_id'],'string','');
 			@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());

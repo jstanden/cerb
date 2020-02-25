@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -17,12 +17,15 @@
 
 class PageSection_SetupDevelopersExportBots extends Extension_PageSection {
 	function render() {
+		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
 		
-		$stack = $response->path;
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
+		$stack = $response->path;
 		@array_shift($stack); // config
 		@array_shift($stack); // export_bots
 		
@@ -43,4 +46,8 @@ class PageSection_SetupDevelopersExportBots extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/export-bots/index.tpl');
 	}
-};
+	
+	function handleActionForPage(string $action, string $scope=null) {
+		return false;
+	}
+}

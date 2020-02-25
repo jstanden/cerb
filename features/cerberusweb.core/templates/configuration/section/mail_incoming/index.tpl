@@ -14,8 +14,8 @@
 	<div id="tabsSetupMailIncomingSettings">
 		<form id="frmSetupMailIncoming" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
 		<input type="hidden" name="c" value="config">
-		<input type="hidden" name="a" value="handleSectionAction">
-		<input type="hidden" name="section" value="mail_incoming">
+		<input type="hidden" name="a" value="invoke">
+		<input type="hidden" name="module" value="mail_incoming">
 		<input type="hidden" name="action" value="saveSettingsJson">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
@@ -132,8 +132,14 @@ $(function() {
 	$('#tabsSetupMailIncomingSettings BUTTON.tester')
 		.click(function(e) {
 			var $button = $(this);
-			
-			genericAjaxPost($frm,'','c=config&a=handleSectionAction&section=mail_incoming&action=testMask', function(json) {
+
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'config');
+			formData.set('a', 'invoke');
+			formData.set('module', 'mail_incoming');
+			formData.set('action', 'testMask');
+
+			genericAjaxPost(formData, null, null, function(json) {
 				Devblocks.handleAjaxFormResponse($frm, json);
 				$button.show();
 			});

@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmSearchSchemaPeek" name="frmSearchSchemaPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="search">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="search">
 <input type="hidden" name="action" value="saveSearchSchemaPeek">
 <input type="hidden" name="schema_extension_id" value="{$schema->id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">

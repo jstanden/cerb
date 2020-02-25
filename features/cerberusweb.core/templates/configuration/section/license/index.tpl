@@ -24,8 +24,8 @@
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmLicense" style="{if $we_trust_you->key && empty($error)}display:none;{/if}" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="license">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="license">
 <input type="hidden" name="action" value="saveJson">
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">

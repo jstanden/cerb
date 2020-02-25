@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -20,7 +20,11 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 	
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$response = DevblocksPlatform::getHttpResponse();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$stack = $response->path;
 		
@@ -39,8 +43,6 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		$defaults = C4_AbstractViewModel::loadFromClass('View_CerbPlugin');
 		$defaults->id = self::VIEW_PLUGINS;
 		$defaults->renderLimit = 10;
-		$defaults->renderSortBy = SearchFields_CerbPlugin::NAME;
-		$defaults->renderSortAsc = true;
 		
 		$view = C4_AbstractViewLoader::getView(self::VIEW_PLUGINS, $defaults);
 		$view->name = "Available Plugins";
@@ -54,20 +56,29 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/index.tpl');
 	}
-
-	function showPopupAction() {
+	
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'showPopup':
+					return $this->_configAction_showPopup();
+				case 'savePopup':
+					return $this->_configAction_savePopup();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_showPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$plugin_id = DevblocksPlatform::importGPC($_REQUEST['plugin_id'],'string','');
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
-		@$worker = CerberusApplication::getActiveWorker();
-		
-		if(!$worker || !$worker->is_superuser) {
-			echo DevblocksPlatform::translate('common.access_denied');
-			return;
-		}
-		
-		$tpl = DevblocksPlatform::services()->template();
-
 		if(empty($plugin_id))
 			return;
 		
@@ -92,20 +103,20 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/plugins/popup.tpl');
 	}
 	
-	function savePopupAction() {
+	private function _configAction_savePopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$plugin_id = DevblocksPlatform::importGPC($_POST['plugin_id'],'string','');
 		@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
 		@$uninstall = DevblocksPlatform::importGPC($_POST['uninstall'],'integer',0);
 
-		@$worker = CerberusApplication::getActiveWorker();
-		
 		header("Content-Type: application/json");
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		if(!$worker || !$worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$errors = [];
 		

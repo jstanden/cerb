@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -22,6 +22,10 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'storage_profiles');
 		
@@ -34,14 +38,35 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_profiles/index.tpl');
 	}
 	
-	function showStorageProfilePeekAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'showStorageProfilePeek':
+					return $this->_configAction_showStorageProfilePeek();
+				case 'showStorageProfileConfig':
+					return $this->_configAction_showStorageProfileConfig();
+				case 'testProfileJson':
+					return $this->_configAction_testProfileJson();
+				case 'saveStorageProfilePeek':
+					return $this->_configAction_saveStorageProfilePeek();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_showStorageProfilePeek() {
 		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
 			return;
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		// Storage engines
@@ -80,9 +105,14 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_profiles/peek.tpl');
 	}
 	
-	function showStorageProfileConfigAction() {
+	private function _configAction_showStorageProfileConfig() {
 		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
 			return;
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -99,7 +129,15 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		}
 	}
 	
-	function testProfileJsonAction() {
+	private function _configAction_testProfileJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string','');
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 
@@ -123,20 +161,20 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		} catch(Exception $e) {
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
 			return;
-			
 		}
 	}
 	
-	function saveStorageProfilePeekAction() {
+	private function _configAction_saveStorageProfilePeek() {
 		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
-
-		// ACL
-		if(!$active_worker->is_superuser)
-			return;
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
@@ -144,7 +182,8 @@ class PageSection_SetupStorageProfiles extends Extension_PageSection {
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string');
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
-		if(empty($name)) $name = "New Storage Profile";
+		if(empty($name))
+			$name = "New Storage Profile";
 		
 		if(!empty($id) && !empty($delete)) {
 			// Double check that the profile is empty

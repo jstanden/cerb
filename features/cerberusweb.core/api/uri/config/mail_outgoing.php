@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -21,6 +21,10 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		$visit = CerberusApplication::getVisit();
 		$settings = DevblocksPlatform::services()->pluginSettings();
 		$response = DevblocksPlatform::getHttpResponse();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'mail_outgoing');
 		
@@ -39,21 +43,46 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_outgoing/index.tpl');
 	}
 	
-	function saveSettingsJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'renderTabMailQueue':
+					return $this->_configAction_renderTabMailQueue();
+				case 'renderTabMailSenderAddresses':
+					return $this->_configAction_renderTabMailSenderAddresses();
+				case 'renderTabMailTransports':
+					return $this->_configAction_renderTabMailTransports();
+				case 'saveSettingsJson':
+					return $this->_configAction_saveSettingsJson();
+				case 'saveTemplatesJson':
+					return $this->_configAction_saveTemplatesJson();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_saveSettingsJson() {
 		header('Content-Type: application/json; charset=utf-8');
 		
-		$worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		try {
-			if('POST' != DevblocksPlatform::getHttpMethod())
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
-			
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
-			
 			@$mail_default_from_id = DevblocksPlatform::importGPC($_POST['mail_default_from_id'],'integer',0);
 			
-			// [TODO] Validate the settings
+			if(!$mail_default_from_id)
+				throw new Exception_DevblocksAjaxValidationError("A default sender address is required.");
+			
+			if(false == ($model = DAO_Address::get($mail_default_from_id)))
+				throw new Exception_DevblocksAjaxValidationError("The default sender address does not exist.");
+			
+			if(!$model->mail_transport_id)
+				throw new Exception_DevblocksAjaxValidationError("The default sender address is not configured for outgoing mail.");
 			
 			$settings = DevblocksPlatform::services()->pluginSettings();
 			$settings->set('cerberusweb.core',CerberusSettings::MAIL_DEFAULT_FROM_ID, $mail_default_from_id);
@@ -64,18 +93,29 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 			]);
 			return;
 			
-		} catch (Exception $e) {
+		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode([
 				'status' => false,
 				'error' => $e->getMessage()
 			]);
 			return;
 			
+		} catch (Exception $e) {
+			echo json_encode([
+				'status' => false,
+				'error' => 'An unknown error occurred'
+			]);
+			return;
+			
 		}
 	}
 	
-	function renderTabMailTransportsAction() {
+	private function _configAction_renderTabMailTransports() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_MailTransport');
 		$defaults->id = 'config_mail_transports';
@@ -94,8 +134,12 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function renderTabMailSenderAddressesAction() {
+	private function _configAction_renderTabMailSenderAddresses() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Address');
 		$defaults->id = 'config_sender_addresses';
@@ -116,19 +160,21 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function saveTemplatesJsonAction() {
+	private function _configAction_saveTemplatesJson() {
 		header('Content-Type: application/json; charset=utf-8');
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		try {
 			$settings = DevblocksPlatform::services()->pluginSettings();
-			$worker = CerberusApplication::getActiveWorker();
-			
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$templates = DevblocksPlatform::importGPC($_POST['templates'],'array',[]);
-			
-			// [TODO] Validate templates
 			
 			$settings->set('cerberusweb.core',CerberusSettings::MAIL_AUTOMATED_TEMPLATES, $templates, true);
 			
@@ -147,8 +193,12 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 		}
 	}
 	
-	function renderTabMailQueueAction() {
+	private function _configAction_renderTabMailQueue() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_MailQueue');
 		$defaults->id = 'config_mail_queue';

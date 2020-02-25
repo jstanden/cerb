@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -19,6 +19,10 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'storage_attachments');
 		
@@ -30,5 +34,9 @@ class PageSection_SetupStorageAttachments extends Extension_PageSection {
 		$tpl->assign('view', $view);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_attachments/index.tpl');
+	}
+	
+	function handleActionForPage(string $action, string $scope=null) {
+		return false;
 	}
 }

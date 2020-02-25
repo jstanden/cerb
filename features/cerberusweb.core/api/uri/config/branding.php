@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -25,15 +26,25 @@ class PageSection_SetupBranding extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/branding/index.tpl');
 	}
 	
-	function saveJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'saveJson':
+					return $this->_configAction_saveJson();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_saveJson() {
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		try {
-			$settings = DevblocksPlatform::services()->pluginSettings();
-			$worker = CerberusApplication::getActiveWorker();
-			
 			if('POST' != DevblocksPlatform::getHttpMethod())
 				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
-			if(!$worker || !$worker->is_superuser)
+			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			header('Content-Type: application/json; charset=utf-8');
@@ -87,12 +98,12 @@ class PageSection_SetupBranding extends Extension_PageSection {
 			$settings->set('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET, $user_stylesheet);
 			$settings->set('cerberusweb.core',CerberusSettings::UI_USER_STYLESHEET_UPDATED_AT, $user_stylesheet_updated_at);
 			
-			echo json_encode(array('status'=>true));
+			echo json_encode(['status'=>true]);
 			return;
 				
 		} catch(Exception $e) {
-			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
+			echo json_encode(['status'=>false,'error'=>$e->getMessage()]);
 			return;
 		}
 	}
-};
+}

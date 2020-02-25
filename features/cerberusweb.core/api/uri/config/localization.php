@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -20,6 +20,10 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$date = DevblocksPlatform::services()->date();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'localization');
 		
@@ -29,16 +33,26 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/localization/index.tpl');
 	}
 	
-	function saveJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'saveJson':
+					return $this->_configAction_saveJson();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_saveJson() {
 		header('Content-Type: application/json; charset=utf-8');
 		
-		$worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		try {
 			if('POST' != DevblocksPlatform::getHttpMethod())
 				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
-			if(!$worker || !$worker->is_superuser)
+			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 			
 			@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string','');

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -19,25 +19,22 @@ class ChConfigurationPage extends CerberusPageExtension  {
 	const ID = 'core.page.configuration';
 	
 	function isVisible() {
-		// Must be logged in
-		if(null == ($worker = CerberusApplication::getActiveWorker()))
-			return false;
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// Must be a superuser
-		return !empty($worker->is_superuser);
+		if($active_worker && $active_worker->is_superuser)
+			return true;
+		
+		return false;
 	}
 	
 	function render() {
-		$translate = DevblocksPlatform::getTranslationService();
 		$tpl = DevblocksPlatform::services()->template();
-		$worker = CerberusApplication::getActiveWorker();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
 		
-		if(!$worker || !$worker->is_superuser) {
-			echo $translate->_('common.access_denied');
-			return;
-		}
-
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		if(file_exists(APP_PATH . '/install/')) {
 			$tpl->assign('install_dir_warning', true);
 		}
@@ -57,22 +54,42 @@ class ChConfigurationPage extends CerberusPageExtension  {
 		$subpage = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
 		$tpl->assign('subpage', $subpage);
 		
-		// [TODO] Search for submenu on the 'config' page.
-		//Extension_PageSubmenu::
-		
 		$tpl->display('devblocks:cerberusweb.core::configuration/index.tpl');
 	}
-
-	function handleSectionActionAction() {
-		// GET has precedence over POST
-		@$section_uri = DevblocksPlatform::importGPC(isset($_GET['section']) ? $_GET['section'] : $_REQUEST['section'],'string','');
-		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
-
-		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
-		
-		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
-			call_user_func(array($inst, $action.'Action'));
+	
+	function invoke(string $action) {
+		switch($action) {
+			case 'invoke':
+				return $this->_pageAction_invoke();
 		}
+		return false;
 	}
 	
-};
+	private function _pageAction_invoke() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		// GET has precedence over POST
+		@$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'],'string','');
+		@$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'],'string','');
+		
+		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $page_uri, true);
+		
+		/* @var $inst Extension_PageSection */
+		
+		if($inst instanceof Extension_PageSection) {
+			if(false === ($inst->handleActionForPage($action, 'configAction'))) {
+				trigger_error(
+					sprintf('Call to undefined config action `%s::%s`',
+						get_class($inst),
+						$action
+					),
+					E_USER_NOTICE
+				);
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			}
+		}
+	}
+}

@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -18,7 +18,11 @@
 class PageSection_SetupStorageContent extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'storage_content');
 		
@@ -73,10 +77,28 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_content/index.tpl');
 	}
 	
-	function showStorageSchemaAction() {
-		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
-		
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'showStorageSchema':
+					return $this->_configAction_showStorageSchema();
+				case 'showStorageSchemaPeek':
+					return $this->_configAction_showStorageSchemaPeek();
+				case 'saveStorageSchemaPeek':
+					return $this->_configAction_saveStorageSchemaPeek();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_showStorageSchema() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
 		$storage_engines = DevblocksPlatform::getExtensions('devblocks.storage.engine', false);
 		$tpl->assign('storage_engines', $storage_engines);
@@ -84,21 +106,25 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		$storage_profiles = DAO_DevblocksStorageProfile::getAll();
 		$tpl->assign('storage_profiles', $storage_profiles);
 		
-		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
+		$extension = DevblocksPlatform::getExtension($ext_id, true);
 		$tpl->assign('schema', $extension);
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_content/rule.tpl');
 	}
 	
-	function showStorageSchemaPeekAction() {
+	private function _configAction_showStorageSchemaPeek() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
 			return;
 		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'],'string','');
 		
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
+		$extension = DevblocksPlatform::getExtension($ext_id, true);
 		$tpl->assign('schema', $extension);
 		
 		$storage_profiles = DAO_DevblocksStorageProfile::getAll();
@@ -107,19 +133,24 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/storage_content/peek.tpl');
 	}
 	
-	function saveStorageSchemaPeekAction() {
+	private function _configAction_saveStorageSchemaPeek() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if(DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE)
 			return;
 		
-		if('POST' != DevblocksPlatform::getHttpMethod())
+		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$ext_id = DevblocksPlatform::importGPC($_POST['ext_id'],'string','');
 		
-		$extension = DevblocksPlatform::getExtension($ext_id, true, true);
+		$extension = DevblocksPlatform::getExtension($ext_id, true);
 		/* @var $extension Extension_DevblocksStorageSchema */
 		$extension->saveConfig();
 		
-		$this->showStorageSchemaAction();
+		$this->_configAction_showStorageSchema();
 	}
 }

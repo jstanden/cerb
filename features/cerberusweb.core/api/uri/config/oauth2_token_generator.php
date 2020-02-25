@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -22,8 +22,8 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 		$response = DevblocksPlatform::getHttpResponse();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$active_worker->is_superuser)
-			return;
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$stack = $response->path;
 		
@@ -35,23 +35,33 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/oauth2-token-generator/index.tpl');
 	}
 	
-	function generateTokenAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'generateToken':
+					return $this->_configAction_generateToken();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_generateToken() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$oauth_app_id = DevblocksPlatform::importGPC($_POST['oauth_app_id'], 'integer', 0);
 		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', 0);
 		@$scopes = DevblocksPlatform::importGPC($_POST['scopes'], 'string', '');
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::services()->template();
-		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			if(!$active_worker->is_superuser)
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
-				
-			if('POST' != DevblocksPlatform::getHttpMethod())
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
-			
 			if(!$oauth_app_id || false == ($oauth_app = DAO_OAuthApp::get($oauth_app_id)))
 				throw new Exception_DevblocksAjaxValidationError('A valid OAuth app is required.');
 			

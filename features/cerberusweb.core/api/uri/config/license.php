@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -19,14 +19,28 @@ class PageSection_SetupLicense extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'license');
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/license/index.tpl');
 	}
 	
-	function saveJsonAction() {
-		$worker = CerberusApplication::getActiveWorker();
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'saveJson':
+					return $this->_configAction_saveJson();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_saveJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header('Content-Type: application/json; charset=utf-8');
 
@@ -34,7 +48,7 @@ class PageSection_SetupLicense extends Extension_PageSection {
 			if('POST' != DevblocksPlatform::getHttpMethod())
 				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
 			
-			if(!$worker || !$worker->is_superuser)
+			if(!$active_worker || !$active_worker->is_superuser)
 				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
 				
 			@$key = DevblocksPlatform::importGPC($_POST['key'],'string','');

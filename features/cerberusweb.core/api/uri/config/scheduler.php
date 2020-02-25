@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -28,13 +28,26 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/scheduler/index.tpl');
 	}
 	
-	function getJobAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'getJob':
+					return $this->_configAction_getJob();
+				case 'saveJobJson':
+					return $this->_configAction_saveJobJson();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_getJob() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 
-		$worker = CerberusApplication::getActiveWorker();
-		if(!$worker || !$worker->is_superuser)
-			return;
-		
 		if(null == ($job = DevblocksPlatform::getExtension($id, true)))
 			return;
 			
@@ -43,16 +56,16 @@ class PageSection_SetupScheduler extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/scheduler/job.tpl');
 	}
 	
-	function saveJobJsonAction() {
+	private function _configAction_saveJobJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		try {
-			if('POST' != DevblocksPlatform::getHttpMethod())
-				throw new Exception_DevblocksValidationError(DevblocksPlatform::translate('common.access_denied'));
-			
-			$worker = CerberusApplication::getActiveWorker();
-			
-			if(!$worker || !$worker->is_superuser)
-				throw new Exception(DevblocksPlatform::translate('error.core.no_acl.admin'));
-			
 			// Save the job changes
 			@$id = DevblocksPlatform::importGPC($_POST['id'],'string','');
 			@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);

@@ -2,18 +2,18 @@
 
 <div id="tabsSetupMailOutgoing">
 	<ul>
-		<li data-alias="transports"><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=mail_outgoing&action=renderTabMailTransports{/devblocks_url}">{'common.email_transports'|devblocks_translate|capitalize}</a></li>
-		<li data-alias="senders"><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=mail_outgoing&action=renderTabMailSenderAddresses{/devblocks_url}">{'common.sender_addresses'|devblocks_translate|capitalize}</a></li>
+		<li data-alias="transports"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_outgoing&action=renderTabMailTransports{/devblocks_url}">{'common.email_transports'|devblocks_translate|capitalize}</a></li>
+		<li data-alias="senders"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_outgoing&action=renderTabMailSenderAddresses{/devblocks_url}">{'common.sender_addresses'|devblocks_translate|capitalize}</a></li>
 		<li data-alias="settings"><a href="#tabsSetupMailOutgoingSettings">{'common.settings'|devblocks_translate|capitalize}</a></li>
 		<li data-alias="templates"><a href="#tabsSetupMailOutgoingTemplates">Automated Email Templates</a></li>
-		<li data-alias="queue"><a href="{devblocks_url}ajax.php?c=config&a=handleSectionAction&section=mail_outgoing&action=renderTabMailQueue{/devblocks_url}">{'common.queue'|devblocks_translate|capitalize}</a></li>
+		<li data-alias="queue"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_outgoing&action=renderTabMailQueue{/devblocks_url}">{'common.queue'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	
 	<div id="tabsSetupMailOutgoingSettings">
 		<form id="frmSetupMailOutgoingSettings" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
 		<input type="hidden" name="c" value="config">
-		<input type="hidden" name="a" value="handleSectionAction">
-		<input type="hidden" name="section" value="mail_outgoing">
+		<input type="hidden" name="a" value="invoke">
+		<input type="hidden" name="module" value="mail_outgoing">
 		<input type="hidden" name="action" value="saveSettingsJson">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
@@ -39,8 +39,8 @@
 	<div id="tabsSetupMailOutgoingTemplates">
 		<form id="frmSetupMailOutgoingTemplates" action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
 		<input type="hidden" name="c" value="config">
-		<input type="hidden" name="a" value="handleSectionAction">
-		<input type="hidden" name="section" value="mail_outgoing">
+		<input type="hidden" name="a" value="invoke">
+		<input type="hidden" name="module" value="mail_outgoing">
 		<input type="hidden" name="action" value="saveTemplatesJson">
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	

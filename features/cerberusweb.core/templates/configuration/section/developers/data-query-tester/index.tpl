@@ -51,9 +51,11 @@ $(function() {
 			editor_results.setValue('');
 			
 			var formData = new FormData();
-			formData.append('q', editor.getValue());
-			
-			genericAjaxPost(formData, '', 'c=ui&a=dataQuery', function(json) {
+			formData.set('c', 'ui');
+			formData.set('a', 'dataQuery');
+			formData.set('q', editor.getValue());
+
+			genericAjaxPost(formData, null, null, function(json) {
 				$button.fadeIn();
 				$spinner.detach();
 				

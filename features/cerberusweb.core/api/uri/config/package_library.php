@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -18,7 +18,11 @@
 class PageSection_SetupPackageLibrary extends Extension_PageSection {
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$visit = CerberusApplication::getVisit();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'package_library');
 		
@@ -32,4 +36,8 @@ class PageSection_SetupPackageLibrary extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/package_library/index.tpl');
 	}
-};
+	
+	function handleActionForPage(string $action, string $scope=null) {
+		return false;
+	}
+}

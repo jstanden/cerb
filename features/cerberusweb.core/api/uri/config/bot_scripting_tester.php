@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -20,6 +20,10 @@ class PageSection_SetupDevelopersBotScriptingTester extends Extension_PageSectio
 		$visit = CerberusApplication::getVisit();
 		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$stack = $response->path;
 		
@@ -31,18 +35,28 @@ class PageSection_SetupDevelopersBotScriptingTester extends Extension_PageSectio
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/bot-scripting-tester/index.tpl');
 	}
 	
-	function runScriptAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'runScript':
+					return $this->_configAction_runScript();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_runScript() {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		@$bot_script = DevblocksPlatform::importGPC($_POST['bot_script'], 'string', null);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(!$active_worker->is_superuser)
+
+		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		@$bot_script = DevblocksPlatform::importGPC($_POST['bot_script'], 'string', null);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -56,12 +70,20 @@ class PageSection_SetupDevelopersBotScriptingTester extends Extension_PageSectio
 			
 		} else {
 			$tpl->assign('output', $output);
-			$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/developers/bot-scripting-tester/results.tpl');
 			
-			echo json_encode([
-				'status' => true,
-				'html' => $html,
-			]);
+			try {
+				$html = $tpl->fetch('devblocks:cerberusweb.core::configuration/section/developers/bot-scripting-tester/results.tpl');
+				
+				echo json_encode([
+					'status' => true,
+					'html' => $html,
+				]);
+				
+			} catch (Exception $e) {
+				echo json_encode([
+					'status' => false,
+				]);
+			}
 		}
 	}
-};
+}

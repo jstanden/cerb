@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -17,12 +17,15 @@
 
 class PageSection_SetupDevelopersDataQueryTester extends Extension_PageSection {
 	function render() {
-		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
+		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
 		
-		$stack = $response->path;
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
+		$stack = $response->path;
 		@array_shift($stack); // config
 		@array_shift($stack); // data_queries
 		
@@ -30,4 +33,8 @@ class PageSection_SetupDevelopersDataQueryTester extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/developers/data-query-tester/index.tpl');
 	}
-};
+	
+	function handleActionForPage(string $action, string $scope=null) {
+		return false;
+	}
+}

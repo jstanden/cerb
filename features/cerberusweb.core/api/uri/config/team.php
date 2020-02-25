@@ -20,6 +20,10 @@ class PageSection_SetupTeam extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$response = DevblocksPlatform::getHttpResponse();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'team');
 		
@@ -32,8 +36,26 @@ class PageSection_SetupTeam extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/team/index.tpl');
 	}
 	
-	function renderTabRolesAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'renderTabRoles':
+					return $this->_configAction_renderTabRoles();
+				case 'renderTabGroups':
+					return $this->_configAction_renderTabGroups();
+				case 'renderTabWorkers':
+					return $this->_configAction_renderTabWorkers();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_renderTabRoles() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_WorkerRole');
 		$defaults->id = 'config_roles';
@@ -46,8 +68,12 @@ class PageSection_SetupTeam extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function renderTabGroupsAction() {
+	private function _configAction_renderTabGroups() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Group');
 		$defaults->id = 'config_groups';
@@ -60,8 +86,12 @@ class PageSection_SetupTeam extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function renderTabWorkersAction() {
+	private function _configAction_renderTabWorkers() {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Worker');
 		$defaults->id = 'config_workers';

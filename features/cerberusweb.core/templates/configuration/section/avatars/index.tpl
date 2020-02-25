@@ -2,8 +2,8 @@
 
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmSetupAvatars" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="avatars">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="avatars">
 <input type="hidden" name="action" value="saveJson">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 

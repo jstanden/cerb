@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmCerbPluginPeek">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="plugins">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="plugins">
 <input type="hidden" name="action" value="savePopup">
 <input type="hidden" name="plugin_id" value="{$plugin->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
@@ -93,7 +93,7 @@ $(function() {
 					genericAjaxPopupClose('peek');
 					// Reload view
 		 			{if !empty($view_id)}
-					genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+					genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 					{/if}
 					
 				}

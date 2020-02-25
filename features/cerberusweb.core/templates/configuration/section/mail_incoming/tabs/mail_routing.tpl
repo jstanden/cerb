@@ -7,10 +7,10 @@
 	
 	<form action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="config">
-	<input type="hidden" name="a" value="handleSectionAction">
-	<input type="hidden" name="section" value="mail_incoming">
-	<input type="hidden" name="action" value="saveRouting">
-	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="mail_incoming">
+<input type="hidden" name="action" value="saveRouting">
+<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
 	{if !empty($rules)}
 	<table cellspacing="2" cellpadding="2">
@@ -31,7 +31,7 @@
 					{/if}
 				</td>
 				<td style="{if $rule->is_sticky}background-color:rgb(255,255,221);border:2px solid rgb(255,215,0);{else}{/if}padding:5px;">
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_incoming&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'50%');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name}</a>
+					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'50%');" style="color:rgb(0,120,0);font-weight:bold;">{$rule->name}</a>
 					{if $rule->is_stackable}<span style="font-size:90%;padding-left:5px;color:rgb(0,120,0);">(Stackable)</span>{/if}
 					<br>
 					

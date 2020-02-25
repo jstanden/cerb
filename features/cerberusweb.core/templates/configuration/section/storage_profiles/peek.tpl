@@ -8,8 +8,8 @@
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formStorageProfilePeek" name="formStorageProfilePeek" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="storage_profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="storage_profiles">
 <input type="hidden" name="action" value="saveStorageProfilePeek">
 <input type="hidden" name="id" value="{$profile->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
@@ -26,7 +26,7 @@
 	<legend>Create a new storage profile</legend>
 	
 	<b>Storage Engine:</b> 
-	<select name="extension_id" onchange="genericAjaxGet('divStorageEngineSettings','c=config&a=handleSectionAction&section=storage_profiles&action=showStorageProfileConfig&ext_id='+escape(selectValue(this))+'&id='+escape(this.form.id.value));">
+	<select name="extension_id" onchange="genericAjaxGet('divStorageEngineSettings','c=config&a=invoke&module=storage_profiles&action=showStorageProfileConfig&ext_id='+escape(selectValue(this))+'&id='+escape(this.form.id.value));">
 		{foreach from=$engines item=engine_mft key=engine_id}
 		<option value="{$engine_id}" {if $profile->extension_id==$engine_id}selected="selected"{/if}>{$engine_mft->name}</option>
 		{/foreach}

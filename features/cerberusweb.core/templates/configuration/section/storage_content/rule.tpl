@@ -2,7 +2,7 @@
 	<legend>
 		{$schema->manifest->name}
 		{if !$smarty.const.DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE}
-		(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=storage_content&action=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);">{'common.edit'|devblocks_translate|lower}</a>)
+		(<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=storage_content&action=showStorageSchemaPeek&ext_id={$schema->manifest->id}', null, false);">{'common.edit'|devblocks_translate|lower}</a>)
 		{/if}
 	</legend>
 

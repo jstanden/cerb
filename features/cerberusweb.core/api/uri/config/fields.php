@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -17,13 +17,34 @@
 
 class PageSection_SetupCustomFields extends Extension_PageSection {
 	function render() {
+		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/fields/index.tpl');
 	}
 	
-	function showFieldsTabAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch($action) {
+				case 'showFieldsTab':
+					return $this->_configAction_showFieldsTab();
+				case 'showFieldsetsTab':
+					return $this->_configAction_showFieldsetsTab();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_showFieldsTab() {
 		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$visit->set(ChConfigurationPage::ID, 'fields');
 		
@@ -51,9 +72,13 @@ class PageSection_SetupCustomFields extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function showFieldsetsTabAction() {
+	private function _configAction_showFieldsetsTab() {
 		$tpl = DevblocksPlatform::services()->template();
-
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_CustomFieldset');
 		$defaults->id = 'cfg_fieldsets';
 		$defaults->renderSubtotals = SearchFields_CustomFieldset::CONTEXT;

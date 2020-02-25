@@ -1,7 +1,7 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmStorageSchemaPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="storage_content">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="storage_content">
 <input type="hidden" name="action" value="saveStorageSchemaPeek">
 <input type="hidden" name="ext_id" value="{$schema->manifest->id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
