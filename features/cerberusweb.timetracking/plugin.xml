@@ -246,21 +246,6 @@
 			</params>
 		</extension>
 	
-		<!-- Pages -->
-		
-		<extension point="cerberusweb.page">
-			<id>timetracking.page</id>
-			<name>Time Tracking Page</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingPage</name>
-			</class>
-			<params>
-				<param key="uri" value="timetracking" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-		
 		<!-- Profile Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">

@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" enctype="multipart/form-data" target="iframe_file_post" id="frmImportPopup">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="parseImportFile">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="worklists">
+<input type="hidden" name="action" value="parseImportFile">
 <input type="hidden" name="context" value="{$context}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -26,7 +28,7 @@ $(function() {
 		var $frm = $(this);
 		var $iframe = $frm.siblings('IFRAME[name=iframe_file_post]');
 		$iframe.one('load', function(event) {
-			genericAjaxPopup('{$layer}', 'c=internal&a=showImportMappingPopup&context={$context}&view_id={$view_id}', 'reuse', false, '550');
+			genericAjaxPopup('{$layer}', 'c=internal&a=invoke&module=worklists&action=renderImportMappingPopup&context={$context}&view_id={$view_id}', 'reuse', false, '550');
 		});
 	});
 	

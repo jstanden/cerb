@@ -28,7 +28,29 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'preview':
+					return $this->_profileAction_preview();
+				case 'getEditorHtmlPreview':
+					return $this->_profileAction_getEditorHtmlPreview();
+				case 'getEditorParsedownPreview':
+					return $this->_profileAction_getEditorParsedownPreview();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -44,6 +66,12 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_KB_ARTICLE)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_KbArticle::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_KbArticle::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_KbArticle::delete($id);
@@ -139,29 +167,30 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		}
 	}
 	
-	function previewAction() {
-		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
-		
+	private function _profileAction_preview() {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string');
+		
 		$output = $tpl_builder->build($content, []);
-		
 		$output = DevblocksPlatform::parseMarkdown($output);
-		
 		$output = DevblocksPlatform::purifyHTML($output, true, true);
+		$tpl->assign('content', $output);
 		
 		$tpl->assign('css_class', 'cerb-kb-article-content');
-		$tpl->assign('content', $output);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -229,11 +258,16 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function showBulkPopupAction() {
+	private function _profileAction_showBulkPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_KbArticle::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($id_csv)) {
@@ -255,7 +289,12 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.kb::kb/article/bulk.tpl');
 	}
 	
-	function startBulkUpdateJsonAction() {
+	private function _profileAction_startBulkUpdateJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_KbArticle::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
 		$ids = array();
@@ -306,7 +345,6 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 				
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
-				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;
 			default:
@@ -332,21 +370,21 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		return;
 	}
 	
-	function getEditorHtmlPreviewAction() {
+	private function _profileAction_getEditorHtmlPreview() {
 		@$data = DevblocksPlatform::importGPC($_REQUEST['data'], 'string', '');
 
 		$model = new Model_KbArticle();
-		$model->content = $data;
+		$model->setContent($data);
 		$model->format = Model_KbArticle::FORMAT_HTML;
 		
 		echo $model->getContent();
 	}
 	
-	function getEditorParsedownPreviewAction() {
+	private function _profileAction_getEditorParsedownPreview() {
 		@$data = DevblocksPlatform::importGPC($_REQUEST['data'], 'string', '');
 		
 		$model = new Model_KbArticle();
-		$model->content = $data;
+		$model->setContent($data);
 		$model->format = Model_KbArticle::FORMAT_MARKDOWN;
 		
 		echo $model->getContent();

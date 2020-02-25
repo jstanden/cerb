@@ -6,11 +6,18 @@ class ServiceProvider_FacebookPages extends Extension_ConnectedServiceProvider {
 	const ID = 'wgm.facebook.pages.service.provider';
 	
 	function renderConfigForm(Model_ConnectedService $service) {
-		
 	}
 	
 	function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
+	}
+	
+	function handleActionForService(string $action) {
+		switch($action) {
+			case 'getPagesFromAccount':
+				return $this->_connectedServiceAction_getPagesFromAccount();
+		}
 		
+		return false;
 	}
 	
 	public function renderAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account) {
@@ -99,7 +106,7 @@ class ServiceProvider_FacebookPages extends Extension_ConnectedServiceProvider {
 		
 		if(false === ($response = DevblocksPlatform::services()->http()->sendRequest($request, $request_options, $error))) /* @var $response ResponseInterface */
 			return;
-		
+			
 		if(200 != $response->getStatusCode())
 			return;
 		
@@ -122,16 +129,18 @@ class ServiceProvider_FacebookPages extends Extension_ConnectedServiceProvider {
 		return $pages;
 	}
 	
-	public function getPagesFromAccountAction() {
-		@$connected_account_id = DevblocksPlatform::importGPC($_REQUEST['connected_account_id'], 'int', 0);
-		
+	private function _connectedServiceAction_getPagesFromAccount() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		if(!$connected_account_id || false == ($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
-			return;
+		@$connected_account_id = DevblocksPlatform::importGPC($_POST['connected_account_id'], 'int', 0);
 		
-		if(!Context_ConnectedAccount::isUsableByActor($connected_account, $active_worker))
-			return;
+		$connected_account = null;
+		
+		if(!$connected_account_id || false == ($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_ConnectedAccount::isWriteableByActor($connected_account, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$pages = $this->_getPagesFromAccount($connected_account);
 		

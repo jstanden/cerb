@@ -67,36 +67,25 @@ $(function() {
 			
 			$menu.attr('data-column-id', null);
 			
-			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&link_context=' + from_context + '&link_context_id=' + from_context_id + '&q=' + encodeURIComponent(query) + '&qr=' + encodeURIComponent(query_req),null,false,'90%');
+			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context) + '&link_context=' + from_context + '&link_context_id=' + from_context_id + '&q=' + encodeURIComponent(query) + '&qr=' + encodeURIComponent(query_req),null,false,'90%');
 			$popup.one('chooser_save', function(event) {
 				event.stopPropagation();
-				
-				var $data = [ 
-					'c=internal',
-					'a=contextAddLinksJson',
-					'from_context=' + from_context,
-					'from_context_id=' + from_context_id,
-					'context=' + context
-				];
-				
-				for(idx in event.values)
-					$data.push('context_id[]='+encodeURIComponent(event.values[idx]));
-				
-				var options = { };
-				options.type = 'POST';
-				options.data = $data.join('&');
-				options.url = DevblocksAppPath+'ajax.php',
-				options.cache = false;
-				options.success = function(json) {
+
+				var formData = new FormData();
+				formData.set('c', 'internal');
+				formData.set('a', 'invoke');
+				formData.set('module', 'records');
+				formData.set('action', 'contextAddLinksJson');
+				formData.set('from_context', from_context);
+				formData.set('from_context_id', from_context_id);
+				formData.set('context', context);
+
+				for(var idx in event.values)
+					formData.append('context_id[]', event.values[idx]);
+
+				genericAjaxPost(formData, '', '', function() {
 					$column.trigger('cerb-refresh');
-				};
-				
-				if(null == options.headers)
-					options.headers = {};
-				
-				options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
-				
-				$.ajax(options);
+				});
 			});
 		})
 	;
@@ -120,14 +109,14 @@ $(function() {
 			var to_column_id = $to_column.attr('data-column-id');
 
 			var formData = new FormData();
-			formData.append('c', 'profiles');
-			formData.append('a', 'handleSectionAction');
-			formData.append('section', 'project_board');
-			formData.append('action', 'moveCard');
-			formData.append('context', card_context);
-			formData.append('id', card_id);
-			formData.append('from', from_column_id);
-			formData.append('to', to_column_id);
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'project_board');
+			formData.set('action', 'moveCard');
+			formData.set('context', card_context);
+			formData.set('id', card_id);
+			formData.set('from', from_column_id);
+			formData.set('to', to_column_id);
 
 			genericAjaxPost(formData, '', null, function() {
 				$card.trigger('cerb-refresh');
@@ -139,8 +128,8 @@ $(function() {
 			
 			var formData = new FormData($column.find('form').get(0));
 			formData.set('c', 'profiles');
-			formData.set('a', 'handleSectionAction');
-			formData.set('section', 'project_board');
+			formData.set('a', 'invoke');
+			formData.set('module', 'project_board');
 			formData.set('action', 'reorderColumn');
 			formData.set('column_id', column_id);
 
@@ -211,12 +200,12 @@ $(function() {
 		;
 
 		var formData = new FormData();
-		formData.append('c', 'profiles');
-		formData.append('a', 'handleSectionAction');
-		formData.append('section', 'project_board');
-		formData.append('action', 'reorderBoard');
-		formData.append('id', '{$board->id}');
-		formData.append('columns', column_ids);
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'project_board');
+		formData.set('action', 'reorderBoard');
+		formData.set('id', '{$board->id}');
+		formData.set('columns', column_ids);
 
 		genericAjaxPost(formData, '', '', function() {
 		});
@@ -231,8 +220,8 @@ $(function() {
 
 		var formData = new FormData();
 		formData.set('c', 'profiles');
-		formData.set('a', 'handleSectionAction');
-		formData.set('section', 'project_board');
+		formData.set('a', 'invoke');
+		formData.set('module', 'project_board');
 		formData.set('action', 'refreshColumn');
 		formData.set('column_id', column_id);
 
@@ -282,13 +271,13 @@ $(function() {
 		// var context_id = $card.attr('data-context-id');
 
 		var formData = new FormData();
-		formData.append('c', 'profiles');
-		formData.append('a', 'handleSectionAction');
-		formData.append('section', 'project_board');
-		formData.append('action', 'refreshCard');
-		formData.append('board_id', '{$board->id}');
-		formData.append('context', context);
-		formData.append('id', context_id);
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'project_board');
+		formData.set('action', 'refreshCard');
+		formData.set('board_id', '{$board->id}');
+		formData.set('context', context);
+		formData.set('id', context_id);
 
 		genericAjaxPost(formData, $card, '', function() {
 			$card

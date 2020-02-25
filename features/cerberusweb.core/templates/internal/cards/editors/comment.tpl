@@ -154,12 +154,12 @@ $(function() {
     // Preview
     $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
         var formData = new FormData();
-        formData.append('c', 'profiles');
-        formData.append('a', 'handleSectionAction');
-        formData.append('section', 'comment');
-        formData.append('action', 'preview');
-        formData.append('comment', $container.find('textarea[name=comment]').val());
-        formData.append('is_markdown', $container.find('input:hidden[name=comment_is_markdown]').val());
+        formData.set('c', 'profiles');
+        formData.set('a', 'invoke');
+        formData.set('module', 'comment');
+        formData.set('action', 'preview');
+        formData.set('comment', $container.find('textarea[name=comment]').val());
+        formData.set('is_markdown', $container.find('input:hidden[name=comment_is_markdown]').val());
 
         genericAjaxPopup(
             'comment_preview',

@@ -73,13 +73,18 @@ $(function() {
 	
 	$parent.find('button.cerb-save').on('click', function(e) {
 		e.stopPropagation();
-		
-		var $form_id = $(this).closest('form').attr('id');
-		
-		if(0==$form_id.length)
-			return;
-		
-		genericAjaxPost($form_id,'{$parent_div}','c=internal&a=viewAddFilter&replace=1{if $is_custom}&is_custom=1{/if}');
+
+		var $form = $(this).closest('form');
+
+		var formData = new FormData($form[0]);
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'worklists');
+		formData.set('action', 'addFilter');
+		formData.set('replace', '1');
+		{if $is_custom}formData.set('is_custom', '1');{/if}
+
+		genericAjaxPost(formData,'{$parent_div}',null);
 	});
 });
 </script>

@@ -50,7 +50,7 @@ $(function() {
 			return;
 		}
 		
-		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"{$trigger->id}{$namePrefix}_worklist"}&q=' + encodeURIComponent(q),null,true,'90%');
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpenParams&context='+context+'&view_id={"{$trigger->id}{$namePrefix}_worklist"}&q=' + encodeURIComponent(q),null,true,'90%');
 		
 		$chooser.bind('chooser_save',function(event) {
 			if(null != event.worklist_model) {

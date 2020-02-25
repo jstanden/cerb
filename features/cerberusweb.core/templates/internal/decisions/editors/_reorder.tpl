@@ -1,6 +1,8 @@
 <form id="frmDecisionNodeReorder" onsubmit="return false;" method="post">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveDecisionReorderPopup">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="behavior">
+<input type="hidden" name="action" value="saveDecisionReorderPopup">
 {if isset($node)}<input type="hidden" name="id" value="{$node->id}">{/if}
 {if isset($trigger)}<input type="hidden" name="trigger_id" value="{$trigger->id}">{/if}
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -76,7 +78,7 @@ $(function() {
 		$frm.find('button.submit').click(function() {
 			genericAjaxPost($frm,'','',function() {
 				{if !empty($node)}{$trigger_id = $node->trigger_id}{elseif !empty($trigger)}{$trigger_id = $trigger->id}{/if}
-				genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}');
+				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
 				genericAjaxPopupDestroy($popup);
 			});
 		})

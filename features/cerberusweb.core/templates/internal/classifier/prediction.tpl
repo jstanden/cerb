@@ -118,10 +118,10 @@ $(function() {
 	{if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE}.import")}
 	$container.find('button.cerb-peek-import')
 		.click(function() {
-			var $import_popup = genericAjaxPopup('classifier_import','c=profiles&a=handleSectionAction&section=classifier&action=showImportPopup&classifier_id={$prediction.classifier.id}',null,false,'50%');
+			var $import_popup = genericAjaxPopup('classifier_import','c=profiles&a=invoke&module=classifier&action=showImportPopup&classifier_id={$prediction.classifier.id}',null,false,'50%');
 
 			$import_popup.on('dialogclose', function() {
-				genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_CLASSIFIER}&context_id={$prediction.classifier.id}','reuse',false,'50%');
+				genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_CLASSIFIER}&context_id={$prediction.classifier.id}','reuse',false,'50%');
 			});
 		})
 		;

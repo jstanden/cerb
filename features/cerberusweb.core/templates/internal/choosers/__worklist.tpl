@@ -51,10 +51,12 @@ $(function() {
 			event.stopPropagation();
 
 			var formData = new FormData();
-			formData.append('c', 'internal');
-			formData.append('a', 'serializeView');
-			formData.append('view_id', '{$view->id}');
-			formData.append('context', '{$context}');
+			formData.set('c', 'internal');
+			formData.set('a', 'invoke');
+			formData.set('module', 'worklists');
+			formData.set('action', 'serializeView');
+			formData.set('view_id', '{$view->id}');
+			formData.set('context', '{$context}');
 
 			genericAjaxPost(formData, '', '', function(json) {
 				// Trigger event

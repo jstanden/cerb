@@ -56,7 +56,7 @@ $(function() {
 	$fieldset.find('.cerb-behavior-trigger')
 		.cerbPeekTrigger()
 			.on('cerb-peek-saved cerb-peek-deleted', function(e) {
-				genericAjaxGet($container, 'c=profiles&a=handleSectionAction&section=scheduled_behavior&action=renderContextScheduledBehavior&context={$context}&context_id={$context_id}');
+				genericAjaxGet($container, 'c=profiles&a=invoke&module=scheduled_behavior&action=renderContextScheduledBehavior&context={$context}&context_id={$context_id}');
 			})
 		;
 });

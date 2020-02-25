@@ -67,7 +67,7 @@ $(function() {
 				var id = $bubble.first().val();
 				
 				if(id) {
-					genericAjaxGet($behavior_params,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + id);
+					genericAjaxGet($behavior_params,'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix={$namePrefix}&trigger_id=' + id);
 				} else {
 					$behavior_params.html('');
 				}

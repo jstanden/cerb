@@ -2,6 +2,10 @@
 class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.ldap';
 	
+	function handleActionForService($action) {
+		return false;
+	}
+	
 	private function _testLdap($params) {
 		if(!extension_loaded('ldap'))
 			return "The 'ldap' extension is not enabled.";

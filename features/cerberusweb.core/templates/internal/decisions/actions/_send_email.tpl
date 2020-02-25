@@ -170,7 +170,7 @@ $(function() {
 	// Text editor
 	var $button_upload = $action.find('button.editor-upload-image')
 		.on('click', function(e) {
-			var $chooser = genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=1',null,true,'75%');
+			var $chooser = genericAjaxPopup('chooser','c=internal&a=invoke&module=records&action=chooserOpenFile&single=1',null,true,'75%');
 			
 			$chooser.one('chooser_save', function(event) {
 				var $editor = $content.nextAll('pre.ace_editor');
@@ -188,11 +188,21 @@ $(function() {
 	var $button_preview = $action.find('button.editor-preview')
 		.on('click', function(e) {
 			var $frm = $action.closest('form');
-			
+
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'behavior');
+			formData.set('action', 'testDecisionEventSnippets');
+			formData.set('prefix', '{$namePrefix}');
+			formData.set('field', 'content');
+			formData.set('is_editor', 'format');
+			formData.set('_replyto_field', 'from_address_id');
+
 			genericAjaxPost(
-				$frm,
-				'',
-				'c=internal&a=testDecisionEventSnippets&prefix={$namePrefix}&field=content&is_editor=format&_replyto_field=from_address_id',
+				formData,
+				null,
+				null,
 				function(html) {
 					genericAjaxPopup(
 						'preview',

@@ -585,7 +585,9 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$postfields = [
 			'c' => 'internal',
-			'a' => 'parseImportFile',
+			'a' => 'invoke',
+			'module' => 'worklists',
+			'action' => 'parseImportFile',
 			'context' => 'cerberusweb.contexts.org',
 			'view_id' => 'search_cerberusweb_contexts_org',
 			'_csrf_token' => $csrf_token,
@@ -605,7 +607,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$info = curl_getinfo($ch);
 		curl_close($ch);
 		
-		$driver->executeScript("genericAjaxPopup('import', 'c=internal&a=showImportMappingPopup&context=cerberusweb.contexts.org&view_id=search_cerberusweb_contexts_org', null, false, '550');");
+		$driver->executeScript("genericAjaxPopup('import', 'c=internal&a=invoke&module=worklists&action=renderImportMappingPopup&context=cerberusweb.contexts.org&view_id=search_cerberusweb_contexts_org', null, false, '550');");
 		
 		$by = WebDriverBy::cssSelector('div.ui-dialog form');
 		
@@ -660,7 +662,9 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		
 		$postfields = [
 			'c' => 'internal',
-			'a' => 'parseImportFile',
+			'a' => 'invoke',
+			'module' => 'worklists',
+			'action' => 'parseImportFile',
 			'context' => 'cerberusweb.contexts.contact',
 			'view_id' => 'search_cerberusweb_contexts_contact',
 			'_csrf_token' => $csrf_token,
@@ -680,7 +684,7 @@ class CerbEval_UI_Setup extends CerbTestBase {
 		$info = curl_getinfo($ch);
 		curl_close($ch);
 		
-		$driver->executeScript("genericAjaxPopup('import', 'c=internal&a=showImportMappingPopup&context=cerberusweb.contexts.contact&view_id=search_cerberusweb_contexts_contact', null, false, '550');");
+		$driver->executeScript("genericAjaxPopup('import', 'c=internal&a=invoke&module=worklists&action=renderImportMappingPopup&context=cerberusweb.contexts.contact&view_id=search_cerberusweb_contexts_contact', null, false, '550');");
 		
 		$by = WebDriverBy::cssSelector('div.ui-dialog form');
 		

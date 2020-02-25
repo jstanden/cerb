@@ -63,12 +63,17 @@ $(function() {
 		stop:function(e) {
 			e.stopPropagation();
 			
-			$pages = $(this).find('li.drag[page_id]');
-			page_ids = $pages.map(function(e) {
+			var $pages = $(this).find('li.drag[page_id]');
+			var page_ids = $pages.map(function(e) {
 				return $(this).attr('page_id');
 			}).get().join(',');
 
-			genericAjaxGet('', 'c=pages&a=setPageOrder&pages=' + page_ids); 
+			var formData = new FormData();
+			formData.set('c', 'pages');
+			formData.set('a', 'setOrder');
+			formData.set('pages', page_ids);
+
+			genericAjaxPost(formData, null, null);
 		}
 	});
 	

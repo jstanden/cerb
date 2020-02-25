@@ -5013,17 +5013,43 @@
 					<param key="uri" value="calendars" />
 				</params>
 			</extension>
-			
+
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.internal.section.custom_fieldsets</id>
-				<name>Internal Section Custom Fieldsets</name>
+				<id>core.internal.section.notifications</id>
+				<name>Internal Section Notifications</name>
 				<class>
-					<file>api/uri/internal/custom_fieldsets.php</file>
-					<name>PageSection_InternalCustomFieldsets</name>
+					<file>api/uri/internal/notifications.php</file>
+					<name>PageSection_InternalNotifications</name>
 				</class>
 				<params>
 					<param key="page_id" value="core.controller.internal" />
-					<param key="uri" value="custom_fieldsets" />
+					<param key="uri" value="notifications" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.internal.section.portals</id>
+				<name>Internal Section Portals</name>
+				<class>
+					<file>api/uri/internal/portals.php</file>
+					<name>PageSection_InternalPortals</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.controller.internal" />
+					<param key="uri" value="portals" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.internal.section.records</id>
+				<name>Internal Section Records</name>
+				<class>
+					<file>api/uri/internal/records.php</file>
+					<name>PageSection_InternalRecords</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.controller.internal" />
+					<param key="uri" value="records" />
 				</params>
 			</extension>
 
@@ -5039,20 +5065,20 @@
 					<param key="uri" value="watchers" />
 				</params>
 			</extension>
-			
+
 			<extension point="cerberusweb.ui.page.section">
-				<id>core.internal.section.workspaces</id>
-				<name>Internal Section Workspaces</name>
+				<id>core.internal.section.worklists</id>
+				<name>Internal Section Worklists</name>
 				<class>
-					<file>api/uri/internal/workspaces.php</file>
-					<name>PageSection_InternalWorkspaces</name>
+					<file>api/uri/internal/worklists.php</file>
+					<name>PageSection_InternalWorklists</name>
 				</class>
 				<params>
 					<param key="page_id" value="core.controller.internal" />
-					<param key="uri" value="workspaces" />
+					<param key="uri" value="worklists" />
 				</params>
 			</extension>
-		
+
 		<extension point="devblocks.controller">
 			<id>core.controller.avatars</id>
 			<name>Avatars Controller</name>
@@ -5373,48 +5399,6 @@
 			</params>
 		</extension>
 		
-		<!-- [TODO] Phase this out -->
-		<extension point="cerberusweb.page">
-			<id>core.page.tickets</id>
-			<name>Tickets Page</name>
-			<class>
-				<file>api/uri/tickets.php</file>
-				<name>ChTicketsPage</name>
-			</class>
-			<params>
-				<param key="uri" value="tickets" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-		
-		<!-- [TODO] Phase this out -->
-		<extension point="cerberusweb.page">
-			<id>core.page.contacts</id>
-			<name>Contacts Page</name>
-			<class>
-				<file>api/uri/contacts.php</file>
-				<name>ChContactsPage</name>
-			</class>
-			<params>
-				<param key="uri" value="contacts" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
-		<!-- [TODO] Phase this out -->
-		<extension point="cerberusweb.page">
-			<id>core.page.display</id>
-			<name>Display Ticket Page</name>
-			<class>
-				<file>api/uri/display.php</file>
-				<name>ChDisplayPage</name>
-			</class>
-			<params>
-				<param key="uri" value="display" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
 		<extension point="cerberusweb.page">
 			<id>core.page.signin</id>
 			<name>Signin Page</name>
@@ -6224,7 +6208,20 @@
 					<param key="uri" value="mail_transport" />
 				</params>
 			</extension>
-			
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.message</id>
+				<name>Message Section</name>
+				<class>
+					<file>api/uri/profiles/message.php</file>
+					<name>PageSection_ProfilesMessage</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="message" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.oauth_app</id>
 				<name>OAuth App Section</name>

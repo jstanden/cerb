@@ -116,7 +116,7 @@ $(function() {
 			var qr = $trigger.attr('data-query-required');
 			var single = $trigger.attr('data-single') != null ? '1' : '';
 			var width = $(window).width()-100;
-			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&qr=' + encodeURIComponent(qr) + '&single=' + encodeURIComponent(single),null,true,width);
+			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&qr=' + encodeURIComponent(qr) + '&single=' + encodeURIComponent(single),null,true,width);
 			
 			$chooser.one('chooser_save', function(event) {
 				for(value in event.values) {
@@ -152,7 +152,7 @@ $(function() {
 					
 					$fieldset.appendTo($behaviors);
 					
-					genericAjaxGet($div, 'c=internal&a=showBehaviorParams&name_prefix=' + encodeURIComponent(name_prefix) + '&trigger_id=' + encodeURIComponent(behavior_id));
+					genericAjaxGet($div, 'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix=' + encodeURIComponent(name_prefix) + '&trigger_id=' + encodeURIComponent(behavior_id));
 				}
 			});
 		})

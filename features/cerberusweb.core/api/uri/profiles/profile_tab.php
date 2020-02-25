@@ -226,7 +226,12 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		}
 	}
 	
-	function getContextColumnsJsonAction() {
+	private function _profileAction_getContextColumnsJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
 		
 		header('Content-Type: application/json');

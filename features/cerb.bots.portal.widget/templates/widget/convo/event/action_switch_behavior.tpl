@@ -42,7 +42,7 @@ $(function() {
 				var id = $bubble.first().val();
 				
 				if(id) {
-					genericAjaxGet(null,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + id, function(html) {
+					genericAjaxGet(null,'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix={$namePrefix}&trigger_id=' + id, function(html) {
 						var $html = $(html);
 						$behavior_params.html($html);
 						$html.find('.placeholders').cerbCodeEditor();

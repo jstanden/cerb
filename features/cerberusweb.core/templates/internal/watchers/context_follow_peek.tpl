@@ -6,8 +6,8 @@
 
 <form id="{$div_uniqid}" style="margin-bottom:10px;" action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="internal">
-	<input type="hidden" name="a" value="handleSectionAction">
-	<input type="hidden" name="section" value="watchers">
+	<input type="hidden" name="a" value="invoke">
+	<input type="hidden" name="module" value="watchers">
 	<input type="hidden" name="action" value="saveContextWatchersPopupJson">
 	<input type="hidden" name="context" value="{$context}">
 	<input type="hidden" name="context_id" value="{$context_id}">

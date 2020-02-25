@@ -1,8 +1,8 @@
 <form action="javascript:;" method="post" id="frmBehaviorImport" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="behavior">
-<input type="hidden" name="action" value="saveBehaviorImportPopupJson">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="behavior">
+<input type="hidden" name="action" value="saveImportPopupJson">
 <input type="hidden" name="trigger_id" value="{$trigger->id}">
 <input type="hidden" name="node_id" value="{$node_id}">
 
@@ -49,7 +49,7 @@ $(function() {
 				}
 				
 				if(json.status) {
-					genericAjaxGet('decisionTree{$trigger->id}','c=internal&a=showDecisionTree&id={$trigger->id}');
+					genericAjaxGet('decisionTree{$trigger->id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger->id}');
 					$popup.dialog('close');
 					return;
 				}

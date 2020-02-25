@@ -59,7 +59,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 					return $this->_configAction_renderTabMailRelay();
 				case 'saveMailRelayJson':
 					return $this->_configAction_saveMailRelayJson();
-				case 'renderTabRouting':
+				case 'renderTabMailRouting':
 					return $this->_configAction_renderTabMailRouting();
 				case 'saveMailRoutingRuleAdd':
 					return $this->_configAction_saveMailRoutingRuleAdd();

@@ -3709,7 +3709,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($wait_secs)
 			sleep($wait_secs);
 			
-		exit;
+		DevblocksPlatform::exit(302);
 	}
 	
 	static function redirectURL($url, $wait_secs=0) {
@@ -3723,11 +3723,17 @@ class DevblocksPlatform extends DevblocksEngine {
 		if($wait_secs)
 			sleep($wait_secs);
 		
+		DevblocksPlatform::exit(302);
+	}
+	
+	static function exit(int $status_code=200) {
+		if($status_code && php_sapi_name() != 'cli')
+			http_response_code($status_code);
+		
 		exit;
 	}
 	
 	static function dieWithHttpError($message, $status_code=500) {
-		
 		if(php_sapi_name() != 'cli')
 		switch($status_code) {
 			case 403: // Forbidden

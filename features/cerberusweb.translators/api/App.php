@@ -45,7 +45,11 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 	
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
-	
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Translation');
 		$defaults->id = View_Translation::DEFAULT_ID;
 		
@@ -55,9 +59,39 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.translators::config/section/index.tpl');
 	}
 	
-	function saveAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('configAction' == $scope) {
+			switch ($action) {
+				case 'save':
+					return $this->_configAction_save();
+				case 'showFindStringsPanel':
+					return $this->_configAction_showFindStringsPanel();
+				case 'saveFindStringsPanel':
+					return $this->_configAction_saveFindStringsPanel();
+				case 'showAddLanguagePanel':
+					return $this->_configAction_showAddLanguagePanel();
+				case 'saveAddLanguagePanel':
+					return $this->_configAction_saveAddLanguagePanel();
+				case 'showImportStringsPanel':
+					return $this->_configAction_showImportStringsPanel();
+				case 'saveImportStringsPanel':
+					return $this->_configAction_saveImportStringsPanel();
+				case 'exportTmx':
+					return $this->_configAction_exportTmx();
+				case 'saveView':
+					return $this->_configAction_saveView();
+			}
+		}
+		return false;
+	}
+	
+	private function _configAction_save() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
-		exit;
 	}
 	
 	private function _clearCache() {
@@ -70,23 +104,29 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			$cache->remove(DevblocksPlatform::CACHE_TAG_TRANSLATIONS . '_' . $lang_code);
 		}
 	}
-
-	function showFindStringsPanelAction($model=null) {
+	
+	private function _configAction_showFindStringsPanel($model=null) {
 		$tpl = DevblocksPlatform::services()->template();
-
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$codes = DAO_Translation::getDefinedLangCodes();
 		$tpl->assign('codes', $codes);
 		
 		$tpl->display('devblocks:cerberusweb.translators::config/ajax/find_strings_panel.tpl');
 	}
-
-	function saveFindStringsPanelAction() {
+	
+	private function _configAction_saveFindStringsPanel() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// Make sure we're an active worker
-		if(empty($active_worker) || empty($active_worker->id))
-			return;
-
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$lang_codes = DevblocksPlatform::importGPC($_POST['lang_codes'],'array',array());
 		@$lang_actions = DevblocksPlatform::importGPC($_POST['lang_actions'],'array',array());
 			
@@ -139,9 +179,13 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 	}
 	
-	function showAddLanguagePanelAction($model=null) {
+	private function _configAction_showAddLanguagePanel($model=null) {
 		$tpl = DevblocksPlatform::services()->template();
-
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		// Language Names
 		$translate = DevblocksPlatform::getTranslationService();
 		$locs = $translate->getLocaleStrings();
@@ -153,13 +197,12 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		
 		$tpl->display('devblocks:cerberusweb.translators::config/ajax/add_language_panel.tpl');
 	}
-
-	function saveAddLanguagePanelAction() {
+	
+	private function _configAction_saveAddLanguagePanel() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		// Make sure we're an active worker
-		if(empty($active_worker) || empty($active_worker->id))
-			return;
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$codes = DAO_Translation::getDefinedLangCodes();
 			
@@ -245,20 +288,38 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 	}
 	
-	function showImportStringsPanelAction($model=null) {
+	private function _configAction_showImportStringsPanel($model=null) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$tpl->display('devblocks:cerberusweb.translators::config/ajax/import_strings_panel.tpl');
 	}
-
-	function saveImportStringsPanelAction() {
+	
+	private function _configAction_saveImportStringsPanel() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$import_file = $_FILES['import_file'];
-
+		
 		DAO_Translation::importTmxFile($import_file['tmp_name']);
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('config','translations')));
 	}
 	
-	function exportTmxAction() {
+	private function _configAction_exportTmx() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$defaults = C4_AbstractViewModel::loadFromClass('View_Translation');
 		$defaults->id = View_Translation::DEFAULT_ID;
 		
@@ -348,7 +409,15 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 		echo $doc->saveXML();
 	}
 	
-	function saveViewAction() {
+	private function _configAction_saveView() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$row_ids = DevblocksPlatform::importGPC($_POST['row_ids'],'array',array());
 		@$translations = DevblocksPlatform::importGPC($_POST['translations'],'array',array());
 

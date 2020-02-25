@@ -1,8 +1,10 @@
 {$menu_divid = "{uniqid()}"}
 
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmRelayMessage" name="frmRelayMessage">
-<input type="hidden" name="c" value="display">
-<input type="hidden" name="a" value="saveRelayMessagePopup">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="message">
+<input type="hidden" name="action" value="saveRelayMessagePopup">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -69,7 +71,7 @@ $(function() {
 		$this.dialog('option','title','Relay message to external worker email');
 		
 		$this.find('button.ok').click(function() {
-			genericAjaxPost('frmRelayMessage','','',function(json) {
+			genericAjaxPost('frmRelayMessage', null, null, function(json) {
 				// [TODO] On failure, display an error popup
 
 				// Reload the selected tab

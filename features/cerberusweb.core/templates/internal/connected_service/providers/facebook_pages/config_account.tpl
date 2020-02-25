@@ -42,8 +42,17 @@ $(function() {
 					
 				} else {
 					var connected_account_id = $bubble.first().val();
-					
-					genericAjaxGet($pages, 'c=profiles&a=handleSectionAction&section=connected_service&action=ajax&ajax=getPagesFromAccount&id={$service->extension_id}&connected_account_id=' + encodeURIComponent(connected_account_id), function(e) {
+
+					var formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'connected_service');
+					formData.set('action', 'ajax');
+					formData.set('ajax', 'getPagesFromAccount');
+					formData.set('id', '{$service->extension_id}');
+					formData.set('connected_account_id', connected_account_id);
+
+					genericAjaxPost(formData, $pages, null, function() {
 						$pages.fadeIn();
 					});
 				}

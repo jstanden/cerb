@@ -17,7 +17,7 @@
 
 		{if $ticket}
 			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#draft{$draft->id}"}
-			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
+			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 		{/if}
 	</div>
 	{/if}
@@ -147,7 +147,7 @@ $(function() {
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function(e) {
 			e.stopPropagation();
-			genericAjaxGet('draft{$draft->id}','c=display&a=getDraft&id={$draft->id}');
+			genericAjaxGet('draft{$draft->id}','c=profiles&a=invoke&module=draft&action=get&id={$draft->id}');
 		})
 		.on('cerb-peek-deleted', function(e) {
 			e.stopPropagation();

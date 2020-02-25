@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
  | Cerb(tm) developed by Webgroup Media, LLC.
  |-----------------------------------------------------------------------
@@ -18,13 +19,27 @@
 class PageSection_InternalWatchers extends Extension_PageSection {
 	function render() {}
 	
-	function showContextWatchersPopupAction() {
+	public function handleActionForPage(string $action, string $scope=null) {
+		if('internalAction' == $scope) {
+			switch ($action) {
+				case 'showContextWatchersPopup':
+					return $this->_internalAction_showContextWatchersPopup();
+				case 'saveContextWatchersPopupJson':
+					return $this->_internalAction_saveContextWatchersPopupJson();
+				case 'toggleCurrentWorkerAsWatcher':
+					return $this->_internalAction_toggleCurrentWorkerAsWatcher();
+			}
+		}
+		return false;
+	}
+	
+	private function _internalAction_showContextWatchersPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'], 'integer', 0);
 		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'], 'integer', 0);
 		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'], 'integer', 0);
-		
-		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
@@ -32,13 +47,18 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		$tpl->assign('bucket_id', $bucket_id);
 		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$tpl->assign('context_ext', $context_ext);
 		
-		$context_labels = array();
-		$context_values = array();
-		CerberusContexts::getContext($context, $context_id, $context_labels, $context_values);
+		if(false == ($dao_class = $context_ext->getDaoClass()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($model = call_user_func([$dao_class, 'get'], $context_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$context_labels = $context_values = [];
+		CerberusContexts::getContext($context, $model, $context_labels, $context_values);
 		$tpl->assign('context_values', $context_values);
 		
 		// Workers
@@ -54,7 +74,9 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/watchers/context_follow_peek.tpl');
 	}
 	
-	function saveContextWatchersPopupJsonAction() {
+	private function _internalAction_saveContextWatchersPopupJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
 		@$initial_sample = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['initial_sample'], 'array', []), 'int');
@@ -62,8 +84,6 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!CerberusContexts::isWriteableByActor($context, $context_id, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -87,14 +107,17 @@ class PageSection_InternalWatchers extends Extension_PageSection {
 		));
 	}
 	
-	function toggleCurrentWorkerAsWatcherAction() {
+	private function _internalAction_toggleCurrentWorkerAsWatcher() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(empty($context) || empty($context_id) || empty($active_worker))
-			return;
+		if(!$context || !$context_id || !$active_worker)
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$worker_id = $active_worker->id;
 		

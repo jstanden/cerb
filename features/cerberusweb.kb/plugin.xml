@@ -217,21 +217,6 @@
 			</params>
 		</extension>
 	
-		<!-- Pages -->
-	
-		<extension point="cerberusweb.page">
-			<id>core.page.kb</id>
-			<name>Knowledgebase</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChKbPage</name>
-			</class>
-			<params>
-				<param key="uri" value="kb" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-		
 		<!-- Workspace Widgets -->
 		
 		<extension point="cerberusweb.ui.workspace.widget">

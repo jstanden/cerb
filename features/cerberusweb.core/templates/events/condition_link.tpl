@@ -42,7 +42,7 @@ $(function() {
 		var $val = $this.val();
 		
 		if($val.length > 0) {
-			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
 			$popup.one('popup_close',function(event) {
 				event.stopPropagation();
 				var $container = $('#container_{$random}');

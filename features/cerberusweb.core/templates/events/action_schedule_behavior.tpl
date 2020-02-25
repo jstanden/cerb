@@ -57,7 +57,7 @@
 var $action = $('#{$namePrefix}_{$nonce}');
 $action.find('select.behavior').change(function(e) {
 	var $div = $(this).closest('fieldset').find('div.parameters');
-	genericAjaxGet($div,'c=internal&a=showBehaviorParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
+	genericAjaxGet($div,'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix={$namePrefix}&trigger_id=' + $(this).val());
 });
 
 $action.find('select.on').change(function(e) {

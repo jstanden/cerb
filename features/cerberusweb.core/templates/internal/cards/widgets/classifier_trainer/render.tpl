@@ -25,8 +25,8 @@ $(function() {
 
             var formData = new FormData();
             formData.set('c', 'profiles');
-            formData.set('a', 'handleSectionAction');
-            formData.set('section', 'classifier');
+            formData.set('a', 'invoke');
+            formData.set('module', 'classifier');
             formData.set('action', 'predict');
             formData.set('classifier_id', '{$classifier->id}');
             formData.set('text', $input.val());

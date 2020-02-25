@@ -7,20 +7,43 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 	function render() {
 	}
 	
-	// [TODO] This should be handled by the context
-	function showPeekPopupAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'showPeekPopup':
+					return $this->_profileAction_showPeekPopup();
+				case 'savePeekPopup':
+					return $this->_profileAction_savePeekPopup();
+				case 'viewMarkClosed':
+					return $this->_profileAction_viewMarkClosed();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'showBulkUpdatePopup':
+					return $this->_profileAction_showBulkUpdatePopup();
+			}
+		}
+		return false;
+	}
+	
+	/** @noinspection DuplicatedCode */
+	private function _profileAction_showPeekPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		
-		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('view_id', $view_id);
 		
 		// Message
 		
-		if(null != ($message = DAO_TwitterMessage::get($id))) {
-			$tpl->assign('message', $message);
-		}
+		if(false == ($message = DAO_TwitterMessage::get($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$tpl->assign('message', $message);
+		
+		if(!Context_TwitterMessage::isReadableByActor($message, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(Context_TwitterMessage::ID, false);
@@ -38,22 +61,25 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		$tpl->display('devblocks:wgm.twitter::tweet/peek.tpl');
 	}
 	
-	function savePeekPopupAction() {
+	private function _profileAction_savePeekPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$do_reply = DevblocksPlatform::importGPC($_POST['do_reply'], 'integer', 0);
 		@$reply = DevblocksPlatform::importGPC($_POST['reply'], 'string', '');
 		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'], 'integer', 0);
 
-		$active_worker = CerberusApplication::getActiveWorker();
+		if(!$id || null == ($message = DAO_TwitterMessage::get($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(empty($id) || null == ($message = DAO_TwitterMessage::get($id)))
-			return;
-		
+		if(!Context_TwitterMessage::isWriteableByActor($message))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+			
 		if(!$message->connected_account_id || false == ($connected_account = DAO_ConnectedAccount::get($message->connected_account_id)))
 			return;
 			
 		if(!Context_ConnectedAccount::isReadableByActor($connected_account, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$fields = [
 			DAO_TwitterMessage::IS_CLOSED => $is_closed ? 1 : 0,
@@ -100,19 +126,34 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		}
 	}
 	
-	function viewMarkClosedAction() {
+	private function _profileAction_viewMarkClosed() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker)
+			DevblocksPlatform::dieWithHttpError(null, 401);
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
-
+		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
+		
+		$models = DAO_TimeTrackingEntry::getIds($row_ids);
+		
+		// Privs
+		$models = array_intersect_key(
+			$models,
+			array_flip(
+				array_keys(
+					Context_TwitterMessage::isWriteableByActor($models, $active_worker),
+					true
+				)
+			)
+		);
+		
 		try {
-			if(is_array($row_ids))
-			foreach($row_ids as $row_id) {
-				$row_id = intval($row_id);
-				
-				if(!empty($row_id))
-					DAO_TwitterMessage::update($row_id, array(
-						DAO_TwitterMessage::IS_CLOSED => 1,
-					));
+			if(is_array($models))
+			foreach($models as $model) {
+				DAO_TwitterMessage::update($model->id, array(
+					DAO_TwitterMessage::IS_CLOSED => 1,
+				));
 			}
 		} catch (Exception $e) {
 			//
@@ -121,18 +162,22 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		$view = C4_AbstractViewLoader::getView($view_id);
 		$view->setAutoPersist(false);
 		$view->render();
-		
 		exit;
 	}
 	
-	function showBulkUpdatePopupAction() {
+	private function _profileAction_showBulkUpdatePopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_TwitterMessage::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
-		if(!empty($ids)) {
+		if($ids && is_array($ids)) {
 			$id_list = DevblocksPlatform::parseCsvString($ids);
 			$tpl->assign('ids', implode(',', $id_list));
 		}
@@ -147,10 +192,15 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		$tpl->display('devblocks:wgm.twitter::tweet/bulk.tpl');
 	}
 	
-	function startBulkUpdateJsonAction() {
+	private function _profileAction_startBulkUpdateJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_TwitterMessage::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
-		$ids = array();
+		$ids = [];
 		
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');

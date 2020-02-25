@@ -183,8 +183,9 @@ class DevblocksMenuItemPlaceholder {
 }
 
 interface IDevblocksContextExtension {
-	static function isReadableByActor($actor, $models);
-	static function isWriteableByActor($actor, $models);
+	static function isReadableByActor($models, $actor);
+	static function isWriteableByActor($models, $actor);
+	static function isDeletableByActor($models, $actor);
 }
 
 abstract class Extension_DevblocksContext extends DevblocksExtension implements IDevblocksContextExtension {

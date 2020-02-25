@@ -3,8 +3,10 @@
 	
 	<div class="bot-chat-window-input">
 		<form class="bot-chat-window-input-form" action="javascript:;" onsubmit="return false;" method="post">
-			<input type="hidden" name="c" value="internal">
-			<input type="hidden" name="a" value="consoleSendMessage">
+			<input type="hidden" name="c" value="profiles">
+			<input type="hidden" name="a" value="invoke">
+			<input type="hidden" name="module" value="bot">
+			<input type="hidden" name="action" value="sendMessage">
 			<input type="hidden" name="layer" value="{$layer}">
 			<textarea name="message" style="display:none;"></textarea>
 			<input type="hidden" name="session_id" value="{$session_id}">

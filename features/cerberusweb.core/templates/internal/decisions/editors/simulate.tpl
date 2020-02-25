@@ -1,6 +1,8 @@
 <form id="frmBehaviorSimulator{$trigger->id}" onsubmit="return false;">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="runBehaviorSimulator">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="behavior">
+<input type="hidden" name="action" value="runSimulator">
 {if isset($node)}<input type="hidden" name="id" value="{$node->id}">{/if}
 {if isset($trigger)}<input type="hidden" name="trigger_id" value="{$trigger->id}">{/if}
 <input type="hidden" name="event_params_json" value="{$event_params_json}">
@@ -77,7 +79,7 @@ $(function() {
 			var $button = $(this).hide();
 			var $output = $('#divBehaviorSimulatorResults{$trigger->id}').html('<span class="cerb-ajax-spinner"></span>');
 			
-			genericAjaxPost('frmBehaviorSimulator{$trigger->id}',$output,'', function() {
+			genericAjaxPost('frmBehaviorSimulator{$trigger->id}',$output,null, function() {
 				$button.show();
 			});
 		});

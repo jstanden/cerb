@@ -94,8 +94,9 @@ abstract class Extension_AppPostBodyRenderer extends DevblocksExtension {
 abstract class CerberusPageExtension extends DevblocksExtension {
 	const POINT = 'cerberusweb.page';
 	
-	function isVisible() { return true; }
-	function render() { }
+	abstract function isVisible();
+	abstract function render();
+	abstract function invoke(string $action);
 };
 
 abstract class Extension_PluginSetup extends DevblocksExtension {
@@ -189,6 +190,7 @@ abstract class Extension_PageSection extends DevblocksExtension {
 	}
 	
 	abstract function render();
+	abstract function handleActionForPage(string $action, string $scope=null);
 };
 
 abstract class Extension_PageMenu extends DevblocksExtension {
@@ -363,6 +365,7 @@ abstract class Extension_ProfileTab extends DevblocksExtension {
 	}
 	
 	abstract function showTab(Model_ProfileTab $model, $context, $context_id);
+	abstract function invoke(string $action, Model_ProfileTab $model);
 	abstract function renderConfig(Model_ProfileTab $model);
 	abstract function saveConfig(Model_ProfileTab $model);
 };
@@ -427,6 +430,7 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 	}
 	
 	abstract function render(Model_ProfileWidget $model, $context, $context_id);
+	abstract function invoke(string $action, Model_ProfileWidget $model);
 	abstract function renderConfig(Model_ProfileWidget $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }
 	
@@ -831,6 +835,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	}
 	
 	abstract function render(Model_WorkspaceWidget $widget);
+	abstract function invoke(string $action, Model_WorkspaceWidget $model);
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 	
@@ -1035,5 +1040,5 @@ abstract class Extension_ConnectedServiceProvider extends DevblocksExtension {
 	
 	abstract function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options=[]) : bool;
 	
-	function ajaxAction() {}
+	abstract function handleActionForService(string $action);
 };

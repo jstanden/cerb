@@ -69,7 +69,7 @@ $(function() {
         $popup.find('button.cerb-peek-edit')
             .cerbPeekTrigger({ 'view_id': '{$view_id}' })
             .on('cerb-peek-saved', function(e) {
-                genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+                genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
             })
             .on('cerb-peek-deleted', function(e) {
                 genericAjaxPopupClose($layer);
@@ -81,7 +81,7 @@ $(function() {
         $popup.find('button.cerb-peek-comments-add')
             .cerbPeekTrigger()
             .on('cerb-peek-saved', function() {
-                genericAjaxPopup($layer,'c=internal&a=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+                genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
             })
         ;
 
@@ -155,11 +155,11 @@ $(function() {
 
         $popup.on('cerb-reorder', function(e) {
             var formData = new FormData();
-            formData.append('c', 'profiles');
-            formData.append('a', 'handleSectionAction');
-            formData.append('section', 'card_widget');
-            formData.append('action', 'reorderWidgets');
-            formData.append('record_type', '{$peek_context}');
+            formData.set('c', 'profiles');
+            formData.set('a', 'invoke');
+            formData.set('module', 'card_widget');
+            formData.set('action', 'reorderWidgets');
+            formData.set('record_type', '{$peek_context}');
 
             // Zones
             $popup.find('.cerb-card-layout-zone')
@@ -232,7 +232,7 @@ $(function() {
                                 // Done
                             });
                         } else if($li.is('.cerb-card-widget-menu--export-widget')) {
-                            genericAjaxPopup('export_widget', 'c=profiles&a=handleSectionAction&section=card_widget&action=exportWidget&id=' + widget_id, null, false);
+                            genericAjaxPopup('export_widget', 'c=profiles&a=invoke&module=card_widget&action=exportWidget&id=' + widget_id, null, false);
                         }
                     }
                 })
@@ -277,14 +277,14 @@ $(function() {
                 var formData = new FormData();
             }
 
-            formData.append('c', 'profiles');
-            formData.append('a', 'handleSectionAction');
-            formData.append('section', 'card_widget');
-            formData.append('action', 'renderWidget');
-            formData.append('context', '{$peek_context}');
-            formData.append('context_id', '{$peek_context_id}');
-            formData.append('id', widget_id);
-            formData.append('full', is_full ? '1' : '0');
+            formData.set('c', 'profiles');
+            formData.set('a', 'invoke');
+            formData.set('module', 'card_widget');
+            formData.set('action', 'renderWidget');
+            formData.set('context', '{$peek_context}');
+            formData.set('context_id', '{$peek_context_id}');
+            formData.set('id', widget_id);
+            formData.set('full', is_full ? '1' : '0');
 
             if(refresh_options instanceof Object) {
                 Devblocks.objectToFormData(refresh_options, formData);

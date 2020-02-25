@@ -163,21 +163,6 @@
 			</params>
 		</extension>
 
-		<!-- Pages -->
-		
-		<extension point="cerberusweb.page">
-			<id>cerberusweb.datacenter.page</id>
-			<name>Datacenter Page</name>
-			<class>
-				<file>api/App.php</file>
-				<name>Page_Datacenter</name>
-			</class>
-			<params>
-				<param key="uri" value="datacenter" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
 		<!-- Profile Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">

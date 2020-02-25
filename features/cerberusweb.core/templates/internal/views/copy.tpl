@@ -1,4 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="frmCopy{$view->id}" onsubmit="return false;">
+<input type="hidden" name="c" value="internal">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="worklists">
+<input type="hidden" name="action" value="saveCopy">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -33,7 +37,7 @@ You can copy this worklist to other pages in order to build your ideal workspace
 <br>
 <br>
 
-<button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','c=internal&a=viewDoCopy');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
+<button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','');"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate}</button>
 <button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style=""><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Do nothing</button><br>
 </form>
 

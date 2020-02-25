@@ -24,18 +24,6 @@ class Page_Search extends CerberusPageExtension {
 		return true;
 	}
 	
-	function handleSectionActionAction() {
-		// GET has precedence over POST
-		@$section_uri = DevblocksPlatform::importGPC(isset($_GET['section']) ? $_GET['section'] : $_REQUEST['section'],'string','');
-		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
-
-		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
-		
-		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
-			call_user_func(array($inst, $action.'Action'));
-		}
-	}
-	
 	function render() {
 		$tpl = DevblocksPlatform::services()->template();
 		$response = DevblocksPlatform::getHttpResponse();
@@ -77,7 +65,17 @@ class Page_Search extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::search/index.tpl');
 	}
 	
-	function openSearchPopupAction() {
+	public function invoke(string $action) {
+		switch($action) {
+			case 'openSearchPopup':
+				return $this->_pageAction_openSearchPopup();
+			case 'ajaxQuickSearch':
+				return $this->_pageAction_ajaxQuickSearch();
+		}
+		return false;
+	}
+	
+	private function _pageAction_openSearchPopup() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string','');
 		@$query_required = DevblocksPlatform::importGPC($_REQUEST['qr'],'string','');
@@ -118,13 +116,14 @@ class Page_Search extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::search/popup.tpl');
 	}
 	
-	function ajaxQuickSearchAction() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
-		@$query = DevblocksPlatform::importGPC($_POST['query'],'string','');
-
+	private function _pageAction_ajaxQuickSearch() {
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		@$query = DevblocksPlatform::importGPC($_POST['query'], 'string', '');
+		
 		header("Content-type: application/json");
 		
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) { /* @var $view C4_AbstractView */
+		if (null == ($view = C4_AbstractViewLoader::getView($view_id))) {
+			/* @var $view C4_AbstractView */
 			echo json_encode(null);
 			return;
 		}
@@ -132,12 +131,12 @@ class Page_Search extends CerberusPageExtension {
 		$replace_params = true;
 		
 		// Allow parameters to be added incrementally with a leading '+' character
-		if('+' == substr($query,0,1)) {
+		if ('+' == substr($query, 0, 1)) {
 			$replace_params = false;
 			$query = ltrim($query, '+ ');
 		}
 		
-		if($replace_params)
+		if ($replace_params)
 			$view->setParamsQuery($query);
 		
 		$view->addParamsWithQuickSearch($query, $replace_params);

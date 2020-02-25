@@ -2,6 +2,10 @@
 class ServiceProvider_TokenBearer extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.token.bearer';
 	
+	function handleActionForService($action) {
+		return false;
+	}
+	
 	function renderConfigForm(Model_ConnectedService $service) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();

@@ -37,7 +37,7 @@ $(function() {
 	if($view.attr('data-context') != '{CerberusContexts::CONTEXT_NOTIFICATION}')
 		return;
 	
-	genericAjaxGet($view,'c=internal&a=viewRefresh&id={$view_id}');
+	genericAjaxGet($view,'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 });
 </script>
 {/if}

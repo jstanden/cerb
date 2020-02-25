@@ -149,10 +149,14 @@ $(function() {
 		}
 		
 		var formData = new FormData($frm.get(0));
-		formData.append('template_key', 'params[data_query]');
-		formData.append('format', 'json');
-		
-		genericAjaxPost(formData, '', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=testWidgetTemplate', function(json) {
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'workspace_widget');
+		formData.set('action', 'testWidgetTemplate');
+		formData.set('template_key', 'params[data_query]');
+		formData.set('format', 'json');
+
+		genericAjaxPost(formData, '', '', function(json) {
 			if(false == json.status) {
 				$sheet_preview.text(json.response);
 				return;

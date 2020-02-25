@@ -65,7 +65,7 @@ $package_chooser.on('click', function(e) {
 	var package_name = $package.attr('data-cerb-package');
 	
 	if(package_name) {
-		genericAjaxGet($package_info, 'c=profiles&a=handleSectionAction&section=package&action=showPackagePrompts&package=' + encodeURIComponent(package_name), function() {
+		genericAjaxGet($package_info, 'c=profiles&a=invoke&module=package&action=showPackagePrompts&package=' + encodeURIComponent(package_name), function() {
 			$package_info.triggerHandler('cerb-enable');
 			$package_info_submit = $package_info.find('[data-cerb-action="submit"]');
 		});

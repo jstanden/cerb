@@ -1,6 +1,8 @@
 <form action="#" method="POST" id="formSnippetsPaste" name="formSnippetsPaste" onsubmit="return false;">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="snippetPlaceholdersPreview">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="snippet">
+<input type="hidden" name="action" value="previewPlaceholders">
 <input type="hidden" name="id" value="{$snippet->id}">
 <input type="hidden" name="context_id" value="{$context_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">

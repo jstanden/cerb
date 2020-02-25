@@ -179,7 +179,7 @@ $('#popup{$uniqid}').click(function(e) {
 		return;
 	}
 	
-	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"calendar{$calendar->id}_worklist{$series_idx}"}',null,true,'750');
+	$chooser=genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpenParams&context='+context+'&view_id={"calendar{$calendar->id}_worklist{$series_idx}"}',null,true,'750');
 	$chooser.bind('chooser_save',function(event) {
 		if(null != event.worklist_model) {
 			$('#popup{$uniqid}').parent().find('input:hidden.model').val(event.worklist_model);

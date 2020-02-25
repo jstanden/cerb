@@ -12,11 +12,11 @@ $(function() {
    var $widget = $('#cardWidget{$widget->getUniqueId($behavior->id)}');
 
    $widget.find('button[data-cerb-button=simulate]').on('click', function() {
-       genericAjaxPopup('simulate_behavior', 'c=internal&a=showBehaviorSimulatorPopup&trigger_id={$behavior->id}',null,false,'50%');
+       genericAjaxPopup('simulate_behavior', 'c=profiles&a=invoke&module=behavior&action=renderSimulatorPopup&trigger_id={$behavior->id}',null,false,'50%');
    });
 
    $widget.find('button[data-cerb-button=export]').on('click', function() {
-       genericAjaxPopup('export_behavior','c=internal&a=showBehaviorExportPopup&trigger_id={$behavior->id}',null,false,'50%');
+       genericAjaxPopup('export_behavior','c=profiles&a=invoke&module=behavior&action=renderExportPopup&trigger_id={$behavior->id}',null,false,'50%');
    });
 });
 </script>

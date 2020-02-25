@@ -15,10 +15,6 @@
 |	http://cerb.ai	    http://webgroup.media
  ***********************************************************************/
 
-class PageSection_InternalWorkspaces extends Extension_PageSection {
-	function render() {}
-};
-
 class WorkspacePage_Workspace extends Extension_WorkspacePage {
 	const ID = 'core.workspace.page.workspace';
 	

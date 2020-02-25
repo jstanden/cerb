@@ -10,8 +10,8 @@
 	<div id="peekTemplateTest"></div>
 	
 	<button type="button" class="cerb-popupmenu-trigger">Insert placeholder &#x25be;</button> 
-	<button type="button" onclick="genericAjaxPost('{$frm_id}','peekTemplateTest','c=internal&a=snippetTest&snippet_context={$context_ext->id}&snippet_key_prefix={$key_prefix}&snippet_field=content');">Test</button> 
-	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '50%');">Help</button> 
+	<button type="button" data-cerb-button="toolbar-test">Test</button>
+	<button type="button" data-cerb-button="toolbar-help">Help</button>
 	
 	{function tree level=0}
 		{foreach from=$keys item=data key=idx}
@@ -55,8 +55,7 @@ $(function() {
 		$popup.css('overflow', 'inherit');
 
 		var $textarea = $popup.find('textarea[name=content]');
-		
-		//$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
+		var $toolbar = $popup.find('.toolbar');
 		
 		// Buttons
 		$popup.find('button.submit').on('click', function() {
@@ -64,7 +63,27 @@ $(function() {
 			evt.template = $textarea.val();
 			genericAjaxPopupClose($popup, evt);
 		});
-		
+
+		$toolbar.find('[data-cerb-button=toolbar-test]').on('click', function(e) {
+			e.stopPropagation();
+
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'module');
+			formData.set('action', 'test');
+			formData.set('snippet_context', '{$context_ext->id}');
+			formData.set('snippet_key_prefix', '{$key_prefix}');
+			formData.set('snippet_field', 'content');
+
+			genericAjaxPost(formData,'peekTemplateTest',null);
+		});
+
+		$toolbar.find('[data-cerb-button=toolbar-help]').on('click', function(e) {
+			e.stopPropagation();
+			genericAjaxPopup('help', 'c=profiles&a=invoke&module=snippet&action=helpPopup', { my:'left top' , at:'left+20 top+20'}, false, '50%');
+		});
+
 		// Editor
 		var $menu_trigger = $popup.find('button.cerb-popupmenu-trigger');
 		var $placeholder_menu = $popup.find('ul.menu').hide();

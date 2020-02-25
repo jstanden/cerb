@@ -6,11 +6,13 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.aws';
 	
 	function renderConfigForm(Model_ConnectedService $service) {
-		
 	}
 	
 	function saveConfigForm(Model_ConnectedService $service, array &$params, &$error=null) {
-		
+	}
+	
+	public function handleActionForService(string $action) {
+		return false;
 	}
 	
 	public function renderAccountConfigForm(Model_ConnectedService $service, Model_ConnectedAccount $account) {

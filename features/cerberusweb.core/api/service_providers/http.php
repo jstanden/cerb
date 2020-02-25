@@ -2,6 +2,10 @@
 class ServiceProvider_HttpBasic extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.http.basic';
 	
+	public function handleActionForService(string $action) {
+		return false;
+	}
+	
 	function renderConfigForm(Model_ConnectedService $service) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();

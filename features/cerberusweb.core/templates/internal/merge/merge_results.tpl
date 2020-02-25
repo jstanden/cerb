@@ -28,7 +28,7 @@ $(function() {
 	
 	// Reload view
 	{if $view_id}
-	genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+	genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 	{/if}
 	
 	// Emit a record_merged event

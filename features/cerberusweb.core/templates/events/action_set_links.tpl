@@ -87,7 +87,7 @@ $(function() {
 		$container.data('context_name', $this.find('a').text());
 		
 		if($val.length > 0) {
-			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
+			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
 			$popup.one('chooser_save',function(event) {
 				event.stopPropagation();
 				

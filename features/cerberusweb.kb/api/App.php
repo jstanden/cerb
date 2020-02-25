@@ -40,92 +40,20 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 
-class ChKbPage extends CerberusPageExtension {
-	function isVisible() {
-		// The current session must be a logged-in worker to use this page.
-		if(null == (CerberusApplication::getActiveWorker()))
-			return false;
-		return true;
-	}
-	
-	function render() {
-	}
-	
-	function viewKbArticlesExploreAction() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::services()->url();
-		
-		// Generate hash
-		$hash = md5($view_id.$active_worker->id.time());
-		
-		// Loop through view and get IDs
-		if(null == ($view = C4_AbstractViewLoader::getView($view_id)))
-			return;
-		
-		$view->setAutoPersist(false);
-
-		// Page start
-		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
-		if(empty($explore_from)) {
-			$orig_pos = 1+($view->renderPage * $view->renderLimit);
-		} else {
-			$orig_pos = 1;
-		}
-		
-		$view->renderPage = 0;
-		$view->renderLimit = 250;
-		$pos = 0;
-		
-		do {
-			$models = array();
-			list($results, $total) = $view->getData();
-
-			// Summary row
-			if(0==$view->renderPage) {
-				$model = new Model_ExplorerSet();
-				$model->hash = $hash;
-				$model->pos = $pos++;
-				$model->params = array(
-					'title' => $view->name,
-					'created' => time(),
-					'worker_id' => $active_worker->id,
-					'total' => $total,
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&tab=kb', true),
-				);
-				$models[] = $model;
-				
-				$view->renderTotal = false; // speed up subsequent pages
-			}
-			
-			if(is_array($results))
-			foreach($results as $task_id => $row) {
-				if($task_id==$explore_from)
-					$orig_pos = $pos;
-				
-				$model = new Model_ExplorerSet();
-				$model->hash = $hash;
-				$model->pos = $pos++;
-				$model->params = array(
-					'id' => $row[SearchFields_KbArticle::ID],
-					'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=kb&id=%d", $row[SearchFields_KbArticle::ID]), true),
-				);
-				$models[] = $model;
-			}
-			
-			DAO_ExplorerSet::createFromModels($models);
-			
-			$view->renderPage++;
-			
-		} while(!empty($results));
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
-	}
-	
-};
-
 class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
+	public function invoke(string $action, Model_WorkspaceWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		switch($action) {
+			case 'changeCategory':
+				return $this->_workspaceWidgetAction_changeCategory($model);
+		}
+		return false;
+	}
+
 	function render(Model_WorkspaceWidget $widget) {
 		@$root_category_id = intval($widget->params['topic_id']);
 		
@@ -164,7 +92,7 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 		]);
 	}
 	
-	public function changeCategoryAction() {
+	private function _workspaceWidgetAction_changeCategory(Model_WorkspaceWidget $model) {
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
 		@$category_id = DevblocksPlatform::importGPC($_REQUEST['category_id'],'integer',0);
 		
@@ -247,7 +175,6 @@ class EventListener_Kb extends DevblocksEventListenerExtension {
 	function handleEvent(Model_DevblocksEvent $event) {
 		switch($event->id) {
 			case 'cron.maint':
-				//DAO_KbCategory::maint();
 				DAO_KbArticle::maint();
 				break;
 		}
@@ -260,7 +187,16 @@ class ProfileWidget_KbArticle extends Extension_ProfileWidget {
 	function __construct($manifest=null) {
 		parent::__construct($manifest);
 	}
-
+	
+	function invoke(string $action, Model_ProfileWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

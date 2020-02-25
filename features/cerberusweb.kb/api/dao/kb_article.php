@@ -903,6 +903,10 @@ class Model_KbArticle {
 	public $updated = 0;
 	public $views = 0;
 	
+	function setContent($content) {
+		$this->_content = $content;
+	}
+	
 	function getContent($sanitized=true) {
 		$html = '';
 		

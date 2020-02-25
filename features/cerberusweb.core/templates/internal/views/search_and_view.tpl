@@ -16,7 +16,7 @@
 $(function() {
 	$('#viewCustomFilters{$view->id}').bind('view_refresh', function(event) {
 		if(event.target == event.currentTarget)
-			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
+			genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
 	});
 });
 </script>

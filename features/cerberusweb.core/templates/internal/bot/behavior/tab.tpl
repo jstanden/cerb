@@ -27,8 +27,7 @@ $(function() {
 		if($target.closest('div.node').hasClass('dragged'))
 			return;
 		
-		// [TODO] Optimize out the Ajax?
-		genericAjaxGet('', 'c=internal&a=showDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
+		genericAjaxGet('', 'c=profiles&a=invoke&module=behavior&action=renderDecisionNodeMenu&id='+node_id+'&trigger_id='+trigger_id, function(html) {
 			var $position = $target.offset();
 			$('#nodeMenu{$tab_uniqid}')
 				.appendTo('body')

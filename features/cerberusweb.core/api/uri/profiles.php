@@ -614,33 +614,6 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		
 		DAO_ProfileWidget::reorder($new_zones);
 	}
-	
-	function getPlaceholderToolbarForTabAction() {
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'integer', 0);
-		
-		$tpl = DevblocksPlatform::services()->template();
-		
-		if(false == ($tab = DAO_ProfileTab::get($tab_id))) {
-			return;
-		}
-		
-		$labels = $values = [];
-		
-		// Record dictionary
-		$merge_labels = $merge_values = [];
-		CerberusContexts::getContext($tab->context, null, $merge_labels, $merge_values, '', true);
-		CerberusContexts::merge('record_', 'Record ', $merge_labels, $merge_values, $labels, $values);
-		
-		// Merge in the widget dictionary
-		$merge_labels = $merge_values = [];
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_WIDGET, null, $merge_labels, $merge_values, '', true);
-		CerberusContexts::merge('widget_', 'Widget ', $merge_labels, $merge_values, $labels, $values);
-		
-		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
-		$tpl->assign('placeholders', $placeholders);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/dashboard/toolbar.tpl');
-	}
 }
 
 class ProfileTab_PortalConfigure extends Extension_ProfileTab {

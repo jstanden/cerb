@@ -64,7 +64,16 @@ $('#decisionTree{$trigger->id} DIV.node.trigger > DIV.badge').droppable({
 		
 		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
 		var parent_id = $node.find('> input:hidden[name=node_id]').val();
-		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'behavior');
+		formData.set('action', 'reparentNode');
+		formData.set('child_id', child_id);
+		formData.set('parent_id', parent_id);
+
+		genericAjaxPost(formData, null, null);
 		return true;
 	}
 });
@@ -85,7 +94,16 @@ $('#decisionTree{$trigger->id} DIV.node.subroutine > DIV.badge').droppable({
 		
 		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
 		var parent_id = $node.find('> input:hidden[name=node_id]').val();
-		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'behavior');
+		formData.set('action', 'reparentNode');
+		formData.set('child_id', child_id);
+		formData.set('parent_id', parent_id);
+
+		genericAjaxPost(formData, null, null);
 		return true;
 	}
 });
@@ -106,7 +124,16 @@ $('#decisionTree{$trigger->id} DIV.node.switch > DIV.badge').droppable({
 		
 		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
 		var parent_id = $node.find('> input:hidden[name=node_id]').val();
-		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'behavior');
+		formData.set('action', 'reparentNode');
+		formData.set('child_id', child_id);
+		formData.set('parent_id', parent_id);
+
+		genericAjaxPost(formData, null, null);
 		return true;
 	}
 });
@@ -127,7 +154,16 @@ $('#decisionTree{$trigger->id} DIV.node.loop > DIV.badge').droppable({
 		
 		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
 		var parent_id = $node.find('> input:hidden[name=node_id]').val();
-		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'behavior');
+		formData.set('action', 'reparentNode');
+		formData.set('child_id', child_id);
+		formData.set('parent_id', parent_id);
+
+		genericAjaxPost(formData, null, null);
 		return true;
 	}
 });
@@ -148,7 +184,16 @@ $('#decisionTree{$trigger->id} DIV.node.outcome > DIV.badge').droppable({
 
 		var child_id = $(ui.draggable).find('> input:hidden[name=node_id]').val();
 		var parent_id = $node.find('> input:hidden[name=node_id]').val();
-		genericAjaxGet('','c=internal&a=reparentNode&child_id=' + child_id + '&parent_id=' + parent_id);
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'behavior');
+		formData.set('action', 'reparentNode');
+		formData.set('child_id', child_id);
+		formData.set('parent_id', parent_id);
+
+		genericAjaxPost(formData, null, null);
 		return true;
 	}
 });

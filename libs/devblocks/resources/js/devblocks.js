@@ -391,7 +391,7 @@ function DevblocksClass() {
 				
 				// Reload the associated view (underlying helper)
 				if(e.view_id)
-					genericAjaxGet('view'+e.view_id, 'c=internal&a=viewRefresh&id=' + e.view_id);
+					genericAjaxGet('view'+e.view_id, 'c=internal&a=invoke&module=worklists&action=refresh&id=' + e.view_id);
 				
 				if(is_continue) {
 					Devblocks.createAlert('Saved!', 'note');
@@ -1321,7 +1321,7 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 				if(html.length > 0)
 					$('#view'+view_id).html(html);
 			} else if (has_view && !has_output) { // Reload from view_id
-				genericAjaxGet('view'+view_id, 'c=internal&a=viewRefresh&id=' + view_id);
+				genericAjaxGet('view'+view_id, 'c=internal&a=invoke&module=worklists&action=refresh&id=' + view_id);
 			}
 
 			if(has_view)
@@ -1383,7 +1383,6 @@ function genericAjaxGet(divRef,args,cb,options) {
 }
 
 function genericAjaxPost(formRef,divRef,args,cb,options) {
-	var frm = null;
 	var div = null;
 	
 	// Polymorph div
@@ -1405,18 +1404,20 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 		options.processData = false;
 		options.contentType = false;
 		options.data = formRef;
-		
-	} else {
-		// Polymorph form
-		if(formRef instanceof jQuery)
-			frm = formRef;
-		else if(typeof formRef=="string" && formRef.length > 0)
-			frm = $('#'+formRef);
-		
-		if(null == frm)
-			return;
-		
-		options.data = $(frm).serialize();
+
+	// Polymorph form
+	} else if(formRef instanceof jQuery) {
+		options.data = $(formRef).serialize();
+
+	} else if(typeof formRef=="object") {
+		var formData = new FormData();
+		Devblocks.objectToFormData(formRef, formData);
+		options.processData = false;
+		options.contentType = false;
+		options.data = formData;
+
+	} else if(typeof formRef=="string" && formRef.length > 0) {
+		options.data = $('#' + formRef).serialize();
 	}
 
 	if(null != div) {

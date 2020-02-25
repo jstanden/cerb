@@ -1,5 +1,7 @@
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="viewSaveCustomize">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="worklists">
+<input type="hidden" name="action" value="saveCustomize">
 <input type="hidden" name="id" value="{$view->id}">
 <div class="block" style="margin:5px;">
 <h1 style="margin-bottom:10px;">{'common.customize'|devblocks_translate|capitalize}</h1>
@@ -93,7 +95,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $container =$('#customize{$view->id}');
+	var $container = $('#customize{$view->id}');
 	
 	$container.sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
 	
@@ -108,8 +110,14 @@ $(function() {
 	;
 	
 	$container.find('button.save').on('click', function(e) {
-		genericAjaxPost('customize{$view->id}','','c=internal&a=viewSaveCustomize', function(e) {
-			genericAjaxGet('view{$view->id}','c=internal&a=viewRefresh&id={$view->id}');
+		var formData = new FormData($container[0]);
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'worklists');
+		formData.set('action', 'saveCustomize');
+
+		genericAjaxPost(formData, null, null, function() {
+			genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
 		});
 	})
 });

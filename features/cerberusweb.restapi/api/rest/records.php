@@ -281,7 +281,7 @@ class ChRest_Records extends Extension_RestController {
 		if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", $context_ext->id)))
 			$this->error(self::ERRNO_ACL, DevblocksPlatform::translate('error.core.no_acl.delete'));
 		
-		if(!CerberusContexts::isDeleteableByActor($context->id, $model, $active_worker))
+		if(!CerberusContexts::isDeletableByActor($context->id, $model, $active_worker))
 			$this->error(self::ERRNO_ACL, DevblocksPlatform::translate('error.core.no_acl.delete'));
 		
 		$dao_class::delete($id);

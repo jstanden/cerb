@@ -53,10 +53,10 @@ $(function() {
 
 		var formData = new FormData();
 		formData.set('c', 'profiles');
-		formData.set('a', 'handleSectionAction');
-		formData.set('section', 'connected_service');
-		formData.set('action', 'ajax');
-		formData.set('ajax', 'runDiscovery');
+		formData.set('a', 'invoke');
+		formData.set('module', 'connected_service');
+		formData.set('action', 'invoke');
+		formData.set('service_action', 'runDiscovery');
 		formData.set('id', '{$service->extension_id}');
 		formData.set('issuer', issuer);
 

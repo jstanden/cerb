@@ -577,7 +577,7 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 		if(!method_exists($dao_class, 'delete'))
 			return "This record type is not supported";
 		
-		if(!CerberusContexts::isDeleteableByActor($context->id, $id, $actor))
+		if(!CerberusContexts::isDeletableByActor($context->id, $id, $actor))
 			return DevblocksPlatform::translate('error.core.no_acl.delete') . sprintf(" (%s:%d)", $context->id, $id);
 		
 		$out = sprintf(">>> Deleting %s (#%d)\n", $context_ext->manifest->name, $id);
@@ -619,7 +619,7 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 		if(!method_exists($dao_class, 'delete'))
 			return false;
 		
-		if(!CerberusContexts::isDeleteableByActor($context->id, $id, $actor))
+		if(!CerberusContexts::isDeletableByActor($context->id, $id, $actor))
 			return false;
 		
 		$dao_class::delete($id);

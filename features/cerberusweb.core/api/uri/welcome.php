@@ -27,4 +27,8 @@ class ChWelcomePage extends CerberusPageExtension {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->display('devblocks:cerberusweb.core::welcome/index.tpl');
 	}
+	
+	function invoke(string $action) {
+		return false;
+	}
 };

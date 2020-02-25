@@ -1,7 +1,9 @@
 {assign var=type value=$visit->get('import.last.type')}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmImport">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="doImport">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="worklists">
+<input type="hidden" name="action" value="saveImport">
 <input type="hidden" name="context" value="{$context}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -76,7 +78,7 @@ $(function() {
  		
  		// [TODO] This should allow error reporting via JSON
  		genericAjaxPost('frmImport', '', null, function(o) {
- 			genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+ 			genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
  			genericAjaxPopupDestroy('{$layer}');
  		});
  	});
@@ -90,7 +92,9 @@ $(function() {
 
  		var formData = new FormData($frm[0]);
  		formData.set('c', 'internal');
- 		formData.set('a', 'doImport');
+ 		formData.set('a', 'invoke');
+ 		formData.set('module', 'worklists');
+ 		formData.set('action', 'saveImport');
  		formData.set('context', '{$context}');
  		formData.set('is_preview', '1');
 

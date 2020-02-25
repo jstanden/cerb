@@ -1,6 +1,8 @@
-<form id="frmDecisionOutcome{$id}" onsubmit="return false;">
-<input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="">
+<form id="frmDecisionOutcome{$id}" onsubmit="return false;" method="post">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="behavior">
+<input type="hidden" name="action" value="saveDecisionPopup">
 {if isset($id)}<input type="hidden" name="id" value="{$id}">{/if}
 {if isset($parent_id)}<input type="hidden" name="parent_id" value="{$parent_id}">{/if}
 {if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
@@ -66,7 +68,7 @@
 	
 	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
+	<button type="button" data-cerb-button="toolbar-help">Help</button>
 
 	{$types = $values._types}
 	{function tree level=0}
@@ -96,7 +98,11 @@
 
 </form>
 
-<form id="frmDecisionOutcomeAdd{$id}" action="javascript:;" onsubmit="return false;">
+<form id="frmDecisionOutcomeAdd{$id}" action="javascript:;" onsubmit="return false;" method="post">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="behavior">
+<input type="hidden" name="action" value="getConditionParams">
 <input type="hidden" name="seq" value="{$seq}">
 <input type="hidden" name="condition" value="">
 <input type="hidden" name="nonce" value="{$nonce}">
@@ -139,21 +145,21 @@
 <fieldset class="delete" style="display:none;">
 	<legend>Delete this outcome?</legend>
 	<p>Are you sure you want to permanently delete this outcome and its children?</p>
-	<button type="button" class="green" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionDeletePopup',function() { genericAjaxPopupDestroy('node_outcome{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"> {'common.yes'|devblocks_translate|capitalize}</button>
-	<button type="button" class="red" onclick="$(this).closest('fieldset').hide().next('form.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
+	<button type="button" class="green" data-cerb-button="delete-confirm"> {'common.yes'|devblocks_translate|capitalize}</button>
+	<button type="button" class="red" data-cerb-button="delete-reject"> {'common.no'|devblocks_translate|capitalize}</button>
 </fieldset>
 {/if}
 
-<form class="toolbar">
+<div class="toolbar">
 	{if !isset($id)}
-		<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_outcome{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button="save-create"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	{else}
-		<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { genericAjaxPopupDestroy('node_outcome{$id}'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="genericAjaxPost('frmDecisionOutcome{$id}','','c=internal&a=saveDecisionPopup',function() { Devblocks.createAlert('Saved!', 'note'); genericAjaxGet('decisionTree{$trigger_id}','c=internal&a=showDecisionTree&id={$trigger_id}'); });"><span class="glyphicons glyphicons-circle-arrow-right" style="color:rgb(0,180,0);"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="genericAjaxPopup('simulate_behavior','c=internal&a=showBehaviorSimulatorPopup&trigger_id={$trigger_id}','reuse',false,'50%');"> <span class="glyphicons glyphicons-cogwheel"></span> Simulator</button>
-		<button type="button" onclick="$(this).closest('form').hide().prev('fieldset.delete').show();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button="save-close"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_and_close'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button="save-continue"><span class="glyphicons glyphicons-circle-arrow-right" style="color:rgb(0,180,0);"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button="simulator"> <span class="glyphicons glyphicons-cogwheel"></span> Simulator</button>
+		<button type="button" data-cerb-button="delete"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 	{/if}
-</form>
+</div>
 
 <script type="text/javascript">
 $(function() {
@@ -182,8 +188,63 @@ $(function() {
 
 		var $frm = $popup.find('#frmDecisionOutcome{$id}');
 		var $legend = $popup.find('fieldset legend');
-		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first');
 		var $toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
+
+		$popup.find('[data-cerb-button=save-create]').on('click', function(e) {
+			e.stopPropagation();
+			genericAjaxPost($frm,null,null,function() {
+				genericAjaxPopupDestroy('node_outcome{$id}');
+				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
+			});
+		});
+
+		$popup.find('[data-cerb-button=save-close]').on('click', function(e) {
+			e.stopPropagation();
+			genericAjaxPost($frm,null,null,function() {
+				genericAjaxPopupDestroy('node_outcome{$id}');
+				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
+			});
+		});
+
+		$popup.find('[data-cerb-button=save-continue]').on('click', function(e) {
+			e.stopPropagation();
+			genericAjaxPost($frm,null,null,function() {
+				Devblocks.createAlert('Saved!', 'note');
+				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
+			});
+		});
+
+		$popup.find('[data-cerb-button=simulator]').on('click', function(e) {
+			e.stopPropagation();
+			genericAjaxPopup('simulate_behavior','c=profiles&a=invoke&module=behavior&action=renderSimulatorPopup&trigger_id={$trigger_id}','reuse',false,'50%');
+		});
+
+		$popup.find('[data-cerb-button=delete]').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('.toolbar').hide().prev('fieldset.delete').show();
+		});
+
+		$popup.find('[data-cerb-button=delete-confirm]').on('click', function(e) {
+			e.stopPropagation();
+
+			var formData = new FormData($frm[0]);
+			formData.set('action', 'saveDecisionDeletePopup');
+
+			genericAjaxPost(formData,null,null,function() {
+				genericAjaxPopupDestroy('node_outcome{$id}');
+				genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}');
+			});
+		});
+
+		$popup.find('[data-cerb-button=delete-reject]').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('fieldset').hide().next('.toolbar').show();
+		});
+
+		$popup.find('[data-cerb-button=toolbar-help]').on('click', function(e) {
+			e.stopPropagation();
+			genericAjaxPopup('help', 'c=profiles&a=invoke&module=snippet&action=helpPopup', { my:'left top' , at:'left+20 top+20' }, false, '600');
+		});
 
 		$frm.find('fieldset UL.rules')
 			.sortable({ 'items':'li', 'placeholder':'ui-state-highlight', 'handle':'> b', 'connectWith':'#frmDecisionOutcome{$id} fieldset ul.rules' })
@@ -316,8 +377,16 @@ $(function() {
 
 				var strNamespace = hits[1];
 				var strName = hits[2];
-				
-				genericAjaxPost($(this).closest('form'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
+
+				var formData = new FormData($frm[0]);
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'behavior');
+				formData.set('action', 'testDecisionEventSnippets');
+				formData.set('prefix', strNamespace);
+				formData.set('field', strName);
+
+				genericAjaxPost($frm, divTester, null);
 			}
 		});
 
@@ -355,10 +424,12 @@ $(function() {
 				$frmDecAdd.find('input[name=condition]').val(token);
 
 				var formData = new FormData($frmDecAdd[0]);
-				formData.set('c', 'internal');
-				formData.set('a', 'doDecisionAddCondition');
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'behavior');
+				formData.set('action', 'getConditionParams');
 
-				genericAjaxPost(formData,'','',function(html) {
+				genericAjaxPost(formData,null,null,function(html) {
 					var $ul = $('#frmDecisionOutcome{$id} UL.rules:last');
 
 					var seq = parseInt($frmDecAdd.find('input[name=seq]').val());

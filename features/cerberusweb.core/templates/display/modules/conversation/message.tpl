@@ -27,7 +27,7 @@
 			{/if}
 
 			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#message{$message->id}"}
-			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
+			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 
 			{if !$expanded}
 				<button id="btnMsgMax{$message->id}" type="button" onclick="genericAjaxGet('message{$message->id}','c=display&a=getMessage&id={$message->id}');" title="{'common.maximize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-full"></span></button>
@@ -180,7 +180,7 @@
 						<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_MESSAGE} context.id:{$message->id}"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>
 					{/if}
 
-					<button type="button" onclick="genericAjaxPopup('message_headers','c=profiles&a=handleSectionAction&section=ticket&action=showMessageFullHeadersPopup&id={$message->id}');"><span class="glyphicons glyphicons-envelope"></span> {'message.headers'|devblocks_translate|capitalize}</button>
+					<button type="button" onclick="genericAjaxPopup('message_headers','c=profiles&a=invoke&module=ticket&action=showMessageFullHeadersPopup&id={$message->id}');"><span class="glyphicons glyphicons-envelope"></span> {'message.headers'|devblocks_translate|capitalize}</button>
 
 					<button type="button" onclick="$('#{$message->id}options').toggle();"><span class="glyphicons glyphicons-more"></span></button>
 				</td>
@@ -190,17 +190,19 @@
 
 		{if !$embed}
 		<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
-			<input type="hidden" name="c" value="display">
-			<input type="hidden" name="a" value="">
+			<input type="hidden" name="c" value="profiles">
+			<input type="hidden" name="a" value="invoke">
+			<input type="hidden" name="module" value="ticket">
+			<input type="hidden" name="action" value="">
 			<input type="hidden" name="id" value="{$message->id}">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 			{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
-				<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=a]').val('doSplitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
+				<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=action]').val('splitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
 			{/if}
 
 			{if $message->is_outgoing}
-				<button type="button" onclick="genericAjaxPopup('message_resend','c=profiles&a=handleSectionAction&section=ticket&action=showResendMessagePopup&id={$message->id}');"><span class="glyphicons glyphicons-share"></span> Send Again</button>
+				<button type="button" onclick="genericAjaxPopup('message_resend','c=profiles&a=invoke&module=ticket&action=showResendMessagePopup&id={$message->id}');"><span class="glyphicons glyphicons-share"></span> Send Again</button>
 			{/if}
 
 			{* Plugin Toolbar *}
@@ -282,7 +284,7 @@ $(function() {
 		})
 		.on('cerb-peek-saved', function(e) {
 			e.stopPropagation();
-			genericAjaxGet('message{$message->id}','c=display&a=getMessage&id={$message->id}&hide=0');
+			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&hide=0');
 		})
 		.on('cerb-peek-deleted', function(e) {
 			e.stopPropagation();
@@ -297,12 +299,14 @@ $(function() {
 		$(this).remove();
 
 		var formData = new FormData();
-		formData.append('c', 'display');
-		formData.append('a', 'requesterAdd');
-		formData.append('ticket_id', '{$ticket->id}');
-		formData.append('email', '{$sender->email}');
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'ticket');
+		formData.set('action', 'requesterAdd');
+		formData.set('ticket_id', '{$ticket->id}');
+		formData.set('email', '{$sender->email}');
 
-		genericAjaxPost(formData, '', '');
+		genericAjaxPost(formData, null, null);
 	});
 	
 	$actions
@@ -405,7 +409,7 @@ $(function() {
 	
 	$actions.find('a.cerb-button-reply-relay')
 		.on('click', function() {
-			genericAjaxPopup('relay', 'c=display&a=showRelayMessagePopup&id={$message->id}', null, false, '50%');
+			genericAjaxPopup('relay', 'c=profiles&a=invoke&module=message&action=showRelayMessagePopup&id={$message->id}', null, false, '50%');
 		})
 		;
 	});

@@ -17,8 +17,8 @@ $(function() {
 		
 		Devblocks.playAudioUrl('');
 		
-		genericAjaxGet(null, 'c=internal&a=getBotInteractionsProactive', function(json) {
-			if(false == json || undefined == json.interaction) {
+		genericAjaxGet(null, 'c=profiles&a=invoke&module=bot&action=getProactiveInteractions', function(json) {
+			if(false === json || undefined === json.interaction) {
 				$interaction_badge.hide();
 				$interaction_button.click();
 				
@@ -54,11 +54,11 @@ $(function() {
 		}
 
 		if(null == $menu) {
-			var $spinner = $('<span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span>')
+			$('<span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span>')
 				.appendTo($interaction_menu)
-			;
+				;
 			
-			genericAjaxGet($interaction_menu, 'c=internal&a=getBotInteractionsMenu', function(html) {
+			genericAjaxGet($interaction_menu, 'c=profiles&a=invoke&module=bot&action=getInteractionsMenu', function(html) {
 				$menu = $interaction_menu.find('> ul');
 				
 				$menu

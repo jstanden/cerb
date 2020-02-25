@@ -24,8 +24,10 @@
 {/if}
 
 <form id="reply{$message->id}_form" onsubmit="return false;" method="post">
-<input type="hidden" name="c" value="display">
-<input type="hidden" name="a" value="sendReply">
+<input type="hidden" name="c" value="profiles">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="ticket">
+<input type="hidden" name="action" value="sendReply">
 <input type="hidden" name="id" value="{$message->id}">
 <input type="hidden" name="ticket_id" value="{$ticket->id}">
 <input type="hidden" name="ticket_mask" value="{$ticket->mask}">
@@ -423,7 +425,7 @@ $(function() {
 				var context = $trigger.attr('data-context');
 				var query = $trigger.attr('data-query');
 				var query_req = $trigger.attr('data-query-required');
-				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context);
+				var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context);
 				
 				if(typeof query == 'string' && query.length > 0) {
 					chooser_url += '&q=' + encodeURIComponent(query);
@@ -521,9 +523,11 @@ $(function() {
 				$this.attr('disabled','disabled');
 
 				var formData = new FormData($frm[0]);
-				formData.set('c', 'display');
-				formData.set('a', 'saveDraftReply');
-				formData.append('is_ajax', '1');
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'draft');
+				formData.set('action', 'saveDraftReply');
+				formData.set('is_ajax', '1');
 
 				genericAjaxPost(formData,null,'',
 					function(obj) {
@@ -592,16 +596,19 @@ $(function() {
 				return;
 
 			// Now we need to read in each snippet as either 'raw' or 'parsed' via Ajax
-			var url = 'c=internal&a=snippetPaste&id='
-				+ encodeURIComponent(event.snippet_id)
-				+ "&context_ids[cerberusweb.contexts.ticket]={$ticket->id}"
-				+ "&context_ids[cerberusweb.contexts.worker]={$active_worker->id}"
-			;
+			var formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'snippet');
+			formData.set('action', 'paste');
+			formData.set('id', event.snippet_id);
+			formData.set('context_ids[cerberusweb.contexts.ticket]', '{$ticket->id}');
+			formData.set('context_ids[cerberusweb.contexts.worker]', '{$active_worker->id}');
 
-			genericAjaxGet('', url, function (json) {
+			genericAjaxPost(formData, null, null, function(json) {
 				// If the content has placeholders, use that popup instead
 				if (json.has_custom_placeholders) {
-					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=internal&a=snippetPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
 
 					$popup_paste.bind('snippet_paste', function (event) {
 						if (null == event.text)
@@ -619,7 +626,7 @@ $(function() {
 		// Snippets
 		var $editor_toolbar_button_snippets = $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click', function () {
 			var context = 'cerberusweb.contexts.snippet';
-			var chooser_url = 'c=internal&a=chooserOpen&qr=' + encodeURIComponent('type:[plaintext,ticket,worker]') + '&single=1&context=' + encodeURIComponent(context);
+			var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&qr=' + encodeURIComponent('type:[plaintext,ticket,worker]') + '&single=1&context=' + encodeURIComponent(context);
 
 			var $chooser = genericAjaxPopup(Devblocks.uniqueId(), chooser_url, null, true, '90%');
 
@@ -641,14 +648,15 @@ $(function() {
 		// Preview
 		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function () {
 			var formData = new FormData();
-			formData.append('c', 'profiles');
-			formData.append('a', 'handleSectionAction');
-			formData.append('section', 'ticket');
-			formData.append('action', 'previewReplyMessage');
-			formData.append('format', $frm.find('input[name=format]').val());
-			formData.append('group_id', $frm.find('select[name=group_id]').val());
-			formData.append('bucket_id', $frm.find('select[name=bucket_id]').val());
-			formData.append('content', $frm.find('textarea[name=content]').val());
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'ticket');
+			formData.set('action', 'previewReplyMessage');
+			formData.set('id', $frm.find('input[name=id]').val());
+			formData.set('format', $frm.find('input[name=format]').val());
+			formData.set('group_id', $frm.find('select[name=group_id]').val());
+			formData.set('bucket_id', $frm.find('select[name=bucket_id]').val());
+			formData.set('content', $frm.find('textarea[name=content]').val());
 
 			genericAjaxPopup(
 				'preview_reply',
@@ -762,11 +770,11 @@ $(function() {
 				var draft_id = $frm.find('input:hidden[name=draft_id]').val();
 
 				var formData = new FormData();
-				formData.append('c', 'profiles');
-				formData.append('a', 'handleSectionAction');
-				formData.append('section', 'draft');
-				formData.append('action', 'deleteDraft');
-				formData.append('draft_id', draft_id);
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'draft');
+				formData.set('action', 'deleteDraft');
+				formData.set('draft_id', draft_id);
 
 				genericAjaxPost(formData, '', '', function(o) {
 					$('#draft'+encodeURIComponent(draft_id)).remove();
@@ -786,8 +794,10 @@ $(function() {
 			$button.closest('td').hide();
 
 			var formData = new FormData($frm[0]);
-			formData.set('c', 'display');
-			formData.set('a', 'validateReplyJson');
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'ticket');
+			formData.set('action', 'validateReplyJson');
 
 			// Validate via Ajax before sending
 			genericAjaxPost(formData, '', '', function(json) {
@@ -853,12 +863,17 @@ $(function() {
 				draftAutoSaveInterval = null;
 			}
 
-			$frm.find('input:hidden[name=a]').val('saveDraftReply');
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'draft');
+			formData.set('action', 'saveDraftReply');
+
 			$(this).closest('td').hide();
 			
 			showLoadingPanel();
 			
-			genericAjaxPost($frm, '', null, function() {
+			genericAjaxPost(formData, '', null, function() {
 				hideLoadingPanel();
 				
 				var event = new $.Event('cerb-reply-draft');

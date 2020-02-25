@@ -1,7 +1,9 @@
 {$uniq_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frm{$uniq_id}" name="frm{$uniq_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="showRecordsMergeMappingPopup">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="records">
+<input type="hidden" name="action" value="renderMergeMappingPopup">
 <input type="hidden" name="context" value="{$context_ext->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">

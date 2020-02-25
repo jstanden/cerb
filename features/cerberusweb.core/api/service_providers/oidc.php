@@ -216,6 +216,14 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.oidc';
 	
+	function handleActionForService($action) {
+		switch($action) {
+			case 'runDiscovery':
+				return $this->_connectedServiceAction_runDiscovery();
+		}
+		return false;
+	}
+	
 	public function renderConfigForm(Model_ConnectedService $service) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -284,7 +292,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		return true;
 	}
 	
-	public function runDiscoveryAction() {
+	private function _connectedServiceAction_runDiscovery() {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		

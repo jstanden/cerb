@@ -56,7 +56,7 @@ $(function() {
 			}
 		}
 		
-		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}&q=' + encodeURIComponent(q), null, true, width);
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpenParams&context={$context}&view_id={$view->id}&trigger_id={$trigger->id}&q=' + encodeURIComponent(q), null, true, width);
 		
 		$chooser.on('chooser_save',function(event) {
 			if(null != event.worklist_model) {

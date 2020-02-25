@@ -112,18 +112,38 @@ var timeTrackingTimerClass = function() {
 	}
 	
 	this.play = function(context, context_id) {
-		if(this.enabled) return; // don't start twice
+		// don't start twice
+		if(this.enabled)
+			return;
+
 		if(null == context) context = '';
 		if(null == context_id) context_id = '';
-		genericAjaxGet('','c=timetracking&a=startTimer&context=' + context + '&context_id=' + context_id);
-		this.enabled = true;
 
-		this.show();
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'time_tracking');
+		formData.set('action', 'startTimer');
+		formData.set('context', context);
+		formData.set('context_id', context_id);
+
+		var scope = this;
+
+		genericAjaxPost(formData, '', '', function() {
+			scope.enabled = true;
+			scope.show();
+		});
 	}
 	
 	this.pause = function() {
 		this.enabled = false;
-		genericAjaxGet('','c=timetracking&a=pauseTimerJson');
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'time_tracking');
+		formData.set('action', 'pauseTimerJson');
+		genericAjaxPost(formData, '', '');
 
 		var $timerDiv = $('#divTimeTrackingBox').show();
 		
@@ -146,10 +166,16 @@ var timeTrackingTimerClass = function() {
 		var $playBtn = $('#btnTimeTrackingPlay').hide();
 		var $pauseBtn = $('#btnTimeTrackingPause').hide();
 		var $stopBtn = $('#btnTimeTrackingStop').hide();
-		
-		genericAjaxGet('','c=timetracking&a=pauseTimerJson', function(json) {
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'time_tracking');
+		formData.set('action', 'pauseTimerJson');
+
+		genericAjaxPost(formData, '', '', function(json) {
 			if(json.status) {
-				var $popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id=0&mins=' + json.total_mins,null,false,'50%');
+				var $popup = genericAjaxPopup('peek','c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_TIMETRACKING}&context_id=0&mins=' + json.total_mins,null,false,'50%');
 				$popup.one('dialogclose', function() {
 					$playBtn.show();
 					$stopBtn.show();
@@ -161,11 +187,17 @@ var timeTrackingTimerClass = function() {
 	this.finish = function() {
 		var $timerDiv = $('#divTimeTrackingBox').hide();
 		
-		if($timerDiv.length == 0)
+		if(0 === $timerDiv.length)
 			return;
 		
 		this.counter = 0;
-		genericAjaxGet('','c=timetracking&a=clearEntry');
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'time_tracking');
+		formData.set('action', 'clearEntry');
+		genericAjaxPost(formData, '', '');
 	}
 };
 

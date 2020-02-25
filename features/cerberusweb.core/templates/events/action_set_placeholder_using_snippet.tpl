@@ -41,6 +41,8 @@
 
 <script type="text/javascript">
 $(function(e) {
+	e.stopPropagation();
+
 	var $action = $('#{$namePrefix}_{$nonce}');
 	var $snippet_preview = $action.find('div.snippet-preview');
 	
@@ -61,8 +63,8 @@ $(function(e) {
 				return;
 			}
 			
-			genericAjaxGet('','c=internal&a=showSnippetPlaceholders&name_prefix={$namePrefix}&id=' + snippet_id, function(html) {
-				if(null == html || html.length == 0) {
+			genericAjaxGet('','c=profiles&a=invoke&module=snippet&action=getSnippetPlaceholders&name_prefix={$namePrefix}&id=' + snippet_id, function(html) {
+				if(null == html || html.length === 0) {
 					$snippet_preview.html('').hide();
 					return;
 				}

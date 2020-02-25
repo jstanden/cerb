@@ -323,30 +323,22 @@ $.fn.cerbDateInputHelper = function(options) {
 				minLength: 1,
 				autoFocus: false,
 				source: function(request, response) {
-					var last = request.term.split(' ').pop();
-
-					request.term = last;
+					request.term = request.term.split(' ').pop();;
 					
 					if(request.term == null)
 						return;
-					
-					var url = DevblocksAppPath+'ajax.php?c=internal&a=handleSectionAction&section=calendars&action=getDateInputAutoCompleteOptionsJson';
-					
-					var ajax_options = {
-						url: url,
-						dataType: "json",
-						data: request,
-						success: function(data) {
-							response(data);
-						}
-					};
-					
-					if(null == ajax_options.headers)
-						ajax_options.headers = {};
 
-					ajax_options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
-					
-					$.ajax(ajax_options);
+					var formData = new FormData();
+					formData.set('c', 'internal');
+					formData.set('a', 'invoke');
+					formData.set('module', 'calendars');
+					formData.set('action', 'getDateInputAutoCompleteOptionsJson');
+					formData.set('id', view_id);
+					formData.set('term', request.term);
+
+					genericAjaxPost(formData, null, null, function(data) {
+						response(data);
+					});
 				},
 				focus: function() {
 					return false;
@@ -392,14 +384,14 @@ $.fn.cerbDateInputHelper = function(options) {
 				$input_date.autocomplete('close');
 				
 				// If the date contains any placeholders, don't auto-parse it
-				if(-1 != val.indexOf('{'))
+				if(-1 !== val.indexOf('{'))
 					return;
 				
 				// Send the text to the server for translation
 				var formData = new FormData();
 				formData.set('c', 'internal');
-				formData.set('a', 'handleSectionAction');
-				formData.set('section', 'calendars');
+				formData.set('a', 'invoke');
+				formData.set('module', 'calendars');
 				formData.set('action', 'parseDateJson');
 				formData.set('date', val);
 
@@ -451,29 +443,52 @@ $.fn.cerbDateInputHelper = function(options) {
 
 var cAjaxCalls = function() {
 	this.viewTicketsAction = function(view_id, action) {
-		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
+		var $frm = $('#' + formName);
+
+		if(0 === $frm.length)
+			return;
+
+		var formData = new FormData($frm[0]);
 
 		switch(action) {
 			case 'not_spam':
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'ticket');
+				formData.set('action', 'viewMarkNotSpam');
+				formData.set('view_id', view_id);
+
 				showLoadingPanel();
-				genericAjaxPost(formName, '', 'c=tickets&a=viewNotSpamTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html).trigger('view_refresh');
+				genericAjaxPost(formData, '', '', function(html) {
 					hideLoadingPanel();
+					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
 				});
 				break;
 			case 'waiting':
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'ticket');
+				formData.set('action', 'viewMarkWaiting');
+				formData.set('view_id', view_id);
+
 				showLoadingPanel();
-				genericAjaxPost(formName, '', 'c=tickets&a=viewWaitingTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html).trigger('view_refresh');
+				genericAjaxPost(formData, '', '', function(html) {
 					hideLoadingPanel();
+					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
 				});
 				break;
 			case 'not_waiting':
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'ticket');
+				formData.set('action', 'viewMarkNotWaiting');
+				formData.set('view_id', view_id);
+
 				showLoadingPanel();
-				genericAjaxPost(formName, '', 'c=tickets&a=viewNotWaitingTickets&view_id='+view_id, function(html) {
-					$('#'+divName).html(html).trigger('view_refresh');
+				genericAjaxPost(formName, '', '', function(html) {
 					hideLoadingPanel();
+					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
 				});
 				break;
 			default:
@@ -482,7 +497,6 @@ var cAjaxCalls = function() {
 	};
 	
 	this.viewCloseTickets = function(view_id,mode) {
-		var divName = 'view'+view_id;
 		var formName = 'viewForm'+view_id;
 		var $frm = $('#' + formName);
 
@@ -491,145 +505,137 @@ var cAjaxCalls = function() {
 
 		showLoadingPanel();
 
+		var formData = new FormData($frm[0]);
+
 		switch(mode) {
 			case 1: // spam
-				genericAjaxPost(formName, '', 'c=tickets&a=viewSpamTickets&view_id=' + view_id, function(html) {
-					$frm.html(html).trigger('view_refresh');
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'ticket');
+				formData.set('action', 'viewMarkSpam');
+				formData.set('view_id', view_id);
+
+				genericAjaxPost(formData, '', '', function() {
 					hideLoadingPanel();
+					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
 				});
 				break;
 			case 2: // delete
-				var formData = new FormData($frm[0]);
-				formData.set('c', 'tickets');
-				formData.set('a', 'viewDeleteTickets');
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'ticket');
+				formData.set('action', 'viewMarkDeleted');
 				formData.set('view_id', view_id);
 
-				genericAjaxPost(formData, '', '', function(html) {
-					$frm.html(html).trigger('view_refresh');
+				genericAjaxPost(formData, '', '', function() {
 					hideLoadingPanel();
+					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
 				});
 				break;
 			default: // close
-				genericAjaxPost(formName, '', 'c=tickets&a=viewCloseTickets&view_id=' + view_id, function(html) {
-					$frm.html(html).trigger('view_refresh');
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'ticket');
+				formData.set('action', 'viewMarkClosed');
+				formData.set('view_id', view_id);
+
+				genericAjaxPost(formData, '', '', function() {
 					hideLoadingPanel();
+					genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
 				});
 				break;
 		}
 	};
 	
 	this.viewAddQuery = function(view_id, query, replace) {
-		var post_str = 'c=internal' +
-			'&a=viewAddFilter' + 
-			'&id=' + view_id +
-			'&add_mode=query' +
-			'&replace=' + encodeURIComponent(replace) +
-			'&query=' + encodeURIComponent(query)
-			;
-		
-		var cb = function(o) {
+		var formData = new FormData();
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'worklists');
+		formData.set('action', 'addFilter');
+		formData.set('id', view_id);
+		formData.set('add_mode', 'query');
+		formData.set('replace', replace);
+		formData.set('query', query);
+
+		genericAjaxPost(formData, null, null, function(o) {
 			var $view_filters = $('#viewCustomFilters'+view_id);
 			
 			if(0 !== $view_filters.length) {
 				$view_filters.html(o);
 				$view_filters.trigger('view_refresh')
 			}
-		}
-		
-		var options = {};
-		options.type = 'POST';
-		options.data = post_str; //$('#'+formName).serialize();
-		options.url = DevblocksAppPath+'ajax.php';//+(null!=args?('?'+args):''),
-		options.cache = false;
-		options.success = cb;
-		
-		if(null == options.headers)
-			options.headers = {};
-		
-		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
-		
-		$.ajax(options);
+		});
 	};
 	
 	this.viewAddFilter = function(view_id, field, oper, values, replace) {
-		var post_str = 'c=internal' +
-		'&a=viewAddFilter' + 
-		'&id=' + view_id +
-		'&replace=' + encodeURIComponent(replace) +
-		'&field=' + encodeURIComponent(field) +
-		'&oper=' + encodeURIComponent(oper) +
-		'&' + $.param(values, true)
-		;
-		
-		var cb = function(o) {
+		var formData = new FormData();
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'worklists');
+		formData.set('action', 'addFilter');
+		formData.set('id', view_id);
+		formData.set('replace', replace);
+		formData.set('field', field);
+		formData.set('oper', oper);
+
+		Devblocks.objectToFormData(values, formData);
+
+		genericAjaxPost(formData, null, null, function(o) {
 			var $view_filters = $('#viewCustomFilters'+view_id);
 			
 			if(0 !== $view_filters.length) {
 				$view_filters.html(o);
 				$view_filters.trigger('view_refresh');
 			}
-		};
-		
-		var options = {};
-		options.type = 'POST';
-		options.data = post_str; //$('#'+formName).serialize();
-		options.url = DevblocksAppPath+'ajax.php';//+(null!=args?('?'+args):''),
-		options.cache = false;
-		options.success = cb;
-		
-		if(null == options.headers)
-			options.headers = {};
-		
-		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
-		
-		$.ajax(options);
+		});
 	};
 	
 	this.viewRemoveFilter = function(view_id, fields) {
-		var post_str = 'c=internal' +
-			'&a=viewAddFilter' + 
-			'&id=' + view_id
-			;
-		
+		var formData = new FormData();
+		formData.set('c', 'internal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'worklists');
+		formData.set('action', 'addFilter');
+		formData.set('id', view_id);
+
 		for(var field in fields) {
-			post_str += '&field_deletes[]=' + encodeURIComponent(fields[field]);
+			formData.append('field_deletes[]', fields[field]);
 		}
 		
-		var cb = function(o) {
+		genericAjaxPost(formData, null, null, function(o) {
 			var $view_filters = $('#viewCustomFilters'+view_id);
 			
 			if(0 !== $view_filters.length) {
 				$view_filters.html(o);
 				$view_filters.trigger('view_refresh')
 			}
-		};
-		
-		var options = {};
-		options.type = 'POST';
-		options.data = post_str; //$('#'+formName).serialize();
-		options.url = DevblocksAppPath+'ajax.php';//+(null!=args?('?'+args):''),
-		options.cache = false;
-		options.success = cb;
-		
-		if(null == options.headers)
-			options.headers = {};
-		
-		options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
-		
-		$.ajax(options);
+		});
 	};
 	
-	this.viewUndo = function(view_id) {
-		genericAjaxGet('','c=tickets&a=viewUndo&view_id=' + view_id,
-			function(html) {
-				$('#view'+view_id).html(html).trigger('view_refresh');
-			}
-		);		
+	this.viewUndo = function(view_id, is_dismissed) {
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'ticket');
+		formData.set('action', 'viewUndo');
+		formData.set('view_id', view_id);
+
+		if(is_dismissed) {
+			formData.set('clear', '1');
+		}
+
+		showLoadingPanel();
+
+		genericAjaxPost(formData, '', '', function() {
+			hideLoadingPanel();
+			genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
+		});
 	};
 
 	this.emailAutoComplete = function(sel, options) {
-		var url = DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=cerberusweb.contexts.address&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
-		if(null == options) options = { };
+		if(null == options)
+			options = { };
 		
 		if(null == options.delay)
 			options.delay = 300;
@@ -651,17 +657,18 @@ var cAjaxCalls = function() {
 				
 				if(0 === request.term.length)
 					return;
-				
-				var ajax_options = {
-					url: url,
-					dataType: "json",
-					data: request,
-					success: function(data) {
-						response(data);
-					}
-				};
-				
-				$.ajax(ajax_options);
+
+				var formData = new FormData();
+				formData.set('c', 'internal');
+				formData.set('a', 'invoke');
+				formData.set('module', 'records');
+				formData.set('action', 'autocomplete');
+				formData.set('context', 'cerberusweb.contexts.address');
+				formData.set('term', request.term);
+
+				genericAjaxPost(formData, null, null, function(data) {
+					response(data);
+				});
 			};
 			options.select = function(event, ui) {
 				var value = $(this).val();
@@ -681,16 +688,17 @@ var cAjaxCalls = function() {
 			
 		} else {
 			options.source = function (request, response) {
-				var ajax_options = {
-					url: url,
-					dataType: "json",
-					data: request,
-					success: function(data) {
-						response(data);
-					}
-				};
-				
-				$.ajax(ajax_options);
+				var formData = new FormData();
+				formData.set('c', 'internal');
+				formData.set('a', 'invoke');
+				formData.set('module', 'records');
+				formData.set('action', 'autocomplete');
+				formData.set('context', 'cerberusweb.contexts.address');
+				formData.set('term', request.term);
+
+				genericAjaxPost(formData, null, null, function(data) {
+					response(data);
+				});
 			};
 			options.select = function(event, ui) {
 				$(this).val(ui.item.label);
@@ -711,7 +719,7 @@ var cAjaxCalls = function() {
 	this.orgAutoComplete = function(sel, options) {
 		if(null == options) options = { };
 		
-		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getOrgsAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
+		options.source = DevblocksAppPath+'ajax.php?c=profiles&a=invoke&module=org&action=autocomplete';
 		
 		if(null == options.delay)
 			options.delay = 300;
@@ -730,7 +738,7 @@ var cAjaxCalls = function() {
 	this.countryAutoComplete = function(sel, options) {
 		if(null == options) options = { };
 		
-		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getCountryAutoCompletions&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content');
+		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getCountryAutoCompletions';
 		
 		if(null == options.delay)
 			options.delay = 300;
@@ -771,7 +779,7 @@ var cAjaxCalls = function() {
 			var $button = $(this);
 			var $ul = $(this).siblings('ul.chooser-container:first');
 			
-			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=chooserOpen&context=' + context,null,true,'90%');
+			var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=invoke&module=records&action=chooserOpen&context=' + context,null,true,'90%');
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels
 				for(var idx in event.labels)
@@ -799,7 +807,7 @@ var cAjaxCalls = function() {
 			
 			$autocomplete.autocomplete({
 				delay: 250,
-				source: DevblocksAppPath+'ajax.php?c=internal&a=autocomplete&context=' + context + '&_csrf_token=' + $('meta[name="_csrf_token"]').attr('content'),
+				source: DevblocksAppPath+'ajax.php?c=internal&a=invoke&module=records&action=autocomplete&context=' + context,
 				minLength: 1,
 				focus:function(event, ui) {
 					return false;
@@ -877,7 +885,7 @@ var cAjaxCalls = function() {
 		
 		// The chooser search button
 		$button.click(function(event) {
-			var $chooser=genericAjaxPopup('chooser','c=internal&a=chooserOpenFile&single=' + (options.single ? '1' : '0'),null,true,'750');
+			var $chooser=genericAjaxPopup('chooser','c=internal&a=invoke&module=records&action=chooserOpenFile&single=' + (options.single ? '1' : '0'),null,true,'750');
 			
 			$chooser.one('chooser_save', function(event) {
 				var new_event = $.Event(event.type, event);
@@ -897,7 +905,7 @@ var cAjaxCalls = function() {
 			var image_width = $editor_button.attr('data-image-width');
 			var image_height = $editor_button.attr('data-image-height');
 			
-			var popup_url = 'c=internal&a=chooserOpenAvatar&context=' 
+			var popup_url = 'c=internal&a=invoke&module=records&action=chooserOpenAvatar&context='
 				+ encodeURIComponent(context) 
 				+ '&context_id=' + encodeURIComponent(context_id) 
 				+ '&image_width=' + encodeURIComponent(image_width) 
@@ -1342,7 +1350,7 @@ var ajax = new cAjaxCalls();
 
           // Image
           $editor_toolbar.find('.cerb-html-editor-toolbar-button--image').on('click', function () {
-              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=chooserOpenFile&single=1', null, true, '750');
+              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=invoke&module=records&action=chooserOpenFile&single=1', null, true, '750');
 
               $chooser.one('chooser_save', function (event) {
                   var file_id = event.values[0];
@@ -1628,7 +1636,7 @@ var ajax = new cAjaxCalls();
 
           // Image
           $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--image').on('click', function () {
-              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=chooserOpenFile&single=1', null, true, '750');
+              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=invoke&module=records&action=chooserOpenFile&single=1', null, true, '750');
 
               $chooser.one('chooser_save', function (event) {
 				  var file_id = event.values[0];
@@ -1798,7 +1806,7 @@ var ajax = new cAjaxCalls();
 
           // Image
           $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--image').on('click', function () {
-              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=chooserOpenFile&single=1', null, true, '750');
+              var $chooser = genericAjaxPopup('chooser', 'c=internal&a=invoke&module=records&action=chooserOpenFile&single=1', null, true, '750');
 
               $chooser.one('chooser_save', function (event) {
 				  var file_id = event.values[0];
@@ -3215,7 +3223,16 @@ var ajax = new cAjaxCalls();
 				});
 				
 				var layer = Devblocks.uniqueId();
-				genericAjaxPopup(layer,'c=internal&a=startBotInteraction&' + $.param(data), null, false, '300');
+
+				var formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'bot');
+				formData.set('action', 'startInteraction');
+
+				Devblocks.objectToFormData(data, formData);
+
+				genericAjaxPopup(layer,formData, null, false, '300');
 			});
 		});
 	}
@@ -3250,7 +3267,7 @@ var ajax = new cAjaxCalls();
 				if(!(typeof context == "string") || 0 == context.length)
 					return;
 				
-				var $chooser = genericAjaxPopup("chooser" + Devblocks.uniqueId(),'c=internal&a=chooserOpenParams&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q),null,true,width);
+				var $chooser = genericAjaxPopup("chooser" + Devblocks.uniqueId(),'c=internal&a=invoke&module=records&action=chooserOpenParams&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q),null,true,width);
 				
 				$chooser.on('chooser_save',function(event) {
 					$trigger.val(event.worklist_quicksearch);
@@ -3287,14 +3304,13 @@ var ajax = new cAjaxCalls();
 				if(!(typeof context == "string") || 0 == context.length)
 					return;
 				
-				var url = 'c=internal&a=editorOpenTemplate&context=' 
+				var url = 'c=internal&a=invoke&module=records&action=editorOpenTemplate&context='
 					+ encodeURIComponent(context) 
 					+ '&template=' + encodeURIComponent(template)
 					+ '&label_prefix=' + (label_prefix ? encodeURIComponent(label_prefix) : '')
 					+ '&key_prefix=' + (key_prefix ? encodeURIComponent(key_prefix) : '')
 					;
-				
-				
+
 				if(typeof placeholders_json == 'string') {
 					var placeholders = JSON.parse(placeholders_json);
 					
@@ -3356,7 +3372,7 @@ var ajax = new cAjaxCalls();
 					return;
 				}
 				
-				var peek_url = 'c=internal&a=showPeekPopup&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id);
+				var peek_url = 'c=internal&a=invoke&module=records&action=showPeekPopup&context=' + encodeURIComponent(context) + '&context_id=' + encodeURIComponent(context_id);
 
 				// View
 				if(typeof options == 'object' && options.view_id)
@@ -3493,7 +3509,7 @@ var ajax = new cAjaxCalls();
 							)
 						;
 
-						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileAjaxUpload', true);
+						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=invoke&module=records&action=chooserOpenFileAjaxUpload', true);
 						xhr.setRequestHeader('X-File-Name', encodeURIComponent(f.name));
 						xhr.setRequestHeader('X-File-Type', f.type);
 						xhr.setRequestHeader('X-File-Size', f.size);
@@ -3611,7 +3627,7 @@ var ajax = new cAjaxCalls();
 							)
 						;
 
-						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileAjaxUpload', true);
+						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=invoke&module=records&action=chooserOpenFileAjaxUpload', true);
 						xhr.setRequestHeader('X-File-Name', encodeURIComponent(f.name));
 						xhr.setRequestHeader('X-File-Type', f.type);
 						xhr.setRequestHeader('X-File-Size', f.size);
@@ -3735,7 +3751,7 @@ var ajax = new cAjaxCalls();
 					var file = f;
 					
 					if(xhr.upload) {
-						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=chooserOpenFileAjaxUpload', true);
+						xhr.open('POST', DevblocksAppPath + 'ajax.php?c=internal&a=invoke&module=records&action=chooserOpenFileAjaxUpload', true);
 						xhr.setRequestHeader('X-File-Name', encodeURIComponent(f.name));
 						xhr.setRequestHeader('X-File-Type', f.type);
 						xhr.setRequestHeader('X-File-Size', f.size);
@@ -3812,7 +3828,7 @@ var ajax = new cAjaxCalls();
 				
 				var query = $trigger.attr('data-query');
 				var query_req = $trigger.attr('data-query-required');
-				var chooser_url = 'c=internal&a=chooserOpen&context=' + encodeURIComponent(context);
+				var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context);
 				
 				if($trigger.attr('data-single'))
 					chooser_url += '&single=1';
@@ -3970,7 +3986,7 @@ var ajax = new cAjaxCalls();
 					source: function(request, response) {
 						genericAjaxGet(
 							'',
-							'c=internal&a=autocomplete&term=' + encodeURIComponent(request.term) + '&context=' + context + '&query=' + encodeURIComponent($trigger.attr('data-autocomplete')),
+							'c=internal&a=invoke&module=records&action=autocomplete&term=' + encodeURIComponent(request.term) + '&context=' + context + '&query=' + encodeURIComponent($trigger.attr('data-autocomplete')),
 							function(json) {
 								response(json);
 							}

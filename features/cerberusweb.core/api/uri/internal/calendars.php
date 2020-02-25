@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -18,16 +19,36 @@
 class PageSection_InternalCalendars extends Extension_PageSection {
 	function render() {}
 	
-	function showCalendarTabAction() {
-		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+	public function handleActionForPage(string $action, string $scope=null) {
+		if('internalAction' == $scope) {
+			switch ($action) {
+				case 'showCalendarTab':
+					return $this->_internalAction_showCalendarTab();
+				case 'getCalendarDatasourceParams':
+					return $this->_internalAction_getCalendarDatasourceParams();
+				case 'getDateInputAutoCompleteOptionsJson':
+					return $this->_internalAction_getDateInputAutoCompleteOptionsJson();
+				case 'parseDateJson':
+					return $this->_internalAction_parseDateJson();
+			}
+		}
+		return false;
+	}
+	
+	/** @noinspection DuplicatedCode */
+	private function _internalAction_showCalendarTab() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
+		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		
-		$tpl = DevblocksPlatform::services()->template();
-
-		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
-			return;
+		if(false == ($calendar = DAO_Calendar::get($calendar_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_Calendar::isReadableByActor($calendar, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
 		
@@ -36,36 +57,32 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
 
 		// Occlusion
-		
 		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
 		$availability->occludeCalendarEvents($calendar_events);
 		
 		// Template scope
-		
 		$tpl->assign('calendar', $calendar);
 		$tpl->assign('calendar_events', $calendar_events);
 		$tpl->assign('calendar_properties', $calendar_properties);
 		
-		// Template
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
 	}
 	
-	function getCalendarDatasourceParamsAction() {
+	private function _internalAction_getCalendarDatasourceParams() {
 		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string', '');
 		@$params_prefix = DevblocksPlatform::importGPC($_REQUEST['params_prefix'],'string', '');
 		
 		if(empty($extension_id))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(false == ($extension = Extension_CalendarDatasource::get($extension_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$calendar = new Model_Calendar();
 		$extension->renderConfig($calendar, array(), $params_prefix);
 	}
 	
-	function parseDateJsonAction() {
+	private function _internalAction_parseDateJson() {
 		@$date_string = DevblocksPlatform::importGPC($_POST['date'], 'string', '');
 		
 		@$active_worker = CerberusApplication::getActiveWorker();
@@ -73,7 +90,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		
 		header('Content-Type: application/json');
 		
-		$results = array();
+		$results = [];
 		
 		if(strpos($date_string, '@')) {
 			$date_parts = explode('@', $date_string, 2);
@@ -99,8 +116,8 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 				$timestamp = $availability->scheduleInRelativeTime(time(), $date_string);
 				
 				if($timestamp) {
-					$results['calendar_id'] = $calendar->id;
-					$results['calendar_name'] = $calendar->name;
+					$results['calendar_id'] = $use_calendar->id;
+					$results['calendar_name'] = $use_calendar->name;
 				}
 			}
 		}
@@ -119,10 +136,10 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		echo json_encode($results);
 	}
 	
-	function getDateInputAutoCompleteOptionsJsonAction() {
-		@$term = DevblocksPlatform::importGPC($_REQUEST['term'], 'string', '');
-		
+	private function _internalAction_getDateInputAutoCompleteOptionsJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$term = DevblocksPlatform::importGPC($_REQUEST['term'], 'string', '');
 		
 		$calendars = DAO_Calendar::getReadableByActor($active_worker);
 		$date = DevblocksPlatform::services()->date();
@@ -141,14 +158,9 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 		foreach($timezones as $tz) {
 			$areas = explode('/', $tz);
 			$areas[] = $tz;
-			$found = false;
 			
 			foreach($areas as $area) {
-				if($found)
-					continue;
-				
 				if(0 == strcasecmp($term, substr($area, 0, strlen($term)))) {
-					$found = true;
 					$options[] = $tz;
 					break;
 				}

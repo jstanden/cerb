@@ -28,7 +28,31 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'clearEntry':
+					return $this->_profileAction_clearEntry();
+				case 'pauseTimerJson':
+					return $this->_profileAction_pauseTimerJson();
+				case 'startTimer':
+					return $this->_profileAction_startTimer();
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+				case 'viewMarkClosed':
+					return $this->_profileAction_viewMarkClosed();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -58,12 +82,15 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			
 			// Delete entries
 			if(!empty($id) && !empty($do_delete)) {
-				if(false == (DAO_TimeTrackingEntry::get($id)))
-					throw new Exception_DevblocksAjaxValidationError("Record not found.");
-				
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TIMETRACKING)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-					
+				
+				if(false == ($model = DAO_TimeTrackingEntry::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_TimeTracking::isDeletableByActor($model, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_TimeTrackingEntry::delete($id);
 						
 				echo json_encode(array(
@@ -252,11 +279,125 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		}
 	}
 	
-	function showBulkPopupAction() {
+	private function _startTimer() {
+		if(!isset($_SESSION['timetracking_started'])) {
+			$_SESSION['timetracking_started'] = time();
+		}
+	}
+	
+	private function _stopTimer() {
+		@$time = intval($_SESSION['timetracking_started']);
+		
+		// If a timer was running
+		if(!empty($time)) {
+			$elapsed = time() - $time;
+			unset($_SESSION['timetracking_started']);
+			@$_SESSION['timetracking_total'] = intval($_SESSION['timetracking_total']) + $elapsed;
+		}
+		
+		@$total = $_SESSION['timetracking_total'];
+		if(empty($total))
+			return false;
+		
+		return $total;
+	}
+	
+	private function _destroyTimer() {
+		unset($_SESSION['timetracking_context']);
+		unset($_SESSION['timetracking_context_id']);
+		unset($_SESSION['timetracking_started']);
+		unset($_SESSION['timetracking_total']);
+		unset($_SESSION['timetracking_link']);
+	}
+	
+	private function _profileAction_startTimer() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$context = urldecode(DevblocksPlatform::importGPC($_POST['context'],'string',''));
+		@$context_id = intval(DevblocksPlatform::importGPC($_POST['context_id'],'integer',0));
+		
+		if(!empty($context) && !isset($_SESSION['timetracking_context'])) {
+			$_SESSION['timetracking_context'] = $context;
+			$_SESSION['timetracking_context_id'] = $context_id;
+		}
+		
+		$this->_startTimer();
+	}
+	
+	private function _profileAction_pauseTimerJson() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		header("Content-Type: application/json");
+		
+		$total_secs = $this->_stopTimer();
+		
+		echo json_encode(array(
+			'status' => true,
+			'total_mins' => ceil($total_secs/60),
+		));
+		DevblocksPlatform::exit();
+	}
+	
+	private function _profileAction_viewMarkClosed() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
+		
+		$models = DAO_TimeTrackingEntry::getIds($row_ids);
+		
+		// Privs
+		$models = array_intersect_key(
+			$models,
+			array_flip(
+				array_keys(
+					Context_TimeTracking::isWriteableByActor($models, $active_worker),
+					true
+				)
+			)
+		);
+		
+		try {
+			if(is_array($models)) {
+				foreach($models as $model) {
+					DAO_TimeTrackingEntry::update($model->id, array(
+						DAO_TimeTrackingEntry::IS_CLOSED => 1,
+					));
+				}
+			}
+		} catch (Exception $e) {
+			//
+		}
+		
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
+		$view->render();
+		
+		DevblocksPlatform::exit();
+	}
+	
+	private function _profileAction_clearEntry() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$this->_destroyTimer();
+	}
+	
+	private function _profileAction_showBulkPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_TimeTracking::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($id_csv)) {
@@ -275,7 +416,15 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/bulk.tpl');
 	}
 	
-	function startBulkUpdateJsonAction() {
+	private function _profileAction_startBulkUpdateJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_TimeTracking::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
 		$ids = array();
@@ -313,7 +462,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			$do['activity_id'] = $activity;
 		
 		// Watchers
-		$watcher_params = array();
+		$watcher_params = [];
 		
 		@$watcher_add_ids = DevblocksPlatform::importGPC($_POST['do_watcher_add_ids'],'array',array());
 		if(!empty($watcher_add_ids))
@@ -364,4 +513,77 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		
 		return;
 	}
-};
+	
+	private function _profileAction_viewExplore() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time());
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
+		
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+		
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+			
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+//					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=time_entry', true),
+				);
+				$models[] = $model;
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+				foreach($results as $opp_id => $row) {
+					if($opp_id==$explore_from)
+						$orig_pos = $pos;
+					
+					$model = new Model_ExplorerSet();
+					$model->hash = $hash;
+					$model->pos = $pos++;
+					$model->params = array(
+						'id' => $row[SearchFields_TimeTrackingEntry::ID],
+						'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d", $row[SearchFields_TimeTrackingEntry::ID]), true),
+					);
+					$models[] = $model;
+				}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+}

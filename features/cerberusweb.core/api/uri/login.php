@@ -20,6 +20,14 @@ class Page_Login extends CerberusPageExtension {
 		return true;
 	}
 	
+	public function invoke(string $action) {
+		switch($action) {
+			case 'signout':
+				return $this->_loginAction_signout();
+		}
+		return false;
+	}
+	
 	static function getErrorMessage($code) {
 		$error_messages = [
 			'account.disabled' => "Your account is disabled.",
@@ -758,11 +766,6 @@ class Page_Login extends CerberusPageExtension {
 		}
 	}
 	
-	
-	function showAction() {
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('login')));
-	}
-	
 	// Please be honest
 	private function _checkSeats($current_worker) {
 		$honesty = CerberusLicense::getInstance();
@@ -869,7 +872,7 @@ class Page_Login extends CerberusPageExtension {
 		}
 	}
 	
-	function signoutAction() {
+	private function _loginAction_signout() {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError('', 403);
 		

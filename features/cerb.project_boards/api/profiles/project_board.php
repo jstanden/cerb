@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -28,7 +29,29 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch($action) {
+				case 'moveCard':
+					return $this->_profileAction_moveCard();
+				case 'refreshCard':
+					return $this->_profileAction_refreshCard();
+				case 'refreshColumn':
+					return $this->_profileAction_refreshColumn();
+				case 'reorderBoard':
+					return $this->_profileAction_reorderBoard();
+				case 'reorderColumn':
+					return $this->_profileAction_reorderColumn();
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
@@ -109,20 +132,6 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
 						@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 						
-						// Sanitize $add_contexts
-						if(isset($params['add_contexts'])) {
-							$contexts = Extension_DevblocksContext::getAll(false, 'links');
-							$params['add_contexts'] = array_intersect($params['add_contexts'], array_keys($contexts));
-						}
-						
-						$params['card_queries'] = array_filter($params['card_queries'], function($value) {
-							return !empty($value);
-						});
-						
-						$params['card_templates'] = array_filter($params['card_templates'], function($value) {
-							return !empty($value);
-						});
-						
 						$error = null;
 						
 						if(empty($id)) { // New
@@ -200,7 +209,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		}
 	}
 	
-	function moveCardAction() {
+	private function _profileAction_moveCard() {
 		@$card_context = DevblocksPlatform::importGPC($_POST['context'],'string','');
 		@$card_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$from_column_id = DevblocksPlatform::importGPC($_POST['from'],'integer',0);
@@ -221,7 +230,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		DAO_ContextLink::setLink(Context_ProjectBoardColumn::ID, $to_column_id, $card_context, $card_id);
 	}
 	
-	function refreshColumnAction() {
+	private function _profileAction_refreshColumn() {
 		@$column_id = DevblocksPlatform::importGPC($_POST['column_id'],'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -245,7 +254,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		$tpl->display('devblocks:cerb.project_boards::boards/board/column.tpl');
 	}
 	
-	function refreshCardAction() {
+	private function _profileAction_refreshCard() {
 		@$board_id = DevblocksPlatform::importGPC($_POST['board_id'],'integer',0);
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string',null);
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
@@ -270,18 +279,18 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		$card = new DevblocksDictionaryDelegate($dict);
 		
 		if($column) {
-			$card->set('column__context', Context_ProjectBoardColumn::ID);
-			$card->set('column_id', $column->id);
+			$tpl->assign('column', $column);
 			
 		} else { // Not on this board anymore
 			$tpl->assign('card_is_removed', true);
+			$tpl->assign('column', null);
 		}
 		
 		$tpl->assign('card', $card);
 		$tpl->display('devblocks:cerb.project_boards::boards/board/card.tpl');
 	}
 	
-	function reorderBoardAction() {
+	private function _profileAction_reorderBoard() {
 		@$board_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$columns = DevblocksPlatform::importGPC($_POST['columns'],'string','');
 		
@@ -302,7 +311,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		]);
 	}
 	
-	function reorderColumnAction() {
+	private function _profileAction_reorderColumn() {
 		@$column_id = DevblocksPlatform::importGPC($_POST['column_id'],'integer',0);
 		@$cards = DevblocksPlatform::importGPC($_POST['cards'],'array',[]);
 		
@@ -326,7 +335,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		]);
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -334,6 +343,9 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

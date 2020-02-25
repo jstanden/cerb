@@ -18,7 +18,7 @@
 			e.stopPropagation();
 			
 			var is_single = 1;
-			var $chooser = genericAjaxPopup('chooser', 'c=internal&a=chooserOpenFile&single=' + (is_single ? '1' : '0'), null, true, '50%');
+			var $chooser = genericAjaxPopup('chooser', 'c=internal&a=invoke&module=records&action=chooserOpenFile&single=' + (is_single ? '1' : '0'), null, true, '50%');
 			
 			$chooser.one('chooser_save', function(event) {
 				event.stopPropagation();

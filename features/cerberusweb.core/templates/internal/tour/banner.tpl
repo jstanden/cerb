@@ -8,11 +8,13 @@
 		<td align="left" width="10%" nowrap="nowrap"></td>
 		<td align="center" width="80%"><h1>Tour: {$tour.title}</h1></td>
 		<td align="right" width="10%" nowrap="nowrap">
-			<form action="{devblocks_url}{/devblocks_url}" method="post" name="tourForm">
-				<input type="hidden" name="c" value="internal">
-				<input type="hidden" name="a" value="doStopTour">
+			<form action="{devblocks_url}{/devblocks_url}" method="post" name="tourForm" id="formTour">
+				<input type="hidden" name="c" value="profiles">
+				<input type="hidden" name="a" value="invoke">
+				<input type="hidden" name="module" value="worker">
+				<input type="hidden" name="action" value="stopTour">
 				<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-				<a href="javascript:;" onclick="$('#tourDiv').fadeOut();genericAjaxGet('','c=internal&a=doStopTour');">hide this</a>
+				<a href="javascript:;" onclick="$('#tourDiv').fadeOut();genericAjaxPost($('#formTour'));">hide this</a>
 				&nbsp;
 			</form>
 		</td>

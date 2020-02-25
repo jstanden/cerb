@@ -206,7 +206,7 @@
                         $params.hide().empty();
 
                         if(id) {
-                            genericAjaxGet($toolbar,'c=profiles&a=handleSectionAction&section=card_widget&action=getPlaceholderToolbarForTab');
+                            genericAjaxGet($toolbar,'c=profiles&a=invoke&module=card_widget&action=getPlaceholderToolbar');
 
                             genericAjaxGet('', 'c=profiles&a=invoke&module=card_widget&action=getExtensionsByTabContextJson&tab_id=' + encodeURIComponent(id), function(json) {
                                 for(k in json) {

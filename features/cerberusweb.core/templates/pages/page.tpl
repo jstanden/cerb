@@ -167,7 +167,7 @@ $(function() {
 	// Export page
 	$workspace.find('a.export-page').click(function(e) {
 		e.stopPropagation();
-		genericAjaxPopup('peek','c=pages&a=showExportWorkspacePage&id={$page->id}',null,true,'600');
+		genericAjaxPopup('peek','c=pages&a=renderExport&id={$page->id}',null,true,'600');
 	});
 	
 	// Export tab
@@ -185,7 +185,7 @@ $(function() {
 		if(null == tab_id)
 			return;
 		
-		genericAjaxPopup('peek','c=pages&a=showExportWorkspaceTab&id=' + encodeURIComponent(tab_id),null,true,'600');
+		genericAjaxPopup('peek','c=pages&a=renderExportTab&id=' + encodeURIComponent(tab_id),null,true,'600');
 	});
 	
 	// Add/Remove in menu
@@ -204,8 +204,14 @@ $(function() {
 			});
 			
 			$this.html('<span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> Menu');
-			genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=0');
-			
+
+			var formData = new FormData();
+			formData.set('c', 'pages');
+			formData.set('a', 'toggleMenuPageJson');
+			formData.set('page_id', $this.attr('page_id'));
+			formData.set('toggle', '0');
+			genericAjaxPost(formData);
+
 		// Add
 		} else {
 			// Add the menu item if it doesn't exist (e.g. removed on this page cycle)
@@ -232,7 +238,13 @@ $(function() {
 			});
 			
 			$this.html('<span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span> Menu');
-			genericAjaxGet('', 'c=pages&a=doToggleMenuPageJson&page_id=' + $this.attr('page_id') + '&toggle=1');
+
+			var formData = new FormData();
+			formData.set('c', 'pages');
+			formData.set('a', 'toggleMenuPageJson');
+			formData.set('page_id', $this.attr('page_id'));
+			formData.set('toggle', '1');
+			genericAjaxPost(formData);
 		}
 	});
 	

@@ -2,6 +2,10 @@
 class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.saml.idp';
 	
+	function handleActionForService($action) {
+		return false;
+	}
+	
 	public function renderConfigForm(Model_ConnectedService $service) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();

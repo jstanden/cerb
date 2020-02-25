@@ -21,44 +21,32 @@ class Controller_Default extends DevblocksControllerExtension {
 	
 	public function handleRequest(DevblocksHttpRequest $request) {
 		$path = $request->path;
-		$controller = array_shift($path);
+
+		$controller_uri = array_shift($path);
 
 		$page = null;
-		if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller))) {
-			$page = $page_manifest->createInstance(); /* @var $page CerberusPageExtension */
-		}
 		
-		if(empty($page)) {
-			switch($controller) {
-				case "portal":
-					DevblocksPlatform::dieWithHttpError(null, 404);
-					break;
-					
+		if(null != ($page_manifest = CerberusApplication::getPageManifestByUri($controller_uri)))
+			$page = $page_manifest->createInstance(); /* @var $page CerberusPageExtension */
+		
+		if(!$page) {
+			switch($controller_uri) {
+				case 'portal':
+					return DevblocksPlatform::dieWithHttpError(null, 404);
 				default:
-					return; // default page
-					break;
+					return true;
 			}
 		}
-
-		@$action = DevblocksPlatform::strAlphaNum(array_shift($path), '\_') . 'Action';
-
+		
+		@$action = array_shift($path);
+		
+		if(!is_null($action))
 		switch($action) {
-			case NULL:
-				// [TODO] Index/page render
-				break;
-				
 			default:
-				// Default action, call arg as a method suffixed with Action
-				
 				if($page->isVisible()) {
-					if(method_exists($page,$action)) {
-						call_user_func(array($page, $action)); // [TODO] Pass HttpRequest as arg?
+					if(false == ($page->invoke($action))) {
 					}
-				} else {
-					// if Ajax [TODO] percolate isAjax from platform to handleRequest
-					// DevblocksPlatform::dieWithHttpError("Access denied.  Session expired?", 403);
 				}
-
 				break;
 		}
 	}
@@ -130,7 +118,8 @@ class Controller_Default extends DevblocksControllerExtension {
 		// [JAS]: Listeners (Step-by-step guided tour, etc.)
 		$listenerManifests = DevblocksPlatform::getExtensions('devblocks.listener.http');
 		foreach($listenerManifests as $listenerManifest) { /* @var $listenerManifest DevblocksExtensionManifest */
-			$inst = $listenerManifest->createInstance(); /* @var $inst DevblocksHttpResponseListenerExtension */
+			if(null == ($inst = $listenerManifest->createInstance())) /* @var $inst DevblocksHttpResponseListenerExtension */
+				continue;
 			$inst->run($response, $tpl);
 		}
 

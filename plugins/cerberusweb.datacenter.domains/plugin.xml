@@ -166,21 +166,6 @@
 			</params>
 		</extension>
 
-		<!-- Pages -->
-
-		<extension point="cerberusweb.page">
-			<id>cerberusweb.datacenter.domains.page</id>
-			<name>Domains Page</name>
-			<class>
-				<file>api/App.php</file>
-				<name>Page_Domains</name>
-			</class>
-			<params>
-				<param key="uri" value="datacenter.domains" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-
 		<!-- Profile Page Sections -->
 
 		<extension point="cerberusweb.ui.page.section">

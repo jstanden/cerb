@@ -80,7 +80,7 @@ $(function() {
         if($timeline_object) {
             var context = $timeline_object.context;
             var context_id = $timeline_object.context_id;
-            genericAjaxGet($timeline_preview, 'c=profiles&a=handleSectionAction&section=ticket&action=getPeekPreview&context=' + context + '&context_id=' + context_id + '&view_id={$view_id}');
+            genericAjaxGet($timeline_preview, 'c=profiles&a=invoke&module=ticket&action=getPeekPreview&context=' + context + '&context_id=' + context_id + '&view_id={$view_id}');
         }
     });
 

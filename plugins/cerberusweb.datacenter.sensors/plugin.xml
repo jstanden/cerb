@@ -164,21 +164,6 @@
 			</params>
 		</extension>
 
-		<!-- Pages -->
-
-		<extension point="cerberusweb.page">
-			<id>cerberusweb.datacenter.sensors.page</id>
-			<name>Sensors Page</name>
-			<class>
-				<file>api/App.php</file>
-				<name>Page_Sensors</name>
-			</class>
-			<params>
-				<param key="uri" value="datacenter.sensors" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-		
 		<!-- Profile Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">

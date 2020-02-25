@@ -22,8 +22,8 @@ $(function() {
 		if(e.shiftKey) {
 			var formData = new FormData();
 			formData.set('c', 'internal');
-			formData.set('a', 'handleSectionAction');
-			formData.set('section', 'watchers');
+			formData.set('a', 'invoke');
+			formData.set('module', 'watchers');
 			formData.set('action', 'toggleCurrentWorkerAsWatcher');
 			formData.set('context', '{$context}');
 			formData.set('context_id', '{$context_id}');
@@ -45,7 +45,7 @@ $(function() {
 			});
 			
 		} else {
-			var $popup = genericAjaxPopup('watchers','c=internal&a=handleSectionAction&section=watchers&action=showContextWatchersPopup&context={$context}&context_id={$context_id}&full={if empty($full)}0{else}1{/if}&group_id=' + group_id + '&bucket_id=' + bucket_id);
+			var $popup = genericAjaxPopup('watchers','c=internal&a=invoke&module=watchers&action=showContextWatchersPopup&context={$context}&context_id={$context_id}&full={if empty($full)}0{else}1{/if}&group_id=' + group_id + '&bucket_id=' + bucket_id);
 			
 			$popup.one('watchers_save', function(e) {
 				if(undefined !== e.watchers_count && undefined !== e.watchers_include_worker) {

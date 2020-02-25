@@ -28,25 +28,52 @@ class Controller_UI extends DevblocksControllerExtension {
 
 		$stack = $request->path;
 		array_shift($stack); // internal
+		@$action = array_shift($stack);
+		
+		if(!$action)
+			return;
 
-		@$action = array_shift($stack) . 'Action';
-
-		switch($action) {
-			case NULL:
-				break;
-
-			default:
-				// Default action, call arg as a method suffixed with Action
-				if(method_exists($this, $action)) {
-					try {
-						call_user_func(array(&$this, $action));
-					} catch (Exception $e) { }
-				}
-				break;
+		// Default action, call arg as a method suffixed with Action
+		if(false === ($this->_invoke($action))) {
+			trigger_error(
+				sprintf('Call to undefined profile tab action `%s::%s`',
+					get_class($this),
+					$action
+				),
+				E_USER_NOTICE
+			);
 		}
 	}
 	
-	function getContextFieldsJsonAction() {
+	private function _invoke($action) {
+		switch($action) {
+			case 'behavior':
+				return $this->_uiAction_behavior();
+			case 'dataQuery':
+				return $this->_uiAction_dataQuery();
+			case 'dataQuerySuggestions':
+				return $this->_uiAction_dataQuerySuggestions();
+			case 'getContextFieldsJson':
+				return $this->_uiAction_getContextFieldsJson();
+			case 'getContextPlaceholdersJson':
+				return $this->_uiAction_getContextPlaceholdersJson();
+			case 'getMentionsJson':
+				return $this->_uiAction_getMentionsJson();
+			case 'queryFieldSuggestions':
+				return $this->_uiAction_queryFieldSuggestions();
+			case 'querySuggestionMeta':
+				return $this->_uiAction_querySuggestionMeta();
+			case 'querySuggestions':
+				return $this->_uiAction_querySuggestions();
+			case 'sheet':
+				return $this->_uiAction_sheet();
+			case 'yamlSuggestionsFormInteractions':
+				return $this->_uiAction_yamlSuggestionsFormInteractions();
+		}
+		return false;
+	}
+	
+	private function _uiAction_getContextFieldsJson() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
 		
 		header('Content-Type: application/json');
@@ -88,7 +115,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo json_encode($results);
 	}
 	
-	function getContextPlaceholdersJsonAction() {
+	private function _uiAction_getContextPlaceholdersJson() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', null);
 		
 		header('Content-Type: application/json');
@@ -117,7 +144,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo json_encode($results);
 	}
 	
-	function getMentionsJsonAction() {
+	private function _uiAction_getMentionsJson() {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = 'ui:autocomplete:mentions';
 		
@@ -165,7 +192,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo json_encode($results);
 	}
 	
-	function behaviorAction() {
+	private function _uiAction_behavior() {
 		$request = DevblocksPlatform::getHttpRequest();
 		$stack = $request->path;
 		
@@ -247,7 +274,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 	}
 	
-	function querySuggestionMetaAction() {
+	private function _uiAction_querySuggestionMeta() {
 		$data = DevblocksPlatform::services()->data();
 		$cache = DevblocksPlatform::services()->cache();
 		
@@ -262,11 +289,11 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($results));
 	}
 	
-	function dataQuerySuggestionsAction() {
+	private function _uiAction_dataQuerySuggestions() {
+		$data = DevblocksPlatform::services()->data();
+		
 		@$type = DevblocksPlatform::importGPC($_REQUEST['type'], 'string', '');
 		@$of = DevblocksPlatform::importGPC($_REQUEST['of'], 'string', '');
-		
-		$data = DevblocksPlatform::services()->data();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -278,7 +305,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($data->getTypeMeta($type, $params)));
 	}
 	
-	function queryFieldSuggestionsAction() {
+	private function _uiAction_queryFieldSuggestions() {
 		@$of = DevblocksPlatform::importGPC($_REQUEST['of'], 'string', '');
 		@$types = DevblocksPlatform::parseCsvString(DevblocksPlatform::importGPC($_REQUEST['types'], 'string', ''));
 		
@@ -295,7 +322,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
 	}
 	
-	function yamlSuggestionsFormInteractionsAction() {
+	private function _uiAction_yamlSuggestionsFormInteractions() {
 		$events = DAO_TriggerEvent::getByEvent(Event_FormInteractionWorker::ID);
 		
 		header('Content-Type: application/json; charset=utf-8');
@@ -345,7 +372,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
 	}
 	
-	function querySuggestionsAction() {
+	private function _uiAction_querySuggestions() {
 		@$context_alias = DevblocksPlatform::importGPC($_REQUEST['context'], 'string', '');
 		@$expand = DevblocksPlatform::importGPC($_REQUEST['expand'], 'string', '');
 		
@@ -411,10 +438,11 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
 	}
 	
-	function dataQueryAction() {
-		@$data_query = DevblocksPlatform::importGPC($_REQUEST['q'], 'string', '');
-		
+	private function _uiAction_dataQuery() {
+		$active_worker = CerberusApplication::getActiveWorker();
 		$data = DevblocksPlatform::services()->data();
+		
+		@$data_query = DevblocksPlatform::importGPC($_REQUEST['q'], 'string', '');
 		
 		$error = null;
 		
@@ -430,14 +458,18 @@ class Controller_UI extends DevblocksControllerExtension {
 		echo DevblocksPlatform::strFormatJson(json_encode($results));
 	}
 	
-	function sheetAction() {
+	private function _uiAction_sheet() {
+		$tpl = DevblocksPlatform::services()->template();
+		$data = DevblocksPlatform::services()->data();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+
+		$sheets = DevblocksPlatform::services()->sheet()->newInstance();
 		@$data_query = DevblocksPlatform::importGPC($_POST['data_query'], 'string', '');
 		@$sheet_yaml = DevblocksPlatform::importGPC($_POST['sheet_yaml'], 'string', '');
 		@$types = DevblocksPlatform::importGPC($_POST['types'], 'array', []);
 		
-		$tpl = DevblocksPlatform::services()->template();
-		$data = DevblocksPlatform::services()->data();
-		$sheets = DevblocksPlatform::services()->sheet()->newInstance();
 		$error = null;
 		
 		if(false == ($results = $data->executeQuery($data_query, $error))) {

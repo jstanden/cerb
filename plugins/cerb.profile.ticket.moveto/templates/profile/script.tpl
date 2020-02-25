@@ -59,15 +59,16 @@ $(function() {
 					return;
 				
 				$menu.hide();
-				
-				var params = {
-					'c': 'display',
-					'a': 'doMove',
-					'ticket_id': {$page_context_id},
-					'bucket_id': bucket_id
-				};
 
-				genericAjaxGet('',$.param(params), function(response) {
+				var formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'ticket');
+				formData.set('action', 'quickMove');
+				formData.set('ticket_id', '{$page_context_id}');
+				formData.set('bucket_id', bucket_id);
+
+				genericAjaxPost(formData, null, null, function() {
 					document.location.reload();
 				});
 			}

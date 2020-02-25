@@ -43,8 +43,14 @@
 $(function(e) {
 	{if !empty($visit) && $visit->isImposter()}
 	$('#aImposter').click(function(e) {
-		genericAjaxGet('','c=internal&a=suRevert',function(o) {
-			window.location = window.location;
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'worker');
+		formData.set('action', 'suRevert');
+
+		genericAjaxPost(formData,'', '', function(o) {
+			window.location.reload();
 		});
 	});
 	{/if}
@@ -60,7 +66,7 @@ $(function(e) {
 
 			var $link = $(this).find('a:first');
 			
-			if($link.attr('href') != 'javascript:;') {
+			if($link.attr('href') !== 'javascript:;') {
 				window.location.href = $link.attr('href');
 			} else {
 				$link.click();
