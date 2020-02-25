@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -72,4 +73,4 @@ class PageSection_SetupAvatars extends Extension_PageSection {
 			return;
 		}
 	}
-};
+}

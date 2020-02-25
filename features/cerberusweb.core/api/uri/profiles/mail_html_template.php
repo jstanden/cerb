@@ -212,8 +212,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		// Token substitution
 		
-		$labels = array();
-		$values = array();
+		$labels = $values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $labels, $values, null, true, true);
 		$dict = new DevblocksDictionaryDelegate($values);
 		

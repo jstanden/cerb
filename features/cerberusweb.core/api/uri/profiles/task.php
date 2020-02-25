@@ -461,7 +461,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$pos = 0;
 		
 		do {
-			$models = array();
+			$models = [];
 			list($results, $total) = $view->getData();
 
 			// Summary row
@@ -503,5 +503,4 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
-	
-};
+}

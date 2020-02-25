@@ -265,7 +265,7 @@ class PageSection_ProfilesCall extends Extension_PageSection {
 		}
 		
 		// Watchers
-		$watcher_params = array();
+		$watcher_params = [];
 		
 		@$watcher_add_ids = DevblocksPlatform::importGPC($_POST['do_watcher_add_ids'],'array',array());
 		if(!empty($watcher_add_ids))

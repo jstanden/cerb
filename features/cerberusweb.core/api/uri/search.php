@@ -154,5 +154,4 @@ class Page_Search extends CerberusPageExtension {
 		));
 		return;
 	}
-	
 };

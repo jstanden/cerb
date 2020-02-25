@@ -118,4 +118,4 @@ class PageSection_SetupSearch extends Extension_PageSection {
 			
 		}
 	}
-};
+}

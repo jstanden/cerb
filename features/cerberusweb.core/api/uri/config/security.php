@@ -67,4 +67,4 @@ class PageSection_SetupSecurity extends Extension_PageSection {
 			return;
 		}
 	}
-};
+}

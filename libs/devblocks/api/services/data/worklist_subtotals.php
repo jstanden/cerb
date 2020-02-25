@@ -377,7 +377,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					$chart_model['by'] = $by_fields;
 					
 				} else {
-					$chart_model['by'] = array_merge($by_fields, array_slice($chart_model['by'],-1,1)); 
+					$chart_model['by'] = array_merge($by_fields, array_slice($chart_model['by'],-1,1));
 				}
 				
 				$sql = $outer_sql;

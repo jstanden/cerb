@@ -1109,7 +1109,7 @@ class CerberusMail {
 				&& !empty($worker_id)) {
 				CerberusBayes::markTicketAsNotSpam($ticket->id);
 			}
-				
+			
 			// Headers
 			if(!empty($from_personal)) {
 				$mail->setFrom($from_replyto->email, $from_personal);
@@ -1158,131 +1158,132 @@ class CerberusMail {
 				$requesters = DAO_Ticket::getRequestersByTicket($ticket->id);
 				
 				if(is_array($requesters))
-				foreach($requesters as $requester) { /* @var $requester Model_Address */
-					$first_email = DevblocksPlatform::strLower($requester->email);
-					$first_split = explode('@', $first_email);
-			
-					if(!is_array($first_split) || count($first_split) != 2)
-						continue;
-			
-					// Ourselves?
-					if(DAO_Address::isLocalAddressId($requester->id))
-						continue;
-
-					if($is_autoreply) {
-						// If return-path is blank
-						if(isset($message_headers['return-path']) && $message_headers['return-path'] == '<>')
+					foreach ($requesters as $requester) {
+						/* @var $requester Model_Address */
+						$first_email = DevblocksPlatform::strLower($requester->email);
+						$first_split = explode('@', $first_email);
+						
+						if (!is_array($first_split) || count($first_split) != 2)
 							continue;
 						
-						// Ignore autoresponses to autoresponses
-						if(isset($message_headers['auto-submitted']) && $message_headers['auto-submitted'] != 'no')
+						// Ourselves?
+						if (DAO_Address::isLocalAddressId($requester->id))
 							continue;
-	
-						// Bulk mail?
-						if(isset($message_headers['precedence']) &&
-							($message_headers['precedence'] == 'list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] == 'bulk'))
+						
+						if ($is_autoreply) {
+							// If return-path is blank
+							if (isset($message_headers['return-path']) && $message_headers['return-path'] == '<>')
+								continue;
+							
+							// Ignore autoresponses to autoresponses
+							if (isset($message_headers['auto-submitted']) && $message_headers['auto-submitted'] != 'no')
+								continue;
+							
+							// Bulk mail?
+							if (isset($message_headers['precedence']) &&
+								($message_headers['precedence'] == 'list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] == 'bulk'))
+								continue;
+						}
+						
+						// Ignore bounces
+						if ($first_split[0] == "postmaster" || $first_split[0] == "mailer-daemon")
 							continue;
+						
+						// Auto-reply just to the initial requester
+						$mail->addTo($requester->email);
 					}
-						
-					// Ignore bounces
-					if($first_split[0] == "postmaster" || $first_split[0] == "mailer-daemon")
-						continue;
-						
-					// Auto-reply just to the initial requester
-					$mail->addTo($requester->email);
-				}
 				
-			// Forward or overload
-			} elseif(!empty($properties['to'])) {
+				// Forward or overload
+			} elseif (!empty($properties['to'])) {
 				// To
 				$aTo = CerberusMail::parseRfcAddresses($properties['to']);
-				if(is_array($aTo))
-				foreach($aTo as $k => $v) {
-					if(!empty($v['personal'])) {
-						$mail->addTo($k, $v['personal']);
-					} else {
-						$mail->addTo($k);
+				if (is_array($aTo))
+					foreach ($aTo as $k => $v) {
+						if (!empty($v['personal'])) {
+							$mail->addTo($k, $v['personal']);
+						} else {
+							$mail->addTo($k);
+						}
 					}
-				}
 			}
 			
 			// Ccs
-			if(!empty($properties['cc'])) {
+			if (!empty($properties['cc'])) {
 				$aCc = CerberusMail::parseRfcAddresses($properties['cc']);
-				if(is_array($aCc))
-				foreach($aCc as $k => $v) {
-					if(!empty($v['personal'])) {
-						$mail->addCc($k, $v['personal']);
-					} else {
-						$mail->addCc($k);
+				if (is_array($aCc))
+					foreach ($aCc as $k => $v) {
+						if (!empty($v['personal'])) {
+							$mail->addCc($k, $v['personal']);
+						} else {
+							$mail->addCc($k);
+						}
 					}
-				}
 			}
 			
 			// Bccs
-			if(!empty($properties['bcc'])) {
+			if (!empty($properties['bcc'])) {
 				$aBcc = CerberusMail::parseRfcAddresses($properties['bcc']);
-				if(is_array($aBcc))
-				foreach($aBcc as $k => $v) {
-					if(!empty($v['personal'])) {
-						$mail->addBcc($k, $v['personal']);
-					} else {
-						$mail->addBcc($k);
+				if (is_array($aBcc))
+					foreach ($aBcc as $k => $v) {
+						if (!empty($v['personal'])) {
+							$mail->addBcc($k, $v['personal']);
+						} else {
+							$mail->addBcc($k);
+						}
 					}
-				}
 			}
 			
 			// Custom headers
 			
-			if(isset($properties['headers']) && is_array($properties['headers']))
-			foreach($properties['headers'] as $header_key => $header_val) {
-				if(!empty($header_key) && is_string($header_key) && is_string($header_val)) {
-					
-					// Overrides
-					switch(strtolower(trim($header_key))) {
-						case 'to':
-							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								foreach(array_keys($addresses) as $address)
-									$mail->addTo($address);
-							unset($properties['headers'][$header_key]);
-							break;
+			if (isset($properties['headers']) && is_array($properties['headers']))
+				foreach ($properties['headers'] as $header_key => $header_val) {
+					if (!empty($header_key) && is_string($header_key) && is_string($header_val)) {
 						
-						case 'cc':
-							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								foreach(array_keys($addresses) as $address)
-									$mail->addCc($address);
-							unset($properties['headers'][$header_key]);
-							break;
-						
-						case 'bcc':
-							if(false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
-								foreach(array_keys($addresses) as $address)
-									$mail->addBcc($address);
-							unset($properties['headers'][$header_key]);
-							break;
+						// Overrides
+						switch (strtolower(trim($header_key))) {
+							case 'to':
+								if (false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+									foreach (array_keys($addresses) as $address)
+										$mail->addTo($address);
+								unset($properties['headers'][$header_key]);
+								break;
 							
-						default:
-							if(NULL == ($header = $headers->get($header_key))) {
-								$headers->addTextHeader($header_key, $header_val);
-								
-							} else {
-								if($header instanceof Swift_Mime_Headers_IdentificationHeader)
-									continue 2;
-								
-								$header->setValue($header_val);
-							}
-							break;
+							case 'cc':
+								if (false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+									foreach (array_keys($addresses) as $address)
+										$mail->addCc($address);
+								unset($properties['headers'][$header_key]);
+								break;
+							
+							case 'bcc':
+								if (false != ($addresses = CerberusMail::parseRfcAddresses($header_val)))
+									foreach (array_keys($addresses) as $address)
+										$mail->addBcc($address);
+								unset($properties['headers'][$header_key]);
+								break;
+							
+							default:
+								if (NULL == ($header = $headers->get($header_key))) {
+									$headers->addTextHeader($header_key, $header_val);
+									
+								} else {
+									if ($header instanceof Swift_Mime_Headers_IdentificationHeader)
+										continue 2;
+									
+									$header->setValue($header_val);
+								}
+								break;
+						}
 					}
 				}
-			}
 			
 			// Body
 			
-			switch($content_format) {
+			switch ($content_format) {
 				case 'parsedown':
 					$embedded_files = self::_generateMailBodyMarkdown($mail, $content_sent, $ticket->group_id, $ticket->bucket_id, $html_template_id);
 					break;
-					
+				
 				default:
 					$mail->setBody($content_sent);
 					break;
@@ -1290,22 +1291,22 @@ class CerberusMail {
 			
 			// Mime Attachments
 			if (is_array($files) && !empty($files)) {
-				if(isset($files['tmp_name']))
-				foreach($files['tmp_name'] as $idx => $file) {
-					if(empty($file) || empty($files['name'][$idx]))
-						continue;
-	
-					$mail->attach(Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx]));
-				}
+				if (isset($files['tmp_name']))
+					foreach ($files['tmp_name'] as $idx => $file) {
+						if (empty($file) || empty($files['name'][$idx]))
+							continue;
+						
+						$mail->attach(Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx]));
+					}
 			}
-	
+			
 			// Forward Attachments
-			if(!empty($forward_files) && is_array($forward_files)) {
-				foreach($forward_files as $file_id) {
+			if (!empty($forward_files) && is_array($forward_files)) {
+				foreach ($forward_files as $file_id) {
 					// Attach the file
-					if(false != ($attachment = DAO_Attachment::get($file_id))) {
-						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-							if(false !== $attachment->getFileContents($fp)) {
+					if (false != ($attachment = DAO_Attachment::get($file_id))) {
+						if (false !== ($fp = DevblocksPlatform::getTempFile())) {
+							if (false !== $attachment->getFileContents($fp)) {
 								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
 								$attach->setFilename($attachment->name);
 								$mail->attach($attach);
@@ -1321,7 +1322,7 @@ class CerberusMail {
 				$signer = new Cerb_SwiftPlugin_GPGSigner();
 				$mail->attachSigner($signer);
 			}
-
+			
 			// Send
 			$recipients = $mail->getTo();
 			$outgoing_mail_headers = $mail->getHeaders()->toString();

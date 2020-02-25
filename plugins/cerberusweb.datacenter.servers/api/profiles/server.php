@@ -174,7 +174,7 @@ class PageSection_ProfilesServer extends Extension_PageSection {
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
 		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
 		
-		$do = array();
+		$do = [];
 		
 		$status = DevblocksPlatform::importGPC($_POST['status'],'string','');
 		

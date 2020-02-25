@@ -775,7 +775,7 @@ var cAjaxCalls = function() {
 			$chooser.one('chooser_save', function(event) {
 				// Add the labels
 				for(var idx in event.labels)
-					if(0==$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
+					if(0===$ul.find('input:hidden[value="'+event.values[idx]+'"]').length) {
 						var $li = $('<li/>').text(event.labels[idx]);
 						var $hidden = $('<input type="hidden">').attr('name', field_name + '[]').attr('value',event.values[idx]).appendTo($li);
 						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li); 
@@ -1877,7 +1877,7 @@ var ajax = new cAjaxCalls();
 				var Autocomplete = require('ace/autocomplete').Autocomplete;
 				e.editor.completer = new Autocomplete();
 			}
-			
+
 			if('insertstring' == e.command.name) {
 				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
 					if(1 == e.args.length) {
@@ -1897,7 +1897,7 @@ var ajax = new cAjaxCalls();
 			if(!editor.completer) {
 				editor.completer = new Autocomplete();
 			}
-			
+
 			editor.completer.autocomplete_suggestions = {};
 			
 			if(autocomplete_options.autocomplete_suggestions)
@@ -2411,7 +2411,7 @@ var ajax = new cAjaxCalls();
 				var Autocomplete = require('ace/autocomplete').Autocomplete;
 				e.editor.completer = new Autocomplete();
 			}
-			
+
 			if('insertstring' == e.command.name) {
 				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
 					if(1 == e.args.length) {
@@ -2431,7 +2431,7 @@ var ajax = new cAjaxCalls();
 			if(!editor.completer) {
 				editor.completer = new Autocomplete();
 			}
-			
+
 			editor.completer.autocomplete_suggestions = {
 				'_contexts': {}
 			};
@@ -2671,7 +2671,7 @@ var ajax = new cAjaxCalls();
 			if(!e.editor.completer) {
 				e.editor.completer = new Autocomplete();
 			}
-			
+
 			var value = e.editor.session.getValue();
 			var pos = e.editor.getCursorPosition();
 			var current_field = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, e.editor, 1);
@@ -3132,7 +3132,7 @@ var ajax = new cAjaxCalls();
 							if(!editor.completer) {
 								editor.completer = new Autocomplete();
 							}
-							
+
 							editor.completer.showPopup(editor);
 						}
 					});

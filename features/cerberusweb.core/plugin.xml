@@ -5000,7 +5000,7 @@
 		</extension>
 
 			<!-- Internal Page Sections -->
-			
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.internal.section.calendars</id>
 				<name>Internal Section Calendars</name>

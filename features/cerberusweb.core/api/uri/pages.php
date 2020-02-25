@@ -277,7 +277,7 @@ class Page_Custom extends CerberusPageExtension {
 		@$menu = json_decode(DAO_WorkerPref::get($active_worker->id, 'menu_json', '[]'));
 		
 		if(!is_array($menu))
-			$menu = array();
+			$menu = [];
 		
 		if(null != ($page = DAO_WorkspacePage::get($page_id))) {
 			if(Context_WorkspacePage::isReadableByActor($page, $active_worker)) {
@@ -289,7 +289,6 @@ class Page_Custom extends CerberusPageExtension {
 				} else {
 					$menu[] = $page_id;
 				}
-				
 			}
 		}
 		

@@ -99,4 +99,4 @@ class PageSection_SetupPackageImport extends Extension_PageSection {
 			return;
 		}
 	}
-};
+}

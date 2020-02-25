@@ -150,34 +150,34 @@ $frm.bind('keyboard_shortcut',function(event) {
 	switch(event.keypress_event.which) {
 		case 98: // (b) bulk update
 			$btn = $view_actions.find('button.action-bulkupdate');
-		
+
 			if(event.indirect) {
 				$btn.select().focus();
-				
+
 			} else {
 				$btn.click();
 			}
 			break;
-			
+
 		case 99: // (c) mark read
 			$btn = $view_actions.find('button.action-markread');
-		
+
 			if(!event.indirect) {
 				$btn.click();
 			}
 			break;
-		
+
 		case 101: // (e) explore
 			$btn = $view_actions.find('button.action-explore');
-		
+
 			if(event.indirect) {
 				$btn.select().focus();
-				
+
 			} else {
 				$btn.click();
 			}
 			break;
-			
+
 		default:
 			hotkey_activated = false;
 			break;

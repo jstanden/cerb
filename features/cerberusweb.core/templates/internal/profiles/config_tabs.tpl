@@ -105,7 +105,7 @@ $(function() {
 	// Submit
 	
 	$frm.find('button.submit').on('click', function(e) {
-		genericAjaxPost($frm, '', null, function(json) {
+		genericAjaxPost($frm, '', null, function() {
 			e.stopPropagation();
 			document.location.reload();
 		});

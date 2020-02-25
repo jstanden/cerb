@@ -236,4 +236,4 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
-};
+}

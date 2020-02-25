@@ -54,9 +54,9 @@ $(function() {
 			});
 			
 			xhr.onreadystatechange = function(e) {
-				if(xhr.readyState == 4) {
+				if(xhr.readyState === 4) {
 					var json = {};
-					if(xhr.status == 200) {
+					if(xhr.status === 200) {
 						$progress
 							.text(file.name)
 							.addClass('success')

@@ -160,7 +160,7 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		// Fields
 		@$status = trim(DevblocksPlatform::importGPC($_POST['status'],'string',''));
 
-		$do = array();
+		$do = [];
 		
 		// Do: Status
 		if(0 != strlen($status)) {
@@ -206,7 +206,6 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		echo json_encode(array(
 			'cursor' => $batch_key,
 		));
-		
 		return;
 	}
 }
@@ -300,4 +299,4 @@ class Cron_WgmTwitterChecker extends CerberusCronPageExtension {
 			return;
 		}
 	}
-};
+}

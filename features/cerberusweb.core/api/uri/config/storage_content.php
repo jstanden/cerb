@@ -42,7 +42,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(false == ($rs = $db->ExecuteMaster("SHOW TABLE STATUS")))
-			return false;
+			return;
 
 		$total_db_size = 0;
 		$total_db_data = 0;
@@ -52,7 +52,7 @@ class PageSection_SetupStorageContent extends Extension_PageSection {
 		// [TODO] This would likely be helpful to the /debug controller
 		
 		if(!($rs instanceof mysqli_result))
-			return false;
+			return;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$table_size_data = floatval($row['Data_length']);

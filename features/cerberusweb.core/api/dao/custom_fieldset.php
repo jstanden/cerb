@@ -1265,20 +1265,6 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return $view;
 	}
 	
-	function showCustomFieldsetPeekAction() {
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		@$layer = DevblocksPlatform::importGPC($_REQUEST['layer'], 'string', '');
-		
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('view_id', $view_id);
-		$tpl->assign('layer', $layer);
-		
-		// Template
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/custom_fieldsets/peek_edit.tpl');
-	}
-	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();

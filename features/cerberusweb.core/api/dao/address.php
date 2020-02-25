@@ -702,7 +702,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	
 	/**
 	 * 
-	 * @return Model_Address[]
+	 * @return Model_Address
 	 */
 	static function getDefaultLocalAddress() {
 		$sender_addresses = self::getLocalAddresses();

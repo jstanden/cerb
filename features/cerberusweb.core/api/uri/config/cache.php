@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUnused */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -119,4 +119,4 @@ class PageSection_SetupCache extends Extension_PageSection {
 			
 		}
 	}
-};
+}

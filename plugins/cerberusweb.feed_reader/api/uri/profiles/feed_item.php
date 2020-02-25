@@ -165,7 +165,7 @@ class PageSection_ProfilesFeedItem extends Extension_PageSection {
 	function startBulkUpdateJsonAction() {
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
-		$ids = array();
+		$ids = [];
 		
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');

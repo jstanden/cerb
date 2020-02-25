@@ -102,7 +102,7 @@ $(function() {
 	
 	{if $pref_keyboard_shortcuts}
 	$(document).keyup(function(e) {
-		if(!(222 == e.which && e.shiftKey))
+		if(!(222 === e.which && e.shiftKey))
 			return;
 		
 		var $target = $(e.target);

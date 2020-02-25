@@ -86,7 +86,14 @@ class Cerb_Packages {
 		return [];
 	}
 	
-	static function importFromJson($json, array $prompts=[], &$records_created=null) {
+	/**
+	 * @param array $json
+	 * @param array $prompts
+	 * @param array $records_created
+	 * @return bool|null
+	 * @throws Exception_DevblocksValidationError
+	 */
+	static function importFromJson(array $json, array $prompts=[], &$records_created=null) {
 		$event = DevblocksPlatform::services()->event();
 		
 		if(!is_array($json))
@@ -191,6 +198,8 @@ class Cerb_Packages {
 		
 		if($config_options['disable_events'])
 			$event->enable();
+		
+		return true;
 	}
 	
 	private static function _packageCreateCustomRecords(&$json, &$uids, &$records_created, &$placeholders) {

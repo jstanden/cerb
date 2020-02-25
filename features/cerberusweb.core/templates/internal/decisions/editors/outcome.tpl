@@ -171,16 +171,16 @@ $(function() {
 			$toolbar.detach();
 			$target.remove();
 		});
-		
+
 		// Close confirmation
-		
+
 		$popup.on('dialogbeforeclose', function(e, ui) {
 			var keycode = e.keyCode || e.which;
-			if(keycode == 27)
+			if(keycode === 27)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
-		
-		var $frm = $popup.find('form#frmDecisionOutcome{$id}');
+
+		var $frm = $popup.find('#frmDecisionOutcome{$id}');
 		var $legend = $popup.find('fieldset legend');
 		var $menu = $popup.find('fieldset ul.cerb-popupmenu:first');
 		var $toolbar = $('DIV#divDecisionOutcomeToolbar{$id}');
@@ -191,7 +191,7 @@ $(function() {
 
 		var $funcGroupAnyToggle = function(e) {
 			var $any = $(this).closest('fieldset').find('input:hidden:first');
-			
+
 			if("any" == $any.val()) {
 				$(this).html("all&#x25be;");
 				$any.val('all');
@@ -200,7 +200,7 @@ $(function() {
 				$any.val('any');
 			}
 		}
-		
+
 		$legend.find('a').click($funcGroupAnyToggle);
 
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
@@ -225,25 +225,25 @@ $(function() {
 					;
 			})
 			;
-		
+
 		// Placeholders
-		
+
 		$popup.find('textarea.placeholders, :text.placeholders').cerbCodeEditor();
-		
+
 		$popup.delegate(':text.placeholders, textarea.placeholders, pre.placeholders', 'focus', function(e) {
 			e.stopPropagation();
-			
+
 			var $target = $(e.target);
 			var $parent = $target.closest('.ace_editor');
-			
-			if(0 != $parent.length) {
+
+			if(0 !== $parent.length) {
 				$toolbar.find('div.tester').html('');
 				$toolbar.find('ul.menu').hide();
 				$toolbar.show().insertAfter($parent);
 				$toolbar.data('src', $parent);
-				
+
 			} else {
-				if(0 == $target.nextAll('#divDecisionOutcomeToolbar{$id}').length) {
+				if(0 === $target.nextAll('#divDecisionOutcomeToolbar{$id}').length) {
 					$toolbar.find('div.tester').html('');
 					$toolbar.find('ul.menu').hide();
 					$toolbar.show().insertAfter($target);
@@ -251,36 +251,36 @@ $(function() {
 				}
 			}
 		});
-		
+
 		// Placeholder menu
-		
+
 		var $placeholder_menu_trigger = $toolbar.find('button.cerb-popupmenu-trigger');
 		var $placeholder_menu = $toolbar.find('ul.menu').hide();
-		
+
 		// Quick insert token menu
-		
+
 		$placeholder_menu.menu({
 			select: function(event, ui) {
 				var token = ui.item.attr('data-token');
 				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
+
+				if(undefined === token || undefined === label)
 					return;
-				
+
 				var $field = null;
-				
+
 				if($toolbar.data('src')) {
 					$field = $toolbar.data('src');
 				} else {
 					$field = $toolbar.prev(':text, textarea');
 				}
-				
+
 				if(null == $field)
 					return;
-				
+
 				if($field.is(':text, textarea')) {
 					$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
-					
+
 				} else if($field.is('.ace_editor')) {
 					var evt = new jQuery.Event('cerb.insertAtCursor');
 					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
@@ -288,39 +288,39 @@ $(function() {
 				}
 			}
 		});
-		
+
 		$toolbar.find('button.tester').click(function(e) {
 			var divTester = $toolbar.find('div.tester').first();
-			
-			var $field = null;
-			
+
+			var $field;
+
 			if($toolbar.data('src')) {
 				$field = $toolbar.data('src');
 			} else {
 				$field = $toolbar.prev(':text, textarea');
 			}
-			
+
 			if(null == $field)
 				return;
-			
+
 			if($field.is('.ace_editor')) {
-				var $field = $field.prev('textarea, :text');
+				$field = $field.prev('textarea, :text');
 			}
-			
+
 			if($field.is(':text, textarea')) {
 				var regexpName = /^(.*?)(\[.*?\])$/;
 				var hits = regexpName.exec($field.attr('name'));
-				
+
 				if(null == hits || hits.length < 3)
 					return;
-				
+
 				var strNamespace = hits[1];
 				var strName = hits[2];
 				
 				genericAjaxPost($(this).closest('form'), divTester, 'c=internal&a=testDecisionEventSnippets&prefix=' + strNamespace + '&field=' + strName);
 			}
 		});
-		
+
 		$placeholder_menu_trigger
 			.click(
 				function(e) {
@@ -333,7 +333,7 @@ $(function() {
 				}
 			)
 		;
-		
+
 		// Quick insert condition menu
 
 		var $conditions_menu_trigger = $frmAdd.find('button.condition.cerb-popupmenu-trigger');
@@ -342,15 +342,15 @@ $(function() {
 		$conditions_menu_trigger.click(function() {
 			$conditions_menu.toggle();
 		});
-		
+
 		$conditions_menu.menu({
 			select: function(event, ui) {
 				var token = ui.item.attr('data-token');
 				var label = ui.item.attr('data-label');
-				
+
 				if(undefined === token || undefined === label)
 					return;
-				
+
 				var $frmDecAdd = $('#frmDecisionOutcomeAdd{$id}');
 				$frmDecAdd.find('input[name=condition]').val(token);
 
@@ -360,13 +360,13 @@ $(function() {
 
 				genericAjaxPost(formData,'','',function(html) {
 					var $ul = $('#frmDecisionOutcome{$id} UL.rules:last');
-					
+
 					var seq = parseInt($frmDecAdd.find('input[name=seq]').val());
 					if(null == seq)
 						seq = 0;
-					
+
 					var $html = $('<div style="margin-left:20px;"/>').html(html);
-					
+
 					var $container = $('<li style="padding-bottom:5px;"/>').attr('id','condition' + seq + '_{$nonce}');
 					$container.append($('<input type="hidden" name="nodes[]">').attr('value', seq));
 					$container.append($('<input type="hidden">').attr('name', 'condition'+seq+'[condition]').attr('value',token));
@@ -375,21 +375,21 @@ $(function() {
 					$container.append($('<b style="cursor:move;"/>').text(label));
 					$container.append('&nbsp;');
 					$container.hide();
-					
+
 					$ul.append($container);
 					$container.append($html).fadeIn();
-					
+
 					$html.find('textarea.placeholders, :text.placeholders').cerbCodeEditor();
-					
+
 					$html.find('BUTTON.chooser_worker.unbound').each(function() {
 						ajax.chooser(this,'cerberusweb.contexts.worker','condition'+seq+'[worker_id]', { autocomplete:true });
 						$(this).removeClass('unbound');
 					});
-					
+
 					// [TODO] This can take too long to increment when packets are arriving quickly
 					$frmDecAdd.find('input[name=seq]').val(1+seq);
 				});
-				
+
 			}
 		});
 

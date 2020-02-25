@@ -302,7 +302,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
 		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
 		
-		$do = array();
+		$do = [];
 		
 		// Do: Status
 		if(0 != strlen($status)) {
@@ -331,7 +331,7 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		}
 		
 		// Watchers
-		$watcher_params = array();
+		$watcher_params = [];
 		
 		@$watcher_add_ids = DevblocksPlatform::importGPC($_POST['do_watcher_add_ids'],'array',array());
 		if(!empty($watcher_add_ids))
@@ -413,4 +413,4 @@ class PageSection_ProfilesOpportunity extends Extension_PageSection {
 		
 		return;
 	}
-};
+}

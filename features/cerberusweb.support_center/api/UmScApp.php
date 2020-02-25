@@ -129,7 +129,7 @@ class UmScApp extends Extension_CommunityPortal {
 	public static function getLoginExtensionsEnabled($instance_id, $as_instances=false) {
 		$login_extensions = self::getLoginExtensions($as_instances);
 		
-		$enabled = array();
+		$enabled = [];
 
 		if(null != ($str = DAO_CommunityToolProperty::get($instance_id, self::PARAM_LOGIN_EXTENSIONS, ''))) {
 			$ids = explode(',', $str);

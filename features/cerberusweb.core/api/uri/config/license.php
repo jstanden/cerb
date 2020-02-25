@@ -101,4 +101,4 @@ class PageSection_SetupLicense extends Extension_PageSection {
 			
 		}
 	}
-};
+}

@@ -309,8 +309,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		if(empty($name))
 			$name = $translate->_('Mail Routing Rule');
 		
-		$criterion = array();
-		$actions = array();
+		$criterion = [];
+		$actions = [];
 		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getAll();
@@ -323,9 +323,9 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			
 			// [JAS]: Allow empty $value (null/blank checking)
 			
-			$criteria = array(
+			$criteria = [
 				'value' => $value,
-			);
+			];
 			
 			// Any special rule handling
 			switch($rule) {
@@ -351,12 +351,9 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 					break;
 					
 				case 'subject':
-					break;
-					
 				case 'from':
-					break;
-					
 				case 'tocc':
+				case 'body':
 					break;
 					
 				case 'header1':
@@ -366,9 +363,6 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 				case 'header5':
 					if(null != (@$header = DevblocksPlatform::importGPC($_POST[$rule],'string',null)))
 						$criteria['header'] = DevblocksPlatform::strLower($header);
-					break;
-					
-				case 'body':
 					break;
 					
 				default: // ignore invalids // [TODO] Very redundant

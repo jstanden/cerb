@@ -14,7 +14,7 @@
 					{if !$smarty.const.DEVBLOCKS_SEARCH_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=search{/devblocks_url}">{'common.search'|devblocks_translate|capitalize}</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=security{/devblocks_url}">Security</a></li>
 					<li><a href="{devblocks_url}c=config&a=sessions{/devblocks_url}">Sessions</a></li>
-					
+
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.settings')}
 					{if !empty($exts)}
 						<li><hr></li>
@@ -33,7 +33,7 @@
 					<li><a href="{devblocks_url}c=config&a=avatars{/devblocks_url}">Avatars</a></li>
 					<li><a href="{devblocks_url}c=config&a=fields{/devblocks_url}">{'common.custom_fields'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=snippets{/devblocks_url}">{'common.snippets'|devblocks_translate|capitalize}</a></li>
-					
+
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.records')}
 					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
@@ -49,7 +49,7 @@
 					<li><a href="{devblocks_url}c=config&a=team&w=roles{/devblocks_url}">{'common.roles'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=team&w=groups{/devblocks_url}">{'common.groups'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=team&w=workers{/devblocks_url}">{'common.workers'|devblocks_translate|capitalize}</a></li>
-					
+
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.team')}
 					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
@@ -64,7 +64,7 @@
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=mail_incoming{/devblocks_url}">{'common.mail.incoming'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=mail_outgoing{/devblocks_url}">{'common.mail.outgoing'|devblocks_translate|capitalize}</a></li>
-					
+
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.mail')}
 					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
@@ -79,7 +79,7 @@
 				<ul class="cerb-popupmenu cerb-float">
 					<li><a href="{devblocks_url}c=config&a=package_library{/devblocks_url}">{'common.library'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=package_import{/devblocks_url}">{'common.import'|devblocks_translate|capitalize}</a></li>
-					
+
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.packages')}
 					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
@@ -95,7 +95,7 @@
 					<li><a href="{devblocks_url}c=config&a=storage_content{/devblocks_url}">Overview</a></li>
 					{if !$smarty.const.DEVBLOCKS_STORAGE_ENGINE_PREVENT_CHANGE}<li><a href="{devblocks_url}c=config&a=storage_profiles{/devblocks_url}">{'common.profiles'|devblocks_translate|capitalize}</a></li>{/if}
 					<li><a href="{devblocks_url}c=config&a=storage_attachments{/devblocks_url}">{'common.objects'|devblocks_translate|capitalize}</a></li>
-					
+
 					{$exts = Extension_PageMenuItem::getExtensions(true, 'core.page.configuration','core.setup.menu.storage')}
 					{if !empty($exts)}<li><hr></li>{/if}
 					{foreach from=$exts item=menu_item}
@@ -136,7 +136,7 @@
 				</ul>
 			</div>
 		</li>
-		
+
 		{$exts = Extension_PageMenu::getExtensions(true, 'core.page.configuration')}
 		{foreach from=$exts item=menu key=menu_id}
 		<li>
@@ -151,9 +151,9 @@
 
 {if $install_dir_warning && !$smarty.const.DEVELOPMENT_MODE}
 <div class="ui-widget">
-	<div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;"> 
+	<div class="ui-state-error ui-corner-all" style="padding:0 0.5em;margin:0.5em;">
 		<p>
-			<span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span> 
+			<span class="ui-icon ui-icon-alert" style="float:left;margin-right:0.3em"></span>
 			<strong>Warning:</strong> The 'install' directory still exists.  This is a potential security risk.  Please delete it.
 		</p>
 	</div>
@@ -162,7 +162,7 @@
 
 {if !empty($subpage) && $subpage instanceof Extension_PageSection}
 <div class="cerb-subpage" style="margin-top:10px;">
-	{$subpage->render()}
+	{$subpage_result = $subpage->render()}
 </div>
 {/if}
 

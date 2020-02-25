@@ -405,7 +405,7 @@ $(function() {
 		$frm
 			.find('input:text')
 			.keydown(function(e) {
-				if(e.which == 13)
+				if(13 === e.which)
 					e.preventDefault();
 			})
 			;
@@ -686,9 +686,9 @@ $(function() {
 			if($len>0)
 				$last = $val.substring($len-1);
 			
-			if(0==$len || $last==' ')
+			if(0 === $len || $last === ' ')
 				$to.val($val+$sug);
-			else if($last==',')
+			else if($last === ',')
 				$to.val($val + ' '+$sug);
 			else $to.val($val + ', '+$sug);
 				$to.focus();

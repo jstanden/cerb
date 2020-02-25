@@ -307,4 +307,4 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
-};
+}

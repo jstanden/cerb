@@ -227,7 +227,7 @@ $(function() {
 		
 		var $column = $(this);
 		var column_id = $column.attr('data-column-id');
-		var is_new = 0 == $column.find('> form').length;
+		var is_new = 0 === $column.find('> form').length;
 
 		var formData = new FormData();
 		formData.set('c', 'profiles');

@@ -956,8 +956,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $properties;
 	}
 
-	/*
-	 * @return Cerb_ORMHelper
+	/**
+	 * @return string|false
 	 */
 	function getDaoClass() {
 		$class = str_replace('Context_','DAO_', get_called_class());

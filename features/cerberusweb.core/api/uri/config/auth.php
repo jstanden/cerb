@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -39,6 +40,7 @@ class PageSection_SetupAuth extends Extension_PageSection {
 		$sso_services_enabled = array_intersect_key($sso_services_available, array_flip($sso_services_enabled_ids));
 		
 		// Sort enabled services first by dragged rank, disabled lexicographically
+		/** @noinspection DuplicatedCode */
 		usort($sso_services_available, function($a, $b) use ($sso_services_enabled_ids) {
 			/* @var $a Model_ConnectedService */
 			/* @var $b Model_ConnectedService */
@@ -160,4 +162,4 @@ class PageSection_SetupAuth extends Extension_PageSection {
 			return;
 		}
 	}
-};
+}

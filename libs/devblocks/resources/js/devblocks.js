@@ -1023,9 +1023,11 @@ function showLoadingPanel() {
 }
 
 function hideLoadingPanel() {
-	loadingPanel.unbind();
-	loadingPanel.dialog('destroy');
-	loadingPanel = null;
+	if(loadingPanel) {
+		loadingPanel.unbind();
+		loadingPanel.dialog('destroy');
+		loadingPanel = null;
+	}
 }
 
 function genericAjaxPopupFind($sel) {
@@ -1393,11 +1395,11 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	// Allow custom options
 	if(null == options)
 		options = { };
-	
+
 	options.type = 'POST';
 	options.url = DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
 	options.cache = false;
-	
+
 	// Handle formData
 	if(formRef instanceof FormData) {
 		options.processData = false;
@@ -1416,7 +1418,7 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 		
 		options.data = $(frm).serialize();
 	}
-	
+
 	if(null != div) {
 		div.fadeTo("fast", 0.2);
 		

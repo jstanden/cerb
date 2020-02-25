@@ -3451,6 +3451,13 @@ class _CerbApplication_Packages {
 		return Cerb_Packages::getPromptsFromjson($json);
 	}
 	
+	/**
+	 * @param string $json_string
+	 * @param array $prompts
+	 * @param null $records_created
+	 * @return bool|null
+	 * @throws Exception_DevblocksValidationError
+	 */
 	function import($json_string, array $prompts=[], &$records_created=null) {
 		$json = Cerb_Packages::loadPackageFromJson($json_string);
 		return Cerb_Packages::importFromJson($json, $prompts, $records_created);

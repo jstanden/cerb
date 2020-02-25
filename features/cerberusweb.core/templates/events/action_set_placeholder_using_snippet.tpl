@@ -42,7 +42,6 @@
 <script type="text/javascript">
 $(function(e) {
 	var $action = $('#{$namePrefix}_{$nonce}');
-	var $on = $action.find('select:first');
 	var $snippet_preview = $action.find('div.snippet-preview');
 	
 	// Snippet insert menu
@@ -53,8 +52,6 @@ $(function(e) {
 			
 			var $this = $(this);
 			var $ul = $this.siblings('ul.chooser-container');
-			
-			var context = $action.find('select:first option:selected').attr('context');
 			
 			// Find the snippet_id
 			var snippet_id = $ul.find('input:hidden').val();

@@ -116,4 +116,4 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 			return;
 		}
 	}
-};
+}

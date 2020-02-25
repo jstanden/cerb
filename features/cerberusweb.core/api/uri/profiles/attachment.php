@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -298,7 +299,6 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 				
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
-				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;
 				
@@ -324,4 +324,4 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		
 		return;
 	}
-};
+}

@@ -275,8 +275,8 @@ class ChTranslators_SetupPageSection extends Extension_PageSection {
 			false
 		);
 		
-		$codes = array();
-		$strings = array();
+		$codes = [];
+		$strings = [];
 		
 		// Loop translated strings
 		if(is_array($results))

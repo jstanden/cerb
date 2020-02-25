@@ -66,4 +66,4 @@ class PageSection_SetupSessions extends Extension_PageSection {
 		foreach($session_ids as $session_id)
 			$session->clear($session_id);
 	}
-};
+}

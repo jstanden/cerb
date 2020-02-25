@@ -7,7 +7,7 @@
 
 <fieldset>
 	<legend>Database</legend>
-	
+
 	Data: <b>{$total_db_data|devblocks_prettybytes:2}</b><br>
 	Indexes: <b>{$total_db_indexes|devblocks_prettybytes:2}</b><br>
 	Total Disk Space: <b>{$total_db_size|devblocks_prettybytes:2}</b><br>

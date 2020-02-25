@@ -688,4 +688,4 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		
 		return;
 	}
-};
+}

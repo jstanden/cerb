@@ -76,4 +76,4 @@ class PageSection_SetupLocalization extends Extension_PageSection {
 			return;
 		}
 	}
-};
+}

@@ -233,4 +233,4 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
-};
+}

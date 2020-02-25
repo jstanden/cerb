@@ -619,5 +619,4 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/fields/fields_config_tabs.tpl');
 	}
-	
-};
+}

@@ -130,7 +130,7 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 
 		header('Content-Type: application/json');
 		
-		$options = array();
+		$options = [];
 		
 		if(empty($term) || substr($term,0,1) == '@')
 		foreach($calendars as $calendar) {

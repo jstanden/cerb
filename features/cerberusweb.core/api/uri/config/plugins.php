@@ -120,14 +120,14 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 		
 		$errors = [];
 		
-		switch($plugin_id) {
-			case 'devblocks.core':
-			case 'cerberusweb.core':
-				throw new Exception("This plugin is not editable.");
-				break;
-		}
-		
 		try {
+			switch($plugin_id) {
+				case 'devblocks.core':
+				case 'cerberusweb.core':
+					throw new Exception("This plugin is not editable.");
+					break;
+			}
+			
 			$plugin = DevblocksPlatform::getPlugin($plugin_id);
 			
 			if($uninstall) {
@@ -203,4 +203,4 @@ class PageSection_SetupPlugins extends Extension_PageSection {
 			));
 		}
 	}
-};
+}

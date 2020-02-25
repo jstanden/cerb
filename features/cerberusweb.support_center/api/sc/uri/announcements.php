@@ -63,5 +63,4 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		
 		DAO_CommunityToolProperty::set($portal->code, self::PARAM_NEWS_RSS, serialize($aNewsRss));
 	}
-	
-};
+}
