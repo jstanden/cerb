@@ -47,7 +47,7 @@ $(function() {
 			return;
 		}
 		
-		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist"}',null,true,'750');
 		$chooser.bind('chooser_save',function(event) {
 			if(null != event.worklist_model) {
 				$('#popup{$div_popup_worklist}').parent().find('input:hidden.model').val(event.worklist_model);

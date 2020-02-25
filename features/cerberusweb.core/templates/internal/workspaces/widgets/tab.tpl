@@ -138,11 +138,11 @@ $(function() {
 	
 	$container.on('cerb-reorder', function(e) {
 		var formData = new FormData();
-		formData.append('c', 'profiles');
-		formData.append('a', 'handleSectionAction');
-		formData.append('section', 'workspace_widget');
-		formData.append('action', 'reorderWidgets');
-		formData.append('tab_id', '{$model->id}');
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'workspace_widget');
+		formData.set('action', 'reorderWidgets');
+		formData.set('tab_id', '{$model->id}');
 
 		// Zones
 		$container.find('> .cerb-workspace-layout-zone')
@@ -236,10 +236,10 @@ $(function() {
 						});
 						
 					} else if($li.is('.cerb-workspace-widget-menu--export-data')) {
-						genericAjaxPopup('export_data', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=exportWidgetData&id=' + widget_id, null, false);
+						genericAjaxPopup('export_data', 'c=profiles&a=invoke&module=workspace_widget&action=exportWidgetData&id=' + widget_id, null, false);
 						
 					} else if($li.is('.cerb-workspace-widget-menu--export-widget')) {
-						genericAjaxPopup('export_widget', 'c=profiles&a=handleSectionAction&section=workspace_widget&action=exportWidget&id=' + widget_id, null, false);
+						genericAjaxPopup('export_widget', 'c=profiles&a=invoke&module=workspace_widget&action=exportWidget&id=' + widget_id, null, false);
 						
 					}
 				}
@@ -286,12 +286,12 @@ $(function() {
 			var formData = new FormData();
 		}
 
-		formData.append('c', 'profiles');
-		formData.append('a', 'handleSectionAction');
-		formData.append('section', 'workspace_widget');
-		formData.append('action', 'renderWidget');
-		formData.append('id', widget_id);
-		formData.append('full', is_full ? '1' : '0');
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'workspace_widget');
+		formData.set('action', 'renderWidget');
+		formData.set('id', widget_id);
+		formData.set('full', is_full ? '1' : '0');
 
 		if(refresh_options instanceof Object) {
 			Devblocks.objectToFormData(refresh_options, formData);

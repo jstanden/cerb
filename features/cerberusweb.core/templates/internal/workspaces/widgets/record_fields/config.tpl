@@ -47,7 +47,7 @@ $(function() {
 		$label_context_id.attr('data-context', context);
 		
 		// When the context changes, redraw the tabs
-		genericAjaxGet($context_tabs, 'c=profiles&a=handleSectionAction&section=workspace_widget&action=getFieldsTabsByContext&context=' + encodeURIComponent(context), function() {
+		genericAjaxGet($context_tabs, 'c=profiles&a=invoke&module=workspace_widget&action=getFieldsTabsByContext&context=' + encodeURIComponent(context), function() {
 			var $tabs = $context_tabs.find('div.cerb-tabs');
 			
 			try {

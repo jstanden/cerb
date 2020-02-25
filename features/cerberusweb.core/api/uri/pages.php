@@ -24,59 +24,6 @@ class Page_Custom extends CerberusPageExtension {
 		return true;
 	}
 	
-	function handleSectionActionAction() {
-		// GET has precedence over POST
-		@$section_uri = DevblocksPlatform::importGPC(isset($_GET['section']) ? $_GET['section'] : $_REQUEST['section'],'string','');
-		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
-
-		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
-		
-		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
-			call_user_func(array($inst, $action.'Action'));
-		}
-	}
-	
-	function handleTabActionAction() {
-		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['tab'],'string','');
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'integer',0);
-		@$action = DevblocksPlatform::importGPC($_REQUEST['action'],'string','');
-
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
-			return;
-		
-		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
-			|| !Context_WorkspacePage::isReadableByActor($page, $active_worker)
-			)
-			return;
-		
-		$inst = DevblocksPlatform::getExtension($extension_id, true);
-		
-		if($inst instanceof Extension_WorkspaceTab && method_exists($inst, $action.'Action')) {
-			$tpl = DevblocksPlatform::services()->template();
-			$tpl->assign('tab', $tab);
-			$tpl->assign('tab_extension', $inst);
-			
-			call_user_func(array($inst, $action.'Action'));
-		}
-	}
-	
-	function handleWorkspaceWidgetActionAction() {
-		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
-		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
-		
-		if(false == ($workspace_widget = DAO_WorkspaceWidget::get($widget_id)))
-			return;
-		
-		if(false == ($extension = $workspace_widget->getExtension()))
-			return;
-		
-		if($extension instanceof Extension_WorkspaceWidget && method_exists($extension, $action.'Action')) {
-			call_user_func_array([$extension, $action.'Action'], [$workspace_widget]);
-		}
-	}
-	
 	function render() {
 		$response = DevblocksPlatform::getHttpResponse();
 		
@@ -103,6 +50,83 @@ class Page_Custom extends CerberusPageExtension {
 		}
 		
 		return;
+	}
+	
+	function invoke(string $action) {
+		switch($action) {
+			case 'invoke':
+				return $this->_pageAction_invoke();
+			case 'invokeWidget':
+				return $this->_pageAction_invokeWidget();
+			case 'renderAddTabs':
+				return $this->_pageAction_renderAddTabs();
+			case 'renderExport':
+				return $this->_pageAction_renderExport();
+			case 'renderExportTab':
+				return $this->_pageAction_renderExportTab();
+			case 'renderTab':
+				return $this->_pageAction_renderTab();
+			case 'renderWorklist':
+				return $this->_pageAction_renderWorklist();
+			case 'setOrder':
+				return $this->_pageAction_setOrder();
+			case 'setTabOrder':
+				return $this->_pageAction_setTabOrder();
+			case 'toggleMenuPageJson':
+				return $this->_pageAction_toggleMenuPageJson();
+		}
+		return false;
+	}
+	
+	private function _pageAction_invoke() {
+		@$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_POST['module'],'string','');
+		@$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_POST['action'],'string','');
+		
+		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $page_uri, true);
+		
+		/* @var $inst Extension_PageSection */
+		
+		if($inst instanceof Extension_PageSection) {
+			if(false === ($inst->handleActionForPage($action, 'pageAction'))) {
+				trigger_error(
+					sprintf('Call to undefined page action `%s::%s`',
+						get_class($inst),
+						$action
+					),
+					E_USER_NOTICE
+				);
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			}
+		}
+	}
+	
+	private function _pageAction_invokeWidget() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
+		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
+		
+		if(false == ($workspace_widget = DAO_WorkspaceWidget::get($widget_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($extension = $workspace_widget->getExtension()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($workspace_widget, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if($extension instanceof Extension_WorkspaceWidget) {
+			if(false === ($extension->invoke($action, $workspace_widget))) {
+				trigger_error(
+					sprintf('Call to undefined workspace widget action `%s::%s`',
+						get_class($extension),
+						$action
+					),
+					E_USER_NOTICE
+				);
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			}
+		}
 	}
 	
 	private function _renderIndex() {
@@ -172,10 +196,13 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::pages/page.tpl');
 	}
 	
-	function setPageOrderAction() {
-		@$page_ids_str = DevblocksPlatform::importGPC($_REQUEST['pages'],'string','');
-		
+	private function _pageAction_setOrder() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$page_ids_str = DevblocksPlatform::importGPC($_POST['pages'],'string','');
 		
 		$menu = [];
 		$pages = DAO_WorkspacePage::getAll();
@@ -198,17 +225,17 @@ class Page_Custom extends CerberusPageExtension {
 		exit;
 	}
 	
-	function setTabOrderAction() {
+	private function _pageAction_setTabOrder() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$page_id = DevblocksPlatform::importGPC($_POST['page_id'],'integer','0');
 		@$tab_ids_str = DevblocksPlatform::importGPC($_POST['tabs'],'string','');
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tab_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($tab_ids_str), 'integer', array('nonzero','unique'));
 		
@@ -218,28 +245,30 @@ class Page_Custom extends CerberusPageExtension {
 		exit;
 	}
 	
-	function showAddTabsAction() {
-		@$page_id = DevblocksPlatform::importGPC($_REQUEST['page_id'],'integer','0');
-		
+	private function _pageAction_renderAddTabs() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		@$page_id = DevblocksPlatform::importGPC($_REQUEST['page_id'],'integer','0');
+		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
-			return;
-
-		$tpl->assign('page', $page);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
+		$tpl->assign('page', $page);
 		$tpl->display('devblocks:cerberusweb.core::pages/add_tabs.tpl');
 	}
 	
-	function doToggleMenuPageJsonAction() {
-		@$page_id = DevblocksPlatform::importGPC($_REQUEST['page_id'],'integer','0');
-		@$toggle = DevblocksPlatform::importGPC($_REQUEST['toggle'],'integer','0');
-		
+	private function _pageAction_toggleMenuPageJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$page_id = DevblocksPlatform::importGPC($_POST['page_id'],'integer','0');
+		@$toggle = DevblocksPlatform::importGPC($_POST['toggle'],'integer','0');
 		
 		header('Content-type: application/json');
 
@@ -279,24 +308,25 @@ class Page_Custom extends CerberusPageExtension {
 			'page_id' => $page_id,
 		));
 		
-		exit;
+		DevblocksPlatform::exit();
 	}
 	
-	function showWorkspaceTabAction() {
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
-		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
-
+	private function _pageAction_renderTab() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 
-		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
-			return;
-		
-		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
-			|| !Context_WorkspacePage::isReadableByActor($page, $active_worker)
-			)
-			return;
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer', 0);
+		@$request = DevblocksPlatform::importGPC($_REQUEST['request'],'string', '');
 
+		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+			
+		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		$tpl->assign('page', $page);
 		$tpl->assign('tab', $tab);
 		$tpl->assign('request', $request);
@@ -306,38 +336,41 @@ class Page_Custom extends CerberusPageExtension {
 		}
 	}
 	
-	function initWorkspaceListAction() {
-		@$list_id = DevblocksPlatform::importGPC($_REQUEST['list_id'],'integer', 0);
-	
-		if(empty($list_id))
-			return;
-			
-		if(null == ($list = DAO_WorkspaceList::get($list_id)))
-			return;
-			
+	private function _pageAction_renderWorklist() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$list_id = DevblocksPlatform::importGPC($_POST['list_id'],'integer', 0);
 	
+		if(empty($list_id))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+			
+		if(null == ($list = DAO_WorkspaceList::get($list_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+			
 		if(null == ($tab = DAO_WorkspaceTab::get($list->workspace_tab_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 	
 		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id))
 			|| !Context_WorkspacePage::isReadableByActor($page, $active_worker)
 		)
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 	
 		$view_id = 'cust_' . $list->id;
 	
 		// Make sure our workspace source has a valid renderer class
 		if(null == ($ext = Extension_DevblocksContext::get($list->context))) {
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
 		if(null == ($view = C4_AbstractViewLoader::getView($view_id))) {
 			$view = $ext->getChooserView($view_id);  /* @var $view C4_AbstractView */
-				
+			
 			if(empty($view))
-				return;
+				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$view->name = $list->name;
 			$view->options = $list->options;
@@ -353,303 +386,21 @@ class Page_Custom extends CerberusPageExtension {
 			$view->renderSubtotals = $list->render_subtotals;
 		}
 		
-		if(empty($view))
-			return;
-		
 		$tpl->assign('view', $view);
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function saveWorkspacePagePeekJsonAction() {
-		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string', '');
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer', '0');
-	
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		header('Content-Type: application/json; charset=utf-8');
-		
-		try {
-			if(!empty($id)) {
-				if(null == ($workspace_page = DAO_WorkspacePage::get($id)))
-					throw new Exception_DevblocksAjaxValidationError("Invalid workspace page.");
-				
-				if(!Context_WorkspacePage::isWriteableByActor($workspace_page, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-			}
-		
-			if(!empty($id) && $do_delete) { // Delete
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WORKSPACE_PAGE)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-				
-				DAO_WorkspacePage::delete($id);
-				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'view_id' => $view_id,
-				));
-				
-				return;
-		
-			} else { // Create/Edit
-				@$package_uri = DevblocksPlatform::importGPC($_POST['package'], 'string', '');
-				@$import_json = DevblocksPlatform::importGPC($_POST['import_json'],'string', '');
-				
-				$mode = 'build';
-				
-				if(!$id && $package_uri) {
-					$mode = 'library';
-				} elseif (!$id && $import_json) {
-					$mode = 'import';
-				}
-				
-				switch($mode) {
-					case 'library':
-						@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
-						
-						if(empty($package_uri))
-							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
-						
-						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
-							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
-						
-						if($package->point != 'workspace_page')
-							throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
-						
-						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
-						
-						switch($owner_context) {
-							case CerberusContexts::CONTEXT_APPLICATION:
-							case CerberusContexts::CONTEXT_ROLE:
-							case CerberusContexts::CONTEXT_GROUP:
-							case CerberusContexts::CONTEXT_WORKER:
-								break;
-							
-							default:
-								$owner_context = null;
-								$owner_context_id = null;
-								break;
-						}
-						
-						if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker))
-							throw new Exception_DevblocksAjaxValidationError("You can't create pages with this owner.");
-						
-						$package_json = $package->getPackageJson();
-						$records_created = [];
-
-						$prompts['owner_context'] = $owner_context;
-						$prompts['owner_context_id'] = $owner_context_id;
-						
-						try {
-							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
-							
-						} catch(Exception_DevblocksValidationError $e) {
-							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
-							
-						} catch (Exception $e) {
-							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
-						}
-						
-						if(!array_key_exists(Context_WorkspacePage::ID, $records_created))
-							throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
-						
-						$new_page = reset($records_created[Context_WorkspacePage::ID]);
-						
-						// View marquee
-						if($new_page && $view_id)
-							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $new_page['id']);
-						
-						echo json_encode([
-							'status' => true,
-							'id' => $new_page['id'],
-							'label' => $new_page['label'],
-							'view_id' => $view_id,
-						]);
-						return;
-						break;
-						
-					case 'import':
-						@$json = json_decode($import_json, true);
-						
-						if(empty($json) || !isset($json['page']))
-							throw new Exception_DevblocksAjaxValidationError("Invalid JSON.");
-						
-						@$name = $json['page']['name'] ?: 'New Page';
-						@$extension_id = $json['page']['extension_id'];
-						
-						if(empty($extension_id) || null == ($page_extension = Extension_WorkspacePage::get($extension_id)))
-							throw new Exception_DevblocksAjaxValidationError("Invalid workspace page extension.");
-						
-						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
-						
-						switch($owner_context) {
-							case CerberusContexts::CONTEXT_APPLICATION:
-							case CerberusContexts::CONTEXT_ROLE:
-							case CerberusContexts::CONTEXT_GROUP:
-							case CerberusContexts::CONTEXT_WORKER:
-								break;
-							
-							default:
-								$owner_context = null;
-								$owner_context_id = null;
-								break;
-						}
-						
-						// Create page
-						
-						$fields = [
-							DAO_WorkspacePage::NAME => $name,
-							DAO_WorkspacePage::EXTENSION_ID => $extension_id,
-							DAO_WorkspacePage::OWNER_CONTEXT => $owner_context,
-							DAO_WorkspacePage::OWNER_CONTEXT_ID => $owner_context_id,
-						];
-						
-						$error = null;
-						
-						if(!DAO_WorkspacePage::validate($fields, $error, null))
-							throw new Exception_DevblocksAjaxValidationError($error);
-						
-						if(!DAO_WorkspacePage::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-							throw new Exception_DevblocksAjaxValidationError($error);
-						
-						$id = DAO_WorkspacePage::create($fields);
-						DAO_WorkspacePage::onUpdateByActor($active_worker, $fields, $id);
-						
-						if(null == ($page = DAO_WorkspacePage::get($id)))
-							throw new Exception_DevblocksAjaxValidationError("Failed to load workspace page.");
-						
-						if(false == $page_extension->importPageConfigJson($json, $page))
-							throw new Exception_DevblocksAjaxValidationError("Failed to import page content.");
-						
-						// View marquee
-						if(!empty($id) && !empty($view_id)) {
-							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id);
-						}
-						
-						echo json_encode(array(
-							'status' => true,
-							'id' => $id,
-							'label' => $name,
-							'view_id' => $view_id,
-						));
-						return;
-						break;
-						
-					case 'build':
-						@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
-						@$params = DevblocksPlatform::importGPC($_POST['params'],'array', []);
-						
-						$fields = [
-							DAO_WorkspacePage::NAME => trim($name),
-							DAO_WorkspacePage::EXTENSION_PARAMS_JSON => json_encode($params),
-						];
-						
-						// Owner
-						@list($owner_context, $owner_context_id) = explode(':', DevblocksPlatform::importGPC($_POST['owner'],'string',''));
-						
-						switch($owner_context) {
-							case CerberusContexts::CONTEXT_APPLICATION:
-							case CerberusContexts::CONTEXT_ROLE:
-							case CerberusContexts::CONTEXT_GROUP:
-							case CerberusContexts::CONTEXT_WORKER:
-								break;
-								
-							default:
-								$owner_context = null;
-						}
-						
-						if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $active_worker)) {
-							$owner_context = null;
-							$owner_context_id = null;
-						}
-						
-						if(!empty($owner_context)) {
-							$fields[DAO_WorkspacePage::OWNER_CONTEXT] = $owner_context;
-							$fields[DAO_WorkspacePage::OWNER_CONTEXT_ID] = $owner_context_id;
-						}
-						
-						if(empty($id)) {
-							@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'],'string', '');
-							
-							// Extension
-							$fields[DAO_WorkspacePage::EXTENSION_ID] = $extension_id;
-							
-							if(!DAO_WorkspacePage::validate($fields, $error, null))
-								throw new Exception_DevblocksAjaxValidationError($error);
-							
-							if(!DAO_WorkspacePage::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-								throw new Exception_DevblocksAjaxValidationError($error);
-							
-							$id = DAO_WorkspacePage::create($fields);
-							DAO_WorkspacePage::onUpdateByActor($active_worker, $fields, $id);
-							
-							// View marquee
-							if(!empty($id) && !empty($view_id)) {
-								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id);
-							}
-							
-						} else {
-							if(!DAO_WorkspacePage::validate($fields, $error, $id))
-								throw new Exception_DevblocksAjaxValidationError($error);
-							
-							if(!DAO_WorkspacePage::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-								throw new Exception_DevblocksAjaxValidationError($error);
-							
-							DAO_WorkspacePage::update($id, $fields);
-							DAO_WorkspacePage::onUpdateByActor($active_worker, $fields, $id);
-						}
-						
-						if($id) {
-							// Custom field saves
-							@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-							if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id, $field_ids, $error))
-								throw new Exception_DevblocksAjaxValidationError($error);
-						}
-						
-						echo json_encode(array(
-							'status' => true,
-							'id' => $id,
-							'label' => $name,
-							'view_id' => $view_id,
-						));
-						return;
-						break;
-				}
-			}
-			
-			throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
-			
-		} catch (Exception_DevblocksAjaxValidationError $e) {
-			echo json_encode(array(
-				'status' => false,
-				'error' => $e->getMessage(),
-				'field' => $e->getFieldName(),
-			));
-			return;
-			
-		} catch (Exception $e) {
-			echo json_encode(array(
-				'status' => false,
-				'error' => 'An error occurred.',
-			));
-			return;
-		}
-	}
-	
-	function showExportWorkspacePageAction() {
-		@$page_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		
+	private function _pageAction_renderExport() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
+		@$page_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl->assign('page', $page);
 		
@@ -661,23 +412,23 @@ class Page_Custom extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/export_page.tpl');
 	}
 	
-	function showExportWorkspaceTabAction() {
-		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
-		
+	private function _pageAction_renderExportTab() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
+		
 		if(null == ($tab = DAO_WorkspaceTab::get($tab_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(null == ($page = DAO_WorkspacePage::get($tab->workspace_page_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		if(null == ($tab_extension = $tab->getExtension()))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		@$json = $tab_extension->exportTabConfigJson($page, $tab);
 		

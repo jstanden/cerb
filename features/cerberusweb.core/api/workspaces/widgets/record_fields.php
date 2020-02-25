@@ -2,6 +2,15 @@
 class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 	const ID = 'cerb.workspace.widget.record.fields';
 	
+	public function invoke(string $action, Model_WorkspaceWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+
 	function render(Model_WorkspaceWidget $widget) {
 		@$target_context = $widget->params['context'];
 		@$target_context_id = $widget->params['context_id'];

@@ -38,20 +38,24 @@ $(function() {
 		var $div = $('#worklistPlaceholder' + worklist_id);
 	
 		$div.fadeTo("fast", 0.2);
-		
-		genericAjaxGet('', 'c=pages&a=initWorkspaceList&list_id=' + worklist_id, function(html) {
+
+		var formData = new FormData();
+		formData.set('c', 'pages');
+		formData.set('a', 'renderWorklist');
+		formData.set('list_id', worklist_id);
+
+		genericAjaxPost(formData, '', '', function(html) {
 			var $div = $('#worklistPlaceholder' + worklist_id);
 			
 			if(null != $div) {
 				$div.fadeOut();
 				
-				var $worklist = 
-					$('<div style="margin-bottom:10px;"></div>')
-						.fadeTo("fast", 0.2)
-						.html(html)
-						.insertAfter($div)
-						.fadeTo("fast", 1.0)
-						;
+				$('<div style="margin-bottom:10px;"></div>')
+					.fadeTo("fast", 0.2)
+					.html(html)
+					.insertAfter($div)
+					.fadeTo("fast", 1.0)
+					;
 				
 				$div.remove();
 			}

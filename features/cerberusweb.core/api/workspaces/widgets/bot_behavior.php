@@ -1,5 +1,9 @@
 <?php
 class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
+	public function invoke(string $action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function render(Model_WorkspaceWidget $widget) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		

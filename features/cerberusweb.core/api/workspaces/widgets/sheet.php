@@ -1,5 +1,14 @@
 <?php
 class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
+	public function invoke(string $action, Model_WorkspaceWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+
 	function getData(Model_WorkspaceWidget $widget, $page=null, &$error=null) {
 		$data = DevblocksPlatform::services()->data();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

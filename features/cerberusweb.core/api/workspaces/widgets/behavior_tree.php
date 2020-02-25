@@ -2,6 +2,10 @@
 class WorkspaceWidget_BehaviorTree extends Extension_WorkspaceWidget {
 	const ID = 'cerb.workspace.widget.behavior.tree';
 	
+	public function invoke(string $action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function render(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

@@ -2,6 +2,15 @@
 class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
 	const ID = 'core.workspace.widget.worklist';
 	
+	public function invoke(string $action, Model_WorkspaceWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+
 	function getView(Model_WorkspaceWidget $widget) {
 		@$view_context = $widget->params['context'];
 		@$query = $widget->params['query'];

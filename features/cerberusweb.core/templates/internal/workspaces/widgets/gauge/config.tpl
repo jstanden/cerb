@@ -101,7 +101,7 @@ $(function() {
 		if(datasource.length==0) { 
 			$div_params.html(''); 
 		} else { 
-			genericAjaxGet($div_params, 'c=profiles&a=handleSectionAction&section=workspace_widget&action=getWidgetDatasourceConfig&widget_id={$widget->id}&ext_id=' + datasource);
+			genericAjaxGet($div_params, 'c=profiles&a=invoke&module=workspace_widget&action=getWidgetDatasourceConfig&widget_id={$widget->id}&ext_id=' + datasource);
 		}
 	});
 });

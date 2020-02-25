@@ -1,8 +1,8 @@
 {if $prompts}
 <form id="tabFilters{$tab->id}" action="{devblocks_url}{/devblocks_url}" method="POST" onsubmit="return false;" style="padding:5px 10px;display:inline-block;">
 	<input type="hidden" name="c" value="profiles">
-	<input type="hidden" name="a" value="handleSectionAction">
-	<input type="hidden" name="section" value="workspace_tab">
+	<input type="hidden" name="a" value="invoke">
+	<input type="hidden" name="module" value="workspace_tab">
 	<input type="hidden" name="action" value="saveDashboardTabPrefs">
 	<input type="hidden" name="tab_id" value="{$tab->id}">
 	

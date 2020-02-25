@@ -4,7 +4,7 @@
 	
 	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
 	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="genericAjaxPopup('help', 'c=internal&a=showSnippetHelpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
+	<button type="button" onclick="genericAjaxPopup('help', 'c=profiles&a=invoke&module=snippet&action=helpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
 	
 	{function tree level=0}
 		{foreach from=$keys item=data key=idx}
@@ -106,8 +106,8 @@ $(function() {
 				if($this.is($field)) {
 					var formData = new FormData($div.closest('form')[0]);
 					formData.set('c', 'profiles');
-					formData.set('a', 'handleSectionAction');
-					formData.set('section', 'workspace_widget');
+					formData.set('a', 'invoke');
+					formData.set('module', 'workspace_widget');
 					formData.set('action', 'testWidgetTemplate');
 					formData.set('template_key', field_key);
 					formData.set('index', index);

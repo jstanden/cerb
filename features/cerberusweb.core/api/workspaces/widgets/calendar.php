@@ -1,5 +1,18 @@
 <?php
 class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICerbWorkspaceWidget_ExportData {
+	public function invoke(string $action, Model_WorkspaceWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_WorkspaceWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		switch($action) {
+			case 'showCalendarTab':
+				return $this->_workspaceWidgetAction_showCalendarTab($model);
+		}
+		return false;
+	}
+	
 	function render(Model_WorkspaceWidget $widget) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
@@ -95,16 +108,19 @@ class WorkspaceWidget_Calendar extends Extension_WorkspaceWidget implements ICer
 		));
 	}
 	
-	function showCalendarTabAction(Model_WorkspaceWidget $model) {
-		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
+	private function _workspaceWidgetAction_showCalendarTab(Model_WorkspaceWidget $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
+		@$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer');
 		@$month = DevblocksPlatform::importGPC($_REQUEST['month'],'integer', 0);
 		@$year = DevblocksPlatform::importGPC($_REQUEST['year'],'integer', 0);
 		
-		$tpl = DevblocksPlatform::services()->template();
-		
 		if(null == ($calendar = DAO_Calendar::get($calendar_id))) /* @var Model_Calendar $calendar */
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
+			
+		if(!Context_Calendar::isReadableByActor($calendar, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$start_on_mon = @$calendar->params['start_on_mon'] ? true : false;
 		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);

@@ -200,7 +200,7 @@ $(function() {
 			q = $fieldset.find('input.quicksearch').val();
 		}
 		
-		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist{$series_idx}"}&q=' + encodeURIComponent(q),null,true,'750');
+		var $chooser = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpenParams&context='+context+'&view_id={"widget{$widget->id}_worklist{$series_idx}"}&q=' + encodeURIComponent(q),null,true,'750');
 		
 		$chooser.bind('chooser_save',function(event) {
 			if(null != event.worklist_model) {

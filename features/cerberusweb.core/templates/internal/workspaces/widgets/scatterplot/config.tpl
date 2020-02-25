@@ -72,7 +72,7 @@ $(function() {
 			
 		} else {
 			series_prefix = $(this).attr('params_prefix');
-			genericAjaxGet($div_params, 'c=profiles&a=handleSectionAction&section=workspace_widget&action=getWidgetDatasourceConfig&params_prefix=' + encodeURIComponent(series_prefix) + '&widget_id={$widget->id}&ext_id=' + datasource);
+			genericAjaxGet($div_params, 'c=profiles&a=invoke&module=workspace_widget&action=getWidgetDatasourceConfig&params_prefix=' + encodeURIComponent(series_prefix) + '&widget_id={$widget->id}&ext_id=' + datasource);
 		}
 	});
 });
