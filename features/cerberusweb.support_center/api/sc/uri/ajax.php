@@ -1,12 +1,31 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 class UmScAjaxController extends Extension_UmScController {
 	function __construct($manifest=null) {
 		parent::__construct($manifest);
 	}
 	
+	public function isVisible() {
+		return true;
+	}
+	
+	function invoke(string $action, DevblocksHttpRequest $request=null) {
+		switch($action) {
+			case 'downloadFile':
+				return $this->_portalAction_downloadFile($request);
+			case 'viewPage':
+				return $this->_portalAction_viewPage();
+			case 'viewRefresh':
+				return $this->_portalAction_viewRefresh();
+			case 'viewSortBy':
+				return $this->_portalAction_viewSortBy();
+		}
+		return false;
+	}
+	
 	function handleRequest(DevblocksHttpRequest $request) {
 		@$path = $request->path;
-		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
+		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string', '');
 		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
@@ -16,33 +35,27 @@ class UmScAjaxController extends Extension_UmScController {
 		
 		@array_shift($path); // ajax
 		
-		if(empty($a)) {
-			@$action = array_shift($path) . 'Action';
-		} else {
-			@$action = $a . 'Action';
-		}
+		@$action = $a ?: array_shift($path);
 		
 		switch($action) {
 			default:
-				// Default action, call arg as a method suffixed with Action
-				if(method_exists($this,$action)) {
-					call_user_func(array($this, $action), new DevblocksHttpRequest($path)); // Pass HttpRequest as arg
+				if(false === ($this->invoke($action, new DevblocksHttpRequest($path)))) {
+					// Log
 				}
 				break;
 		}
-		
-		exit;
+		DevblocksPlatform::exit();
 	}
 	
-	function viewRefreshAction(DevblocksHttpRequest $request) {
+	private function _portalAction_viewRefresh() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		
 		if(null != ($view = UmScAbstractViewLoader::getView('', $view_id))) {
 			$view->render();
 		}
 	}
-
-	function viewPageAction(DevblocksHttpRequest $request) {
+	
+	private function _portalAction_viewPage() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		@$page = DevblocksPlatform::importGPC($_REQUEST['page'],'integer',0);
 		
@@ -54,7 +67,7 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 	}
 	
-	function viewSortByAction(DevblocksHttpRequest $request) {
+	private function _portalAction_viewSortBy() {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		@$sort_by = DevblocksPlatform::importGPC($_REQUEST['sort_by'],'string','');
 		
@@ -77,7 +90,7 @@ class UmScAjaxController extends Extension_UmScController {
 		}
 	}
 	
-	function downloadFileAction(DevblocksHttpRequest $request) {
+	private function _portalAction_downloadFile(DevblocksHttpRequest $request) {
 		$umsession = ChPortalHelper::getSession();
 		$stack = $request->path;
 		
@@ -86,19 +99,19 @@ class UmScAjaxController extends Extension_UmScController {
 		@$name = array_shift($stack);
 		
 		if(empty($hash) || empty($name))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// Attachment
 		if(null == ($file_id = DAO_Attachment::getBySha1Hash($hash)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(null == ($file = DAO_Attachment::get($file_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$pass = false;
 		
 		if(false == ($links = DAO_Attachment::getLinks($file_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!$pass && isset($links[CerberusContexts::CONTEXT_KB_ARTICLE])) {
 			// [TODO] Compare KB links to this portal
@@ -107,16 +120,16 @@ class UmScAjaxController extends Extension_UmScController {
 		
 		if(!$pass && isset($links[CerberusContexts::CONTEXT_MESSAGE])) {
 			if(null == ($active_contact = $umsession->getProperty('sc_login',null))) /* @var $active_contact Model_Contact */
-				return;
+				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			if(false == ($contact_emails = $active_contact->getEmails()))
-				return;
+				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			$pass = DAO_Ticket::authorizeByParticipantsAndMessages(array_keys($contact_emails), $links[CerberusContexts::CONTEXT_MESSAGE]);
 		}
 		
 		if(!$pass)
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		$contents = $file->getFileContents();
 			
@@ -129,6 +142,6 @@ class UmScAjaxController extends Extension_UmScController {
 		
 		// Dump contents
 		echo $contents;
-		exit;
+		DevblocksPlatform::exit();
 	}
-};
+}

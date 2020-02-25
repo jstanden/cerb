@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="genericAjaxPopupClose('peek');">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveExportTemplatesPeek">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="portals">
+<input type="hidden" name="action" value="saveExportTemplatesPeek">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 

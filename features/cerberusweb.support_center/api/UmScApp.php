@@ -142,6 +142,11 @@ class UmScApp extends Extension_CommunityPortal {
 		return $enabled;
 	}
 	
+	/**
+	 * @param string $instance_id
+	 * @param bool $as_instance
+	 * @return Extension_ScLoginAuthenticator
+	 */
 	public static function getLoginExtensionActive($instance_id, $as_instance=true) {
 		$umsession = ChPortalHelper::getSession();
 		$enabled = self::getLoginExtensionsEnabled($instance_id);
@@ -609,6 +614,22 @@ class UmScApp extends Extension_CommunityPortal {
 };
 
 class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
+	public function invoke(string $action) {
+		switch($action) {
+			case 'authenticate':
+				return $this->_portalAction_authenticate();
+			case 'doRecover':
+				return $this->_portalAction_doRecover();
+			case 'doRegister':
+				return $this->_portalAction_doRegister();
+			case 'doRegisterConfirm':
+				return $this->_portalAction_doRegisterConfirm();
+			case 'recoverAccount':
+				return $this->_portalAction_recoverAccount();
+		}
+		return false;
+	}
+	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
@@ -639,11 +660,14 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		}
 	}
 	
-	function doRegisterAction() {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		
+	private function _portalAction_doRegister() {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		
 		try {
 			// Validate
@@ -689,16 +713,19 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','register','confirm')));
 	}
 	
-	function doRegisterConfirmAction() {
-		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
-		@$first_name = DevblocksPlatform::importGPC($_REQUEST['first_name'],'string','');
-		@$last_name = DevblocksPlatform::importGPC($_REQUEST['last_name'],'string','');
-		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
-		@$password2 = DevblocksPlatform::importGPC($_POST['password2'],'string','');
-		
+	private function _portalAction_doRegisterConfirm() {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$url_writer = DevblocksPlatform::services()->url();
 		$umsession = ChPortalHelper::getSession();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
+		@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string','');
+		@$last_name = DevblocksPlatform::importGPC($_POST['last_name'],'string','');
+		@$password = DevblocksPlatform::importGPC($_POST['password'],'string','');
+		@$password2 = DevblocksPlatform::importGPC($_POST['password2'],'string','');
 		
 		try {
 			// Load the session (email)
@@ -778,10 +805,13 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','register','confirm')));
 	}
 	
-	function doRecoverAction() {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		
+	private function _portalAction_doRecover() {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		
 		try {
 			// Verify email is a contact
@@ -826,13 +856,16 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'login','forgot','confirm')));
 	}
 	
-	function recoverAccountAction() {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
-		
+	private function _portalAction_recoverAccount() {
 		$umsession = ChPortalHelper::getSession();
 		$url_writer = DevblocksPlatform::services()->url();
 		$tpl = DevblocksPlatform::services()->templateSandbox();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+		@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
 		
 		try {
 			// Verify email is a contact
@@ -877,10 +910,13 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	 *
 	 * @return boolean whether login succeeded
 	 */
-	function authenticateAction() {
+	private function _portalAction_authenticate() {
 		$umsession = ChPortalHelper::getSession();
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$email = DevblocksPlatform::importGPC($_POST['email']);
 		@$pass = DevblocksPlatform::importGPC($_POST['password']);
 		
@@ -909,7 +945,6 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			$path = !empty($original_path) ? explode('/', $original_path) : array();
 			
 			DevblocksPlatform::redirect(new DevblocksHttpResponse($path));
-			exit;
 			
 		} catch (Exception $e) {
 			$tpl->assign('error', $e->getMessage());
@@ -1044,6 +1079,14 @@ class UmScAbstractViewLoader {
 };
 
 class UmScRssController extends Extension_UmScController {
+	public function isVisible() {
+		return false;
+	}
+	
+	function invoke(string $action, DevblocksHttpRequest $request=null) {
+		return false;
+	}
+	
 	function handleRequest(DevblocksHttpRequest $request) {
 		@$path = $request->path;
 				
@@ -1062,6 +1105,6 @@ class UmScRssController extends Extension_UmScController {
 			}
 		}
 		
-		// [TOOD] subcontroller not found
+		// [TODO] sub-controller not found
 	}
 };

@@ -1,12 +1,21 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 class UmScAnnouncementsController extends Extension_UmScController {
 	const PARAM_NEWS_RSS = 'announcements.rss';
+	
+	public function isVisible() {
+		return true;
+	}
+	
+	public function invoke(string $action, DevblocksHttpRequest $request=null) {
+		return false;
+	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
 		$sNewsRss = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(),self::PARAM_NEWS_RSS, '');
-		$aNewsRss = !empty($sNewsRss) ? unserialize($sNewsRss) : array();
+		$aNewsRss = !empty($sNewsRss) ? unserialize($sNewsRss) : [];
 		
 		$feeds = array();
 		
@@ -24,7 +33,6 @@ class UmScAnnouncementsController extends Extension_UmScController {
 		}
 
 		$tpl->assign('feeds', $feeds);
-		
 		$tpl->display("devblocks:cerberusweb.support_center:portal_".ChPortalHelper::getCode() . ":support_center/announcements/index.tpl");
 	}
 	
@@ -40,7 +48,6 @@ class UmScAnnouncementsController extends Extension_UmScController {
 	}
 	
 	function saveConfiguration(Model_CommunityTool $portal) {
-		// RSS Feeds
 		@$aNewsRssTitles = DevblocksPlatform::importGPC($_POST['news_rss_title'],'array',array());
 		@$aNewsRssUrls = DevblocksPlatform::importGPC($_POST['news_rss_url'],'array',array());
 		

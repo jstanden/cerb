@@ -131,26 +131,18 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 	 */
 	public function handleRequest(DevblocksHttpRequest $request) {
 		$path = $request->path;
+		array_shift($path); // controller
+		
 		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
 
-		if(empty($a)) {
-			@array_shift($path); // controller
-			@$action = array_shift($path) . 'Action';
-		} else {
-			@$action = $a . 'Action';
-		}
+		$action = $a ?: array_shift($path);
 
-		switch($action) {
-			case NULL:
-				// [TODO] Index/page render
-				break;
-//
-			default:
-				// Default action, call arg as a method suffixed with Action
-				if(method_exists($this,$action)) {
-					call_user_func(array(&$this, $action)); // [TODO] Pass HttpRequest as arg?
-				}
-				break;
+		if(empty($action))
+			return;
+		
+		// Default action, call arg as a method suffixed with Action
+		if(false === $this->invoke($action, new DevblocksHttpRequest($path))) {
+			// Not found
 		}
 	}
 	
@@ -163,10 +155,8 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 		return;
 	}
 	
-	public function isVisible() {
-		/* Expect Overload */
-		return true;
-	}
+	abstract public function isVisible();
+	abstract public function invoke(string $action, DevblocksHttpRequest $request=null);
 	
 	public function configure(Model_CommunityTool $instance) {
 		// [TODO] Translate
@@ -181,6 +171,8 @@ abstract class Extension_UmScController extends DevblocksExtension implements De
 
 abstract class Extension_ScLoginAuthenticator extends DevblocksExtension {
 	const POINT = 'usermeet.login.authenticator';
+	
+	abstract function invoke(string $action);
 	
 	/**
 	 * draws html form for adding necessary settings (host, port, etc) to be stored in the db

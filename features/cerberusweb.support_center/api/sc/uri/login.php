@@ -4,7 +4,17 @@ class UmScLoginController extends Extension_UmScController {
 		return true;
 	}
 	
-	function signoutAction() {
+	function invoke(string $action, DevblocksHttpRequest $request=null) {
+		switch($action) {
+			case 'provider':
+				return $this->_portalAction_provider();
+			case 'signout':
+				return $this->_portalAction_signout();
+		}
+		return false;
+	}
+	
+	private function _portalAction_signout() {
 		$umsession = ChPortalHelper::getSession();
 		
 		if(null != ($login_extension = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode()))) {
@@ -16,11 +26,10 @@ class UmScLoginController extends Extension_UmScController {
 		// Globally destroy
 		$umsession->destroy();
 		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('login')));
-		exit;
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(['login']));
 	}
 	
-	function providerAction() {
+	private function _portalAction_provider() {
 		$umsession = ChPortalHelper::getSession();
 		$request = DevblocksPlatform::getHttpRequest();
 		
@@ -42,28 +51,24 @@ class UmScLoginController extends Extension_UmScController {
 	}
 	
 	function handleRequest(DevblocksHttpRequest $request) {
-		$umsession = ChPortalHelper::getSession();
-
 		$stack = $request->path;
 		@array_shift($stack); // login
 		
-		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string');
+		@$a = DevblocksPlatform::importGPC($_REQUEST['a'],'string','');
 
-		if(empty($a)) {
-			@$action = $stack[0] . 'Action';
-		} else {
-			@$action = $a . 'Action';
-		}
-
+		@$action = $a ?: $stack[0] ?: '';
+		
+		$is_handled = false;
+		
 		// Login extension
-		// Try the extension subcontroller first (overload)
-		if(null != ($login_extension = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode()))
-			&& method_exists($login_extension, $action)) {
-				call_user_func(array($login_extension, $action));
+		// Try the extension subcontroller first
+		if(false != ($login_extension = UmScApp::getLoginExtensionActive(ChPortalHelper::getCode()))) {
+			$is_handled = $login_extension->invoke($action);
+		}
 		
 		// Then try the login controller
-		} elseif(method_exists($this, $action)) {
-			call_user_func(array($this, $action));
+		if(!$is_handled) {
+			$this->invoke($action);
 		}
 	}
 	

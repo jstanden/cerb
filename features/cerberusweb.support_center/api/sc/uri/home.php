@@ -6,6 +6,10 @@ class UmScHomeController extends Extension_UmScController {
 		return true;
 	}
 	
+	public function invoke(string $action, DevblocksHttpRequest $request=null) {
+		return false;
+	}
+	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$tpl->display("devblocks:cerberusweb.support_center:portal_" . ChPortalHelper::getCode() .":support_center/home/index.tpl");

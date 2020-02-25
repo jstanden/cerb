@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveImportTemplatesPeek">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="portals">
+<input type="hidden" name="action" value="saveImportTemplatesPeek">
 <input type="hidden" name="portal_id" value="{$portal->id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -31,7 +33,7 @@ $(function() {
 		
 		$popup.find('button.submit').on('click', function(e) {
 			genericAjaxPost($frm, '', null, function(json) {
-				genericAjaxGet('view{$view_id}','c=internal&a=viewRefresh&id={$view_id}');
+				genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 				genericAjaxPopupClose('import');
 			});
 		});

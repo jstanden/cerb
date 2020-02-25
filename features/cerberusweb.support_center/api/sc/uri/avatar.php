@@ -1,12 +1,19 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 class UmScAvatarController extends Extension_UmScController {
 	function __construct($manifest=null) {
 		parent::__construct($manifest);
 	}
 	
+	public function isVisible() {
+		return true;
+	}
+	
+	public function invoke(string $action, DevblocksHttpRequest $request=null) {
+		return false;
+	}
+	
 	function handleRequest(DevblocksHttpRequest $request) {
-		$translate = DevblocksPlatform::getTranslationService();
-		
 		$stack = $request->path; // URLS like: /contact/1
 		
 		@array_shift($stack); // avatar
@@ -30,16 +37,14 @@ class UmScAvatarController extends Extension_UmScController {
 
 		// Look up the context extension
 		if(empty($alias) || false == ($avatar_context_mft = Extension_DevblocksContext::getByAlias($alias, false)))
-			$this->_renderDefaultAvatar();
+			return $this->_renderDefaultAvatar();
 		
 		// Look up the avatar record
 		if(false == ($avatar = DAO_ContextAvatar::getByContext($avatar_context_mft->id, $avatar_context_id))) {
-			$this->_renderDefaultAvatar($avatar_context_mft->id, $avatar_context_id);
-			return;
+			return $this->_renderDefaultAvatar($avatar_context_mft->id, $avatar_context_id);
 		}
 		
-		$this->_renderAvatar($avatar);
-		exit;
+		return $this->_renderAvatar($avatar);
 	}
 	
 	private function _renderAvatar(Model_ContextAvatar $avatar, $default_context=null, $default_context_id=null) {
@@ -66,7 +71,7 @@ class UmScAvatarController extends Extension_UmScController {
 		header("Content-Length: " . $avatar->storage_size);
 		
 		echo $contents;
-		exit;
+		DevblocksPlatform::exit();
 	}
 	
 	private function _renderDefaultAvatar($context=null, $context_id=null) {
@@ -225,32 +230,11 @@ class UmScAvatarController extends Extension_UmScController {
 		if(false == ($im = @imagecreate(100, 100)))
 			DevblocksPlatform::dieWithHttpError(null, 500);
 		
-		$background_color = imagecolorallocate($im, $r_rand, $g_rand, $b_rand);
+		imagecolorallocate($im, $r_rand, $g_rand, $b_rand);
 		$text_color = imagecolorallocate($im, 255, 255, 255);
-		//imagerectangle($im, $x, $y, $x+$box_width, $y-$box_height, $text_color);
 		imagettftext($im, $font_size, 0, $x, $y, $text_color, $font, $text);
 		imagepng($im, null, 1);
 		imagedestroy($im);
 		exit;
 	}
-
-	private function _getEmailFromContext($context, $context_id) {
-		switch($context) {
-			case CerberusContexts::CONTEXT_ADDRESS:
-				if(false == ($address = DAO_Address::get($context_id)))
-					return false;
-					
-				return $address->email;
-				break;
-				
-			case CerberusContexts::CONTEXT_WORKER:
-				if(false == ($worker = DAO_Worker::get($context_id)))
-					return false;
-					
-				return $worker->getEmailString();
-				break;
-		}
-		
-		return false;
-	}
-};
+}

@@ -8,15 +8,26 @@ class UmScHistoryController extends Extension_UmScController {
 		return !empty($active_contact);
 	}
 	
+	public function invoke(string $action, DevblocksHttpRequest $request=null) {
+		switch($action) {
+			case 'doReply':
+				return $this->_portalAction_doReply();
+			case 'saveTicketProperties':
+				return $this->_portalAction_saveTicketProperties();
+		}
+		return false;
+	}
+	
 	function renderSidebar(DevblocksHttpResponse $response) {
-//		$tpl = DevblocksPlatform::services()->templateSandbox();
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-		
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
+		
+		if(false == $active_contact)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$stack = $response->path;
 		array_shift($stack); // history
@@ -26,7 +37,7 @@ class UmScHistoryController extends Extension_UmScController {
 		if(empty($shared_address_ids))
 			$shared_address_ids = array(-1);
 		
-		if(empty($mask)) {
+		if(!$mask) {
 			// Ticket history
 			
 			// Prompts
@@ -92,7 +103,7 @@ class UmScHistoryController extends Extension_UmScController {
 		} else {
 			// If this is an invalid ticket mask, deny access
 			if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
-				return;
+				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$participants = $ticket->getRequesters();
 			
@@ -101,7 +112,7 @@ class UmScHistoryController extends Extension_UmScController {
 			
 			// If none of the participants on the ticket match this account, deny access
 			if(!is_array($matching_participants) || empty($matching_participants))
-				return;
+				DevblocksPlatform::dieWithHttpError(null, 403);
 			
 			$messages = DAO_Message::getMessagesByTicket($ticket->id);
 			$messages = array_reverse($messages, true);
@@ -164,34 +175,38 @@ class UmScHistoryController extends Extension_UmScController {
 		DAO_CommunityToolProperty::set($portal->code, self::PARAM_WORKLIST_COLUMNS_JSON, $columns, true);
 	}
 	
-	// [TODO] JSON
-	function saveTicketPropertiesAction() {
+	private function _portalAction_saveTicketProperties() {
+		$umsession = ChPortalHelper::getSession();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$mask = DevblocksPlatform::importGPC($_POST['mask'],'string','');
 		@$subject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
 		@$participants = DevblocksPlatform::importGPC($_POST['participants'],'string','');
 		@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'integer','0');
 		
-		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
+		if(false == ($active_contact = $umsession->getProperty('sc_login', null)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
-		if(empty($shared_address_ids))
-			$shared_address_ids = array(-1);
+		if(!$shared_address_ids)
+			$shared_address_ids = [-1];
 		
 		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_CONTACT, $active_contact->id);
 		
 		if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$participants_old = $ticket->getRequesters();
 		
 		// Only allow access if mask has one of the valid requesters
 		$allowed_requester_ids = array_intersect(array_keys($participants_old), $shared_address_ids);
 		
-		if(empty($allowed_requester_ids))
-			return;
+		if(!$allowed_requester_ids)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$fields = array();
+		$fields = [];
 		
 		if(!empty($subject))
 			$fields[DAO_Ticket::SUBJECT] = $subject;
@@ -225,14 +240,18 @@ class UmScHistoryController extends Extension_UmScController {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'history', $ticket->mask)));
 	}
 	
-	function doReplyAction() {
+	private function _portalAction_doReply() {
+		$umsession = ChPortalHelper::getSession();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$from = DevblocksPlatform::importGPC($_POST['from'],'string','');
 		@$mask = DevblocksPlatform::importGPC($_POST['mask'],'string','');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
 		
-		$umsession = ChPortalHelper::getSession();
 		if(false == ($active_contact = $umsession->getProperty('sc_login', null)))
-			return false;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Load contact addresses
 		$shared_address_ids = DAO_SupportCenterAddressShare::getContactAddressesWithShared($active_contact->id, true);
@@ -241,20 +260,20 @@ class UmScHistoryController extends Extension_UmScController {
 		
 		// Validate FROM address
 		if(null == ($from_address = DAO_Address::lookupAddress($from, false)))
-			return false;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if($from_address->contact_id != $active_contact->id)
-			return false;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(false == ($ticket = DAO_Ticket::getTicketByMask($mask)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// Only allow access if mask has one of the valid requesters
 		$requesters = $ticket->getRequesters();
 		$allowed_requester_ids = array_intersect(array_keys($requesters), $shared_address_ids);
 		
-		if(empty($allowed_requester_ids))
-			return;
+		if(!$allowed_requester_ids)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$messages = DAO_Message::getMessagesByTicket($ticket->id);
 		$last_message = array_pop($messages); /* @var $last_message Model_Message */

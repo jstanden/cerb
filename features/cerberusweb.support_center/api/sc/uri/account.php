@@ -1,9 +1,29 @@
-<?php
+<?php /** @noinspection PhpUnused */
 class UmScAccountController extends Extension_UmScController {
 	function isVisible() {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		return !empty($active_contact);
+	}
+	
+	function invoke(string $action, DevblocksHttpRequest $request=null) {
+		switch($action) {
+			case 'doDelete':
+				return $this->_portalAction_doDelete();
+			case 'doEmailAdd':
+				return $this->_portalAction_doEmailAdd();
+			case 'doEmailConfirm':
+				return $this->_portalAction_doEmailConfirm();
+			case 'doEmailUpdate':
+				return $this->_portalAction_doEmailUpdate();
+			case 'doPasswordUpdate':
+				return $this->_portalAction_doPasswordUpdate();
+			case 'doProfileUpdate':
+				return $this->_portalAction_doProfileUpdate();
+			case 'doShareUpdate':
+				return $this->_portalAction_doShareUpdate();
+		}
+		return false;
 	}
 	
 	function renderSidebar(DevblocksHttpResponse $response) {
@@ -68,8 +88,8 @@ class UmScAccountController extends Extension_UmScController {
 				@$id = array_shift($path);
 				
 				if('confirm' == $id) {
-					@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-					@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
+					@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+					@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
 					
 					if(empty($email))
 						$email = $umsession->getProperty('account.email.add', '');
@@ -122,16 +142,17 @@ class UmScAccountController extends Extension_UmScController {
 		}
 	}
 	
-	function doProfileUpdateAction() {
-		$tpl = DevblocksPlatform::services()->templateSandbox();
+	private function _portalAction_doProfileUpdate() {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
-		if(null == $active_contact)
-			return;
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		$show_fields = array();
-		if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null)))
+		if(null == $active_contact)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', [])))
 			@$show_fields = json_decode($show_fields, true);
 		
 		$fields = array();
@@ -210,8 +231,8 @@ class UmScAccountController extends Extension_UmScController {
 		// Photo
 		// [TODO] Do this as Ajax with a save button?
 		if(isset($show_fields['contact_photo']) && $show_fields['contact_photo'] == 2) {
-			@$imagedata = DevblocksPlatform::importGPC($_POST['imagedata'],'string','');
-			DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONTACT, $active_contact->id, $imagedata);
+			@$image_data = DevblocksPlatform::importGPC($_POST['imagedata'],'string','');
+			DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_CONTACT, $active_contact->id, $image_data);
 		}
 		
 		if(!empty($fields)) {
@@ -221,20 +242,26 @@ class UmScAccountController extends Extension_UmScController {
 			$umsession->login(DAO_Contact::get($active_contact->id));
 		}
 	}
-
-	function doEmailUpdateAction() {
+	
+	private function _portalAction_doEmailUpdate() {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
 		if(null == $active_contact)
-			return;
-			
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$action = DevblocksPlatform::importGPC($_POST['action'],'string','');
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		
-		if(!$id || false == ($address = DAO_Address::get($id)))
-			return;
+		if(!$id)
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($address = DAO_Address::get($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		switch($action) {
 			case 'remove':
@@ -246,10 +273,7 @@ class UmScAccountController extends Extension_UmScController {
 				break;
 				
 			default:
-				$customfields = DAO_CustomField::getAll();
-				
 				// Compare editable fields
-				$show_fields = array();
 				if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', null)))
 					@$show_fields = json_decode($show_fields, true);
 				
@@ -341,7 +365,7 @@ class UmScAccountController extends Extension_UmScController {
 					
 					// Org
 					if(!empty($org_fields) && !empty($address->contact_org_id))
-						DAO_ContactOrg::update($address->contact_org_id, $org_fields);
+						DAO_ContactOrg::update([$address->contact_org_id], $org_fields);
 					if(!empty($org_customfields) && !empty($address->contact_org_id))
 						DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_ORG, $address->contact_org_id, $org_customfields, true, false, false);
 				}
@@ -353,17 +377,25 @@ class UmScAccountController extends Extension_UmScController {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email')));
 	}
 	
-	function doShareUpdateAction() {
+	private function _portalAction_doShareUpdate() {
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$umsession = ChPortalHelper::getSession();
-		$active_contact = $umsession->getProperty('sc_login', null);
-		$contact_addresses = $active_contact->getEmails();
-
-		$errors = array();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$errors = [];
 
 		try {
+			$active_contact = $umsession->getProperty('sc_login', null);
+			
+			if(!$active_contact)
+				throw new Exception("Your session has expired.");
+			
+			$contact_addresses = $active_contact->getEmails();
+			
 			// *** Handle shared by
-			@$share_email = DevblocksPlatform::importGPC($_REQUEST['share_email'],'array','');
+			@$share_email = DevblocksPlatform::importGPC($_POST['share_email'],'array','');
 
 			if(is_array($share_email) && !empty($share_email)) {
 				foreach($share_email as $idx => $share_id) {
@@ -373,7 +405,7 @@ class UmScAccountController extends Extension_UmScController {
 						continue;
 					}
 					
-					@$share_emails = DevblocksPlatform::importGPC($_REQUEST['share_with_'.$share_id],'array',array());
+					@$share_emails = DevblocksPlatform::importGPC($_POST['share_with_'.$share_id],'array',array());
 					$share_with_ids = array();
 					
 					if(is_array($share_emails) && !empty($share_emails)) {
@@ -406,9 +438,9 @@ class UmScAccountController extends Extension_UmScController {
 			}
 
 			// *** Handle shared with
-			@$address_with_id = DevblocksPlatform::importGPC($_REQUEST['address_with_id'],'array','');
-			@$address_from_id = DevblocksPlatform::importGPC($_REQUEST['address_from_id'],'array','');
-			@$share_with_status = DevblocksPlatform::importGPC($_REQUEST['share_with_status'],'array','');
+			@$address_with_id = DevblocksPlatform::importGPC($_POST['address_with_id'],'array','');
+			@$address_from_id = DevblocksPlatform::importGPC($_POST['address_from_id'],'array','');
+			@$share_with_status = DevblocksPlatform::importGPC($_POST['share_with_status'],'array','');
 			
 			if(is_array($address_with_id) && !empty($address_with_id)) {
 				foreach($address_with_id as $idx => $with_id) {
@@ -455,31 +487,43 @@ class UmScAccountController extends Extension_UmScController {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','sharing')));
 	}
 	
-	function doPasswordUpdateAction() {
-		@$change_password = DevblocksPlatform::importGPC($_REQUEST['change_password'],'string','');
-		@$change_password2 = DevblocksPlatform::importGPC($_REQUEST['change_password2'],'string','');
-		
+	private function _portalAction_doPasswordUpdate() {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
-		$url_writer = DevblocksPlatform::services()->url();
+		
+		error_log(json_encode($active_contact));
+		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$current_password = DevblocksPlatform::importGPC($_POST['current_password'],'string','');
+		@$change_password = DevblocksPlatform::importGPC($_POST['change_password'],'string','');
+		@$verify_password = DevblocksPlatform::importGPC($_POST['verify_password'],'string','');
 
 		try {
 			if(empty($active_contact) || empty($active_contact->id))
-				throw new Exception("Your session is invalid.");
+				throw new Exception("Your session has expired.");
 			
-			if(empty($change_password) || empty($change_password2))
+			if(!$current_password)
+				throw new Exception("You must enter your current password.");
+			
+			if(0 != strcmp(md5($active_contact->auth_salt.md5($current_password)),$active_contact->auth_password))
+				throw new Exception("Incorrect password.");
+			
+			if(!$change_password || !$verify_password)
 				throw new Exception("Your password cannot be blank.");
 			
-			if(0 != strcmp($change_password, $change_password2))
+			if(0 != strcmp($change_password, $verify_password))
 				throw new Exception("Your passwords do not match.");
-				
+			
 			// Change password?
 			$salt = CerberusApplication::generatePassword(8);
-			$fields = array(
+			$fields = [
 				DAO_Contact::AUTH_SALT => $salt,
 				DAO_Contact::AUTH_PASSWORD => md5($salt.md5($change_password)),
-			);
+			];
 			DAO_Contact::update($active_contact->id, $fields);
 			
 			$tpl->assign('success', true);
@@ -487,23 +531,24 @@ class UmScAccountController extends Extension_UmScController {
 		} catch(Exception $e) {
 			$tpl = DevblocksPlatform::services()->templateSandbox();
 			$tpl->assign('error', $e->getMessage());
-			
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','password')));
 	}
 	
-	function doEmailAddAction() {
+	private function _portalAction_doEmailAdd() {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$tpl = DevblocksPlatform::services()->templateSandbox();
-		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		try {
 			if(null == $active_contact)
-				return;
+				throw new Exception("Your session has expired.");
 	
-			@$add_email = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_REQUEST['add_email'],'string',''));
+			@$add_email = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['add_email'],'string',''));
 			
 			// Validate
 			$address_parsed = imap_rfc822_parse_adrlist($add_email,'host');
@@ -550,17 +595,14 @@ class UmScAccountController extends Extension_UmScController {
 		}
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email','confirm')));
-		//DevblocksPlatform::redirect(new DevblocksHttpResponse(array('account','email')));
-		//exit;
 	}
 	
-	function doEmailConfirmAction() {
-		@$email = DevblocksPlatform::importGPC($_REQUEST['email'],'string','');
-		@$confirm = DevblocksPlatform::importGPC($_REQUEST['confirm'],'string','');
-
-		// Verify session
+	private function _portalAction_doEmailConfirm() {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
+		
+		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
+		@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
 
 		try {
 			if(null == $active_contact)
@@ -600,22 +642,23 @@ class UmScAccountController extends Extension_UmScController {
 			DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email','confirm')));
 			return;
 		}
-		
-		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'account','email')));
 	}
 	
-	function doDeleteAction() {
-		@$captcha = DevblocksPlatform::importGPC($_REQUEST['captcha'], 'string', '');
-		
+	private function _portalAction_doDelete() {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		$url_writer = DevblocksPlatform::services()->url();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$captcha = DevblocksPlatform::importGPC($_POST['captcha'], 'string', '');
+		
 		try {
 			// Load the contact account
 			if(null == $active_contact)
-				throw new Exception("Your request could not be processed at this time.");
+				throw new Exception("Your session has expired.");
 				
 			// Compare the captcha
 			$compare_captcha = $umsession->getProperty('write_captcha', '');
@@ -675,4 +718,4 @@ class UmScAccountController extends Extension_UmScController {
 		
 		DAO_CommunityToolProperty::set($portal->code, 'account.fields', json_encode($fields));
 	}
-};
+}

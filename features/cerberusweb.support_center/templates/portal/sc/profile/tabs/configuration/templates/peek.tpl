@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="formPortalTemplatePeek" onsubmit="return false;">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="saveTemplatePeek">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="portals">
+<input type="hidden" name="action" value="saveTemplatePeek">
 <input type="hidden" name="id" value="{$template->id}">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="do_delete" value="0">

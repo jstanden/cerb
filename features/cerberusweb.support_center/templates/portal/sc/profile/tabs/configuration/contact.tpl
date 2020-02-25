@@ -1,8 +1,8 @@
 {$form_id = uniqid()}
 <form id="{$form_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 <input type="hidden" name="c" value="profiles">
-<input type="hidden" name="a" value="handleSectionAction">
-<input type="hidden" name="section" value="community_portal">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="community_portal">
 <input type="hidden" name="action" value="saveConfigTabJson">
 <input type="hidden" name="portal_id" value="{$portal->id}">
 <input type="hidden" name="config_tab" value="contact">
@@ -71,8 +71,8 @@ $(function() {
 	.click(function() {
 		var formData = new FormData();
 		formData.set('c', 'profiles');
-		formData.set('a', 'handleSectionAction');
-		formData.set('section', 'community_portal');
+		formData.set('a', 'invoke');
+		formData.set('module', 'community_portal');
 		formData.set('action', 'showConfigTab');
 		formData.set('config_tab', 'contact');
 		formData.set('tab_action', 'addContactSituation');

@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 class UmScContactController extends Extension_UmScController {
 	const PARAM_CAPTCHA_ENABLED = 'contact.captcha_enabled';
 	const PARAM_ALLOW_CC = 'contact.allow_cc';
@@ -8,6 +9,16 @@ class UmScContactController extends Extension_UmScController {
 	
 	function isVisible() {
 		return true;
+	}
+	
+	public function invoke(string $action, DevblocksHttpRequest $request=null) {
+		switch($action) {
+			case 'doContactSend':
+				return $this->_portalAction_doContactSend();
+			case 'doContactStep2':
+				return $this->_portalAction_doContactStep2();
+		}
+		return false;
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {
@@ -240,9 +251,12 @@ class UmScContactController extends Extension_UmScController {
 		DAO_CommunityToolProperty::set($instance->code, self::PARAM_SITUATIONS, serialize($dispatch));
 	}
 	
-	function doContactStep2Action() {
+	private function _portalAction_doContactStep2() {
 		$umsession = ChPortalHelper::getSession();
-
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$sNature = DevblocksPlatform::importGPC($_POST['nature'],'string','');
 
 		$umsession->setProperty('support.write.last_nature', $sNature);
@@ -255,7 +269,6 @@ class UmScContactController extends Extension_UmScController {
 		$dispatch = !empty($sDispatch) ? unserialize($sDispatch) : array();
 		
 		// Check if this nature has followups, if not skip to send
-		$followups = array();
 		if(is_array($dispatch))
 		foreach($dispatch as $k => $v) {
 			if(md5($k)==$sNature) {
@@ -268,7 +281,12 @@ class UmScContactController extends Extension_UmScController {
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','step2')));
 	}
 	
-	function doContactSendAction() {
+	private function _portalAction_doContactSend() {
+		$umsession = ChPortalHelper::getSession();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$sFrom = DevblocksPlatform::importGPC($_POST['from'],'string','');
 		@$sCc = DevblocksPlatform::importGPC($_POST['cc'],'string','');
 		@$sSubject = DevblocksPlatform::importGPC($_POST['subject'],'string','');
@@ -319,7 +337,6 @@ class UmScContactController extends Extension_UmScController {
 			
 		}
 		
-		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 
 		$umsession->setProperty('support.write.last_cc',$sCc);
@@ -403,7 +420,7 @@ class UmScContactController extends Extension_UmScController {
 				if($idx+1 < count($aFollowUpQ)) $fieldContent .= "\r\n";
 			}
 			$fieldContent .= "--------------------------------------------\r\n";
-			"\r\n";
+			$fieldContent .= "\r\n";
 		}
 		
 		$community_portal = DAO_CommunityTool::getByCode(ChPortalHelper::getCode());
@@ -571,5 +588,4 @@ class UmScContactController extends Extension_UmScController {
 		
 		DevblocksPlatform::setHttpResponse(new DevblocksHttpResponse(array('portal',ChPortalHelper::getCode(),'contact','confirm')));
 	}
-	
-};
+}
