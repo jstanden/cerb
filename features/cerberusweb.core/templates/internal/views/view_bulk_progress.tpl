@@ -18,13 +18,15 @@ $(function() {
 	var nextCursor = function() {
 		var formData = new FormData();
 		formData.set('c', 'internal');
-		formData.set('a', 'viewBulkUpdateNextCursorJson');
+		formData.set('a', 'invoke');
+		formData.set('module', 'worklists');
+		formData.set('action', 'viewBulkUpdateNextCursorJson');
 		formData.set('cursor', '{$cursor}');
 		formData.set('view_id', '{$view_id}');
 
 		genericAjaxPost(formData, '', '', function(json) {
 			if(json.completed) {
-				genericAjaxGet('view{$view_id}', 'c=internal&a=viewRefresh&id={$view_id}');
+				genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 				
 			} else if(json.count) {
 				at += json.count;

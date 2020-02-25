@@ -1,6 +1,8 @@
 <form action="{devblocks_url}{/devblocks_url}" method="post" target="_blank" id="frm{$view_id}_export">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="doViewExport">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="worklists">
+<input type="hidden" name="action" value="saveExport">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="cursor_key" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -135,7 +137,7 @@ $(function() {
 	});
 	
 	$frm.on('export_increment', function() {
-		genericAjaxPost('frm{$view_id}_export', null, 'c=internal&a=doViewExport', function(json) {
+		genericAjaxPost($frm, null, null, function(json) {
 			
 			// If complete, display the download link
 			if(json.completed) {

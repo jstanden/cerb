@@ -88,7 +88,7 @@ $(function() {
 	
 	// Subtotals
 	$view.find('table.worklist A.subtotals').click(function(event) {
-		genericAjaxGet('view{$view->id}_sidebar','c=internal&a=viewSubtotal&view_id={$view->id}&toggle=1', function(html) {
+		genericAjaxGet('view{$view->id}_sidebar','c=internal&a=invoke&module=worklists&action=subtotal&view_id={$view->id}&toggle=1', function(html) {
 			var $sidebar = $('#view{$view->id}_sidebar');
 			
 			if(0 == html.length) {
