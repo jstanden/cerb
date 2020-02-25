@@ -80,6 +80,19 @@ EOD;
 }
 
 // ===========================================================================
+// Fix Twig syntax (spaceless is retired)
+
+if(array_key_exists('decision_node', $tables)) {
+	$db->ExecuteMaster('update decision_node set params_json=replace(params_json,"{% spaceless %}","{% apply spaceless %}") where params_json like "%spaceless%"');
+	$db->ExecuteMaster('update decision_node set params_json=replace(params_json,"{% endspaceless %}","{% endapply %}") where params_json like "%spaceless%"');
+}
+
+if(array_key_exists('project_board', $tables)) {
+	$db->ExecuteMaster('update project_board set params_json=replace(params_json,"{% spaceless %}","{% apply spaceless %}") where params_json like "%spaceless%"');
+	$db->ExecuteMaster('update project_board set params_json=replace(params_json,"{% endspaceless %}","{% endapply %}") where params_json like "%spaceless%"');
+}
+
+// ===========================================================================
 // Finish up
 
 return true;
