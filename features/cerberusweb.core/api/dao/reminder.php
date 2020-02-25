@@ -929,7 +929,11 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		// Only worker_id or admin can edit
 		return CerberusContexts::isWriteableByDelegateOwner($actor, Context_Reminder::ID, $models, 'worker_');
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_Reminder::random();
 	}

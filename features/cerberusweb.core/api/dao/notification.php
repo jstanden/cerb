@@ -1197,6 +1197,10 @@ class Context_Notification extends Extension_DevblocksContext {
 		}
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_Notification::random();
 	}

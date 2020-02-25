@@ -1013,6 +1013,10 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		return CerberusContexts::allowEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_KbArticle::random();
 	}

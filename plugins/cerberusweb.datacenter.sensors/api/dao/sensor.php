@@ -1176,6 +1176,10 @@ class Context_Sensor extends Extension_DevblocksContext implements IDevblocksCon
 		return CerberusContexts::allowEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getDaoClass() {
 		return 'DAO_DatacenterSensor';
 	}

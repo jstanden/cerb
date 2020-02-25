@@ -927,7 +927,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		return CerberusContexts::denyEverything($models);
 	}
 	
-	static function isDeleteableByActor($models, $actor) {
+	static function isDeletableByActor($models, $actor) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$dicts = CerberusContexts::polymorphModelsToDictionaries($models, self::ID);

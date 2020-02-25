@@ -965,6 +965,10 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';

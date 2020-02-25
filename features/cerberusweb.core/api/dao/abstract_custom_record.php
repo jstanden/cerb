@@ -1121,6 +1121,10 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		return CerberusContexts::isWriteableByDelegateOwner($actor, self::_getContextName(), $models, 'owner_', false, true);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
 		return $dao_class::random();

@@ -1213,6 +1213,10 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		return CerberusContexts::allowEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getDaoClass() {
 		return 'DAO_TimeTrackingEntry';
 	}

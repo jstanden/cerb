@@ -1027,7 +1027,11 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getViewClass() {
 		return 'View_CommunityPortal';
 	}

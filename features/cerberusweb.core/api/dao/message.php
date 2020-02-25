@@ -2421,6 +2421,10 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		}
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_Message::random();
 	}

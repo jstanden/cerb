@@ -969,6 +969,10 @@ class Context_JiraProject extends Extension_DevblocksContext implements IDevbloc
 		return CerberusContexts::allowEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_JiraProject::random();
 	}

@@ -904,7 +904,11 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		
 		return CerberusContexts::denyEverything($models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_ConnectedService::random();
 	}

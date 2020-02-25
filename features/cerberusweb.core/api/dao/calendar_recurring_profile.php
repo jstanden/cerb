@@ -1145,6 +1145,10 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $models, 'calendar_owner_');
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_CalendarRecurringProfile::random();
 	}

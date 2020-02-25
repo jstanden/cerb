@@ -748,7 +748,11 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		
 		return CerberusContexts::denyEverything($models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_WebApiCredentials::random();
 	}

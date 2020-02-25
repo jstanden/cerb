@@ -1295,6 +1295,10 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function autocomplete($term, $query=null) {
 		$list = array();
 		

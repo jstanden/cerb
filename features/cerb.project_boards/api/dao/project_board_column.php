@@ -1001,6 +1001,10 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
 	}
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
 
 	function getRandom() {
 		return DAO_ProjectBoardColumn::random();

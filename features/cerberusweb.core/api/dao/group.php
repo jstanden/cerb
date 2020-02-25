@@ -1803,6 +1803,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		}
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_Group::random();
 	}

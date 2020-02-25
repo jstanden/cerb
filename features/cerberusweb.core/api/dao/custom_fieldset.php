@@ -969,6 +969,10 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models, 'owner_', $ignore_admins);
 	}
 	
+	static function isDeletableByActor($models, $actor, $ignore_admins=false) {
+		return self::isWriteableByActor($models, $actor, $ignore_admins);
+	}
+	
 	function getRandom() {
 		return DAO_CustomFieldset::random();
 	}

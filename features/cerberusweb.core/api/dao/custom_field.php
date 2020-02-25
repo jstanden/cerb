@@ -2079,6 +2079,10 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		}
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_CustomField::random();
 	}

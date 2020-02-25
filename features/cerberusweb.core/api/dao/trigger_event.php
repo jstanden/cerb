@@ -2028,6 +2028,10 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_BEHAVIOR, $models, 'bot_owner_', $ignore_admins);
 	}
 	
+	static function isDeletableByActor($models, $actor, $ignore_admins=false) {
+		return self::isWriteableByActor($models, $actor, $ignore_admins);
+	}
+	
 	function autocomplete($term, $query=null) {
 		$list = [];
 		

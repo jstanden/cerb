@@ -988,6 +988,10 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_WORKLIST, $models, 'tab_page_owner_');
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_WorkspaceList::random();
 	}

@@ -893,7 +893,11 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	static function isWriteableByActor($models, $actor) {
 		return CerberusContexts::isWriteableByDelegateOwner($actor, self::ID, $models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_EmailSignature::random();
 	}

@@ -896,7 +896,11 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 		
 		return CerberusContexts::denyEverything($models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_Currency::random();
 	}

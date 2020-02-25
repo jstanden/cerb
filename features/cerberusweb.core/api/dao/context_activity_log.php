@@ -1071,6 +1071,10 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		return CerberusContexts::denyEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function profileGetUrl($context_id) {
 		return null;
 	}

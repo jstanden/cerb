@@ -1323,6 +1323,10 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		}
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getDaoClass() {
 		return 'DAO_MailQueue';
 	}

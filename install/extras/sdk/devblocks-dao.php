@@ -859,6 +859,10 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
 	}
+    
+    static function isDeletableByActor($models, $actor) {
+        return self::isWriteableByActor($models, $actor);
+    }
 
 	function getRandom() {
 		return DAO_<?php echo $class_name; ?>::random();

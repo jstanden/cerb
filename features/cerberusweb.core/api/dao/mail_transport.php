@@ -861,6 +861,10 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		return CerberusContexts::denyEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_MailTransport::random();
 	}

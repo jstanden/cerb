@@ -1517,12 +1517,12 @@ class CerberusContexts {
 		return $context_ext::isWriteableByActor($models, $actor);
 	}
 	
-	public static function isDeleteableByActor($context, $models, $actor) {
+	public static function isDeletableByActor($context, $models, $actor) {
 		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return self::denyEverything($models);
 		
-		if(method_exists(get_class($context_ext), 'isDeleteableByActor')) {
-			return $context_ext::isDeleteableByActor($models, $actor);
+		if(method_exists(get_class($context_ext), 'isDeletableByActor')) {
+			return $context_ext::isDeletableByActor($models, $actor);
 		} else {
 			// Default to deletable by write access
 			return $context_ext::isWriteableByActor($models, $actor);
@@ -2418,6 +2418,10 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 			return CerberusContexts::allowEverything($models);
 
 		return CerberusContexts::denyEverything($models);
+	}
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
 	}
 	
 	function profileGetUrl($context_id) {

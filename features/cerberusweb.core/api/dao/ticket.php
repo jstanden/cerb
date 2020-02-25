@@ -4518,6 +4518,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		}
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_Ticket::random();
 	}

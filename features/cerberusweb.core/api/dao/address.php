@@ -2087,7 +2087,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	// Email addresses can't be deleted through normal means
-	static function isDeleteableByActor($models, $actor) {
+	static function isDeletableByActor($models, $actor) {
 		return false;
 	}
 	

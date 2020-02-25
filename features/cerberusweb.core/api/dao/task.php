@@ -1285,6 +1285,10 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		return CerberusContexts::allowEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';

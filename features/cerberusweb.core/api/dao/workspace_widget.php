@@ -1001,6 +1001,10 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $models, 'tab_page_owner_');
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_WorkspaceTab::random();
 	}

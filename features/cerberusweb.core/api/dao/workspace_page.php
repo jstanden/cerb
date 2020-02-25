@@ -1008,6 +1008,10 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_PAGE, $models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';

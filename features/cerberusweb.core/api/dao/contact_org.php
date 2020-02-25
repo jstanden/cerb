@@ -1486,6 +1486,10 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		return CerberusContexts::allowEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	/**
 	 * @see Extension_DevblocksContext::getDaoClass()
 	 */

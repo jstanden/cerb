@@ -892,6 +892,10 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_MailHtmlTemplate::random();
 	}

@@ -1394,6 +1394,10 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_SNIPPET, $models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';

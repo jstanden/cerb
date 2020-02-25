@@ -1131,6 +1131,10 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		return CerberusContexts::denyEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_WorkerRole::random();
 	}

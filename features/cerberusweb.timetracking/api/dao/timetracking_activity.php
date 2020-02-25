@@ -747,7 +747,11 @@ class Context_TimeTrackingActivity extends Extension_DevblocksContext implements
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_TimeTrackingActivity::random();
 	}

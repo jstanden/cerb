@@ -877,7 +877,11 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_ProjectBoard::random();
 	}

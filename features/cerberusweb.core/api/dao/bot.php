@@ -1156,6 +1156,10 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		return CerberusContexts::denyEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor, $ignore_admins=false) {
+		return self::isWriteableByActor($models, $actor, $ignore_admins);
+	}
+	
 	function getRandom() {
 		return DAO_Bot::random();
 	}

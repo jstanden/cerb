@@ -859,7 +859,11 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_ProfileTab::random();
 	}

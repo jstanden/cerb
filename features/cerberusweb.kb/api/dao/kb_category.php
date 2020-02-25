@@ -649,6 +649,10 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		return CerberusContexts::allowEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_KbCategory::random();
 	}

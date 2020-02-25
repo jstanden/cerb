@@ -865,6 +865,10 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		return CerberusContexts::denyEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_WebhookListener::random();
 	}

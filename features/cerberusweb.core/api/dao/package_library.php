@@ -912,7 +912,11 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 		
 		return CerberusContexts::denyEverything($models);
 	}
-
+	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_PackageLibrary::random();
 	}

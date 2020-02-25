@@ -957,6 +957,10 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		return CerberusContexts::denyEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_CardWidget::random();
 	}

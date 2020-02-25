@@ -973,6 +973,10 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_FILE_BUNDLE, $models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_FileBundle::random();
 	}

@@ -1680,6 +1680,10 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		return CerberusContexts::denyEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	static function isDownloadableByActor($models, $actor) {
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);

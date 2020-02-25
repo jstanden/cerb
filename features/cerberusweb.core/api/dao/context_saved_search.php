@@ -918,6 +918,10 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 	static function isWriteableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isWriteableByDelegateOwner($actor, self::ID, $models, 'owner_', $ignore_admins);
 	}
+	
+	static function isDeletableByActor($models, $actor, $ignore_admins=false) {
+		return self::isWriteableByActor($models, $actor, $ignore_admins);
+	}
 
 	function getRandom() {
 		return DAO_ContextSavedSearch::random();

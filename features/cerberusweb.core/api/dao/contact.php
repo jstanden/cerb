@@ -1747,6 +1747,10 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		return CerberusContexts::allowEverything($models);
 	}
 	
+	static function isDeletableByActor($models, $actor) {
+		return self::isWriteableByActor($models, $actor);
+	}
+	
 	function getRandom() {
 		return DAO_Contact::random();
 	}
