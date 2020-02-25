@@ -1,4 +1,6 @@
-<?php
+<?php /** @noinspection PhpUnused */
+/** @noinspection DuplicatedCode */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -27,8 +29,29 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'autocomplete':
+					return $this->_profileAction_autocomplete();
+				case 'autocompleteCountry':
+					return $this->_profileAction_autocompleteCountry();
+				case 'getTopContactsByOrgJson':
+					return $this->_profileAction_getTopContactsByOrgJson();
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
 	
-	function savePeekPopupJsonAction() {
+	private function _profileAction_savePeekJson() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
@@ -40,6 +63,12 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($delete)) { // delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_ORG)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_ContactOrg::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Org::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_ContactOrg::delete($id);
@@ -153,15 +182,19 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					'error' => 'An error occurred.',
 				));
 				return;
-			
 		}
 	}
 	
-	function showBulkPopupAction() {
+	private function _profileAction_showBulkPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Org::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($ids)) {
@@ -200,10 +233,14 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		$tpl->assign('html_templates', $html_templates);
 		
 		$tpl->display('devblocks:cerberusweb.core::contacts/orgs/bulk.tpl');
+		return true;
 	}
 	
-	function startBulkUpdateJsonAction() {
+	private function _profileAction_startBulkUpdateJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Org::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
@@ -305,7 +342,6 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				break;
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
-				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;
 			default:
@@ -330,4 +366,184 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		
 		return;
 	}
-};
+	
+	private function _profileAction_getTopContactsByOrgJson() {
+		@$org_name = DevblocksPlatform::importGPC($_REQUEST['org_name'],'string');
+		
+		header('Content-type: text/json');
+		
+		if(empty($org_name) || null == ($org_id = DAO_ContactOrg::lookup($org_name, false))) {
+			echo json_encode(array());
+			exit;
+		}
+		
+		// Match org, ignore banned
+		$results = DAO_Address::getWhere(
+			sprintf("%s = %d AND %s = %d AND %s = %d",
+				DAO_Address::CONTACT_ORG_ID,
+				$org_id,
+				DAO_Address::IS_BANNED,
+				0,
+				DAO_Address::IS_DEFUNCT,
+				0
+			),
+			DAO_Address::NUM_NONSPAM,
+			true,
+			25
+		);
+		
+		$list = array();
+		
+		foreach($results as $result) { /* @var $result Model_Address */
+			$list[] = array(
+				'id' => $result->id,
+				'email' => $result->email,
+				'name' => DevblocksPlatform::strEscapeHtml($result->getName()),
+			);
+		}
+		
+		echo json_encode($list);
+		DevblocksPlatform::exit();
+	}
+	
+	private function _profileAction_autocomplete() {
+		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
+		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
+		
+		list($orgs,) = DAO_ContactOrg::search(
+			[],
+			[
+				new DevblocksSearchCriteria(SearchFields_ContactOrg::NAME,DevblocksSearchCriteria::OPER_LIKE, $starts_with. '*'),
+			],
+			25,
+			0,
+			SearchFields_ContactOrg::NAME,
+			true,
+			false
+		);
+		
+		$list = [];
+		
+		foreach($orgs AS $val){
+			$list[] = $val[SearchFields_ContactOrg::NAME];
+		}
+		
+		echo sprintf("%s%s%s",
+			!empty($callback) ? ($callback.'(') : '',
+			json_encode($list),
+			!empty($callback) ? (')') : ''
+		);
+		DevblocksPlatform::exit();
+	}
+	
+	private function _profileAction_autocompleteCountry() {
+		@$starts_with = DevblocksPlatform::importGPC($_REQUEST['term'],'string','');
+		@$callback = DevblocksPlatform::importGPC($_REQUEST['callback'],'string','');
+		
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = sprintf("SELECT DISTINCT country AS country ".
+			"FROM contact_org ".
+			"WHERE country != '' ".
+			"AND country LIKE %s ".
+			"ORDER BY country ASC ".
+			"LIMIT 0,25",
+			$db->qstr($starts_with.'%')
+		);
+		
+		if(false == ($rs = $db->ExecuteSlave($sql)))
+			return false;
+		
+		$list = [];
+		
+		if(!($rs instanceof mysqli_result))
+			return false;
+		
+		while($row = mysqli_fetch_assoc($rs)) {
+			$list[] = $row['country'];
+		}
+		
+		mysqli_free_result($rs);
+		
+		echo sprintf("%s%s%s",
+			!empty($callback) ? ($callback.'(') : '',
+			json_encode($list),
+			!empty($callback) ? (')') : ''
+		);
+		
+		DevblocksPlatform::exit();
+	}
+	
+	private function _profileAction_viewExplore() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$url_writer = DevblocksPlatform::services()->url();
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		// Generate hash
+		$hash = md5($view_id.$active_worker->id.time());
+		
+		// Loop through view and get IDs
+		$view = C4_AbstractViewLoader::getView($view_id);
+		$view->setAutoPersist(false);
+		
+		// Page start
+		@$explore_from = DevblocksPlatform::importGPC($_POST['explore_from'],'integer',0);
+		if(empty($explore_from)) {
+			$orig_pos = 1+($view->renderPage * $view->renderLimit);
+		} else {
+			$orig_pos = 1;
+		}
+		
+		$view->renderPage = 0;
+		$view->renderLimit = 250;
+		$pos = 0;
+		
+		do {
+			$models = array();
+			list($results, $total) = $view->getData();
+			
+			// Summary row
+			if(0==$view->renderPage) {
+				$model = new Model_ExplorerSet();
+				$model->hash = $hash;
+				$model->pos = $pos++;
+				$model->params = array(
+					'title' => $view->name,
+					'created' => time(),
+					'worker_id' => $active_worker->id,
+					'total' => $total,
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&tab=org', true),
+				);
+				$models[] = $model;
+				
+				$view->renderTotal = false; // speed up subsequent pages
+			}
+			
+			if(is_array($results))
+				foreach($results as $org_id => $row) {
+					if($org_id==$explore_from)
+						$orig_pos = $pos;
+					
+					$model = new Model_ExplorerSet();
+					$model->hash = $hash;
+					$model->pos = $pos++;
+					$model->params = array(
+						'id' => $row[SearchFields_ContactOrg::ID],
+						'url' => $url_writer->writeNoProxy(sprintf("c=profiles&type=org&id=%d", $row[SearchFields_ContactOrg::ID]), true),
+					);
+					$models[] = $model;
+				}
+			
+			DAO_ExplorerSet::createFromModels($models);
+			
+			$view->renderPage++;
+			
+		} while(!empty($results));
+		
+		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+}

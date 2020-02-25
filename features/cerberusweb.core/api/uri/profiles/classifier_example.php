@@ -28,7 +28,19 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -46,11 +58,11 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($example = DAO_ClassifierExample::get($id)))
-					throw new Exception_DevblocksAjaxValidationError("The record does not exist.");
+				if(false == ($model = DAO_ClassifierExample::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
-				if(!Context_ClassifierExample::isWriteableByActor($example, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError("You do not have permission to delete this record.");
+				if(!Context_ClassifierExample::isDeletableByActor($model, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_ClassifierExample::delete($id);
 				
@@ -142,11 +154,14 @@ class PageSection_ProfilesClassifierExample extends Extension_PageSection {
 		}
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

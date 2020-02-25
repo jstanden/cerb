@@ -28,7 +28,21 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showPackagePrompts':
+					return $this->_profileAction_showPackagePrompts();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -41,12 +55,18 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
-		if(!$active_worker->is_superuser)
-			throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
-		
 		try {
+			if(!$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_PACKAGE)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_PackageLibrary::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_PackageLibrary::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_PackageLibrary::delete($id);
@@ -174,14 +194,17 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 		}
 	}
 	
-	function showPackagePromptsAction() {
+	private function _profileAction_showPackagePrompts() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$package_uri = DevblocksPlatform::importGPC($_REQUEST['package'],'string',null);
 		
-		$tpl = DevblocksPlatform::services()->template();
+		if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($package = DAO_PackageLibrary::getByUri($package_uri))) {
-			return;
-		}
+		if(!Context_PackageLibrary::isReadableByActor($package, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl->assign('package', $package);
 		
@@ -196,11 +219,14 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/package_library/editor_select.tpl');
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

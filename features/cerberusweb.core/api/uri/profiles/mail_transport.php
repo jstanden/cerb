@@ -28,7 +28,21 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'getTransportParams':
+					return $this->_profileAction_getTransportParams();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -41,14 +55,20 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
-		// Only admins can edit mail transports
-		if(!$active_worker->is_superuser) {
-			throw new Exception_DevblocksAjaxValidationError("Only administrators can modify email transport records.");
-		}
-		
 		try {
+			// Only admins can edit mail transports
+			if(!$active_worker->is_superuser) {
+				throw new Exception_DevblocksAjaxValidationError("Only administrators can modify email transport records.");
+			}
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_TRANSPORT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_MailTransport::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_MailTransport::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_MailTransport::delete($id);
@@ -142,12 +162,17 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 		}
 	}
 	
-	function getTransportParamsAction() {
+	private function _profileAction_getTransportParams() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string',null);
 		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		if(false == ($mail_transport_ext = Extension_MailTransport::get($extension_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(empty($id) || false == ($model = DAO_MailTransport::get($id))) {
 			$model = new Model_MailTransport();
@@ -180,11 +205,14 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 		return true;
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

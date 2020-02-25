@@ -25,17 +25,32 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		
 		$context = CerberusContexts::CONTEXT_ATTACHMENT;
 		
-		
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -45,6 +60,12 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_ATTACHMENT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_Attachment::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Attachment::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_Attachment::delete($id);
@@ -60,7 +81,7 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
 				@$mime_type = DevblocksPlatform::importGPC($_POST['mime_type'], 'string', 'application/octet-stream');
 				
-				if(empty($id)) { // New
+				if(!$id) { // New
 					$fields = array(
 						DAO_Attachment::NAME => $name,
 						DAO_Attachment::MIME_TYPE => $mime_type,
@@ -127,11 +148,14 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		}
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -164,7 +188,6 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 				$model->params = array(
 					'title' => $view->name,
 					'created' => time(),
-//					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=attachment', true),
 				);
@@ -199,14 +222,14 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function showBulkPopupAction() {
-		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
-
+	private function _profileAction_showBulkPopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
+		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
+		
 		if(!$active_worker->is_superuser)
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
@@ -222,11 +245,12 @@ class PageSection_ProfilesAttachment extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/attachments/bulk.tpl');
 	}
 	
-	function startBulkUpdateJsonAction() {
+	/** @noinspection DuplicatedCode */
+	private function _profileAction_startBulkUpdateJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker->is_superuser)
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
 		$ids = [];

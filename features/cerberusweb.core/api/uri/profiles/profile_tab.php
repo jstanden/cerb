@@ -28,7 +28,27 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'getContextColumnsJson':
+					return $this->_profileAction_getContextColumnsJson();
+				case 'getExtensionConfig':
+					return $this->_profileAction_getExtensionConfig();
+				case 'getExtensionsByContextJson':
+					return $this->_profileAction_getExtensionsByContextJson();
+				case 'getPlaceholderToolbar':
+					return $this->_profileAction_getPlaceholderToolbar();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -44,6 +64,12 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_PROFILE_TAB)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_ProfileTab::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_ProfileTab::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_ProfileTab::delete($id);
@@ -255,7 +281,12 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		echo json_encode($results);
 	}
 	
-	function getExtensionConfigAction() {
+	private function _profileAction_getExtensionConfig() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'],'string','');
 		
 		if(false == ($extension = Extension_ProfileTab::get($extension_id)))
@@ -267,7 +298,12 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		$extension->renderConfig($model);
 	}
 	
-	function getExtensionsByContextJsonAction() {
+	private function _profileAction_getExtensionsByContextJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		
 		header('Content-Type: application/json; charset=utf-8');
@@ -282,11 +318,40 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		echo json_encode(array_column(DevblocksPlatform::objectsToArrays($tab_manifests), 'name', 'id'));
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_getPlaceholderToolbar() {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'], 'integer', 0);
+		
+		if(false == ($tab = DAO_ProfileTab::get($tab_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$labels = $values = [];
+		
+		// Record dictionary
+		$merge_labels = $merge_values = [];
+		CerberusContexts::getContext($tab->context, null, $merge_labels, $merge_values, '', true);
+		CerberusContexts::merge('record_', 'Record ', $merge_labels, $merge_values, $labels, $values);
+		
+		// Merge in the widget dictionary
+		$merge_labels = $merge_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_PROFILE_WIDGET, null, $merge_labels, $merge_values, '', true);
+		CerberusContexts::merge('widget_', 'Widget ', $merge_labels, $merge_values, $labels, $values);
+		
+		$placeholders = Extension_DevblocksContext::getPlaceholderTree($labels);
+		$tpl->assign('placeholders', $placeholders);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/dashboard/toolbar.tpl');
+	}
+	
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

@@ -28,7 +28,19 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
@@ -44,13 +56,14 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 			if($id && false == ($bucket = DAO_Bucket::get($id)))
 				throw new Exception_DevblocksAjaxValidationError("The specified bucket record doesn't exist.");
 			
-			// ACL
-			if($id && !$active_worker->is_superuser && !$active_worker->isGroupManager($bucket->group_id))
-				throw new Exception_DevblocksAjaxValidationError("You do not have permission to delete this bucket.");
-			
-			if($id && !empty($do_delete)) { // Delete
+			if($id && $do_delete) { // Delete
 				@$delete_moveto = DevblocksPlatform::importGPC($_POST['delete_moveto'],'integer',0);
-				$buckets = DAO_Bucket::getAll();
+				
+				if(false == ($model = DAO_Bucket::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Bucket::isDeletableByActor($model, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				// Destination must exist
 				if(empty($delete_moveto) || false == ($bucket_moveto = DAO_Bucket::get($delete_moveto)))
@@ -157,15 +170,17 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 					'error' => 'An error occurred.',
 				));
 				return;
-			
 		}
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

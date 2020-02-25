@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -28,7 +29,23 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'getBulkParams':
+					return $this->_profileAction_getBulkParams();
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'renderContextScheduledBehavior':
+					return $this->_profileAction_renderContextScheduledBehavior();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -44,6 +61,12 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_ContextScheduledBehavior::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_ContextScheduledBehavior::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_ContextScheduledBehavior::delete($id);
@@ -135,11 +158,14 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 	
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -186,7 +212,7 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 				if($opp_id==$explore_from)
 					$orig_pos = $pos;
 				
-				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=scheduled_behavior&id=%d-%s", $row[SearchFields_ContextScheduledBehavior::ID], DevblocksPlatform::strToPermalink($row[SearchFields_ContextScheduledBehavior::NAME])), true);
+				$url = $url_writer->writeNoProxy(sprintf("c=profiles&type=scheduled_behavior&id=%d-%s", $row[SearchFields_ContextScheduledBehavior::ID], DevblocksPlatform::strToPermalink($row[SearchFields_ContextScheduledBehavior::BEHAVIOR_NAME])), true);
 				
 				$model = new Model_ExplorerSet();
 				$model->hash = $hash;
@@ -207,11 +233,15 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function renderContextScheduledBehaviorAction() {
+	private function _profileAction_renderContextScheduledBehavior() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
 		
-		$tpl = DevblocksPlatform::services()->template();
+		if(!CerberusContexts::isReadableByActor($context, $context_id, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl->assign('context', $context);
 		$tpl->assign('context_id', $context_id);
@@ -219,4 +249,22 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/macros/behavior/scheduled_behavior_profile.tpl');
 	}
-};
+	
+	private function _profileAction_getBulkParams() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$trigger_id = DevblocksPlatform::importGPC($_REQUEST['trigger_id'],'integer', 0);
+		
+		$tpl->assign('field_name', 'behavior_params');
+		
+		if(false == ($trigger = DAO_TriggerEvent::get($trigger_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_TriggerEvent::isReadableByActor($trigger, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$tpl->assign('variables', $trigger->variables);
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/assistant/behavior_variables_entry.tpl');
+	}
+}

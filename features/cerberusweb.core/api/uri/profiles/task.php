@@ -28,7 +28,25 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+				case 'viewMarkCompleted':
+					return $this->_profileAction_viewMarkCompleted();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer','');
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
@@ -43,6 +61,12 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($do_delete)) { // delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TASK)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_Task::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Task::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_Task::delete($id);
@@ -226,11 +250,16 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		}
 	}
 	
-	function showBulkPopupAction() {
+	private function _profileAction_showBulkPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Task::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($ids)) {
@@ -248,7 +277,15 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::tasks/rpc/bulk.tpl');
 	}
 	
-	function startBulkUpdateJsonAction() {
+	private function _profileAction_startBulkUpdateJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Task::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
 		$ids = [];
@@ -357,11 +394,25 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		return;
 	}
 	
-	function viewMarkCompletedAction() {
+	private function _profileAction_viewMarkCompleted() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
-
+		
 		try {
+			// Check privs
+			$row_ids = array_intersect_key(
+				$row_ids,
+				array_keys(
+					Context_Task::isWriteableByActor($row_ids, $active_worker),
+					true
+				)
+			);
+			
 			if(is_array($row_ids))
 			foreach($row_ids as $row_id) {
 				$row_id = intval($row_id);
@@ -381,11 +432,14 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 		exit;
 	}
 	
-	function viewTasksExploreAction() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		
+	private function _profileAction_viewExplore() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

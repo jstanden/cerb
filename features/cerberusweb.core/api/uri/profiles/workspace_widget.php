@@ -28,7 +28,37 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function getWidgetParamsAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'renderWidget':
+					return $this->_profileAction_renderWidget();
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'exportWidget':
+					return $this->_profileAction_exportWidget();
+				case 'exportWidgetData':
+					return $this->_profileAction_exportWidgetData();
+				case 'getFieldsTabsByContext':
+					return $this->_profileAction_getFieldsTabsByContext();
+				case 'getWidgetDatasourceConfig':
+					return $this->_profileAction_getWidgetDatasourceConfig();
+				case 'getWidgetParams':
+					return $this->_profileAction_getWidgetParams();
+				case 'reorderWidgets':
+					return $this->_profileAction_reorderWidgets();
+				case 'testWidgetTemplate':
+					return $this->_profileAction_testWidgetTemplate();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_getWidgetParams() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
 		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension'],'string','');
 		
@@ -40,10 +70,15 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			$widget->extension_id = $widget_extension->id;
 		}
 		
+		if($widget && $widget_id->id) {
+			if(!Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker))
+				DevblocksPlatform::dieWithHttpError(null, 403);
+		}
+		
 		$widget_extension->renderConfig($widget);
 	}
 	
-	function savePeekJsonAction() {
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -60,11 +95,11 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WORKSPACE_WIDGET)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-
-				if(false == ($widget = DAO_WorkspaceWidget::get($id)))
-					throw new Exception_DevblocksAjaxValidationError("Invalid widget.");
-					
-				if(!Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker))
+				
+				if(false == ($model = DAO_WorkspaceWidget::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_WorkspaceWidget::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 					
 				DAO_WorkspaceWidget::delete($id);
@@ -282,14 +317,20 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		}
 	}
 	
-	function getWidgetDatasourceConfigAction() {
+	private function _profileAction_getWidgetDatasourceConfig() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'string', '');
 		@$params_prefix = DevblocksPlatform::importGPC($_REQUEST['params_prefix'], 'string', null);
 		@$ext_id = DevblocksPlatform::importGPC($_REQUEST['ext_id'], 'string', '');
 
 		if(null == ($widget = DAO_WorkspaceWidget::get($widget_id))) {
 			$widget = new Model_WorkspaceWidget();
-			//$widget->extension_id = $ext_id;
+		}
+		
+		if($widget && $widget->id) {
+			if(!Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker))
+				DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
 		if(null == ($datasource_ext = Extension_WorkspaceWidgetDatasource::get($ext_id)))
@@ -298,14 +339,14 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$datasource_ext->renderConfig($widget, $widget->params, $params_prefix);
 	}
 	
-	function renderWidgetAction() {
+	private function _profileAction_renderWidget() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$full = DevblocksPlatform::importGPC($_POST['full'], 'bool', false);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
 			return;
@@ -332,21 +373,20 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		}
 	}
 	
-	function reorderWidgetsAction() {
+	private function _profileAction_reorderWidgets() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(403);
 		
 		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'], 'integer', 0);
 		@$zones = DevblocksPlatform::importGPC($_POST['zones'], 'array', []);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		if(false == ($tab = DAO_WorkspaceTab::get($tab_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		// ACL
 		if(!Context_WorkspaceTab::isWriteableByActor($tab, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$widgets = DAO_WorkspaceWidget::getByTab($tab_id);
 		$new_zones = [];
@@ -359,16 +399,16 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		DAO_WorkspaceWidget::reorder($new_zones);
 	}
 	
-	function getFieldsTabsByContextAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		
+	private function _profileAction_getFieldsTabsByContext() {
 		$tpl = DevblocksPlatform::services()->template();
 		
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		
 		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!($context_ext instanceof IDevblocksContextProfile))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$tpl->assign('context_ext', $context_ext);
 		
@@ -400,7 +440,11 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/record_fields/fields_config_tabs.tpl');
 	}
 	
-	function testWidgetTemplateAction() {
+	private function _profileAction_testWidgetTemplate() {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'int', 0);
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		@$template_key = DevblocksPlatform::importGPC($_POST['template_key'], 'string', '');
@@ -408,10 +452,6 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		@$format = DevblocksPlatform::importGPC($_POST['format'], 'string', '');
 		
 		@$placeholders_yaml = DevblocksPlatform::importVar($params['placeholder_simulator_yaml'], 'string', '');
-		
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$template = null;
 		
@@ -472,23 +512,23 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		}
 	}
 	
-	function exportWidgetAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
-		
+	private function _profileAction_exportWidget() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
+		
 		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(false == ($extension = $widget->getExtension()))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(false == ($page = $widget->getWorkspacePage()))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$json = $extension->export($widget);
 		
@@ -498,23 +538,23 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/export_widget.tpl');
 	}
 	
-	function exportWidgetDataAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
-		
+	private function _profileAction_exportWidgetData() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'int', 0);
+		
 		if(false == ($widget = DAO_WorkspaceWidget::get($id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(false == ($extension = $widget->getExtension()))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!($extension instanceof ICerbWorkspaceWidget_ExportData))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_WorkspaceWidget::isReadableByActor($widget, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl->assign('widget', $widget);
 		$tpl->assign('widget_extension', $extension);
@@ -527,11 +567,14 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/export_widget_data.tpl');
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

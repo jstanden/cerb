@@ -36,17 +36,33 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$record_id = DevblocksPlatform::importGPC($_POST['_record_id'], 'integer', 0);
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
-		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -58,6 +74,9 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 			$context = $custom_record->getContext();
 			
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(false == ($model = $dao_class::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
 				if(
 					!CerberusContexts::isWriteableByActor($context, $id, $active_worker)
 					|| !$active_worker->hasPriv(sprintf("contexts.%s.delete", $context))
@@ -171,13 +190,18 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		}
 	}
 	
-	function showBulkPopupAction() {
+	private function _profileAction_showBulkPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', static::_ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 		
 		$context = $this->_getContextName();
 		
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		$tpl->assign('context', $context);
 		
@@ -225,10 +249,13 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/abstract_custom_record/bulk.tpl');
 	}
 	
-	function startBulkUpdateJsonAction() {
+	private function _profileAction_startBulkUpdateJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$context = $this->_getContextName();
 		$search_class = sprintf("SearchFields_AbstractCustomRecord_%d", static::_ID);
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', static::_ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
 		$ids = [];
@@ -317,15 +344,17 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		echo json_encode(array(
 			'cursor' => $batch_key,
 		));
-		
 		return;
 	}
 	
-	function viewExploreAction() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
-		
+	private function _profileAction_viewExplore() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		// Abstraction
 		

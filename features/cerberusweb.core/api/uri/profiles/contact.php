@@ -28,7 +28,23 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -42,9 +58,14 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-		
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CONTACT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_Contact::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Contact::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_Contact::delete($id);
@@ -200,11 +221,14 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		}
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -277,12 +301,17 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function showBulkPanelAction() {
+	private function _profileAction_showBulkPopup() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$ids = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
 
-		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Contact::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 
 		if(!empty($ids)) {
 			$id_list = DevblocksPlatform::parseCsvString($ids);
@@ -308,7 +337,7 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			return [];
 		
 		/* @var $context_ext IDevblocksContextBroadcast */
-			
+		
 		// Recipient fields
 		$recipient_fields = $context_ext->broadcastRecipientFieldsGet();
 		$tpl->assign('broadcast_recipient_fields', $recipient_fields);
@@ -332,8 +361,14 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/contact/bulk.tpl');
 	}
 	
-	function startBulkUpdateJsonAction() {
+	private function _profileAction_startBulkUpdateJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Contact::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');

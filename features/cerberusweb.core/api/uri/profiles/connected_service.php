@@ -28,7 +28,23 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'invoke':
+					return $this->_profileAction_invoke();
+				case 'getExtensionParams':
+					return $this->_profileAction_getExtensionParams();
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -46,6 +62,12 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CONNECTED_SERVICE)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_ConnectedService::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_ConnectedService::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_ConnectedService::delete($id);
@@ -211,7 +233,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		}
 	}
 	
-	function getExtensionParamsAction() {
+	private function _profileAction_getExtensionParams() {
 		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['id'],'string','');
 		
 		if(!$extension_id || false == ($ext = Extension_ConnectedServiceProvider::get($extension_id)))
@@ -221,26 +243,38 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 		$ext->renderConfigForm($service);
 	}
 	
-	function ajaxAction() { // @audited
+	private function _profileAction_invoke() {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$extension_id = DevblocksPlatform::importGPC($_POST['id'],'string','');
-		@$ajax = DevblocksPlatform::importGPC($_POST['ajax'],'string','');
+		@$service_action = DevblocksPlatform::importGPC($_POST['service_action'],'string','');
 		
 		if(!$extension_id || false == ($ext = Extension_ConnectedServiceProvider::get($extension_id)))
 			return;
 		
-		if($ext instanceof Extension_ConnectedServiceProvider && method_exists($ext, $ajax.'Action')) {
-			call_user_func(array($ext, $ajax.'Action'));
+		if($ext instanceof Extension_ConnectedServiceProvider) {
+			if (false === ($ext->handleActionForService($service_action))) {
+				trigger_error(
+					sprintf('Call to undefined connected service action `%s::%s`',
+						get_class($ext),
+						$service_action
+					),
+					E_USER_NOTICE
+				);
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			}
 		}
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

@@ -28,7 +28,21 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'testMailboxJson':
+					return $this->_profileAction_testMailboxJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -39,14 +53,20 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(!$active_worker || !$active_worker->is_superuser)
-			throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
-		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
+			if(!$active_worker || !$active_worker->is_superuser)
+				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
+			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", 'cerberusweb.contexts.mailbox')))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_Mailbox::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Mailbox::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_Mailbox::delete($id);
@@ -179,7 +199,10 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		}
 	}
 	
-	function testMailboxJsonAction() {
+	private function _profileAction_testMailboxJson() {
+		$translate = DevblocksPlatform::getTranslationService();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		header('Content-Type: application/json');
 		
 		@$error_reporting = error_reporting(E_ERROR & ~E_NOTICE);
@@ -187,9 +210,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		try {
 			if('POST' != DevblocksPlatform::getHttpMethod())
 				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('common.access_denied'));
-			
-			$translate = DevblocksPlatform::getTranslationService();
-			$active_worker = CerberusApplication::getActiveWorker();
 			
 			if(!$active_worker->is_superuser)
 				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('common.access_denied'));
@@ -246,11 +266,14 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 		}
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

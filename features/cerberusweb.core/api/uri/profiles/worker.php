@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+/** @noinspection DuplicatedCode */
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -40,7 +41,29 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
+				case 'startBulkUpdateJson':
+					return $this->_profileAction_startBulkUpdateJson();
+				case 'stopTour':
+					return $this->_profileAction_stopTour();
+				case 'su':
+					return $this->_profileAction_su();
+				case 'suRevert':
+					return $this->_profileAction_suRevert();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer');
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
@@ -60,6 +83,12 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WORKER)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				if(false == ($model = DAO_Worker::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Worker::isDeletableByActor($model, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				// Can't delete or disable self
 				if($active_worker->id == $id)
 					throw new Exception_DevblocksAjaxValidationError("You can't delete yourself.");
@@ -71,7 +100,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					'id' => $id,
 					'view_id' => $view_id,
 				));
-				return;
+				return true;
 				
 			} else {
 				@$first_name = DevblocksPlatform::importGPC($_POST['first_name'],'string');
@@ -242,6 +271,8 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					}
 				}
 				
+				$label = null;
+				
 				if($id) {
 					if(false == ($updated_worker = DAO_Worker::get($id)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to create the worker record.");
@@ -299,10 +330,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					// Index immediately
 					$search = Extension_DevblocksSearchSchema::get(Search_Worker::ID);
 					$search->indexIds([$updated_worker->id]);
+					
+					$label = $updated_worker->getName();
 				}
 			}
-			
-			$label = $updated_worker->getName();
 			
 			echo json_encode([
 				'status' => true,
@@ -310,7 +341,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				'label' => $label,
 				'view_id' => $view_id,
 			]);
-			return;
+			return true;
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode([
@@ -318,26 +349,100 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				'error' => $e->getMessage(),
 				'field' => $e->getFieldName(),
 			]);
-			return;
+			return true;
 			
 		} catch (Exception $e) {
 			echo json_encode([
 				'status' => false,
 				'error' => 'An error occurred.',
 			]);
-			return;
+			return true;
 		}
 	}
 	
-	function showBulkPopupAction() {
+	private function _profileAction_stopTour() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$worker = CerberusApplication::getActiveWorker();
+		DAO_WorkerPref::set($worker->id, 'assist_mode', 0);
+	}
+	
+	// Impostor mode
+	
+	private function _profileAction_su() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$visit = CerberusApplication::getVisit();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'string');
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if($active_worker->id == $worker_id)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(null != ($switch_worker = DAO_Worker::get($worker_id))) {
+			/*
+			 * Log activity (worker.impersonated)
+			 */
+			$ip_address = DevblocksPlatform::getClientIp() ?: 'an unknown IP';
+			
+			$entry = array(
+				//{{actor}} impersonated {{target}} from {{ip}}
+				'message' => 'activities.worker.impersonated',
+				'variables' => array(
+					'target' => $switch_worker->getName(),
+					'ip' => $ip_address,
+				),
+				'urls' => array(
+					'target' => sprintf("ctx://%s:%d", CerberusContexts::CONTEXT_WORKER, $switch_worker->id),
+				)
+			);
+			CerberusContexts::logActivity('worker.impersonated', CerberusContexts::CONTEXT_WORKER, $worker_id, $entry);
+			
+			// Imposter
+			if($visit->isImposter() && $imposter = $visit->getImposter()) {
+				if($worker_id == $imposter->id) {
+					$visit->setImposter(null);
+				}
+			} else if(!$visit->isImposter()) {
+				$visit->setImposter($active_worker);
+			}
+			
+			$visit->setWorker($switch_worker);
+		}
+	}
+	
+	private function _profileAction_suRevert() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$visit = CerberusApplication::getVisit();
+		
+		if($visit->isImposter()) {
+			if(null != ($imposter = $visit->getImposter())) {
+				$visit->setWorker($imposter);
+				$visit->setImposter(null);
+			}
+		}
+	}
+	
+	private function _profileAction_showBulkPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id_csv = DevblocksPlatform::importGPC($_REQUEST['ids']);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id']);
-
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Permissions
 		if(!$active_worker || !$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError("You don't have permission to edit this record.", 403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Worker::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
@@ -388,18 +493,22 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		$tpl->assign('html_templates', $html_templates);
 		
 		$tpl->display('devblocks:cerberusweb.core::workers/bulk.tpl');
+		return true;
 	}
 	
-	function startBulkUpdateJsonAction() {
+	private function _profileAction_startBulkUpdateJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		// Permissions
 		if(!$active_worker || !$active_worker->is_superuser)
-			DevblocksPlatform::dieWithHttpError("You don't have permission to edit this record.", 403);
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Worker::ID)))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');
-		$ids = array();
+		$ids = [];
 		
 		// View
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
@@ -509,11 +618,14 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		return;
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

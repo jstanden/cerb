@@ -28,7 +28,25 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'predict':
+					return $this->_profileAction_predict();
+				case 'showImportPopup':
+					return $this->_profileAction_showImportPopup();
+				case 'saveImportPopupJson':
+					return $this->_profileAction_saveImportPopupJson();
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
@@ -43,6 +61,12 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CLASSIFIER)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_Classifier::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Classifier::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_Classifier::delete($id);
@@ -142,11 +166,11 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		}
 	}
 	
-	function showImportPopupAction() {
-		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
-		
+	private function _profileAction_showImportPopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
+		
+		@$classifier_id = DevblocksPlatform::importGPC($_REQUEST['classifier_id'], 'integer', 0);
 		
 		if(!$classifier_id || false == ($classifier = DAO_Classifier::get($classifier_id))) {
 			$tpl->assign('error_message', DevblocksPlatform::translate('error.core.record.not_found'));
@@ -165,12 +189,15 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/classifier/import_popup.tpl');
 	}
 	
-	function saveImportPopupJsonAction() {
-		@$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'], 'integer', 0);
-		@$examples_csv = DevblocksPlatform::importGPC($_POST['examples_csv'], 'string', null);
-		
+	private function _profileAction_saveImportPopupJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$bayes = DevblocksPlatform::services()->bayesClassifier();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'], 'integer', 0);
+		@$examples_csv = DevblocksPlatform::importGPC($_POST['examples_csv'], 'string', null);
 		
 		header('Content-Type: application/json');
 		
@@ -262,11 +289,14 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		]);
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -334,16 +364,20 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
 	}
 	
-	function predictAction() {
-		@$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'], 'integer', 0);
-		@$text = DevblocksPlatform::importGPC($_POST['text'], 'string', '');
-		
+	private function _profileAction_predict() {
 		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		@$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'], 'integer', 0);
+		@$text = DevblocksPlatform::importGPC($_POST['text'], 'string', '');
+		
 		$environment = [
-			'me' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id, 'model' => $active_worker],
+			'me' => [
+				'context' => CerberusContexts::CONTEXT_WORKER,
+				'id' => $active_worker->id,
+				'model' => $active_worker
+			],
 			'lang' => 'en_US',
 			'timezone' => '',
 		];

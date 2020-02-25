@@ -28,7 +28,29 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'getInteractionsMenu':
+					return $this->_profileAction_getInteractionsMenu();
+				case 'getProactiveInteractions':
+					return $this->_profileAction_getProactiveInteractions();
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'showExportBotPopup':
+					return $this->_profileAction_showExportBotPopup();
+				case 'sendMessage':
+					return $this->_profileAction_sendMessage();
+				case 'startInteraction':
+					return $this->_profileAction_startInteraction();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
@@ -38,8 +60,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(!$active_worker)
-			return false;
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Model
 		
@@ -47,6 +69,12 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(false == ($model = DAO_Bot::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Bot::isDeletableByActor($model, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_Bot::delete($id);
 				
 				echo json_encode(array(
@@ -331,11 +359,13 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+		
 		if(false == ($bot = DAO_Bot::get($id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_Bot::isWriteableByActor($bot, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$bot_json = $bot->exportToJson();
 		
@@ -362,11 +392,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/bot/export.tpl');
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

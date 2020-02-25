@@ -44,6 +44,26 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::profiles/index.tpl');
 	}
 	
+	public function invoke(string $action) {
+		switch($action) {
+			case 'configTabs':
+				return $this->_profileAction_configTabs();
+			case 'configTabsSaveJson':
+				return $this->_profileAction_configTabsSaveJson();
+			case 'invoke':
+				return $this->_profileAction_invoke();
+			case 'invokeTab':
+				return $this->_profileAction_invokeTab();
+			case 'invokeWidget':
+				return $this->_profileAction_invokeWidget();
+			case 'renderTab':
+				return $this->_profileAction_renderTab();
+			case 'renderWidgetConfig':
+				return $this->_profileAction_renderWidgetConfig();
+		}
+		return false;
+	}
+	
 	static function renderCard($context, $context_id, $model=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -168,26 +188,36 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/profile.tpl');
 	}
 	
-	function handleSectionActionAction() {
-		// GET has precedence over POST
-		@$section_uri = DevblocksPlatform::importGPC(isset($_GET['section']) ? $_GET['section'] : $_REQUEST['section'],'string','');
-		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
+	private function _profileAction_invoke() {
+		@$page_uri = DevblocksPlatform::importGPC($_GET['module'] ?? $_REQUEST['module'],'string','');
+		@$action = DevblocksPlatform::importGPC($_GET['action'] ?? $_REQUEST['action'],'string','');
 
-		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $section_uri, true);
+		$inst = Extension_PageSection::getExtensionByPageUri($this->manifest->id, $page_uri, true);
 		
-		if($inst instanceof Extension_PageSection && method_exists($inst, $action.'Action')) {
-			call_user_func(array($inst, $action.'Action'));
+		/* @var $inst Extension_PageSection */
+		
+		if($inst instanceof Extension_PageSection) {
+			if(false === ($inst->handleActionForPage($action, 'profileAction'))) {
+				trigger_error(
+					sprintf('Call to undefined profile action `%s::%s`',
+						get_class($inst),
+						$action
+					),
+					E_USER_NOTICE
+				);
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			}
 		}
 	}
 	
-	function configTabsAction() {
-		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		
+	private function _profileAction_configTabs() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
+		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
+		
 		if(!$active_worker->is_superuser)
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl->assign('context', $context);
 		
@@ -221,24 +251,24 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/config_tabs.tpl');
 	}
 	
-	function configTabsSaveJsonAction() {
+	private function _profileAction_configTabsSaveJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
 		@$profile_tabs = DevblocksPlatform::importGPC($_POST['profile_tabs'],'array',[]);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		if(!$active_worker->is_superuser)
-			return json_encode(false);
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'profile:tabs:' . $context, $profile_tabs, true);
 		
 		return json_encode(true);
 	}
 	
-	function renderWidgetConfigAction() {
+	private function _profileAction_renderWidgetConfig() {
 		@$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension'], 'string', '');
 		
 		if(false == ($extension = Extension_ProfileWidget::get($extension_id)))
@@ -249,8 +279,10 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		$extension->renderConfig($model);
 	}
-
-	function showProfileTabAction() {
+	
+	private function _profileAction_renderTab() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'string','');
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
 		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
@@ -258,39 +290,68 @@ class Page_Profiles extends CerberusPageExtension {
 		if(false == ($profile_tab = DAO_ProfileTab::get($tab_id)))
 			return;
 		
+		if(!Context_ProfileTab::isReadableByActor($profile_tab, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
 		if(false == ($extension = $profile_tab->getExtension()))
 			return;
 		
 		$extension->showTab($profile_tab, $context, $context_id);
 	}
 	
-	function handleProfileTabActionAction() {
+	private function _profileAction_invokeTab() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$tab_id = DevblocksPlatform::importGPC($_REQUEST['tab_id'],'integer',0);
 		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
 		
 		if(false == ($profile_tab = DAO_ProfileTab::get($tab_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(false == ($extension = $profile_tab->getExtension()))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if($extension instanceof Extension_ProfileTab && method_exists($extension, $action.'Action')) {
-			call_user_func_array([$extension, $action.'Action'], [$profile_tab]);
+		if(!Context_ProfileTab::isReadableByActor($profile_tab, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if($extension instanceof Extension_ProfileTab) {
+			if(false === ($extension->invoke($action, $profile_tab))) {
+				trigger_error(
+					sprintf('Call to undefined profile tab action `%s::%s`',
+						get_class($extension),
+						$action
+					),
+					E_USER_NOTICE
+				);
+			}
 		}
 	}
 	
-	function handleProfileWidgetActionAction() {
+	private function _profileAction_invokeWidget() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'],'integer',0);
 		@$action = DevblocksPlatform::importGPC(isset($_GET['action']) ? $_GET['action'] : $_REQUEST['action'],'string','');
 		
 		if(false == ($profile_widget = DAO_ProfileWidget::get($widget_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(false == ($extension = $profile_widget->getExtension()))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if($extension instanceof Extension_ProfileWidget && method_exists($extension, $action.'Action')) {
-			call_user_func_array([$extension, $action.'Action'], [$profile_widget]);
+		if(!Context_ProfileWidget::isReadableByActor($profile_widget, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if($extension instanceof Extension_ProfileWidget) {
+			if(false === ($extension->invoke($action, $profile_widget))) {
+				trigger_error(
+					sprintf('Call to undefined profile widget action `%s::%s`',
+						get_class($extension),
+						$action
+					),
+					E_USER_NOTICE
+				);
+			}
 		}
 	}
 	
@@ -431,7 +492,17 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 	
 	function saveConfig(Model_ProfileTab $model) {
 	}
-
+	
+	public function invoke(string $action, Model_ProfileTab $model) {
+		switch($action) {
+			case 'renderWidget':
+				return $this->_profileTabAction_renderWidget($model);
+			case 'reorderWidgets':
+				return $this->_profileTabAction_reorderWidgets($model);
+		}
+		return false;
+	}
+	
 	function showTab(Model_ProfileTab $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('context', $context);
@@ -479,7 +550,9 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/dashboard/tab.tpl');
 	}
 	
-	function renderWidgetAction() {
+	private function _profileTabAction_renderWidget(Model_ProfileTab $profile_tab) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'], 'integer', 0);
@@ -487,8 +560,6 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(false == ($widget = DAO_ProfileWidget::get($id, $context)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -500,7 +571,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(false == ($extension = $widget->getExtension()))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// If full, we also want to replace the container
 		if($full) {
@@ -508,7 +579,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 			$tpl->assign('widget', $widget);
 			
 			if(false == ($widget->getProfileTab()))
-				return;
+				DevblocksPlatform::dieWithHttpError(null, 404);
 			
 			$tpl->assign('context', $context);
 			$tpl->assign('context_id', $context_id);
@@ -521,14 +592,14 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		}
 	}
 	
-	function reorderWidgetsAction() {
+	private function _profileTabAction_reorderWidgets(Model_ProfileTab $profile_tab) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$tab_id = DevblocksPlatform::importGPC($_POST['tab_id'], 'integer', 0);
 		@$zones = DevblocksPlatform::importGPC($_POST['zones'], 'array', []);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(403);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -585,6 +656,10 @@ class ProfileTab_PortalConfigure extends Extension_ProfileTab {
 	function saveConfig(Model_ProfileTab $model) {
 	}
 	
+	public function invoke(string $action, Model_ProfileTab $model) {
+		return false;
+	}
+	
 	function showTab(Model_ProfileTab $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -622,7 +697,11 @@ class ProfileTab_PortalDeploy extends Extension_ProfileTab {
 	
 	function saveConfig(Model_ProfileTab $model) {
 	}
-
+	
+	public function invoke(string $action, Model_ProfileTab $model) {
+		return false;
+	}
+	
 	function showTab(Model_ProfileTab $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$url_writer = DevblocksPlatform::services()->url();
@@ -682,7 +761,17 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 	function saveConfig(Model_ProfileTab $model) {
 		//$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/config.tpl');
 	}
-
+	
+	public function invoke(string $action, Model_ProfileTab $model) {
+		switch($action) {
+			case 'showSettingsSectionTab':
+				return $this->_profileTabAction_showSettingsSectionTab($model);
+			case 'saveSettingsSectionTabJson':
+				return $this->_profileTabAction_saveSettingsSectionTabJson($model);
+		}
+		return false;
+	}
+	
 	function showTab(Model_ProfileTab $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		
@@ -707,18 +796,18 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/tabs/worker/settings/settings.tpl');
 	}
 	
-	function showSettingsSectionTabAction(Model_ProfileTab $model) {
+	private function _profileTabAction_showSettingsSectionTab(Model_ProfileTab $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$worker_id = DevblocksPlatform::importGPC($_REQUEST['worker_id'], 'integer', 0);
 		@$tab = DevblocksPlatform::importGPC($_REQUEST['tab'], 'string', null);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		// ACL
 		if(!($active_worker->is_superuser || $active_worker->id == $worker_id))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(false == ($worker = DAO_Worker::get($worker_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('worker', $worker);
@@ -867,11 +956,11 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 		}
 	}
 	
-	function saveSettingsSectionTabJsonAction(Model_ProfileTab $model) {
+	private function _profileTabAction_saveSettingsSectionTabJson(Model_ProfileTab $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', 0);
 		@$tab = DevblocksPlatform::importGPC($_POST['tab'], 'string', null);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

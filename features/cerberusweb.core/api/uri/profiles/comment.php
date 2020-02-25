@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnused */
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -28,7 +29,21 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'preview':
+					return $this->_profileAction_preview();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -43,11 +58,14 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			if($id && !Context_Comment::isWriteableByActor($id, $active_worker))
-				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translateCapitalized('common.access_denied'));
-			
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_COMMENT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_Comment::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_Comment::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_Comment::delete($id);
@@ -180,13 +198,16 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		}
 	}
 	
-	function previewAction() {
+	private function _profileAction_preview() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$comment = DevblocksPlatform::importGPC($_POST['comment'],'string');
 		@$is_markdown = DevblocksPlatform::importGPC($_POST['is_markdown'],'integer', 0);
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
-		
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$model = new Model_Comment();
 		$model->created = time();
@@ -198,15 +219,17 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		$model->is_markdown = $is_markdown ? 1 : 0;
 		
 		$tpl->assign('model', $model);
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/comments/preview_popup.tpl');
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -239,7 +262,6 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 				$model->params = array(
 					'title' => $view->name,
 					'created' => time(),
-//					'worker_id' => $active_worker->id,
 					'total' => $total,
 					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=comment', true),
 				);

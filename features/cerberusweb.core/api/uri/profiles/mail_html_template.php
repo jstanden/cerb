@@ -28,7 +28,25 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+				case 'preview':
+					return $this->_profileAction_preview();
+				case 'previewSignature':
+					return $this->_profileAction_previewSignature();
+				case 'getSignatureParsedownPreview':
+					return $this->_profileAction_getSignatureParsedownPreview();
+				case 'viewExplore':
+					return $this->_profileAction_viewExplore();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
@@ -44,6 +62,12 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_MailHtmlTemplate::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_MailHtmlTemplate::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_MailHtmlTemplate::delete($id);
@@ -136,11 +160,11 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		}
 	}
 	
-	function previewAction() {
-		@$template = DevblocksPlatform::importGPC($_REQUEST['template'],'string', '');
-		
+	private function _profileAction_preview() {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		@$template = DevblocksPlatform::importGPC($_REQUEST['template'],'string', '');
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'message_body' => '<blockquote>This text is quoted.</blockquote><p>This text contains <b>bold</b>, <i>italics</i>, <a href="javascript:;">links</a>, and <code>code formatting</code>.</p><p><ul><li>These are unordered</li><li>list items</li></ul></p>',
@@ -155,12 +179,12 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 	}
 	
-	function previewSignatureAction() {
-		@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string', '');
-		
+	private function _profileAction_previewSignature() {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string', '');
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'_context' => CerberusContexts::CONTEXT_WORKER,
@@ -178,11 +202,11 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 	}
 	
-	function getSignatureParsedownPreviewAction() {
-		@$signature = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
-		
+	private function _profileAction_getSignatureParsedownPreview() {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$signature = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
 		
 		header('Content-Type: text/html; charset=' . LANG_CHARSET_CODE);
 		
@@ -202,11 +226,14 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		echo $output;
 	}
 	
-	function viewExploreAction() {
+	private function _profileAction_viewExplore() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

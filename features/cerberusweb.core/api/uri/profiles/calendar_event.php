@@ -28,7 +28,17 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
 	
-	function savePeekJsonAction() {
+	function handleActionForPage(string $action, string $scope=null) {
+		if('profileAction' == $scope) {
+			switch ($action) {
+				case 'savePeekJson':
+					return $this->_profileAction_savePeekJson();
+			}
+		}
+		return false;
+	}
+	
+	private function _profileAction_savePeekJson() {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_POST['name'],'string', '');
 		@$date_start = DevblocksPlatform::importGPC($_POST['date_start'],'string', '');
@@ -51,6 +61,12 @@ class PageSection_ProfilesCalendarEvent extends Extension_PageSection {
 			// Delete
 			if(!empty($do_delete) && !empty($id)) {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CALENDAR_EVENT)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				if(false == ($model = DAO_CalendarEvent::get($id)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
+				
+				if(!Context_CalendarEvent::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_CalendarEvent::delete($id);
