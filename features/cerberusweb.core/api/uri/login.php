@@ -793,12 +793,15 @@ class Page_Login extends CerberusPageExtension {
 		$login_state = CerbLoginWorkerAuthState::getInstance();
 		$session = DevblocksPlatform::services()->session();
 		
+		// Generate a new session cookie after login
+		session_regenerate_id(true);
+		
 		$visit = new CerberusVisit();
 		$visit->setWorker($authenticated_worker);
 		
 		$session->setVisit($visit);
 		
-		// Generate a CSRF token for the session
+		// Generate a new CSRF token for the session
 		$_SESSION['csrf_token'] = CerberusApplication::generatePassword(128);
 		
 		// Flush views
