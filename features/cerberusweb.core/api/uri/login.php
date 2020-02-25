@@ -85,6 +85,11 @@ class Page_Login extends CerberusPageExtension {
 		$response = DevblocksPlatform::getHttpResponse();
 		$tpl = DevblocksPlatform::services()->template();
 		
+		$tpl->clearAllAssign();
+		
+		@$csrf_token = $_SESSION['csrf_token'];
+		$tpl->assign('csrf_token', $csrf_token);
+		
 		if(!empty($error))
 			$tpl->assign('error', $error);
 		

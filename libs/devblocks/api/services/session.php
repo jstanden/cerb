@@ -22,6 +22,7 @@ class _DevblocksSessionManager {
 	 */
 	static function getInstance() {
 		static $instance = null;
+		
 		if(null == $instance) {
 			$url_writer = DevblocksPlatform::services()->url();
 			
@@ -47,8 +48,12 @@ class _DevblocksSessionManager {
 				session_start();
 			
 			$instance = new _DevblocksSessionManager();
-			$instance->visit = isset($_SESSION['db_visit']) ? $_SESSION['db_visit'] : NULL; /* @var $visit DevblocksVisit */
+			$instance->visit = array_key_exists('db_visit', $_SESSION) ? $_SESSION['db_visit'] : NULL;
 			$instance->_handler_class = $handler_class;
+			
+			if(!array_key_exists('csrf_token', $_SESSION)) {
+				$_SESSION['csrf_token'] = CerberusApplication::generatePassword(128);
+			}
 		}
 		
 		return $instance;

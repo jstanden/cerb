@@ -1,4 +1,5 @@
 <form action="{devblocks_url}c=login&a=recover&step=code{/devblocks_url}" method="post" id="recoverForm">
+<input type="hidden" name="_csrf_token" value="{$csrf_token}">
 
 <div style="vertical-align:middle;max-width:500px;margin:20px auto 20px auto;padding:5px 20px 20px 20px;border-radius:5px;box-shadow:darkgray 0px 0px 5px;">
 	{if !empty($error)}
