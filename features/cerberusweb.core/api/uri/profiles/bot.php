@@ -316,46 +316,574 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		}
 	}
 	
-	function showScheduledBehaviorsTabAction() {
-		@$va_id = DevblocksPlatform::importGPC($_REQUEST['va_id'],'integer',0);
-		
+	private function _profileAction_getProactiveInteractions() {
 		$active_worker = CerberusApplication::getActiveWorker();
-		$tpl = DevblocksPlatform::services()->template();
-
-		// Admins can see all owners at once
-		if(empty($va_id) && !$active_worker->is_superuser)
-			return;
-
-		// [TODO] ACL
-
-		$defaults = C4_AbstractViewModel::loadFromClass('View_ContextScheduledBehavior');
-		$defaults->id = 'va_schedbeh_' . $va_id;
-		$defaults->is_ephemeral = true;
 		
-		$view = C4_AbstractViewLoader::getView($defaults->id, $defaults);
-
-		if(empty($va_id) && $active_worker->is_superuser) {
-			$view->addParamsRequired(array(), true);
+		header('Content-Type: application/json; charset=utf-8');
+		
+		$results = DAO_BotInteractionProactive::getByWorker($active_worker->id, 2);
+		
+		if(is_array($results) && !empty($results)) {
+			$result = array_shift($results);
+			
+			echo json_encode([
+				'behavior_id' => $result['behavior_id'],
+				'interaction' => $result['interaction'],
+				'interaction_params' => json_decode($result['interaction_params_json'], true),
+				'finished' => empty($results),
+			]);
+			
+			// Clear the proactive interaction record
+			DAO_BotInteractionProactive::delete($result['id'], $active_worker->id);
 			
 		} else {
-			$view->addParamsRequired(array(
-				'_privs' => array(
-					DevblocksSearchCriteria::GROUP_AND,
-					new DevblocksSearchCriteria(SearchFields_ContextScheduledBehavior::BEHAVIOR_BOT_ID, '=', $va_id),
-				)
-			), true);
+			echo json_encode(false);
 		}
-		
-		$tpl->assign('view', $view);
-		
-		// Template
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
-	function showExportBotPopupAction() {
-		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
+	private function _profileAction_getInteractionsMenu() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		//$url_writer = DevblocksPlatform::services()->url();
 		
+		// [TODO] Phase these out by 10.0
+		$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($legacy_interactions);
+		
+		/*
+		$interactions = DAO_BotInteraction::getByPoint('worker.global');
+		
+		// [TODO] Handle this in a more reusable way
+		foreach($interactions as $interaction) {
+			if(!array_key_exists($interaction->bot_id, $interactions_menu)) {
+				if(false == ($bot = DAO_Bot::get($interaction->bot_id)))
+					continue;
+				
+				$bot_menu = new DevblocksMenuItemPlaceholder();
+				$bot_menu->label = $bot->name;
+				$bot_menu->image = $url_writer->write(sprintf('c=avatars&context=bot&context_id=%d', $bot->id)) . '?v=' . $bot->updated_at;
+				$bot_menu->children = [];
+				
+				$interactions_menu[$interaction->bot_id] = $bot_menu;
+			}
+			
+			$item_behavior = new DevblocksMenuItemPlaceholder();
+			$item_behavior->key = $interaction->id;
+			$item_behavior->label = $interaction->name;
+			$item_behavior->interaction_id = $interaction->id;
+			$item_behavior->interaction = 'worker.global';
+			$item_behavior->params = [];
+			
+			$interactions_menu[$interaction->bot_id]->children[] = $item_behavior;
+		}
+		*/
+		
+		$tpl->assign('interactions_menu', $interactions_menu);
+		$tpl->display('devblocks:cerberusweb.core::console/bot_interactions_menu.tpl');
+	}
+	
+	// This figures out if we're using modern or legacy interactions
+	private function _profileAction_startInteraction() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$interaction_id = DevblocksPlatform::importGPC($_POST['interaction_id'], 'integer', 0);
+		@$interaction_behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'], 'integer', 0);
+		
+		// Modern
+//		if($interaction_id && !$interaction_behavior_id) {
+//			$this->_startBotInteractionAsAutomation();
+			
+			// Legacy
+//		} else if(!$interaction_id && $interaction_behavior_id) {
+			$this->_startBotInteractionAsBehavior();
+//		}
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	private function _startBotInteractionAsBehavior() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$interaction = DevblocksPlatform::importGPC($_POST['interaction'], 'string', '');
+		@$interaction_behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'], 'integer', 0);
+		@$browser = DevblocksPlatform::importGPC($_POST['browser'], 'array', []);
+		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', null);
+		
+		if(
+			!$interaction_behavior_id
+			|| false == ($interaction_behavior = DAO_TriggerEvent::get($interaction_behavior_id))
+			|| $interaction_behavior->event_point != Event_NewInteractionChatWorker::ID
+		)
+			return false;
+		
+		// Start the session using the behavior
+		
+		$actions = [];
+		
+		$client_ip = DevblocksPlatform::getClientIp();
+		$client_platform = '';
+		$client_browser = '';
+		$client_browser_version = '';
+		$client_url = @$browser['url'] ?: '';
+		$client_time = @$browser['time'] ?: '';
+		
+		if(false !== (@$client_user_agent_parts = DevblocksPlatform::getClientUserAgent())) {
+			$client_platform = @$client_user_agent_parts['platform'] ?: '';
+			$client_browser = @$client_user_agent_parts['browser'] ?: '';
+			$client_browser_version = @$client_user_agent_parts['version'] ?: '';
+		}
+		
+		$event_model = new Model_DevblocksEvent(
+			Event_NewInteractionChatWorker::ID,
+			array(
+				'worker_id' => $active_worker->id,
+				'interaction' => $interaction,
+				'interaction_params' => $interaction_params,
+				'client_browser' => $client_browser,
+				'client_browser_version' => $client_browser_version,
+				'client_ip' => $client_ip,
+				'client_platform' => $client_platform,
+				'client_time' => $client_time,
+				'client_url' => $client_url,
+				'actions' => &$actions,
+			)
+		);
+		
+		if(false == ($event = $interaction_behavior->getEvent()))
+			return;
+		
+		$event->setEvent($event_model, $interaction_behavior);
+		
+		$values = $event->getValues();
+		
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		
+		$interaction_behavior->runDecisionTree($dict, false, $event);
+		
+		$behavior_id = null;
+		$bot_name = null;
+		$dict = [];
+		
+		foreach($actions as $action) {
+			switch($action['_action']) {
+				case 'behavior.switch':
+					if(isset($action['behavior_id'])) {
+						@$behavior_id = $action['behavior_id'];
+						@$variables = $action['behavior_variables'];
+						
+						if(is_array($variables))
+							foreach($variables as $k => $v) {
+								$dict[$k] = $v;
+							}
+					}
+					break;
+				
+				case 'bot.name':
+					if(false != (@$name = $action['name']))
+						$bot_name = $name;
+					break;
+			}
+		}
+		
+		if(
+			!$behavior_id
+			|| false == ($behavior = DAO_TriggerEvent::get($behavior_id))
+			|| $behavior->event_point != Event_NewMessageChatWorker::ID
+		)
+			return;
+		
+		$bot = $behavior->getBot();
+		
+		if(empty($bot_name))
+			$bot_name = $bot->name;
+		
+		$url_writer = DevblocksPlatform::services()->url();
+		$bot_image_url = $url_writer->write(sprintf("c=avatars&w=bot&id=%d", $bot->id)) . '?v=' . $bot->updated_at;
+		
+		$session_data = [
+			'actor' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id],
+			'bot_name' => $bot_name,
+			'bot_image' => $bot_image_url,
+			'behavior_id' => $behavior->id,
+			'behaviors' => [
+				$behavior->id => [
+					'dict' => $dict,
+				]
+			],
+			'interaction' => $interaction,
+			'interaction_params' => $interaction_params,
+			'client_browser' => $client_browser,
+			'client_browser_version' => $client_browser_version,
+			'client_ip' => $client_ip,
+			'client_platform' => $client_platform,
+			'client_time' => $client_time,
+			'client_url' => $client_url,
+		];
+		
+		$session_id = DAO_BotSession::create([
+			DAO_BotSession::SESSION_DATA => json_encode($session_data),
+			DAO_BotSession::UPDATED_AT => time(),
+		]);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('bot', $bot);
+		$tpl->assign('bot_name', $bot_name);
+		$tpl->assign('bot_image_url', $bot_image_url);
+		$tpl->assign('session_id', $session_id);
+		$tpl->assign('layer', $layer);
+		
+		$tpl->display('devblocks:cerberusweb.core::console/window.tpl');
+	}
+	
+	private function _profileAction_sendMessage() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$session_id = DevblocksPlatform::importGPC($_POST['session_id'], 'string', '');
+		
+		// Load the session
+		if(false == ($bot_session = DAO_BotSession::get($session_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		// Modern
+//		if(array_key_exists('interaction_id', $bot_session->session_data)) {
+//			$this->_consoleSendMessageAsAutomation($bot_session);
+			// Legacy
+//		} else if(array_key_exists('behavior_id', $bot_session->session_data)) {
+			$this->_consoleSendMessageAsBehavior($bot_session);
+//		}
+	}
+	
+	/**
+	 * @deprecated
+	 * @param Model_BotSession $bot_session
+	 * @return void|boolean
+	 */
+	private function _consoleSendMessageAsBehavior(Model_BotSession $bot_session) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
+		@$message = DevblocksPlatform::importGPC($_POST['message'], 'string', '');
+		
+		// Load our default behavior for this interaction
+		if(false == (@$behavior_id = $bot_session->session_data['behavior_id']))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == (@$bot_name = $bot_session->session_data['bot_name']))
+			$bot_name = 'Cerb';
+		
+		$actions = [];
+		
+		$event_params = [
+			'worker_id' => $active_worker->id,
+			'message' => $message,
+			'actions' => &$actions,
+			
+			'bot_name' => $bot_name,
+			'bot_image' => @$bot_session->session_data['bot_image'],
+			'behavior_id' => $behavior_id,
+			'behavior_has_parent' => @$bot_session->session_data['behavior_has_parent'],
+			'interaction' => @$bot_session->session_data['interaction'],
+			'interaction_params' => @$bot_session->session_data['interaction_params'],
+			'client_browser' => @$bot_session->session_data['client_browser'],
+			'client_browser_version' => @$bot_session->session_data['client_browser_version'],
+			'client_ip' => @$bot_session->session_data['client_ip'],
+			'client_platform' => @$bot_session->session_data['client_platform'],
+			'client_time' => @$bot_session->session_data['client_time'],
+			'client_url' => @$bot_session->session_data['client_url'],
+		];
+		
+		//var_dump($event_params);
+		
+		$event_model = new Model_DevblocksEvent(
+			Event_NewMessageChatWorker::ID,
+			$event_params
+		);
+		
+		if(false == ($event = Extension_DevblocksEvent::get($event_model->id, true)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!($event instanceof Event_NewMessageChatWorker))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$event->setEvent($event_model, $behavior);
+		
+		$values = $event->getValues();
+		
+		// Are we resuming a scope?
+		$resume_dict = @$bot_session->session_data['behaviors'][$behavior->id]['dict'];
+		if($resume_dict) {
+			$values = array_replace($values, $resume_dict);
+		}
+		
+		$dict = new DevblocksDictionaryDelegate($values);
+		
+		$resume_path = @$bot_session->session_data['behaviors'][$behavior->id]['path'];
+		
+		if($resume_path) {
+			$behavior->prepareResumeDecisionTree($message, $bot_session, $actions, $dict, $resume_path);
+			
+			if(false == ($result = $behavior->resumeDecisionTree($dict, false, $event, $resume_path)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+		} else {
+			if(false == ($result = $behavior->runDecisionTree($dict, false, $event)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+		}
+		
+		$values = $dict->getDictionary(null, false);
+		$values = array_diff_key($values, $event->getValues());
+		
+		// Hibernate
+		if($result['exit_state'] == 'SUSPEND') {
+			// Keep everything as it is
+		} else {
+			// Start the tree over
+			$result['path'] = [];
+			
+			// Return to the caller if we have one
+			@$caller = array_pop($bot_session->session_data['callers']);
+			$bot_session->session_data['behavior_has_parent'] = !empty($bot_session->session_data['callers']) ? 1 : 0;
+			
+			if(is_array($caller)) {
+				$caller_behavior_id = $caller['behavior_id'];
+				
+				if($caller_behavior_id && isset($bot_session->session_data['behaviors'][$caller_behavior_id])) {
+					$bot_session->session_data['behavior_id'] = $caller_behavior_id;
+					$bot_session->session_data['behaviors'][$caller_behavior_id]['dict']['_behavior'] = $values;
+				}
+				
+				$tpl->display('devblocks:cerberusweb.core::console/prompt_wait.tpl');
+			}
+		}
+		
+		$bot_session->session_data['behaviors'][$behavior->id]['dict'] = $values;
+		$bot_session->session_data['behaviors'][$behavior->id]['path'] = $result['path'];
+		
+		if(false == ($bot = $behavior->getBot()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$tpl->assign('bot', $bot);
+		$tpl->assign('bot_name', $bot_name);
+		$tpl->assign('layer', $layer);
+		
+		foreach($actions as $params) {
+			// Are we handling the next response message in a special way?
+			if(isset($params['_prompt']) && is_array($params['_prompt'])) {
+				$bot_session->session_data['_prompt'] = $params['_prompt'];
+			}
+			
+			switch(@$params['_action']) {
+				case 'behavior.switch':
+					@$behavior_return = $params['behavior_return'];
+					@$variables = $params['behavior_variables'];
+					
+					if(!isset($bot_session->session_data['callers']))
+						$bot_session->session_data['callers'] = [];
+					
+					if($behavior_return) {
+						$bot_session->session_data['callers'][] = [
+							'behavior_id' => $behavior->id,
+							'return' => '_behavior', // [TODO] Configurable
+						];
+					} else {
+						$bot_session->session_data['behaviors'][$behavior->id]['dict'] = [];
+						$bot_session->session_data['behaviors'][$behavior->id]['path'] = [];
+					}
+					
+					if(false == ($behavior_id = @$params['behavior_id']))
+						DevblocksPlatform::dieWithHttpError(null, 404);
+					
+					if(false == ($new_behavior = DAO_TriggerEvent::get($behavior_id)))
+						DevblocksPlatform::dieWithHttpError(null, 404);
+					
+					if($new_behavior->event_point != Event_NewMessageChatWorker::ID)
+						DevblocksPlatform::dieWithHttpError(null, 404);
+					
+					if(!Context_TriggerEvent::isReadableByActor($new_behavior, $bot))
+						DevblocksPlatform::dieWithHttpError(null, 403);
+					
+					$bot = $new_behavior->getBot();
+					$tpl->assign('bot', $bot);
+					
+					$new_dict = [];
+					
+					if(is_array($variables))
+						foreach($variables as $k => $v) {
+							$new_dict[$k] = $v;
+						}
+					
+					$bot_session->session_data['behavior_id'] = $new_behavior->id;
+					$bot_session->session_data['behaviors'][$new_behavior->id]['dict'] = $new_dict;
+					$bot_session->session_data['behaviors'][$new_behavior->id]['path'] = [];
+					
+					if($behavior_return)
+						$bot_session->session_data['behavior_has_parent'] = 1;
+					
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_wait.tpl');
+					break;
+				
+				case 'emote':
+					if(false == ($emote = @$params['emote']))
+						break;
+					
+					$tpl->assign('emote', $emote);
+					$tpl->assign('delay_ms', 500);
+					$tpl->display('devblocks:cerberusweb.core::console/emote.tpl');
+					break;
+				
+				case 'prompt.buttons':
+					@$options = $params['options'];
+					@$color_from = $params['color_from'];
+					@$color_to = $params['color_to'];
+					@$color_mid = $params['color_mid'];
+					@$style = $params['style'];
+					
+					if(!is_array($options))
+						break;
+					
+					$tpl->assign('options', $options);
+					$tpl->assign('color_from', $color_from);
+					$tpl->assign('color_to', $color_to);
+					$tpl->assign('color_mid', $color_mid);
+					$tpl->assign('style', $style);
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_buttons.tpl');
+					break;
+				
+				case 'prompt.chooser':
+					@$context = $params['context'];
+					@$query = $params['query'];
+					@$selection = $params['selection'];
+					@$autocomplete = !empty($params['autocomplete']);
+					
+					if(!$context)
+						break;
+					
+					$tpl->assign('context', $context);
+					$tpl->assign('query', $query);
+					$tpl->assign('selection', $selection);
+					$tpl->assign('autocomplete', $autocomplete);
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_chooser.tpl');
+					break;
+				
+				case 'prompt.date':
+					@$placeholder = $params['placeholder'];
+					
+					if(empty($placeholder))
+						$placeholder = 'e.g. tomorrow 5pm, 2 hours';
+					
+					$tpl->assign('delay_ms', 0);
+					$tpl->assign('placeholder', $placeholder);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_date.tpl');
+					break;
+				
+				case 'prompt.file':
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_file.tpl');
+					break;
+				
+				case 'prompt.images':
+					@$images = $params['images'];
+					@$labels = $params['labels'];
+					
+					if(!is_array($images) || !is_array($images))
+						break;
+					
+					$tpl->assign('images', $images);
+					$tpl->assign('labels', $labels);
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_images.tpl');
+					break;
+				
+				case 'prompt.text':
+					@$placeholder = $params['placeholder'];
+					@$default = $params['default'];
+					@$mode = $params['mode'];
+					
+					if(empty($placeholder))
+						$placeholder = 'say something';
+					
+					$tpl->assign('delay_ms', 0);
+					$tpl->assign('placeholder', $placeholder);
+					$tpl->assign('default', $default);
+					$tpl->assign('mode', $mode);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_text.tpl');
+					break;
+				
+				case 'prompt.wait':
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/prompt_wait.tpl');
+					break;
+				
+				case 'message.send':
+					if(false == ($msg = @$params['message']))
+						break;
+					
+					$delay_ms = DevblocksPlatform::intClamp(@$params['delay_ms'], 0, 10000);
+					
+					$tpl->assign('message', $msg);
+					$tpl->assign('format', @$params['format']);
+					$tpl->assign('delay_ms', $delay_ms);
+					$tpl->display('devblocks:cerberusweb.core::console/message.tpl');
+					break;
+				
+				case 'script.send':
+					if(false == ($script = @$params['script']))
+						break;
+					
+					$tpl->assign('script', $script);
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/script.tpl');
+					break;
+				
+				case 'window.close':
+					$tpl->assign('delay_ms', 0);
+					$tpl->display('devblocks:cerberusweb.core::console/window_close.tpl');
+					break;
+				
+				case 'worklist.open':
+					$context = @$params['context'] ?: null;
+					$view_id = @$params['view_id'] ?: null;
+					$q = @$params['q'] ?: null;
+					$view_model = @$params['model'] ?: null;
+					
+					if(!$context || false == ($context_ext = Extension_DevblocksContext::get($context)))
+						break;
+					
+					if(false != ($view = C4_AbstractViewLoader::unserializeViewFromAbstractJson($view_model, $view_id))) {
+						$view->is_ephemeral = true;
+						$view->persist();
+					}
+					
+					// Open popup
+					$tpl->assign('context', $context_ext->id);
+					$tpl->assign('delay_ms', 0);
+					$tpl->assign('q', $q);
+					$tpl->assign('view_id', $view_id);
+					$tpl->display('devblocks:cerberusweb.core::console/search_worklist.tpl');
+					break;
+			}
+		}
+		
+		// Save session scope
+		DAO_BotSession::update($bot_session->session_id, [
+			DAO_BotSession::SESSION_DATA => json_encode($bot_session->session_data),
+			DAO_BotSession::UPDATED_AT => time(),
+		]);
+	}
+	
+	private function _profileAction_showExportBotPopup() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
