@@ -2600,7 +2600,6 @@ class DevblocksPlatform extends DevblocksEngine {
 	
 	static function getDatabaseTables($nocache=false) {
 		$cache = DevblocksPlatform::services()->cache();
-		$tables = array();
 		
 		if($nocache || null === ($tables = $cache->load(self::CACHE_TABLES))) {
 			// Make sure the database connection is valid or error out.

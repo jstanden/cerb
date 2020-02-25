@@ -10,7 +10,7 @@ interface IServiceProvider_OAuth {
 class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implements IServiceProvider_OAuth {
 	const ID = 'cerb.service.provider.oauth1';
 	
-	function handleActionForService($action) {
+	function handleActionForService(string $action) {
 		return false;
 	}
 	
@@ -197,7 +197,7 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implements IServiceProvider_OAuth {
 	const ID = 'cerb.service.provider.oauth2';
 	
-	function handleActionForService($action) {
+	function handleActionForService(string $action) {
 		return false;
 	}
 	

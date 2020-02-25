@@ -2,7 +2,7 @@
 class ServiceProvider_TokenBearer extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.token.bearer';
 	
-	function handleActionForService($action) {
+	function handleActionForService(string $action) {
 		return false;
 	}
 	

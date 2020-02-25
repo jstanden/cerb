@@ -102,8 +102,8 @@ class Event_DataQueryDatasource extends Extension_DevblocksEvent {
 				$values
 			);
 		
-		if($event_model) {
-			// Actions
+		// Actions
+		if($event_model && array_key_exists('actions', $event_model->params)) {
 			$values['_actions'] =& $event_model->params['actions'];
 		} else {
 			$values['_actions'] = [];

@@ -482,7 +482,6 @@ class Page_Login extends CerberusPageExtension {
 		$cache = DevblocksPlatform::services()->cache();
 		$login_state = CerbLoginWorkerAuthState::getInstance();
 		
-		
 		switch($uri) {
 			default:
 				@$email = DevblocksPlatform::importGPC($_REQUEST['email'], 'string', '');
@@ -840,7 +839,6 @@ class Page_Login extends CerberusPageExtension {
 		];
 		CerberusContexts::logActivity('worker.logged_in', null, null, $entry);
 		
-		$redirect_path = [];
 		$login_post_url = $login_state->popRedirectUri();
 		$login_state->destroy();
 		

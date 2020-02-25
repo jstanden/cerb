@@ -84,7 +84,11 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 		$values['message'] = $message;
 		
 		// Actions
-		$values['_actions'] =& $event_model->params['actions'];
+		if($event_model && array_key_exists('actions', $event_model->params)) {
+			$values['_actions'] =& $event_model->params['actions'];
+		} else {
+			$values['_actions'] = [];
+		}
 		
 		// Bot
 		@$bot_name = $event_model->params['bot_name'];

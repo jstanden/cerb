@@ -231,7 +231,11 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		$values['point_params'] = ($point_params instanceof DevblocksDictionaryDelegate) ? $point_params : new DevblocksDictionaryDelegate([]);
 		
 		// Actions
-		$values['_actions'] =& $event_model->params['actions'];
+		if($event_model && array_key_exists('actions', $event_model->params)) {
+			$values['_actions'] =& $event_model->params['actions'];
+		} else {
+			$values['_actions'] = [];
+		}
 
 		/**
 		 * Worker

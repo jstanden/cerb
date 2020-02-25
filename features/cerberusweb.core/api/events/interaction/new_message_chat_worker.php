@@ -83,9 +83,13 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 		@$message = $event_model->params['message'];
 		$labels['message'] = 'Message';
 		$values['message'] = $message;
-
+		
 		// Actions
-		$values['_actions'] =& $event_model->params['actions'];
+		if($event_model && array_key_exists('actions', $event_model->params)) {
+			$values['_actions'] =& $event_model->params['actions'];
+		} else {
+			$values['_actions'] = [];
+		}
 
 		/**
 		 * Worker

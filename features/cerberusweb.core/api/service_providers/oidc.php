@@ -216,7 +216,7 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.oidc';
 	
-	function handleActionForService($action) {
+	function handleActionForService(string $action) {
 		switch($action) {
 			case 'runDiscovery':
 				return $this->_connectedServiceAction_runDiscovery();

@@ -98,7 +98,11 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 		$values['client_url'] = $client_url;
 		
 		// Actions
-		$values['_actions'] =& $event_model->params['actions'];
+		if($event_model && array_key_exists('actions', $event_model->params)) {
+			$values['_actions'] =& $event_model->params['actions'];
+		} else {
+			$values['_actions'] = [];
+		}
 		
 		/**
 		 * Return

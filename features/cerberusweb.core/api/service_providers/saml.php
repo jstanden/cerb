@@ -2,7 +2,7 @@
 class ServiceProvider_SAML extends Extension_ConnectedServiceProvider {
 	const ID = 'cerb.service.provider.saml.idp';
 	
-	function handleActionForService($action) {
+	function handleActionForService(string $action) {
 		return false;
 	}
 	

@@ -2776,8 +2776,6 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		if(!self::isReady())
 			return '';
 		
-		// [TODO] Don't set a cookie until logging in (redo session code)
-		// [TODO] Security considerations in book (don't allow non-SSL connections)
 		// [TODO] Allow Cerb to configure sticky IP sessions (or by subnet) as setting
 		// [TODO] Allow Cerb to enable user-agent comparisons as setting
 		// [TODO] Limit the IPs a worker can log in from (per-worker?)
