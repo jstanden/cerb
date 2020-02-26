@@ -62,7 +62,7 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 				if(false == ($model = DAO_WebhookListener::get($id)))
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
-				if(!Context_WebhookListener::isWriteableByActor($model, $active_worker))
+				if(!Context_WebhookListener::isDeletableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 				
 				DAO_WebhookListener::delete($id);

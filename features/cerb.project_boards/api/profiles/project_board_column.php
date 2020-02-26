@@ -62,7 +62,7 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 				if(false == ($project_board_column = DAO_ProjectBoardColumn::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(!Context_ProjectBoardColumn::isWriteableByActor($project_board_column, $active_worker))
+				if(!Context_ProjectBoardColumn::isDeletableByActor($project_board_column, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
 				DAO_ProjectBoardColumn::delete($id);
