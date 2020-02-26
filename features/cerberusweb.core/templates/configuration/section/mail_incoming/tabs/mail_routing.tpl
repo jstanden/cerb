@@ -1,5 +1,5 @@
 <form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=handleSectionAction&section=mail_incoming&action=showMailRoutingRulePanel&id=0',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id=0',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
 </form>
 
 <fieldset>
