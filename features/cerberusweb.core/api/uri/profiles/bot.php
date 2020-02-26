@@ -58,7 +58,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -927,7 +927,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

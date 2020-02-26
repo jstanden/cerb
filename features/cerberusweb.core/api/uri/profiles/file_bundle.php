@@ -51,7 +51,7 @@ class PageSection_ProfilesFileBundle extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		

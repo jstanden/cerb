@@ -255,7 +255,7 @@ class Page_Profiles extends CerberusPageExtension {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
 		@$profile_tabs = DevblocksPlatform::importGPC($_POST['profile_tabs'],'array',[]);
@@ -559,7 +559,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		@$full = DevblocksPlatform::importGPC($_POST['full'], 'bool', false);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(false == ($widget = DAO_ProfileWidget::get($id, $context)))
 			DevblocksPlatform::dieWithHttpError(null, 404);

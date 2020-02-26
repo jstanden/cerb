@@ -59,7 +59,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -216,7 +216,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		@$to_column_id = DevblocksPlatform::importGPC($_POST['to'],'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -234,7 +234,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		@$column_id = DevblocksPlatform::importGPC($_POST['column_id'],'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -260,9 +260,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$tpl = DevblocksPlatform::services()->template();
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(false == ($board = DAO_ProjectBoard::get($board_id)))
 			return;
@@ -295,9 +293,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		@$columns = DevblocksPlatform::importGPC($_POST['columns'],'string','');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$active_worker = CerberusApplication::getActiveWorker();
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(false == ($board = DAO_ProjectBoard::get($board_id)))
 			return;
@@ -316,7 +312,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		@$cards = DevblocksPlatform::importGPC($_POST['cards'],'array',[]);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -339,7 +335,7 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
 		$url_writer = DevblocksPlatform::services()->url();

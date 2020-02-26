@@ -78,7 +78,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -197,7 +197,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		@$is_ajax = DevblocksPlatform::importGPC($_POST['is_ajax'],'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(false === ($results = $this->saveDraftReply()))
 			return;

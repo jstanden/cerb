@@ -61,7 +61,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!$active_worker->is_superuser)
 			return;
@@ -429,7 +429,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -516,7 +516,7 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 	
 	private function _profileAction_renderWidget() {
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$context = DevblocksPlatform::importGPC($_POST['context'], 'string', '');

@@ -481,7 +481,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());

@@ -53,7 +53,7 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		

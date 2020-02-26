@@ -718,7 +718,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$drafts_ext = DevblocksPlatform::getExtension('core.page.profiles.draft', true);
 		
@@ -1652,7 +1652,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(false == ($ticket = DAO_Ticket::get($ticket_id)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -1669,7 +1669,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(false == ($message = DAO_Message::get($message_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);

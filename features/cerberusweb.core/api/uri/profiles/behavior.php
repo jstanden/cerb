@@ -113,7 +113,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -720,7 +720,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
@@ -1441,7 +1441,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
 		@$event_params_json = DevblocksPlatform::importGPC($_POST['event_params_json'],'string', '');

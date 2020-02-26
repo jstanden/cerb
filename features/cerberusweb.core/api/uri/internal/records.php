@@ -95,7 +95,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		@$to_context = DevblocksPlatform::importGPC($_POST['to_context'],'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(null == ($to_context_extension = Extension_DevblocksContext::get($to_context))
 			|| null == ($from_context_extension = Extension_DevblocksContext::get($context)))
@@ -602,7 +602,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		// [TODO] Privs
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(is_array($context_ids))
 			foreach($context_ids as $context_id)
@@ -622,7 +622,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		// [TODO] Privs
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(is_array($context_ids))
 			foreach($context_ids as $context_id)

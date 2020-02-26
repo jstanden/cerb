@@ -107,7 +107,7 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Notification::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);

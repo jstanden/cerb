@@ -108,7 +108,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	
 	private function _internalAction_addFilter() {
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id']);
 		@$is_custom = DevblocksPlatform::importGPC($_POST['is_custom'],'integer',0);
@@ -265,7 +265,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
@@ -582,7 +582,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		@$cursor_key = DevblocksPlatform::importGPC($_POST['cursor_key'], 'string', '');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		header("Content-Type: application/json; charset=" . LANG_CHARSET_CODE);
 		
@@ -1045,7 +1045,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'], 'string');
 		@$columns = DevblocksPlatform::importGPC($_POST['columns'],'array', []);
@@ -1225,7 +1225,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(null != ($view = C4_AbstractViewLoader::getView($view_id))) {
 			echo json_encode(array(

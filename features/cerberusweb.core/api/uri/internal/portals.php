@@ -193,7 +193,7 @@ class PageSection_InternalPortals extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 403);
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		@$filename = DevblocksPlatform::importGPC($_POST['filename'],'string','');
