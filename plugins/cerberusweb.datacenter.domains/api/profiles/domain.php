@@ -221,6 +221,9 @@ class PageSection_ProfilesDomain extends Extension_PageSection {
 	private function _profileAction_startBulkUpdateJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Domain::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		

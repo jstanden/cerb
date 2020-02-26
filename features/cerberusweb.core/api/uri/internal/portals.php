@@ -70,6 +70,9 @@ class PageSection_InternalPortals extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
@@ -134,6 +137,9 @@ class PageSection_InternalPortals extends Extension_PageSection {
 	
 	private function _internalAction_saveImportTemplatesPeek() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'],'integer',0);
 		@$file_id = DevblocksPlatform::importGPC($_POST['file_id'],'integer',0);

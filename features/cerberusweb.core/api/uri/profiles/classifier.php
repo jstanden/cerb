@@ -369,6 +369,9 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$classifier_id = DevblocksPlatform::importGPC($_POST['classifier_id'], 'integer', 0);
 		@$text = DevblocksPlatform::importGPC($_POST['text'], 'string', '');
 		

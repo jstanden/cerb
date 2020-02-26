@@ -43,6 +43,9 @@ class PageSection_ProfilesSensor extends Extension_PageSection {
 	private function _profileAction_savePeek() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		@$tag = DevblocksPlatform::importGPC($_POST['tag'],'string','');
@@ -115,6 +118,8 @@ class PageSection_ProfilesSensor extends Extension_PageSection {
 	}
 	
 	private function _profileAction_renderConfigExtension() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$extension_id = DevblocksPlatform::importGPC($_REQUEST['extension_id'], 'string', '');
 		$sensor_id = DevblocksPlatform::importGPC($_REQUEST['sensor_id'], 'integer', '0');
 		
@@ -125,6 +130,9 @@ class PageSection_ProfilesSensor extends Extension_PageSection {
 			if(null == ($sensor = DAO_DatacenterSensor::get($sensor_id))) {
 				$inst->renderConfig();
 			} else {
+				if(!Context_Sensor::isWriteableByActor($sensor, $active_worker))
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				
 				$inst->renderConfig($sensor->params);
 			}
 		}

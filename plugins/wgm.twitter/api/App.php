@@ -76,7 +76,7 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 			
 		if(!$message->connected_account_id || false == ($connected_account = DAO_ConnectedAccount::get($message->connected_account_id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 			
 		if(!Context_ConnectedAccount::isReadableByActor($connected_account, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
@@ -131,6 +131,9 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		
 		if(!$active_worker)
 			DevblocksPlatform::dieWithHttpError(null, 401);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
@@ -197,6 +200,9 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_TwitterMessage::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		// Filter: whole list or check
 		@$filter = DevblocksPlatform::importGPC($_POST['filter'],'string','');

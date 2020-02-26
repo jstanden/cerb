@@ -255,6 +255,9 @@ class PageSection_ProfilesCommunityPortal extends Extension_PageSection {
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$portal_id = DevblocksPlatform::importGPC($_POST['portal_id'], 'integer', 0);
 		
 		if(false == ($portal = DAO_CommunityTool::get($portal_id)))

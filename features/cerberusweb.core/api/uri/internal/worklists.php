@@ -318,12 +318,14 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$view->render();
 	}
 	
-	// [TODO] CSRF POST
 	private function _internalAction_viewBulkUpdateWithCursor() {
-		@$cursor = DevblocksPlatform::importGPC($_REQUEST['cursor'], 'string', '');
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'], 'string', '');
-		
 		$tpl = DevblocksPlatform::services()->template();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$cursor = DevblocksPlatform::importGPC($_POST['cursor'], 'string', '');
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
 		
 		if(empty($cursor))
 			return;
@@ -339,6 +341,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 	
 	private function _internalAction_viewBulkUpdateNextCursorJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$cursor = DevblocksPlatform::importGPC($_POST['cursor'], 'string', '');
 		
@@ -387,6 +392,9 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		

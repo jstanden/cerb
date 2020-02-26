@@ -52,6 +52,9 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
 		@$delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
@@ -238,6 +241,9 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 	
 	private function _profileAction_startBulkUpdateJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!$active_worker->hasPriv(sprintf('contexts.%s.update.bulk', Context_Org::ID)))
 			DevblocksPlatform::dieWithHttpError(null, 403);

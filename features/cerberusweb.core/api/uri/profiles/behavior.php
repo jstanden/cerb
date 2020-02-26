@@ -1054,6 +1054,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	private function _profileAction_saveDecisionPopup() {
 		@$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer', 0);
 		@$title = DevblocksPlatform::importGPC($_POST['title'],'string', '');
 		@$status_id = DevblocksPlatform::importGPC($_POST['status_id'],'integer', 0);
@@ -1713,6 +1716,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$action_uid = DevblocksPlatform::importGPC($_POST['action_uid'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
 		@$seq = DevblocksPlatform::importGPC($_POST['seq'],'integer', 0);
@@ -1740,6 +1746,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 	private function _profileAction_getConditionParams() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$condition = DevblocksPlatform::importGPC($_POST['condition'],'string', '');
 		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer', 0);
@@ -1882,6 +1891,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$prefix = DevblocksPlatform::importGPC($_POST['prefix'],'string','');
 		@$response_format = DevblocksPlatform::importGPC($_POST['format'],'string','');

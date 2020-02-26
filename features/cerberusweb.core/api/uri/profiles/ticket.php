@@ -1466,6 +1466,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewUndo() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		@$clear = DevblocksPlatform::importGPC($_POST['clear'],'integer',0);
 		$last_action = View_Ticket::getLastAction($view_id);
@@ -1486,6 +1489,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	}
 	
 	private function _profileAction_viewExplore() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1799,6 +1805,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	}
 	
 	private function _profileAction_quickSurrender() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1822,6 +1831,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	}
 	
 	private function _profileAction_quickSpam() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$ticket_id = DevblocksPlatform::importGPC($_POST['ticket_id'],'integer');
 		@$is_spam = DevblocksPlatform::importGPC($_POST['is_spam'],'integer', 0);
 		

@@ -61,10 +61,10 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		
 		if(false == ($draft = DAO_MailQueue::get($id)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null,404);
 		
 		if(!Context_Draft::isReadableByActor($draft, $active_worker))
-			return;
+			DevblocksPlatform::dieWithHttpError(null,403);
 		
 		$tpl->assign('draft', $draft);
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/draft.tpl');
@@ -566,6 +566,9 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	private function _profileAction_saveComposePeek() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', null);
 		
 		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
@@ -594,6 +597,9 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	
 	private function _profileAction_deleteDraft() {
 		@$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
 		

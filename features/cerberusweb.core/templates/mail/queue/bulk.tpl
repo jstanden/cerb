@@ -56,7 +56,16 @@ $(function() {
 					// Pull the cursor
 					var $tips = $('#{$view_id}_tips').html('');
 					$('<span class="cerb-ajax-spinner"/>').appendTo($tips);
-					genericAjaxGet($tips, 'c=internal&a=invoke&module=worklists&action=viewBulkUpdateWithCursor&view_id={$view_id}&cursor=' + json.cursor);
+
+					var formData = new FormData();
+					formData.set('c', 'internal');
+					formData.set('a', 'invoke');
+					formData.set('module', 'worklists');
+					formData.set('action', 'viewBulkUpdateWithCursor');
+					formData.set('view_id', '{$view_id}');
+					formData.set('cursor', json.cursor);
+
+					genericAjaxPost(formData, $tips, null);
 				}
 				
 				genericAjaxPopupClose($popup);

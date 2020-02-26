@@ -41,13 +41,14 @@ class PageSection_ProfilesJiraIssue extends Extension_PageSection {
 	}
 	
 	private function _profileAction_savePeekJson() {
-		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
-		
-		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
-		
-		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
+		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'], 'string', '');
 		
 		try {
 			if (!empty($id) && !empty($do_delete)) { // Delete

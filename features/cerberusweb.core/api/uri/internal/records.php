@@ -70,10 +70,10 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		@$edit = DevblocksPlatform::importGPC($_REQUEST['edit'], 'string', null);
 		
 		if(null == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!($context_ext instanceof IDevblocksContextPeek))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$context_ext->renderPeekPopup($context_id, $view_id, $edit);
 	}
@@ -82,7 +82,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		@$url = DevblocksPlatform::importGPC($_REQUEST['url'],'string','');
 		
 		if(empty($url))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('url', $url);
@@ -90,12 +90,12 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_linksOpen() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer');
 		@$to_context = DevblocksPlatform::importGPC($_POST['to_context'],'string');
-		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(null == ($to_context_extension = Extension_DevblocksContext::get($to_context))
 			|| null == ($from_context_extension = Extension_DevblocksContext::get($context)))
@@ -114,6 +114,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_getLinkCountsJson() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string');
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer');
 		

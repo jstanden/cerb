@@ -166,8 +166,11 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 	private function _internalAction_viewMarkRead() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
-		@$row_ids = DevblocksPlatform::importGPC($_REQUEST['row_id'],'array',array());
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
+		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array',array());
 		
 		$models = DAO_Notification::getIds($row_ids);
 		

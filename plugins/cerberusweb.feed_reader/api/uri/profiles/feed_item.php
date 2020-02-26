@@ -151,6 +151,9 @@ class PageSection_ProfilesFeedItem extends Extension_PageSection {
 	private function _profileAction_viewFeedItemClose() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		
 		@$row_ids = DevblocksPlatform::sanitizeArray(

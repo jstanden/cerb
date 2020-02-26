@@ -51,7 +51,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		
 		try {
 			// ACL
-			if(!Context_Message::isWriteableByActor($id, $active_worker))
+			if(!Context_Message::isDeletableByActor($id, $active_worker))
 				throw new Exception_DevblocksAjaxValidationError("You are not authorized to modify this record.");
 			
 			if(!empty($id) && !empty($do_delete)) { // Delete

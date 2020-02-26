@@ -49,7 +49,10 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 	private function _scLoginAction_authenticate() {
 		$umsession = ChPortalHelper::getSession();
 		$tpl = DevblocksPlatform::services()->template();
-
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
 		// Clear the past session
 		$umsession->logout();
 		
