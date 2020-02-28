@@ -30,8 +30,8 @@
 <input type="hidden" name="context_id" value="{$view_context}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
-<input type="hidden" name="module" value="community_tool">
-<input type="hidden" name="action" value="">
+<input type="hidden" name="module" value="community_portal">
+<input type="hidden" name="action" value="viewExplore">
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -117,7 +117,7 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
-		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
+		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
 	</div>
 	{/if}
 </div>
