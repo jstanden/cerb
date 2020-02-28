@@ -1828,12 +1828,6 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$config = self::purifyHTMLOptions($inline_css, $is_untrusted);
 		
-		if($is_untrusted && !$filters) {
-			$filters = [
-				new Cerb_HTMLPurifier_URIFilter_Email()
-			];
-		}
-		
 		if($filters) {
 			foreach ($filters as $filter) {
 				$config->getURIDefinition()->addFilter($filter, $config);
@@ -1842,7 +1836,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$purifier = new HTMLPurifier($config);
 		
-		$dirty_html = $purifier->purify($dirty_html);
+		$dirty_html = @$purifier->purify($dirty_html);
 		
 		return $dirty_html;
 	}

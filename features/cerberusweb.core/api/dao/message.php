@@ -1075,7 +1075,7 @@ class Model_Message {
 	
 	private $_sender_object = null;
 	private $_headers_raw = null;
-
+	
 	function getContent(&$fp=null) {
 		if(empty($this->storage_extension) || empty($this->storage_key))
 			return '';
@@ -1083,7 +1083,7 @@ class Model_Message {
 		return Storage_MessageContent::get($this, $fp);
 	}
 	
-	function getContentAsHtml() {
+	function getContentAsHtml($allow_images=false, &$filtering_results=null) {
 		// If we don't have an HTML part, or the given ID fails to load, HTMLify the regular content
 		if(empty($this->html_attachment_id) 
 			|| false == ($attachment = DAO_Attachment::get($this->html_attachment_id))) {
@@ -1132,8 +1132,12 @@ class Model_Message {
 			$dirty_html = $tidy->repairString($dirty_html, $config, DB_CHARSET_CODE);
 		}
 		
-		$filters = [new Cerb_HTMLPurifier_URIFilter_Email()];
-		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true, true, $filters);
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email($allow_images);
+		
+		$dirty_html = DevblocksPlatform::purifyHTML($dirty_html, true, true, [$filter]);
+		
+		$filtering_results = $filter->flush();
+		
 		return $dirty_html;
 	}
 

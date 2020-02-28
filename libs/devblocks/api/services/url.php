@@ -264,8 +264,37 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 	 */
 	protected $urlWriter = null;
 	
+	/**
+	 * @type HTMLPurifier_URI
+	 */
 	protected $cerbUri = null;
+	
+	/**
+	 * @type _DevblocksEmailManager
+	 */
+	protected $mail = null;
+	
 	protected $cerbFilesPath = null;
+	
+	protected $filterCounts = [
+		'blockedImage' => 0,
+		'blockedLink' => 0,
+		'proxiedImage' => 0,
+		'redirectedLink' => 0,
+	];
+	
+	protected $filterUrls = [
+		'blockedImage' => [],
+		'blockedLink' => [],
+		'proxiedImage' => [],
+		'redirectedLink' => [],
+	];
+	
+	protected $allowImages = false;
+	
+	public function __construct($allow_images=false) {
+		$this->allowImages = $allow_images;
+	}
 	
 	/**
 	 * @param HTMLPurifier_Config $config
@@ -275,10 +304,46 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 	public function prepare($config) {
 		$this->parser = new HTMLPurifier_URIParser();
 		$this->urlWriter = DevblocksPlatform::services()->url();
+		$this->mail = DevblocksPlatform::services()->mail();
 
 		$this->cerbUri = $this->parser->parse($this->urlWriter->write('', true));
 		$this->cerbFilesPath = $this->urlWriter->write('c=files', false);
 		return true;
+	}
+	
+	public function flush() {
+		$filter_urls = $this->filterUrls;
+		
+		foreach($filter_urls as $category => $hosts) {
+			foreach($hosts as $host => $urls) {
+				$sorted_urls = array_keys($urls);
+				sort($sorted_urls);
+				$filter_urls[$category][$host] = $sorted_urls;
+			}
+			
+			ksort($filter_urls[$category]);
+		}
+		
+		$results = [
+			'counts' => $this->filterCounts,
+			'urls' => $filter_urls,
+		];
+		
+		$this->filterCounts = [
+			'blockedImage' => 0,
+			'blockedLink' => 0,
+			'proxiedImage' => 0,
+			'redirectedLink' => 0,
+		];
+		
+		$this->filterUrls = [
+			'blockedImage' => [],
+			'blockedLink' => [],
+			'proxiedImage' => [],
+			'redirectedLink' => [],
+		];
+		
+		return $results;
 	}
 	
 	/**
@@ -290,8 +355,17 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 	public function filter(&$uri, $config, $context) {
 		$is_embedded = $context->get('EmbeddedURI', true);
 		
+		// Fragments
+		if($uri->fragment && !$is_embedded && !$uri->scheme && !$uri->host && !$uri->path && !$uri->query)
+			return true;
+		
 		// Block empty schemes
 		if(false == ($scheme = DevblocksPlatform::strLower($uri->scheme))) {
+			if($is_embedded) {
+				$this->_logBlockedImage($uri);
+			} else {
+				$this->_logBlockedLink($uri);
+			}
 			$uri = $this->parser->parse(null);
 			return false;
 		}
@@ -301,35 +375,181 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 			return true;
 		}
 		
-		// Allow mailto links
-		if(!$is_embedded && in_array($scheme, ['mailto'])) {
-			return true;
-		}
-		
-		// Block non-HTTP links
-		if(!$is_embedded && !in_array($scheme, ['http', 'https'])) {
+		// Block non-HTTP, non-mailto links
+		if(!$is_embedded && !in_array($scheme, ['http', 'https','mailto'])) {
+			$this->_logBlockedLink($uri);
 			$uri = $this->parser->parse(null);
 			return false;
 		}
 		
-		// Block other URIs with no host
-		if(!$uri->host) {
+		// Block other (non-mail) URIs with no host
+		if(!$uri->host && $scheme != 'mailto') {
+			if($is_embedded) {
+				$this->_logBlockedImage($uri);
+			} else {
+				$this->_logBlockedLink($uri);
+			}
 			$uri = $this->parser->parse(null);
 			return false;
 		}
 		
-		// Allow Cerb inline images
-		if(0 == strcasecmp($uri->host, $this->cerbUri->host)) {
-			if(DevblocksPlatform::strStartsWith($uri->path, $this->cerbUri->path, false)) {
-				if(DevblocksPlatform::strStartsWith($uri->path, $this->cerbFilesPath, false)) {
-					return true;
-				} else {
-					$uri = $this->parser->parse(null);
-					return false;
+		// Rewrite allowed URLs
+		
+		if($is_embedded) {
+			// Allow Cerb inline images
+			if (0 == strcasecmp($uri->host, $this->cerbUri->host)) {
+				if (DevblocksPlatform::strStartsWith($uri->path, $this->cerbUri->path, false)) {
+					if (DevblocksPlatform::strStartsWith($uri->path, $this->cerbFilesPath, false)) {
+						return true;
+					}
 				}
 			}
+			
+			if(!$this->allowImages) {
+				$this->_logBlockedImage($uri);
+				$uri = $this->parser->parse(null);
+				return true;
+				
+			} else {
+				$blocked_hosts = $this->mail->getImageProxyBlocklist();
+				$host = DevblocksPlatform::strLower($uri->host);
+				$url = $uri->toString();
+				
+				$host_patterns = [$host];
+				
+				$last_pos = 0;
+				while (false !== ($pos = strpos($host, '.', $last_pos))) {
+					$host_patterns[] = substr($host,$pos);
+					$last_pos = ++$pos;
+				}
+				
+				foreach ($host_patterns as $host_pattern) {
+					if (array_key_exists($host_pattern, $blocked_hosts)) {
+						foreach ($blocked_hosts[$host_pattern] as $regexp) {
+							if (preg_match($regexp, $url)) {
+								$this->_logBlockedImage($uri);
+								$uri = $this->parser->parse(null);
+								return true;
+							}
+						}
+					}
+				}
+				
+				$this->_logProxiedImage($uri);
+				$new_url = $this->urlWriter->write('c=security&a=proxyImage') . '?url=' . rawurlencode($uri->toString());
+				
+				$uri = $this->parser->parse($new_url);
+				
+				return true;
+			}
+			
+		} else {
+			$whitelist_hosts = $this->mail->getLinksWhitelist();
+			$host = DevblocksPlatform::strLower($uri->host);
+			$url = $uri->toString();
+			
+			$host_patterns = [$host];
+			
+			$last_pos = 0;
+			while (false !== ($pos = strpos($host, '.', $last_pos))) {
+				$host_patterns[] = substr($host,$pos);
+				$last_pos = ++$pos;
+			}
+			
+			foreach ($host_patterns as $host_pattern) {
+				if (array_key_exists($host_pattern, $whitelist_hosts)) {
+					foreach ($whitelist_hosts[$host_pattern] as $regexp) {
+						if (preg_match($regexp, $url)) {
+							$this->_logRedirectedLink($uri);
+							return true;
+						}
+					}
+				}
+			}
+			
+			$this->_logRedirectedLink($uri);
+			
+			$new_uri = sprintf("javascript:genericAjaxPopup('externalLink','c=security&a=renderLinkPopup&url=%s',null,true);",
+				rawurlencode(rawurlencode($uri->toString()))
+			);
+			
+			$new_uri = $this->parser->parse($new_uri);
+			
+			$uri = $new_uri;
 		}
 		
 		return true;
+	}
+	
+	private function _logBlockedImage(HTMLPurifier_URI $uri) {
+		$host = DevblocksPlatform::strLower($uri->host);
+		$url = $uri->toString();
+		
+		if(empty($url))
+			return;
+		
+		if(!array_key_exists($host, $this->filterUrls['blockedImage']))
+			$this->filterUrls['blockedImage'][$host] = [];
+		
+		if(!array_key_exists($url, $this->filterUrls['blockedImage'][$host])) {
+			$this->filterUrls['blockedImage'][$host][$url] = 0;
+			$this->filterCounts['blockedImage']++;
+		}
+		
+		$this->filterUrls['blockedImage'][$host][$url]++;
+	}
+	
+	private function _logBlockedLink(HTMLPurifier_URI $uri) {
+		$host = DevblocksPlatform::strLower($uri->host);
+		$url = $uri->toString();
+		
+		if(empty($url))
+			return;
+		
+		if(!array_key_exists($host, $this->filterUrls['blockedLink']))
+			$this->filterUrls['blockedLink'][$host] = [];
+		
+		if(!array_key_exists($url, $this->filterUrls['blockedLink'][$host])) {
+			$this->filterUrls['blockedLink'][$host][$url] = 0;
+			$this->filterCounts['blockedLink']++;
+		}
+		
+		$this->filterUrls['blockedLink'][$host][$url]++;
+	}
+	
+	private function _logProxiedImage(HTMLPurifier_URI $uri) {
+		$host = DevblocksPlatform::strLower($uri->host);
+		$url = $uri->toString();
+		
+		if(empty($url))
+			return;
+		
+		if(!array_key_exists($host, $this->filterUrls['proxiedImage']))
+			$this->filterUrls['proxiedImage'][$host] = [];
+		
+		if(!array_key_exists($url, $this->filterUrls['proxiedImage'][$host])) {
+			$this->filterUrls['proxiedImage'][$host][$url] = 0;
+			$this->filterCounts['proxiedImage']++;
+		}
+		
+		$this->filterUrls['proxiedImage'][$host][$url]++;
+	}
+	
+	private function _logRedirectedLink(HTMLPurifier_URI $uri) {
+		$host = DevblocksPlatform::strLower($uri->host);
+		$url = $uri->toString();
+		
+		if(empty($url))
+			return;
+		
+		if(!array_key_exists($host, $this->filterUrls['redirectedLink']))
+			$this->filterUrls['redirectedLink'][$host] = [];
+		
+		if(!array_key_exists($url, $this->filterUrls['redirectedLink'][$host])) {
+			$this->filterUrls['redirectedLink'][$host][$url] = 0;
+			$this->filterCounts['redirectedLink']++;
+		}
+		
+		$this->filterUrls['redirectedLink'][$host][$url]++;
 	}
 }

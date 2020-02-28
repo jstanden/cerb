@@ -22,6 +22,10 @@
 			<button type="button" class="edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
 
+			{if $expanded}
+				<button type="button" id="{$message->id}skip" class="cerb-no-print" onclick="document.location='#{$message->id}act';" title="{'display.convo.skip_to_bottom'|devblocks_translate}"><span class="glyphicons glyphicons-down-arrow"></span></button>
+			{/if}
+
 			{if $expanded && $attachments}
 			<button type="button" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-query="on.message:(id:{$message->id})"><span class="glyphicons glyphicons-paperclip"></span></button>
 			{/if}
@@ -105,25 +109,66 @@
 		<br>
 	</div>
 
-	{if !$embed && $expanded}
-	<div style="margin:2px;margin-left:10px;" id="{$message->id}skip" class="cerb-no-print">
-		<button type="button" onclick="document.location='#{$message->id}act';">{'display.convo.skip_to_bottom'|devblocks_translate|lower}</button>
-	</div>
-	{/if}
-
 	{if $expanded}
 	<div style="clear:both;display:block;padding-top:10px;">
-		{if DAO_WorkerPref::get($active_worker->id, 'mail_disable_html_display', 0)}
+		{$filtering_results = null}
+		{if 'text' == $display_format || DAO_WorkerPref::get($active_worker->id, 'mail_disable_html_display', 0)}
 			{$html_body = null}
 		{else}
-			{$html_body = $message->getContentAsHtml()}
+			{$html_body = $message->getContentAsHtml($sender->is_trusted, $filtering_results)}
 		{/if}
 
-		{if !empty($html_body)}
+		{if $html_body}
+			{if !$embed}
+			<div class="cerb-code-editor-toolbar" style="margin:0 0 10px 0;display:inline-block;">
+				{if $filtering_results && $filtering_results.counts.blockedImage}
+					{if !$sender->is_trusted}
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="display-images" data-message-id="{$message->id}">
+						<span class="glyphicons glyphicons-picture"></span>
+						Display images
+					</button>
+					{/if}
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-images" data-message-id="{$message->id}">
+						<div class="badge-count badge-red" style="border:0;">{$filtering_results.counts.blockedImage}</div>
+						Blocked images
+					</button>
+				{/if}
+				{if $filtering_results && $filtering_results.counts.blockedLink}
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-links" data-message-id="{$message->id}">
+						<div class="badge-count badge-red" style="border:0;">{$filtering_results.counts.blockedLink}</div>
+						Blocked links
+					</button>
+				{/if}
+				{if $filtering_results && $filtering_results.counts.proxiedImage}
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-images" data-message-id="{$message->id}">
+						<div class="badge-count" style="border:0;">{$filtering_results.counts.proxiedImage}</div>
+						Images
+					</button>
+				{/if}
+				{if $filtering_results && $filtering_results.counts.redirectedLink}
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-links" data-message-id="{$message->id}">
+						<div class="badge-count" style="border:0;">{$filtering_results.counts.redirectedLink}</div>
+						Links
+					</button>
+				{/if}
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-plaintext" data-message-id="{$message->id}">
+					<span class="glyphicons glyphicons-file"></span>
+					View plaintext
+				</button>
+			</div>
+			{/if}
 			<div class="emailBodyHtml">
 				{$html_body nofilter}
 			</div>
 		{else}
+			{if $message->html_attachment_id}
+				<div class="cerb-code-editor-toolbar" style="margin:0 0 10px 0;display:inline-block;">
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-button="email-html" data-message-id="{$message->id}">
+						<span class="glyphicons glyphicons-file"></span>
+						View HTML
+					</button>
+				</div>
+			{/if}
 			<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
 		{/if}
 		<br>
@@ -294,6 +339,69 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
+
+	$msg.find('[data-cerb-button=email-plaintext]').on('click', function(e) {
+		e.stopPropagation();
+		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&format=text');
+	});
+
+	$msg.find('[data-cerb-button=email-html]').on('click', function(e) {
+		e.stopPropagation();
+		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&format=html');
+	});
+
+	$msg.find('[data-cerb-button=display-images]').on('click', function(e) {
+		e.stopPropagation();
+		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&images=1');
+	});
+
+	$msg.find('[data-cerb-button=email-images]').on('click', function(e) {
+		e.stopPropagation();
+
+		var $button = $(this);
+		var message_id = $button.attr('data-message-id');
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'message');
+		formData.set('action', 'renderImagesPopup');
+		formData.set('id', message_id);
+		formData.set('type', 'images');
+
+		var $popup_filtering = genericAjaxPopup('emailFiltering', formData, null, false);
+
+		$popup_filtering.on('cerb-message--show-images', function(e) {
+			e.stopPropagation();
+			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&images=1');
+		});
+
+		$popup_filtering.on('popup_saved', function(e) {
+			e.stopPropagation();
+			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}');
+		});
+	});
+
+	$msg.find('[data-cerb-button=email-links]').on('click', function(e) {
+		e.stopPropagation();
+
+		var $button = $(this);
+		var message_id = $button.attr('data-message-id');
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'message');
+		formData.set('action', 'renderLinksPopup');
+		formData.set('id', message_id);
+
+		var $popup_filtering = genericAjaxPopup('emailFiltering', formData, null, false);
+
+		$popup_filtering.on('popup_saved', function(e) {
+			e.stopPropagation();
+			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}');
+		});
+	});
 
 	$actions.find('[data-cerb-button=requester-add]').on('click', function() {
 		$(this).remove();

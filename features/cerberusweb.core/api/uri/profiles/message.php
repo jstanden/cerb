@@ -30,6 +30,12 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 					return $this->_profileAction_showRelayMessagePopup();
 				case 'saveRelayMessagePopup':
 					return $this->_profileAction_saveRelayMessagePopup();
+				case 'renderImagesPopup':
+					return $this->_profileAction_renderImagesPopup();
+				case 'saveImagesPopup':
+					return $this->_profileAction_saveImagesPopup();
+				case 'renderLinksPopup':
+					return $this->_profileAction_renderLinksPopup();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
 			}
@@ -107,6 +113,8 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // message id
 		@$hide = DevblocksPlatform::importGPC($_REQUEST['hide'],'integer',0);
+		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string',null);
+		@$images = DevblocksPlatform::importGPC($_REQUEST['images'],'integer',0);
 		
 		if(false == ($message = DAO_Message::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -114,14 +122,23 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		if(!Context_Message::isReadableByActor($message, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
+		$display_format = $message->html_attachment_id ? 'html' : 'text';
+		
+		if('text' == $format)
+			$display_format = 'text';
+		
 		$tpl->assign('message', $message);
 		$tpl->assign('message_id', $message->id);
+		$tpl->assign('display_format', $display_format);
 		
 		// Sender info
 		$message_senders = [];
 		$message_sender_orgs = [];
 		
 		if(null != ($sender_addy = CerberusApplication::hashLookupAddress($message->address_id))) {
+			if($images)
+				$sender_addy->is_trusted = 1;
+			
 			$message_senders[$sender_addy->id] = $sender_addy;
 			
 			if(null != $sender_org = CerberusApplication::hashLookupOrg($sender_addy->contact_org_id)) {
@@ -167,7 +184,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
 		$tpl->assign('mail_reply_button', $mail_reply_button);
 		
-		$tpl->assign('expanded', (empty($hide) ? true : false));
+		$tpl->assign('expanded', (!$hide ? true : false));
 		$tpl->assign('is_refreshed', true);
 		
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/message.tpl');
@@ -292,5 +309,80 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		CerberusMail::relay($message_id, $emails, $include_attachments, $content, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
+	}
+	
+	private function _profileAction_renderImagesPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		
+		if(!$message_id)
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($message = DAO_Message::get($message_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_Message::isReadableByActor($message, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$filtering_results = [];
+		
+		$message->getContentAsHtml(true, $filtering_results);
+		$tpl->assign('filtering_results', $filtering_results);
+		
+		$tpl->assign('message', $message);
+		$tpl->display('devblocks:cerberusweb.core::internal/security/email_images_popup.tpl');
+	}
+	
+	private function _profileAction_saveImagesPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		@$sender_id = DevblocksPlatform::importGPC($_POST['sender_id'],'integer',0);
+		@$is_trusted = DevblocksPlatform::importGPC($_POST['is_trusted'],'integer',0);
+		
+		if(false == ($address = DAO_Address::get($sender_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_Address::isWriteableByActor($address, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		DAO_Address::update($address->id, [
+			DAO_Address::IS_TRUSTED => $is_trusted ? 1 : 0,
+		]);
+	}
+	
+	private function _profileAction_renderLinksPopup() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		
+		if(!$message_id)
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($message = DAO_Message::get($message_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_Message::isReadableByActor($message, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$filtering_results = [];
+		
+		$message->getContentAsHtml(false, $filtering_results);
+		$tpl->assign('filtering_results', $filtering_results);
+		
+		$tpl->assign('message', $message);
+		$tpl->display('devblocks:cerberusweb.core::internal/security/email_links_popup.tpl');
 	}
 };
