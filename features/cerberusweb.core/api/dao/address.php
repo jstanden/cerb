@@ -24,6 +24,7 @@ class DAO_Address extends Cerb_ORMHelper {
 	const ID = 'id';
 	const IS_BANNED = 'is_banned';
 	const IS_DEFUNCT = 'is_defunct';
+	const IS_TRUSTED = 'is_trusted';
 	const MAIL_TRANSPORT_ID = 'mail_transport_id';
 	const NUM_NONSPAM = 'num_nonspam';
 	const NUM_SPAM = 'num_spam';
@@ -75,6 +76,10 @@ class DAO_Address extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::IS_DEFUNCT)
+			->bit()
+			;
+		$validation
+			->addField(self::IS_TRUSTED)
 			->bit()
 			;
 		$validation
@@ -288,6 +293,9 @@ class DAO_Address extends Cerb_ORMHelper {
 				case 'defunct':
 					$change_fields[DAO_Address::IS_DEFUNCT] = intval($v);
 					break;
+				case 'trusted':
+					$change_fields[DAO_Address::IS_TRUSTED] = intval($v);
+					break;
 				case 'mail_transport_id':
 					$change_fields[DAO_Address::WORKER_ID] = 0;
 					$change_fields[DAO_Address::MAIL_TRANSPORT_ID] = intval($v);
@@ -491,7 +499,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, email, host, contact_id, contact_org_id, mail_transport_id, worker_id, num_spam, num_nonspam, is_banned, is_defunct, created_at, updated ".
+		$sql = "SELECT id, email, host, contact_id, contact_org_id, mail_transport_id, worker_id, num_spam, num_nonspam, is_banned, is_defunct, is_trusted, created_at, updated ".
 			"FROM address ".
 			$where_sql.
 			$sort_sql.
@@ -527,6 +535,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			$object->num_nonspam = intval($row['num_nonspam']);
 			$object->is_banned = intval($row['is_banned']);
 			$object->is_defunct = intval($row['is_defunct']);
+			$object->is_trusted = intval($row['is_trusted']);
 			$object->updated = intval($row['updated']);
 			$object->worker_id = intval($row['worker_id']);
 			$objects[$object->id] = $object;
@@ -833,6 +842,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			"a.num_nonspam as %s, ".
 			"a.is_banned as %s, ".
 			"a.is_defunct as %s, ".
+			"a.is_trusted as %s, ".
 			"a.updated as %s ",
 				SearchFields_Address::ID,
 				SearchFields_Address::EMAIL,
@@ -846,6 +856,7 @@ class DAO_Address extends Cerb_ORMHelper {
 				SearchFields_Address::NUM_NONSPAM,
 				SearchFields_Address::IS_BANNED,
 				SearchFields_Address::IS_DEFUNCT,
+				SearchFields_Address::IS_TRUSTED,
 				SearchFields_Address::UPDATED
 			);
 		
@@ -1001,6 +1012,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 	const NUM_NONSPAM = 'a_num_nonspam';
 	const IS_BANNED = 'a_is_banned';
 	const IS_DEFUNCT = 'a_is_defunct';
+	const IS_TRUSTED = 'a_is_trusted';
 	const UPDATED = 'a_updated';
 	const WORKER_ID = 'a_worker_id';
 	
@@ -1174,6 +1186,7 @@ class SearchFields_Address extends DevblocksSearchFields {
 			self::NUM_NONSPAM => new DevblocksSearchField(self::NUM_NONSPAM, 'a', 'num_nonspam', $translate->_('address.num_nonspam'), Model_CustomField::TYPE_NUMBER, true),
 			self::IS_BANNED => new DevblocksSearchField(self::IS_BANNED, 'a', 'is_banned', $translate->_('address.is_banned'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::IS_DEFUNCT => new DevblocksSearchField(self::IS_DEFUNCT, 'a', 'is_defunct', $translate->_('address.is_defunct'), Model_CustomField::TYPE_CHECKBOX, true),
+			self::IS_TRUSTED => new DevblocksSearchField(self::IS_TRUSTED, 'a', 'is_trusted', $translate->_('address.is_trusted'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'a', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'a', 'worker_id', $translate->_('common.worker'), Model_CustomField::TYPE_NUMBER, true),
 			
@@ -1378,6 +1391,7 @@ class Model_Address {
 	public $host = '';
 	public $is_banned = 0;
 	public $is_defunct = 0;
+	public $is_trusted = 0;
 	public $mail_transport_id = 0;
 	public $num_nonspam = 0;
 	public $num_spam = 0;
@@ -1529,6 +1543,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Address::HOST:
 				case SearchFields_Address::IS_BANNED:
 				case SearchFields_Address::IS_DEFUNCT:
+				case SearchFields_Address::IS_TRUSTED:
 				case SearchFields_Address::CONTACT_ID:
 				case SearchFields_Address::CONTACT_ORG_ID:
 				case SearchFields_Address::MAIL_TRANSPORT_ID:
@@ -1568,6 +1583,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($column) {
 			case SearchFields_Address::IS_BANNED:
 			case SearchFields_Address::IS_DEFUNCT:
+			case SearchFields_Address::IS_TRUSTED:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
@@ -1718,6 +1734,11 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Address::IS_DEFUNCT),
+				),
+			'isTrusted' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_Address::IS_TRUSTED),
 				),
 			'mailTransport.id' =>
 				array(
@@ -1972,6 +1993,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case SearchFields_Address::IS_BANNED:
 			case SearchFields_Address::IS_DEFUNCT:
+			case SearchFields_Address::IS_TRUSTED:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 				
@@ -2028,6 +2050,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 				
 			case SearchFields_Address::IS_BANNED:
 			case SearchFields_Address::IS_DEFUNCT:
+			case SearchFields_Address::IS_TRUSTED:
 				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -2153,6 +2176,12 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'value' => $model->is_defunct,
 		);
 		
+		$properties['is_trusted'] = array(
+			'label' => mb_ucfirst($translate->_('address.is_trusted')),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_trusted,
+		);
+		
 		$properties['mail_transport_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.email_transport')),
 			'type' => Model_CustomField::TYPE_LINK,
@@ -2240,6 +2269,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'contact__label',
 			'is_banned',
 			'is_defunct',
+			'is_trusted',
 			'num_nonspam',
 			'num_spam',
 			'mail_transport__label',
@@ -2327,6 +2357,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'is_banned' => $prefix.$translate->_('address.is_banned'),
 			'is_contact' => $prefix.$translate->_('address.is_contact'),
 			'is_defunct' => $prefix.$translate->_('address.is_defunct'),
+			'is_trusted' => $prefix.$translate->_('address.is_trusted'),
 			'num_spam' => $prefix.$translate->_('address.num_spam'),
 			'num_nonspam' => $prefix.$translate->_('address.num_nonspam'),
 			'updated' => $prefix.$translate->_('common.updated'),
@@ -2344,6 +2375,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'is_banned' => Model_CustomField::TYPE_CHECKBOX,
 			'is_contact' => Model_CustomField::TYPE_CHECKBOX,
 			'is_defunct' => Model_CustomField::TYPE_CHECKBOX,
+			'is_trusted' => Model_CustomField::TYPE_CHECKBOX,
 			'num_spam' => Model_CustomField::TYPE_NUMBER,
 			'num_nonspam' => Model_CustomField::TYPE_NUMBER,
 			'updated' => Model_CustomField::TYPE_DATE,
@@ -2379,6 +2411,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['is_banned'] = $address->is_banned;
 			$token_values['is_contact'] = !empty($address->contact_id);
 			$token_values['is_defunct'] = $address->is_defunct;
+			$token_values['is_trusted'] = $address->is_trusted;
 			$token_values['updated'] = $address->updated;
 
 			// Custom fields
@@ -2483,6 +2516,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			'id' => DAO_Address::ID,
 			'is_banned' => DAO_Address::IS_BANNED,
 			'is_defunct' => DAO_Address::IS_DEFUNCT,
+			'is_trusted' => DAO_Address::IS_TRUSTED,
 			'links' => '_links',
 			'mail_transport_id' => DAO_Address::MAIL_TRANSPORT_ID,
 			'num_nonspam' => DAO_Address::NUM_NONSPAM,
@@ -2501,6 +2535,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$keys['host']['notes'] = "The hostname of the email address";
 		$keys['is_banned']['notes'] = "Is incoming email blocked?";
 		$keys['is_defunct']['notes'] = "Is this address non-deliverable?";
+		$keys['is_trusted']['notes'] = "Is this sender trusted to display external images and links?";
 		$keys['mail_transport_id']['notes'] = "If this address is used for outgoing mail, the [mail transport](/docs/records/types/mail_transport/) to use; otherwise empty";
 		$keys['org_id']['notes'] = "The [organization](/docs/records/types/org/) linked to this email";
 		$keys['worker_id']['notes'] = "Is this address owned by a [worker](/docs/records/types/worker/)?";
@@ -2702,6 +2737,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$keys = [
 			'is_banned',
 			'is_defunct',
+			'is_trusted',
 			'contact__label',
 			'org__label',
 			'mail_transport__label',
@@ -2761,6 +2797,11 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 				'label' => 'Is Defunct',
 				'type' => Model_CustomField::TYPE_CHECKBOX,
 				'param' => SearchFields_Address::IS_DEFUNCT,
+			),
+			'is_trusted' => array(
+				'label' => 'Is Trusted',
+				'type' => Model_CustomField::TYPE_CHECKBOX,
+				'param' => SearchFields_Address::IS_TRUSTED,
 			),
 			'mail_transport_id' => array(
 				'label' => 'Mail Transport Id',

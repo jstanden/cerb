@@ -246,6 +246,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		@$sla = DevblocksPlatform::importGPC($_POST['sla'],'string','');
 		@$is_banned = DevblocksPlatform::importGPC($_POST['is_banned'],'integer',0);
 		@$is_defunct = DevblocksPlatform::importGPC($_POST['is_defunct'],'integer',0);
+		@$is_trusted = DevblocksPlatform::importGPC($_POST['is_trusted'],'integer',0);
 		@$mail_transport_id = DevblocksPlatform::importGPC($_POST['mail_transport_id'],'string',null);
 
 		// Scheduled behavior
@@ -271,6 +272,10 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 		// Do: Defunct
 		if(0 != strlen($is_defunct))
 			$do['defunct'] = $is_defunct;
+		
+		// Do: Trusted
+		if(0 != strlen($is_trusted))
+			$do['trusted'] = $is_trusted;
 		
 		// Do: Mail Transport
 		if($active_worker->is_superuser 

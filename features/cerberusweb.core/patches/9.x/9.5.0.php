@@ -15,6 +15,18 @@ $packages = [
 CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
 
 // ===========================================================================
+// Add `address.is_trusted` bit
+
+list($columns,) = $db->metaTable('address');
+
+if(!array_key_exists('is_trusted', $columns)) {
+	$sql = "ALTER TABLE address ADD COLUMN is_trusted tinyint(1) not null default 0";
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster("UPDATE address SET is_trusted = 1 WHERE worker_id > 0 OR mail_transport_id > 0");
+}
+	
+// ===========================================================================
 // Update the ticket actions widget to new endpoints
 
 $checksum = $db->GetOneMaster("SELECT sha1(extension_params_json) from profile_widget WHERE name = 'Actions' AND profile_tab_id IN (SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.ticket' AND name = 'Overview')");

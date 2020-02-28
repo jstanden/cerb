@@ -40,7 +40,7 @@
 	{if isset($headers.subject)}<b>Subject:</b> {$headers.subject}<br>{/if}
 	<br>
 	{if $message->html_attachment_id}
-		{$message->getContentAsHtml() nofilter}<br>
+		{$message->getContentAsHtml($sender->is_trusted) nofilter}<br>
 	{else}
 		{$message->getContent()|trim|escape|nl2br nofilter}<br>
 	{/if}

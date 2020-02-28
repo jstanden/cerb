@@ -3437,6 +3437,11 @@
 				<seg>Is Defunct</seg>
 			</tuv>
 		</tu>
+		<tu tuid="address.is_trusted">
+			<tuv xml:lang="en_US">
+				<seg>Is Trusted</seg>
+			</tuv>
+		</tu>
 		<tu tuid="address.contact_org_id">
 			<tuv xml:lang="en_US">
 				<seg>Organization ID</seg>

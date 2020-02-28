@@ -45,6 +45,14 @@
 				<option value="1">{'common.yes'|devblocks_translate|capitalize}</option>
 			</select></td>
 		</tr>
+		<tr>
+			<td width="0%" nowrap="nowrap" align="right">{'address.is_trusted'|devblocks_translate|capitalize}:</td>
+			<td width="100%"><select name="is_trusted">
+				<option value=""></option>
+				<option value="0">{'common.no'|devblocks_translate|capitalize}</option>
+				<option value="1">{'common.yes'|devblocks_translate|capitalize}</option>
+			</select></td>
+		</tr>
 		{if $active_worker->is_superuser}
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.email_transport'|devblocks_translate|capitalize}:</td>

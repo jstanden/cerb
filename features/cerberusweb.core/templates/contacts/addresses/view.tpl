@@ -121,9 +121,9 @@
 				<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name}</a>
 				{/if}
 			</td>
-			{elseif $column=="a_is_banned" || $column == "a_is_defunct"}
+			{elseif in_array($column, ["a_is_banned", "a_is_defunct", "a_is_trusted"])}
 			<td data-column="{$column}">
-				{if $result.$column}Yes{/if}&nbsp;
+				{if $result.$column}<span class="glyphicons glyphicons-circle-ok"></span>{/if}&nbsp;
 			</td>
 			{elseif $column == "a_mail_transport_id"}
 				{$mail_transport = $mail_transports.{$result.$column}}
