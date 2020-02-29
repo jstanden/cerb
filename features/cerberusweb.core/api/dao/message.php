@@ -25,13 +25,14 @@ class DAO_Message extends Cerb_ORMHelper {
 	const IS_NOT_SENT = 'is_not_sent';
 	const IS_OUTGOING = 'is_outgoing';
 	const RESPONSE_TIME = 'response_time';
+	const SIGNED_KEY_FINGERPRINT = 'signed_key_fingerprint';
+	const SIGNED_AT = 'signed_at';
 	const STORAGE_EXTENSION = 'storage_extension';
 	const STORAGE_KEY = 'storage_key';
 	const STORAGE_PROFILE_ID = 'storage_profile_id';
 	const STORAGE_SIZE = 'storage_size';
 	const TICKET_ID = 'ticket_id';
 	const WAS_ENCRYPTED = 'was_encrypted';
-	const WAS_SIGNED = 'was_signed';
 	const WORKER_ID = 'worker_id';
 	const _CONTENT = '_content';
 	const _HEADERS = '_headers';
@@ -91,6 +92,19 @@ class DAO_Message extends Cerb_ORMHelper {
 			->addField(self::RESPONSE_TIME)
 			->uint(4)
 			;
+		// varchar(64)
+		$validation
+			->addField(self::SIGNED_KEY_FINGERPRINT)
+			->string()
+			->setMaxLength(64)
+			->setEditable(false)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::SIGNED_AT)
+			->timestamp()
+			->setEditable(false)
+		;
 		// varchar(255)
 		$validation
 			->addField(self::STORAGE_EXTENSION)
@@ -123,11 +137,6 @@ class DAO_Message extends Cerb_ORMHelper {
 		// tinyint(1)
 		$validation
 			->addField(self::WAS_ENCRYPTED)
-			->bit()
-			;
-		// tinyint(1)
-		$validation
-			->addField(self::WAS_SIGNED)
 			->bit()
 			;
 		// int(10) unsigned
@@ -253,7 +262,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, html_attachment_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time, is_broadcast, is_not_sent, hash_header_message_id, was_encrypted, was_signed ".
+		$sql = "SELECT id, ticket_id, created_date, is_outgoing, worker_id, html_attachment_id, address_id, storage_extension, storage_key, storage_profile_id, storage_size, response_time, is_broadcast, is_not_sent, hash_header_message_id, was_encrypted, signed_key_fingerprint, signed_at ".
 			"FROM message ".
 			$where_sql.
 			$sort_sql.
@@ -311,7 +320,8 @@ class DAO_Message extends Cerb_ORMHelper {
 			$object->is_not_sent = intval($row['is_not_sent']);
 			$object->hash_header_message_id = $row['hash_header_message_id'];
 			$object->was_encrypted = !empty($row['was_encrypted']) ? 1 : 0;
-			$object->was_signed = !empty($row['was_signed']) ? 1 : 0;
+			$object->signed_key_fingerprint = $row['signed_key_fingerprint'];
+			$object->signed_at = intval($row['signed_at']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -555,8 +565,9 @@ class DAO_Message extends Cerb_ORMHelper {
 			"m.response_time as %s, ".
 			"m.is_broadcast as %s, ".
 			"m.is_not_sent as %s, ".
-			"m.was_encrypted as %s, ".
-			"m.was_signed as %s ",
+			"m.signed_key_fingerprint as %s, ".
+			"m.signed_at as %s, ".
+			"m.was_encrypted as %s ",
 			SearchFields_Message::ID,
 			SearchFields_Message::ADDRESS_ID,
 			SearchFields_Message::CREATED_DATE,
@@ -571,8 +582,9 @@ class DAO_Message extends Cerb_ORMHelper {
 			SearchFields_Message::RESPONSE_TIME,
 			SearchFields_Message::IS_BROADCAST,
 			SearchFields_Message::IS_NOT_SENT,
-			SearchFields_Message::WAS_ENCRYPTED,
-			SearchFields_Message::WAS_SIGNED
+			SearchFields_Message::SIGNED_KEY_FINGERPRINT,
+			SearchFields_Message::SIGNED_AT,
+			SearchFields_Message::WAS_ENCRYPTED
 		);
 		
 		$join_sql = "FROM message m ".
@@ -715,8 +727,9 @@ class SearchFields_Message extends DevblocksSearchFields {
 	const RESPONSE_TIME = 'm_response_time';
 	const IS_BROADCAST = 'm_is_broadcast';
 	const IS_NOT_SENT = 'm_is_not_sent';
+	const SIGNED_KEY_FINGERPRINT = 'm_signed_key_fingerprint';
+	const SIGNED_AT = 'm_signed_at';
 	const WAS_ENCRYPTED = 'm_was_encrypted';
-	const WAS_SIGNED = 'm_was_signed';
 	
 	// Storage
 	const STORAGE_EXTENSION = 'm_storage_extension';
@@ -963,7 +976,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::WAS_ENCRYPTED:
-			case SearchFields_Message::WAS_SIGNED:
 				return parent::_getLabelsForKeyBooleanValues();
 				break;
 				
@@ -1006,8 +1018,9 @@ class SearchFields_Message extends DevblocksSearchFields {
 			SearchFields_Message::RESPONSE_TIME => new DevblocksSearchField(SearchFields_Message::RESPONSE_TIME, 'm', 'response_time', $translate->_('message.response_time'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Message::IS_BROADCAST => new DevblocksSearchField(SearchFields_Message::IS_BROADCAST, 'm', 'is_broadcast', $translate->_('message.is_broadcast'), Model_CustomField::TYPE_CHECKBOX, true),
 			SearchFields_Message::IS_NOT_SENT => new DevblocksSearchField(SearchFields_Message::IS_NOT_SENT, 'm', 'is_not_sent', $translate->_('message.is_not_sent'), Model_CustomField::TYPE_CHECKBOX, true),
+			SearchFields_Message::SIGNED_KEY_FINGERPRINT => new DevblocksSearchField(SearchFields_Message::SIGNED_KEY_FINGERPRINT, 'm', 'signed_key_fingerprint', $translate->_('message.signed_key_fingerprint'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			SearchFields_Message::SIGNED_AT => new DevblocksSearchField(SearchFields_Message::SIGNED_AT, 'm', 'signed_at', $translate->_('message.signed_at'), Model_CustomField::TYPE_DATE, true),
 			SearchFields_Message::WAS_ENCRYPTED => new DevblocksSearchField(SearchFields_Message::WAS_ENCRYPTED, 'm', 'was_encrypted', $translate->_('message.is_encrypted'), Model_CustomField::TYPE_CHECKBOX, true),
-			SearchFields_Message::WAS_SIGNED => new DevblocksSearchField(SearchFields_Message::WAS_SIGNED, 'm', 'was_signed', $translate->_('message.is_signed'), Model_CustomField::TYPE_CHECKBOX, true),
 			
 			SearchFields_Message::STORAGE_EXTENSION => new DevblocksSearchField(SearchFields_Message::STORAGE_EXTENSION, 'm', 'storage_extension', null, true),
 			SearchFields_Message::STORAGE_KEY => new DevblocksSearchField(SearchFields_Message::STORAGE_KEY, 'm', 'storage_key', null, true),
@@ -1070,8 +1083,9 @@ class Model_Message {
 	public $is_broadcast;
 	public $is_not_sent;
 	public $hash_header_message_id;
+	public $signed_key_fingerprint;
+	public $signed_at;
 	public $was_encrypted;
-	public $was_signed;
 	
 	private $_sender_object = null;
 	private $_headers_raw = null;
@@ -1805,7 +1819,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				case SearchFields_Message::TICKET_ID:
 				case SearchFields_Message::TICKET_MASK:
 				case SearchFields_Message::WAS_ENCRYPTED:
-				case SearchFields_Message::WAS_SIGNED:
 				case SearchFields_Message::WORKER_ID:
 				case SearchFields_Message::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_Message::VIRTUAL_HAS_FIELDSET:
@@ -1883,7 +1896,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::WAS_ENCRYPTED:
-			case SearchFields_Message::WAS_SIGNED:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 				
@@ -1980,12 +1992,17 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'score' => 2000,
 					'options' => array('param_key' => SearchFields_Message::IS_OUTGOING),
 				),
-			'isSigned' => 
+			'signed.at' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_Message::WAS_SIGNED),
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_Message::SIGNED_AT),
 				),
-			'notes' => 
+			'signed.fingerprint' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Message::SIGNED_KEY_FINGERPRINT),
+				),
+			'notes' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => array('param_key' => SearchFields_Message::VIRTUAL_NOTES_SEARCH),
@@ -2233,7 +2250,6 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::WAS_ENCRYPTED:
-			case SearchFields_Message::WAS_SIGNED:
 				$this->_renderCriteriaParamBoolean($param);
 				break;
 				
@@ -2294,6 +2310,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 			
 			case SearchFields_Message::ADDRESS_EMAIL:
+			case SearchFields_Message::SIGNED_KEY_FINGERPRINT:
 			case SearchFields_Message::TICKET_MASK:
 			case SearchFields_Message::TICKET_SUBJECT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
@@ -2313,6 +2330,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 				
 			case SearchFields_Message::CREATED_DATE:
+			case SearchFields_Message::SIGNED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
@@ -2320,8 +2338,7 @@ class View_Message extends C4_AbstractView implements IAbstractView_Subtotals, I
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::WAS_ENCRYPTED:
-			case SearchFields_Message::WAS_SIGNED:
-				@$bool = DevblocksPlatform::importGPC($_REQUEST['bool'],'integer',1);
+				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 
@@ -2532,8 +2549,9 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'headers' => $prefix.$translate->_('message.headers'),
 			'reply_cc' => $prefix."Reply Cc",
 			'reply_to' => $prefix."Reply To",
+			'signed_at' => $prefix.$translate->_('message.signed_at'),
+			'signed_key_fingerprint' => $prefix.$translate->_('message.signed_key_fingerprint'),
 			'was_encrypted' => $prefix.$translate->_('message.is_encrypted'),
-			'was_signed' => $prefix.$translate->_('message.is_signed'),
 		);
 		
 		// Token types
@@ -2553,8 +2571,9 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'headers' => null,
 			'reply_cc' => Model_CustomField::TYPE_SINGLE_LINE,
 			'reply_to' => Model_CustomField::TYPE_SINGLE_LINE,
+			'signed_at' => Model_CustomField::TYPE_DATE,
+			'signed_key_fingerprint' => Model_CustomField::TYPE_SINGLE_LINE,
 			'was_encrypted' => Model_CustomField::TYPE_CHECKBOX,
-			'was_signed' => Model_CustomField::TYPE_CHECKBOX,
 		);
 		
 		// Custom field/fieldset token labels
@@ -2586,8 +2605,9 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['ticket_id'] = $message->ticket_id;
 			$token_values['worker_id'] = $message->worker_id;
 			$token_values['hash_header_message_id'] = $message->hash_header_message_id;
+			$token_values['signed_at'] = $message->signed_at;
+			$token_values['signed_key_fingerprint'] = $message->signed_key_fingerprint;
 			$token_values['was_encrypted'] = $message->was_encrypted;
-			$token_values['was_signed'] = $message->was_signed;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($message, $token_values);
@@ -2658,10 +2678,11 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'links' => '_links',
 			'response_time' => DAO_Message::RESPONSE_TIME,
 			'sender_id' => DAO_Message::ADDRESS_ID,
+			'signed_at' => DAO_Message::SIGNED_AT,
+			'signed_key_fingerprint' => DAO_Message::SIGNED_KEY_FINGERPRINT,
 			'storage_size' => DAO_Message::STORAGE_SIZE,
 			'ticket_id' => DAO_Message::TICKET_ID,
 			'was_encrypted' => DAO_Message::WAS_ENCRYPTED,
-			'was_signed' => DAO_Message::WAS_SIGNED,
 			'worker_id' => DAO_Message::WORKER_ID,
 		];
 	}
@@ -2711,10 +2732,11 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		$keys['is_outgoing']['notes'] = "Was this an outgoing reply from a worker?";
 		$keys['response_time']['notes'] = "Response time in seconds";
 		$keys['sender_id']['notes'] = "The ID of the sender's [email address](/docs/records/types/address/) record";
+		$keys['signed_at']['notes'] = "The date the message was cryptographically signed";
+		$keys['signed_key_fingerprint']['notes'] = "The key that cryptographically signed this message";
 		$keys['storage_size']['notes'] = "Size of the message in bytes";
 		$keys['ticket_id']['notes'] = "The ID of the message's [ticket](/docs/records/types/ticket/) record";
 		$keys['was_encrypted']['notes'] = "Was the message sent encrypted?";
-		$keys['was_signed']['notes'] = "Was the message cryptographically signed?";
 		$keys['worker_id']['notes'] = "If outgoing, the ID of the [worker](/docs/records/types/worker/) who sent the message";
 		
 		return $keys;
@@ -3032,6 +3054,20 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			],
 		];
 		
+		$properties['signed_at'] = [
+			'label' => DevblocksPlatform::translateCapitalized('message.signed_at'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->signed_at,
+			'params' => [],
+		];
+		
+		$properties['signed_key_fingerprint'] = [
+			'label' => DevblocksPlatform::translateCapitalized('message.signed_key_fingerprint'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->signed_key_fingerprint,
+			'params' => [],
+		];
+		
 		$properties['ticket'] = [
 			'label' => DevblocksPlatform::translateCapitalized('common.ticket'),
 			'type' => Model_CustomField::TYPE_LINK,
@@ -3052,13 +3088,6 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'label' => DevblocksPlatform::translateCapitalized('message.is_encrypted'),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->was_encrypted,
-			'params' => [],
-		];
-		
-		$properties['was_signed'] = [
-			'label' => DevblocksPlatform::translateCapitalized('message.is_signed'),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $model->was_signed,
 			'params' => [],
 		];
 		

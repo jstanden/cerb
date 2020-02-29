@@ -59,7 +59,6 @@
 		{else}
 			{if $sender_contact}
 				{$sender_org = $sender_contact->getOrg()}
-				{if $message->was_signed}<span class="glyphicons glyphicons-circle-ok" style="{if $expanded}font-size:1.3em;{/if}color:rgb(66,131,73);" title="{'common.signed'|devblocks_translate|capitalize}"></span>{/if}
 				<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$sender_contact->id}">{$sender_contact->getName()}</a>
 				&nbsp;
 				{if $sender_contact->title}
@@ -71,7 +70,6 @@
 				{/if}
 			{else}
 				{$sender_org = $sender->getOrg()}
-				{if $message->was_signed}<span class="glyphicons glyphicons-circle-ok" style="{if $expanded}font-size:1.3em;{/if}color:rgb(66,131,73);" title="{'common.signed'|devblocks_translate|capitalize}"></span>{/if}
 				<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_id}">&lt;{$sender->email}&gt;</a>
 				&nbsp;
 				{if $sender_org}

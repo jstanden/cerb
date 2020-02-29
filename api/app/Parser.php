@@ -50,7 +50,8 @@ class CerberusParserMessage {
 	public $files = [];
 	public $custom_fields = [];
 	public $was_encrypted = false;
-	public $was_signed = false;
+	public $signed_key_fingerprint = '';
+	public $signed_at = 0;
 	
 	function build() {
 		$this->_buildHeaders();
@@ -874,8 +875,16 @@ class CerberusParser {
 		}
 		
 		// Was it signed?
-		if(isset($mime_meta['gpg_signed_verified']) && $mime_meta['gpg_signed_verified']) {
-			$message->was_signed = true;
+		if(array_key_exists('gpg_verified_signatures', $mime_meta) && $mime_meta['gpg_verified_signatures']) {
+			$verified_signature = $mime_meta['gpg_verified_signatures'];
+			
+			if(is_array($verified_signature)) {
+				if(array_key_exists('fingerprint', $verified_signature))
+					$message->signed_key_fingerprint = $verified_signature['fingerprint'];
+				
+				if(array_key_exists('signed_at', $verified_signature))
+					$message->signed_at = $verified_signature['signed_at'];
+			}
 		}
 		
 		if(is_array($mime_parts))
@@ -1454,14 +1463,15 @@ class CerberusParser {
 
 		} // endif ($model->getIsNew())
 		
-		$fields = array(
+		$fields = [
 			DAO_Message::TICKET_ID => $model->getTicketId(),
 			DAO_Message::CREATED_DATE => $model->getDate(),
 			DAO_Message::ADDRESS_ID => $model->getSenderAddressModel()->id,
 			DAO_Message::WORKER_ID => $model->isSenderWorker() ? $model->getSenderWorkerModel()->id : 0,
 			DAO_Message::WAS_ENCRYPTED => $message->was_encrypted ? 1 : 0,
-			DAO_Message::WAS_SIGNED => $message->was_signed ? 1 : 0,
-		);
+			DAO_Message::SIGNED_KEY_FINGERPRINT => $message->signed_key_fingerprint,
+			DAO_Message::SIGNED_AT => $message->signed_at,
+		];
 		
 		if(!isset($message->headers['message-id'])) {
 			$new_message_id = sprintf("<%s.%s@%s>", 

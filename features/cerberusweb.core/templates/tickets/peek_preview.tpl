@@ -20,7 +20,8 @@
 $(function() {
 	var $preview = $('#{$preview_id}');
 	$preview.find('.cerb-peek-trigger').cerbPeekTrigger();
-	
+	$preview.find('.cerb-search-trigger').cerbSearchTrigger();
+
 	{if $message && $message instanceof Model_Message}
 	$preview.find('.cerb-button-reply').on('click', function(e) {
 		var $popup = genericAjaxPopupFind($preview);

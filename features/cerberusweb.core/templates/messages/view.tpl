@@ -153,7 +153,7 @@
 					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$worker_id}">{$workers.{$worker_id}->getName()}</a>
 				{/if}
 				</td>
-			{elseif in_array($column, ["m_is_outgoing", "m_is_broadcast", "m_is_not_sent", "m_was_encrypted", "m_was_signed"])}
+			{elseif in_array($column, ["m_is_outgoing", "m_is_broadcast", "m_is_not_sent", "m_was_encrypted"])}
 				<td data-column="{$column}">
 					{if !empty($result.$column)}{'common.yes'|devblocks_translate|lower}{else}{'common.no'|devblocks_translate|lower}{/if}
 				</td>

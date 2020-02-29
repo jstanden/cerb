@@ -1110,6 +1110,11 @@
 				<seg>encrypted</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.encrypted.verified">
+			<tuv xml:lang="en_US">
+				<seg>verified</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.encryption">
 			<tuv xml:lang="en_US">
 				<seg>encryption</seg>
@@ -4412,6 +4417,16 @@
 		<tu tuid="message.is_signed">
 			<tuv xml:lang="en_US">
 				<seg>Is Signed</seg>
+			</tuv>
+		</tu>
+		<tu tuid="message.signed_at">
+			<tuv xml:lang="en_US">
+				<seg>Signed At</seg>
+			</tuv>
+		</tu>
+		<tu tuid="message.signed_key_fingerprint">
+			<tuv xml:lang="en_US">
+				<seg>Signed By</seg>
 			</tuv>
 		</tu>
 		<tu tuid="message.storage_size">
