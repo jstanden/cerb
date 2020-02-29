@@ -108,6 +108,7 @@ $(function() {
 		formData.set('module', 'card_widget');
 		formData.set('action', 'testWidgetTemplate');
 		formData.set('template_key', field_key);
+		formData.set('format', 'json');
 
 		genericAjaxPost(formData, '', '', function(json) {
 			if(false == json.status) {
