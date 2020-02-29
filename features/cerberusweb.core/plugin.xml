@@ -5186,7 +5186,19 @@
 				<param key="uri" value="resource" />
 			</params>
 		</extension>
-		
+
+		<extension point="devblocks.controller">
+			<id>core.controller.security</id>
+			<name>Security Controller</name>
+			<class>
+				<file>api/uri/security.php</file>
+				<name>Controller_Security</name>
+			</class>
+			<params>
+				<param key="uri" value="security" />
+			</params>
+		</extension>
+
 		<extension point="devblocks.controller">
 			<id>controller.sso</id>
 			<name>SSO Controller</name>

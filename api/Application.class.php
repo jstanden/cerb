@@ -2720,6 +2720,10 @@ class CerberusSettings {
 	const AUTH_MFA_ALLOW_REMEMBER = 'auth_mfa_allow_remember';
 	const AUTH_MFA_REMEMBER_DAYS = 'auth_mfa_remember_days';
 	const AUTH_SSO_SERVICE_IDS = 'auth_sso_service_ids';
+	const MAIL_HTML_IMAGE_PROXY_TIMEOUT_MS = 'mail_html_image_proxy_timeout_ms';
+	const MAIL_HTML_IMAGE_PROXY_REDIRECTS_DISABLED = 'mail_html_image_proxy_redirects_disabled';
+	const MAIL_HTML_IMAGE_PROXY_BLOCKLIST = 'mail_html_image_blocklist';
+	const MAIL_HTML_LINKS_WHITELIST = 'mail_html_links_whitelist';
 };
 
 class CerberusSettingsDefaults {

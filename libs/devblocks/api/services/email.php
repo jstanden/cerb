@@ -167,4 +167,80 @@ class _DevblocksEmailManager {
 	function getErrors() {
 		return imap_errors();
 	}
+	
+	public function getImageProxyBlocklist() {
+		$cache = DevblocksPlatform::services()->cache();
+		
+		if(null === ($blocklist_hash = $cache->load('mail_html_image_blocklist'))) {
+			$image_blocklist = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_PROXY_BLOCKLIST, '');
+			
+			$blocklist_items = DevblocksPlatform::parseCrlfString($image_blocklist);
+			$blocklist_hash = [];
+			
+			foreach($blocklist_items as $idx => $blocklist_item) {
+				if(DevblocksPlatform::strStartsWith($blocklist_item, '#'))
+					continue;
+				
+				if(!DevblocksPlatform::strStartsWith($blocklist_item, ['http://', 'https://']))
+					$blocklist_item = 'http://' . $blocklist_item;
+				
+				if(false == ($url_parts = parse_url($blocklist_item)))
+					continue;
+				
+				if(!array_key_exists('host', $url_parts))
+					continue;
+				
+				if(!array_key_exists($url_parts['host'], $blocklist_hash))
+					$blocklist_hash[$url_parts['host']] = [];
+				
+				$blocklist_hash[$url_parts['host']][] = DevblocksPlatform::strToRegExp(sprintf('*://%s%s%s',
+					DevblocksPlatform::strStartsWith($url_parts['host'],'.') ? '*' : '',
+					$url_parts['host'],
+					array_key_exists('path', $url_parts) ? ($url_parts['path'].'*') : '/*'
+				));
+			}
+			
+			$cache->save($blocklist_hash, 'mail_html_image_blocklist', [], 0);
+		}
+		
+		return $blocklist_hash;
+	}
+	
+	public function getLinksWhitelist() {
+		$cache = DevblocksPlatform::services()->cache();
+		
+		if(null === ($whitelist_hash = $cache->load('mail_html_links_whitelist'))) {
+			$links_whitelist = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_HTML_LINKS_WHITELIST, '');
+			
+			$whitelist_items = DevblocksPlatform::parseCrlfString($links_whitelist);
+			$whitelist_hash = [];
+			
+			foreach($whitelist_items as $idx => $whitelist_item) {
+				if (DevblocksPlatform::strStartsWith($whitelist_item, '#'))
+					continue;
+				
+				if(!DevblocksPlatform::strStartsWith($whitelist_item, ['http://', 'https://']))
+					$whitelist_item = 'http://' . $whitelist_item;
+				
+				if(false == ($url_parts = parse_url($whitelist_item)))
+					continue;
+				
+				if(!array_key_exists('host', $url_parts))
+					continue;
+				
+				if(!array_key_exists($url_parts['host'], $whitelist_hash))
+					$whitelist_hash[$url_parts['host']] = [];
+				
+				$whitelist_hash[$url_parts['host']][] = DevblocksPlatform::strToRegExp(sprintf('*://%s%s%s',
+					DevblocksPlatform::strStartsWith($url_parts['host'],'.') ? '*' : '',
+					$url_parts['host'],
+					array_key_exists('path', $url_parts) ? ($url_parts['path'].'*') : '/*'
+				));
+			}
+			
+			$cache->save($whitelist_hash, 'mail_html_links_whitelist', [], 0);
+		}
+		
+		return $whitelist_hash;
+	}
 };

@@ -53,6 +53,10 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 					return $this->_configAction_renderTabMailFailed();
 				case 'renderTabMailFiltering':
 					return $this->_configAction_renderTabMailFiltering();
+				case 'renderTabMailHtml':
+					return $this->_configAction_renderTabMailHtml();
+				case 'saveMailHtmlJson':
+					return $this->_configAction_saveMailHtmlJson();
 				case 'renderTabMailImport':
 					return $this->_configAction_renderTabMailImport();
 				case 'renderTabMailRelay':
@@ -554,6 +558,118 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		
 		$tpl->assign('view', $view);
 		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+	}
+	
+	private function _configAction_renderTabMailHtml() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$params = [
+			'proxy_image_timeout_ms' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_IMAGE_PROXY_TIMEOUT_MS, 2000),
+			'proxy_image_redirects_disabled' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_IMAGE_PROXY_REDIRECTS_DISABLED, 0),
+			'proxy_image_blocklist' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_IMAGE_PROXY_BLOCKLIST, ''),
+			'links_whitelist' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_LINKS_WHITELIST, ''),
+		];
+		$tpl->assign('params', $params);
+		
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_html.tpl');
+	}
+	
+	private function _configAction_saveMailHtmlJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$settings = DevblocksPlatform::services()->pluginSettings();
+		$validation = DevblocksPlatform::services()->validation();
+		$cache = DevblocksPlatform::services()->cache();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		// Validate settings
+		
+		$validation
+			->addField('proxy_image_redirects_disabled', 'Proxy image redirects')
+			->bit()
+			;
+		
+		$validation
+			->addField('proxy_image_timeout_ms', 'Proxy image timeout (ms)')
+			->number()
+			->setMin(100)
+			->setMax(5000)
+			;
+		
+		$validation
+			->addField('proxy_image_blocklist', 'Proxy image blocklist')
+			->string()
+			->setMaxLength('16 bits')
+			;
+		
+		$validation
+			->addField('links_whitelist', 'Links whitelist')
+			->string()
+			->setMaxLength('16 bits')
+			;
+		
+		$values = [
+			'proxy_image_redirects_disabled' => DevblocksPlatform::importGPC(@$_POST['proxy_image_redirects_disabled'], 'integer', 0),
+			'proxy_image_timeout_ms' => DevblocksPlatform::importGPC(@$_POST['proxy_image_timeout_ms'], 'integer', 0),
+			'proxy_image_blocklist' => DevblocksPlatform::importGPC(@$_POST['proxy_image_blocklist'], 'string', ''),
+			'links_whitelist' => DevblocksPlatform::importGPC(@$_POST['links_whitelist'], 'string', ''),
+		];
+		
+		$error = null;
+		
+		if(false == ($validation->validateAll($values, $error))) {
+			echo json_encode([
+				'status' => false,
+				'error' => $error
+			]);
+			DevblocksPlatform::exit();
+		}
+		
+		// =====================
+		// Proxy settings
+		
+		$settings->set('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_PROXY_TIMEOUT_MS, $values['proxy_image_timeout_ms']);
+		$settings->set('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_PROXY_REDIRECTS_DISABLED, $values['proxy_image_redirects_disabled']);
+		
+		// =====================
+		// Proxy image blocklist
+		
+		$blocklist_items = DevblocksPlatform::parseCrlfString($values['proxy_image_blocklist']);
+		$blocklist_items = array_unique($blocklist_items);
+		sort($blocklist_items);
+		$proxy_image_blocklist = implode("\n", $blocklist_items);
+		
+		$cache->remove('mail_html_image_blocklist');
+		
+		$settings->set('cerberusweb.core',CerberusSettings::MAIL_HTML_IMAGE_PROXY_BLOCKLIST, $proxy_image_blocklist);
+		
+		// ===============
+		// Links whitelist
+		
+		$whitelist_items = DevblocksPlatform::parseCrlfString($values['links_whitelist']);
+		$whitelist_items = array_unique($whitelist_items);
+		sort($whitelist_items);
+		$whitelist_items = implode("\n", $whitelist_items);
+		
+		$cache->remove('mail_html_links_whitelist');
+		
+		$settings->set('cerberusweb.core', CerberusSettings::MAIL_HTML_LINKS_WHITELIST, $whitelist_items);
+		
+		echo json_encode([
+			'status' => true,
+			'message' => DevblocksPlatform::translate('success.saved_changes'),
+		]);
 	}
 	
 	private function _configAction_renderTabMailImport() {
