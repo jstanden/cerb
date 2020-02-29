@@ -775,7 +775,10 @@ class Model_MailQueue {
 		if('parsedown' == $message_properties['content_format']) {
 			$output = $message_properties['content'];
 			$output = DevblocksPlatform::parseMarkdown($output);
-			$output = DevblocksPlatform::purifyHTML($output, true, true);
+			
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			
+			$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 			return $output;
 		
 		} else {

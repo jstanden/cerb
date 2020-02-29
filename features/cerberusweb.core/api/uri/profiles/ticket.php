@@ -787,7 +787,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				$output = $tpl_builder->build($html_template->content, $dict);
 			}
 			
-			$output = DevblocksPlatform::purifyHTML($output, true, true);
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 			
 		} else {
 			$output = nl2br(DevblocksPlatform::strEscapeHtml($output));

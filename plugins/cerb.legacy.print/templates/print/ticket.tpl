@@ -37,9 +37,10 @@
 	<hr>
 	<div style="margin-left:20px;">
 		{if $convo_set.0=='m'}
-			{assign var=message_id value=$convo_set.1}
-			{assign var=message value=$messages.$message_id}
-			{assign var=headers value=$message->getHeaders()}
+			{$message_id = $convo_set.1}
+			{$message = $messages.$message_id}
+			{$headers = $message->getHeaders()}
+			{$sender = $message->getSender()}
 				{if isset($headers.subject)}<b>Subject:</b> {$headers.subject}<br>{/if}
 				{if isset($headers.from)}<b>From:</b> {$headers.from}<br>{/if}
 				{if isset($headers.date)}<b>Date:</b> {$headers.date}<br>{/if}
@@ -47,7 +48,7 @@
 				{if isset($headers.cc)}<b>Cc:</b> {$headers.cc}<br>{/if}
 				<br>
 				{if $message->html_attachment_id}
-					{$message->getContentAsHtml() nofilter}<br>
+					{$message->getContentAsHtml($sender->is_trusted) nofilter}<br>
 				{else}
 					{$message->getContent()|trim|escape|nl2br nofilter}<br>
 				{/if}

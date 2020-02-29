@@ -515,7 +515,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 							@$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
 						
 						// HTML Purify
-						$output = DevblocksPlatform::purifyHTML($output, true, true);
+						$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+						$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 						break;
 					
 					default:

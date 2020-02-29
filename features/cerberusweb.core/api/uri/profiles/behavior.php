@@ -1998,7 +1998,9 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					echo sprintf('<html><head><meta http-equiv="content-type" content="text/html; charset=%s"></head><body style="margin:0;">',
 						LANG_CHARSET_CODE
 					);
-					echo DevblocksPlatform::purifyHTML($output, true, true);
+					
+					$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+					echo DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 					echo '</body></html>';
 					return;
 				}

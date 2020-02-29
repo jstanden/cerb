@@ -77,6 +77,7 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		
 		$html = $tpl_builder->build($content, $dict);
 		
-		return DevblocksPlatform::purifyHTML($html, false, true);
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+		return DevblocksPlatform::purifyHTML($html, false, true, [$filter]);
 	}
 };

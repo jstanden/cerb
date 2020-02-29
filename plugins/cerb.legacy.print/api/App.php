@@ -143,6 +143,7 @@ class Controller_Print extends DevblocksControllerExtension {
 				$tpl->assign('context_watchers', $context_watchers);
 				
 				$tpl->assign('message', $message);
+				$tpl->assign('sender', $message->getSender());
 				$tpl->assign('ticket', $ticket);
 				
 				$tpl->display('devblocks:cerb.legacy.print::print/message.tpl');

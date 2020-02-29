@@ -585,7 +585,9 @@ class Model_PackageLibrary {
 	
 	function getInstructionsAsHtml() {
 		$html = DevblocksPlatform::parseMarkdown($this->getInstructions());
-		return DevblocksPlatform::purifyHTML($html, true, true);
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+		
+		return DevblocksPlatform::purifyHTML($html, true, true, [$filter]);
 	}
 	
 	function getPackageJson() {

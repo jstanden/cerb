@@ -172,7 +172,8 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		$output = $tpl_builder->build($template, $dict);
 		
-		$output = DevblocksPlatform::purifyHTML($output, true, true);
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+		$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 		
 		$tpl->assign('content', $output);
 		
@@ -195,7 +196,8 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		
 		$output = DevblocksPlatform::parseMarkdown($output);
 		
-		$output = DevblocksPlatform::purifyHTML($output, true, true);
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+		$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 		
 		$tpl->assign('content', $output);
 		

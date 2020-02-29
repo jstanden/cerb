@@ -143,6 +143,7 @@ class _DevblocksSheetServiceTypes {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$url_writer = DevblocksPlatform::services()->url();
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_key = $column['key'];
 			@$column_params = $column['params'] ?: [];
@@ -172,7 +173,7 @@ class _DevblocksSheetServiceTypes {
 				$card_label = $sheet_dict->get($column_params['label_key']);
 			} else if(array_key_exists('label_template', $column_params)) {
 				$card_label = $tpl_builder->build($column_params['label_template'], $sheet_dict);
-				$card_label = DevblocksPlatform::purifyHTML($card_label, false, true);
+				$card_label = DevblocksPlatform::purifyHTML($card_label, false, true, [$filter]);
 			} else {
 				$card_label = $sheet_dict->get($default_card_label_key);
 			}
@@ -183,7 +184,7 @@ class _DevblocksSheetServiceTypes {
 				$card_context = $sheet_dict->get($column_params['context_key']);
 			} else if(array_key_exists('context_template', $column_params)) {
 				$card_context = $tpl_builder->build($column_params['context_template'], $sheet_dict);
-				$card_context = DevblocksPlatform::purifyHTML($card_context, false, true);
+				$card_context = DevblocksPlatform::purifyHTML($card_context, false, true, [$filter]);
 			} else {
 				$card_context = $sheet_dict->get($default_card_context_key);
 			}
@@ -194,7 +195,7 @@ class _DevblocksSheetServiceTypes {
 				$card_id = $sheet_dict->get($column_params['id_key']);
 			} else if(array_key_exists('id_template', $column_params)) {
 				$card_id = $tpl_builder->build($column_params['id_template'], $sheet_dict);
-				$card_id = DevblocksPlatform::purifyHTML($card_id, false, true);
+				$card_id = DevblocksPlatform::purifyHTML($card_id, false, true, [$filter]);
 			} else {
 				$card_id = $sheet_dict->get($default_card_id_key);
 			}
@@ -240,6 +241,7 @@ class _DevblocksSheetServiceTypes {
 	function date() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_params = $column['params'] ?: [];
 			
@@ -249,7 +251,7 @@ class _DevblocksSheetServiceTypes {
 				$ts = $sheet_dict->get($column_params['value_key']);
 			} else if(array_key_exists('value_template', $column_params)) {
 				$ts = $tpl_builder->build($column_params['value_template'], $sheet_dict);
-				$ts = DevblocksPlatform::purifyHTML($ts, false, true);
+				$ts = DevblocksPlatform::purifyHTML($ts, false, true, [$filter]);
 			} else {
 				$ts = $sheet_dict->get($column['key']);
 			}
@@ -274,6 +276,8 @@ class _DevblocksSheetServiceTypes {
 	function icon() {
 		return function($column, $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			
 			$value = '';
 			
 			@$column_params = $column['params'] ?: [];
@@ -312,7 +316,7 @@ class _DevblocksSheetServiceTypes {
 				$color = $sheet_dict->get($column_params['color_key']);
 			} else if(array_key_exists('color_template', $column_params)) {
 				$color = $tpl_builder->build($column_params['color_template'], $sheet_dict);
-				$color = DevblocksPlatform::purifyHTML($color, false, true);
+				$color = DevblocksPlatform::purifyHTML($color, false, true, [$filter]);
 			} else {
 				$color = '';
 			}
@@ -325,7 +329,7 @@ class _DevblocksSheetServiceTypes {
 					DevblocksPlatform::strEscapeHtml($image)
 				);
 				
-				DevblocksPlatform::purifyHTML($span);
+				DevblocksPlatform::purifyHTML($span, false, true, [$filter]);
 				
 				$value .= $span;
 			}
@@ -337,6 +341,7 @@ class _DevblocksSheetServiceTypes {
 	function link() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_params = $column['params'] ?: [];
 			
@@ -346,7 +351,7 @@ class _DevblocksSheetServiceTypes {
 				$href = $sheet_dict->get($column_params['href_key']);
 			} else if(array_key_exists('href_template', $column_params)) {
 				$href = $tpl_builder->build($column_params['href_template'], $sheet_dict);
-				$href = DevblocksPlatform::purifyHTML($href, false, true);
+				$href = DevblocksPlatform::purifyHTML($href, false, true, [$filter]);
 			} else {
 				$href = '';
 			}
@@ -357,7 +362,7 @@ class _DevblocksSheetServiceTypes {
 				$text = $sheet_dict->get($column_params['text_key']);
 			} else if(array_key_exists('text_template', $column_params)) {
 				$text = $tpl_builder->build($column_params['text_template'], $sheet_dict);
-				$text = DevblocksPlatform::purifyHTML($text, false, true);
+				$text = DevblocksPlatform::purifyHTML($text, false, true, [$filter]);
 			} else {
 				$text = '';
 			}
@@ -387,6 +392,7 @@ class _DevblocksSheetServiceTypes {
 	function search() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_key = $column['key'];
 			@$column_params = $column['params'] ?: [];
@@ -412,7 +418,7 @@ class _DevblocksSheetServiceTypes {
 				$search_label = $sheet_dict->get($column_params['label_key']);
 			} else if(array_key_exists('label_template', $column_params)) {
 				$search_label = $tpl_builder->build($column_params['label_template'], $sheet_dict);
-				$search_label = DevblocksPlatform::purifyHTML($search_label, false, true);
+				$search_label = DevblocksPlatform::purifyHTML($search_label, false, true, [$filter]);
 				$is_label_escaped = true;
 			} else {
 				$search_label = $sheet_dict->get($default_search_label_key);
@@ -424,7 +430,7 @@ class _DevblocksSheetServiceTypes {
 				$search_context = $sheet_dict->get($column_params['context_key']);
 			} else if(array_key_exists('context_template', $column_params)) {
 				$search_context = $tpl_builder->build($column_params['context_template'], $sheet_dict);
-				$search_context = DevblocksPlatform::purifyHTML($search_context, false, true);
+				$search_context = DevblocksPlatform::purifyHTML($search_context, false, true, [$filter]);
 			} else {
 				$search_context = $sheet_dict->get($default_search_context_key);
 			}
@@ -435,7 +441,7 @@ class _DevblocksSheetServiceTypes {
 				$search_query = $sheet_dict->get($column_params['query_key']);
 			} else if(array_key_exists('query_template', $column_params)) {
 				$search_query = $tpl_builder->build($column_params['query_template'], $sheet_dict);
-				$search_query = DevblocksPlatform::purifyHTML($search_query, false, true);
+				$search_query = DevblocksPlatform::purifyHTML($search_query, false, true, [$filter]);
 			} else {
 				$search_query = '';
 			}
@@ -466,6 +472,7 @@ class _DevblocksSheetServiceTypes {
 	function searchButton() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_params = $column['params'] ?: [];
 			
@@ -475,7 +482,7 @@ class _DevblocksSheetServiceTypes {
 				$search_context = $sheet_dict->get($column_params['context_key']);
 			} else if(array_key_exists('context_template', $column_params)) {
 				$search_context = $tpl_builder->build($column_params['context_template'], $sheet_dict);
-				$search_context = DevblocksPlatform::purifyHTML($search_context, false, true);
+				$search_context = DevblocksPlatform::purifyHTML($search_context, false, true, [$filter]);
 			} else {
 				$search_context = '';
 			}
@@ -486,7 +493,7 @@ class _DevblocksSheetServiceTypes {
 				$search_query = $sheet_dict->get($column_params['query_key']);
 			} else if(array_key_exists('query_template', $column_params)) {
 				$search_query = $tpl_builder->build($column_params['query_template'], $sheet_dict);
-				$search_query = DevblocksPlatform::purifyHTML($search_query, false, true);
+				$search_query = DevblocksPlatform::purifyHTML($search_query, false, true, [$filter]);
 			} else {
 				$search_query = '';
 			}
@@ -507,6 +514,7 @@ class _DevblocksSheetServiceTypes {
 	function slider() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_params = $column['params'] ?: [];
 			
@@ -520,7 +528,7 @@ class _DevblocksSheetServiceTypes {
 				$value = $sheet_dict->get($column_params['value_key']);
 			} else if(array_key_exists('value_template', $column_params)) {
 				$value = $tpl_builder->build($column_params['value_template'], $sheet_dict);
-				$value= DevblocksPlatform::purifyHTML($value, false, true);
+				$value= DevblocksPlatform::purifyHTML($value, false, true, [$filter]);
 			} else {
 				$value = $sheet_dict->get($column['key']);
 			}
@@ -551,6 +559,7 @@ class _DevblocksSheetServiceTypes {
 	function text() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_params = $column['params'] ?: [];
 			$is_escaped = false;
@@ -569,7 +578,7 @@ class _DevblocksSheetServiceTypes {
 				$text_value = $sheet_dict->get($column_params['value_key']);
 			} else if(array_key_exists('value_template', $column_params)) {
 				$out = $tpl_builder->build($column_params['value_template'], $sheet_dict);
-				$text_value = DevblocksPlatform::purifyHTML($out, false, true);
+				$text_value = DevblocksPlatform::purifyHTML($out, false, true, [$filter]);
 				$is_escaped = true;
 			} else {
 				$text_value = $sheet_dict->get($column['key'], null);
@@ -593,6 +602,7 @@ class _DevblocksSheetServiceTypes {
 	function timeElapsed() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_params = $column['params'] ?: [];
 			
@@ -604,7 +614,7 @@ class _DevblocksSheetServiceTypes {
 				$value = $sheet_dict->get($column_params['value_key']);
 			} else if(array_key_exists('value_template', $column_params)) {
 				$value = $tpl_builder->build($column_params['value_template'], $sheet_dict);
-				$value = DevblocksPlatform::purifyHTML($value, false, true);
+				$value = DevblocksPlatform::purifyHTML($value, false, true, [$filter]);
 			} else {
 				$value = $sheet_dict->get($column['key']);
 			}

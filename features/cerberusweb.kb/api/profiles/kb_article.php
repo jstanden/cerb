@@ -175,7 +175,10 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		
 		$output = $tpl_builder->build($content, []);
 		$output = DevblocksPlatform::parseMarkdown($output);
-		$output = DevblocksPlatform::purifyHTML($output, true, true);
+		
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+		$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
+		
 		$tpl->assign('content', $output);
 		
 		$tpl->assign('css_class', 'cerb-kb-article-content');

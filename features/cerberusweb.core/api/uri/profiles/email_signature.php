@@ -191,7 +191,9 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 		
 		if('markdown' == $format) {
 			$signature = DevblocksPlatform::parseMarkdown($signature);
-			$signature = DevblocksPlatform::purifyHTML($signature, true, true);
+			
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			$signature = DevblocksPlatform::purifyHTML($signature, true, true, [$filter]);
 			
 		} else {
 			$signature = DevblocksPlatform::strEscapeHtml($signature);
