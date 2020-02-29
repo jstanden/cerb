@@ -91,8 +91,6 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 				$error = null;
 				
 				if($key_text) {
-					// [TODO] Check if we need a passphrase to read this key info and validate it
-					
 					if(false == ($keyinfo = $gpg->importPrivateKey($key_text)))
 						throw new Exception_DevblocksAjaxValidationError("Failed to decrypt the given private key.", 'key_text');
 					
@@ -102,14 +100,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 					if(!$keyinfo['can_sign'] || !$keyinfo['is_secret'])
 						throw new Exception_DevblocksAjaxValidationError("This is not a valid private key.", "key_text");
 					
-					$key = null;
-					
-					foreach($keyinfo['subkeys'] as $idx => $subkey) {
-						if(0 == strcasecmp($subkey['fingerprint'], $keyinfo['fingerprint'])) {
-							$key = $subkey;
-							break;
-						}
-					}
+					@$key = $keyinfo['subkeys'][0];
 					
 					if(empty($key))
 						throw new Exception_DevblocksAjaxValidationError("Failed to retrieve private key subkey info.", "key_text");
@@ -123,7 +114,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 					$expires_at = $key['expires'];
 					
 					// If this fingerprint already exists, return the existing key info
-					if(!$id && false != ($record = DAO_GpgPrivateKey::getByFingerprint($keyinfo['fingerprint']))) {
+					if(!$id && false != ($record = DAO_GpgPrivateKey::getByFingerprint($key['fingerprint']))) {
 						$id = $record->id;
 						C4_AbstractView::setMarqueeContextCreated($view_id, Context_GpgPrivateKey::ID, $id);
 					}
@@ -141,7 +132,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 					
 					$fields = [
 						DAO_GpgPrivateKey::NAME => $name,
-						DAO_GpgPrivateKey::FINGERPRINT => $keyinfo['fingerprint'],
+						DAO_GpgPrivateKey::FINGERPRINT => $keyinfo['subkeys'][0]['fingerprint'],
 						DAO_GpgPrivateKey::EXPIRES_AT => $expires_at,
 						DAO_GpgPrivateKey::KEY_TEXT => $key_text,
 						DAO_GpgPrivateKey::UPDATED_AT => time(),
@@ -174,7 +165,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 						$fields[DAO_GpgPrivateKey::PASSPHRASE_ENCRYPTED] = DevblocksPlatform::services()->encryption()->encrypt($passphrase);
 					
 					if($keyinfo) {
-						$fields[DAO_GpgPrivateKey::FINGERPRINT] = $keyinfo['fingerprint'];
+						$fields[DAO_GpgPrivateKey::FINGERPRINT] = $keyinfo['subkeys'][0]['fingerprint'];
 						$fields[DAO_GpgPrivateKey::KEY_TEXT] = $key_text;
 						$fields[DAO_GpgPrivateKey::EXPIRES_AT] = $expires_at;
 						

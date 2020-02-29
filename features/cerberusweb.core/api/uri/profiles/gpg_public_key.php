@@ -94,14 +94,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 					if (!$keyinfo['can_sign'] || $keyinfo['is_secret'])
 						throw new Exception_DevblocksAjaxValidationError("This is not a valid public key.", "key_text");
 					
-					$key = null;
-					
-					foreach ($keyinfo['subkeys'] as $idx => $subkey) {
-						if (0 == strcasecmp($subkey['fingerprint'], $keyinfo['fingerprint'])) {
-							$key = $subkey;
-							break;
-						}
-					}
+					@$key = $keyinfo['subkeys'][0];
 					
 					if (empty($key))
 						throw new Exception_DevblocksAjaxValidationError("Failed to retrieve public key subkey info.", "key_text");
@@ -116,7 +109,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 				}
 				
 				// If this fingerprint already exists, return the existing key info
-				if(!$id && false != ($record = DAO_GpgPublicKey::getByFingerprint($keyinfo['fingerprint']))) {
+				if(!$id && false != ($record = DAO_GpgPublicKey::getByFingerprint($keyinfo['subkeys'][0]['fingerprint']))) {
 					$id = $record->id;
 					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $id);
 				}
@@ -130,7 +123,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 					
 					$fields = [
 						DAO_GpgPublicKey::NAME => $name,
-						DAO_GpgPublicKey::FINGERPRINT => $keyinfo['fingerprint'],
+						DAO_GpgPublicKey::FINGERPRINT => $keyinfo['subkeys'][0]['fingerprint'],
 						DAO_GpgPublicKey::EXPIRES_AT => $expires_at,
 						DAO_GpgPublicKey::KEY_TEXT => $key_text,
 						DAO_GpgPublicKey::UPDATED_AT => time(),
@@ -161,7 +154,7 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 					];
 					
 					if($keyinfo) {
-						$fields[DAO_GpgPublicKey::FINGERPRINT] = $keyinfo['fingerprint'];
+						$fields[DAO_GpgPublicKey::FINGERPRINT] = $keyinfo['subkeys'][0]['fingerprint'];
 						$fields[DAO_GpgPublicKey::KEY_TEXT] = $key_text;
 						$fields[DAO_GpgPublicKey::EXPIRES_AT] = $expires_at;
 						
