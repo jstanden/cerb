@@ -9,6 +9,8 @@
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="draft_id" value="{$draft->id}">
 <input type="hidden" name="format" value="{if $is_html}parsedown{/if}">
+<input type="hidden" name="options_gpg_encrypt" value="{if $draft->params.options_gpg_encrypt}1{/if}">
+<input type="hidden" name="options_gpg_sign" value="{if $draft->params.options_gpg_sign}1{/if}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
@@ -103,6 +105,10 @@
 				<button type="button" title="Insert snippet (Ctrl+Shift+Period)" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
 				{*<button type="button" title="Track time" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="glyphicons glyphicons-stopwatch"></span></button>*}
 				<button type="button" title="Save draft (Ctrl+S)" data-cerb-key-binding="ctrl+s" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--save"><span class="glyphicons glyphicons-floppy-save"></span></button>
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				<button type="button" title="{'common.encrypt'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--encrypt {if $draft->params.options_gpg_encrypt}cerb-code-editor-toolbar-button--enabled{/if}"><span class="glyphicons {if $draft->params.options_gpg_encrypt}glyphicons-lock{else}glyphicons-unlock{/if}"></span></button>
+				<button type="button" title="{'common.encrypt.sign'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--sign {if $draft->params.options_gpg_sign}cerb-code-editor-toolbar-button--enabled{/if}"><span class="glyphicons {if $draft->params.options_gpg_sign}glyphicons-user-lock{else}glyphicons-user{/if}"></span></button>
 				<div class="cerb-code-editor-toolbar-divider"></div>
 
 				<button type="button" title="Preview message (Ctrl+Shift+P)" data-cerb-key-binding="ctrl+shift+p" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
@@ -209,21 +215,6 @@
 	</div>
 
 	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false custom_fieldsets_available=$custom_fieldsets_available}
-</fieldset>
-{/if}
-
-{if $gpg && $gpg->isEnabled()}
-<fieldset class="peek">
-	<legend>
-		<label>
-			<input type="checkbox" name="options_gpg_encrypt" value="1" {if $draft->params.options_gpg_encrypt}checked="checked"{/if}>
-			{'common.encrypt'|devblocks_translate|capitalize}
-		</label>
-	</legend>
-
-	<div style="{if $draft->params.options_gpg_encrypt}{else}display:none;{/if}">
-		This message will be encrypted with recipient public keys.
-	</div>
 </fieldset>
 {/if}
 
@@ -370,6 +361,74 @@ $(function() {
 			attachmentsContainer: $attachments,
 			toolbar: $editor_toolbar
 		});
+
+		$editor_toolbar.find('.cerb-reply-editor-toolbar-button--encrypt')
+			.click(function() {
+				var $button = $(this);
+				var $hidden = $frm.find('> input:hidden[name=options_gpg_encrypt]');
+				var $icon = $button.find('span.glyphicons');
+
+				if('1' === $hidden.val()) {
+					$hidden.val(0);
+					$button
+						.removeClass('cerb-code-editor-toolbar-button--enabled')
+						.addClass('cerb-code-editor-toolbar-button--disabled')
+					;
+					$icon
+						.removeClass('glyphicons-lock')
+						.addClass('glyphicons-unlock')
+					;
+
+				} else {
+					$hidden.val(1);
+					$button
+						.removeClass('cerb-code-editor-toolbar-button--disabled')
+						.addClass('cerb-code-editor-toolbar-button--enabled')
+					;
+					$icon
+						.removeClass('glyphicons-unlock')
+						.addClass('glyphicons-lock')
+					;
+
+					// Enable signing
+					if(!$editor_toolbar_button_sign.hasClass('cerb-code-editor-toolbar-button--enabled')) {
+						$editor_toolbar_button_sign.click();
+					}
+				}
+			})
+		;
+
+		var $editor_toolbar_button_sign = $editor_toolbar.find('.cerb-reply-editor-toolbar-button--sign')
+			.click(function() {
+				var $button = $(this);
+				var $hidden = $frm.find('> input:hidden[name=options_gpg_sign]');
+				var $icon = $button.find('span.glyphicons');
+
+				if('1' === $hidden.val()) {
+					$hidden.val(0);
+					$button
+						.removeClass('cerb-code-editor-toolbar-button--enabled')
+						.addClass('cerb-code-editor-toolbar-button--disabled')
+					;
+					$icon
+						.removeClass('glyphicons-user-lock')
+						.addClass('glyphicons-user')
+					;
+
+				} else {
+					$hidden.val(1);
+					$button
+						.removeClass('cerb-code-editor-toolbar-button--disabled')
+						.addClass('cerb-code-editor-toolbar-button--enabled')
+					;
+					$icon
+						.removeClass('glyphicons-user')
+						.addClass('glyphicons-user-lock')
+					;
+
+				}
+			})
+		;
 
 		var $editor_toolbar_button_save_draft = $frm.find('.cerb-reply-editor-toolbar-button--save').click(function(e) {
 			var $this = $(this);
@@ -628,19 +687,6 @@ $(function() {
 			clearTimeout(draftComposeAutoSaveInterval);
 			draftComposeAutoSaveInterval = null;
 		}
-
-		// Encryption
-
-		$frm.find('input[name=options_gpg_encrypt]').on('click', function(e) {
-			e.stopPropagation();
-
-			var $div = $(this).closest('fieldset').find('> div');
-
-			$div
-				.toggle()
-				.focus()
-			;
-		});
 
 		// Deliver later
 

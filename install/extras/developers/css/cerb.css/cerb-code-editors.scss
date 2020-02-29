@@ -6,6 +6,17 @@
 	.cerb-code-editor-toolbar-button {
 		background:rgb(245,245,245);
 		border:0;
+
+		&.cerb-code-editor-toolbar-button--enabled {
+			background-color: rgb(250,220,74);
+
+			span.glyphicons {
+				color: rgb(165, 100, 33);
+			}
+		}
+
+		&.cerb-code-editor-toolbar-button--disabled {
+		}
 	}
 	
 	.cerb-code-editor-toolbar-divider {

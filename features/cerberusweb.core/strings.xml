@@ -1105,6 +1105,16 @@
 				<seg>encrypt</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.encrypt.sign">
+			<tuv xml:lang="en_US">
+				<seg>sign</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.encrypt.signing.key">
+			<tuv xml:lang="en_US">
+				<seg>signing key</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.encrypted">
 			<tuv xml:lang="en_US">
 				<seg>encrypted</seg>
