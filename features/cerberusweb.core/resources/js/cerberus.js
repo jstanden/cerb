@@ -738,7 +738,7 @@ var cAjaxCalls = function() {
 	this.countryAutoComplete = function(sel, options) {
 		if(null == options) options = { };
 		
-		options.source = DevblocksAppPath+'ajax.php?c=contacts&a=getCountryAutoCompletions';
+		options.source = DevblocksAppPath+'ajax.php?c=profiles&a=invoke&module=org&action=autocompleteCountry';
 		
 		if(null == options.delay)
 			options.delay = 300;

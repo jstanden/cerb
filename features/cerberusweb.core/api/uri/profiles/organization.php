@@ -110,7 +110,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 					DAO_ContactOrg::EMAIL_ID => $email_id,
 				);
 		
-				if($id==0) {
+				if(!$id) {
 					if(!DAO_ContactOrg::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					

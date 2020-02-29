@@ -39,7 +39,6 @@ EOD;
 	$sql = sprintf("UPDATE profile_widget SET extension_params_json = %s WHERE name = 'Actions' AND profile_tab_id IN (SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.ticket' AND name = 'Overview')",
 		$db->qstr($json)
 	);
-	error_log($sql);
 	$db->ExecuteMaster($sql);
 }
 

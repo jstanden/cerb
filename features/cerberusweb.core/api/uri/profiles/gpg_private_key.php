@@ -265,7 +265,7 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 			// [TODO] Validate UIDs
 			// [TODO] Exceptions
 			
-			list('public_key'=>$public_key, 'private_key'=>$private_key) = $gpg->keygen($uids, $key_length, null);
+			list('public_key'=>$public_key, 'private_key'=>$private_key) = @$gpg->keygen($uids, $key_length, null);
 			
 			// Import private key
 			
