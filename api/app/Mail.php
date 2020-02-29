@@ -64,15 +64,26 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 	}
 	
 	protected function getSignKey(Swift_Message $message) {
-		if(false == ($gpg = DevblocksPlatform::services()->gpg()))
-			return false;
+		$gpg = DevblocksPlatform::services()->gpg();
+		
+		// Check for group/bucket overrides
+		
+		@$bucket_id = $this->_properties['bucket_id'];
+		
+		if($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
+			if(false != ($reply_signing_key = $bucket->getReplySigningKey())) {
+				return $reply_signing_key->fingerprint;
+			}
+		}
+		
+		// Check for private keys that cover the 'From:' address
 		
 		if(false == ($from = $message->getFrom()) || !is_array($from))
 			return false;
 		
 		$email = key($from);
 		
-		if(false != ($keys = $gpg->keyinfo(sprintf("<%s>", $email))) && is_array($keys)) {
+		if(false != ($keys = $gpg->keyinfoPrivate(sprintf("<%s>", $email))) && is_array($keys)) {
 			foreach($keys as $key) {
 				if($this->isValidKey($key, 'sign'))
 				foreach($key['subkeys'] as $subkey) {
@@ -102,7 +113,7 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 			$gpg = DevblocksPlatform::services()->gpg();
 			$found = false;
 
-			if(false != ($keys = $gpg->keyinfo(sprintf("<%s>", $email))) && is_array($keys)) {
+			if(false != ($keys = $gpg->keyinfoPublic(sprintf("<%s>", $email))) && is_array($keys)) {
 				foreach($keys as $key) {
 					if($this->isValidKey($key, 'encrypt'))
 					foreach($key['subkeys'] as $subkey) {
@@ -161,18 +172,19 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 	 * @param Swift_Message $message
 	 *
 	 * @return self
+	 * @throws Swift_SwiftException
 	 */
 	public function signMessage(Swift_Message $message) {
 		$sign_key = $this->getSignKey($message);
-		
-		if(false == ($recipient_keys = $this->getRecipientKeys($message)))
-			throw new Swift_SwiftException('Error: No recipient GPG public keys for encryption.');
 		
 		$originalMessage = $this->createMessage($message);
 		$message->setChildren([]);
 		$message->setEncoder(Swift_DependencyContainer::getInstance()->lookup('mime.rawcontentencoder'));
 		
-		if($sign_key) {
+		if(@$this->_properties['gpg_sign']) {
+			if(!$sign_key)
+				throw new Swift_SwiftException('Error: No PGP signing keys are configured for this group/bucket.');
+			
 			$type = $message->getHeaders()->get('Content-Type');
 			$type->setValue('multipart/signed');
 			$type->setParameters([
@@ -182,14 +194,6 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 			]);
 			
 			$signed_body = $originalMessage->toString();
-			
-			$lines = DevblocksPlatform::parseCrlfString(rtrim($signed_body), true);
-			
-			array_walk($lines, function(&$line) {
-				$line = rtrim($line) . "\r\n";
-			});
-			
-			$signed_body = rtrim(implode('', $lines) . "\r\n");
 			
 			$signature = $this->signWithPGP($signed_body, $sign_key);
 			
@@ -215,7 +219,10 @@ EOD;
 		
 		$message->setBody($body);
 		
-		if($this->encrypt) {
+		if(@$this->_properties['gpg_encrypt']) {
+			if(false == ($recipient_keys = $this->getRecipientKeys($message)))
+				throw new Swift_SwiftException('Error: No recipient GPG public keys for encryption.');
+			
 			if($sign_key) {
 				$content = sprintf("%s\r\n%s", $message->getHeaders()->get('Content-Type')->toString(), $body);
 			} else {
@@ -508,8 +515,8 @@ class CerberusMail {
 		'ticket_reopen'
 		'dont_send'
 		'draft_id'
-		'gpg_sign'
 		'gpg_encrypt'
+		'gpg_sign'
 		'send_at'
 		 */
 		
@@ -722,9 +729,9 @@ class CerberusMail {
 			$outgoing_mail_headers = $email->getHeaders()->toString();
 			$outgoing_message_id = $email->getHeaders()->get('message-id')->getFieldBody();
 			
-			// Encryption
-			if(isset($properties['gpg_encrypt']) && $properties['gpg_encrypt']) {
-				$signer = new Cerb_SwiftPlugin_GPGSigner();
+			// Encryption and signing
+			if(@$properties['gpg_sign'] || @$properties['gpg_encrypt']) {
+				$signer = new Cerb_SwiftPlugin_GPGSigner($properties);
 				$email->attachSigner($signer);
 			}
 			
@@ -844,6 +851,13 @@ class CerberusMail {
 			DAO_Message::WAS_ENCRYPTED => !empty(@$properties['gpg_encrypt']) ? 1 : 0,
 			DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
 		);
+		
+		if(@$properties['gpg_sign']) {
+			$fields[DAO_Message::SIGNED_AT] = time();
+			// [TODO]
+			//$fields[DAO_Message::SIGNED_KEY_FINGERPRINT] = null;
+		}
+		
 		$message_id = DAO_Message::create($fields);
 		
 		// Content

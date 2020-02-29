@@ -1285,6 +1285,11 @@
 				<seg>filters</seg>
 			</tuv>
 		</tu>
+		<tu tuid='common.fingerprint'>
+			<tuv xml:lang="en_US">
+				<seg>fingerprint</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.for">
 			<tuv xml:lang="en_US">
 				<seg>for</seg>
@@ -1971,6 +1976,11 @@
 		<tu tuid="common.participants">
 			<tuv xml:lang="en_US">
 				<seg>participants</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.passphrase">
+			<tuv xml:lang="en_US">
+				<seg>passphrase</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.password">
@@ -3190,13 +3200,6 @@
 			<tuv xml:lang="en_US">
 				<seg>User Agent</seg>
 			</tuv>
-		</tu>
-		
-		<!-- GpgPublicKey -->
-		
-		<tu tuid='dao.gpg_public_key.fingerprint'>
-			<tuv xml:lang="en_US">
-			<seg>Fingerprint</seg></tuv>
 		</tu>
 		
 		<!-- Mailbox -->

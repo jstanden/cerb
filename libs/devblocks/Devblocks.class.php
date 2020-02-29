@@ -104,7 +104,7 @@ class _DevblocksServices {
 	
 	/**
 	 * 
-	 * @return _DevblocksGPGService
+	 * @return Extension_DevblocksGpgEngine
 	 */
 	function gpg() {
 		return _DevblocksGPGService::getInstance();

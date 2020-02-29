@@ -176,6 +176,8 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/gpg.php', array(
 			'_DevblocksGPGService',
+			'Extension_DevblocksGpgEngine',
+			'DevblocksGpgEngine_OpenPGP',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/mfa.php', array(
 			'_DevblocksMultiFactorAuthService',

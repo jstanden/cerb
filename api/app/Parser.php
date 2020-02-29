@@ -728,7 +728,15 @@ class CerberusParser {
 		$do_recurse = true;
 		
 		switch(DevblocksPlatform::strLower($part->data['content-type'])) {
+			case 'application/pgp-signature':
+				$do_ignore = true;
+				break;
+				
 			case 'multipart/signed':
+				$gpg = DevblocksPlatform::services()->gpg();
+				$do_ignore = true;
+				$do_recurse = true;
+				
 				// We only care about PGP signatures
 				if(0 != strcasecmp('application/pgp-signature', $part->data['content-protocol']))
 					break;
@@ -736,17 +744,19 @@ class CerberusParser {
 				if($part->get_child_count() != 3)
 					break;
 				
-				$part_signed = $part->get_child(1);
+				$raw_body = $part->extract_body(MAILPARSE_EXTRACT_RETURN);
+				
+				$boundary = $part->data['content-boundary'];
+				$boundary_parts = preg_split("#\\r?\\n--" . preg_quote($boundary) . '#', $raw_body);
+				$signed_content = ltrim($boundary_parts[1]);
+				
 				$part_signature = $part->get_child(2);
 				
-				$signed_content = $part_signed->extract_body(MAILPARSE_EXTRACT_RETURN);
 				$signature = $part_signature->extract_body(MAILPARSE_EXTRACT_RETURN);
-
-				$gpg = DevblocksPlatform::services()->gpg();
 				
 				// Denote valid signature on saved message
 				if(false != ($info = $gpg->verify($signed_content, $signature))) {
-					$mime_meta['gpg_signed_verified'] = $info;
+					$mime_meta['gpg_verified_signatures'] = $info;
 				}
 				break;
 				
@@ -761,22 +771,27 @@ class CerberusParser {
 						$encrypted_content = $child->extract_body(MAILPARSE_EXTRACT_RETURN);
 						
 						try {
-							if(false == ($gpg = DevblocksPlatform::services()->gpg()))
-								throw new Exception("The gnupg PHP extension is not installed.");
-								
-							if(false == ($decrypted_content = $gpg->decrypt($encrypted_content)))
+							$gpg = DevblocksPlatform::services()->gpg();
+							
+							if(false == ($decrypt_results = $gpg->decrypt($encrypted_content)))
 								throw new Exception("Failed to find a decryption key for PGP message content.");
 							
-							if(false == ($decrypted_mime = new MimeMessage("var", rtrim($decrypted_content, PHP_EOL) . PHP_EOL)))
+							if(false == ($decrypted_mime = new MimeMessage("var", rtrim($decrypt_results['data'], PHP_EOL) . PHP_EOL)))
 								throw new Exception("Failed to parse decrypted MIME content.");
 							
 							// Denote encryption on saved message
 							$mime_meta['gpg_encrypted'] = true;
+							
+							// Signed?
+							if(array_key_exists('verified_signatures', $decrypt_results))
+								$mime_meta['gpg_verified_signatures'] = $decrypt_results['verified_signatures'];
 								
 							// Add to the mime tree
 							$new_mime_parts = [];
 							
 							self::_recurseMimeParts($decrypted_mime, $new_mime_parts, $mime_meta);
+							
+							$mime_meta['references'][] = $decrypted_mime;
 							
 							foreach($new_mime_parts as $k => $v) {
 								$results[$k] = $v;
@@ -835,7 +850,7 @@ class CerberusParser {
 	
 	/**
 	 * @param MimeMessage $mm
-	 * @return CerberusParserMessage
+	 * @return CerberusParserMessage|false
 	 */
 	static private function _parseMime($mm) {
 		if(!($mm instanceof MimeMessage))

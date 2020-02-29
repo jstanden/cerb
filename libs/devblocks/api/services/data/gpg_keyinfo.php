@@ -67,12 +67,9 @@ class _DevblocksDataProviderGpgKeyInfo extends _DevblocksDataProvider {
 		
 		// Data
 		
-		if(false == ($gpg = DevblocksPlatform::services()->gpg())) {
-			$error = "The `gnupg` extension is not installed.";
-			return false;
-		}
+		$gpg = DevblocksPlatform::services()->gpg();
 		
-		$keyinfo = $gpg->keyinfo($chart_model['fingerprint']);
+		$keyinfo = $gpg->keyinfoPublic($chart_model['fingerprint']);
 		
 		$data = [];
 		

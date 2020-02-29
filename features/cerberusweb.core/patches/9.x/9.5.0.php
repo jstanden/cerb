@@ -105,6 +105,155 @@ if(array_key_exists('project_board', $tables)) {
 }
 
 // ===========================================================================
+// Create `gpg_private_key`
+
+if(!isset($tables['gpg_private_key'])) {
+	$sql = sprintf("
+		CREATE TABLE `gpg_private_key` (
+		`id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(255) DEFAULT '',
+		`fingerprint` varchar(255) DEFAULT '',
+		`expires_at` int(10) unsigned NOT NULL DEFAULT '0',
+		`updated_at` int(10) unsigned NOT NULL DEFAULT '0',
+		`key_text` text,
+		`passphrase_encrypted` text,
+		PRIMARY KEY (`id`),
+		KEY `fingerprint` (`fingerprint`(4))
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['gpg_private_key'] = 'gpg_private_key';
+}
+
+// ===========================================================================
+// Create `gpg_key_part`
+
+if(!isset($tables['gpg_key_part'])) {
+	$sql = sprintf("
+		CREATE TABLE `gpg_key_part` (
+		`key_context` varchar(255) DEFAULT '',
+		`key_id` int(10) unsigned NOT NULL DEFAULT '0',
+		`part_name` varchar(255) DEFAULT '',
+		`part_value` varchar(255) DEFAULT '',
+		KEY `context_and_part` (`key_context`, `part_name`, `part_value`(6)),
+		KEY `key_context_and_id` (`key_context`, `key_id`)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['gpg_key_part'] = 'gpg_key_part';
+}
+
+// ===========================================================================
+// Modify `gpg_public_key`
+
+list($columns,) = $db->metaTable('gpg_public_key');
+
+if(!isset($columns['key_text'])) {
+	$sql = "ALTER TABLE gpg_public_key ADD COLUMN key_text text";
+	$db->ExecuteMaster($sql);
+	
+	// Migrate from GNUPG keychain
+	if(extension_loaded('gnupg')) {
+		putenv("GNUPGHOME=" . APP_STORAGE_PATH . '/.gnupg');
+		$gpg = new gnupg();
+		$gpg->seterrormode(gnupg::ERROR_SILENT);
+		
+		$all_keys = $gpg->keyinfo('');
+		$gpg->setarmor(1);
+		
+		foreach($all_keys as $keyinfo) {
+			if(false == @$fingerprint = $keyinfo['subkeys'][0]['fingerprint'])
+				continue;
+			
+			if(false != ($key_text = $gpg->export($fingerprint))) {
+				DAO_GpgPublicKey::updateWhere(
+					[
+						DAO_GpgPublicKey::KEY_TEXT => $key_text
+					],
+					sprintf('fingerprint = %s', $db->qstr($fingerprint))
+				);
+			}
+		}
+	}
+	
+	$db->ExecuteMaster(sprintf("INSERT IGNORE INTO gpg_key_part (key_context, key_id, part_name, part_value) ".
+		"SELECT %s, id, 'fingerprint', fingerprint FROM gpg_public_key",
+		$db->qstr('cerberusweb.contexts.gpg_public_key')
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT IGNORE INTO gpg_key_part (key_context, key_id, part_name, part_value) ".
+		"SELECT %s, id, 'fingerprint16', substr(fingerprint,-16) FROM gpg_public_key",
+		$db->qstr('cerberusweb.contexts.gpg_public_key')
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT IGNORE INTO gpg_key_part (key_context, key_id, part_name, part_value) ".
+		"SELECT %s, id, 'uid', name from gpg_public_key",
+		$db->qstr('cerberusweb.contexts.gpg_public_key')
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT IGNORE INTO gpg_key_part (key_context, key_id, part_name, part_value) ".
+		"SELECT %s, id, 'name', substr(name,1,char_length(name)-locate('<',reverse(name))-1) from gpg_public_key",
+		$db->qstr('cerberusweb.contexts.gpg_public_key')
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT IGNORE INTO gpg_key_part (key_context, key_id, part_name, part_value) ".
+		"SELECT 'cerberusweb.contexts.gpg_public_key', from_context_id as key_id, 'email', address.email from context_link inner join address on (to_context_id=address.id) where from_context = 'cerberusweb.contexts.gpg_public_key' and to_context = 'cerberusweb.contexts.address'"
+	));
+}
+
+// ===========================================================================
+// Add `worker_group.reply_signing_key_id`
+
+list($columns,) = $db->metaTable('worker_group');
+
+if(!isset($columns['reply_signing_key_id'])) {
+	$sql = "ALTER TABLE worker_group ADD COLUMN reply_signing_key_id int unsigned not null default 0";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
+// Add `bucket.reply_signing_key_id`
+
+list($columns,) = $db->metaTable('bucket');
+
+if(!isset($columns['reply_signing_key_id'])) {
+	$sql = "ALTER TABLE bucket ADD COLUMN reply_signing_key_id int unsigned not null default 0";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
+// Add PGP signature data to `message`
+// Index `message.address_id`
+// ===========================================================================
+
+list($columns, $indexes) = $db->metaTable('message');
+
+$changes = [];
+
+if(array_key_exists('was_signed', $columns)) {
+	$changes[] = "DROP COLUMN was_signed";
+}
+
+if(!isset($columns['signed_key_fingerprint'])) {
+	$changes[] = "ADD COLUMN signed_key_fingerprint VARCHAR(64) NOT NULL DEFAULT ''";
+}
+
+if(!isset($columns['signed_at'])) {
+	$changes[] = "ADD COLUMN signed_at INT UNSIGNED NOT NULL DEFAULT 0";
+}
+
+if(!array_key_exists('address_id', $indexes)) {
+	$changes[] = "ADD INDEX (address_id)";
+}
+
+if($changes) {
+	$sql = "ALTER TABLE message " . implode(', ', $changes);
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Finish up
 
 return true;

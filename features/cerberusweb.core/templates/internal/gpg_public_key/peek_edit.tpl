@@ -12,21 +12,21 @@
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellspacing="0" cellpadding="2" border="0" width="98%">
+	{if $model->id}
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
 			<input type="text" name="name" value="{$model->name}" style="width:100%;" placeholder="(optional)" autofocus="autofocus">
 		</td>
 	</tr>
-	{if !$model->id}
+	{/if}
 	<tr>
 		<td width="1%" valign="top" nowrap="nowrap"><b>{'common.key'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			<textarea name="public_key" style="width:100%;height:150px;" placeholder="----- BEGIN PGP PUBLIC KEY BLOCK ..."></textarea>
+			<textarea name="key_text" style="width:100%;height:150px;" placeholder="----- BEGIN PGP PUBLIC KEY BLOCK ..."></textarea>
 		</td>
 	</tr>
-	{/if}
-	
+
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
 </table>
 	
