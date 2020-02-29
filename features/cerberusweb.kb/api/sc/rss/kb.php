@@ -107,7 +107,7 @@ XML;
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('title', $escapedSubject);
 
-			$escapedDesc = htmlspecialchars($article->getContent(),null,LANG_CHARSET_CODE);
+			$escapedDesc = htmlspecialchars($article->getPublicContent(),null,LANG_CHARSET_CODE);
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('description', $escapedDesc);
 
@@ -189,7 +189,7 @@ XML;
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('title', $escapedSubject);
 
-			$escapedDesc = htmlspecialchars($article->getContent(),null,LANG_CHARSET_CODE);
+			$escapedDesc = htmlspecialchars($article->getPublicContent(),null,LANG_CHARSET_CODE);
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('description', $escapedDesc);
 
@@ -271,7 +271,7 @@ XML;
 			$escapedSubject = mb_convert_encoding($escapedSubject, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('title', $escapedSubject);
 
-			$escapedDesc = htmlspecialchars($article->getContent(),null,LANG_CHARSET_CODE);
+			$escapedDesc = htmlspecialchars($article->getPublicContent(),null,LANG_CHARSET_CODE);
 			$escapedDesc = mb_convert_encoding($escapedDesc, 'utf-8', LANG_CHARSET_CODE);
 			$eItem->addChild('description', $escapedDesc);
 

@@ -3,7 +3,7 @@
 <h1 class="title">{$article->title}</h1>
 
 <div class="content">
-	{$article_content = $article->getContent()}
+	{$article_content = $article->getPublicContent()}
 	{if $article_content}
 		{$article_content nofilter}<br>
 	{else}

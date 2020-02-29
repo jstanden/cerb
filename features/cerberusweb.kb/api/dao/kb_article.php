@@ -907,6 +907,41 @@ class Model_KbArticle {
 		$this->_content = $content;
 	}
 	
+	function getPublicContent() {
+		$html = '';
+		
+		$function_cerb_file_url = new \Twig\TwigFunction('cerb_file_url', function ($id) {
+			$url_writer = DevblocksPlatform::services()->url();
+			
+			if(false == ($file = DAO_Attachment::get($id)))
+				return null;
+			
+			return $url_writer->write(sprintf('c=ajax&a=downloadFile&hash=%s&name=%s', rawurlencode($file->storage_sha1hash), rawurlencode($file->name)), true, true);
+		});
+		
+		switch($this->format) {
+			case self::FORMAT_HTML:
+				$tpl_builder = _DevblocksTemplateBuilder::newInstance();
+				$tpl_builder->addFunction($function_cerb_file_url);
+				$html = $tpl_builder->build($this->content, []);
+				break;
+				
+			case self::FORMAT_PLAINTEXT:
+				$html = nl2br(DevblocksPlatform::strEscapeHtml($this->content));
+				break;
+				
+			case self::FORMAT_MARKDOWN:
+				$tpl_builder = _DevblocksTemplateBuilder::newInstance();
+				$tpl_builder->addFunction($function_cerb_file_url);
+				$html = DevblocksPlatform::parseMarkdown($tpl_builder->build($this->content, []));
+				break;
+		}
+		
+		$html = DevblocksPlatform::purifyHTML($html, true, true);
+		
+		return $html;
+	}
+	
 	function getContent($sanitized=true) {
 		$html = '';
 		
@@ -927,7 +962,8 @@ class Model_KbArticle {
 		}
 		
 		if($sanitized) {
-			$html = DevblocksPlatform::purifyHTML($html, true, true);
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			$html = DevblocksPlatform::purifyHTML($html, true, true, [$filter]);
 		}
 		
 		return $html;
