@@ -24,6 +24,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE_ID = 'reply_signature_id';
+	const REPLY_SIGNING_KEY_ID = 'reply_signing_key_id';
 	const NAME = 'name';
 	const UPDATED = 'updated';
 	
@@ -93,6 +94,11 @@ class DAO_Group extends Cerb_ORMHelper {
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, true))
 			;
 		$validation
+			->addField(self::REPLY_SIGNING_KEY_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(Context_GpgPrivateKey::ID, true))
+			;
+		$validation
 			->addField(self::UPDATED)
 			->timestamp()
 			;
@@ -152,7 +158,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, is_private, reply_address_id, reply_html_template_id, reply_personal, reply_signature_id, created, updated ".
+		$sql = "SELECT id, name, is_default, is_private, reply_address_id, reply_html_template_id, reply_personal, reply_signature_id, reply_signing_key_id, created, updated ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -305,6 +311,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->reply_html_template_id = intval($row['reply_html_template_id']);
 			$object->reply_personal = $row['reply_personal'];
 			$object->reply_signature_id = intval($row['reply_signature_id']);
+			$object->reply_signing_key_id = intval($row['reply_signing_key_id']);
 			$object->created = intval($row['created']);
 			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
@@ -610,6 +617,9 @@ class DAO_Group extends Cerb_ORMHelper {
 				case 'signature_id':
 					$change_fields[DAO_Group::REPLY_SIGNATURE_ID] = intval($v);
 					break;
+				case 'signing_key_id':
+					$change_fields[DAO_Group::REPLY_SIGNING_KEY_ID] = intval($v);
+					break;
 				default:
 					// Custom fields
 					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
@@ -884,6 +894,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			"g.reply_html_template_id as %s, ".
 			"g.reply_personal as %s, ".
 			"g.reply_signature_id as %s, ".
+			"g.reply_signing_key_id as %s, ".
 			"g.created as %s, ".
 			"g.updated as %s ",
 				SearchFields_Group::ID,
@@ -894,6 +905,7 @@ class DAO_Group extends Cerb_ORMHelper {
 				SearchFields_Group::REPLY_HTML_TEMPLATE_ID,
 				SearchFields_Group::REPLY_PERSONAL,
 				SearchFields_Group::REPLY_SIGNATURE_ID,
+				SearchFields_Group::REPLY_SIGNING_KEY_ID,
 				SearchFields_Group::CREATED,
 				SearchFields_Group::UPDATED
 			);
@@ -982,6 +994,7 @@ class SearchFields_Group extends DevblocksSearchFields {
 	const REPLY_HTML_TEMPLATE_ID = 'g_reply_html_template_id';
 	const REPLY_PERSONAL = 'g_reply_personal';
 	const REPLY_SIGNATURE_ID = 'g_reply_signature_id';
+	const REPLY_SIGNING_KEY_ID = 'g_reply_signing_key_id';
 	const UPDATED = 'g_updated';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -1079,6 +1092,11 @@ class SearchFields_Group extends DevblocksSearchFields {
 				$models = DAO_EmailSignature::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
 				break;
+				
+			case SearchFields_Group::REPLY_SIGNING_KEY_ID:
+				$models = DAO_GpgPrivateKey::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -1110,6 +1128,7 @@ class SearchFields_Group extends DevblocksSearchFields {
 			self::REPLY_HTML_TEMPLATE_ID => new DevblocksSearchField(self::REPLY_HTML_TEMPLATE_ID, 'g', 'reply_html_template_id', $translate->_('common.email_template'), Model_CustomField::TYPE_NUMBER, true),
 			self::REPLY_PERSONAL => new DevblocksSearchField(self::REPLY_PERSONAL, 'g', 'reply_personal', $translate->_('common.send.as'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::REPLY_SIGNATURE_ID => new DevblocksSearchField(self::REPLY_SIGNATURE_ID, 'g', 'reply_signature_id', $translate->_('common.signature'), Model_CustomField::TYPE_NUMBER, true),
+			self::REPLY_SIGNING_KEY_ID => new DevblocksSearchField(self::REPLY_SIGNING_KEY_ID, 'g', 'reply_signing_key_id', $translate->_('common.encrypt.signing.key'), Model_CustomField::TYPE_NUMBER, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'g', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -1141,6 +1160,7 @@ class Model_Group {
 	public $reply_address_id = 0;
 	public $reply_personal;
 	public $reply_signature_id = 0;
+	public $reply_signing_key_id = 0;
 	public $reply_html_template_id = 0;
 	public $created;
 	public $updated;
@@ -1222,6 +1242,17 @@ class Model_Group {
 			
 		} else if (false != ($signature = DAO_EmailSignature::get($this->reply_signature_id))) {
 			return $signature->getSignature($worker_model, $as_html);
+		}
+		
+		return null;
+	}
+	
+	public function getReplySigningKey($bucket_id=0) {
+		if($bucket_id && $bucket = DAO_Bucket::get($bucket_id)) {
+			return $bucket->getReplySigningKey();
+			
+		} else if (false != ($signing_key = DAO_GpgPrivateKey::get($this->reply_signing_key_id))) {
+			return $signing_key;
 		}
 		
 		return null;
@@ -1367,6 +1398,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			SearchFields_Group::REPLY_ADDRESS_ID,
 			SearchFields_Group::REPLY_PERSONAL,
 			SearchFields_Group::REPLY_SIGNATURE_ID,
+			SearchFields_Group::REPLY_SIGNING_KEY_ID,
 			SearchFields_Group::REPLY_HTML_TEMPLATE_ID,
 			SearchFields_Group::UPDATED,
 		);
@@ -1559,7 +1591,15 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_EMAIL_SIGNATURE, 'q' => ''],
 					]
 				),
-			'template.id' => 
+			'signing.key.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Group::REPLY_SIGNING_KEY_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => Context_GpgPrivateKey::ID, 'q' => ''],
+					]
+				),
+			'template.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Group::REPLY_HTML_TEMPLATE_ID),
@@ -1637,6 +1677,9 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 		
 		$signatures = DAO_EmailSignature::getAll();
 		$tpl->assign('signatures', $signatures);
+		
+		$signing_keys = DAO_GpgPrivateKey::getAll();
+		$tpl->assign('signing_keys', $signing_keys);
 
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':
@@ -1688,6 +1731,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			case SearchFields_Group::REPLY_ADDRESS_ID:
 			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
 			case SearchFields_Group::REPLY_SIGNATURE_ID:
+			case SearchFields_Group::REPLY_SIGNING_KEY_ID:
 				$label_map = SearchFields_Group::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
 				break;
@@ -1709,6 +1753,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			case SearchFields_Group::REPLY_ADDRESS_ID:
 			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
 			case SearchFields_Group::REPLY_SIGNATURE_ID:
+			case SearchFields_Group::REPLY_SIGNING_KEY_ID:
 				break;
 				
 			case SearchFields_Group::NAME:
@@ -1875,6 +1920,15 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			],
 		);
 		
+		$properties['signing_key_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.encrypt.signing.key')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->reply_signing_key_id,
+			'params' => [
+				'context' => Context_GpgPrivateKey::ID,
+			],
+		);
+		
 		$properties['is_default'] = array(
 			'label' => mb_ucfirst($translate->_('common.default')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
@@ -2027,6 +2081,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'reply_html_template_id' => Model_CustomField::TYPE_NUMBER,
 			'reply_personal' => Model_CustomField::TYPE_SINGLE_LINE,
 			'reply_signature_id' => Model_CustomField::TYPE_NUMBER,
+			'reply_signing_key_id' => Model_CustomField::TYPE_NUMBER,
 		];
 		
 		// Custom field/fieldset token labels
@@ -2059,6 +2114,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['reply_html_template_id'] = $group->reply_html_template_id;
 			$token_values['reply_personal'] = $group->reply_personal;
 			$token_values['reply_signature_id'] = $group->reply_signature_id;
+			$token_values['reply_signing_key_id'] = $group->reply_signing_key_id;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($group, $token_values);
@@ -2118,6 +2174,20 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values
 		);
 		
+		// Email signing key
+		$merge_token_labels = [];
+		$merge_token_values = [];
+		CerberusContexts::getContext(Context_GpgPrivateKey::ID, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'reply_signing_key_',
+			$prefix.'Signing Key:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		return true;
 	}
 	
@@ -2135,6 +2205,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'reply_html_template_id' => DAO_Group::REPLY_HTML_TEMPLATE_ID,
 			'reply_personal' => DAO_Group::REPLY_PERSONAL,
 			'reply_signature_id' => DAO_Group::REPLY_SIGNATURE_ID,
+			'reply_signing_key_id' => DAO_Group::REPLY_SIGNING_KEY_ID,
 			'updated' => DAO_Group::UPDATED,
 		];
 	}
@@ -2155,6 +2226,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$keys['reply_html_template_id']['notes'] = "The ID of the default [mail template](/docs/records/types/html_template/) used when sending HTML mail from this group";
 		$keys['reply_personal']['notes'] = "The default personal name in the `From:` of replies";
 		$keys['reply_signature_id']['notes'] = "The ID of the default [signature](/docs/records/types/email_signature/) used when sending replies from this group";
+		$keys['reply_signing_key_id']['notes'] = "The [private key](/docs/records/types/gpg_private_key/) used to cryptographically sign outgoing mail";
 		
 		unset($keys['replyto_id']);
 		

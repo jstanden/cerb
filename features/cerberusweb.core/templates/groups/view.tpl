@@ -104,6 +104,13 @@
 					<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$result.$column}">{$signature->name}</a>
 					{/if}
 				</td>
+			{elseif $column == "g_reply_signing_key_id"}
+				{$signing_key = $signing_keys.{$result.$column}}
+				<td data-column="{$column}">
+					{if $signing_key}
+						<a href="javascript:;" class="cerb-peek-trigger" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$result.$column}">{$signing_key->name}</a>
+					{/if}
+				</td>
 			{else}
 			<td data-column="{$column}">{$result.$column}</td>
 			{/if}

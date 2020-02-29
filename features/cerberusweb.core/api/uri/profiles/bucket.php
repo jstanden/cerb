@@ -97,12 +97,14 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 					$reply_personal = '';
 					$reply_signature_id = 0;
 					$reply_html_template_id = 0;
+					$reply_signing_key_id = 0;
 				}
 				
 				$fields[DAO_Bucket::REPLY_ADDRESS_ID] = $reply_address_id;
 				$fields[DAO_Bucket::REPLY_PERSONAL] = $reply_personal;
 				$fields[DAO_Bucket::REPLY_SIGNATURE_ID] = $reply_signature_id;
 				$fields[DAO_Bucket::REPLY_HTML_TEMPLATE_ID] = $reply_html_template_id;
+				$fields[DAO_Bucket::REPLY_SIGNING_KEY_ID] = $reply_signing_key_id;
 				
 				if(empty($id)) { // New
 					@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);

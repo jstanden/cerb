@@ -94,7 +94,24 @@
 				</ul>
 			</td>
 		</tr>
-		
+
+		<tr>
+			<td valign="middle" width="0%" nowrap="nowrap">
+				{'common.encrypt.signing.key'|devblocks_translate|capitalize}:
+			</td>
+			<td valign="middle">
+				<button type="button" class="chooser-abstract" data-field-name="reply_signing_key_id" data-context="{Context_GpgPrivateKey::ID}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+
+				{$signing_key = DAO_GpgPrivateKey::get($group->reply_signing_key_id)}
+
+				<ul class="bubbles chooser-container">
+					{if $signing_key}
+						<li><input type="hidden" name="reply_signing_key_id" value="{$signing_key->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$signing_key->id}">{$signing_key->name}</a></li>
+					{/if}
+				</ul>
+			</td>
+		</tr>
+
 		<tr>
 			<td valign="middle" width="0%" nowrap="nowrap">
 				HTML template: 

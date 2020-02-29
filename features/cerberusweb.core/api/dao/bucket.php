@@ -26,6 +26,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	const REPLY_HTML_TEMPLATE_ID = 'reply_html_template_id';
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE_ID = 'reply_signature_id';
+	const REPLY_SIGNING_KEY_ID = 'reply_signing_key_id';
 	const UPDATED_AT = 'updated_at';
 	
 	private function __construct() {}
@@ -86,6 +87,11 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			->addField(self::REPLY_SIGNATURE_ID)
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, true))
+			;
+		$validation
+			->addField(self::REPLY_SIGNING_KEY_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(Context_GpgPrivateKey::ID, true))
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -224,7 +230,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, group_id, reply_address_id, reply_personal, reply_signature_id, reply_html_template_id, is_default, updated_at ".
+		$sql = "SELECT id, name, group_id, reply_address_id, reply_personal, reply_signature_id, reply_signing_key_id, reply_html_template_id, is_default, updated_at ".
 			"FROM bucket ".
 			$where_sql.
 			$sort_sql.
@@ -507,6 +513,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			$bucket->reply_html_template_id = intval($row['reply_html_template_id']);
 			$bucket->is_default = !empty($row['is_default']) ? 1 : 0;
 			$bucket->updated_at = intval($row['updated_at']);
+			$bucket->reply_signing_key_id = intval($row['reply_signing_key_id']);
 			$buckets[$bucket->id] = $bucket;
 		}
 		
@@ -532,6 +539,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			"bucket.reply_address_id as %s, ".
 			"bucket.reply_personal as %s, ".
 			"bucket.reply_signature_id as %s, ".
+			"bucket.reply_signing_key_id as %s, ".
 			"bucket.reply_html_template_id as %s, ".
 			"bucket.updated_at as %s, ".
 			"bucket.is_default as %s ",
@@ -541,6 +549,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 				SearchFields_Bucket::REPLY_ADDRESS_ID,
 				SearchFields_Bucket::REPLY_PERSONAL,
 				SearchFields_Bucket::REPLY_SIGNATURE_ID,
+				SearchFields_Bucket::REPLY_SIGNING_KEY_ID,
 				SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID,
 				SearchFields_Bucket::UPDATED_AT,
 				SearchFields_Bucket::IS_DEFAULT
@@ -639,6 +648,7 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 	const REPLY_ADDRESS_ID = 'b_reply_address_id';
 	const REPLY_PERSONAL = 'b_reply_personal';
 	const REPLY_SIGNATURE_ID = 'b_reply_signature_id';
+	const REPLY_SIGNING_KEY_ID = 'b_reply_signing_key_id';
 	const REPLY_HTML_TEMPLATE_ID = 'b_reply_html_template_id';
 	const UPDATED_AT = 'b_updated_at';
 	const IS_DEFAULT = 'b_is_default';
@@ -729,6 +739,14 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 				return $label_map;
 				break;
 				
+			case SearchFields_Bucket::REPLY_SIGNING_KEY_ID:
+				$models = DAO_GpgPrivateKey::getIds($values);
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0,$values))
+					$label_map[0] = DevblocksPlatform::translate('common.none');
+				return $label_map;
+				break;
+				
 			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
 				$models = DAO_MailHtmlTemplate::getIds($values);
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
@@ -765,6 +783,7 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 			self::REPLY_HTML_TEMPLATE_ID => new DevblocksSearchField(self::REPLY_HTML_TEMPLATE_ID, 'bucket', 'reply_html_template_id', $translate->_('common.email_template'), null, true),
 			self::REPLY_PERSONAL => new DevblocksSearchField(self::REPLY_PERSONAL, 'bucket', 'reply_personal', $translate->_('common.send.as'), null, true),
 			self::REPLY_SIGNATURE_ID => new DevblocksSearchField(self::REPLY_SIGNATURE_ID, 'bucket', 'reply_signature_id', $translate->_('common.signature'), null, true),
+			self::REPLY_SIGNING_KEY_ID => new DevblocksSearchField(self::REPLY_SIGNING_KEY_ID, 'bucket', 'reply_signing_key_id', $translate->_('common.encrypt.signing.key'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'bucket', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'bucket', 'is_default', $translate->_('common.default'), Model_CustomField::TYPE_CHECKBOX, true),
 				
@@ -794,6 +813,7 @@ class Model_Bucket {
 	public $reply_address_id = 0;
 	public $reply_personal;
 	public $reply_signature_id = 0;
+	public $reply_signing_key_id = 0;
 	public $reply_html_template_id = 0;
 	public $is_default = 0;
 	public $updated_at = 0;
@@ -908,6 +928,21 @@ class Model_Bucket {
 		} else {
 			return $tpl_builder->build($signature->signature, $dict);
 		}
+	}
+	
+	public function getReplySigningKey() {
+		// Check bucket first
+		$reply_signing_key_id = $this->reply_signing_key_id;
+		
+		// Cascade to group default
+		if(!$reply_signing_key_id && false != ($group = $this->getGroup())) {
+			$reply_signing_key_id = $group->reply_signing_key_id;
+		}
+		
+		if($reply_signing_key_id)
+			return DAO_GpgPrivateKey::get($reply_signing_key_id);
+		
+		return null;
 	}
 	
 	/**
@@ -1046,6 +1081,15 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->updated_at,
 		);
 		
+		$properties['signing_key_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.encrypt.signing.key')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->reply_signing_key_id,
+			'params' => [
+				'context' => Context_GpgPrivateKey::ID,
+			],
+		);
+		
 		$properties['is_default'] = array(
 			'label' => mb_ucfirst($translate->_('common.default')),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
@@ -1078,6 +1122,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'reply_personal',
 			'reply_html_template__label',
 			'reply_signature__label',
+			'reply_signing_key__label',
 			'updated_at',
 		);
 	}
@@ -1161,6 +1206,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['reply_html_template_id'] = $bucket->reply_html_template_id;
 			$token_values['reply_personal'] = $bucket->reply_personal;
 			$token_values['reply_signature_id'] = $bucket->reply_signature_id;
+			$token_values['reply_signing_key_id'] = $bucket->reply_signing_key_id;
 			$token_values['updated_at'] = $bucket->updated_at;
 			
 			$token_values['group_id'] = $bucket->group_id;
@@ -1224,6 +1270,20 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values
 		);
 		
+		// Signing Key
+		$merge_token_labels = [];
+		$merge_token_values = [];
+		CerberusContexts::getContext(Context_GpgPrivateKey::ID, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'reply_signing_key_',
+			$prefix.'Signing Key:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
+		
 		// Group
 		$merge_token_labels = array();
 		$merge_token_values = array();
@@ -1252,6 +1312,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			'reply_html_template_id' => DAO_Bucket::REPLY_HTML_TEMPLATE_ID,
 			'reply_personal' => DAO_Bucket::REPLY_PERSONAL,
 			'reply_signature_id' => DAO_Bucket::REPLY_SIGNATURE_ID,
+			'reply_signing_key_id' => DAO_Bucket::REPLY_SIGNING_KEY_ID,
 			'replyto_id' => DAO_Bucket::REPLY_ADDRESS_ID,
 			'updated_at' => DAO_Bucket::UPDATED_AT,
 		];
@@ -1266,6 +1327,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$keys['reply_html_template_id']['notes'] = "The ID of the default [mail template](/docs/records/types/html_template/) used when sending HTML mail from this bucket";
 		$keys['reply_personal']['notes'] = "The default personal name in the `From:` of replies";
 		$keys['reply_signature_id']['notes'] = "The ID of the default [signature](/docs/records/types/email_signature/) used when sending replies from this bucket";
+		$keys['reply_signing_key_id']['notes'] = "The [private key](/docs/records/types/gpg_private_key/) used when signing outgoing mail from this bucket";
 		
 		unset($keys['replyto_id']);
 		
@@ -1457,6 +1519,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Bucket::REPLY_ADDRESS_ID,
 			SearchFields_Bucket::REPLY_PERSONAL,
 			SearchFields_Bucket::REPLY_SIGNATURE_ID,
+			SearchFields_Bucket::REPLY_SIGNING_KEY_ID,
 			SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID,
 			SearchFields_Bucket::UPDATED_AT,
 		);
@@ -1644,7 +1707,15 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_EMAIL_SIGNATURE, 'q' => ''],
 					]
 				),
-			'template.id' => 
+			'signing.key.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Bucket::REPLY_SIGNING_KEY_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => Context_GpgPrivateKey::ID, 'q' => ''],
+					]
+				),
+			'template.id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID),
@@ -1737,6 +1808,9 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$signatures = DAO_EmailSignature::getAll();
 		$tpl->assign('signatures', $signatures);
+		
+		$signing_keys = DAO_GpgPrivateKey::getAll();
+		$tpl->assign('signing_keys', $signing_keys);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/bucket/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -1766,10 +1840,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				break;
 				
 			case SearchFields_Bucket::REPLY_SIGNATURE_ID:
-				$label_map = SearchFields_Bucket::getLabelsForKeyValues($field, $values);
-				parent::_renderCriteriaParamString($param, $label_map);
-				break;
-				
+			case SearchFields_Bucket::REPLY_SIGNING_KEY_ID:
 			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
 				$label_map = SearchFields_Bucket::getLabelsForKeyValues($field, $values);
 				parent::_renderCriteriaParamString($param, $label_map);
@@ -1821,6 +1892,7 @@ class View_Bucket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Bucket::REPLY_ADDRESS_ID:
 			case SearchFields_Bucket::REPLY_HTML_TEMPLATE_ID:
 			case SearchFields_Bucket::REPLY_SIGNATURE_ID:
+			case SearchFields_Bucket::REPLY_SIGNING_KEY_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				

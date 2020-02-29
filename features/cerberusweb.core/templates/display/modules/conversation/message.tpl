@@ -50,7 +50,6 @@
 		</div>
 
 		{if $sender_worker}
-			{if $message->was_signed}<span class="glyphicons glyphicons-circle-ok" style="{if $expanded}font-size:1.3em;{/if}color:rgb(66,131,73);" title="{'common.signed'|devblocks_translate|capitalize}"></span>{/if}
 			<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
 			&nbsp;
 			{if $sender_worker->title}
@@ -75,6 +74,24 @@
 				{if $sender_org}
 					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
 				{/if}
+			{/if}
+		{/if}
+
+		{if !$message->is_outgoing}
+			{if $message->signed_key_fingerprint}
+				<span style="margin-left:15px;">
+					<span class="glyphicons glyphicons-circle-ok" style="{if $expanded}font-size:1.3em;{/if}color:rgb(66,131,73);" title="{'common.encrypted.verified'|devblocks_translate|capitalize}"></span>
+					Verified
+					(<a href="javascript:;" class="cerb-search-trigger" data-context="{Context_GpgPublicKey::ID}" data-query="fingerprint:{$message->signed_key_fingerprint}">{$message->signed_key_fingerprint|substr:-16}</a>)
+					{if false && $message->signed_at}
+						(<abbr title="{$message->signed_at|devblocks_date}">{$message->signed_at|devblocks_prettytime}</abbr>)
+					{/if}
+				</span>
+			{elseif $message->was_encrypted && !$message->is_outgoing}
+				<span style="margin-left:15px;">
+					<span class="glyphicons glyphicons-circle-exclamation-mark" style="{if $expanded}font-size:1.3em;{/if}"></span>
+					Unverified
+				</span>
 			{/if}
 		{/if}
 

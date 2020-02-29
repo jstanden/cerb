@@ -46,7 +46,11 @@
  */
 class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 	protected $micalg = 'SHA256';
-	protected $encrypt = true;
+	private $_properties = [];
+	
+	function __construct(array $properties=[]) {
+		$this->_properties = $properties;
+	}
 	
 	protected function createMessage(Swift_Message $message) {
 		$mimeEntity = new Swift_Message('', $message->getBody(), $message->getContentType(), $message->getCharset());
@@ -1331,9 +1335,9 @@ class CerberusMail {
 				}
 			}
 			
-			// Encryption
-			if(isset($properties['gpg_encrypt']) && $properties['gpg_encrypt']) {
-				$signer = new Cerb_SwiftPlugin_GPGSigner();
+			// Encryption and signing
+			if(@$properties['gpg_sign'] || @$properties['gpg_encrypt']) {
+				$signer = new Cerb_SwiftPlugin_GPGSigner($properties);
 				$mail->attachSigner($signer);
 			}
 			
@@ -1491,6 +1495,14 @@ class CerberusMail {
 				DAO_Message::WAS_ENCRYPTED => !empty(@$properties['gpg_encrypt']) ? 1 : 0,
 				DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
 			);
+			
+			// Did we sign it?
+			// [TODO] We may need to sort out the signing key ahead of time to log this
+			if(!empty(@$properties['gpg_sign'])) {
+				$fields[DAO_Message::SIGNED_AT] = time();
+				//$fields[DAO_Message::SIGNED_KEY_FINGERPRINT] = null;
+			}
+			
 			$message_id = DAO_Message::create($fields);
 			
 			// Store ticket.last_message_id

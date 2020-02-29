@@ -43,7 +43,7 @@
 </table>
 
 <fieldset class="peek">
-	{$is_mail_configured = $bucket->reply_address_id || $bucket->reply_personal || $bucket->reply_signature_id || $bucket->reply_html_template_id}
+	{$is_mail_configured = $bucket->reply_address_id || $bucket->reply_personal || $bucket->reply_signature_id || $bucket->reply_signing_key_id || $bucket->reply_html_template_id}
 	<legend><label><input type="checkbox" name="enable_mail" value="1" {if $is_mail_configured}checked="checked"{/if} onclick="$(this).closest('fieldset').find('table:first').toggle();"> Bucket-level mail settings: <small>({'common.optional'|devblocks_translate|lower})</small></label></legend>
 	<table cellpadding="2" cellspacing="0" border="0" width="98%" style="{if !$is_mail_configured}display:none;{/if}">
 		<tr>
@@ -88,7 +88,24 @@
 				</ul>
 			</td>
 		</tr>
-		
+
+		<tr>
+			<td align="right" valign="middle" width="0%" nowrap="nowrap">
+				{'common.encrypt.signing.key'|devblocks_translate|capitalize}
+			</td>
+			<td valign="middle">
+				<button type="button" class="chooser-abstract" data-field-name="reply_signing_key_id" data-context="{Context_GpgPrivateKey::ID}" data-single="true" data-query=""><span class="glyphicons glyphicons-search"></span></button>
+
+				{$signing_key = DAO_GpgPrivateKey::get($bucket->reply_signing_key_id)}
+
+				<ul class="bubbles chooser-container">
+					{if $signing_key}
+						<li><input type="hidden" name="reply_signing_key_id" value="{$signing_key->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$signing_key->id}">{$signing_key->name}</a></li>
+					{/if}
+				</ul>
+			</td>
+		</tr>
+
 		<tr>
 			<td align="right" valign="middle" width="0%" nowrap="nowrap">
 				HTML template: 

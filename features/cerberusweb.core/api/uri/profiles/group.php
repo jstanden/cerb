@@ -103,14 +103,15 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				@$reply_signature_id = DevblocksPlatform::importGPC($_POST['reply_signature_id'],'integer',0);
 				@$reply_signing_key_id = DevblocksPlatform::importGPC($_POST['reply_signing_key_id'],'integer',0);
 			
-				$fields = array(
+				$fields = [
 					DAO_Group::NAME => $name,
 					DAO_Group::IS_PRIVATE => $is_private,
 					DAO_Group::REPLY_ADDRESS_ID => $reply_address_id,
 					DAO_Group::REPLY_HTML_TEMPLATE_ID => $reply_html_template_id,
 					DAO_Group::REPLY_PERSONAL => $reply_personal,
 					DAO_Group::REPLY_SIGNATURE_ID => $reply_signature_id,
-				);
+					DAO_Group::REPLY_SIGNING_KEY_ID => $reply_signing_key_id,
+				];
 				
 				if(empty($group_id)) { // new
 					if(!DAO_Group::validate($fields, $error))
@@ -340,6 +341,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		@$send_from_id = DevblocksPlatform::importGPC($_POST['send_from_id'],'string',null);
 		@$signature_id = DevblocksPlatform::importGPC($_POST['signature_id'],'string',null);
 		@$email_template_id = DevblocksPlatform::importGPC($_POST['email_template_id'],'string',null);
+		@$signing_key_id = DevblocksPlatform::importGPC($_POST['signing_key_id'],'string',null);
 		@$is_private = DevblocksPlatform::importGPC($_POST['is_private'],'string',null);
 
 		// Scheduled behavior
@@ -371,6 +373,11 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 		if(0 != strlen($signature_id) 
 			&& false !== DAO_EmailSignature::get($signature_id))
 				$do['signature_id'] = $signature_id;
+		
+		// Do: Signing key
+		if(0 != strlen($signing_key_id)
+			&& false !== DAO_GpgPrivateKey::get($signing_key_id))
+				$do['signing_key_id'] = $signing_key_id;
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {
