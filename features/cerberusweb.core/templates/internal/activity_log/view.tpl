@@ -26,7 +26,9 @@
 <input type="hidden" name="view_id" value="{$view->id}">
 <input type="hidden" name="context_id" value="{$view_context}">
 <input type="hidden" name="c" value="internal">
-<input type="hidden" name="a" value="">
+<input type="hidden" name="a" value="invoke">
+<input type="hidden" name="module" value="records">
+<input type="hidden" name="action" value="">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
 <table cellpadding="1" cellspacing="0" border="0" width="100%" class="worklistBody">
@@ -123,6 +125,9 @@
 	
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
+		{if $active_worker->is_superuser}
+		<button type="button" class="action-delete"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+		{/if}
 	</div>
 	{/if}
 </div>
@@ -134,24 +139,24 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
+$(function() {
+	var $frm = $('#viewForm{$view->id}');
+	var $actions = $('#{$view->id}_actions');
 
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
-	
-	$view_actions = $('#{$view->id}_actions');
-	
-	hotkey_activated = true;
+	{if $active_worker->is_superuser}
+	$actions.find('.action-delete').on('click', function() {
+		var formData = new FormData($frm[0]);
+		formData.set('c','internal');
+		formData.set('a','invoke');
+		formData.set('module','records');
+		formData.set('action','viewLogDelete');
 
-	switch(event.keypress_event.which) {
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
+		genericAjaxPost(
+			formData,
+			'view{$view->id}',
+			null
+		);
+	});
+	{/if}
 });
-{/if}
 </script>

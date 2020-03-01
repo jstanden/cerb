@@ -58,6 +58,8 @@ class PageSection_InternalRecords extends Extension_PageSection {
 					return $this->_internalAction_showPeekPopup();
 				case 'showPermalinkPopup':
 					return $this->_internalAction_showPermalinkPopup();
+				case 'viewLogDelete':
+					return $this->_internalAction_viewLogDelete();
 			}
 		}
 		return false;
@@ -1156,6 +1158,31 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			$tpl->assign('error_message', 'An unexpected error occurred.');
 			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
 			return;
+		}
+	}
+	
+	private function _internalAction_viewLogDelete() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');
+		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'], 'array', []);
+		
+		$row_ids = DevblocksPlatform::sanitizeArray($row_ids, 'int');
+		
+		if($row_ids) {
+			DAO_ContextActivityLog::delete($row_ids);
+		}
+		
+		if($view_id) {
+			if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
+				$view->render();
+			}
 		}
 	}
 }
