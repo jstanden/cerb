@@ -56,13 +56,17 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
-			// ACL
-			if(!Context_Message::isDeletableByActor($id, $active_worker))
-				throw new Exception_DevblocksAjaxValidationError("You are not authorized to modify this record.");
-			
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(false == ($model = DAO_Message::get($id)))
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
 				if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.message.delete'))
 					throw new Exception_DevblocksAjaxValidationError("You are not authorized to delete this record.");
+				
+				if(!Context_Message::isDeletableByActor($model, $active_worker))
+					throw new Exception_DevblocksAjaxValidationError("You are not authorized to modify this record.");
+				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_MESSAGE, $model->id);
 				
 				DAO_Message::delete($id);
 				

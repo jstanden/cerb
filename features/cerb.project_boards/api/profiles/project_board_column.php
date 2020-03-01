@@ -59,11 +59,13 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", Context_ProjectBoardColumn::ID)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($project_board_column = DAO_ProjectBoardColumn::get($id)))
+				if(false == ($model = DAO_ProjectBoardColumn::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(!Context_ProjectBoardColumn::isDeletableByActor($project_board_column, $active_worker))
+				if(!Context_ProjectBoardColumn::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				CerberusContexts::logActivityRecordDelete(Context_ProjectBoardColumn::ID, $model->id, $model->name);
 				
 				DAO_ProjectBoardColumn::delete($id);
 				

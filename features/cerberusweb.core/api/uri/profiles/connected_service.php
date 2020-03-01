@@ -70,6 +70,8 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				if(!Context_ConnectedService::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CONNECTED_SERVICE, $model->id, $model->name);
+				
 				DAO_ConnectedService::delete($id);
 				
 				echo json_encode(array(

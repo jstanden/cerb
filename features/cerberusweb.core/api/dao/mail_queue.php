@@ -228,6 +228,8 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			
 			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_DRAFT, $ids);
 		} else {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_DRAFT, $ids);
+			
 			DAO_MailQueue::delete($ids);
 		}
 		

@@ -64,6 +64,8 @@ class PageSection_ProfilesContextSavedSearch extends Extension_PageSection {
 				if(!Context_ContextSavedSearch::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SAVED_SEARCH, $model->id, $model->name);
+				
 				DAO_ContextSavedSearch::delete($id);
 				
 				echo json_encode(array(

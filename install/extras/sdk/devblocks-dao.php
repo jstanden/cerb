@@ -1575,6 +1575,8 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				if(!Context_<?php echo $class_name; ?>::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
     
+                CerberusContexts::logActivityRecordDelete(Context_<?php echo $class_name; ?>::ID, $model->id, $model->name);
+    
 				DAO_<?php echo $class_name; ?>::delete($id);
 				
 				echo json_encode(array(

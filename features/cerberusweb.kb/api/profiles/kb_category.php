@@ -64,6 +64,8 @@ class PageSection_ProfilesKbCategory extends Extension_PageSection {
 				if(!Context_KbCategory::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_KB_CATEGORY, $model->id, $model->name);
+				
 				DAO_KbCategory::delete($id);
 				
 				echo json_encode(array(

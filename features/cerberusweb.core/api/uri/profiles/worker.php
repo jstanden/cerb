@@ -92,7 +92,9 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				// Can't delete or disable self
 				if($active_worker->id == $id)
 					throw new Exception_DevblocksAjaxValidationError("You can't delete yourself.");
-					
+				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_WORKER, $model->id, $model->getName());
+				
 				DAO_Worker::delete($id);
 				
 				echo json_encode(array(

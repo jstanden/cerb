@@ -227,6 +227,8 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		}
 		
 		if($deleted) {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_ORG, $ids);
+			
 			DAO_ContactOrg::delete($ids);
 			
 		} else {

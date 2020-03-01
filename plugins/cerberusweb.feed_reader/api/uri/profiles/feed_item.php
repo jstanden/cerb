@@ -70,6 +70,8 @@ class PageSection_ProfilesFeedItem extends Extension_PageSection {
 				if(!Context_FeedItem::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_FEED_ITEM, $model->id, $model->title);
+				
 				DAO_FeedItem::delete($id);
 				
 				echo json_encode(array(

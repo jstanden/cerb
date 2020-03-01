@@ -64,6 +64,8 @@ class PageSection_ProfilesJiraProject extends Extension_PageSection {
 				if(!Context_JiraProject::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(Context_JiraProject::ID, $model->id, $model->name);
+				
 				DAO_JiraProject::delete($id);
 				
 				echo json_encode(array(

@@ -69,6 +69,8 @@ class PageSection_ProfilesPackageLibrary extends Extension_PageSection {
 				if(!Context_PackageLibrary::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_PACKAGE, $model->id, $model->name);
+				
 				DAO_PackageLibrary::delete($id);
 				
 				echo json_encode(array(

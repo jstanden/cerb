@@ -75,6 +75,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				if(!Context_Bot::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_BOT, $model->id, $model->name);
+				
 				DAO_Bot::delete($id);
 				
 				echo json_encode(array(

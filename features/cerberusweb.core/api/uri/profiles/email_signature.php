@@ -66,6 +66,8 @@ class PageSection_ProfilesEmailSignature extends Extension_PageSection {
 				if(!Context_EmailSignature::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, $model->id, $model->name);
+				
 				DAO_EmailSignature::delete($id);
 				
 				echo json_encode(array(

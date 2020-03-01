@@ -64,6 +64,8 @@ class PageSection_ProfilesCurrency extends Extension_PageSection {
 				if(!Context_Currency::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CURRENCY, $model->id, $model->name);
+				
 				DAO_Currency::delete($id);
 				
 				echo json_encode(array(

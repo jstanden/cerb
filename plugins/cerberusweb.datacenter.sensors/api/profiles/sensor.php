@@ -64,6 +64,8 @@ class PageSection_ProfilesSensor extends Extension_PageSection {
 			if(!Context_Sensor::isDeletableByActor($model, $active_worker))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 			
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SENSOR, $model->id, $model->name);
+			
 			DAO_DatacenterSensor::delete($id);
 			
 		} else {

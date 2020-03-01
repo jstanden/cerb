@@ -72,7 +72,9 @@ class ChRest_KbCategories extends Extension_RestController implements IExtension
 		
 		if(null == ($category = DAO_KbCategory::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid Knowledgebase category id %d", $id));
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_KB_CATEGORY, $category->id, $category->name);
+		
 		DAO_KbCategory::delete($id);
 
 		$result = array('id' => $id);

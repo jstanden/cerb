@@ -72,6 +72,8 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 				if(!Context_ProfileTab::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_PROFILE_TAB, $model->id, $model->name);
+				
 				DAO_ProfileTab::delete($id);
 				
 				echo json_encode(array(

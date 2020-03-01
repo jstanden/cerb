@@ -64,6 +64,8 @@ class PageSection_ProfilesWorkspaceList extends Extension_PageSection {
 				if(!Context_WorkspaceList::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_WORKSPACE_WORKLIST, $model->id, $model->name);
+				
 				DAO_WorkspaceList::delete($id);
 				
 				echo json_encode(array(

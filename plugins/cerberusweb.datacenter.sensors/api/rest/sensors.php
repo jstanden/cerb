@@ -71,7 +71,9 @@ class ChRest_Sensors extends Extension_RestController implements IExtensionRestC
 		
 		if(null == ($sensor = DAO_DatacenterSensor::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid sensor ID %d", $id));
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SENSOR, $sensor->id, $sensor->name);
+		
 		DAO_DatacenterSensor::delete($id);
 
 		$result = array('id' => $id);

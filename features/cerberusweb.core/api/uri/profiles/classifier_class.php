@@ -64,6 +64,8 @@ class PageSection_ProfilesClassifierClass extends Extension_PageSection {
 				if(!Context_ClassifierClass::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $model->id, $model->name);
+				
 				DAO_ClassifierClass::delete($id);
 				
 				echo json_encode(array(

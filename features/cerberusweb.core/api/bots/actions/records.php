@@ -622,6 +622,8 @@ class BotAction_RecordDelete extends Extension_DevblocksEventAction {
 		if(!CerberusContexts::isDeletableByActor($context->id, $id, $actor))
 			return false;
 		
+		CerberusContexts::logActivityRecordDelete($context_ext, $id);
+		
 		$dao_class::delete($id);
 	}
 };

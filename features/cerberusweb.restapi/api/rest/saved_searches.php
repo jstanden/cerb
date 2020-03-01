@@ -56,7 +56,9 @@ class ChRest_SavedSearches extends Extension_RestController implements IExtensio
 		
 		if(!Context_ContextSavedSearch::isWriteableByActor($search, $worker))
 			$this->error(self::ERRNO_ACL);
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SAVED_SEARCH, $search->id, $search->name);
+		
 		DAO_ContextSavedSearch::delete($id);
 
 		$result = array('id' => $id);

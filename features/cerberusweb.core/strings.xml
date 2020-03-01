@@ -79,6 +79,11 @@
 				<seg>Mailbox {{target}} has failed to download mail on {{count}} consecutive attempts: {{error}}</seg>
 			</tuv>
 		</tu>
+		<tu tuid="activities.record.delete">
+			<tuv xml:lang="en_US">
+				<seg>{{actor}} deleted {{record_type}} `{{record_label}}` (#{{record_id}})</seg>
+			</tuv>
+		</tu>
 		<tu tuid="activities.record.merge">
 			<tuv xml:lang="en_US">
 				<seg>{{actor}} merged {{context_label}} {{source}} into {{context_label}} {{target}}</seg>

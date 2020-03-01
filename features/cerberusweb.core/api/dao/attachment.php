@@ -489,6 +489,8 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		}
 	
 		if($deleted) {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_ATTACHMENT, $ids);
+			
 			DAO_Attachment::delete($ids);
 			
 		} else {

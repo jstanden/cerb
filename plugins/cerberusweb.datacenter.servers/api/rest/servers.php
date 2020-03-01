@@ -62,7 +62,9 @@ class ChRest_Servers extends Extension_RestController implements IExtensionRestC
 
 		if(null == ($server = DAO_Server::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid server ID %d", $id));
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SERVER, $server->id, $server->name);
+		
 		DAO_Server::delete($id);
 
 		$result = array('id' => $id);

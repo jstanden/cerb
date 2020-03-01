@@ -69,6 +69,8 @@ class PageSection_ProfilesContextScheduledBehavior extends Extension_PageSection
 				if(!Context_ContextScheduledBehavior::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED, $model->id, $model->getBehavior()->title);
+				
 				DAO_ContextScheduledBehavior::delete($id);
 				
 				echo json_encode(array(

@@ -70,7 +70,11 @@ class PageSection_ProfilesBucket extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError("The destination bucket doesn't exist.");
 				
 				$where = sprintf("%s = %d", DAO_Ticket::BUCKET_ID, $id);
+				
 				DAO_Ticket::updateWhere(array(DAO_Ticket::BUCKET_ID => $bucket_moveto->id), $where);
+				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_BUCKET, $model->id, $model->name);
+				
 				DAO_Bucket::delete($id);
 				
 				echo json_encode(array(

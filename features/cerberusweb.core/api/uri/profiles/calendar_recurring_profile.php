@@ -73,6 +73,8 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 				if(!Context_CalendarRecurringProfile::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $model->id, $model->event_name);
+				
 				DAO_CalendarRecurringProfile::delete($id);
 				
 				echo json_encode(array(

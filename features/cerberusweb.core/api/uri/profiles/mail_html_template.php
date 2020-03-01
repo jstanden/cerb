@@ -70,6 +70,8 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 				if(!Context_MailHtmlTemplate::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_MAIL_ROUTING_RULE, $model->id, $model->name);
+				
 				DAO_MailHtmlTemplate::delete($id);
 				
 				echo json_encode(array(

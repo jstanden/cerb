@@ -67,6 +67,8 @@ class PageSection_ProfilesCustomRecord extends Extension_PageSection {
 				if(!Context_CustomRecord::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError("You must delete all records of this type first.");
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CUSTOM_RECORD, $model->id, $model->name);
+				
 				DAO_CustomRecord::delete($id);
 				
 				echo json_encode(array(

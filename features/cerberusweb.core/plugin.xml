@@ -971,6 +971,11 @@
 			<param key="string_key" value="activities.mailbox.check.error" />
 			<param key="options" value="" />
 		</activity>
+		<activity point="record.delete">
+			<param key="label_key" value="Record Deleted" />
+			<param key="string_key" value="activities.record.delete" />
+			<param key="options" value="" />
+		</activity>
 		<activity point="record.merge">
 			<param key="label_key" value="Record Merged" />
 			<param key="string_key" value="activities.record.merge" />

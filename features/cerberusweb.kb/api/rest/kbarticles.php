@@ -70,7 +70,9 @@ class ChRest_KbArticles extends Extension_RestController implements IExtensionRe
 
 		if(null == ($kbarticle = DAO_KbArticle::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid Knowledgebase article ID %d", $id));
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_KB_ARTICLE, $kbarticle->id, $kbarticle->title);
+		
 		DAO_KbArticle::delete($id);
 
 		$result = array('id' => $id);

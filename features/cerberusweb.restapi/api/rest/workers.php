@@ -65,6 +65,8 @@ class ChRest_Workers extends Extension_RestController implements IExtensionRestC
 //		if(null == ($worker = DAO_Worker::get($id)))
 //			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid worker ID %d", $id));
 //
+//		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_WORKER, $worker->id, $worker->getName());
+//
 //		DAO_Worker::delete($id);
 //
 //		$result = array('id' => $id);

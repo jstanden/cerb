@@ -58,11 +58,17 @@ class ChRest_Domains extends Extension_RestController implements IExtensionRestC
 	}
 	
 	function deleteAction($stack) {
+		$active_worker = CerberusApplication::getActiveWorker();
 		$id = array_shift($stack);
 
 		if(null == ($domain = DAO_Domain::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid domain ID %d", $id));
-
+		
+		if(!Context_Domain::isDeletableByActor($domain, $active_worker))
+			$this->error(self::ERRNO_ACL, sprintf("You do not have permission to delete domain ID %d", $id));
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_DOMAIN, $domain->id, $domain->name);
+		
 		DAO_Domain::delete($id);
 
 		$result = array('id' => $id);

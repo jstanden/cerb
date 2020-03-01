@@ -147,11 +147,12 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 			}
 		}
 
-		if(!$deleted)
-			if(!empty($change_fields))
+		if(!$deleted) {
+			if (!empty($change_fields))
 				DAO_DevblocksTemplate::update($ids, $change_fields);
-		else
+		} else {
 			DAO_DevblocksTemplate::delete($ids);
+		}
 			
 		$update->markCompleted();
 		return true;

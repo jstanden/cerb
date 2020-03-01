@@ -280,6 +280,8 @@ class DAO_Task extends Cerb_ORMHelper {
 		}
 		
 		if($deleted) {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TASK, $ids);
+			
 			DAO_Task::delete($ids);
 			
 		} else {

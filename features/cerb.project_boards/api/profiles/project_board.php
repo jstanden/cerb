@@ -74,6 +74,8 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 				if(!Context_ProjectBoard::isDeletableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 				
+				CerberusContexts::logActivityRecordDelete(Context_ProjectBoard::ID, $model->id, $model->name);
+				
 				DAO_ProjectBoard::delete($id);
 				
 				echo json_encode(array(

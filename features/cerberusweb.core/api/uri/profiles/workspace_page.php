@@ -61,9 +61,11 @@ class PageSection_ProfilesWorkspacePage extends Extension_PageSection {
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
 			}
 			
-			if(!empty($id) && $do_delete) { // Delete
+			if($id && $do_delete) { // Delete
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_WORKSPACE_PAGE)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $workspace_page->id, $workspace_page->name);
 				
 				DAO_WorkspacePage::delete($id);
 				

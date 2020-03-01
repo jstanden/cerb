@@ -91,6 +91,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 				if(!Context_TimeTracking::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TIMETRACKING, $model->id);
+				
 				DAO_TimeTrackingEntry::delete($id);
 						
 				echo json_encode(array(

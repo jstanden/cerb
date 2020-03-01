@@ -67,7 +67,9 @@ class ChRest_Contacts extends Extension_RestController implements IExtensionRest
 
 		if(null == ($contact = DAO_Contact::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid contact ID %d", $id));
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CONTACT, $contact->id, $contact->getNameWithEmail());
+		
 		DAO_Contact::delete($id);
 
 		$result = array('id' => $id);

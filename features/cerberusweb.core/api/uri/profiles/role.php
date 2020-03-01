@@ -64,6 +64,8 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				if(!Context_WorkerRole::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_ROLE, $model->id, $model->name);
+				
 				DAO_WorkerRole::delete($id);
 				
 				echo json_encode(array(

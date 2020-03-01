@@ -41,7 +41,9 @@ class ChRest_Messages extends Extension_RestController implements IExtensionRest
 
 		if(null == ($message = DAO_Message::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid message ID %d", $id));
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_MESSAGE, $id);
+		
 		DAO_Message::delete($id);
 		$result = array('id' => $id);
 		$this->success($result);

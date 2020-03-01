@@ -69,8 +69,10 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 		
 		// Deletes
 		$delete_ids = array_diff(array_keys($worklists), $ids);
-		if(is_array($delete_ids) && !empty($delete_ids))
+		if(is_array($delete_ids) && !empty($delete_ids)) {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_WORKSPACE_WORKLIST, $delete_ids);
 			DAO_WorkspaceList::delete($delete_ids);
+		}
 
 		// Reorder worklists, rename lists, on workspace
 		if(is_array($ids) && !empty($ids)) {

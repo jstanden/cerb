@@ -51,8 +51,10 @@ class ChRest_Calendars extends Extension_RestController implements IExtensionRes
 		/*
 		$id = array_shift($stack);
 		
-		if(null == ($task = DAO_Task::get($id)))
+		if(null == ($model = DAO_Task::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid calendar ID %d", $id));
+		
+		//CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CALENDAR, $model->id, $model->name);
 
 		DAO_Task::delete($id);
 

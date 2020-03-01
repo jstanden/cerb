@@ -345,6 +345,8 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			DevblocksPlatform::markContextChanged($context, $ids);
 			
 		} else {
+			CerberusContexts::logActivityRecordDelete($context, $ids);
+			
 			self::delete($ids);
 		}
 		

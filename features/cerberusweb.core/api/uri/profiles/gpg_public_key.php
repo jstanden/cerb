@@ -65,6 +65,8 @@ class PageSection_ProfilesGpgPublicKey extends Extension_PageSection {
 				if(!Context_GpgPublicKey::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY, $model->id, $model->name);
+				
 				DAO_GpgPublicKey::delete($id);
 				
 				echo json_encode(array(

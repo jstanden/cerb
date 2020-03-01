@@ -259,6 +259,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
 			
 		} else {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_OPPORTUNITY, $ids);
 			DAO_CrmOpportunity::delete($ids);
 		}
 		

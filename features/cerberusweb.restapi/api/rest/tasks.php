@@ -58,11 +58,17 @@ class ChRest_Tasks extends Extension_RestController implements IExtensionRestCon
 	}
 	
 	function deleteAction($stack) {
+		$active_worker = CerberusApplication::getActiveWorker();
 		$id = array_shift($stack);
 
 		if(null == ($task = DAO_Task::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid task ID %d", $id));
-
+		
+		if(!Context_Task::isDeletableByActor($task, $active_worker))
+			$this->error(self::ERRNO_ACL, sprintf("You do not have permission to delete task ID %d", $id));
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TASK, $task->id, $task->title);
+		
 		DAO_Task::delete($id);
 
 		$result = array('id' => $id);

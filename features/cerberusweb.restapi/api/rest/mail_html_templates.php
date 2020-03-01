@@ -65,6 +65,8 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 
 		if(null == (DAO_MailHtmlTemplate::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid mail HTML template ID %d", $id));
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $id);
 
 		DAO_MailHtmlTemplate::delete($id);
 

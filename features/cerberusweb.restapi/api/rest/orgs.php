@@ -66,7 +66,9 @@ class ChRest_Orgs extends Extension_RestController implements IExtensionRestCont
 
 		if(null == ($org = DAO_ContactOrg::get($id)))
 			$this->error(self::ERRNO_CUSTOM, sprintf("Invalid organization ID %d", $id));
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_ORG, $org->id, $org->name);
+		
 		DAO_ContactOrg::delete($id);
 
 		$result = array('id' => $id);

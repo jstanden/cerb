@@ -71,6 +71,8 @@ class PageSection_ProfilesMailTransport extends Extension_PageSection {
 				if(!Context_MailTransport::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id, $model->name);
+				
 				DAO_MailTransport::delete($id);
 				
 				echo json_encode(array(

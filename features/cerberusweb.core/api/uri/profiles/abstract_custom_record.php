@@ -83,6 +83,8 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 					)
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete($context, $model->id, $model->name);
+				
 				$dao_class::delete($id);
 				
 				echo json_encode(array(

@@ -301,6 +301,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			DAO_Ticket::update($id, $fields);
 			DAO_Ticket::onUpdateByActor($active_worker, $fields, $id);
 			
+			// Log the ticket deletion, even though we have an undo window
+			if(array_key_exists(DAO_Ticket::STATUS_ID, $fields) && Model_Ticket::STATUS_DELETED == $fields[DAO_Ticket::STATUS_ID]) {
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TICKET, $ticket->id, sprintf("#%s: %s", $ticket->mask, $ticket->subject));
+			}
+			
 			// Custom field saves
 			@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
 			if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids, $error))
@@ -1146,6 +1151,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			)
 		);
 		
+		// Log the deletions
+		$model_labels = array_map(function($model) { return sprintf("%s: %s", $model->mask, $model->subject); }, $models);
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TICKET, array_keys($models), $model_labels);
+		
 		//====================================
 		// Undo functionality
 		$last_action = new Model_TicketViewLastAction();
@@ -1759,6 +1768,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			case 'deleted':
 			case '3':
 				$status_id = Model_Ticket::STATUS_DELETED;
+			
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TICKET, $ticket->id, sprintf("#%s: %s", $ticket->mask, $ticket->subject));
 				break;
 		}
 		

@@ -85,6 +85,8 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					DAO_Ticket::updateWhere(array(DAO_Ticket::GROUP_ID => $buckets[$to_bucket_id]->group_id, DAO_Ticket::BUCKET_ID => $to_bucket_id), sprintf("%s = %d", DAO_Ticket::BUCKET_ID, $from_bucket_id));
 				}
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_GROUP, $model->id, $model->name);
+				
 				DAO_Group::delete($model->id);
 				
 				echo json_encode(array(

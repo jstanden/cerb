@@ -65,6 +65,8 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 				if(!Context_WebhookListener::isDeletableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 				
+				CerberusContexts::logActivityRecordDelete(Context_WebhookListener::ID, $model->id, $model->name);
+				
 				DAO_WebhookListener::delete($id);
 				
 				echo json_encode(array(

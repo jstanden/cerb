@@ -575,6 +575,8 @@ class DAO_Server extends Cerb_ORMHelper {
 		}
 
 		if($deleted) {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SERVER, $ids);
+			
 			DAO_Server::delete($ids);
 			
 		} else {

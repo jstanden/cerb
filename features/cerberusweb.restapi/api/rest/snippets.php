@@ -62,12 +62,14 @@ class ChRest_Snippets extends Extension_RestController implements IExtensionRest
 
 		$id = array_shift($stack);
 
-		if(null == ($search = DAO_Snippet::get($id)))
+		if(null == ($snippet = DAO_Snippet::get($id)))
 			$this->error(self::ERRNO_NOT_FOUND, sprintf("Invalid snippet ID %d", $id));
 		
-		if(!Context_Snippet::isWriteableByActor($search, $worker))
+		if(!Context_Snippet::isDeletableByActor($snippet, $worker))
 			$this->error(self::ERRNO_ACL);
-
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SNIPPET, $snippet->id, $snippet->title);
+		
 		DAO_Snippet::delete($id);
 
 		$result = array('id' => $id);

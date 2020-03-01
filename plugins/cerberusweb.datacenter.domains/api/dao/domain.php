@@ -723,6 +723,8 @@ class DAO_Domain extends Cerb_ORMHelper {
 			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_DOMAIN, $ids);
 			
 		} else {
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_DOMAIN, $ids);
+			
 			DAO_Domain::delete($ids);
 		}
 		

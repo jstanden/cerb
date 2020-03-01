@@ -68,6 +68,8 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 				if(!Context_Contact::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CONTACT, $model->id, $model->getNameWithEmail());
+				
 				DAO_Contact::delete($id);
 				
 				echo json_encode(array(

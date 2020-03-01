@@ -67,6 +67,8 @@ class PageSection_ProfilesCustomFieldset extends Extension_PageSection {
 				if(!Context_CustomFieldset::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $model->id, $model->name);
+				
 				DAO_CustomFieldset::delete($id);
 				
 				echo json_encode(array(

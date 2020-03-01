@@ -72,6 +72,8 @@ class PageSection_ProfilesCall extends Extension_PageSection {
 				if(!Context_CallEntry::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_CALL, $model->id, $model->subject);
+				
 				DAO_CallEntry::delete($id);
 				
 				echo json_encode(array(

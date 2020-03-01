@@ -128,6 +128,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 				if(!Context_TriggerEvent::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_BEHAVIOR, $model->id, $model->title);
+				
 				DAO_TriggerEvent::delete($id);
 				
 				echo json_encode(array(
@@ -1707,6 +1709,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			
 			if(Context_TriggerEvent::isDeletableByActor($trigger, $active_worker))
 				DevblocksPlatform::dieWithHttpError(null, 403);
+			
+			CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_BEHAVIOR, $trigger->id, $trigger->title);
 			
 			DAO_TriggerEvent::delete($trigger_id);
 		}

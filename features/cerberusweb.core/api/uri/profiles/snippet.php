@@ -492,6 +492,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 				if(!Context_Snippet::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_SNIPPET, $model->id, $model->title);
+				
 				DAO_Snippet::delete($id);
 				
 				echo json_encode(array(

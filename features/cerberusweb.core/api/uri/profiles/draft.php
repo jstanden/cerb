@@ -93,6 +93,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 				if(!Context_Draft::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_DRAFT, $model->id, $model->name);
+				
 				DAO_MailQueue::delete($id);
 				
 				echo json_encode(array(
@@ -603,11 +605,13 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer');
 		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(false == ($model = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 
-		if(!Context_Draft::isDeletableByActor($draft, $active_worker))
+		if(!Context_Draft::isDeletableByActor($model, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_DRAFT, $model->id, $model->name);
 		
 		DAO_MailQueue::delete($draft_id);
 	}
