@@ -43,7 +43,7 @@
 class DAO_DevblocksSession extends Cerb_ORMHelper {
 	const CREATED = 'created';
 	const SESSION_DATA = 'session_data';
-	const SESSION_KEY = 'session_key';
+	const SESSION_ID = 'session_id';
 	const UPDATED = 'updated';
 	const USER_AGENT = 'user_agent';
 	const USER_ID = 'user_id';
@@ -64,9 +64,9 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			->setMaxLength(65535)
 			;
 		$validation
-			->addField(self::SESSION_KEY)
+			->addField(self::SESSION_ID)
 			->string()
-			->setMaxLength(64)
+			->setMaxLength(40)
 			;
 		$validation
 			->addField(self::UPDATED)
@@ -134,7 +134,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT session_key, created, updated, session_data, user_id, user_ip, user_agent ".
+		$sql = "SELECT session_id, created, updated, session_data, user_id, user_ip, user_agent ".
 			"FROM devblocks_session ".
 			$where_sql.
 			$sort_sql.
@@ -146,18 +146,19 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * @param integer $id
-	 * @return Model_DevblocksSession	 */
-	static function get($key) {
+	 * @param string $id
+	 * @return Model_DevblocksSession
+	 */
+	static function get($id) {
 		$db = DevblocksPlatform::services()->database();
 		
 		$objects = self::getWhere(sprintf("%s = %s",
-			self::SESSION_KEY,
-			$db->qstr($key)
+			self::SESSION_ID,
+			$db->qstr($id)
 		));
 		
-		if(isset($objects[$key]))
-			return $objects[$key];
+		if(array_key_exists($id, $objects))
+			return $objects[$id];
 		
 		return null;
 	}
@@ -185,7 +186,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_DevblocksSession[]
+	 * @return Model_DevblocksSession[]|false
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
@@ -195,14 +196,14 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_DevblocksSession();
-			$object->session_key = $row['session_key'];
-			$object->created = $row['created'];
-			$object->updated = $row['updated'];
+			$object->session_id = $row['session_id'];
+			$object->created = intval($row['created']);
+			$object->updated = intval($row['updated']);
 			$object->session_data = $row['session_data'];
-			$object->user_id = $row['user_id'];
+			$object->user_id = intval($row['user_id']);
 			$object->user_ip = $row['user_ip'];
 			$object->user_agent = $row['user_agent'];
-			$objects[$object->session_key] = $object;
+			$objects[$object->session_id] = $object;
 		}
 		
 		mysqli_free_result($rs);
@@ -227,7 +228,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
-		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE session_key IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE session_id IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -256,14 +257,14 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_DevblocksSession', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"devblocks_session.session_key as %s, ".
+			"devblocks_session.session_id as %s, ".
 			"devblocks_session.created as %s, ".
 			"devblocks_session.updated as %s, ".
 			"devblocks_session.session_data as %s, ".
 			"devblocks_session.user_id as %s, ".
 			"devblocks_session.user_ip as %s, ".
 			"devblocks_session.user_agent as %s ",
-				SearchFields_DevblocksSession::SESSION_KEY,
+				SearchFields_DevblocksSession::SESSION_ID,
 				SearchFields_DevblocksSession::CREATED,
 				SearchFields_DevblocksSession::UPDATED,
 				SearchFields_DevblocksSession::SESSION_DATA,
@@ -331,7 +332,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$object_id = $row[SearchFields_DevblocksSession::SESSION_KEY];
+			$object_id = $row[SearchFields_DevblocksSession::SESSION_ID];
 			$results[$object_id] = $row;
 		}
 
@@ -341,7 +342,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			// We can skip counting if we have a less-than-full single page
 			if(!(0 == $page && $total < $limit)) {
 				$count_sql =
-					"SELECT COUNT(devblocks_session.session_key) ".
+					"SELECT COUNT(devblocks_session.session_id) ".
 					$join_sql.
 					$where_sql;
 				$total = $db->GetOneSlave($count_sql);
@@ -356,7 +357,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 };
 
 class Model_DevblocksSession {
-	public $session_key;
+	public $session_id;
 	public $created;
 	public $updated;
 	public $session_data;
@@ -366,7 +367,7 @@ class Model_DevblocksSession {
 };
 
 class SearchFields_DevblocksSession extends DevblocksSearchFields {
-	const SESSION_KEY = 'd_session_key';
+	const SESSION_ID = 'd_session_id';
 	const CREATED = 'd_created';
 	const UPDATED = 'd_updated';
 	const SESSION_DATA = 'd_session_data';
@@ -379,12 +380,12 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
-		return 'devblocks_session.session_key';
+		return 'devblocks_session.session_id';
 	}
 	
 	static function getCustomFieldContextKeys() {
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('devblocks_session.session_key', self::SESSION_KEY),
+			'' => new DevblocksSearchFieldContextKeys('devblocks_session.session_id', self::SESSION_ID),
 			CerberusContexts::CONTEXT_WORKER => new DevblocksSearchFieldContextKeys('devblocks_session.user_id', self::USER_ID),
 		);
 	}
@@ -442,7 +443,7 @@ class SearchFields_DevblocksSession extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::SESSION_KEY => new DevblocksSearchField(self::SESSION_KEY, 'devblocks_session', 'session_key', $translate->_('dao.devblocks_session.session_key'), Model_CustomField::TYPE_SINGLE_LINE, true),
+			self::SESSION_ID => new DevblocksSearchField(self::SESSION_ID, 'devblocks_session', 'session_id', $translate->_('common.id'), Model_CustomField::TYPE_SINGLE_LINE, true),
 			self::CREATED => new DevblocksSearchField(self::CREATED, 'devblocks_session', 'created', $translate->_('common.created'), Model_CustomField::TYPE_DATE, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'devblocks_session', 'updated', $translate->_('common.updated'), Model_CustomField::TYPE_DATE, true),
 			self::SESSION_DATA => new DevblocksSearchField(self::SESSION_DATA, 'devblocks_session', 'session_data', $translate->_('dao.devblocks_session.session_data'), Model_CustomField::TYPE_MULTI_LINE, true),
@@ -481,7 +482,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		);
 
 		$this->addColumnsHidden(array(
-			SearchFields_DevblocksSession::SESSION_KEY,
+			SearchFields_DevblocksSession::SESSION_ID,
 			SearchFields_DevblocksSession::SESSION_DATA,
 			SearchFields_DevblocksSession::VIRTUAL_WORKER_SEARCH,
 		));
@@ -683,7 +684,7 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		$criteria = null;
 
 		switch($field) {
-			case SearchFields_DevblocksSession::SESSION_KEY:
+			case SearchFields_DevblocksSession::SESSION_ID:
 			case SearchFields_DevblocksSession::USER_IP:
 			case SearchFields_DevblocksSession::USER_AGENT:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);

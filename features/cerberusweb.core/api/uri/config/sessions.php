@@ -57,13 +57,10 @@ class PageSection_SetupSessions extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$session_ids = DevblocksPlatform::importGPC($_POST['row_id'],' array', []);
+		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],' array', []);
 		
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		if(is_array($session_ids))
-		foreach($session_ids as $session_id)
-			$session->clear($session_id);
+		if(is_array($row_ids))
+		foreach($row_ids as $row_id)
+			$session->clear($row_id);
 	}
 }

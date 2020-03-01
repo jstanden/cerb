@@ -84,14 +84,14 @@ class _DevblocksSessionManager {
 	 * Kills the specified or current session.
 	 *
 	 */
-	function clear($key=null) {
-		if(is_null($key)) {
+	function clear($id=null) {
+		if(is_null($id)) {
 			$this->visit = null;
 			setcookie('Devblocks', null, 0, '/', null);
 			session_unset();
 			session_destroy();
 		} else {
-			call_user_func(array($this->_handler_class, 'destroy'), $key);
+			call_user_func(array($this->_handler_class, 'destroy'), $id);
 		}
 	}
 	

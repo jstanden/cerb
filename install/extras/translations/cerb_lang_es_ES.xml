@@ -1768,7 +1768,7 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="dao.devblocks_session.session_key">
+		<tu tuid="dao.devblocks_session.session_token">
 			<tuv xml:lang="es_ES">
 				<seg/>
 			</tuv>

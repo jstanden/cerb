@@ -39,7 +39,7 @@
  * - Jeff Standen and Dan Hildebrandt
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
-define("APP_BUILD", 2020022901);
+define("APP_BUILD", 2020022903);
 define("APP_VERSION", '9.5.0');
 
 define("APP_MAIL_PATH", APP_STORAGE_PATH . '/mail/');
@@ -2784,19 +2784,19 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		// [TODO] Allow Cerb to enable user-agent comparisons as setting
 		// [TODO] Limit the IPs a worker can log in from (per-worker?)
 
-		if(null != (@$session = $db->GetRowSlave(sprintf("SELECT * FROM devblocks_session WHERE session_key = %s", $db->qstr($id))))) {
+		if(null != (@$session = $db->GetRowSlave(sprintf("SELECT session_id, refreshed_at, session_data FROM devblocks_session WHERE session_token = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 			//$is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 
 			// Refresh the session cookie (move expiration forward) after 2.5 minutes have elapsed
-			if(isset($session['refreshed_at']) && (time() - $session['refreshed_at'] >= 150)) { // !$is_ajax
+			if(array_key_exists('refreshed_at', $session) && (time() - $session['refreshed_at'] >= 150)) { // !$is_ajax
 				// If the cookie is going to expire at a future date, extend it
 				if($maxlifetime) {
 					$url_writer = DevblocksPlatform::services()->url();
 					setcookie('Devblocks', $id, time()+$maxlifetime, '/', NULL, $url_writer->isSSL(), true);
 				}
 
-				$db->ExecuteMaster(sprintf("UPDATE devblocks_session SET updated=%d, refreshed_at=%d WHERE session_key = %s",
+				$db->ExecuteMaster(sprintf("UPDATE devblocks_session SET updated=%d, refreshed_at=%d WHERE session_token = %s",
 					time(),
 					time(),
 					$db->qstr($id)
@@ -2827,7 +2827,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			return true;
 
 		// Update
-		$sql = sprintf("UPDATE devblocks_session SET updated=%d, refreshed_at=%d, session_data=%s, user_id=%d, user_ip=%s, user_agent=%s WHERE session_key=%s",
+		$sql = sprintf("UPDATE devblocks_session SET updated=%d, refreshed_at=%d, session_data=%s, user_id=%d, user_ip=%s, user_agent=%s WHERE session_token=%s",
 			time(),
 			time(),
 			$db->qstr($session_data),
@@ -2840,8 +2840,9 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 		if(0==$db->Affected_Rows()) {
 			// Insert
-			$sql = sprintf("INSERT IGNORE INTO devblocks_session (session_key, created, updated, refreshed_at, user_id, user_ip, user_agent, session_data) ".
-				"VALUES (%s, %d, %d, %d, %d, %s, %s, %s)",
+			$sql = sprintf("INSERT IGNORE INTO devblocks_session (session_id, session_token, created, updated, refreshed_at, user_id, user_ip, user_agent, session_data) ".
+				"VALUES (%s, %s, %d, %d, %d, %d, %s, %s, %s)",
+				'sha1(random_bytes(255))',
 				$db->qstr($id),
 				time(),
 				time(),
@@ -2862,8 +2863,12 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 
 		if(!self::isReady())
 			return false;
-
-		$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE session_key = %s", $db->qstr($id)));
+		
+		if(40 == strlen($id)) {
+			$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE session_id = %s", $db->qstr($id)));
+		} else {
+			$db->ExecuteMaster(sprintf("DELETE FROM devblocks_session WHERE session_token = %s", $db->qstr($id)));
+		}
 		return true;
 	}
 
@@ -2894,7 +2899,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		if(!self::isReady())
 			return false;
 
-		return $db->GetArrayMaster("SELECT session_key, created, updated, user_id, user_ip, user_agent, refreshed_at, session_data FROM devblocks_session");
+		return $db->GetArrayMaster("SELECT session_id, created, updated, user_id, user_ip, user_agent, refreshed_at, session_data FROM devblocks_session");
 	}
 	
 	static function getAllLoggedIn() {
@@ -2903,7 +2908,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		if(!self::isReady())
 			return false;
 
-		return $db->GetArrayMaster("SELECT session_key, created, updated, user_id, user_ip, user_agent, refreshed_at, session_data FROM devblocks_session WHERE user_id != 0");
+		return $db->GetArrayMaster("SELECT session_id, created, updated, user_id, user_ip, user_agent, refreshed_at, session_data FROM devblocks_session WHERE user_id != 0");
 	}
 
 	static function destroyAll() {

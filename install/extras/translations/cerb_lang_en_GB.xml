@@ -2438,9 +2438,9 @@
 				<seg>Session Data</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.devblocks_session.session_key">
+		<tu tuid="dao.devblocks_session.session_token">
 			<tuv xml:lang="en_GB">
-				<seg>Session Key</seg>
+				<seg>Session Token</seg>
 			</tuv>
 		</tu>
 		<tu tuid="dao.devblocks_session.user_agent">

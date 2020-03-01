@@ -59,7 +59,7 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="d_user_id"}
 			<td data-column="{$column}">
-				<input type="checkbox" name="row_id[]" value="{$result.d_session_key}" style="display:none;">
+				<input type="checkbox" name="row_id[]" value="{$result.d_session_id}" style="display:none;">
 				{if isset($workers.{$result.$column})}
 				{$worker = $workers.{$result.$column}}
 				{$worker->getName()}

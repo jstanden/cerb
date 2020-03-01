@@ -4,7 +4,7 @@
 	<name>Devblocks Framework</name>
 	<description>Devblocks is a PHP7 application development framework.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>2.3.4</version>
+	<version>2.5.0</version>
 	<link>http://wiki.devblocks.com/</link>
 	
 	<!-- Patches -->
@@ -21,6 +21,7 @@
 		<patch version="2.3.3" revision="324" file="patches/2.3.3.php" />
 		<patch version="2.3.4" revision="330" file="patches/2.3.4.php" />
 		<patch version="2.4.0" revision="335" file="patches/2.4.0.php" />
+		<patch version="2.5.0" revision="340" file="patches/2.5.0.php" />
 	</patches>
 	
 	<!-- Exported Classes -->
