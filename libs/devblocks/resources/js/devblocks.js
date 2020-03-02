@@ -1395,30 +1395,75 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	if(null == options)
 		options = { };
 
-	options.type = 'POST';
-	options.url = DevblocksAppPath+'ajax.php'+(null!=args?('?'+args):''),
-	options.cache = false;
-
-	// Handle formData
+	// Polymorph to FormData
 	if(formRef instanceof FormData) {
-		options.processData = false;
-		options.contentType = false;
-		options.data = formRef;
+		// It's what we want
 
-	// Polymorph form
 	} else if(formRef instanceof jQuery) {
-		options.data = $(formRef).serialize();
+		formRef = new FormData($(formRef)[0]);
 
 	} else if(typeof formRef=="object") {
 		var formData = new FormData();
 		Devblocks.objectToFormData(formRef, formData);
-		options.processData = false;
-		options.contentType = false;
-		options.data = formData;
+		formRef = formData;
 
 	} else if(typeof formRef=="string" && formRef.length > 0) {
-		options.data = $('#' + formRef).serialize();
+		var $ref = $('#' + formRef);
+
+		if(0 === $ref.length) {
+			formData = null;
+		} else {
+			formRef = new FormData($ref[0]);
+		}
+	} else {
+		formRef = null;
 	}
+
+	// If we couldn't make a FormData object, bail out
+	if(!(formRef instanceof FormData)) {
+		Devblocks.createAlertError('There was an issue sending your request to the server.');
+		return false;
+	}
+
+	options.processData = false;
+	options.contentType = false;
+	options.data = formRef;
+
+	var url = DevblocksAppPath+'ajax.php';
+
+	if(formRef.has('_log')) {
+		url += '?_log=' + encodeURIComponent(formRef.get('_log').toString());
+		formRef.delete('_log');
+
+	} else {
+		if (formRef.has('c')) {
+			url += '?_log=' + encodeURIComponent(formRef.get('c').toString());
+
+			if (formRef.has('a')) {
+				url += '.' + encodeURIComponent(formRef.get('a').toString());
+
+				if ('invoke' === formRef.get('a')) {
+					url += '.' + encodeURIComponent(formRef.get('module').toString());
+					url += '.' + encodeURIComponent(formRef.get('action').toString());
+
+					if(formRef.has('id')) {
+						url += '.' + encodeURIComponent(formRef.get('id').toString());
+					}
+				} else if ('invokeTab' === formRef.get('a')) {
+					url += '.' + encodeURIComponent(formRef.get('tab_id').toString());
+					url += '.' + encodeURIComponent(formRef.get('action').toString());
+
+					if(formRef.has('id')) {
+						url += '.' + encodeURIComponent(formRef.get('id').toString());
+					}
+				}
+			}
+		}
+	}
+
+	options.type = 'POST';
+	options.url = url;
+	options.cache = false;
 
 	if(null != div) {
 		div.fadeTo("fast", 0.2);
