@@ -1492,22 +1492,25 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 }
 
 function devblocksAjaxDateChooser(field, div, options) {
+	var $sel_field;
+	var $sel_div;
+
 	if(typeof field == 'object') {
 		if(field.selector)
-			var $sel_field = field;
+			$sel_field = field;
 		else
-			var $sel_field = $(field);
+			$sel_field = $(field);
 	} else {
-		var $sel_field = $(field);
+		$sel_field = $(field);
 	}
 	
 	if(typeof div == 'object') {
 		if(div.selector)
-			var $sel_div = div;
+			$sel_div = div;
 		else
-			var $sel_div = $(div);
+			$sel_div = $(div);
 	} else {
-		var $sel_div = $(div);
+		$sel_div = $(div);
 	}
 	
 	if(null == options)
@@ -1518,9 +1521,9 @@ function devblocksAjaxDateChooser(field, div, options) {
 	
 	if(null == options.dateFormat)
 		options.dateFormat = 'DD, d MM yy';
-			
+
 	if(null == $sel_div) {
-		var chooser = $sel_field.datepicker(options);
+		$sel_field.datepicker(options);
 		
 	} else {
 		if(null == options.onSelect)
@@ -1528,6 +1531,6 @@ function devblocksAjaxDateChooser(field, div, options) {
 				$sel_field.val(dateText);
 				chooser.datepicker('destroy');
 			};
-		var chooser = $sel_div.datepicker(options);
+		$sel_div.datepicker(options);
 	}
 }

@@ -244,7 +244,7 @@ $(function() {
             });
 
             return $target;
-        }
+        };
 
         $popup.find('.cerb-card-widget').each(function() {
             addEvents($(this));
@@ -271,10 +271,12 @@ $(function() {
             var $widget = $popup.find('.cerb-card-widget[data-widget-id=' + widget_id + '] .cerb-card-widget--content').empty();
             $('<span class="cerb-ajax-spinner"/>').appendTo($widget);
 
+            var formData;
+
             if(refresh_options instanceof FormData) {
-                var formData = refresh_options;
+                formData = refresh_options;
             } else {
-                var formData = new FormData();
+                formData = new FormData();
             }
 
             formData.set('c', 'profiles');

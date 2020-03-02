@@ -122,7 +122,7 @@
 			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
 		{/if}
 	</div>
-	
+
 	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		{if $active_worker->is_superuser}
