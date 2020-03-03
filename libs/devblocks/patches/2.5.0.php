@@ -29,7 +29,7 @@ if(!empty($changes)) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	if(!array_key_exists('session_id', $columns)) {
-		$db->ExecuteMaster("UPDATE devblocks_session SET session_id=sha1(random_bytes(255)) WHERE session_id=''");
+		$db->ExecuteMaster("UPDATE devblocks_session SET session_id=sha1(rand()) WHERE session_id=''");
 		$db->ExecuteMaster("ALTER TABLE devblocks_session DROP PRIMARY KEY, ADD PRIMARY KEY (session_id)");
 	}
 }

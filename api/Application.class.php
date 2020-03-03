@@ -2888,7 +2888,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 			// Insert
 			$sql = sprintf("INSERT IGNORE INTO devblocks_session (session_id, session_token, created, updated, refreshed_at, user_id, user_ip, user_agent, session_data) ".
 				"VALUES (%s, %s, %d, %d, %d, %d, %s, %s, %s)",
-				'sha1(random_bytes(255))',
+				$db->qstr(sha1(random_bytes(255))),
 				$db->qstr($id),
 				time(),
 				time(),
