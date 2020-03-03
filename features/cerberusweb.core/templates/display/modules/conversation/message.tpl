@@ -127,10 +127,16 @@
 	{if $expanded}
 	<div style="clear:both;display:block;padding-top:10px;">
 		{$filtering_results = null}
-		{if 'text' == $display_format || DAO_WorkerPref::get($active_worker->id, 'mail_disable_html_display', 0)}
-			{$html_body = null}
+		{$html_body = null}
+
+		{if !$display_format}
+			{if !DAO_WorkerPref::get($active_worker->id, 'mail_disable_html_display', 0) && $message->html_attachment_id}
+				{$html_body = $message->getContentAsHtml($sender->is_trusted, $filtering_results)}
+			{/if}
 		{else}
-			{$html_body = $message->getContentAsHtml($sender->is_trusted, $filtering_results)}
+			{if 'html' == $display_format && $message->html_attachment_id}
+				{$html_body = $message->getContentAsHtml($sender->is_trusted, $filtering_results)}
+			{/if}
 		{/if}
 
 		{if $html_body}

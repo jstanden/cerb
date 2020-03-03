@@ -126,14 +126,12 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		if(!Context_Message::isReadableByActor($message, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$display_format = $message->html_attachment_id ? 'html' : 'text';
-		
-		if('text' == $format)
-			$display_format = 'text';
+		if($images)
+			$format = 'html';
 		
 		$tpl->assign('message', $message);
 		$tpl->assign('message_id', $message->id);
-		$tpl->assign('display_format', $display_format);
+		$tpl->assign('display_format', $format);
 		
 		// Sender info
 		$message_senders = [];
