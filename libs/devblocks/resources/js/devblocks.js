@@ -1431,30 +1431,32 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 
 	var url = DevblocksAppPath+'ajax.php';
 
-	if(formRef.has('_log')) {
-		url += '?_log=' + encodeURIComponent(formRef.get('_log').toString());
-		formRef.delete('_log');
+	if(formRef.has && formRef.get) {
+		if (formRef.has('_log')) {
+			url += '?_log=' + encodeURIComponent(formRef.get('_log').toString());
+			formRef.delete('_log');
 
-	} else {
-		if (formRef.has('c')) {
-			url += '?_log=' + encodeURIComponent(formRef.get('c').toString());
+		} else {
+			if (formRef.has('c')) {
+				url += '?_log=' + encodeURIComponent(formRef.get('c').toString());
 
-			if (formRef.has('a')) {
-				url += '.' + encodeURIComponent(formRef.get('a').toString());
+				if (formRef.has('a')) {
+					url += '.' + encodeURIComponent(formRef.get('a').toString());
 
-				if ('invoke' === formRef.get('a')) {
-					url += '.' + encodeURIComponent(formRef.get('module').toString());
-					url += '.' + encodeURIComponent(formRef.get('action').toString());
+					if ('invoke' === formRef.get('a')) {
+						url += '.' + encodeURIComponent(formRef.get('module').toString());
+						url += '.' + encodeURIComponent(formRef.get('action').toString());
 
-					if(formRef.has('id')) {
-						url += '.' + encodeURIComponent(formRef.get('id').toString());
-					}
-				} else if ('invokeTab' === formRef.get('a')) {
-					url += '.' + encodeURIComponent(formRef.get('tab_id').toString());
-					url += '.' + encodeURIComponent(formRef.get('action').toString());
+						if (formRef.has('id')) {
+							url += '.' + encodeURIComponent(formRef.get('id').toString());
+						}
+					} else if ('invokeTab' === formRef.get('a')) {
+						url += '.' + encodeURIComponent(formRef.get('tab_id').toString());
+						url += '.' + encodeURIComponent(formRef.get('action').toString());
 
-					if(formRef.has('id')) {
-						url += '.' + encodeURIComponent(formRef.get('id').toString());
+						if (formRef.has('id')) {
+							url += '.' + encodeURIComponent(formRef.get('id').toString());
+						}
 					}
 				}
 			}
