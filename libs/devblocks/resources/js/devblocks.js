@@ -1378,7 +1378,7 @@ function genericAjaxGet(divRef,args,cb,options) {
 	var $ajax = $.ajax(options);
 	
 	if(typeof cb == 'function') {
-		$ajax.done(cb);
+		$ajax.always(cb);
 	}
 }
 
@@ -1487,9 +1487,9 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	options.headers['X-CSRF-Token'] = $('meta[name="_csrf_token"]').attr('content');
 	
 	var $ajax = $.ajax(options);
-	
+
 	if(typeof cb == 'function') {
-		$ajax.done(cb);
+		$ajax.always(cb);
 	}
 }
 
