@@ -133,15 +133,23 @@ if(!isset($tables['gpg_key_part'])) {
 		CREATE TABLE `gpg_key_part` (
 		`key_context` varchar(255) DEFAULT '',
 		`key_id` int(10) unsigned NOT NULL DEFAULT '0',
-		`part_name` varchar(255) DEFAULT '',
+		`part_name` varchar(16) DEFAULT '',
 		`part_value` varchar(255) DEFAULT '',
-		KEY `context_and_part` (`key_context`, `part_name`, `part_value`(6)),
+		KEY `context_and_part` (`key_context`, `part_name`(4), `part_value`(6)),
 		KEY `key_context_and_id` (`key_context`, `key_id`)
 		) ENGINE=%s
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['gpg_key_part'] = 'gpg_key_part';
+	
+} else {
+	list($columns, $indexes) = $db->metaTable('gpg_key_part');
+	
+	if(array_key_exists('part_name', $columns) && 0 != strcasecmp('varchar(16)', $columns['part_name']['type'])) {
+		$db->ExecuteMaster("ALTER TABLE gpg_key_part MODIFY COLUMN part_name VARCHAR(16) NOT NULL DEFAULT ''");
+		$db->ExecuteMaster("ALTER TABLE gpg_key_part DROP INDEX context_and_part, ADD INDEX context_and_part (key_context,part_name(4),part_value(6))");
+	}
 }
 
 // ===========================================================================
