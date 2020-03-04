@@ -36,7 +36,7 @@ class Controller_Resource extends DevblocksControllerExtension {
 		
 		try {
 			$file = implode(DIRECTORY_SEPARATOR, $path); // combine path
-			$dir = $plugin->getStoragePath() . '/' . 'resources';
+			$dir = realpath($plugin->getStoragePath() . DIRECTORY_SEPARATOR . 'resources');
 			
 			if(!is_dir($dir))
 				DevblocksPlatform::dieWithHttpError(null, 403); // basedir security
