@@ -67,6 +67,8 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 					return $this->_profileAction_renderImportPopup();
 				case 'saveImportPopupJson':
 					return $this->_profileAction_saveImportPopupJson();
+				case 'reparentNode':
+					return $this->_profileAction_reparentNode();
 				case 'renderDecisionReorderPopup':
 					return $this->_profileAction_renderDecisionReorderPopup();
 				case 'saveDecisionReorderPopup':
@@ -1277,7 +1279,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		@$parent_id = DevblocksPlatform::importGPC($_POST['parent_id'],'integer', 0);
 		
 		// The parent node must exist
-		if(null == ($parent_node = DAO_DecisionNode::get($parent_id)))
+		if($parent_id && null == ($parent_node = DAO_DecisionNode::get($parent_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// The child node must exist
@@ -1285,7 +1287,7 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// The trigger must exist
-		if(null == ($trigger = DAO_TriggerEvent::get($parent_node->trigger_id)))
+		if(null == ($trigger = DAO_TriggerEvent::get($child_node->trigger_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// The worker must be able to modify the trigger
