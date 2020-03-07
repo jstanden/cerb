@@ -942,6 +942,11 @@ class Model_KbArticle {
 		return $html;
 	}
 	
+	function getContentProtected() {
+		$filters[] = new Cerb_HTMLPurifier_URIFilter_Email(true);
+		return DevblocksPlatform::purifyHTML($this->getContent(false), true, true, $filters);
+	}
+	
 	function getContent($sanitized=true) {
 		$html = '';
 		
@@ -962,8 +967,7 @@ class Model_KbArticle {
 		}
 		
 		if($sanitized) {
-			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
-			$html = DevblocksPlatform::purifyHTML($html, true, true, [$filter]);
+			$html = DevblocksPlatform::purifyHTML($html, true, true);
 		}
 		
 		return $html;

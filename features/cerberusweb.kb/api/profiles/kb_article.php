@@ -385,7 +385,7 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$model->setContent($data);
 		$model->format = Model_KbArticle::FORMAT_HTML;
 		
-		echo $model->getContent();
+		echo $model->getContentProtected();
 	}
 	
 	private function _profileAction_getEditorParsedownPreview() {
@@ -395,6 +395,6 @@ class PageSection_ProfilesKbArticle extends Extension_PageSection {
 		$model->setContent($data);
 		$model->format = Model_KbArticle::FORMAT_MARKDOWN;
 		
-		echo $model->getContent();
+		echo $model->getContentProtected();
 	}
 };

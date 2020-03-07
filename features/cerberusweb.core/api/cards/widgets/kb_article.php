@@ -24,7 +24,7 @@ class CardWidget_KbArticle extends Extension_CardWidget {
 		if(false == ($article = DAO_KbArticle::get($target_context_id)))
 			return;
 		
-		$tpl->assign('content', $article->getContent());
+		$tpl->assign('content', $article->getContentProtected());
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/kb_article/render.tpl');
 	}
