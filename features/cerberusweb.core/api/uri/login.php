@@ -148,7 +148,16 @@ class Page_Login extends CerberusPageExtension {
 			$tpl->assign('sso_services', $sso_services);
 		}
 		
-		$tpl->display('devblocks:cerberusweb.core::login/login_router.tpl');
+		// Warn about old browsers
+		$user_agent = DevblocksPlatform::getClientUserAgent();
+
+		if('MSIE' == $user_agent['browser']) {
+			$tpl->assign('user_agent', $user_agent);
+			$tpl->display('devblocks:cerberusweb.core::login/unsupported_browser.tpl');
+			
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::login/login_router.tpl');
+		}
 	}
 	
 	private function _routeAuthenticate() {
