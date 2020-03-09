@@ -384,7 +384,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 			
 			if(false == ($rows = $db->GetArraySlave($sql)))
-				return [];
+				$rows = [];
 			
 		} else {
 			$rows = [];
