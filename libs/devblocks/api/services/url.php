@@ -446,6 +446,10 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 		} else {
 			$whitelist_hosts = $this->mail->getLinksWhitelist();
 			$host = DevblocksPlatform::strLower($uri->host);
+			
+			if(!$uri->path)
+				$uri->path = '/';
+			
 			$url = $uri->toString();
 			
 			$host_patterns = [$host];

@@ -231,10 +231,13 @@ class _DevblocksEmailManager {
 				if(!array_key_exists($url_parts['host'], $whitelist_hash))
 					$whitelist_hash[$url_parts['host']] = [];
 				
+				if(!array_key_exists('path', $url_parts))
+					$url_parts['path'] = '/';
+				
 				$whitelist_hash[$url_parts['host']][] = DevblocksPlatform::strToRegExp(sprintf('*://%s%s%s',
 					DevblocksPlatform::strStartsWith($url_parts['host'],'.') ? '*' : '',
 					$url_parts['host'],
-					array_key_exists('path', $url_parts) ? ($url_parts['path'].'*') : '/*'
+					$url_parts['path'].'*'
 				));
 			}
 			
