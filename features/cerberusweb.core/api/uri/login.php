@@ -137,8 +137,16 @@ class Page_Login extends CerberusPageExtension {
 		
 		$login_state = CerbLoginWorkerAuthState::getInstance();
 		
-		if($url)
-			$login_state->pushRedirectUri($url);
+		// Only allow relative paths
+		if($url) {
+			if(
+				false != ($url_parts = parse_url($url))
+				&& 1 == count($url_parts)
+				&& array_key_exists('path', $url_parts)
+			) {
+				$login_state->pushRedirectUri($url, true);
+			}
+		}
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('email', $login_state->getEmail());

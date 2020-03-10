@@ -3207,7 +3207,10 @@ class CerbLoginWorkerAuthState {
 		return $uri;
 	}
 	
-	function pushRedirectUri($uri) {
+	function pushRedirectUri($uri, $replace=false) {
+		if($replace)
+			$this->redirect_uris = [];
+		
 		$this->redirect_uris[] = $uri;
 		return $this;
 	}
