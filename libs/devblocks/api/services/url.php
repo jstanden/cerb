@@ -473,7 +473,7 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 			
 			$this->_logRedirectedLink($uri);
 			
-			$new_uri = sprintf("javascript:genericAjaxPopup('externalLink','c=security&a=renderLinkPopup&url=%s',null,true);",
+			$new_uri = sprintf("javascript:void(genericAjaxPopup('externalLink','c=security&a=renderLinkPopup&url=%s',null,true));",
 				rawurlencode(rawurlencode($uri->toString()))
 			);
 			
