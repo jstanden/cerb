@@ -70,6 +70,15 @@
 	</table>
 </fieldset>
 
+{if !empty($custom_fields)}
+	<fieldset class="peek">
+		<legend>{'common.custom_fields'|devblocks_translate}</legend>
+		{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+	</fieldset>
+{/if}
+
+{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+
 <div id="configAclItemized" style="display:block;{if $model->privs_mode != 'itemized'}display:none;{/if}">
 	<ul>
 		<li><a href="#roleEditorPrivsRecords">{'common.records'|devblocks_translate|capitalize}</a></li>
@@ -172,15 +181,6 @@
 	</div>
 	</div>
 </div>
-
-{if !empty($custom_fields)}
-<fieldset class="peek">
-	<legend>{'common.custom_fields'|devblocks_translate}</legend>
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
-</fieldset>
-{/if}
-
-{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 {if !empty($model->id)}
 <fieldset style="display:none;" class="delete">
