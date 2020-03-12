@@ -463,6 +463,7 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
+	const VIRTUAL_USABLE_BY = '*_usable_by';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
@@ -494,7 +495,11 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'file_bundle.owner_context', 'file_bundle.owner_context_id');
 				break;
-				
+			
+			case self::VIRTUAL_USABLE_BY:
+				return self::_getWhereSQLForUsableBy($param, self::getPrimaryKey());
+				break;
+
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_FILE_BUNDLE, self::getPrimaryKey());
 				break;
@@ -507,6 +512,44 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 				}
 				break;
 		}
+	}
+	
+	static private function _getWhereSQLForUsableBy($param, $pkey) {
+		// Handle nested quick search filters first
+		if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			if(!is_array($param->value))
+				return '0';
+			
+			$actor_context = $param->value['context'];
+			$actor_id = $param->value['id'];
+			
+			if(empty($actor_context) || empty($actor_id))
+				return '0';
+			
+			$worker_group_ids = array_keys(DAO_Group::getByMembers($actor_id));
+			$worker_role_ids = array_keys(DAO_WorkerRole::getReadableBy($actor_id));
+			
+			$sql = sprintf(
+				"(".
+				"(owner_context = %s AND owner_context_id = 0) ". // app
+				"OR (owner_context = %s AND owner_context_id = %d) ". // worker
+				"OR (owner_context = %s AND owner_context_id IN (%s)) ". // group
+				"OR (owner_context = %s AND owner_context_id IN (%s)) ". // role
+				")"
+				,
+				Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_APPLICATION),
+				Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER),
+				$actor_id,
+				Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_GROUP),
+				implode(',', $worker_group_ids ?: [-1]),
+				Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ROLE),
+				implode(',', $worker_role_ids ?: [-1])
+			);
+			
+			return $sql;
+		}
+		
+		return '0';
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
@@ -578,6 +621,7 @@ class SearchFields_FileBundle extends DevblocksSearchFields {
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
+			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
 
@@ -636,6 +680,7 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_FileBundle::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_FileBundle::VIRTUAL_CONTEXT_LINK,
 			SearchFields_FileBundle::VIRTUAL_HAS_FIELDSET,
+			SearchFields_FileBundle::VIRTUAL_USABLE_BY,
 			SearchFields_FileBundle::VIRTUAL_WATCHERS,
 		));
 
@@ -725,7 +770,7 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 				break;
 					
 			case SearchFields_FileBundle::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_FileBundle::OWNER_CONTEXT, DAO_Snippet::OWNER_CONTEXT_ID, 'owner_context[]');
+				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_FileBundle::OWNER_CONTEXT, DAO_FileBundle::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 				
 			default:
@@ -785,7 +830,15 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_FileBundle::UPDATED_AT),
 				),
-			'watchers' => 
+			'usableBy.worker' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_FileBundle::VIRTUAL_USABLE_BY),
+					'examples' => [
+						'me',
+					]
+				),
+			'watchers' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_WORKER,
 					'options' => array('param_key' => SearchFields_FileBundle::VIRTUAL_WATCHERS),
@@ -832,6 +885,24 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
+				break;
+			
+			case 'usableBy.worker':
+				$oper = $value = null;
+				CerbQuickSearchLexer::getOperStringFromTokens($tokens, $oper, $value);
+				$worker_id = intval($value);
+				
+				if(in_array(DevblocksPlatform::strLower($value),['me','self'])) {
+					if(false != ($active_worker = CerberusApplication::getActiveWorker())) {
+						$worker_id = $active_worker->id;
+					}
+				}
+				
+				return new DevblocksSearchCriteria(
+					SearchFields_FileBundle::VIRTUAL_USABLE_BY,
+					DevblocksSearchCriteria::OPER_CUSTOM,
+					['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $worker_id]
+				);
 				break;
 			
 			default:
@@ -892,7 +963,26 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_FileBundle::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
 				break;
-					
+			
+			case SearchFields_FileBundle::VIRTUAL_USABLE_BY:
+				if(!is_array($param->value) || !isset($param->value['context']))
+					return;
+				
+				switch($param->value['context']) {
+					case CerberusContexts::CONTEXT_WORKER:
+						if(false == ($worker = DAO_Worker::get($param->value['id']))) {
+							$worker_name = '(invalid worker)';
+						} else {
+							$worker_name = $worker->getName();
+						}
+						
+						echo sprintf("Usable by %s <b>%s</b>",
+							DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translate('common.worker', DevblocksPlatform::TRANSLATE_LOWER)),
+							DevblocksPlatform::strEscapeHtml($worker_name)
+						);
+						break;
+				}
+				
 			case SearchFields_FileBundle::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
 				break;
