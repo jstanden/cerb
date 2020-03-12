@@ -2769,6 +2769,7 @@ class CerberusSettings {
 	const MAIL_HTML_IMAGE_PROXY_TIMEOUT_MS = 'mail_html_image_proxy_timeout_ms';
 	const MAIL_HTML_IMAGE_PROXY_REDIRECTS_DISABLED = 'mail_html_image_proxy_redirects_disabled';
 	const MAIL_HTML_IMAGE_PROXY_BLOCKLIST = 'mail_html_image_blocklist';
+	const MAIL_HTML_IMAGE_SECRET = 'mail_html_image_secret';
 	const MAIL_HTML_LINKS_WHITELIST = 'mail_html_links_whitelist';
 };
 

@@ -572,6 +572,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			'proxy_image_timeout_ms' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_IMAGE_PROXY_TIMEOUT_MS, 2000),
 			'proxy_image_redirects_disabled' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_IMAGE_PROXY_REDIRECTS_DISABLED, 0),
 			'proxy_image_blocklist' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_IMAGE_PROXY_BLOCKLIST, ''),
+			'proxy_image_secret' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_IMAGE_SECRET, ''),
 			'links_whitelist' => $settings->get('cerberusweb.core',CerberusSettings::MAIL_HTML_LINKS_WHITELIST, ''),
 		];
 		$tpl->assign('params', $params);
@@ -614,6 +615,11 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			;
 		
 		$validation
+			->addField('proxy_image_secret', 'Proxy signing secret')
+			->string()
+			;
+		
+		$validation
 			->addField('links_whitelist', 'Links whitelist')
 			->string()
 			->setMaxLength('16 bits')
@@ -623,6 +629,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			'proxy_image_redirects_disabled' => DevblocksPlatform::importGPC(@$_POST['proxy_image_redirects_disabled'], 'integer', 0),
 			'proxy_image_timeout_ms' => DevblocksPlatform::importGPC(@$_POST['proxy_image_timeout_ms'], 'integer', 0),
 			'proxy_image_blocklist' => DevblocksPlatform::importGPC(@$_POST['proxy_image_blocklist'], 'string', ''),
+			'proxy_image_secret' => DevblocksPlatform::importGPC(@$_POST['proxy_image_secret'], 'string', ''),
 			'links_whitelist' => DevblocksPlatform::importGPC(@$_POST['links_whitelist'], 'string', ''),
 		];
 		
@@ -641,6 +648,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		
 		$settings->set('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_PROXY_TIMEOUT_MS, $values['proxy_image_timeout_ms']);
 		$settings->set('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_PROXY_REDIRECTS_DISABLED, $values['proxy_image_redirects_disabled']);
+		$settings->set('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_SECRET, $values['proxy_image_secret']);
 		
 		// =====================
 		// Proxy image blocklist

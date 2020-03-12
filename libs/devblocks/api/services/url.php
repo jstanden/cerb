@@ -270,6 +270,11 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 	protected $cerbUri = null;
 	
 	/**
+	 * @type string
+	 */
+	protected $secret = null;
+	
+	/**
 	 * @type _DevblocksEmailManager
 	 */
 	protected $mail = null;
@@ -305,6 +310,8 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 		$this->parser = new HTMLPurifier_URIParser();
 		$this->urlWriter = DevblocksPlatform::services()->url();
 		$this->mail = DevblocksPlatform::services()->mail();
+		
+		$this->secret = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_SECRET, '');
 
 		$this->cerbUri = $this->parser->parse($this->urlWriter->write('', true));
 		$this->cerbFilesPath = $this->urlWriter->write('c=files', false);
@@ -436,7 +443,16 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 				}
 				
 				$this->_logProxiedImage($uri);
-				$new_url = $this->urlWriter->write('c=security&a=proxyImage') . '?url=' . rawurlencode($uri->toString());
+				
+				$new_url = $this->urlWriter->write('c=security&a=proxyImage');
+				
+				$new_url .= '?url=' . rawurlencode($uri->toString());
+				
+				if($this->secret) {
+					$hash = hash_hmac('sha256', $uri->toString(), $this->secret, true);
+					$hash = DevblocksPlatform::services()->string()->base64UrlEncode($hash);
+					$new_url .= '&s=' . rawurlencode(substr($hash, 0, 10));
+				}
 				
 				$uri = $this->parser->parse($new_url);
 				

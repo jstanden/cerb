@@ -57,6 +57,7 @@ class Controller_Security extends DevblocksControllerExtension {
 	
 	private function _controllerAction_proxyImage() {
 		@$url = DevblocksPlatform::importGPC($_REQUEST['url'], 'string', null);
+		@$url_sig = DevblocksPlatform::importGPC($_REQUEST['s'], 'string', null);
 		
 		// If the URL is blank, 404
 		if(!$url)
@@ -67,6 +68,16 @@ class Controller_Security extends DevblocksControllerExtension {
 			
 			$image_proxy_redirects_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_PROXY_REDIRECTS_DISABLED, 0);
 			$image_proxy_timeout_ms = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_PROXY_TIMEOUT_MS, 2000);
+			$image_proxy_secret = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_HTML_IMAGE_SECRET, null);
+			
+			if($image_proxy_secret) {
+				$hash = hash_hmac('sha256', $url, $image_proxy_secret, true);
+				$hash = DevblocksPlatform::services()->string()->base64UrlEncode($hash);
+				
+				// If unauthenticated
+				if(!$url_sig || !DevblocksPlatform::strStartsWith($hash, $url_sig))
+					DevblocksPlatform::dieWithHttpError(null, 401);
+			}
 			
 			$http_options = [
 				RequestOptions::COOKIES => false,

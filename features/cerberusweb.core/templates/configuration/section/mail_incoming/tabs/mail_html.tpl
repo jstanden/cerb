@@ -41,6 +41,19 @@
                         <label><input type="radio" name="proxy_image_redirects_disabled" value="1" {if $params.proxy_image_redirects_disabled}checked="checked"{/if}> Deny</label>
                     </td>
                 </tr>
+                <tr>
+                    <td valign="top">
+                        <b>Signing Secret:</b>
+                    </td>
+                    <td>
+                        <input type="text" name="proxy_image_secret" value="{$params.proxy_image_secret}" size="64">
+                        <div>
+                            <small>
+                                An optional secret improves the security of the image proxy by requiring signed URLs. This can be any text, but works best when random.
+                            </small>
+                        </div>
+                    </td>
+                </tr>
             </table>
         </fieldset>
 
