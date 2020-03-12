@@ -623,14 +623,16 @@ var cAjaxCalls = function() {
 
 		if(is_dismissed) {
 			formData.set('clear', '1');
+			genericAjaxPost(formData, null, null);
+
+		} else {
+			showLoadingPanel();
+
+			genericAjaxPost(formData, null, null, function() {
+				hideLoadingPanel();
+				genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
+			});
 		}
-
-		showLoadingPanel();
-
-		genericAjaxPost(formData, '', '', function() {
-			hideLoadingPanel();
-			genericAjaxGet('view' + view_id,'c=internal&a=invoke&module=worklists&action=refresh&id=' + encodeURIComponent(view_id));
-		});
 	};
 
 	this.emailAutoComplete = function(sel, options) {
