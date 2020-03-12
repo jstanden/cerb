@@ -197,8 +197,8 @@ $(function() {
 
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-			editor.insertSnippet('<img src="' + event.url + '" alt="Image">');
-			editor.focus();
+			editor_content.insertSnippet('<img src="' + event.url + '" alt="Image">');
+			editor_content.focus();
 		});
 
 		$content_toolbar.find('.cerb-html-editor-toolbar-button--preview').on('click', function(e) {
@@ -253,8 +253,8 @@ $(function() {
 
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-			editor.insertSnippet('![Image](' + event.url + ')');
-			editor.focus();
+			editor_signature.insertSnippet('![Image](' + event.url + ')');
+			editor_signature.focus();
 		});
 
 		$signature_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function(e) {
