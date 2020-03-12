@@ -2257,12 +2257,59 @@ var ajax = new cAjaxCalls();
 					});
 				},
 
+				_sourceAttach: function(request, response, token) {
+					var term = token;
+					var ajax_requests = [];
+
+					ajax_requests.push(function(callback) {
+						var query = 'type:worklist.records of:file_bundle query:('
+							+ (term.length === 0
+								? ' '
+								: ' name:"*{}*"'.replace(/\{\}/g, term)
+							)
+							+ ' usableBy.worker:me)'
+						;
+
+						genericAjaxGet('', 'c=ui&a=dataQuery&q=' + encodeURIComponent(query), function(json) {
+							if ('object' != typeof json || !json.hasOwnProperty('data')) {
+								return callback(null, []);
+							}
+
+							var results = [];
+
+							for (var i in json.data) {
+								var bundle = json.data[i];
+
+								results.push({
+									_type: 'file_bundle',
+									label: bundle['_label'],
+									value: '#attach ' + bundle['tag'],
+									id: bundle['id']
+								});
+							}
+
+							return callback(null, results);
+						});
+					});
+
+					async.parallelLimit(ajax_requests, 2, function(err, json) {
+						if(err)
+							return response([]);
+
+						var results = json.reduce(function(arr,val) { return arr.concat(val); });
+
+						return response(results);
+					});
+				},
+
 				source: function(request, response) {
 					var token = $editor.cerbTextEditor('getCurrentWord');
 					var line = $editor.cerbTextEditor('getCurrentLine');
 
 					if(line.startsWith('#snippet ')) {
 						return this.options._sourceSnippet(request, response, line.substring(9));
+					} else if(line.startsWith('#attach ')) {
+						return this.options._sourceAttach(request, response, line.substring(8));
 					} else if(token.startsWith('#')) {
 						return this.options._sourceCommand(request, response, token);
 					} else if(token.startsWith('@')) {
@@ -2290,6 +2337,19 @@ var ajax = new cAjaxCalls();
 							$editor_toolbar.triggerHandler(new $.Event('cerb-editor-toolbar-snippet-inserted', {
 								'snippet_id': ui.item.id
 							}));
+						}
+
+					} else if(ui.item.value.startsWith('#attach ')) {
+						if(ui.item.value === '#attach ') {
+							$editor.cerbTextEditor('replaceCurrentLine', ui.item.value);
+
+							setTimeout(function() {
+								$editor.autocomplete('search');
+							}, 50);
+
+						} else {
+							$editor.autocomplete('close');
+							$editor.cerbTextEditor('replaceCurrentLine', ui.item.value);
 						}
 
 					} else if('#delete_quote_from_here' === ui.item.value) {
