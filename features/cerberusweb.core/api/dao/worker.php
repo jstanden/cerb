@@ -3750,6 +3750,8 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 			$worker->timezone = $active_worker->timezone;
 			$worker->time_format = $active_worker->time_format;
 			$worker->language = $active_worker->language;
+			$worker->is_password_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_DEFAULT_WORKER_DISABLE_PASSWORD, 0);
+			$worker->is_mfa_required = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_DEFAULT_WORKER_REQUIRE_MFA, 0);
 		}
 		
 		if(!$context_id || $edit) {

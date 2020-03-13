@@ -46,6 +46,17 @@
 	</div>
 </fieldset>
 
+<fieldset>
+	<legend>When creating a new worker account:</legend>
+
+	<div>
+		<label><input type="checkbox" name="params[auth_new_worker_disable_password]" value="1" {if $params.auth_new_worker_disable_password}checked="checked"{/if}> Disable password-based authentication</label>
+	</div>
+	<div>
+		<label><input type="checkbox" name="params[auth_new_worker_require_mfa]" value="1" {if $params.auth_new_worker_require_mfa}checked="checked"{/if}> Require multi-factor authentication</label>
+	</div>
+</fieldset>
+
 <div class="cerb-buttons">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 </div>

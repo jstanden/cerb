@@ -70,6 +70,8 @@ class PageSection_SetupAuth extends Extension_PageSection {
 		$params = [
 			'auth_mfa_allow_remember' => DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_ALLOW_REMEMBER, CerberusSettingsDefaults::AUTH_MFA_ALLOW_REMEMBER),
 			'auth_mfa_remember_days' => DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_REMEMBER_DAYS, CerberusSettingsDefaults::AUTH_MFA_REMEMBER_DAYS),
+			'auth_new_worker_disable_password' => DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_DEFAULT_WORKER_DISABLE_PASSWORD, CerberusSettingsDefaults::AUTH_DEFAULT_WORKER_DISABLE_PASSWORD),
+			'auth_new_worker_require_mfa' => DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::AUTH_DEFAULT_WORKER_REQUIRE_MFA, CerberusSettingsDefaults::AUTH_DEFAULT_WORKER_REQUIRE_MFA),
 		];
 		$tpl->assign('params', $params);
 		
@@ -121,6 +123,14 @@ class PageSection_SetupAuth extends Extension_PageSection {
 				->setMin(0)
 				->setMax(60)
 				;
+			$validation
+				->addField('auth_new_worker_disable_password', 'Disable password-based authentication')
+				->bit()
+				;
+			$validation
+				->addField('auth_new_worker_require_mfa', 'Require multi-factor authentication')
+				->bit()
+				;
 			
 			if(false == $validation->validateAll($params, $error))
 				throw new Exception_DevblocksValidationError($error);
@@ -150,9 +160,13 @@ class PageSection_SetupAuth extends Extension_PageSection {
 			
 			@$auth_mfa_allow_remember = DevblocksPlatform::importGPC($params['auth_mfa_allow_remember'], 'int', 0);
 			@$auth_mfa_remember_days = DevblocksPlatform::importGPC($params['auth_mfa_remember_days'], 'int', 0);
+			@$auth_new_worker_disable_password = DevblocksPlatform::importGPC($params['auth_new_worker_disable_password'], 'int', 0);
+			@$auth_new_worker_require_mfa = DevblocksPlatform::importGPC($params['auth_new_worker_require_mfa'], 'int', 0);
 			
 			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_ALLOW_REMEMBER, $auth_mfa_allow_remember);
 			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_MFA_REMEMBER_DAYS, $auth_mfa_remember_days);
+			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_DEFAULT_WORKER_DISABLE_PASSWORD, $auth_new_worker_disable_password);
+			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::AUTH_DEFAULT_WORKER_REQUIRE_MFA, $auth_new_worker_require_mfa);
 			
 			echo json_encode(array('status'=>true, 'message'=>DevblocksPlatform::translate('success.saved_changes')));
 			return;
