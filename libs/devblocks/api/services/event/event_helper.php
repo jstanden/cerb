@@ -24,6 +24,12 @@ class DevblocksEventHelper {
 						'is_polymorphic' => true,
 					);
 					
+				} else if(Model_CustomField::TYPE_LINK == $var['type']) {
+					$values_to_contexts[$var_key] = array(
+						'label' => '(variable) ' . $var['label'],
+						'context' => $var['params']['context'],
+					);
+					
 				} else if(DevblocksPlatform::strStartsWith($var['type'], 'ctx_')) {
 					$ctx_id = substr($var['type'], 4);
 					$values_to_contexts[$var_key] = array(
