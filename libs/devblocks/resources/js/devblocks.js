@@ -1288,14 +1288,30 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		$popup.dialog('option', 'position', { my: 'center top', at: 'center top+20px', of: window } );
 
 	var callback = function(html) {
-		// Set the content
-		$popup.html(html);
+		// Handle response errors
+		if(typeof html === 'object' && html.status) {
+			$popup.html('');
 
-		// Trigger event
-		$popup.trigger('popup_open');
+			if(404 === html.status) {
+				$popup.dialog('option', 'title', 'Error: Not found');
+			} else if (403 === html.status) {
+				$popup.dialog('option', 'title', 'Error: Forbidden');
+			} else if (401 === html.status) {
+				$popup.dialog('option', 'title', 'Error: Unauthenticated');
+			} else {
+				$popup.dialog('option', 'title', 'Error');
+			}
 
-		// Callback
-		try { cb(html); } catch(e) { }
+		} else {
+			// Set the content
+			$popup.html(html);
+
+			// Trigger event
+			$popup.trigger('popup_open');
+
+			// Callback
+			try { cb(html); } catch(e) { }
+		}
 	};
 
 	if(request instanceof FormData) {
