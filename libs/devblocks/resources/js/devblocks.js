@@ -1288,6 +1288,8 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		$popup.dialog('option', 'position', { my: 'center top', at: 'center top+20px', of: window } );
 
 	var callback = function(html) {
+		$popup.closest('.ui-dialog').focus();
+
 		// Handle response errors
 		if(typeof html === 'object' && html.status) {
 			$popup.html('');
