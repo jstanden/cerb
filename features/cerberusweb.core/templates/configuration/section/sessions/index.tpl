@@ -1,5 +1,5 @@
 <div>
-	<h2>Sessions</h2>
+	<h2>Active Sessions</h2>
 </div>
 
 <div>
