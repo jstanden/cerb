@@ -418,8 +418,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			!$interaction_behavior_id
 			|| false == ($interaction_behavior = DAO_TriggerEvent::get($interaction_behavior_id))
 			|| $interaction_behavior->event_point != Event_NewInteractionChatWorker::ID
-		)
-			return false;
+		) {
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		}
 		
 		// Start the session using the behavior
 		
@@ -455,7 +456,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		);
 		
 		if(false == ($event = $interaction_behavior->getEvent()))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$event->setEvent($event_model, $interaction_behavior);
 		
