@@ -383,7 +383,7 @@ class ChDebugController extends DevblocksControllerExtension  {
 					,
 					$url_service->write('c=debug&a=check'),
 					$url_service->write('c=debug&a=report'),
-					$url_service->write('c=debug&a=phpinfo'),
+					$url_service->write('c=debug&a=phpinfo')
 				);
 				break;
 		}

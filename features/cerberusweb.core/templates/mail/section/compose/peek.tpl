@@ -530,7 +530,7 @@ $(function() {
 			formData.set('id', event.snippet_id);
 			formData.set('context_ids[cerberusweb.contexts.worker]', '{$active_worker->id}');
 
-			genericAjaxGet(formData, null, null, function (json) {
+			genericAjaxPost(formData, null, null, function (json) {
 				// If the content has placeholders, use that popup instead
 				if (json.has_custom_placeholders) {
 					var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');

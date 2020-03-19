@@ -384,7 +384,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 			
 			if(false == ($rows = $db->GetArraySlave($sql)))
-				return [];
+				$rows = [];
 			
 		} else {
 			$rows = [];
@@ -821,7 +821,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					switch($type) {
 						case DevblocksSearchCriteria::TYPE_CONTEXT:
 							$name = $parents[$column_index]['name'];
-							$value = intval($parents[$column_index]['value']);
+							$value = $parents[$column_index]['value'];
 							
 							if(DevblocksPlatform::strEndsWith($key_prefix, '_id')) {
 								$key_prefix = substr($key_prefix, 0, -3) . '_';
@@ -829,17 +829,27 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								$key_prefix = '';
 							}
 							
-							if(!array_key_exists('type_options', $column)) {
-								if(false !== (strpos($value,':'))) {
-									@list($context, $context_id) = explode(':', $value, 2);
-									$row[$key_prefix . '_context'] = $context;
-									$row[$key_prefix . 'id'] = $context_id;
+							if(!is_numeric($value) && false !== strpos($value,':')) {
+								list($context, $context_id) = explode(':', $value);
+								$row[$key_prefix . '_context'] = $context;
+								$row[$key_prefix . '_id'] = $context_id;
+								$row[$key_prefix . '_label'] = $name;
+								
+							} else {
+								$value = intval($value);
+								
+								if(!array_key_exists('type_options', $column)) {
+									if(false !== (strpos($value,':'))) {
+										@list($context, $context_id) = explode(':', $value, 2);
+										$row[$key_prefix . '_context'] = $context;
+										$row[$key_prefix . 'id'] = $context_id;
+										$row[$key_prefix . '_label'] = $name;
+									}
+								} else {
+									$row[$key_prefix . 'id'] = $value;
+									$row[$key_prefix . '_context'] = $column['type_options']['context'];
 									$row[$key_prefix . '_label'] = $name;
 								}
-							} else {
-								$row[$key_prefix . 'id'] = $value;
-								$row[$key_prefix . '_context'] = $column['type_options']['context'];
-								$row[$key_prefix . '_label'] = $name;
 							}
 							
 							break;

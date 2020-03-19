@@ -462,6 +462,10 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 		} else {
 			$whitelist_hosts = $this->mail->getLinksWhitelist();
 			$host = DevblocksPlatform::strLower($uri->host);
+			
+			if(!$uri->path)
+				$uri->path = '/';
+			
 			$url = $uri->toString();
 			
 			$host_patterns = [$host];
@@ -485,7 +489,7 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 			
 			$this->_logRedirectedLink($uri);
 			
-			$new_uri = sprintf("javascript:genericAjaxPopup('externalLink','c=security&a=renderLinkPopup&url=%s',null,true);",
+			$new_uri = sprintf("javascript:void(genericAjaxPopup('externalLink','c=security&a=renderLinkPopup&url=%s',null,true));",
 				rawurlencode(rawurlencode($uri->toString()))
 			);
 			
