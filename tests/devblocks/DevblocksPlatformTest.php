@@ -776,7 +776,7 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
-	public function testPurifyHTML() {
+	public function testPurifyHtml() {
 		// Strip <script> blocks
 		$dirty_html = "<script>alert('hi!');</script><b>Bold</b>";
 		$expected = "<b>Bold</b>";
@@ -799,6 +799,29 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$dirty_html = '<a href="https://cerb.ai">Website</a>';
 		$expected = '<a href="https://cerb.ai" target="_blank" rel="noreferrer noopener">Website</a>';
 		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true);
+		$this->assertEquals($expected, $actual);
+	}
+	
+	public function testPurifyHtmlUriFiltering() {
+		// Don't allow images
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(false);
+		$dirty_html = "<img src='https://cerb.ai/assets/cerb_logo.png'>";
+		$expected = '<img src="" alt="cerb_logo.png">';
+		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true, [$filter]);
+		$this->assertEquals($expected, $actual);
+		
+		// Test proxy redirect links
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(false);
+		$dirty_html = '<a href="https://example.com">Example</a>';
+		$expected = '<a href="javascript:void(genericAjaxPopup(\'externalLink\',\'c=security&amp;a=renderLinkPopup&amp;url=' . rawurlencode(rawurlencode('https://example.com/')) . '\',null,true));">Example</a>';
+		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true, [$filter]);
+		$this->assertEquals($expected, $actual);
+		
+		// Test filter out bad links
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(false);
+		$dirty_html = '<a href="/relative/path">Example</a>';
+		$expected = '<a>Example</a>';
+		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true, [$filter]);
 		$this->assertEquals($expected, $actual);
 	}
 	
