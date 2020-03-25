@@ -198,6 +198,12 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		
 		$response = [];
 		
+		$status_ids = [
+			'live' => 0,
+			'disabled' => 1,
+			'simulator' => 2,
+		];
+		
 		foreach($nodes as $node) {
 			if(
 				!isset($node['type'])
@@ -206,12 +212,15 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			)
 				return false;
 			
+			$status_id = @$status_ids[$node['status']] ?? 0;
+			
 			$fields = [
 				DAO_DecisionNode::NODE_TYPE => $node['type'],
 				DAO_DecisionNode::TITLE => $node['title'],
 				DAO_DecisionNode::PARENT_ID => $parent_id,
 				DAO_DecisionNode::TRIGGER_ID => $behavior_id,
 				DAO_DecisionNode::POS => $pos++,
+				DAO_DecisionNode::STATUS_ID => $status_id,
 				DAO_DecisionNode::PARAMS_JSON => isset($node['params']) ? json_encode($node['params']) : '',
 			];
 			
