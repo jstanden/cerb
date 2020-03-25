@@ -25,7 +25,7 @@
 				<input type="hidden" name="email" value="{$email}">
 				{$email}
 			{else}
-				<input type="text" name="email" style="width:98%;" value="{$email}" class="required email" autocomplete="off" spellcheck="false">
+				<input type="text" name="email" style="width:98%;" value="{$email}" class="required email" autocomplete="off" spellcheck="false" autofocus>
 			{/if}
 		</td>
 	</tr>
