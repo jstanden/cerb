@@ -386,7 +386,7 @@ $(function() {
 				formData.set('prefix', strNamespace);
 				formData.set('field', strName);
 
-				genericAjaxPost($frm, divTester, null);
+				genericAjaxPost(formData, divTester, null);
 			}
 		});
 
