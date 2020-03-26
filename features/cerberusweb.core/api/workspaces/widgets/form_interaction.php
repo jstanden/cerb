@@ -457,6 +457,7 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					@$record_query = $params['record_query'];
 					@$record_query_required = $params['record_query_required'];
 					@$selection = $params['selection'];
+					@$autocomplete = !empty($params['autocomplete']);
 					
 					$records = array_map(function($record) {
 						if($record instanceof DevblocksDictionaryDelegate)
@@ -470,6 +471,7 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					$tpl->assign('record_query', $record_query);
 					$tpl->assign('record_query_required', $record_query_required);
 					$tpl->assign('selection', $selection);
+					$tpl->assign('autocomplete', $autocomplete);
 					$tpl->assign('var', $var);
 					$tpl->assign('params', $params);
 					$tpl->assign('records', $records);

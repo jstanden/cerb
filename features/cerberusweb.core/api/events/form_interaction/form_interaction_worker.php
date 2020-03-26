@@ -612,6 +612,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				
 				@$label = $tpl_builder->build($params['label'], $dict);
 				@$selection = $params['selection'];
+				@$autocomplete = !empty($params['autocomplete']);
 				@$record_type = $tpl_builder->build($params['record_type'], $dict);
 				@$record_query = $tpl_builder->build($params['record_query'], $dict);
 				@$record_query_required = $tpl_builder->build($params['record_query_required'], $dict);
@@ -627,6 +628,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					],
 					'label' => $label,
 					'selection' => $selection,
+					'autocomplete' => $autocomplete,
 					'record_type' => $record_type,
 					'record_query' => $record_query,
 					'record_query_required' => $record_query_required,
