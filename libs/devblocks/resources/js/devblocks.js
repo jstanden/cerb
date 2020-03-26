@@ -385,7 +385,7 @@ function DevblocksClass() {
 				}
 				
 				// Meta fields
-				for(k in e) {
+				for(var k in e) {
 					event[k] = e[k];
 				}
 				
@@ -400,7 +400,7 @@ function DevblocksClass() {
 					// If this is a create+continue we need to reload the editor
 					if(is_create) {
 						var layer = $popup.attr('data-layer');
-						var popup_url = 'c=internal&a=showPeekPopup' + 
+						var popup_url = 'c=internal&a=invoke&module=records&action=showPeekPopup' +
 							'&context=' + encodeURIComponent(e.context) + 
 							'&context_id=' + encodeURIComponent(e.id) + 
 							'&view_id=' + encodeURIComponent(e.view_id) +

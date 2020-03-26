@@ -389,18 +389,6 @@ class DAO_Address extends Cerb_ORMHelper {
 			implode(',', $from_ids)
 		));
 		
-		// Merge crm_opportunity
-		$db->ExecuteMaster(sprintf("UPDATE IGNORE crm_opportunity SET primary_email_id = %d WHERE primary_email_id IN (%s)",
-			$to_id,
-			implode(',', $from_ids)
-		));
-		
-		// Merge feedback_entry
-		$db->ExecuteMaster(sprintf("UPDATE feedback_entry SET quote_address_id = %d WHERE quote_address_id IN (%s)",
-			$to_id,
-			implode(',', $from_ids)
-		));
-		
 		// Merge message sender
 		$db->ExecuteMaster(sprintf("UPDATE message SET address_id = %d WHERE address_id IN (%s)",
 			$to_id,

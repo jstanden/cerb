@@ -1544,7 +1544,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					'created' => time(),
 					'worker_id' => $active_worker->id,
 					'total' => min($total, $max_pages * $view->renderLimit),
-					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=tickets', true),
+					'return_url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $url_writer->writeNoProxy('c=search&type=tickets', true),
 				);
 				$models[] = $model;
 				
