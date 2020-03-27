@@ -224,7 +224,7 @@
 		<td data-column="{$column}">
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
 			{if empty($result.t_spam_training)}
-			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" onclick="$(this).closest('tbody').remove();genericAjaxGet('{$view->id}_output_container','c=tickets&a=reportSpam&id={$result.t_id}&view_id={$view->id}');">{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" class="cerb-view-shortcut-spam" data-ticket-id="{$result.t_id}">{/if}
 			{if $result.t_spam_score >= 0.90}
 			<span class="glyphicons glyphicons-ban" style="color:rgb(200,0,0);" title="Report Spam ({$score})"></span>
 			{else}
@@ -312,7 +312,7 @@
 		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" onclick="ajax.viewCloseTickets('{$view->id}',0);" style="display:none;"><span class="glyphicons glyphicons-ok"></span> {'common.close'|devblocks_translate|lower}</button>{/if}
 		{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" class="action-spam" onclick="ajax.viewCloseTickets('{$view->id}',1);" style="display:none;"><span class="glyphicons glyphicons-ban"></span> {'common.spam'|devblocks_translate|lower}</button>{/if}
 		{if $active_worker->hasPriv("contexts.{$view_context}.delete")}<button type="button" class="action-delete" onclick="ajax.viewCloseTickets('{$view->id}',2);" style="display:none;"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|lower}</button>{/if}
-		
+
 		<button type="button" class="action-move" style="display:none;">{'common.move'|devblocks_translate|lower} <span class="glyphicons glyphicons-chevron-down"></span></button>
 		<div class="cerb-popupmenu cerb-float">
 			<select class="cerb-moveto-group">
@@ -526,6 +526,21 @@ $(function() {
 		genericAjaxPost(formData, '', '', function() {
 			genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
 		});
+	});
+
+	$view.find('.cerb-view-shortcut-spam').click(function() {
+		var $this = $(this);
+		$this.closest('tbody').remove();
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'ticket');
+		formData.set('action', 'quickSpam');
+		formData.set('ticket_id', $this.attr('data-ticket-id'));
+		formData.set('is_spam', '1');
+
+		genericAjaxPost(formData,null,null);
 	});
 	
 });
