@@ -185,7 +185,7 @@ class DAO_Task extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Local events
-				self::_processUpdateEvents($batch_ids, $fields);
+				self::processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::services()->event();
@@ -285,9 +285,10 @@ class DAO_Task extends Cerb_ORMHelper {
 			DAO_Task::delete($ids);
 			
 		} else {
-			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $ids);
+			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TASK, $ids);
 			
 			DAO_Task::update($ids, $change_fields, false);
+			DAO_Task::processUpdateEvents($ids, $change_fields);
 			
 			// Custom Fields
 			C4_AbstractView::_doBulkSetCustomFields(CerberusContexts::CONTEXT_TASK, $custom_fields, $ids);
@@ -300,14 +301,14 @@ class DAO_Task extends Cerb_ORMHelper {
 			if(isset($do['watchers']))
 				C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_TASK, $do['watchers'], $ids);
 			
-			CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TASK, $ids);
+			DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TASK, $ids);
 		}
 		
 		$update->markCompleted();
 		return true;
 	}
 	
-	static function _processUpdateEvents($ids, $change_fields) {
+	static function processUpdateEvents($ids, $change_fields) {
 		// We only care about these fields, so abort if they aren't referenced
 
 		$observed_fields = array(

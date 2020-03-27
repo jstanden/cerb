@@ -147,7 +147,7 @@ class DAO_DatacenterSensor extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Local events
-				self::_processUpdateEvents($batch_ids, $fields);
+				self::processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::services()->event();
@@ -166,7 +166,7 @@ class DAO_DatacenterSensor extends Cerb_ORMHelper {
 		}
 	}
 	
-	static function _processUpdateEvents($ids, $change_fields) {
+	static function processUpdateEvents($ids, $change_fields) {
 		// We only care about these fields, so abort if they aren't referenced
 
 		$observed_fields = array(

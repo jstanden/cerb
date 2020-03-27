@@ -746,7 +746,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			// Send events
 			if(!($option_bits & DevblocksORMHelper::OPT_UPDATE_NO_EVENTS) && $check_deltas) {
 				// Local events
-				self::_processUpdateEvents($batch_ids, $fields);
+				self::processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::services()->event();
@@ -864,10 +864,12 @@ class DAO_Worker extends Cerb_ORMHelper {
 			}
 		}
 		
-		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $ids);
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WORKER, $ids);
 		
-		if(!empty($change_fields))
-			DAO_Worker::update($ids, $change_fields, 0,false);
+		if(!empty($change_fields)) {
+			DAO_Worker::update($ids, $change_fields, 0, false);
+			DAO_Worker::processUpdateEvents($ids, $change_fields);
+		}
 		
 		// Custom Fields
 		if(!empty($custom_fields))
@@ -877,13 +879,13 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if(isset($do['broadcast']))
 			C4_AbstractView::_doBulkBroadcast(CerberusContexts::CONTEXT_WORKER, $do['broadcast'], $ids);
 		
-		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_WORKER, $ids);
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_WORKER, $ids);
 		
 		$update->markCompleted();
 		return true;
 	}
 	
-	static function _processUpdateEvents($ids, $change_fields) {
+	static function processUpdateEvents($ids, $change_fields) {
 		// We only care about these fields, so abort if they aren't referenced
 
 		$observed_fields = array(

@@ -921,7 +921,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			
 			if($check_deltas) {
 				// Trigger local events
-				self::_processUpdateEvents($batch_ids, $fields);
+				self::processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::services()->event();
@@ -1167,12 +1167,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			}
 		}
 		
-		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TICKET, $ids);
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $ids);
 		
 		// Fields
 		if(!empty($change_fields) || !empty($custom_fields)) {
 			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
 			DAO_Ticket::update($ids, $change_fields, false);
+			DAO_Ticket::processUpdateEvents($ids, $change_fields);
 		}
 		
 		// Custom Fields
@@ -1256,13 +1257,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			}
 		}
 		
-		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TICKET, $ids);
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TICKET, $ids);
 
 		$update->markCompleted();
 		return true;
 	}
 	
-	static function _processUpdateEvents($ids, $change_fields) {
+	static function processUpdateEvents($ids, $change_fields) {
 
 		// We only care about these fields, so abort if they aren't referenced
 

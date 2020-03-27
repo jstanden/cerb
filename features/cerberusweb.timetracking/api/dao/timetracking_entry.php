@@ -144,7 +144,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			// Send events
 			if($check_deltas) {
 				// Local events
-				self::_processUpdateEvents($batch_ids, $fields);
+				self::processUpdateEvents($batch_ids, $fields);
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::services()->event();
@@ -228,10 +228,12 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			}
 		}
 		
-		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TIMETRACKING, $ids);
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TIMETRACKING, $ids);
 		
-		if(!empty($change_fields))
+		if(!empty($change_fields)) {
 			DAO_TimeTrackingEntry::update($ids, $change_fields, false);
+			DAO_TimeTrackingEntry::processUpdateEvents($ids, $change_fields);
+		}
 
 		// Custom Fields
 		if(!empty($custom_fields))
@@ -245,13 +247,13 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		if(isset($do['watchers']))
 			C4_AbstractView::_doBulkChangeWatchers(CerberusContexts::CONTEXT_TIMETRACKING, $do['watchers'], $ids);
 		
-		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_TIMETRACKING, $ids);
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_TIMETRACKING, $ids);
 		
 		$update->markCompleted();
 		return true;
 	}
 	
-	static function _processUpdateEvents($ids, $change_fields) {
+	static function processUpdateEvents($ids, $change_fields) {
 		// We only care about these fields, so abort if they aren't referenced
 
 		$observed_fields = array(
