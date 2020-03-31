@@ -95,7 +95,7 @@
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
-			{elseif in_array($column, ["p_enabled","p_ssl_ignore_validation"])}
+			{elseif in_array($column, ["p_enabled"])}
 				<td data-column="{$column}">
 					{if $result.$column}
 					{'common.yes'|devblocks_translate|lower}

@@ -89,7 +89,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				@$password = DevblocksPlatform::importGPC($_POST['password'],'string');
 				@$port = DevblocksPlatform::importGPC($_POST['port'],'integer');
 				@$protocol = DevblocksPlatform::importGPC($_POST['protocol'],'string');
-				@$ssl_ignore_validation = DevblocksPlatform::importGPC($_POST['ssl_ignore_validation'],'integer',0);
 				@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer');
 				@$username = DevblocksPlatform::importGPC($_POST['username'],'string');
 				
@@ -123,7 +122,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 						DAO_Mailbox::PASSWORD => $password,
 						DAO_Mailbox::PORT => $port,
 						DAO_Mailbox::PROTOCOL => $protocol,
-						DAO_Mailbox::SSL_IGNORE_VALIDATION => $ssl_ignore_validation,
 						DAO_Mailbox::TIMEOUT_SECS => $timeout_secs,
 						DAO_Mailbox::UPDATED_AT => time(),
 						DAO_Mailbox::USERNAME => $username,
@@ -153,7 +151,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 						DAO_Mailbox::PASSWORD => $password,
 						DAO_Mailbox::PORT => $port,
 						DAO_Mailbox::PROTOCOL => $protocol,
-						DAO_Mailbox::SSL_IGNORE_VALIDATION => $ssl_ignore_validation,
 						DAO_Mailbox::TIMEOUT_SECS => $timeout_secs,
 						DAO_Mailbox::UPDATED_AT => time(),
 						DAO_Mailbox::USERNAME => $username,
@@ -223,7 +220,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			@$pass = DevblocksPlatform::importGPC($_POST['password'],'string','');
 			@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer',0);
 			@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer',25600);
-			@$ssl_ignore_validation = DevblocksPlatform::importGPC($_POST['ssl_ignore_validation'],'integer',0);
 			@$auth_disable_plain = DevblocksPlatform::importGPC($_POST['auth_disable_plain'],'integer',0);
 			
 			// Defaults
@@ -248,7 +244,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			if(!empty($host)) {
 				$mail_service = DevblocksPlatform::services()->mail();
 				
-				if(false == $mail_service->testMailbox($host, $port, $protocol, $user, $pass, $ssl_ignore_validation, $auth_disable_plain, $timeout_secs, $max_msg_size_kb))
+				if(false == $mail_service->testMailbox($host, $port, $protocol, $user, $pass, $auth_disable_plain, $timeout_secs, $max_msg_size_kb))
 					throw new Exception($translate->_('config.mailboxes.failed'));
 				
 			} else {

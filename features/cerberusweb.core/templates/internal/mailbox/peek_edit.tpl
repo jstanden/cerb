@@ -83,13 +83,6 @@
 		</td>
 	</tr>
 	<tr>
-		<td width="0%" nowrap="nowrap"><b>SSL Validation:</b></td>
-		<td width="100%">
-			<label><input type="radio" name="ssl_ignore_validation" value="0" {if empty($model->ssl_ignore_validation)}checked="checked"{/if}> Enforce</label>
-			<label><input type="radio" name="ssl_ignore_validation" value="1" {if $model->ssl_ignore_validation}checked="checked"{/if}> Ignore</label>
-		</td>
-	</tr>
-	<tr>
 		<td width="0%" nowrap="nowrap"><b>{'dao.mailbox.auth_disable_plain'|devblocks_translate}:</b></td>
 		<td width="100%">
 			<label><input type="radio" name="auth_disable_plain" value="0" {if empty($model->auth_disable_plain)}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
