@@ -459,6 +459,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_radios.tpl');
 				break;
 				
+			case 'prompt_sheet':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_sheet.tpl');
+				break;
+				
 			case 'prompt_text':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_text.tpl');
 				break;
@@ -552,6 +556,23 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$out = sprintf(">>> Prompting with radio buttons\nLabel: %s\nOptions: %s\n",
 					$label,
 					$options
+				);
+				break;
+				
+			case 'prompt_sheet':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$label = $tpl_builder->build($params['label'], $dict);
+				$data = $tpl_builder->build($params['data'], $dict);
+				$schema = $tpl_builder->build($params['schema'], $dict);
+				$mode = $params['mode'];
+				$selection_key = $params['selection_key'];
+				
+				$out = sprintf(">>> Prompting with sheet\nLabel: %s\nSelection: %s\nSelection Key: %s\nData: %s\nSchema: %s\n",
+					$label,
+					$mode ? 'multiple' : 'single',
+					$selection_key,
+					$data,
+					$schema
 				);
 				break;
 				
@@ -755,7 +776,37 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					'default' => $default,
 				];
 				break;
+			
+			case 'prompt_sheet':
+				$actions =& $dict->_actions;
 				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$label = $tpl_builder->build($params['label'], $dict);
+				@$data = $tpl_builder->build($params['data'], $dict);
+				@$schema = $tpl_builder->build($params['schema'], $dict);
+				@$mode = $params['mode'];
+				@$selection_key = $params['selection_key'];
+				@$var = $params['var'];
+				@$var_format = $params['var_format'];
+				@$var_validate = $params['var_validate'];
+				
+				$actions[] = [
+					'_action' => 'prompt.sheet',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+						'format' => $var_format,
+						'validate' => $var_validate,
+					],
+					'label' => $label,
+					'data' => $data,
+					'schema' => $schema,
+					'mode' => $mode,
+					'selection_key' => $selection_key,
+				];
+				break;
+			
 			case 'prompt_text':
 				$actions =& $dict->_actions;
 				

@@ -13,25 +13,32 @@
 			</tr>
 		</thead>
 		{/if}
-		
-	{foreach from=$rows item=row name=rows}
-		<tbody>
+
+		{foreach from=$rows item=row name=rows}
+			<tbody>
+			{if $layout.selection}
+				<tr>
+					<td rowspan="{if $layout.title_column}3{else}2{/if}" colspan="1" style="width:20px;text-align:center;">
+						<input type="checkbox" name="_selection" value="{$row._selection nofilter}">
+					</td>
+				</tr>
+			{/if}
 			{if $layout.title_column}
-			{$column = $columns[$layout.title_column]}
-			<tr>
-				<td colspan="{$columns|count-1}" style="padding:0 0 0 5px;font-size:1.1em;font-weight:bold;">{$row[$column.key] nofilter}</td>
-			</tr>
+				{$column = $columns[$layout.title_column]}
+				<tr>
+					<td colspan="{$columns|count-1}" style="padding:0 0 0 5px;font-size:1.1em;font-weight:bold;">{$row[$column.key] nofilter}</td>
+				</tr>
 			{/if}
 			<tr>
-			{foreach from=$columns item=column name=columns}
-				{if $layout.title_column == $column.key}
-				{else}
-				<td style="{if $column.style.weight}font-weight:{$column.style.weight};{/if}">{$row[$column.key] nofilter}</td>
-				{/if}
-			{/foreach}
+				{foreach from=$columns item=column name=columns}
+					{if $layout.title_column == $column.key}
+					{else}
+						<td style="{if $column.params.bold}font-weight:bold;{/if}">{$row[$column.key] nofilter}</td>
+					{/if}
+				{/foreach}
 			</tr>
-		</tbody>
-	{/foreach}
+			</tbody>
+		{/foreach}
 	</table>
 	
 	{if $layout.paging && $paging}

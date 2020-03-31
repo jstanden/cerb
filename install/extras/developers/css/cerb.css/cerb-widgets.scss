@@ -12,6 +12,17 @@ TABLE.cerb-widget-data-table {
 	
 	tbody:nth-child(even) td {
 		background-color: rgb(245,245,245);
+	}
+	
+	tbody {
+		cursor: pointer;
+		
+		&.selected td {
+			background-color: #fbec88;
+		}
+		
+		&.hover tr td {
+			background-color: #ffffc8 !important;
 		}
 	}
 }

@@ -306,6 +306,11 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 							]);
 						}, $prompt_value);
 						break;
+					
+					case 'prompt.sheet':
+						if(is_null($prompt_value))
+							$prompt_value = [];
+						break;
 				}
 				
 				$dict->set($prompt_var, $prompt_value);
@@ -574,6 +579,53 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					} else {
 						$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_radios.tpl');
 					}
+					break;
+				
+				case 'prompt.sheet':
+					@$label = $params['label'];
+					@$data = $params['data'];
+					@$schema = $params['schema'];
+					@$mode = $params['mode'];
+					@$selection_key = $params['selection_key'];
+					@$var = $params['_prompt']['var'];
+					
+					$sheets = DevblocksPlatform::services()->sheet();
+					@$sheet_yaml = DevblocksPlatform::importGPC($schema, 'string', null);
+					$sheet = $sheets->parseYaml($sheet_yaml, $error);
+					
+					if(!array_key_exists('layout', $sheet))
+						$sheet['layout'] = [];
+					
+					$sheet['layout']['selection'] = [
+						'value_key' => $selection_key,
+						'mode' => $mode,
+					];
+					
+					$sheets->addType('card', $sheets->types()->card());
+					$sheets->addType('date', $sheets->types()->date());
+					$sheets->addType('icon', $sheets->types()->icon());
+					$sheets->addType('link', $sheets->types()->link());
+					$sheets->addType('search', $sheets->types()->search());
+					$sheets->addType('search_button', $sheets->types()->searchButton());
+					$sheets->addType('slider', $sheets->types()->slider());
+					$sheets->addType('text', $sheets->types()->text());
+					$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
+					$sheets->setDefaultType('text');
+					
+					$sheet_data = @json_decode($data, true) ?: [];
+					
+					$layout = $sheets->getLayout($sheet);
+					$tpl->assign('layout', $layout);
+					
+					$rows = $sheets->getRows($sheet, $sheet_data);
+					$tpl->assign('rows', $rows);
+					
+					$columns = $sheets->getColumns($sheet);
+					$tpl->assign('columns', $columns);
+					
+					$tpl->assign('label', $label);
+					$tpl->assign('var', $var);
+					$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_sheet.tpl');
 					break;
 					
 				case 'prompt.text':

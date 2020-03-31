@@ -1,8 +1,13 @@
 <div id="widget{$widget->id}">
-	<table cellpadding="0" cellspacing="0" style="width:100%;" class="cerb-widget-data-table">
+	{if $rows}
+	<table cellpadding="0" cellspacing="0" style="width:100%;" class="cerb-sheet cerb-widget-data-table">
 		{if $layout.headings}
 		<thead>
 			<tr>
+				{if $layout.selection}
+				<th style="width:20px;text-align:center;"></th>
+				{/if}
+			
 				{foreach from=$columns item=column name=columns}
 				{if $layout.title_column == $column.key}
 				{else}
@@ -14,6 +19,13 @@
 		{/if}
 	{foreach from=$rows item=row name=rows}
 		<tbody>
+			{if $layout.selection}
+			<tr>
+				<td rowspan="{if $layout.title_column}3{else}2{/if}" colspan="1" style="width:20px;text-align:center;">
+					<input type="checkbox" name="_selection" value="{$row._selection nofilter}">
+				</td>
+			</tr>
+			{/if}
 			{if $layout.title_column}
 			{$column = $columns[$layout.title_column]}
 			<tr>

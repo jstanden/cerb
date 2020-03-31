@@ -68,6 +68,10 @@ class _DevblocksSheetService {
 				if(array_key_exists($sheet['layout']['title_column'], $columns))
 					$layout['title_column'] = $sheet['layout']['title_column'];
 			}
+			
+			if(array_key_exists('selection', $sheet['layout'])) {
+				$layout['selection'] = $sheet['layout']['selection'];
+			}
 		}
 		
 		return $layout;
@@ -112,8 +116,24 @@ class _DevblocksSheetService {
 		
 		$rows = [];
 		
+		$layout = $this->getLayout($sheet);
+		
 		foreach($sheet_dicts as $sheet_dict_id => $sheet_dict) {
 			$row = [];
+			
+			if(!($sheet_dict instanceof DevblocksDictionaryDelegate))
+				$sheet_dict = DevblocksDictionaryDelegate::instance($sheet_dict);
+			
+			if(array_key_exists('selection', $layout)) {
+				if(!array_key_exists('text', $this->_types))
+					continue;
+				
+				$column = [
+					'params' => $layout['selection'],
+				];
+				
+				$row['_selection'] = $this->_types['text']($column, $sheet_dict);
+			}
 			
 			foreach($columns as $column) {
 				if(false == (@$column_key = $column['key']))
@@ -124,9 +144,6 @@ class _DevblocksSheetService {
 				
 				if(!array_key_exists($column_type, $this->_types))
 					continue;
-				
-				if(!($sheet_dict instanceof DevblocksDictionaryDelegate))
-					$sheet_dict = DevblocksDictionaryDelegate::instance($sheet_dict);
 				
 				$row[$column_key] = $this->_types[$column_type]($column, $sheet_dict);
 			}

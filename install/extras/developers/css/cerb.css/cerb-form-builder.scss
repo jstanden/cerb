@@ -95,25 +95,31 @@
 	}
 
 	.cerb-data-table {
-		width: 100%;
-		
-		tr td {
-			padding: 5px;
-		}
-		
 		th {
 			font-weight: bold;
 			font-size: 1.25em;
 			text-align: left;
+			padding: 0px 5px 5px 5px;
+		}
+
+		td {
 			padding: 5px;
 		}
-		
-		tbody:nth-child(even) tr td {
-			background-color: whitesmoke;
+
+		tbody:nth-child(even) td {
+			background-color: rgb(245,245,245);
 		}
-		
-		tbody:hover td {
-			background-color: #ffffc8;
+
+		tbody {
+			cursor: pointer;
+
+			&.selected td {
+				background-color: #fbec88;
+			}
+
+			&.hover tr td {
+				background-color: #ffffc8 !important;
+			}
 		}
 	}
 
