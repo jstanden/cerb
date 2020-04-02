@@ -587,11 +587,10 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		if(false == ($draft = DAO_MailQueue::get($draft_id)))
 			return false;
 		
-		if($ticket_id = $draft->send()) {
+		if(false !== ($response = $draft->send()) && is_array($response)) {
 			// View marquee
-			
-			if(!empty($ticket_id) && !empty($view_id)) {
-				C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TICKET, $ticket_id);
+			if($view_id) {
+				C4_AbstractView::setMarqueeContextCreated($view_id, $response[0], $response[1]);
 			}
 		}
 		DevblocksPlatform::exit();
