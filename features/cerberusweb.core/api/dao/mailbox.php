@@ -16,7 +16,6 @@
  ***********************************************************************/
 
 class DAO_Mailbox extends Cerb_ORMHelper {
-	const AUTH_DISABLE_PLAIN = 'auth_disable_plain';
 	const CHECKED_AT = 'checked_at';
 	const DELAY_UNTIL = 'delay_until';
 	const ENABLED = 'enabled';
@@ -37,11 +36,6 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 
-		// tinyint(3) unsigned
-		$validation
-			->addField(self::AUTH_DISABLE_PLAIN)
-			->bit()
-			;
 		// int(10) unsigned
 		$validation
 			->addField(self::CHECKED_AT)
@@ -223,7 +217,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, enabled, name, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, auth_disable_plain, updated_at, checked_at ".
+		$sql = "SELECT id, enabled, name, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, updated_at, checked_at ".
 			"FROM mailbox ".
 			$where_sql.
 			$sort_sql.
@@ -301,7 +295,6 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			$object->delay_until = intval($row['delay_until']);
 			$object->timeout_secs = intval($row['timeout_secs']);
 			$object->max_msg_size_kb = intval($row['max_msg_size_kb']);
-			$object->auth_disable_plain = $row['auth_disable_plain'] ? 1 : 0;
 			$object->updated_at = intval($row['updated_at']);
 			$object->checked_at = intval($row['checked_at']);
 			$objects[$object->id] = $object;
@@ -367,7 +360,6 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			"mailbox.delay_until as %s, ".
 			"mailbox.timeout_secs as %s, ".
 			"mailbox.max_msg_size_kb as %s, ".
-			"mailbox.auth_disable_plain as %s, ".
 			"mailbox.updated_at as %s, ".
 			"mailbox.checked_at as %s ",
 				SearchFields_Mailbox::ID,
@@ -382,7 +374,6 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 				SearchFields_Mailbox::DELAY_UNTIL,
 				SearchFields_Mailbox::TIMEOUT_SECS,
 				SearchFields_Mailbox::MAX_MSG_SIZE_KB,
-				SearchFields_Mailbox::AUTH_DISABLE_PLAIN,
 				SearchFields_Mailbox::UPDATED_AT,
 				SearchFields_Mailbox::CHECKED_AT
 			);
@@ -471,7 +462,6 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 };
 
 class Model_Mailbox {
-	public $auth_disable_plain = 0;
 	public $checked_at = 0;
 	public $delay_until = 0;
 	public $enabled=1;
@@ -528,7 +518,6 @@ class Model_Mailbox {
 };
 
 class SearchFields_Mailbox extends DevblocksSearchFields {
-	const AUTH_DISABLE_PLAIN = 'p_auth_disable_plain';
 	const CHECKED_AT = 'p_checked_at';
 	const DELAY_UNTIL = 'p_delay_until';
 	const ENABLED = 'p_enabled';
@@ -619,7 +608,6 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 
 		$columns = array(
-			self::AUTH_DISABLE_PLAIN => new DevblocksSearchField(self::AUTH_DISABLE_PLAIN, 'mailbox', 'auth_disable_plain', $translate->_('dao.mailbox.auth_disable_plain'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::CHECKED_AT => new DevblocksSearchField(self::CHECKED_AT, 'mailbox', 'checked_at', $translate->_('dao.mailbox.checked_at'), Model_CustomField::TYPE_DATE, true),
 			self::DELAY_UNTIL => new DevblocksSearchField(self::DELAY_UNTIL, 'mailbox', 'delay_until', $translate->_('dao.mailbox.delay_until'), Model_CustomField::TYPE_DATE, true),
 			self::ENABLED => new DevblocksSearchField(self::ENABLED, 'mailbox', 'enabled', $translate->_('common.enabled'), Model_CustomField::TYPE_CHECKBOX, true),
@@ -908,7 +896,6 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 		switch($field) {
 			case SearchFields_Mailbox::ENABLED:
-			case SearchFields_Mailbox::AUTH_DISABLE_PLAIN:
 				parent::_renderCriteriaParamBoolean($param);
 				break;
 
@@ -967,7 +954,6 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 				break;
 
 			case SearchFields_Mailbox::ENABLED:
-			case SearchFields_Mailbox::AUTH_DISABLE_PLAIN:
 				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -1116,12 +1102,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			'value' => DevblocksPlatform::strPrettyBytes($model->max_msg_size_kb * 1000),
 		);
 		
-		$properties['auth_disable_plain'] = array(
-			'label' => mb_ucfirst($translate->_('dao.mailbox.auth_disable_plain')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $model->auth_disable_plain,
-		);
-		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -1159,7 +1139,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			'num_fails',
 			'timeout_secs',
 			'max_msg_size_kb',
-			'auth_disable_plain',
 			'updated_at',
 		);
 	}
@@ -1185,7 +1164,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'auth_disable_plain' => $prefix.$translate->_('dao.mailbox.auth_disable_plain'),
 			'checked_at' => $prefix.$translate->_('dao.mailbox.checked_at'),
 			'host' => $prefix.$translate->_('common.host'),
 			'id' => $prefix.$translate->_('common.id'),
@@ -1204,7 +1182,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'auth_disable_plain' => Model_CustomField::TYPE_CHECKBOX,
 			'checked_at' => Model_CustomField::TYPE_DATE,
 			'host' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
@@ -1237,7 +1214,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		if($mailbox) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $mailbox->name;
-			$token_values['auth_disable_plain'] = $mailbox->auth_disable_plain;
 			$token_values['checked_at'] = $mailbox->checked_at;
 			$token_values['host'] = $mailbox->host;
 			$token_values['id'] = $mailbox->id;
@@ -1264,7 +1240,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 
 	function getKeyToDaoFieldMap() {
 		return [
-			'auth_disable_plain' => DAO_Mailbox::AUTH_DISABLE_PLAIN,
 			'checked_at' => DAO_Mailbox::CHECKED_AT,
 			'host' => DAO_Mailbox::HOST,
 			'id' => DAO_Mailbox::ID,
@@ -1285,7 +1260,6 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
-		$keys['auth_disable_plain']['notes'] = "Used to bypass Microsoft Exchange authentication issues";
 		$keys['checked_at']['notes'] = "The date/time this mailbox was last checked for new messages";
 		$keys['host']['notes'] = "The mail server hostname";
 		$keys['is_enabled']['notes'] = "Is this mailbox enabled? `1` for true and `0` for false";

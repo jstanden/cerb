@@ -81,7 +81,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				return;
 				
 			} else {
-				@$auth_disable_plain = DevblocksPlatform::importGPC($_POST['auth_disable_plain'],'integer',0);
 				@$enabled = DevblocksPlatform::importGPC($_POST['enabled'],'integer',0);
 				@$host = DevblocksPlatform::importGPC($_POST['host'],'string');
 				@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer');
@@ -112,7 +111,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				
 				if(empty($id)) { // New
 					$fields = array(
-						DAO_Mailbox::AUTH_DISABLE_PLAIN => $auth_disable_plain,
 						DAO_Mailbox::DELAY_UNTIL => 0,
 						DAO_Mailbox::ENABLED => $enabled,
 						DAO_Mailbox::HOST => $host,
@@ -141,7 +139,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 					
 				} else { // Edit
 					$fields = array(
-						DAO_Mailbox::AUTH_DISABLE_PLAIN => $auth_disable_plain,
 						DAO_Mailbox::DELAY_UNTIL => 0,
 						DAO_Mailbox::ENABLED => $enabled,
 						DAO_Mailbox::HOST => $host,
@@ -220,7 +217,6 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			@$pass = DevblocksPlatform::importGPC($_POST['password'],'string','');
 			@$timeout_secs = DevblocksPlatform::importGPC($_POST['timeout_secs'],'integer',0);
 			@$max_msg_size_kb = DevblocksPlatform::importGPC($_POST['max_msg_size_kb'],'integer',25600);
-			@$auth_disable_plain = DevblocksPlatform::importGPC($_POST['auth_disable_plain'],'integer',0);
 			
 			// Defaults
 			if(empty($port)) {
@@ -244,7 +240,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			if(!empty($host)) {
 				$mail_service = DevblocksPlatform::services()->mail();
 				
-				if(false == $mail_service->testMailbox($host, $port, $protocol, $user, $pass, $auth_disable_plain, $timeout_secs, $max_msg_size_kb))
+				if(false == $mail_service->testMailbox($host, $port, $protocol, $user, $pass, $timeout_secs, $max_msg_size_kb))
 					throw new Exception($translate->_('config.mailboxes.failed'));
 				
 			} else {

@@ -2892,11 +2892,6 @@
                 <seg>Adres IP</seg>
             </tuv>
         </tu>
-        <tu tuid="dao.mailbox.auth_disable_plain">
-            <tuv xml:lang="pl_PL">
-                <seg/>
-            </tuv>
-        </tu>
         <tu tuid="dao.mailbox.checked_at">
             <tuv xml:lang="pl_PL">
                 <seg/>

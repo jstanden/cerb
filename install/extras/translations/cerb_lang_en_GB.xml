@@ -2453,11 +2453,6 @@
 				<seg>IP Address</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.mailbox.auth_disable_plain">
-			<tuv xml:lang="en_GB">
-				<seg>Disable PLAIN Auth</seg>
-			</tuv>
-		</tu>
 		<tu tuid="dao.mailbox.checked_at">
 			<tuv xml:lang="en_GB">
 				<seg>Checked At</seg>

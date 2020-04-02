@@ -3253,10 +3253,7 @@
 		<tu tuid='dao.mailbox.ssl_ignore_validation'>
 			<tuv xml:lang="en_US"><seg>SSL Ignore Validation</seg></tuv>
 		</tu>
-		<tu tuid='dao.mailbox.auth_disable_plain'>
-			<tuv xml:lang="en_US"><seg>Disable PLAIN Auth</seg></tuv>
-		</tu>
-		
+
 		<!-- OAuthApp -->
 		
 		<tu tuid='dao.oauth_app.client_id'>
