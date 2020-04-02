@@ -116,7 +116,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$mobile = DevblocksPlatform::importGPC($_POST['mobile'],'string', '');
 				@$phone = DevblocksPlatform::importGPC($_POST['phone'],'string', '');
 				@$gender = DevblocksPlatform::importGPC($_POST['gender'],'string', '');
-				@$at_mention_name = DevblocksPlatform::strToPermalink(DevblocksPlatform::importGPC($_POST['at_mention_name'],'string'));
+				@$at_mention_name = DevblocksPlatform::importGPC($_POST['at_mention_name'],'string');
 				@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
 				@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
 				@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string');

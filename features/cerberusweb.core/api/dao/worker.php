@@ -55,6 +55,19 @@ class DAO_Worker extends Cerb_ORMHelper {
 			->setMaxLength(64)
 			->setUnique(get_class())
 			->setNotEmpty(false)
+			->addValidator(function($string, &$error=null) {
+				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-._'))) {
+					$error = "may only contain letters, numbers, dashes, and dots";
+					return false;
+				}
+				
+				if(strlen($string) > 64) {
+					$error = "must be shorter than 64 characters.";
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		// int(10) unsigned
 		$validation
