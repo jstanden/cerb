@@ -426,7 +426,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	static function getByAtMentions($at_mentions, $with_searches=true) {
 		if(!is_array($at_mentions) && is_string($at_mentions))
-			$at_mentions = array($at_mentions);
+			$at_mentions = [$at_mentions];
 		
 		$workers = [];
 		$all_workers = DAO_Worker::getAllActive();
@@ -446,7 +446,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			}
 			
 			// Then check saved searches
-			if(false != ($search = DAO_ContextSavedSearch::getByTag($at_mention))) {
+			if($with_searches && false != ($search = DAO_ContextSavedSearch::getByTag($at_mention))) {
 				if(false == ($results = $search->getResults()))
 					continue;
 				

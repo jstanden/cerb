@@ -713,7 +713,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$matches = [];
 		
 		//$string = "@Hildy Do you have time for this today?  If not, ask @Jeff, or @Darren.";
-		preg_match_all('#(\@[A-Za-z0-9_\-]+)([^A-Za-z0-9_\-]|$)#', $string, $matches);
+		preg_match_all('#(\@[A-Za-z0-9_\-\.]+)#', $string, $matches);
 		
 		if(is_array($matches) && isset($matches[1])) {
 			return array_unique($matches[1]);

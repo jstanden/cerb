@@ -535,6 +535,21 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		$actual = DevblocksPlatform::parseAtMentionString($str);
 		$this->assertEquals(array('@Hildy'), $actual);
 		
+		// @mention with dots
+		$str = 'Thanks, @Jeff.Standen!';
+		$actual = DevblocksPlatform::parseAtMentionString($str);
+		$this->assertEquals(array('@Jeff.Standen'), $actual);
+		
+		// @mention with dashes
+		$str = 'Thanks, @Jeff-Standen!';
+		$actual = DevblocksPlatform::parseAtMentionString($str);
+		$this->assertEquals(array('@Jeff-Standen'), $actual);
+		
+		// @mention with underscores
+		$str = 'Thanks, @Jeff_Standen!';
+		$actual = DevblocksPlatform::parseAtMentionString($str);
+		$this->assertEquals(array('@Jeff_Standen'), $actual);
+		
 		// Multiple @mentions
 		$str = '@Hildy Do you have time for this today?  If not, ask @Jeff, or @Darren';
 		$actual = DevblocksPlatform::parseAtMentionString($str);
