@@ -598,10 +598,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if($custom_fields)
 			$properties['custom_fields'] = $custom_fields;
 		
-		if(false == ($ticket_id = CerberusMail::compose($properties)))
+		if(false == ($result = CerberusMail::compose($properties)))
 			$this->error(self::ERRNO_CUSTOM, "Failed to create a new message.");
 		
-		return $ticket_id;
+		return $result;
 	}
 	
 	private function postCompose() {
@@ -611,8 +611,29 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if(!$worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			$this->error(self::ERRNO_ACL, 'Access denied to compose mail.');
 		
-		$ticket_id = $this->_handlePostCompose();
-		$this->getId($ticket_id);
+		$result = $this->_handlePostCompose();
+		
+		if(is_array($result)) {
+			if($result[0] == CerberusContexts::CONTEXT_TICKET) {
+				$this->getId($result[1]);
+				
+			} else if($result[0] == CerberusContexts::CONTEXT_DRAFT) {
+				$draft_id = $result[1];
+				
+				if(false == ($draft = DAO_MailQueue::get($draft_id)))
+					$this->error(self::ERRNO_CUSTOM, "Failed to load the draft.");
+				
+				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(
+					[$draft->id=>$draft],
+					CerberusContexts::CONTEXT_DRAFT,
+				);
+				
+				if(!array_key_exists($draft_id, $dicts))
+					$this->error(self::ERRNO_CUSTOM, "Failed to load the draft.");
+				
+				$this->success($dicts[$draft_id]->getDictionary());
+			}
+		}
 	}
 	
 	private function _handlePostReply() {

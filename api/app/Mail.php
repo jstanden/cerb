@@ -497,7 +497,11 @@ class CerberusMail {
 		
 		return true;
 	}
-
+	
+	/**
+	 * @param array $properties
+	 * @return array|false
+	 */
 	static function compose($properties) {
 		/*
 		'group_id'
@@ -573,6 +577,7 @@ class CerberusMail {
 				
 			} else {
 				$draft->params['send_at'] = date('r', $send_at);
+				$draft_id = $draft->id;
 				
 				$draft_fields = [
 					DAO_MailQueue::IS_QUEUED => 1,
@@ -581,10 +586,10 @@ class CerberusMail {
 					DAO_MailQueue::PARAMS_JSON => json_encode($draft->params),
 				];
 				
-				DAO_MailQueue::update($draft->id, $draft_fields);
+				DAO_MailQueue::update($draft_id, $draft_fields);
 			}
 			
-			return true;
+			return [CerberusContexts::CONTEXT_DRAFT, $draft_id];
 		}
 		
 		$mask = CerberusApplication::generateTicketMask();
@@ -952,7 +957,7 @@ class CerberusMail {
 		if($draft_id)
 			DAO_MailQueue::delete($draft_id);
 		
-		return intval($ticket_id);
+		return [CerberusContexts::CONTEXT_TICKET, $ticket_id];
 	}
 	
 	static private function _composeTriggerEvents($message_id, $group_id) {
