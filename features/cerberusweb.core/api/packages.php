@@ -174,6 +174,55 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Placeholder key is missing."));
 			
 			switch($config_placeholder['type']) {
+				case 'data_query':
+					$data = DevblocksPlatform::services()->data();
+					$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+					
+					@$data_query = $config_placeholder['params']['query'];
+					@$selector = $config_placeholder['params']['selector'];
+					@$validate = $config_placeholder['params']['validate'];
+					@$format = $config_placeholder['params']['format'];
+					
+					$error = null;
+					
+					if(false == ($results = $data->executeQuery($data_query, $error)))
+						throw new Exception_DevblocksValidationError($error);
+					
+					if($validate) {
+						$dict = DevblocksDictionaryDelegate::instance([
+							'results' => $results,
+						]);
+
+						if(false === ($error = $tpl_builder->build($validate, $dict)))
+							throw new Exception_DevblocksValidationError();
+						
+						$error = trim($error);
+						
+						if($error) {
+							throw new Exception_DevblocksValidationError($error);
+						}
+					}
+					
+					if($selector) {
+						$dict = DevblocksDictionaryDelegate::instance([
+							'results' => $results,
+						]);
+						
+						if(false === ($out = $tpl_builder->build($selector, $dict)))
+							throw new Exception_DevblocksValidationError();
+						
+						if('json' == DevblocksPlatform::strLower($format)) {
+							$placeholders[$key] = json_decode($out, true);
+						} else {
+							$placeholders[$key] = $out;
+						}
+						
+					} else {
+						$placeholders[$key] = $results['data'];
+					}
+					
+					break;
+				
 				case 'random':
 					$length = @$config_placeholder['params']['length'] ?: 8;
 					$placeholders[$key] = CerberusApplication::generatePassword($length);
