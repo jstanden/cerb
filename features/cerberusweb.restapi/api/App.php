@@ -73,6 +73,8 @@ class Plugin_RestAPI {
 			echo sprintf("'%s' is not implemented.", DevblocksPlatform::strEscapeHtml($format));
 		}
 
+		// Prevent sessions from persisting in the API
+		session_abort();
 		exit;
 	}
 
