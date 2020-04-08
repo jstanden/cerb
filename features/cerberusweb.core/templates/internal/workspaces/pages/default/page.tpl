@@ -162,7 +162,7 @@ $(function() {
 			var formData = new FormData();
 			formData.set('c', 'pages');
 			formData.set('a', 'setTabOrder');
-			formData.set('page_id', '{$page_id}');
+			formData.set('page_id', '{$page->id}');
 			formData.set('tabs', page_tab_ids);
 
 			genericAjaxPost(formData, '', '');
