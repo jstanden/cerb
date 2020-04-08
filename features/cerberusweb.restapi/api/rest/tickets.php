@@ -625,7 +625,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 				
 				$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(
 					[$draft->id=>$draft],
-					CerberusContexts::CONTEXT_DRAFT,
+					CerberusContexts::CONTEXT_DRAFT
 				);
 				
 				if(!array_key_exists($draft_id, $dicts))
