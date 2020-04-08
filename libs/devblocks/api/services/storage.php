@@ -533,17 +533,17 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 			$uri = $path_prefix . '.cerb_s3_test';
 			
 			// PUT
-			if(false == $s3->putObject("CERB", $bucket, $uri))
+			if(false == @$s3->putObject("CERB", $bucket, $uri))
 				return false;
 			
 			// GET
-			if(false == ($result = $s3->getObject($bucket, $uri))
+			if(false == ($result = @$s3->getObject($bucket, $uri))
 				|| !isset($result->body)
 				|| $result->body != 'CERB')
 				return false;
 			
 			// DELETE
-			if(false == $s3->deleteObject($bucket, $uri))
+			if(false == @$s3->deleteObject($bucket, $uri))
 				return false;
 			
 		} catch(Exception $e) {
@@ -594,7 +594,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		@$bucket = $this->_options['bucket'];
 		$path = $this->_options['path_prefix'] . $this->escapeNamespace($namespace) . '/' . $key;
 		
-		return false !== ($this->_s3->getObjectInfo($bucket, $path));
+		return false !== (@$this->_s3->getObjectInfo($bucket, $path));
 	}
 	
 	public function put($namespace, $id, $data) {
@@ -613,17 +613,17 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		
 		if(is_resource($data)) {
 			// Write the content from stream
-			if(false === ($object = $this->_s3->inputResource($data))) {
+			if(false === ($object = @$this->_s3->inputResource($data))) {
 				return false;
 			}
 			
-			if(false === $this->_s3->putObject($object, $bucket, $path, S3::ACL_PRIVATE)) {
+			if(false === @$this->_s3->putObject($object, $bucket, $path, S3::ACL_PRIVATE)) {
 				return false;
 			}
 			
 		} else {
 			// Write the content from string
-			if(false === $this->_s3->putObject($data, $bucket, $path, S3::ACL_PRIVATE)) {
+			if(false === @$this->_s3->putObject($data, $bucket, $path, S3::ACL_PRIVATE)) {
 				return false;
 			}
 		}
@@ -638,13 +638,13 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		if($fp && is_resource($fp)) {
 			// Use the filename rather than $fp because the S3 lib will fclose($fp)
 			$tmpfile = DevblocksPlatform::getTempFileInfo($fp);
-			if(false !== ($this->_s3->getObject($bucket, $path, $tmpfile))) {
+			if(false !== (@$this->_s3->getObject($bucket, $path, $tmpfile))) {
 				fseek($fp, 0);
 				return true;
 			}
 			
 		} else {
-			if(false !== ($object = $this->_s3->getObject($bucket, $path))
+			if(false !== ($object = @$this->_s3->getObject($bucket, $path))
 				&& isset($object->body))
 				return $object->body;
 		}
@@ -672,7 +672,7 @@ class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
 		// Handle the case where some objects fail to delete (e.g. AccessDenied)
 		
 		foreach($paths as $path) {
-			if(false === ($this->_s3->deleteObject($bucket, $path))) {
+			if(false === (@$this->_s3->deleteObject($bucket, $path))) {
 				$errors[] = str_replace($path_prefix . $ns . '/', '', $path);
 			}
 		}
