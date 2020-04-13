@@ -245,6 +245,7 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/url.php', array(
 			'_DevblocksUrlManager',
 			'Cerb_HTMLPurifier_URIFilter_Email',
+			'Cerb_HTMLPurifier_URIFilter_Extract',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/validation.php', array(
 			'_DevblocksValidationService',

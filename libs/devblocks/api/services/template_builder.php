@@ -231,6 +231,7 @@ class _DevblocksTemplateBuilder {
 				'array_values',
 				'cerb_avatar_image',
 				'cerb_avatar_url',
+				'cerb_extract_uris',
 				'cerb_file_url',
 				'cerb_has_priv',
 				'cerb_placeholders_list',
@@ -1039,6 +1040,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('array_values', [$this, 'function_array_values']),
 			new \Twig\TwigFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new \Twig\TwigFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
+			new \Twig\TwigFunction('cerb_extract_uris', [$this, 'function_cerb_extract_uris']),
 			new \Twig\TwigFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
 			new \Twig\TwigFunction('cerb_has_priv', [$this, 'function_cerb_has_priv']),
 			new \Twig\TwigFunction('cerb_placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
@@ -1193,6 +1195,18 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			$url .= '?v=' . intval($updated);
 		
 		return $url;
+	}
+	
+	function function_cerb_extract_uris($html) {
+		$filter = new Cerb_HTMLPurifier_URIFilter_Extract();
+		
+		$template = DevblocksPlatform::purifyHTML($html, false, true, [$filter]);
+		
+		$results = $filter->flush();
+		
+		$results['template'] = $template;
+		
+		return $results;
 	}
 	
 	function function_cerb_file_url($id) {

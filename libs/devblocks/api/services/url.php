@@ -573,3 +573,77 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 		$this->filterUrls['redirectedLink'][$host][$url]++;
 	}
 }
+
+class Cerb_HTMLPurifier_URIFilter_Extract extends HTMLPurifier_URIFilter {
+	/**
+	 * @type string
+	 */
+	public $name = 'CerbUriExtract';
+	
+	/**
+	 * @type bool
+	 */
+	public $post = true;
+	
+	/**
+	 * @type HTMLPurifier_URIParser
+	 */
+	private $parser;
+	
+	/**
+	 * @type _DevblocksUrlManager
+	 */
+	protected $urlWriter = null;
+	
+	protected $results = [
+		'tokens' => [],
+	];
+	
+	public function __construct() {
+	}
+	
+	/**
+	 * @param HTMLPurifier_Config $config
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function prepare($config) {
+		$this->parser = new HTMLPurifier_URIParser();
+		$this->urlWriter = DevblocksPlatform::services()->url();
+		
+		return true;
+	}
+	
+	public function flush() {
+		return $this->results;
+	}
+	
+	/**
+	 * @param HTMLPurifier_URI $uri
+	 * @param HTMLPurifier_Config $config
+	 * @param HTMLPurifier_Context $context
+	 * @return bool
+	 */
+	public function filter(&$uri, $config, $context) {
+		$current_token = $context->get('CurrentToken', true);
+		$current_attr = $context->get('CurrentAttr', true);
+		
+		$token = uniqid('#uri-');
+		
+		$new_uri = $this->parser->parse($token);
+		
+		$this->results['tokens'][$token] = $uri->toString();
+		
+		$this->results['context'][$token] = [
+			'is_tag' => $current_token->is_tag,
+			'name' => $current_token->name,
+			'attr' => $current_attr,
+			'attrs' => $current_token->attr,
+			'uri_parts' => json_decode(json_encode($uri), true),
+		];
+		
+		$uri = $new_uri;
+		
+		return true;
+	}
+}
