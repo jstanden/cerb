@@ -31,6 +31,7 @@
 /**
 * Amazon S3 PHP class
 *  with token patch from https://github.com/tpyo/amazon-s3-php-class/issues/84#issuecomment-52602674
+*  with HTTP/2 patch
 *
 * @link http://undesigned.org.za/2007/10/22/amazon-s3-php-class
 * @version 0.5.1
@@ -2361,7 +2362,7 @@ final class S3Request
 	{
 		if (($strlen = strlen($data)) <= 2) return $strlen;
 		if (substr($data, 0, 4) == 'HTTP')
-			$this->response->code = (int)substr($data, 9, 3);
+			$this->response->code = (int)explode(' ', $data)[1];
 		else
 		{
 			$data = trim($data);
