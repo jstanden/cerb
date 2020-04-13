@@ -1587,8 +1587,11 @@ class Model_TriggerEvent {
 		if(!empty($this->variables))
 			$array[$export_type]['variables'] = $this->variables;
 		
-		if($root)
+		if($root) {
 			$array[$export_type]['nodes'] = $root;
+		} else {
+			$array[$export_type]['nodes'] = [];
+		}
 		
 		return DevblocksPlatform::strFormatJson($array);
 	}
