@@ -123,10 +123,10 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 		if(false == ($query_parts = $dao_class::getSearchQueryComponents(array(), $params)))
 			return false;
 		
-		$db->ExecuteMaster('set @rank=0');
+		$db->ExecuteMaster('set @pos=0');
 		$db->ExecuteMaster('set group_concat_max_len = 1024000');
 		
-		$sql = sprintf('CREATE TEMPORARY TABLE _bulk SELECT %s AS id, @rank:=@rank+1 AS rank ', $pkey).
+		$sql = sprintf('CREATE TEMPORARY TABLE _bulk SELECT %s AS id, @pos:=@pos+1 AS pos ', $pkey).
 			$query_parts['join'].
 			$query_parts['where']
 			;
@@ -135,7 +135,7 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 		$sql = sprintf('INSERT INTO context_bulk_update (batch_key, context, context_ids, num_records, worker_id, view_id, created_at, status_id, actions_json) '.
 			'SELECT %s as batch_key, %s as context, GROUP_CONCAT(id) AS context_ids, COUNT(id) as num_records, %d as worker_id, %s as view_id, %d as created_at, 0 as status_id, %s as actions_json '.
 			'FROM _bulk '.
-			'GROUP BY FLOOR(rank/%d)',
+			'GROUP BY FLOOR(pos/%d)',
 			$db->qstr($batch_key),
 			$db->qstr($context),
 			($current_worker ? $current_worker->id : 0),
