@@ -70,7 +70,7 @@ $(function() {
 			var formData = new FormData($frm[0]);
 			formData.set('c', 'profiles');
 			formData.set('a', 'invoke');
-			formData.set('module', 'module');
+			formData.set('module', 'snippet');
 			formData.set('action', 'test');
 			formData.set('snippet_context', '{$context_ext->id}');
 			formData.set('snippet_key_prefix', '{$key_prefix}');
