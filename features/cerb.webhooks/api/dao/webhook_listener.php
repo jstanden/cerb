@@ -1167,8 +1167,6 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			if($model && $model->id) {
 				if(!Context_WebhookListener::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
-				
-				$tpl->assign('model', $model);
 			}
 			
 			// Custom fields
@@ -1189,6 +1187,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
+			$tpl->assign('model', $model);
 			$tpl->display('devblocks:cerb.webhooks::webhook_listener/peek_edit.tpl');
 			
 		} else {
