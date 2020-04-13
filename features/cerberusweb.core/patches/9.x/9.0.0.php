@@ -535,22 +535,13 @@ if($columns['pos'] && 0 == strcasecmp('char(4)', $columns['pos']['type'])) {
 	$sql = "ALTER TABLE workspace_widget CHANGE COLUMN pos pos_legacy char(4)";
 	$db->ExecuteMaster($sql);
 	
-	$sql = "ALTER TABLE workspace_widget ADD COLUMN pos tinyint(255) default 0";
+	$sql = "ALTER TABLE workspace_widget ADD COLUMN pos tinyint default 0";
 	$db->ExecuteMaster($sql);
 	
-	$sql = "set @rank := 0, @tab_id := ''";
+	$sql = "UPDATE workspace_widget SET pos = substring(pos_legacy,2)";
 	$db->ExecuteMaster($sql);
-	
-	$sql = "create temporary table _tmp_widget_pos select workspace_tab.id as workspace_tab_id, blah.id as widget_id, blah.rank, blah.col_pos, blah.col_num, blah.id from workspace_tab inner join (select @rank:=if(@tab_id = workspace_widget.workspace_tab_id,@rank+1,1) as rank, @tab_id:=workspace_widget.workspace_tab_id, workspace_widget.id, workspace_widget.workspace_tab_id, workspace_widget.label, workspace_widget.pos, substring(workspace_widget.pos_legacy,1,1) as col_num, substring(workspace_widget.pos_legacy,2) as col_pos from workspace_widget order by workspace_tab_id, col_pos, col_num) as blah on (workspace_tab.extension_id = 'core.workspace.tab' and blah.workspace_tab_id=workspace_tab.id)";
-	$db->ExecuteMaster($sql);
-	
-	$sql = "update workspace_widget inner join _tmp_widget_pos on (_tmp_widget_pos.widget_id=workspace_widget.id) SET pos = _tmp_widget_pos.rank";
-	$db->ExecuteMaster($sql);
-	
+
 	$sql = "ALTER TABLE workspace_widget DROP COLUMN pos_legacy";
-	$db->ExecuteMaster($sql);
-	
-	$sql = "drop table _tmp_widget_pos";
 	$db->ExecuteMaster($sql);
 }
 
