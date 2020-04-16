@@ -1283,7 +1283,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		foreach($fields as $field) {
 			switch($field) {
 				case 'links.address':
-					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_ADDRESS));
+					$links = DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_ADDRESS);
+					@$links = array_shift($links);
 					
 					if(is_array($links) && !empty($links)) {
 						$addresses = DAO_Address::getIds(array_keys($links));
@@ -1293,7 +1294,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 					
 				case 'links.contacts':
-					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_CONTACT));
+					$links = DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_CONTACT);
+					@$links = array_shift($links);
 					
 					if(is_array($links) && !empty($links)) {
 						$contacts = DAO_Contact::getIds(array_keys($links));
@@ -1305,7 +1307,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 					
 				case 'links.orgs':
-					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_ORG));
+					$links = DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_ORG);
+					@$links = array_shift($links);
 					
 					if(is_array($links) && !empty($links)) {
 						$orgs = DAO_ContactOrg::getIds(array_keys($links));
@@ -1317,7 +1320,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 					
 				case 'links.worker':
-					@$links = array_shift(DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_WORKER));
+					$links = DAO_ContextLink::getContextLinks($dict->_context, $dict->id, CerberusContexts::CONTEXT_WORKER);
+					@$links = array_shift($links);
 					
 					if(is_array($links) && !empty($links)) {
 						$workers = DAO_Worker::getIds(array_keys($links));
