@@ -415,6 +415,37 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		return $value;
 	}
 	
+	function getDictionaryValues(Model_CustomField $field, $value, &$token_values) {
+		$value = $this->getValue($field, $value);
+		$token_values['custom'][$field->id] = $value;
+		$token_values['custom_' . $field->id] = $value;
+		
+		// [TODO] Deprecation: Just write this to custom_
+		if(is_array($value)) {
+			foreach($value as $v) {
+				$token_values['custom_' . $field->id . '_records'][$v] = DevblocksDictionaryDelegate::instance([
+					'_context' => $field->params['context'],
+					'id' => $v,
+				]);
+			}
+		}
+	}
+	
+	function getValuesContexts(Model_CustomField $field, $token, &$values) {
+		$values[$token] = [
+			'label' => '',
+			'context' => $field->params['context'],
+		];
+	}
+	
+	function getVarValueToContextMap(Model_TriggerEvent $trigger, string $var_key, $var, &$values_to_contexts) {
+		$values_to_contexts[$var_key] = [
+			'label' => '(variable) ' . $var['label'],
+			'context' => $var['params']['context'],
+		];
+		return;
+	}
+	
 	// [TODO] This should be more efficient on worklists (once per page, lots of dupes in cols)
 	function renderValue(Model_CustomField $field, $value) {
 		if(is_string($value)) {
