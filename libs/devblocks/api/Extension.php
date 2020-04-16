@@ -1820,9 +1820,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					
 				default:
 					if(false != ($field_ext = $fields[$cf_id]->getTypeExtension())) {
-						$value = $field_ext->getValue($field_values[$cf_id]);
-						$token_values['custom'][$cf_id] = $value;
-						$token_values['custom_' . $cf_id] = $value;
+						$field_ext->getDictionaryValues($fields[$cf_id], $field_values[$cf_id], $token_values);
 					}
 					break;
 			}
@@ -2302,7 +2300,9 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						break;
 
 					default:
-						continue 2;
+						if(null != ($cfield_ext = $custom_fields[$cfield_id]->getTypeExtension())) {
+							$cfield_ext->getValuesContexts($custom_fields[$cfield_id], $token, $cfields);
+						}
 				}
 			}
 		}

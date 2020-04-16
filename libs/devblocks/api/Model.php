@@ -492,7 +492,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						
 					default:
 						if(null != ($field_ext = $custom_field->getTypeExtension())) {
-							return $field_ext->getLabelsForValues($values);
+							return $field_ext->getLabelsForValues($custom_field, $values);
 						}
 						break;
 				}

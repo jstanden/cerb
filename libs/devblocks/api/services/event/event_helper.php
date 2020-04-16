@@ -42,6 +42,11 @@ class DevblocksEventHelper {
 						'label' => '(variable) ' . $var['label'],
 						'context' => CerberusContexts::CONTEXT_WORKER,
 					);
+					
+				} else {
+					if(false != ($cfield_ext = Extension_CustomField::get($var['type']))) {
+						$cfield_ext->getVarValueToContextMap($trigger, $var_key, $var, $values_to_contexts);
+					}
 				}
 			}
 		}

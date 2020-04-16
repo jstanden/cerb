@@ -11,7 +11,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		$tpl->assign('field', $field);
 		$tpl->assign('form_key', $form_key);
 		
-		$form_value = $this->getValue($form_value);
+		$form_value = $this->getValue($field, $form_value);
 		$tpl->assign('form_value', $form_value);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/extensions/geopoint/editor.tpl');
@@ -63,7 +63,7 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		DevblocksPlatform::markContextChanged($context, $context_id);
 	}
 	
-	function getValue($value) {
+	function getValue(Model_CustomField $field, $value) {
 		if(false === ($coords = DevblocksPlatform::parseGeoPointString($value)))
 			return FALSE;
 		
@@ -73,16 +73,30 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		);
 	}
 	
+	function getDictionaryValues(Model_CustomField $field, $value, &$token_values) {
+		$value = $this->getValue($field, $value);
+		$token_values['custom'][$field->id] = $value;
+		$token_values['custom_' . $field->id] = $value;
+	}
+	
+	function getValuesContexts(Model_CustomField $field, $token, &$values) {
+		return;
+	}
+	
+	function getVarValueToContextMap(Model_TriggerEvent $trigger, string $var_key, $var, &$values_to_contexts) {
+		return;
+	}
+	
 	function renderValue(Model_CustomField $field, $value) {
-		$value = $this->getValue($value);
+		$value = $this->getValue($field, $value);
 		echo htmlentities($value);
 	}
 	
-	function getLabelsForValues($values) {
+	function getLabelsForValues(Model_CustomField $field, $values) {
 		$map = $values;
 		
 		foreach($values as $v) {
-			$map[$v] = $this->getValue($v);
+			$map[$v] = $this->getValue($field, $v);
 		}
 		
 		return $map;
@@ -127,7 +141,7 @@ class CustomField_Slider extends Extension_CustomField {
 		
 		$tpl->assign('field', $field);
 		$tpl->assign('form_key', $form_key);
-		$tpl->assign('form_value', $this->getValue($form_value));
+		$tpl->assign('form_value', $this->getValue($field, $form_value));
 		
 		@$value_min = $field->params['value_min'];
 		@$value_max = $field->params['value_max'];
@@ -211,8 +225,22 @@ class CustomField_Slider extends Extension_CustomField {
 		return false;
 	}
 	
-	function getValue($value) {
+	function getValue(Model_CustomField $field, $value) {
 		return $value;
+	}
+	
+	function getDictionaryValues(Model_CustomField $field, $value, &$token_values) {
+		$value = $this->getValue($field, $value);
+		$token_values['custom'][$field->id] = $value;
+		$token_values['custom_' . $field->id] = $value;
+	}
+	
+	function getValuesContexts(Model_CustomField $field, $token, &$values) {
+		return;
+	}
+	
+	function getVarValueToContextMap(Model_TriggerEvent $trigger, string $var_key, $var, &$values_to_contexts) {
+		return;
 	}
 	
 	function renderValue(Model_CustomField $field, $value) {
@@ -238,11 +266,11 @@ class CustomField_Slider extends Extension_CustomField {
 		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/extensions/slider/render_value.tpl');
 	}
 	
-	function getLabelsForValues($values) {
+	function getLabelsForValues(Model_CustomField $field, $values) {
 		$map = $values;
 		
 		foreach($values as $v) {
-			$map[$v] = $this->getValue($v);
+			$map[$v] = $this->getValue($field, $v);
 		}
 		
 		return $map;
@@ -301,7 +329,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		$tpl->assign('field', $field);
 		$tpl->assign('form_key', $form_key);
 		
-		$form_value = $this->getValue($form_value);
+		$form_value = $this->getValue($field, $form_value);
 		
 		@$linked_context = $field->params['context'];
 		$linked_dicts = [];
@@ -383,7 +411,7 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		return true;
 	}
 	
-	function getValue($value) {
+	function getValue(Model_CustomField $field, $value) {
 		return $value;
 	}
 	
@@ -408,13 +436,13 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		$tpl->display('devblocks:cerberusweb.core::internal/custom_fields/extensions/record_links/render_value.tpl');
 	}
 	
-	function getLabelsForValues($values) {
+	function getLabelsForValues(Model_CustomField $field, $values) {
 		$map = $values;
 		
 		// [TODO] Get labels from records
 		
 		foreach($values as $v) {
-			$map[$v] = $this->getValue($v);
+			$map[$v] = $this->getValue($field, $v);
 		}
 		
 		return $map;

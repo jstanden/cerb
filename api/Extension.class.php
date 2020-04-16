@@ -46,9 +46,12 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	const POINT = 'cerb.custom_field';
 	
 	abstract function renderConfig(Model_CustomField $field);
-	abstract function getLabelsForValues($values);
+	abstract function getDictionaryValues(Model_CustomField $field, $value, &$token_values);
+	abstract function getLabelsForValues(Model_CustomField $field, $values);
 	abstract function getValueTableName();
 	abstract function getValueTableSql($context, array $context_ids);
+	abstract function getValuesContexts(Model_CustomField $field, $token, &$values);
+	abstract function getVarValueToContextMap(Model_TriggerEvent $trigger, string $var_key, $var, &$values_to_contexts);
 	abstract function populateQuickSearchMeta(Model_CustomField $field, array &$search_field_meta);
 	abstract function prepareCriteriaParam(Model_CustomField $field, $param, &$vals, &$implode_token);
 	abstract function renderEditable(Model_CustomField $field, $form_key, $form_value);
