@@ -2355,8 +2355,7 @@ var ajax = new cAjaxCalls();
 						}
 
 					} else if('#delete_quote_from_here' === ui.item.value) {
-						$editor.cerbTextEditor('replaceCurrentWord', '');
-						var start = $editor.cerbTextEditor('getCursorPosition');
+						var start = $editor.cerbTextEditor('getCurrentWordPos').start;
 						var value = $editor.val();
 
 						var lines = value.substring(start).split(/\r?\n/g);
@@ -2364,7 +2363,7 @@ var ajax = new cAjaxCalls();
 						var finished = false;
 
 						for (var i in lines) {
-							if (!finished && lines[i].startsWith('>')) {
+							if (!finished && (0 == i || lines[i].startsWith('>'))) {
 								continue;
 							} else {
 								finished = true;
