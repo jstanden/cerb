@@ -25,5 +25,8 @@
 		<testsuite>
 			<file>cerb/CerberusApplicationUtilsTest.php</file>
 		</testsuite>
+		<testsuite>
+			<file>cerb/CerberusMailTest.php</file>
+		</testsuite>
 	</testsuites>
 </phpunit>

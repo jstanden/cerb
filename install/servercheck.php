@@ -124,14 +124,6 @@ if(extension_loaded("gd") && function_exists('imagettfbbox')) {
 	$fails++;
 }
 
-// Extension: IMAP
-if(extension_loaded("imap")) {
-	$results['ext_imap'] = true;
-} else {
-	$results['ext_imap'] = false;
-	$fails++;
-}
-
 // Extension: MailParse
 if(extension_loaded("mailparse")) {
 	$results['ext_mailparse'] = true;
@@ -247,9 +239,6 @@ if($fails) {
 		
 	if(!$results['ext_gd'])
 		echo "<li>The 'GD' PHP extension (with FreeType library support) is required.  Please enable them.</li>";
-		
-	if(!$results['ext_imap'])
-		echo "<li>The 'IMAP' PHP extension is required.  Please enable it.</li>";
 		
 	if(!$results['ext_mailparse'])
 		echo "<li>The 'MailParse' PHP extension is required.  Please enable it.</li>";

@@ -437,12 +437,10 @@ class UmScContactController extends Extension_UmScController {
 			$message_headers['cc'] = $sCc;
 		
 		// Sender
-		$fromList = imap_rfc822_parse_adrlist($sFrom,'');
-		if(empty($fromList) || !is_array($fromList)) {
+		if(false == ($from = CerberusMail::parseRfcAddress($sFrom)))
 			return; // abort with message
-		}
-		$from = array_shift($fromList);
-		$message_headers['from'] = $from->mailbox . '@' . $from->host;
+		
+		$message_headers['from'] = $from['email'];
 
 		$message = new CerberusParserMessage();
 		

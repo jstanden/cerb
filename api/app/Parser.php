@@ -83,11 +83,11 @@ class CerberusParserMessage {
 					if(!isset($this->headers['from']) || !isset($mime->data['headers']) || !isset($mime->data['headers']['message-id']))
 						break;
 					
-					if(false == ($bounce_froms = imap_rfc822_parse_adrlist($this->headers['from'], '')) || empty($bounce_froms))
+					if(false == ($bounce_from = CerberusMail::parseRfcAddress($this->headers['from'])))
 						break;
 					
 					// Change the inbound In-Reply-To: header to that of the bounce
-					if(in_array(DevblocksPlatform::strLower($bounce_froms[0]->mailbox), array('postmaster', 'mailer-daemon'))) {
+					if(in_array(DevblocksPlatform::strLower($bounce_from['mailbox']), array('postmaster', 'mailer-daemon'))) {
 						$this->headers['in-reply-to'] = $mime->data['headers']['message-id'];
 					}
 					
@@ -155,22 +155,22 @@ class CerberusParserModel {
 			$from = [];
 			
 			if(empty($from) && !empty($sReplyTo))
-				$from = CerberusParser::parseRfcAddress($sReplyTo);
+				$from = CerberusMail::parseRfcAddresses($sReplyTo);
 			
 			if(empty($from) && !empty($sFrom))
-				$from = CerberusParser::parseRfcAddress($sFrom);
+				$from = CerberusMail::parseRfcAddresses($sFrom);
 			
 			if(empty($from) && !empty($sReturnPath))
-				$from = CerberusParser::parseRfcAddress($sReturnPath);
+				$from = CerberusMail::parseRfcAddresses($sReturnPath);
 			
-			if(empty($from) || !is_array($from))
+			if(!is_array($from) || !$from)
 				throw new Exception('No sender headers found.');
 			
 			foreach($from as $addy) {
-				if(empty($addy->mailbox) || empty($addy->host))
+				if(!$addy['email'])
 					continue;
 			
-				@$fromAddress = $addy->mailbox.'@'.$addy->host;
+				@$fromAddress = $addy['email'];
 				
 				if(null != ($fromInst = CerberusApplication::hashLookupAddress($fromAddress, true))) {
 					$this->_sender_address_model = $fromInst;
@@ -180,15 +180,14 @@ class CerberusParserModel {
 							$this->setSenderWorkerModel($fromWorker);
 					}
 					
-					return;
+					return null;
 				}
 			}
 			
 		} catch (Exception $e) {
 			$this->_sender_address_model = null;
 			$this->_sender_worker_model = null;
-			return false;
-			
+			return null;
 		}
 	}
 	
@@ -360,7 +359,7 @@ class CerberusParserModel {
 		
 		$destinations = [];
 		foreach($sources as $source) {
-			@$parsed = imap_rfc822_parse_adrlist($source,'localhost');
+			$parsed = CerberusMail::parseRfcAddresses($source);
 			$destinations = array_merge($destinations, is_array($parsed) ? $parsed : array($parsed));
 		}
 		
@@ -372,8 +371,6 @@ class CerberusParserModel {
 			$addresses[] = $destination->mailbox.'@'.$destination->host;
 		}
 		
-		@imap_errors(); // Prevent errors from spilling out into STDOUT
-
 		return $addresses;
 	}
 	
@@ -1755,14 +1752,7 @@ class CerberusParser {
 			Event_MailReceivedByWatcher::trigger($model->getMessageId(), $watcher_id);
 		}
 		
-		@imap_errors(); // Prevent errors from spilling out into STDOUT
-		
 		return $model->getTicketId();
-	}
-	
-	// [TODO] Phase out in favor of the CerberusUtils class
-	static function parseRfcAddress($address_string) {
-		return CerberusUtils::parseRfcAddressList($address_string);
 	}
 	
 	static function convertEncoding($text, $charset=null) {
@@ -1844,16 +1834,7 @@ class CerberusParser {
 		if(is_array($input))
 		foreach($input as $str) {
 			$out .= !empty($out) ? ' ' : '';
-			$parts = imap_mime_header_decode($str);
-			
-			if(is_array($parts))
-			foreach($parts as $part) {
-				try {
-					$charset = ($part->charset != 'default') ? $part->charset : $encoding;
-					$out .= CerberusParser::convertEncoding($part->text, $charset);
-					
-				} catch(Exception $e) {}
-			}
+			$out .= CerberusMail::decodeMimeHeader($str);
 		}
 
 		// Strip invalid characters in our encoding

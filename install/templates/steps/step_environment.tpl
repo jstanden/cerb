@@ -64,16 +64,7 @@
 <br>
 <br>
 
-<b>PHP Extension (IMAP)... </b> 
-{if !$results.ext_imap}
-	<span class="bad">Error! PHP must have the 'IMAP' extension enabled.</span>
-{else}
-	<span class="good">Passed!</span>
-{/if}
-<br>
-<br>
-
-<b>PHP Extension (MailParse)... </b> 
+<b>PHP Extension (MailParse)... </b>
 {if !$results.ext_mailparse}
 	<span class="bad">Error! PHP must have the 'mailparse' extension enabled.</span>
 {elseif !$results.mailparse_version}

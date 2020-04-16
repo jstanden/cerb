@@ -40,7 +40,6 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 			'curl',
 			'dom',
 			'gd',
-			'imap',
 			'json',
 			'mailparse',
 			'mbstring',

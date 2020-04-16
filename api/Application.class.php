@@ -67,10 +67,6 @@ DevblocksPlatform::registerClasses($path . 'Update.php', array(
 	'ChUpdateController',
 ));
 
-DevblocksPlatform::registerClasses($path . 'Utils.php', array(
-	'CerberusUtils',
-));
-
 /**
  * Application-level Facade
  */
@@ -358,12 +354,6 @@ class CerberusApplication extends DevblocksApplication {
 		if(extension_loaded("gd") && function_exists('imagettfbbox')) {
 		} else {
 			$errors[] = "The 'GD' PHP extension (with FreeType library support) is required.  Please enable them.";
-		}
-
-		// Extension: IMAP
-		if(extension_loaded("imap")) {
-		} else {
-			$errors[] = "The 'IMAP' PHP extension is required.  Please enable it.";
 		}
 
 		// Extension: MailParse

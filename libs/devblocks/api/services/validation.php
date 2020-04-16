@@ -290,9 +290,9 @@ class _DevblocksValidators {
 				return false;
 			}
 			
-			$validated_emails = CerberusUtils::parseRfcAddressList($value);
+			$validated_emails = CerberusMail::parseRfcAddresses($value);
 			
-			if(empty($validated_emails) || !is_array($validated_emails)) {
+			if(!is_array($validated_emails) || !$validated_emails) {
 				$error = "is invalid. It must be a properly formatted email address.";
 				return false;
 			}

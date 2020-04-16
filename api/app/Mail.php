@@ -307,62 +307,195 @@ class Cerb_SwiftPlugin_TransportExceptionLogger implements Swift_Events_Transpor
 class CerberusMail {
 	private function __construct() {}
 	
-	static function parseRfcAddresses($string, $exclude_controlled_addresses=false) {
-		$results = [];
-		$string = rtrim(str_replace(';',',',$string),' ,');
-		@$parsed = imap_rfc822_parse_adrlist($string, 'localhost');
+	static function writeRfcAddress($email, $personal=null) {
+		$is_quoted = false;
 		
-		$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
-		@$excludes = DevblocksPlatform::parseCrlfString($exclude_list);
-		
-		if(is_array($parsed))
-		foreach($parsed as $parsed_addy) {
-			@$mailbox = DevblocksPlatform::strLower($parsed_addy->mailbox);
-			@$host = DevblocksPlatform::strLower($parsed_addy->host);
-			@$personal = isset($parsed_addy->personal) ? $parsed_addy->personal : null;
-			
-			if(empty($mailbox) || empty($host))
-				continue;
-			
-			if(0 == strcasecmp($mailbox, 'invalid_address'))
-				continue;
-			
-			if(0 == strcasecmp($host, '.syntax-error.'))
-				continue;
-			
-			// Are we excluding Cerb controlled addresses?
-			if($exclude_controlled_addresses) {
-				$check_address = $mailbox.'@'.$host;
-				
-				// If this is a local address and we're excluding them, skip it
-				if(DAO_Address::isLocalAddress($check_address))
-					continue;
-				
-				$skip = false;
-				
-				// Filter explicit excludes
-				if(is_array($excludes) && !empty($excludes))
-				foreach($excludes as $excl_pattern) {
-					if(@preg_match(DevblocksPlatform::parseStringAsRegExp($excl_pattern), $check_address))
-						$skip = true;
-				}
-				
-				if($skip)
-					continue;
+		if($personal) {
+			if (false !== strpos($personal, '.')) {
+				$is_quoted = true;
 			}
 			
-			$results[$mailbox . '@' . $host] = array(
-				'full_email' => !empty($personal) ? imap_rfc822_write_address($mailbox, $host, $personal) : imap_rfc822_write_address($mailbox, $host, null),
-				'email' => $mailbox . '@' . $host,
-				'mailbox' => $mailbox,
-				'host' => $host,
-				'personal' => $personal,
+			if (false !== strpos($personal, '"')) {
+				$is_quoted = true;
+				$personal = str_replace('"', '\"', $personal);
+			}
+			
+			return sprintf("%s <%s>",
+				$is_quoted ? sprintf('"%s"', $personal) : $personal,
+				$email
 			);
+			
+		} else {
+			return $email;
+		}
+	}
+	
+	static function parseRfcAddress($string) {
+		$addresses = self::parseRfcAddresses($string);
+		
+		if(!is_array($addresses))
+			return false;
+		
+		return array_shift($addresses);
+	}
+	
+	static function parseRfcAddresses($string, $exclude_controlled_addresses=false) {
+		$strings = DevblocksPlatform::services()->string();
+		
+		// Always terminate the list
+		$string = rtrim($string, ',;') . ';';
+		
+		$state = null;
+		$states = [$state];
+		
+		$addresses = [];
+		
+		$personal = '';
+		$email = '';
+		
+		for($i=0;$i<strlen($string);$i++) {
+			$char = $string[$i];
+			
+			switch($state) {
+				// Quoted block
+				case '"':
+					switch($char) {
+						// Literal following char
+						case '\\':
+							$personal .= $char . $string[++$i];
+							break;
+							
+						// Terminate quotes
+						case '"':
+							$personal .= $char;
+							array_pop($states);
+							$state = end($states);
+							break;
+							
+						// Append personal
+						default:
+							$personal .= $char;
+							break;
+					}
+					break;
+				
+				// Email
+				case '<':
+					switch($char) {
+						// Terminate email
+						case '>':
+							array_pop($states);
+							$state = end($states);
+							break;
+							
+						// Append email
+						default:
+							$email .= $char;
+							break;
+					}
+					break;
+				
+				case null:
+					switch($char) {
+						// Start quotes (personal)
+						case '"':
+							$personal .= $char;
+							$state = '"';
+							$states[] = $state;
+							break;
+							
+						// Start email
+						case '<':
+							$state = '<';
+							$states[] = $state;
+							break;
+						
+						// End address
+						case ';':
+						case ',':
+							$personal = trim($personal);
+							$email = trim($email);
+							
+							if(!$email) {
+								$email = $personal;
+								$personal = '';
+								
+							} else {
+								if(DevblocksPlatform::strStartsWith($personal, '"')) {
+									$personal = mb_substr($personal, 1, -1);
+								}
+								
+								$personal = str_replace('\"','"', trim($personal));
+							}
+							
+							if($email) {
+								$mailbox = $strings->strBefore($email,'@');
+								$host = $strings->strAfter($email,'@');
+								
+								if($mailbox && $host) {
+									// Validate
+									if(Swift_Validate::email($email)) {
+										$addresses[$email] = [
+											'full_email' => self::writeRfcAddress($email, $personal),
+											'email' => $email,
+											'mailbox' => $mailbox,
+											'host' => $host,
+											'personal' => $personal,
+										];
+									}
+								}
+							}
+							
+							$personal = '';
+							$email = '';
+							break;
+						
+						default:
+							$personal .= $char;
+							break;
+					}
+					break;
+			}
 		}
 		
-		@imap_errors();
+		if($exclude_controlled_addresses) {
+			$exclude_list = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::PARSER_AUTO_REQ_EXCLUDE, CerberusSettingsDefaults::PARSER_AUTO_REQ_EXCLUDE);
+			@$excludes = DevblocksPlatform::parseCrlfString($exclude_list);
+
+			foreach(array_keys($addresses) as $check_address) {
+				$is_skipped = false;
+				
+				// If this is a local address and we're excluding them, skip it
+				if(DAO_Address::isLocalAddress($check_address)) {
+					$is_skipped = true;
+					
+				} else {
+					// Filter explicit excludes
+					if (is_array($excludes) && !empty($excludes)) {
+						foreach ($excludes as $excl_pattern) {
+							if (@preg_match(DevblocksPlatform::parseStringAsRegExp($excl_pattern), $check_address)) {
+								$is_skipped = true;
+								break;
+							}
+						}
+					}
+				}
+				
+				if($is_skipped) {
+					unset($addresses[$check_address]);
+				}
+			}
+		}
 		
-		return $results;
+		return $addresses;
+	}
+	
+	static function decodeMimeHeader($string) {
+		if(function_exists('iconv_mime_decode')) {
+			return iconv_mime_decode($string, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'utf-8');
+		} else {
+			return mb_decode_mimeheader($string);
+		}
 	}
 	
 	static private function _parseCustomHeaders(array $headers) {
@@ -410,9 +543,9 @@ class CerberusMail {
 			
 			// If we have a custom from, override the sender info
 			if(isset($custom_headers['from'])) {
-				if(false !== ($custom_froms = imap_rfc822_parse_adrlist($custom_headers['from'], '')) && !empty($custom_froms)) {
-					$from_addy = $custom_froms[0]->mailbox . '@' . $custom_froms[0]->host;
-					$from_personal = (isset($custom_froms[0]->personal) && $custom_froms[0]->personal != $from_addy) ? $custom_froms[0]->personal : null;
+				if(false != ($from = CerberusMail::parseRfcAddress($custom_headers['from']))) {
+					$from_addy = $from['email'];
+					$from_personal = $from['personal'];
 				}
 				
 				unset($custom_headers['from']);

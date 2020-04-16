@@ -10,11 +10,6 @@ class MailboxCron extends CerberusCronPageExtension {
 		
 		$logger->info("[Mailboxes] Started Mailbox Checker job");
 		
-		if (!extension_loaded("imap")) {
-			$logger->err("[Mailboxes] The 'IMAP' extension is not loaded. Aborting!");
-			return false;
-		}
-		
 		if (!extension_loaded("mailparse")) {
 			$logger->err("[Mailboxes] The 'mailparse' extension is not loaded. Aborting!");
 			return false;
@@ -62,48 +57,16 @@ class MailboxCron extends CerberusCronPageExtension {
 				break;
 			}
 			
-			// Per-account IMAP timeouts
-			$imap_timeout = !empty($account->timeout_secs) ? $account->timeout_secs : 30;
-			
-			imap_timeout(IMAP_OPENTIMEOUT, $imap_timeout);
-			imap_timeout(IMAP_READTIMEOUT, $imap_timeout);
-			imap_timeout(IMAP_CLOSETIMEOUT, $imap_timeout);
-			
-			$imap_timeout_read_ms = imap_timeout(IMAP_READTIMEOUT) * 1000; // ms
-			$imap_options = array();
-			
-			// [TODO] Also allow disabling GSSAPI, NTLM from UI (requires patch)
-			$disable_authenticators = [];
-			
-			if($account->auth_disable_plain)
-				$disable_authenticators[] = 'PLAIN';
-			
-			if(defined('APP_MAIL_IMAP_DISABLE_NTLM') && APP_MAIL_IMAP_DISABLE_NTLM)
-				$disable_authenticators[] = 'NTLM';
-			
-			if(defined('APP_MAIL_IMAP_DISABLE_GSSAPI') && APP_MAIL_IMAP_DISABLE_GSSAPI)
-				$disable_authenticators[] = 'GSSAPI';
-			
-			if(!empty($disable_authenticators))
-				$imap_options['DISABLE_AUTHENTICATOR'] = $disable_authenticators;
-			
 			$mailboxes_checked++;
 
 			$logger->info('[Mailboxes] Account being parsed is '. $account->name);
 			
-			$imap_connect = $account->getImapConnectString();
-
 			$mailbox_runtime = microtime(true);
 			
-			if(false === ($mailbox = @imap_open($imap_connect,
-				!empty($account->username)?$account->username:"",
-				!empty($account->password)?$account->password:"",
-				null,
-				0,
-				$imap_options
-				))) {
-				
-				$logger->error("[Mailboxes] Failed with error: ".imap_last_error());
+			$error = null;
+			
+			if(false === ($client = $account->getClient($error))) {
+				$logger->error("[Mailboxes] Failed with error: " . $error);
 				
 				// Increment fails
 				$num_fails = $account->num_fails + 1;
@@ -132,7 +95,7 @@ class MailboxCron extends CerberusCronPageExtension {
 						'variables' => array(
 							'target' => $account->name,
 							'count' => $num_fails,
-							'error' => imap_last_error(),
+							'error' => $error,
 							),
 						'urls' => array(
 							'target' => sprintf("ctx://%s:%s/%s", CerberusContexts::CONTEXT_MAILBOX, $account->id, DevblocksPlatform::strToPermalink($account->name)),
@@ -145,45 +108,63 @@ class MailboxCron extends CerberusCronPageExtension {
 				continue;
 			}
 			
-			$mailbox_stats = imap_check($mailbox);
-			
-			// [TODO] Make this an account setting?
-			$total = min($max_downloads, $mailbox_stats->Nmsgs);
-			
-			$logger->info("[Mailboxes] Connected to mailbox '".$account->name."' (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
-
-			$mailbox_runtime = microtime(true);
-			
-			$msgs_stats = imap_fetch_overview($mailbox, sprintf("1:%d", $total));
-			
-			foreach($msgs_stats as &$msg_stats) {
-				$time = microtime(true);
-
-				do {
-					$unique = sprintf("%s.%04d",
-					time(),
-					mt_rand(0,9999)
-					);
+			try {
+				$mailbox_name = 'INBOX';
+				
+				// [TODO] Make this an account setting?
+				$status = $client->status($mailbox_name, Horde_Imap_Client::STATUS_MESSAGES);
+				$total = min($max_downloads, $status['messages']);
+				
+				$logger->info("[Mailboxes] Connected to mailbox '" . $account->name . "' (" . number_format((microtime(true) - $mailbox_runtime) * 1000, 2) . " ms)");
+				
+				$mailbox_runtime = microtime(true);
+				
+				$messages = [];
+				
+				if(DevblocksPlatform::strStartsWith($account->protocol, 'pop3')) {
+					$sequence_ids = new Horde_Imap_Client_Ids_Pop3(range(1, $total), true);
+				} else {
+					$sequence_ids = new Horde_Imap_Client_Ids(range(1, $total), true);
+				}
+				
+				if($total) {
+					$fetch_query = new Horde_Imap_Client_Fetch_Query();
+					$fetch_query->uid();
+					$fetch_query->envelope();
+					$fetch_query->size();
+					$fetch_query->fullText([
+						'peek' => true,
+					]);
+					
+					$messages = $client->fetch($mailbox_name, $fetch_query, [
+						'ids' => $sequence_ids,
+						'nocache' => true,
+					]);
+				}
+				
+				foreach($messages as $message) { /** @var Horde_Imap_Client_Data_Fetch $message */
+					$message_size = $message->getSize();
+					
+					$time = microtime(true);
+					
+					$unique = uniqid(null, true);
 					$filename = APP_MAIL_PATH . 'new' . DIRECTORY_SEPARATOR . $unique;
-				} while(file_exists($filename));
-
-				$fp = fopen($filename,'w+');
-
-				if($fp) {
-					$mailbox_xheader = "X-Cerberus-Mailbox: " . $account->name . "\r\n";
-					fwrite($fp, $mailbox_xheader);
-
+					
+					$fp = fopen($filename,'w+');
+					
 					// If the message is too big, save a message stating as much
-					if($account->max_msg_size_kb && $msg_stats->size >= $account->max_msg_size_kb * 1000) {
+					if($account->max_msg_size_kb && $message_size >= $account->max_msg_size_kb * 1000) {
 						$logger->warn(sprintf("[Mailboxes] This message is %s which exceeds the mailbox limit of %s",
-							DevblocksPlatform::strPrettyBytes($msg_stats->size),
+							DevblocksPlatform::strPrettyBytes($message_size),
 							DevblocksPlatform::strPrettyBytes($account->max_msg_size_kb*1000)
 						));
 						
-						$error_msg = sprintf("This %s message exceeded the mailbox limit of %s",
-							DevblocksPlatform::strPrettyBytes($msg_stats->size),
+						$error_msg = sprintf("This message size of %s exceeded the mailbox limit of %s",
+							DevblocksPlatform::strPrettyBytes($message_size),
 							DevblocksPlatform::strPrettyBytes($account->max_msg_size_kb*1000)
 						);
+						
+						$envelope = $message->getEnvelope(); /** @var Horde_Imap_Client_Data_Envelope $envelope */
 						
 						$truncated_message = sprintf(
 							"X-Cerb-Parser-Error: message-size-limit-exceeded\r\n".
@@ -196,44 +177,80 @@ class MailboxCron extends CerberusCronPageExtension {
 							"\r\n".
 							"(%s)\r\n",
 							$error_msg,
-							$msg_stats->from,
-							$msg_stats->to,
-							$msg_stats->subject,
-							$msg_stats->date,
-							$msg_stats->message_id,
+							$envelope->from,
+							$envelope->to,
+							$envelope->subject,
+							$envelope->date->format('r'),
+							$envelope->message_id,
 							$error_msg
 						);
 						
 						fwrite($fp, $truncated_message);
 						
-					// Otherwise, save the message like normal
+						// Otherwise, save the message like normal
 					} else {
-						imap_savebody($mailbox, $fp, $msg_stats->msgno); // Write the message directly to the file handle
+						if($fp) {
+							$mailbox_xheader = "X-Cerberus-Mailbox: " . $account->name . "\r\n";
+							fwrite($fp, $mailbox_xheader);
+							
+							$stream = $message->getFullMsg(true);
+							
+							// [TODO] Handle timeouts
+							while((!feof($stream))) {
+								fwrite($fp, fread($stream, 65536));
+							}
+							
+							fclose($stream);
+						}
 					}
-
-					@fclose($fp);
+					
+					fclose($fp);
+					
+					$time = microtime(true) - $time;
+					
+					// If this message took a really long time to download, skip it and retry later
+					// [TODO] We may want to keep track if the same message does this repeatedly
+					if(($time*1000) > (0.95 * $account->timeout_secs*1000)) {
+						$logger->warn("[Mailboxes] This message took more than 95% of the read timeout to download. We probably timed out. Aborting to retry later...");
+						unlink($filename);
+						break;
+					}
+					
+					/*
+					 * [JAS]: We don't add the .msg extension until we're done with the file,
+					 * since this will safely be ignored by the parser until we're ready
+					 * for it.
+					 */
+					rename($filename, dirname($filename) . DIRECTORY_SEPARATOR . basename($filename) . '.msg');
+					
+					$logger->info("[Mailboxes] Downloaded message ".$message->getUid()." (".sprintf("%d",($time*1000))." ms)");
 				}
 				
-				$time = microtime(true) - $time;
-				
-				// If this message took a really long time to download, skip it and retry later
-				// [TODO] We may want to keep track if the same message does this repeatedly
-				if(($time*1000) > (0.95 * $imap_timeout_read_ms)) {
-					$logger->warn("[Mailboxes] This message took more than 95% of the IMAP_READTIMEOUT value to download. We probably timed out. Aborting to retry later...");
-					unlink($filename);
-					break;
+				if($sequence_ids instanceof Horde_Imap_Client_Ids_Pop3) {
+					$client->store($mailbox_name, [
+						'add' => [
+							Horde_Imap_Client::FLAG_DELETED
+						],
+						'ids' => $sequence_ids,
+					]);
+					
+					$client->expunge($mailbox_name, [
+						'ids' => $sequence_ids,
+					]);
+					
+				} else {
+					$client->expunge($mailbox_name, [
+						'delete' => true,
+						'ids' => $sequence_ids,
+					]);
 				}
 				
-				/*
-				 * [JAS]: We don't add the .msg extension until we're done with the file,
-				 * since this will safely be ignored by the parser until we're ready
-				 * for it.
-				 */
-				rename($filename, dirname($filename) . DIRECTORY_SEPARATOR . basename($filename) . '.msg');
-
-				$logger->info("[Mailboxes] Downloaded message ".$msg_stats->msgno." (".sprintf("%d",($time*1000))." ms)");
+				$client->close();
 				
-				imap_delete($mailbox, $msg_stats->msgno);
+			} catch (Horde_Imap_Client_Exception $e) {
+			
+			} catch (Exception $e) {
+				trigger_error($e->getMessage());
 			}
 			
 			// Clear the fail count if we had past fails
@@ -245,10 +262,6 @@ class MailboxCron extends CerberusCronPageExtension {
 					DAO_Mailbox::DELAY_UNTIL => 0,
 				)
 			);
-			
-			imap_expunge($mailbox);
-			imap_close($mailbox);
-			@imap_errors();
 			
 			$logger->info("[Mailboxes] Closed mailbox (".number_format((microtime(true)-$mailbox_runtime)*1000,2)." ms)");
 		}
@@ -351,11 +364,6 @@ class ParseCron extends CerberusCronPageExtension {
 		$logger = DevblocksPlatform::services()->log();
 		
 		$logger->info("[Parser] Starting Parser Task");
-		
-		if (!extension_loaded("imap")) {
-			$logger->err("[Parser] The 'IMAP' extension is not loaded.  Aborting!");
-			return false;
-		}
 		
 		if (!extension_loaded("mailparse")) {
 			$logger->err("[Parser] The 'mailparse' extension is not loaded.  Aborting!");

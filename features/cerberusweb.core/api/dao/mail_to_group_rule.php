@@ -315,23 +315,23 @@ class Model_MailToGroupRule {
 						$destinations = DevblocksPlatform::parseCsvString($value);
 
 						// Build a list of To/Cc addresses on this message
-						@$to_list = imap_rfc822_parse_adrlist($message_headers['to'],'localhost');
-						@$cc_list = imap_rfc822_parse_adrlist($message_headers['cc'],'localhost');
+						$to_list = CerberusMail::parseRfcAddresses(@$message_headers['to']);
+						$cc_list = CerberusMail::parseRfcAddresses(@$message_headers['cc']);
 						
 						if(is_array($to_list))
 						foreach($to_list as $addy) {
-							if(!isset($addy->mailbox) || !isset($addy->host))
+							if(!$addy['mailbox'] || !$addy['host'])
 								continue;
 						
-							$tocc[] = $addy->mailbox . '@' . $addy->host;
+							$tocc[] = $addy['email'];
 						}
 						
 						if(is_array($cc_list))
 						foreach($cc_list as $addy) {
-							if(!isset($addy->mailbox) || !isset($addy->host))
+							if(!$addy['mailbox'] || !$addy['host'])
 								continue;
 							
-							$tocc[] = $addy->mailbox . '@' . $addy->host;
+							$tocc[] = $addy['email'];
 						}
 						
 						$dest_flag = false; // bail out when true

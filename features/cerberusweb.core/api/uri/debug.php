@@ -241,7 +241,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 					"[PHP:Extension] MySQLi: %s\n".
 					"[PHP:Extension] MailParse: %s\n".
 					"[PHP:Extension] cURL: %s\n".
-					"[PHP:Extension] IMAP: %s\n".
 					"[PHP:Extension] Session: %s\n".
 					"[PHP:Extension] PCRE: %s\n".
 					"[PHP:Extension] GD: %s\n".
@@ -283,7 +282,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 					(extension_loaded("mysqli") ? 'YES' : 'NO'),
 					(extension_loaded("mailparse") ? 'YES' : 'NO'),
 					(extension_loaded("curl") ? 'YES' : 'NO'),
-					(extension_loaded("imap") ? 'YES' : 'NO'),
 					(extension_loaded("session") ? 'YES' : 'NO'),
 					(extension_loaded("pcre") ? 'YES' : 'NO'),
 					(extension_loaded("gd") ? 'YES' : 'NO'),

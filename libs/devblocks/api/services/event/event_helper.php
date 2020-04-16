@@ -4377,13 +4377,10 @@ class DevblocksEventHelper {
 		$message->headers['x-cerb-bot'] = $dict->behavior_bot__label . ' :: ' . $dict->behavior__label;
 		
 		// Sender
-		$fromList = imap_rfc822_parse_adrlist(rtrim($requesters,', '),'');
-		
-		if(empty($fromList) || !is_array($fromList)) {
+		if(false == ($from = CerberusMail::parseRfcAddress($requesters)))
 			return; // abort with message
-		}
-		$from = array_shift($fromList);
-		$from_address = $from->mailbox . '@' . $from->host;
+		
+		$from_address = $from['email'];
 		$message->headers['from'] = $from_address;
 
 		$message->body = $content;

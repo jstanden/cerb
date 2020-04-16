@@ -551,8 +551,9 @@ class UmScAccountController extends Extension_UmScController {
 			@$add_email = DevblocksPlatform::strLower(DevblocksPlatform::importGPC($_POST['add_email'],'string',''));
 			
 			// Validate
-			$address_parsed = imap_rfc822_parse_adrlist($add_email,'host');
-			if(empty($add_email) || empty($address_parsed) || !is_array($address_parsed) || empty($address_parsed[0]->host) || $address_parsed[0]->host=='host')
+			$address_parsed = CerberusMail::parseRfcAddress($add_email);
+			
+			if(!$add_email || !$address_parsed || !@$address_parsed['host'])
 				throw new Exception("The email address you provided is invalid.");
 	
 			// Is this address already assigned

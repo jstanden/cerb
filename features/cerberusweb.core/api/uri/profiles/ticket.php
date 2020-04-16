@@ -496,11 +496,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				
 				if(is_array($requesters))
 					foreach($requesters as $requester) {
-						$requester_personal = $requester->getName();
-						$requester_addy = $requester->email;
-						@list($requester_mailbox, $requester_host) = explode('@', $requester_addy);
-						
-						if(false !== ($recipient = imap_rfc822_write_address($requester_mailbox, $requester_host, $requester_personal)))
+						if(false !== ($recipient = CerberusMail::writeRfcAddress($requester->email, $requester->getName())))
 							$recipients[] = $recipient;
 					}
 				

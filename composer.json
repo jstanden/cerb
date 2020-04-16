@@ -24,7 +24,6 @@
 	"require" : {
 		"ext-curl": "*",
 		"ext-gd": "*",
-		"ext-imap": "*",
 		"ext-json": "*",
 		"ext-mailparse": "*",
 		"ext-mbstring": "*",

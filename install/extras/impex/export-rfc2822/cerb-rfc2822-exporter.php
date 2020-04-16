@@ -3,6 +3,9 @@ namespace Cerb\Impex\Exporters {
 	use Cerb\Impex\CerbImpex;
 	require('vendor/autoload.php');
 	
+	if(!extension_loaded('imap'))
+		die("The `imap` extension is required.");
+	
 	abstract class Exporter {
 		protected $_config = array();
 		

@@ -671,8 +671,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		try {
 			// Validate
-			$address_parsed = imap_rfc822_parse_adrlist($email,'host');
-			if(empty($email) || empty($address_parsed) || !is_array($address_parsed) || empty($address_parsed[0]->host) || $address_parsed[0]->host=='host')
+			if(false == ($address_parsed = CerberusMail::parseRfcAddress($email)))
 				throw new Exception("The email address you provided is invalid.");
 			
 			// Check to see if the address is currently assigned to an account

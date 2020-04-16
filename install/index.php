@@ -219,14 +219,6 @@ switch($step) {
 			$fails++;
 		}
 		
-		// Extension: IMAP
-		if(extension_loaded("imap")) {
-			$results['ext_imap'] = true;
-		} else {
-			$results['ext_imap'] = false;
-			$fails++;
-		}
-		
 		// Extension: MailParse
 		if(extension_loaded("mailparse")) {
 			$results['ext_mailparse'] = true;
@@ -688,12 +680,10 @@ switch($step) {
 			if(!$default_reply_from)
 				throw new Exception_CerbInstaller("The default sender is required.");
 				
-			$validate = imap_rfc822_parse_adrlist(sprintf("<%s>", $default_reply_from),"localhost");
-			
-			if(!is_array($validate) || 1 != count($validate))
+			if(false == ($validate = CerberusMail::parseRfcAddress($default_reply_from)))
 				throw new Exception_CerbInstaller("The default sender is invalid.");
 
-			if(false == ($address = DAO_Address::lookupAddress($default_reply_from, true)))
+			if(false == ($address = DAO_Address::lookupAddress($validate['email'], true)))
 				throw new Exception_CerbInstaller("The default sender is invalid.");
 				
 			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, $address->id);

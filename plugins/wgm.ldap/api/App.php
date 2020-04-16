@@ -72,12 +72,13 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 			// Validate email address
 			
-			$valid_email = imap_rfc822_parse_adrlist($email, 'host');
-			
-			if(empty($valid_email) || !is_array($valid_email) || empty($valid_email[0]->host) || $valid_email[0]->host=='host')
+			if(false == ($valid_email = CerberusMail::parseRfcAddress($email)))
 				throw new Exception("Please provide a valid email address.");
 			
-			$email = $valid_email[0]->mailbox . '@' . $valid_email[0]->host;
+			if(!$valid_email['host'])
+				throw new Exception("Please provide a valid email address.");
+			
+			$email = $valid_email['email'];
 			
 			$ldap_service_id = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'sso.ldap.service_id', 0);
 			

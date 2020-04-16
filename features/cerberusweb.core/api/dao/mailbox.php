@@ -476,44 +476,63 @@ class Model_Mailbox {
 	public $timeout_secs = 30;
 	public $updated_at = 0;
 	public $username;
-
-	function getImapConnectString() {
-		$connect = null;
-
-		switch($this->protocol) {
-			default:
-			case 'pop3': // 110
-				$connect = sprintf("{%s:%d/pop3/notls}INBOX",
-					$this->host,
-					$this->port
-				);
-				break;
-
-			case 'pop3-ssl': // 995
-				$connect = sprintf("{%s:%d/pop3/ssl%s}INBOX",
-					$this->host,
-					$this->port,
-					$this->ssl_ignore_validation ? '/novalidate-cert' : ''
-				);
-				break;
-
-			case 'imap': // 143
-				$connect = sprintf("{%s:%d/notls}INBOX",
-					$this->host,
-					$this->port
-				);
-				break;
-
-			case 'imap-ssl': // 993
-				$connect = sprintf("{%s:%d/imap/ssl%s}INBOX",
-					$this->host,
-					$this->port,
-					$this->ssl_ignore_validation ? '/novalidate-cert' : ''
-				);
-				break;
+	
+	/**
+	 * @param string $error
+	 * @return Horde_Imap_Client_Base|false
+	 */
+	public function getClient(&$error=null) {
+		try {
+			$imap_timeout = $this->timeout_secs ?? 30;
+			
+			$options = [
+				'username' => $this->username,
+				'password' => $this->password,
+				'hostspec' => $this->host,
+				'port' => $this->port,
+				'timeout' => $imap_timeout,
+				'secure' =>  false,
+			];
+			
+			if(in_array($this->protocol, ['imap-ssl','pop3-ssl'])) {
+				$options['secure'] = 'tlsv1';
+			} else if(in_array($this->protocol, ['imap-starttls','pop3-starttls'])) {
+				$options['secure'] = 'tls';
+			}
+			
+			if (DevblocksPlatform::strStartsWith($this->protocol, 'pop3')) {
+				$client = new Horde_Imap_Client_Socket_Pop3($options);
+				
+			} else {
+				$client = new Horde_Imap_Client_Socket($options);
+			}
+			
+			// [TODO] IMAP: capability_ignore
+			// [TODO] Also allow disabling GSSAPI, NTLM from UI (requires patch)
+			/*
+			$disable_authenticators = [];
+			
+			if($account->auth_disable_plain)
+				$disable_authenticators[] = 'PLAIN';
+			
+			if(defined('APP_MAIL_IMAP_DISABLE_NTLM') && APP_MAIL_IMAP_DISABLE_NTLM)
+				$disable_authenticators[] = 'NTLM';
+			
+			if(defined('APP_MAIL_IMAP_DISABLE_GSSAPI') && APP_MAIL_IMAP_DISABLE_GSSAPI)
+				$disable_authenticators[] = 'GSSAPI';
+			
+			if(!empty($disable_authenticators))
+				$imap_options['DISABLE_AUTHENTICATOR'] = $disable_authenticators;
+			*/
+			
+			$client->login();
+			
+			return $client;
+			
+		} catch (Horde_Imap_Client_Exception $e) {
+			$error = $e->getMessage();
+			return false;
 		}
-
-		return $connect;
 	}
 };
 

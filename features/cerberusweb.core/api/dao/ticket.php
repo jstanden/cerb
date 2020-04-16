@@ -1554,7 +1554,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 						$addy_fullname = $addy_lookup->getName();
 						if(!empty($addy_fullname)) {
 							$addy_data['personal'] = $addy_fullname;
-							$addy_data['full_email'] = imap_rfc822_write_address($addy_data['mailbox'], $addy_data['host'], $addy_fullname);
+							$addy_data['full_email'] = CerberusMail::writeRfcAddress($addy_data['email'], $addy_fullname);
 						}
 					}
 				}

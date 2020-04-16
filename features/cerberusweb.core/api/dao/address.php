@@ -159,18 +159,14 @@ class DAO_Address extends Cerb_ORMHelper {
 			if(count($ids) != 1)
 				return NULL;
 			
-			@$addresses = imap_rfc822_parse_adrlist('<'.$email.'>', 'host');
-			
-			if(!is_array($addresses) || empty($addresses))
+			if(false == ($address = CerberusMail::parseRfcAddress($email)))
 				return NULL;
 			
-			$address = array_shift($addresses);
-			
-			if(empty($address->host) || $address->host == 'host')
+			if(!$address['host'])
 				return NULL;
 			
 			// Format the email address
-			$full_address = trim(DevblocksPlatform::strLower($address->mailbox.'@'.$address->host));
+			$full_address = DevblocksPlatform::strLower($address['email']);
 			
 			$id = $db->GetOneMaster(sprintf("SELECT id FROM address WHERE email = %s", $db->qstr($full_address)));
 			
