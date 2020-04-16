@@ -601,6 +601,7 @@ function DevblocksClass() {
 	}
 
 	// https://gist.github.com/ghinda/8442a57f22099bdb2e34#gistcomment-2386093
+	// https://gist.github.com/ghinda/8442a57f22099bdb2e34#gistcomment-2719686
 	this.objectToFormData = function(model, form, namespace) {
 		let formData = form || new FormData();
 		for (let propertyName in model) {
@@ -611,7 +612,10 @@ function DevblocksClass() {
 			else if (model[propertyName] instanceof Array) {
 				model[propertyName].forEach((element, index) => {
 					const tempFormKey = `${formKey}[${index}]`;
-					this.objectToFormData(element, formData, tempFormKey);
+					if (typeof element === 'object')
+						this.objectToFormData(element, formData, tempFormKey);
+					else
+						formData.append(tempFormKey, element.toString());
 				});
 			}
 			else if (typeof model[propertyName] === 'object' && !(model[propertyName] instanceof File))
@@ -620,7 +624,7 @@ function DevblocksClass() {
 				formData.append(formKey, model[propertyName].toString());
 		}
 		return formData;
-	}
+	};
 	
 	this.cerbCodeEditor = {
 		insertMatchAndAutocomplete: function(editor, data) {
