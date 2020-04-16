@@ -969,8 +969,10 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 				),
 			'behavior' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [
+						'param_key' => SearchFields_ContextScheduledBehavior::VIRTUAL_BEHAVIOR_SEARCH,
+					],
 					'examples' => [
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_BEHAVIOR, 'q' => ''],
 					]
