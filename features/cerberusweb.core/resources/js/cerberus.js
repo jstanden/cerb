@@ -2476,6 +2476,7 @@ var ajax = new cAjaxCalls();
 				e.preventDefault();
 				e.stopPropagation();
 				$editor.cerbTextEditor('insertText', '#snippet ');
+				$editor.autocomplete('search');
 			});
 		});
 	}
