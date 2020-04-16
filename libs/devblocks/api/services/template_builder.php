@@ -173,6 +173,7 @@ class _DevblocksTemplateBuilder {
 				'date_pretty',
 				'hash_hmac',
 				'json_pretty',
+				'markdown_to_html',
 				'md5',
 				'parse_emails',
 				'permalink',
@@ -1429,6 +1430,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new \Twig\TwigFilter('hash_hmac', [$this, 'filter_hash_hmac']),
 			new \Twig\TwigFilter('json_pretty', [$this, 'filter_json_pretty']),
+			new \Twig\TwigFilter('markdown_to_html', [$this, 'filter_markdown_to_html']),
 			new \Twig\TwigFilter('md5', [$this, 'filter_md5']),
 			new \Twig\TwigFilter('parse_emails', [$this, 'filter_parse_emails']),
 			new \Twig\TwigFilter('permalink', [$this, 'filter_permalink']),
@@ -1552,6 +1554,11 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return DevblocksPlatform::strFormatJson($string);
+	}
+	
+	function filter_markdown_to_html($string) {
+		@$string = strval($string);
+		return DevblocksPlatform::parseMarkdown($string);
 	}
 	
 	function filter_md5($string) {
