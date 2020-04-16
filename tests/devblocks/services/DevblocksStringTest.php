@@ -29,4 +29,12 @@ class DevblocksStringTest extends PHPUnit_Framework_TestCase {
 		$actual = $strings->strBefore('user@host', '#');
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testIndentWith() {
+		$strings = DevblocksPlatform::services()->string();
+		
+		$expected = "> One\n> Two\n> Three";
+		$actual = $strings->indentWith("One\nTwo\nThree", '> ');
+		$this->assertEquals($expected, $actual);
+	}
 }
