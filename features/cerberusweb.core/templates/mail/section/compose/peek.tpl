@@ -509,6 +509,10 @@ $(function() {
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
 			$editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
+
+			setTimeout(function() {
+				$editor.focus();
+			}, 100);
 		});
 
 		// Commands

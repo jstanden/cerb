@@ -640,9 +640,13 @@ $(function() {
 			$reply.find('button.chooser_file').triggerHandler(new_event);
 
 			$editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
+
+			setTimeout(function() {
+				$editor.focus();
+			}, 100);
 		});
 
-		// Signature
+		// Commands
 		$editor_toolbar.find('.cerb-markdown-editor-toolbar-button--commands').on('click', function(e) {
 			$editor.cerbTextEditor('insertText', '#');
 			$editor.autocomplete('search');
