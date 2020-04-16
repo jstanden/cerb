@@ -95,12 +95,14 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 				if(empty($port)) {
 					switch($protocol) {
 						case 'pop3':
+						case 'pop3-starttls':
 							$port = 110;
 							break;
 						case 'pop3-ssl':
 							$port = 995;
 							break;
 						case 'imap':
+						case 'imap-starttls':
 							$port = 143;
 							break;
 						case 'imap-ssl':
@@ -222,12 +224,14 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			if(empty($port)) {
 				switch($protocol) {
 					case 'pop3':
+					case 'pop3-starttls':
 						$port = 110;
 						break;
 					case 'pop3-ssl':
 						$port = 995;
 						break;
 					case 'imap':
+					case 'imap-starttls':
 						$port = 143;
 						break;
 					case 'imap-ssl':

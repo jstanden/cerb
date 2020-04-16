@@ -37,14 +37,18 @@
 			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 		</td>
 	</tr>
-			<tr>
+	<tr>
 		<td width="0%" nowrap="nowrap"><b>Protocol:</b></td>
-		<td width="100%"><select name="protocol">
-			<option value="pop3" {if $model->protocol=='pop3'}selected{/if}>POP3
-			<option value="pop3-ssl" {if $model->protocol=='pop3-ssl'}selected{/if}>POP3-SSL
-			<option value="imap" {if $model->protocol=='imap'}selected{/if}>IMAP
-			<option value="imap-ssl" {if $model->protocol=='imap-ssl'}selected{/if}>IMAP-SSL
-		</select></td>
+		<td width="100%">
+			<select name="protocol">
+				<option value="pop3-starttls" {if $model->protocol=='pop3-starttls'}selected{/if}>POP3 (STARTTLS)
+				<option value="pop3-ssl" {if $model->protocol=='pop3-ssl'}selected{/if}>POP3 (TLS/SSL)
+				<option value="pop3" {if $model->protocol=='pop3'}selected{/if}>POP3 (Unencrypted)
+				<option value="imap-starttls" {if $model->protocol=='imap-starttls'}selected{/if}>IMAP (STARTTLS)
+				<option value="imap-ssl" {if $model->protocol=='imap-ssl'}selected{/if}>IMAP (TLS/SSL)
+				<option value="imap" {if $model->protocol=='imap'}selected{/if}>IMAP (Unencrypted)
+			</select>
+		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>{'common.host'|devblocks_translate|capitalize}:</b></td>
