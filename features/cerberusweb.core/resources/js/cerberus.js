@@ -1542,7 +1542,10 @@ var ajax = new cAjaxCalls();
 		},
 
 		insertText: function(insertText) {
-			var start = this.editor.selectionStart;
+			var start = this.getCursorPosition();
+
+			// Normalize line endings
+			insertText = insertText.replace(/\r/g, '');
 
 			var newValue =
 				this.editor.value.substring(0,start)
@@ -1550,11 +1553,14 @@ var ajax = new cAjaxCalls();
 				+ this.editor.value.substring(start)
 			;
 
-			var offset = newValue.length - this.editor.value.length;
-
+			var oldLength = this.editor.value.length;
 			this.editor.value = newValue;
 
+			var offset = newValue.length - oldLength;
+
 			this.setSelection(start + offset, start + offset);
+
+			this.editor.blur();
 			this.editor.focus();
 		},
 
@@ -1572,6 +1578,8 @@ var ajax = new cAjaxCalls();
 			this.editor.value = newValue;
 
 			this.setSelection(bounds.end + offset, bounds.end + offset);
+
+			this.editor.blur();
 			this.editor.focus();
 		},
 
