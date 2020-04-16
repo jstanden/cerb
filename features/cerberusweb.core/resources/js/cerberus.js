@@ -2308,8 +2308,10 @@ var ajax = new cAjaxCalls();
 					var token = $editor.cerbTextEditor('getCurrentWord');
 					var line = $editor.cerbTextEditor('getCurrentLine');
 
-					if(line.startsWith('#snippet ')) {
-						return this.options._sourceSnippet(request, response, line.substring(9));
+					var snippet_pos = line.indexOf('#snippet ');
+
+					if(-1 !== snippet_pos) {
+						return this.options._sourceSnippet(request, response, line.substring(snippet_pos + 9));
 					} else if(line.startsWith('#attach ')) {
 						return this.options._sourceAttach(request, response, line.substring(8));
 					} else if(token.startsWith('#')) {
@@ -2324,7 +2326,7 @@ var ajax = new cAjaxCalls();
 				select: function(event, ui)  {
 					if(ui.item.value.startsWith('#snippet ')) {
 						if(ui.item.value === '#snippet ') {
-							$editor.cerbTextEditor('replaceCurrentLine', ui.item.value);
+							$editor.cerbTextEditor('replaceCurrentWord', ui.item.value);
 
 							setTimeout(function() {
 								$editor.autocomplete('search');
@@ -2332,7 +2334,15 @@ var ajax = new cAjaxCalls();
 
 						} else {
 							$editor.autocomplete('close');
-							$editor.cerbTextEditor('replaceCurrentLine', '');
+
+							// Select everything from `#snippet` on the current line
+							var line_pos = $editor.cerbTextEditor('getCurrentLinePos');
+							var line = editor.value.substring(line_pos.start, line_pos.end);
+
+							line_pos.start = line_pos.start + line.indexOf('#snippet ');
+
+							$editor.cerbTextEditor('setSelection', line_pos.start, line_pos.end);
+							$editor.cerbTextEditor('replaceSelection', '');
 
 							var $editor_toolbar = $editor.prevAll('.cerb-code-editor-toolbar');
 
