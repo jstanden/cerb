@@ -1140,7 +1140,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 	
 	var $popup = null;
 	var $listener_holder = $('<div/>');
-	
+
 	// Restore position from previous dialog?
 	if(target === 'reuse') {
 		$popup = genericAjaxPopupFetch($layer);
@@ -1352,6 +1352,8 @@ function genericAjaxPopupPostCloseReloadView($layer, frm, view_id, has_output, $
 			if(has_view)
 				$('#view'+view_id).fadeTo("fast", 1.0);
 
+			var $popup;
+
 			if(null == $layer) {
 				$popup = genericAjaxPopupFind('#'+frm);
 			} else {
@@ -1382,7 +1384,7 @@ function genericAjaxGet(divRef,args,cb,options) {
 	options.type = 'GET';
 	options.url = DevblocksAppPath+'ajax.php?'+args;
 	options.cache = false;
-	
+
 	if(null != div) {
 		div.fadeTo("fast", 0.2);
 		

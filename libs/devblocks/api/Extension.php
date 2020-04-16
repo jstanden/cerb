@@ -688,7 +688,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		}
 		
 		// Convert the flat tokens into a tree
-		$forward_recurse = null;
 		$forward_recurse = function(&$node, $node_key, &$stack=null) use (&$keys, &$forward_recurse, &$labels, $label_separator) {
 			if(is_null($stack))
 				$stack = [];
@@ -714,7 +713,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		
 		$forward_recurse($keys, '');
 		
-		$condense_func = null;
 		$condense_func = function(&$node, $key=null, &$parent=null) use (&$condense_func, $label_separator, $key_separator) {
 			// If this node has exactly one child
 			if(is_array($node->children) && 1 == count($node->children) && $parent && is_null($node->label)) {

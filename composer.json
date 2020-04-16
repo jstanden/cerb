@@ -3,14 +3,15 @@
 	"description" : "Cerb boosts team productivity with bot-powered email and workflow automation.",
 	"type" : "project",
 	"license" : "Devblocks Public License <https://cerb.ai/license/>",
-	"authors" : [{
+	"authors" : [
+		{
 			"name" : "Webgroup Media LLC",
 			"email" : "team@cerb.ai",
 			"homepage" : "https://cerb.ai/",
 			"role" : "Developer / Publisher"
 		}, {
 			"name" : "Jeff Standen",
-			"email" : "jeff@webgroupmedia.com",
+			"email" : "jeff@cerb.ai",
 			"homepage" : "https://cerb.ai/",
 			"role" : "Software Architect"
 		}

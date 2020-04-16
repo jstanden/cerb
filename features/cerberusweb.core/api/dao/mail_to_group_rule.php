@@ -311,7 +311,7 @@ class Model_MailToGroupRule {
 						break;
 					
 					case 'tocc':
-						$tocc = array();
+						$tocc = [];
 						$destinations = DevblocksPlatform::parseCsvString($value);
 
 						// Build a list of To/Cc addresses on this message
