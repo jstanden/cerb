@@ -1388,6 +1388,9 @@ abstract class C4_AbstractView {
 	protected function _renderCriteriaParamString($param, $label_map) {
 		$strings = [];
 		
+		if(!is_array($param->value) && is_null($param->value))
+			$param->value = '';
+		
 		$values = is_array($param->value) ? $param->value : array($param->value);
 		
 		if(is_callable($label_map))

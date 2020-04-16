@@ -1072,8 +1072,17 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
-		$values = !is_array($param->value) ? array($param->value) : $param->value;
-
+		
+		if(is_array($param->value)) {
+			$values = $param->value;
+		} else {
+			if(is_null($param->value)) {
+				$values = [];
+			} else {
+				$values = [$param->value];
+			}
+		}
+		
 		switch($field) {
 			case SearchFields_ContextScheduledBehavior::BEHAVIOR_ID:
 				$label_map = SearchFields_ContextScheduledBehavior::getLabelsForKeyValues($field, $values);
