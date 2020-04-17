@@ -111,6 +111,14 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 *
+	 * @return _DevblocksKataService
+	 */
+	function kata() {
+		return _DevblocksKataService::getInstance();
+	}
+
+	/**
 	 * 
 	 * @param string $prefix
 	 * @return _DevblocksLogManager

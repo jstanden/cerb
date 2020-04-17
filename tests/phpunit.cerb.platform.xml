@@ -23,6 +23,9 @@
 			<file>devblocks/services/DevblocksDictionaryTest.php</file>
 		</testsuite>
 		<testsuite>
+			<file>devblocks/services/DevblocksKataTest.php</file>
+		</testsuite>
+		<testsuite>
 			<file>cerb/CerberusApplicationUtilsTest.php</file>
 		</testsuite>
 		<testsuite>

@@ -179,6 +179,9 @@ class _DevblocksClassLoadManager {
 			'Extension_DevblocksGpgEngine',
 			'DevblocksGpgEngine_OpenPGP',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/kata.php', [
+			'_DevblocksKataService',
+		]);
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/mfa.php', array(
 			'_DevblocksMultiFactorAuthService',
 		));
