@@ -4876,19 +4876,26 @@ class DevblocksEventHelper {
 		
 		$to_list = self::_getActionRelayEmailListTo($params, $dict, $context, $context_id, $owner_id);
 		
+		if(empty($group_id) || null == ($group = DAO_Group::get($group_id))) {
+			return "ERROR: Can't load the ticket's group for relaying. Aborting action.";
+		}
+		
+		$replyto = $group->getReplyTo($bucket_id);
+		
 		$out = sprintf(">>> Relaying email\n".
 			"To: %s\n".
+			"From: %s\n".
 			"Subject: %s\n".
 			"\n".
 			"%s",
 			(!empty($to_list) ? (implode("; ", array_keys($to_list))) : ''),
+			$replyto->getNameWithEmail(),
 			$subject,
 			$content
 		);
 		
 		return $out;
 	}
-	
 	
 	static function runActionRelayEmail($params, DevblocksDictionaryDelegate $dict, $context, $context_id, $group_id, $bucket_id, $message_id, $owner_id, $sender_email, $sender_name, $subject) {
 		$logger = DevblocksPlatform::services()->log('Bot');
@@ -4906,12 +4913,8 @@ class DevblocksEventHelper {
 			return;
 		}
 		
-		if($relay_spoof_from) {
-			$replyto = $group->getReplyTo($bucket_id);
-		} else {
-			$replyto = DAO_Address::getDefaultLocalAddress();
-		}
-
+		$replyto = $group->getReplyTo($bucket_id);
+		
 		// Attachments
 		$attachments = [];
 		
@@ -4938,11 +4941,11 @@ class DevblocksEventHelper {
 
 				if($relay_spoof_from) {
 					$mail->setFrom($sender_email, !empty($sender_name) ? $sender_name : null);
-					$mail->setReplyTo($replyto->email);
+					$mail->setReplyTo($replyto->email, $replyto->getName());
 					
 				} else {
-					$mail->setFrom($replyto->email);
-					$mail->setReplyTo($replyto->email);
+					$mail->setFrom($replyto->email, $replyto->getName());
+					$mail->setReplyTo($replyto->email, $replyto->getName());
 				}
 				
 				if(!isset($params['subject']) || empty($params['subject'])) {
