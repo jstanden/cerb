@@ -1,11 +1,12 @@
+{$widget_uniqid = uniqid('cardWidgetConfig')}
 <div class="cerb-tabs" style="{if !$widget->extension_params.context}display:none;{/if}">
 	<ul>
-		<li><a href="#cardWidget{$widget->id}TabFields">{'common.fields'|devblocks_translate|capitalize}</a>
-		<li><a href="#cardWidget{$widget->id}TabOptions">{'common.options'|devblocks_translate|capitalize}</a>
-		<li><a href="#cardWidget{$widget->id}TabSearchButtons">{'common.search'|devblocks_translate|capitalize}</a>
+		<li><a href="#{$widget_uniqid}TabFields">{'common.fields'|devblocks_translate|capitalize}</a>
+		<li><a href="#{$widget_uniqid}TabOptions">{'common.options'|devblocks_translate|capitalize}</a>
+		<li><a href="#{$widget_uniqid}TabSearchButtons">{'common.search'|devblocks_translate|capitalize}</a>
 	</ul>
 	
-	<div id="cardWidget{$widget->id}TabFields">
+	<div id="{$widget_uniqid}TabFields">
 		<fieldset class="peek black">
 			<legend style="cursor:pointer;" onclick="$(this).closest('fieldset').find('input:checkbox').trigger('click');">{$context_ext->manifest->name}</legend>
 			
@@ -33,7 +34,7 @@
 		{/foreach}
 	</div>
 	
-	<div id="cardWidget{$widget->id}TabOptions">
+	<div id="{$widget_uniqid}TabOptions">
 		<div>
 			<label>
 				<input type="checkbox" name="params[links][show]" value="1" {if $widget->extension_params.links.show}checked="checked"{/if}> Show record links
@@ -46,7 +47,7 @@
 		</div>
 	</div>
 	
-	<div id="cardWidget{$widget->id}TabSearchButtons">
+	<div id="{$widget_uniqid}TabSearchButtons">
 		<table cellpadding="3" cellspacing="0" width="100%">
 			<thead>
 				<tr>
@@ -110,8 +111,7 @@
 <script type="text/javascript">
 $(function() {
 	// Fields
-	
-	var $tab_fields = $('#cardWidget{$widget->id}TabFields');
+	var $tab_fields = $('#{$widget_uniqid}TabFields');
 
 	$tab_fields.find('fieldset:first > div:first').sortable({
 		tolerance: 'pointer',
@@ -123,10 +123,10 @@ $(function() {
 	
 	// Search
 	
-	var $tab_search = $('#cardWidget{$widget->id}TabSearchButtons');
+	var $tab_search = $('#{$widget_uniqid}TabSearchButtons');
 	
-	$tab_search_template = $tab_search.find('tbody.cerb-placeholder').detach();
-	$tab_search_table = $tab_search.find('> table:first');
+	var $tab_search_template = $tab_search.find('tbody.cerb-placeholder').detach();
+	var $tab_search_table = $tab_search.find('> table:first');
 	
 	$tab_search.find('button.cerb-placeholder-add').on('click', function(e) {
 		var $clone = $tab_search_template.clone();
