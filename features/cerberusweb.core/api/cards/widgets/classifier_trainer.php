@@ -38,4 +38,8 @@ class CardWidget_ClassifierTrainer extends Extension_CardWidget {
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/classifier_trainer/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_CardWidget $model) {
+		return false;
+	}
 }

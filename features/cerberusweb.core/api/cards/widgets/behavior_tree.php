@@ -46,4 +46,8 @@ class CardWidget_BehaviorTree extends Extension_CardWidget {
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/behavior_tree/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_CardWidget $model) {
+		return false;
+	}
 }

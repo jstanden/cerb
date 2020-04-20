@@ -85,4 +85,8 @@ class CardWidget_Conversation extends Extension_CardWidget {
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/conversation/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_CardWidget $model) {
+		return false;
+	}
 }

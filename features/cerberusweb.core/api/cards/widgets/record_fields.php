@@ -235,6 +235,10 @@ class CardWidget_Fields extends Extension_CardWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/fields/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_CardWidget $model) {
+		return false;
+	}
+	
 	private function _getSearchButtons(Model_CardWidget $model, DevblocksDictionaryDelegate $dict=null) {
 		@$search = $model->extension_params['search'] ?: [];
 		

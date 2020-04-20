@@ -122,4 +122,8 @@ class CardWidget_Sheet extends Extension_CardWidget {
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/sheet/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_CardWidget $model) {
+		return false;
+	}
 }
