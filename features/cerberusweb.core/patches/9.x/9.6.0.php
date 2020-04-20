@@ -119,6 +119,108 @@ foreach($workspace_dashboards as $workspace_dashboard) {
 }
 
 // ===========================================================================
+// Convert snippet prompted placeholders to KATA
+
+$cerb960_snippetPromptJsonToKata = function($json_string) {
+	$json = json_decode($json_string, true);
+	$kata = '';
+	
+	$types = [
+		'C' => 'checkbox',
+		'D' => 'picklist',
+		'S' => 'text',
+		'T' => 'text',
+	];
+	
+	foreach($json as $obj) {
+		$new_prompt_type = $types[$obj['type']];
+		
+		$kata .= $new_prompt_type . "/" . $obj['key'] . ":\n";
+		$kata .= "  label: " . $obj['label'] . "\n";
+		
+		if('T' == $obj['type']) {
+			if (!array_key_exists('params', $obj))
+				$obj['params'] = [
+					'multiple' => true,
+				];
+		} elseif('checkbox' == $new_prompt_type) {
+			if(array_key_exists('default', $obj)) {
+				$obj['default'] = boolval($obj['default']);
+			}
+		}
+		
+		if(array_key_exists('default', $obj)) {
+			if (is_null($obj['default'])) {
+				$kata .= "  default@json: null\n";
+			} else if (is_string($obj['default'])) {
+				$kata .= "  default: " . $obj['default'] . "\n";
+			} else if (is_bool($obj['default'])) {
+				$kata .= "  default@bool: " . ($obj['default'] ? 'yes' : 'no') . "\n";
+			} else if (is_array($obj['default'])) {
+				$kata .= "  default@json: " . json_encode($obj['default']) . "\n";
+			}
+		}
+		
+		if(array_key_exists('params', $obj)) {
+			$kata .= "  params:\n";
+			
+			foreach($obj['params'] as $k => $v) {
+				if('picklist' == $new_prompt_type && $k == 'options') {
+					if(DevblocksPlatform::arrayIsIndexed($v)) {
+						$kata .= "    " . $k . "@list:";
+						if ($v) {
+							$kata .= "\n      " . implode("\n      ", $v) . "\n";
+						}
+					} else {
+						$kata .= "    " . $k . ":\n";
+						foreach($v as $kk => $vv) {
+							$kata .= "      " . $kk . ": " . $vv . "\n";
+						}
+					}
+				} else if(is_null($v)) {
+					$kata .= "    " . $k . "@json: null\n";
+				} else if(is_string($v)) {
+					$kata .= "    " . $k . ": " . $v . "\n";
+				} elseif(is_bool($v)) {
+					$kata .= "    " . $k . "@bool: ";
+					$kata .= ($v ? 'yes' : 'no') . "\n";
+				} elseif (is_array($v)) {
+					$kata .= "    " . $k . "@json:\n";
+					$kata .= "      " . json_encode($v) . "\n";
+				}
+			}
+		}
+		
+		$kata .= "\n";
+	}
+	
+	return $kata;
+};
+
+list($columns,) = $db->metaTable('snippet');
+
+if(!array_key_exists('prompts_kata', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE snippet ADD COLUMN prompts_kata mediumtext");
+}
+
+if(array_key_exists('custom_placeholders_json', $columns)) {
+	$snippet_prompts = $db->GetArrayMaster("SELECT id, custom_placeholders_json FROM snippet WHERE custom_placeholders_json NOT IN ('','[]')");
+	
+	foreach ($snippet_prompts as $snippet) {
+		$kata = $cerb960_snippetPromptJsonToKata($snippet['custom_placeholders_json']);
+		
+		$sql = sprintf("UPDATE snippet SET custom_placeholders_json = '', prompts_kata = %s WHERE id = %d",
+			$db->qstr($kata),
+			$snippet['id']
+		);
+		
+		$db->ExecuteMaster($sql);
+	}
+	
+	$db->ExecuteMaster("ALTER TABLE snippet DROP COLUMN custom_placeholders_json");
+}
+
+// ===========================================================================
 // Finish up
 
 return true;

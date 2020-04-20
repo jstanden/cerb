@@ -3787,23 +3787,26 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 						CerberusContexts::getContext($on_context['context'], $dict->$on, $snippet_labels, $snippet_values, '', false, false);
 					}
 
-					// Prompted placeholders
+					// Prompts
 
 					// [TODO] If a required prompted placeholder is missing, abort
+				
+					$prompts = $snippet->getPrompts();
 
-					if(is_array($snippet->custom_placeholders) && is_array($placeholder_values))
-					foreach($snippet->custom_placeholders as $placeholder_key => $placeholder) {
-						if(!isset($placeholder_values[$placeholder_key])) {
-							$snippet_values[$placeholder_key] = $placeholder['default'];
+					if(is_array($prompts) && is_array($placeholder_values))
+					foreach($prompts as $prompt) {
+						$prompt_name = $prompt['name'];
+						if(!isset($placeholder_values[$prompt_name])) {
+							$snippet_values[$prompt_name] = $prompt['default'];
 
 						} else {
 							// Convert placeholders
-							$snippet_values[$placeholder_key] = $tpl_builder->build($placeholder_values[$placeholder_key], $dict);
+							$snippet_values[$prompt_name] = $tpl_builder->build($placeholder_values[$prompt_name], $dict);
 						}
 					}
 
 					$value = $tpl_builder->build($snippet->content, $snippet_values);
-					$dict->$var = $value;
+					$dict->set($var, $value);
 
 					if($dry_run) {
 						$out = $this->simulateAction($token, $trigger, $params, $dict);

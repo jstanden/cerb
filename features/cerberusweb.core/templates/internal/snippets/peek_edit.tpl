@@ -50,112 +50,21 @@
 <div class="toolbar"></div>
 
 <fieldset class="peek placeholders" style="margin-top:10px;">
-	<legend>Prompted Placeholders</legend>
-	
-	<table cellspacing="2" cellpadding="1" border="0" width="100%">
-		{foreach from=$model->custom_placeholders item=placeholder key=placeholder_key name=placeholders}
-		{$type_code = $placeholder.type}
-		<tr class="sortable">
-			<td valign="top" width="1%" nowrap="nowrap"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span></td>
-			<td valign="top" width="98%">
-				<div>
-					{$types.$type_code}
-				</div>
-			
-				<div style="margin-left:20px;">
-					<input type="hidden" name="placeholder_types[]" value="{$placeholder.type}">
-					<input type="hidden" name="placeholder_deletes[]" value="">
-					
-					<table width="100%">
-						<tr>
-							<td width="1%" nowrap="nowrap" align="right">
-								<b>Placeholder:</b>
-							</td>
-							<td>
-								<input type="text" name="placeholder_keys[]" value="{$placeholder.key}" placeholder="prompt_placeholder" size="35" style="width:100%;">
-							</td>
-						</tr>
-						<tr>
-							<td width="1%" nowrap="nowrap" align="right">
-								<b>Prompt:</b>
-							</td>
-							<td>
-								<input type="text" name="placeholder_labels[]" value="{$placeholder.label}" placeholder="This label prompts the worker:" style="width:100%;">
-							</td>
-						</tr>
-						<tr>
-							<td width="1%" nowrap="nowrap" align="right">
-								<b>Default value:</b>
-							</td>
-							<td>
-								<input type="text" name="placeholder_defaults[]" value="{$placeholder.default}" placeholder="This is the default value of the placeholder" size="35" style="width:100%;">
-							</td>
-						</tr>
-					</table>
-				</div>
-				
-			</td>
-			<td width="1%" valign="top" nowrap="nowrap">
-				<span class="glyphicons glyphicons-circle-minus delete" style="color:rgb(200,0,0);margin-left:5px;cursor:pointer;">
-			</td>
-		</tr>
-		{/foreach}
-	
-		<tr class="placeholders-add-template sortable" style="display:none;">
-			<td width="1%" valign="top" nowrap="nowrap"><span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;"></span></td>
-			<td width="98%" valign="top" nowrap="nowrap">
-				<div>
-					<select name="placeholder_types[]" class="context-picker">
-						<option value="{Model_CustomField::TYPE_CHECKBOX}">Checkbox</option>
-						<option value="{Model_CustomField::TYPE_SINGLE_LINE}">Text: Single Line</option>
-						<option value="{Model_CustomField::TYPE_MULTI_LINE}">Text: Multiple Lines</option>
-					</select>
-				</div>
-				
-				<div style="margin-left:20px;">
-					<input type="hidden" name="placeholder_deletes[]" value="">
-					
-					<table width="100%">
-						<tr>
-							<td width="1%" nowrap="nowrap" align="right">
-								<b>Placeholder:</b>
-							</td>
-							<td>
-								<input type="text" name="placeholder_keys[]" value="" placeholder="prompt_placeholder" size="35" style="width:100%;">
-							</td>
-						</tr>
-						<tr>
-							<td width="1%" nowrap="nowrap" align="right">
-								<b>Prompt:</b>
-							</td>
-							<td>
-								<input type="text" name="placeholder_labels[]" value="" placeholder="This label prompts the worker:" style="width:100%;">
-							</td>
-						</tr>
-						<tr>
-							<td width="1%" nowrap="nowrap" align="right">
-								<b>Default value:</b>
-							</td>
-							<td>
-								<input type="text" name="placeholder_defaults[]" value="" placeholder="This is the default value of the placeholder" size="35" style="width:100%;">
-							</td>
-						</tr>
-					</table>
+	<legend>{'common.prompts'|devblocks_translate|capitalize}: <small>(Kata)</small></legend>
 
-				</div>
-			</td>
-			<td width="1%" valign="top" nowrap="nowrap">
-				<span class="glyphicons glyphicons-circle-minus delete" style="color:rgb(200,0,0);margin-left:5px;cursor:pointer;">
-			</td>
-		</tr>
-		
-		<tr>
-			<td colspan="4">
-				<button type="button" class="add"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span></button>
-			</td>
-		</tr>
-	</table>
-	
+	<div class="cerb-code-editor-toolbar">
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="glyphicons glyphicons-play"></span></button>
+		<div class="cerb-code-editor-toolbar-divider"></div>
+		<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
+		<ul class="cerb-float" style="display:none;">
+			<li data-type="checkbox">Checkbox</li>
+			<li data-type="picklist">Picklist</li>
+			<li data-type="text">Text</li>
+		</ul>
+		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/snippets/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+	</div>
+	<textarea name="prompts_kata" class="cerb-editor-kata-placeholders" data-editor-mode="ace/mode/yaml">{$model->prompts_kata}</textarea>
+	<div class="cerb-code-editor-preview-output"></div>
 </fieldset>
 
 {if !empty($custom_fields)}
@@ -190,118 +99,153 @@
 $(function() {
 	var $frm = $('#{$frm_id}');
 	var $popup = genericAjaxPopupFind($frm);
-	
-	$popup.one('popup_open', function(event,ui) {
-		$popup.dialog('option','title', '{'common.snippet'|devblocks_translate|capitalize|escape:'javascript'}');
+
+	$popup.one('popup_open', function (event) {
+		event.stopPropagation();
+
+		$popup.dialog('option', 'title', '{'common.snippet'|devblocks_translate|capitalize|escape:'javascript'}');
 		$popup.css('overflow', 'inherit');
 
 		var $textarea = $popup.find('textarea[name=content]');
-		
+
+		var $editor = $popup.find('.cerb-editor-kata-placeholders')
+			.cerbCodeEditor()
+			.nextAll('pre.ace_editor')
+		;
+
+		var editor = ace.edit($editor.attr('id'));
+
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
+
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		
+
 		// Owners
-		
+
 		var $owners_menu = $popup.find('ul.owners-menu');
 		var $ul = $owners_menu.siblings('ul.chooser-container');
-		
-		$ul.on('bubble-remove', function(e, ui) {
+
+		$ul.on('bubble-remove', function (e) {
 			e.stopPropagation();
 			$(e.target).closest('li').remove();
 			$ul.hide();
 			$owners_menu.show();
 		});
-		
+
 		$owners_menu.menu({
-			select: function(event, ui) {
+			select: function (event, ui) {
+				event.stopPropagation();
+
 				var token = ui.item.attr('data-token');
 				var label = ui.item.attr('data-label');
-				
-				if(undefined == token || undefined == label)
+
+				if (undefined == token || undefined == label)
 					return;
-				
+
 				$owners_menu.hide();
-				
+
 				// Build bubble
-				
+
 				var context_data = token.split(':');
 				var $li = $('<li/>');
-				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context',context_data[0]).attr('data-context-id',context_data[1]).text(label);
+				var $label = $('<a href="javascript:;" class="cerb-peek-trigger no-underline" />').attr('data-context', context_data[0]).attr('data-context-id', context_data[1]).text(label);
 				$label.cerbPeekTrigger().appendTo($li);
-				var $hidden = $('<input type="hidden">').attr('name', 'owner').attr('value',token).appendTo($li);
+				$('<input type="hidden">').attr('name', 'owner').attr('value', token).appendTo($li);
 				ui.item.find('img.cerb-avatar').clone().prependTo($li);
-				var $a = $('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
-				
+				$('<a href="javascript:;" onclick="$(this).trigger(\'bubble-remove\');"><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($li);
+
 				$ul.find('> *').remove();
 				$ul.append($li);
 				$ul.show();
 			}
 		});
-		
+
 		// Change
-		
+
 		var $change_dropdown = $popup.find("form select[name=context]");
-		$change_dropdown.change(function(e) {
+		$change_dropdown.change(function (e) {
 			var ctx = $(this).val();
 			genericAjaxGet($popup.find('DIV.toolbar'), 'c=profiles&a=invoke&module=snippet&action=renderToolbar&form_id={$frm_id}&context=' + ctx);
 		});
-		
+
 		// If editing and a target context is known
 		genericAjaxGet($popup.find('DIV.toolbar'), 'c=profiles&a=invoke&module=snippet&action=renderToolbar&form_id={$frm_id}&context={$model->context}');
-		
-		$popup.find('fieldset.placeholders button.add').click(function() {
-			var $parent = $(this).closest('tr');
-			var $template = $parent.siblings('.placeholders-add-template');
-			var $tr = $template.clone();
-			$tr.removeClass('placeholders-add-template');
-			$tr.insertBefore($template).fadeIn();
-			$tr.find('input:text:first').focus();
-		});
-		
-		$popup.find('fieldset.placeholders table').sortable({ 
-			items:'TR.sortable',
-			helper: 'original',
-			forceHelperSize: true,
-			handle: 'span.ui-icon-arrowthick-2-n-s'
-		});
-		
+
 		// Snippet syntax
 		$textarea
 			.cerbTextEditor()
-			;
-		
-		// Placeholder deletion
-		$popup.find('fieldset.placeholders table').on('click', 'span.delete', function() {
-			$tr = $(this).closest('tr');
-			
-			// Check if the row is being deleted, and if so, undelete
-			$del = $tr.find('input:hidden[name^=placeholder_deletes]');
+		;
 
-			if($del.length == 0)
-				return;
-			
-			// Undelete
-			if($del.val() == '1') {
-				$tr.fadeTo('fast', 1.0);
-				$del.val('');
-				
-			// Delete
-			} else {
-				if($tr.find('select[name^=placeholder_types]').length > 0) {
-					$tr.fadeOut('fast', function() {
-						$(this).remove();
-					});
-					
-				} else {
-					$tr.fadeTo('fast', 0.3);
-					$del.val('1');
+		var $placeholder_output = $popup.find('.cerb-code-editor-preview-output');
+
+		$popup.find('.cerb-editor-button-run').on('click', function (e) {
+			$placeholder_output.html('');
+
+			$('<span class="cerb-ajax-spinner"/>').appendTo($placeholder_output);
+
+			var formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'snippet');
+			formData.set('action', 'renderPrompts');
+			formData.set('prompts_kata', editor.getValue());
+
+			genericAjaxPost(formData, null, null, function (html) {
+				$placeholder_output.html(html);
+			});
+		});
+
+		var $button_add = $frm.find('.cerb-editor-button-add');
+		var $menu_add = $button_add.next('ul');
+
+		$button_add.on('click', function () {
+			$menu_add.toggle();
+		});
+
+		$menu_add.menu({
+			select: function (e, ui) {
+				e.stopPropagation();
+
+				var $li = $(ui.item);
+				var type = $li.attr('data-type');
+				var snippet = '';
+
+				$menu_add.hide();
+
+				{literal}
+				if ('checkbox' === type) {
+					snippet = "checkbox/prompt_${1:" + Devblocks.uniqueId() + "}:\n" +
+							"  label: ${2:Checkbox}:\n" +
+							"  default@bool: yes\n" +
+							"\n"
+					;
+				} else if ('picklist' === type) {
+					snippet = "picklist/prompt_${1:" + Devblocks.uniqueId() + "}:\n" +
+							"  label: ${2:Picklist}:\n" +
+							"  default: ${3:green}\n" +
+							"  params:\n" +
+							"    options@list:\n" +
+							"      ${4:red}\n" +
+							"      green\n" +
+							"      blue\n" +
+							"\n"
+					;
+				} else if ('text' === type) {
+					snippet = "text/prompt_${1:" + Devblocks.uniqueId() + "}:\n" +
+							"  label: ${2:Text}:\n" +
+							"  default: ${3:text}\n" +
+							"  params:\n" +
+							"    multiple@bool: no\n" +
+							"\n"
+					;
 				}
+				{/literal}
+
+				$editor.triggerHandler($.Event('cerb.appendText', { content: snippet }));
 			}
 		});
-		
+
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});

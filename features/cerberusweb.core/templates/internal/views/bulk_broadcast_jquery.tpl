@@ -104,8 +104,8 @@ $editor_toolbar.find('.cerb-markdown-editor-toolbar-button--snippets').on('click
 
 		genericAjaxPost(formData, null, null, function (json) {
 			// If the content has placeholders, use that popup instead
-			if (json.has_custom_placeholders) {
-				var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPlaceholders&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
+			if (json.has_prompts) {
+				var $popup_paste = genericAjaxPopup('snippet_paste', 'c=profiles&a=invoke&module=snippet&action=getPrompts&id=' + encodeURIComponent(json.id) + '&context_id=' + encodeURIComponent(json.context_id), null, false, '50%');
 
 				$popup_paste.bind('snippet_paste', function (event) {
 					if (null == event.text)

@@ -18,10 +18,10 @@
 class DAO_Snippet extends Cerb_ORMHelper {
 	const CONTENT = 'content';
 	const CONTEXT = 'context';
-	const CUSTOM_PLACEHOLDERS_JSON = 'custom_placeholders_json';
 	const ID = 'id';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
+	const PROMPTS_KATA = 'prompts_kata';
 	const TITLE = 'title';
 	const TOTAL_USES = 'total_uses';
 	const UPDATED_AT = 'updated_at';
@@ -44,12 +44,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(255)
 			;
-		// mediumtext
-		$validation
-			->addField(self::CUSTOM_PLACEHOLDERS_JSON)
-			->string()
-			->setMaxLength('24 bits')
-			;
 		// int(10) unsigned
 		$validation
 			->addField(self::ID)
@@ -67,6 +61,12 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			->addField(self::OWNER_CONTEXT_ID)
 			->id()
 			->setRequired(true)
+			;
+		// mediumtext
+		$validation
+			->addField(self::PROMPTS_KATA)
+			->string()
+			->setMaxLength('24 bits')
 			;
 		// varchar(255)
 		$validation
@@ -266,7 +266,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, title, context, owner_context, owner_context_id, content, total_uses, updated_at, custom_placeholders_json ".
+		$sql = "SELECT id, title, context, owner_context, owner_context_id, content, total_uses, updated_at, prompts_kata ".
 			"FROM snippet ".
 			$where_sql.
 			$sort_sql.
@@ -313,13 +313,10 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			$object->context = $row['context'];
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
+			$object->prompts_kata = $row['prompts_kata'];
 			$object->content = $row['content'];
 			$object->total_uses = intval($row['total_uses']);
 			$object->updated_at = intval($row['updated_at']);
-			
-			$custom_placeholders = null;
-			if(false != (@$custom_placeholders = json_decode($row['custom_placeholders_json'], true)) && is_array($custom_placeholders))
-				$object->custom_placeholders = $custom_placeholders;
 			
 			$objects[$object->id] = $object;
 		}
@@ -423,8 +420,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			"snippet.owner_context_id as %s, ".
 			"snippet.content as %s, ".
 			"snippet.total_uses as %s, ".
-			"snippet.updated_at as %s, ".
-			"snippet.custom_placeholders_json as %s",
+			"snippet.updated_at as %s ",
 				SearchFields_Snippet::ID,
 				SearchFields_Snippet::TITLE,
 				SearchFields_Snippet::CONTEXT,
@@ -432,8 +428,7 @@ class DAO_Snippet extends Cerb_ORMHelper {
 				SearchFields_Snippet::OWNER_CONTEXT_ID,
 				SearchFields_Snippet::CONTENT,
 				SearchFields_Snippet::TOTAL_USES,
-				SearchFields_Snippet::UPDATED_AT,
-				SearchFields_Snippet::CUSTOM_PLACEHOLDERS_JSON
+				SearchFields_Snippet::UPDATED_AT
 			);
 		
 		if(isset($tables['snippet_use_history'])) {
@@ -535,7 +530,7 @@ class SearchFields_Snippet extends DevblocksSearchFields {
 	const CONTENT = 's_content';
 	const TOTAL_USES = 's_total_uses';
 	const UPDATED_AT = 's_updated_at';
-	const CUSTOM_PLACEHOLDERS_JSON = 's_custom_placeholders_json';
+	const PROMPTS_KATA = 's_prompts_kata';
 	
 	const USE_HISTORY_MINE = 'suh_my_uses';
 	
@@ -901,15 +896,36 @@ class Search_Snippet extends Extension_DevblocksSearchSchema {
 };
 
 class Model_Snippet {
-	public $id;
-	public $title;
+	public $content;
 	public $context;
+	public $id;
 	public $owner_context;
 	public $owner_context_id;
-	public $content;
+	public $prompts_kata;
+	public $title;
 	public $total_uses;
 	public $updated_at;
-	public $custom_placeholders;
+	
+	public function getPrompts() {
+		$kata = DevblocksPlatform::services()->kata();
+		
+		if(!$this->prompts_kata)
+			return [];
+		
+		$error = null;
+		
+		$tree = $kata->parse($this->prompts_kata, $error);
+		
+		$prompts = $kata->formatTree($tree);
+		
+		foreach($prompts as $prompt_key => &$prompt) {
+			@list($prompt_type, $prompt_name) = explode('/', $prompt_key, 2);
+			$prompt['type'] = $prompt_type;
+			$prompt['name'] = $prompt_name;
+		}
+		
+		return $prompts;
+	}
 	
 	public function getContextLabel() {
 		if(empty($this->context))
@@ -1642,6 +1658,7 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 			'links' => '_links',
 			'owner__context' => DAO_Snippet::OWNER_CONTEXT,
 			'owner_id' => DAO_Snippet::OWNER_CONTEXT_ID,
+			'prompts_kata' => DAO_Snippet::PROMPTS_KATA,
 			'title' => DAO_Snippet::TITLE,
 			'total_uses' => DAO_Snippet::TOTAL_USES,
 			'updated_at' => DAO_Snippet::UPDATED_AT,
@@ -1651,15 +1668,9 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
-		$keys['placeholders'] = [
-			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => 'JSON-encoded key/value object',
-			'type' => 'object',
-		];
-		
 		$keys['content']['notes'] = "The [template](/docs/bots/scripting/) of the snippet";
 		$keys['context']['notes'] = "The [record type](/docs/records/types/) to add the profile tab to";
+		$keys['prompts_kata']['notes'] = "Prompted placeholders in [KATA](/docs/snippets/#prompts) format";
 		$keys['title']['notes'] = "The name of the snippet";
 		$keys['total_uses']['notes'] = "The total number of times this snippet has been used by all workers";
 		
@@ -1668,20 +1679,9 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
+		
 		switch($dict_key) {
-			
-			case 'placeholders':
-				if(!is_array($value)) {
-					$error = 'must be an object.';
-					return false;
-				}
-				
-				if(false == ($json = json_encode($value))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields[DAO_Snippet::CUSTOM_PLACEHOLDERS_JSON] = $json;
+			default:
 				break;
 		}
 		

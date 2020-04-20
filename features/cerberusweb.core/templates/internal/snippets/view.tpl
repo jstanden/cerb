@@ -56,7 +56,6 @@
 
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}
-	{$custom_placeholders = $result.s_custom_placeholders_json|json_decode:true}
 
 	{if $smarty.foreach.results.iteration % 2}
 		{$tableRowClass = "even"}
@@ -72,7 +71,7 @@
 			{if substr($column,0,3)=="cf_"}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="s_title"}
-			<td data-column="{$column}" context="{$result.s_context}" id="{$result.s_id}" has_custom_placeholders="{if !empty($custom_placeholders)}true{else}false{/if}">
+			<td data-column="{$column}" context="{$result.s_context}" id="{$result.s_id}">
 				<input type="checkbox" name="row_id[]" value="{$result.s_id}" style="display:none;">
 				<a href="{devblocks_url}c=profiles&type=snippet&id={$result.s_id}-{$result.$column|devblocks_permalink}{/devblocks_url}" class="subject">{if empty($result.$column)}(no title){else}{$result.$column}{/if}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.s_id}" data-width="50%"><span class="glyphicons glyphicons-new-window-alt"></span></button>
@@ -112,27 +111,6 @@
 			<td data-column="{$column}">{$result.$column}</td>
 			{/if}
 		{/foreach}
-		</tr>
-		<tr class="{$tableRowClass} preview" style="display:none;">
-			<td data-column="preview" colspan="{count($view->view_columns)}">
-				{$snippet_content = $result.s_content|regex_replace:'#({{.*?}})#':'[ph]\1[/ph]'}
-				
-				{if isset($dicts.{$result.s_context}) && isset($tpl_builder)}
-					{$dict = $dicts.{$result.s_context}}
-					
-					{foreach from=$custom_placeholders item=placeholder key=placeholder_key}
-					{$dict.$placeholder_key = '{{'|cat:$placeholder.key|cat:'}}'}
-					{/foreach}
-					
-					{$snippet_content = $tpl_builder->build($snippet_content, $dict)}
-				{/if}
-				
-				{$snippet_content = $snippet_content|escape:'htmlall'}
-				{$snippet_content = $snippet_content|regex_replace:'#(\[ph\](.*?)\[/ph\])#':'<div class="bubble">\2</div>'}
-				{*{$snippet_content = $snippet_content|regex_replace:'#(\(\(_+(.*?)_+\)\))#':'<span class="placeholder placeholder-input">(\2)</span>'}*}
-				
-				<div class="emailbody" style="border-left:2px solid rgb(220,220,220);font-size:12px;margin-left:15px;color:rgb(75,75,75);padding:5px 10px;">{$snippet_content nofilter}</div>
-			</td>
 		</tr>
 	</tbody>
 	{/foreach}

@@ -4022,26 +4022,7 @@
 			"owner__context": "app",
 			"owner_id": "0",
 			"content": "{% set seat_rate = 30.00 \n  * (1 == prompt_discount_academic ? 0.75 : 1.0) \n  * (1 == prompt_discount_renewal ? 0.80 : 1.0) \n%}\nSoftware licenses are $30.00 USD per seat-month.\n\n{% if seat_rate != 30.00 %}\nYou qualify for the following discounts:\n{% if 1 == prompt_discount_renewal %}\n * Timely renewal (20% off)\n{% endif %}\n{% if 1 == prompt_discount_academic %}\n * Academic (25% off)\n{% endif %}\n\nYour discounted price is ${{seat_rate|number_format(2)}} USD per seat-month.\n\n{% endif %}\nFor one year of priority support and software updates:\n{{prompt_seats}} seats * ${{seat_rate|number_format(2)}}/seat-month * 12 months = ${{(prompt_seats * seat_rate * 12)|number_format(2)}} USD\n\nWould you like me to send over an invoice?",
-			"placeholders": {
-				"prompt_seats": {
-					"type": "S",
-					"key": "prompt_seats",
-					"label": "How many seats?",
-					"default": "5"
-				},
-				"prompt_discount_academic": {
-					"type": "C",
-					"key": "prompt_discount_academic",
-					"label": "Academic discount?",
-					"default": "0"
-				},
-				"prompt_discount_renewal": {
-					"type": "C",
-					"key": "prompt_discount_renewal",
-					"label": "Timely renewal discount?",
-					"default": "0"
-				}
-			}
+			"prompts_kata": "text/prompt_seats:\n  label: How many seats?\n  default: 5\n\ncheckbox/prompt_discount_academic:\n  label: Academic discount?\n  default@bool: no\n\ncheckbox/prompt_discount_renewal:\n  label: Timely renewal discount?\n  default@bool: no\n"
 		},
 		{
 			"uid": "fieldset_getting_started",

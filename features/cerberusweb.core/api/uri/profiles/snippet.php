@@ -31,16 +31,18 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 	function handleActionForPage(string $action, string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
-				case 'getPlaceholders':
-					return $this->_profileAction_getPlaceholders();
+				case 'getPrompts':
+					return $this->_profileAction_getPrompts();
 				case 'getSnippetPlaceholders':
 					return $this->_profileAction_getSnippetPlaceholders();
 				case 'helpPopup':
 					return $this->_profileAction_helpPopup();
 				case 'paste':
 					return $this->_profileAction_paste();
-				case 'previewPlaceholders':
-					return $this->_profileAction_previewPlaceholders();
+				case 'previewPrompts':
+					return $this->_profileAction_previewPrompts();
+				case 'renderPrompts':
+					return $this->_profileAction_renderPrompts();
 				case 'renderToolbar':
 					return $this->_profileAction_renderToolbar();
 				case 'showBulkPanel':
@@ -204,12 +206,12 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		echo json_encode(array(
 			'id' => $id,
 			'context_id' => $context_id,
-			'has_custom_placeholders' => !empty($snippet->custom_placeholders),
+			'has_prompts' => !empty($snippet->prompts_kata),
 			'text' => $output,
 		));
 	}
 	
-	private function _profileAction_getPlaceholders() {
+	private function _profileAction_getPrompts() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'],'integer',0);
@@ -231,15 +233,33 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/snippets/paste_placeholders.tpl');
 	}
 	
-	private function _profileAction_previewPlaceholders() {
+	private function _profileAction_renderPrompts() {
+		$tpl = DevblocksPlatform::services()->template();
+
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$prompts_kata = DevblocksPlatform::importGPC($_POST['prompts_kata'],'string','');
+		
+		$snippet = new Model_Snippet();
+		$snippet->prompts_kata = $prompts_kata;
+
+		$prompts = $snippet->getPrompts();
+		
+		$tpl->assign('prompts', $prompts);
+		$tpl->display('devblocks:cerberusweb.core::internal/snippets/preview_prompts.tpl');
+	}
+	
+	private function _profileAction_previewPrompts() {
 		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		@$id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
 		@$context_id = DevblocksPlatform::importGPC($_POST['context_id'],'integer',0);
-		@$placeholders = DevblocksPlatform::importGPC($_POST['placeholders'],'array',array());
+		@$prompt_values = DevblocksPlatform::importGPC($_POST['prompts'],'array',array());
 		
 		if(!$id)
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -251,42 +271,33 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$custom_placeholders = $snippet->custom_placeholders;
 		
 		$text = $snippet->content;
 		
-		$labels = array();
-		$values = array();
+		$labels = $values = [];
 		
 		if($context_id) {
 			CerberusContexts::getContext($snippet->context, $context_id, $labels, $values);
 		}
 		
-		if(is_array($custom_placeholders))
-			foreach($custom_placeholders as $placeholder_key => $placeholder) {
-				$value = null;
-				
-				if(!isset($placeholders[$placeholder_key]))
-					$placeholders[$placeholder_key] = '{{' . $placeholder_key . '}}';
-				
-				switch($placeholder['type']) {
-					case Model_CustomField::TYPE_CHECKBOX:
-						@$value = $placeholders[$placeholder_key] ? true : false;
-						break;
+		$prompts = $snippet->getPrompts();
+		
+		foreach($prompts as $prompt) {
+			@$prompt_value = $prompt_values[$prompt['name']];
+		
+			switch($prompt['type']) {
+				case 'checkbox':
+					$values[$prompt['name']] = $prompt_value ? true : false;
+					break;
 					
-					case Model_CustomField::TYPE_SINGLE_LINE:
-					case Model_CustomField::TYPE_MULTI_LINE:
-						@$value = $placeholders[$placeholder_key];
-						break;
-				}
-				
-				$values[$placeholder_key] = $value;
+				case 'picklist':
+				case 'text':
+					$values[$prompt['name']] = $prompt_value;
+					break;
 			}
-		
+		}
+
 		@$text = $tpl_builder->build($text, $values);
-		
-		$tpl = DevblocksPlatform::services()->template();
-		
 		$tpl->assign('text', $text);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/snippets/paste_placeholders_preview.tpl');
@@ -470,6 +481,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		@$title = DevblocksPlatform::importGPC($_POST['title'],'string','');
 		@$context = DevblocksPlatform::importGPC($_POST['context'],'string','');
 		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
+		@$prompts_kata = DevblocksPlatform::importGPC($_POST['prompts_kata'],'string','');
 		@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string','');
@@ -523,41 +535,11 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 					DAO_Snippet::TITLE => $title,
 					DAO_Snippet::CONTEXT => $context,
 					DAO_Snippet::CONTENT => $content,
+					DAO_Snippet::PROMPTS_KATA => $prompts_kata,
 					DAO_Snippet::UPDATED_AT => time(),
 					DAO_Snippet::OWNER_CONTEXT => $owner_context,
 					DAO_Snippet::OWNER_CONTEXT_ID => $owner_context_id,
 				);
-				
-				// Custom placeholders
-				
-				$placeholders = array();
-				@$placeholder_keys = DevblocksPlatform::importGPC($_POST['placeholder_keys'],'array',array());
-				
-				if(is_array($placeholder_keys) && !empty($placeholder_keys)) {
-					@$placeholder_types = DevblocksPlatform::importGPC($_POST['placeholder_types'],'array',array());
-					@$placeholder_labels = DevblocksPlatform::importGPC($_POST['placeholder_labels'],'array',array());
-					@$placeholder_defaults = DevblocksPlatform::importGPC($_POST['placeholder_defaults'],'array',array());
-					@$placeholder_deletes = DevblocksPlatform::importGPC($_POST['placeholder_deletes'],'array',array());
-					
-					foreach($placeholder_keys as $placeholder_idx => $placeholder_key) {
-						@$placeholder_type = $placeholder_types[$placeholder_idx];
-						@$placeholder_label = $placeholder_labels[$placeholder_idx];
-						@$placeholder_default = $placeholder_defaults[$placeholder_idx];
-						@$placeholder_delete = $placeholder_deletes[$placeholder_idx];
-						
-						if(empty($placeholder_key) || !empty($placeholder_delete))
-							continue;
-						
-						$placeholders[$placeholder_key] = array(
-							'type' => $placeholder_type,
-							'key' => $placeholder_key,
-							'label' => $placeholder_label,
-							'default' => $placeholder_default,
-						);
-					}
-					
-					$fields[DAO_Snippet::CUSTOM_PLACEHOLDERS_JSON] = json_encode($placeholders);
-				}
 				
 				// Create / Update
 				

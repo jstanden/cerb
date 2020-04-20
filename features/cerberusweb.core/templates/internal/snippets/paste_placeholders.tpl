@@ -2,36 +2,19 @@
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
 <input type="hidden" name="module" value="snippet">
-<input type="hidden" name="action" value="previewPlaceholders">
+<input type="hidden" name="action" value="previewPrompts">
 <input type="hidden" name="id" value="{$snippet->id}">
 <input type="hidden" name="context_id" value="{$context_id}">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<fieldset class="peek" style="margin-bottom:5px;">
-	<legend>Fill in the blanks:</legend>
-	
-	{foreach from=$snippet->custom_placeholders item=placeholder key=placeholder_key}
-		<b>{$placeholder.label}</b>
-		<div style="margin-left:10px;">
-			{if $placeholder.type == Model_CustomField::TYPE_CHECKBOX}
-				<label><input type="radio" name="placeholders[{$placeholder_key}]" class="placeholder" required="required" value="1" {if $placeholder.default}checked="checked"{/if}> {'common.yes'|devblocks_translate|capitalize}</label>
-				<label><input type="radio" name="placeholders[{$placeholder_key}]" class="placeholder" required="required" value="0" {if !$placeholder.default}checked="checked"{/if}> {'common.no'|devblocks_translate|capitalize}</label>
-			{elseif $placeholder.type == Model_CustomField::TYPE_SINGLE_LINE}
-				<input type="text" name="placeholders[{$placeholder_key}]" class="placeholder" required="required" value="{$placeholder.default}" style="width:98%;">
-			{elseif $placeholder.type == Model_CustomField::TYPE_MULTI_LINE}
-				<textarea name="placeholders[{$placeholder_key}]" class="placeholder" rows="3" cols="45" required="required" style="width:98%;">{$placeholder.default}</textarea>
-			{/if}
-		</div>
-	{/foreach}
-</fieldset>
+{include file="devblocks:cerberusweb.core::internal/snippets/prompts.tpl" prompts=$snippet->getPrompts()}
 
-<div class="buttons">
+<div class="buttons" style="margin-top:5px;">
 	<button type="button" class="paste"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> Insert</button>
 	<button type="button" class="preview">{'common.preview'|devblocks_translate|capitalize}</button>
 </div>
 
 <div class="preview"></div>
-
 </form>
 
 <script type="text/javascript">
@@ -82,9 +65,7 @@ $(function() {
 				
 				genericAjaxPopupClose($popup);
 			});
-			
 		});
-		
 	});
 });
 </script>
