@@ -1043,10 +1043,32 @@ var ajax = new cAjaxCalls();
 			$editor.on('cerb.insertAtCursor', function(e) {
 				if(e.replace)
 					editor.session.setValue('');
+
 				editor.insertSnippet(e.content);
+
+				var cursor_pos = editor.getCursorPosition();
+				cursor_pos.row += 5;
+				editor.renderer.scrollCursorIntoView(cursor_pos);
+
 				editor.focus();
 			});
-			
+
+			$editor.on('cerb.appendText', function(e) {
+				var value = editor.getValue();
+
+				if(value.length > 0 && value.substr(-1) !== "\n")
+					editor.setValue(value + "\n\n");
+
+				editor.navigateFileEnd();
+				editor.insertSnippet(e.content);
+
+				var cursor_pos = editor.getCursorPosition();
+				cursor_pos.row += 5;
+				editor.renderer.scrollCursorIntoView(cursor_pos);
+
+				editor.focus();
+			});
+
 			editor.session.on('change', function() {
 				$editor.trigger('cerb.update');
 			});
