@@ -58,7 +58,7 @@
       "extension_id": "core.workspace.tab.dashboard",
       "params": {
         "layout": "{{{prompt_layout}}}",
-        "placeholder_prompts": "---\r\nplaceholder: input_date_range\r\nlabel: \"Date range:\"\r\ntype: date_range\r\ndefault: today -1 week\r\n---\r\nplaceholder: input_date_subtotal_by\r\nlabel: \"By:\"\r\ntype: picklist\r\ndefault: day\r\nparams:\r\n  options: [day, week, month, year]\r\n---\r\nplaceholder: input_statuses\r\nlabel: \"Statuses:\"\r\ntype: picklist\r\ndefault: []\r\nparams:\r\n  multiple: true\r\n  options: [open, waiting, closed, deleted]\r\n---\r\nplaceholder: input_groups\r\nlabel: \"Groups:\"\r\ntype: chooser\r\ndefault:\r\nparams:\r\n  context: group\r\n  single: false"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: jan 1 to now\n  params:\n    # presets:\n    #  today:\n    #    query: today to now\n    #  30d:\n    #    label: 30 days\n    #    query: -30 days to now\n    #  ytd:\n    #    query: jan 1 to now\n    #  all:\n    #    query: big bang to now\n\rpicklist/input_date_subtotal_by:\n  label: By:\n  default: month\n  params:\n    options@csv: day, week, month, year\n\npicklist/input_statuses:\n  label: Statuses:\n  default@json: []\n  params:\n    multiple: true\n    options@csv: open, waiting, closed, deleted\n\nchooser/input_groups:\n  label: Groups:\n  default:\n  params:\n    context: group\n    single@bit: false"
       }
     },
     {
@@ -71,7 +71,7 @@
       "width_units": 4,
       "zone": "content",
       "params": {
-        "data_query": "{# These placeholders are automatically set by the dashboard filters #}\r\n{# See: https://cerb.ai/guides/dashboards/filters/ #}\r\ntype:worklist.subtotals\r\nof:ticket\r\nby.count:[created@{{input_date_subtotal_by}},group~10]\r\nquery:(\r\n  created:\"{{input_date_range}}\"\r\n  {% if input_groups %}\r\n  group.id:[{{input_groups}}]\r\n  {% endif %}\r\n  {% if input_statuses %}\r\n  status:[{{input_statuses|join(',')}}]\r\n  {% endif %}\r\n)\r\nformat:timeseries",
+        "data_query": "{# These placeholders are automatically set by the dashboard filters #}\n{# See: https://cerb.ai/guides/dashboards/filters/ #}\ntype:worklist.subtotals\nof:ticket\nby.count:[created@{{input_date_subtotal_by}},group~10]\nquery:(\n  created:\"{{input_date_range}}\"\n  {% if input_groups %}\n  group.id:[{{input_groups}}]\n  {% endif %}\n  {% if input_statuses %}\n  status:[{{input_statuses|join(',')}}]\n  {% endif %}\n)\nformat:timeseries",
         "cache_secs": "",
         "chart_as": "bar_stacked",
         "xaxis_label": "",

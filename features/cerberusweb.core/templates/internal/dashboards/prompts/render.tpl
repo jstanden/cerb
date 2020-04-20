@@ -7,20 +7,8 @@
 	<input type="hidden" name="tab_id" value="{$tab->id}">
 	
 	<div style="margin:5px 10px 0 0;">
-		{foreach from=$prompts item=prompt}
-			{if $prompt.type == 'chooser'}
-				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_chooser.tpl" prompt=$prompt}
-			{elseif $prompt.type == 'date_range'}
-				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_date_range.tpl" prompt=$prompt}
-			{elseif $prompt.type == 'picklist' && !$prompt.params.multiple}
-				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_picklist_single.tpl" prompt=$prompt}
-			{elseif $prompt.type == 'picklist' && $prompt.params.multiple}
-				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_picklist_multiple.tpl" prompt=$prompt}
-			{elseif $prompt.type == 'text'}
-				{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompt_text.tpl" prompt=$prompt}
-			{/if}
-		{/foreach}
-		
+		{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/prompts.tpl" prompts=$prompts}
+
 		<div style="display:inline-block;vertical-align:middle;">
 			<button type="button" class="cerb-filter-editor--save"><span class="glyphicons glyphicons-refresh"></span> {'common.update'|devblocks_translate|capitalize}</button>
 		</div>
@@ -34,9 +22,7 @@ $(function() {
 	
 	$frm.find('.cerb-filter-editor--save')
 		.on('click', function(e) {
-			var $this = $(this);
-			
-			genericAjaxPost($frm, '', '', function(json) {
+			genericAjaxPost($frm, '', '', function() {
 				// Reload the entire dashboard
 				var $container = $('#workspaceTab{$tab->id}');
 				$container.triggerHandler('cerb-dashboard-refresh');

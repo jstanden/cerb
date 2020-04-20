@@ -1,7 +1,7 @@
 <div id="tab{$tab->id}Config" style="margin-top:10px;">
 	<fieldset class="peek">
 		<legend>{'common.layout'|devblocks_translate|capitalize}</legend>
-		
+
 		<div style="margin:5px;display:inline-block;">
 			<label>
 				<input type="radio" name="params[layout]" value="" {if empty($tab->params.layout)}checked="checked"{/if}>
@@ -15,7 +15,7 @@
 				</svg>
 			</label>
 		</div>
-		
+
 		<div style="margin:5px;display:inline-block;">
 			<label>
 				<input type="radio" name="params[layout]" value="sidebar_left" {if 'sidebar_left' == $tab->params.layout}checked="checked"{/if}>
@@ -30,7 +30,7 @@
 				</svg>
 			</label>
 		</div>
-		
+
 		<div style="margin:5px;display:inline-block;">
 			<label>
 				<input type="radio" name="params[layout]" value="sidebar_right" {if 'sidebar_right' == $tab->params.layout}checked="checked"{/if}>
@@ -45,7 +45,7 @@
 				</svg>
 			</label>
 		</div>
-		
+
 		<div style="margin:5px;display:inline-block;">
 			<label>
 				<input type="radio" name="params[layout]" value="thirds" {if 'thirds' == $tab->params.layout}checked="checked"{/if}>
@@ -61,12 +61,26 @@
 				</svg>
 			</label>
 		</div>
-		
+
 	</fieldset>
-	
+
 	<fieldset class="peek">
-		<legend>Prompted placeholders: <small>(optional)</small> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/guides/dashboards/filters/"}</legend>
-		<textarea name="params[placeholder_prompts]" class="cerb-code-editor" data-editor-mode="ace/mode/yaml" style="width:95%;height:50px;">{$tab->params.placeholder_prompts}</textarea>
+		<legend>{'common.prompts'|devblocks_translate|capitalize}: <small>(Kata)</small></legend>
+
+		<div class="cerb-code-editor-toolbar">
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-run"><span class="glyphicons glyphicons-play"></span></button>
+			<div class="cerb-code-editor-toolbar-divider"></div>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-editor-button-add"><span class="glyphicons glyphicons-circle-plus"></span></button>
+			<ul class="cerb-float" style="display:none;">
+				<li data-type="chooser">Chooser</li>
+				<li data-type="date_range">Date Range</li>
+				<li data-type="picklist">Picklist</li>
+				<li data-type="text">Text</li>
+			</ul>
+			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/guides/dashboards/filters/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+		</div>
+		<textarea name="params[prompts_kata]" class="cerb-code-editor" data-editor-mode="ace/mode/yaml" style="width:95%;height:50px;">{$tab->params.prompts_kata}</textarea>
+		<div class="cerb-code-editor-preview-output"></div>
 	</fieldset>
 </div>
 
@@ -74,13 +88,178 @@
 $(function() {
 	var $frm = $('#tab{$tab->id}Config');
 	var $textarea = $frm.find('.cerb-code-editor');
-	
+
+	/*
+	var kataDashboardFilters = {
+		'': [
+		],
+		'picklist:': [
+			{
+				'caption': 'label:',
+				'snippet': 'label: Label'
+			},
+			'default:',
+			'params:'
+		],
+		'picklist:params:': [
+			{
+				'caption': 'multiple:',
+				'snippet': 'multiple@bool: no'
+			},
+			{
+				'caption': 'options:',
+				'snippet': 'options@list:\n  day\n  week\n  month\n  year\n'
+			}
+		],
+		'picklist:params:multiple:': [
+			'yes',
+			'no'
+		],
+		'date_range:': [
+			{
+				'caption': 'label:',
+				'snippet': 'label: Label'
+			},
+			'default:',
+			'params:'
+		],
+		'date_range:params:': [
+			{
+				'caption': 'presets:',
+				'snippet': 'presets:\n  1d:\n    label: 1d\n    query: today to now\n'
+			}
+		],
+		'text:': [
+			{
+				'caption': 'label:',
+				'snippet': 'label: Label'
+			},
+			'default:'
+		],
+		'chooser:': [
+			{
+				'caption': 'label:',
+				'snippet': 'label: Label'
+			},
+			'params:'
+		],
+		'chooser:params:': [
+			'context:',
+			{
+				'caption': 'single:',
+				'snippet': 'single@bool: yes\n'
+			}
+		],
+		'chooser:params:context:': [
+		],
+		'chooser:params:single:': [
+			'yes',
+			'no'
+		],
+		'type:': [
+			'date_range:',
+			'picklist:',
+			'text:',
+			'chooser:'
+		]
+	};
+	*/
+
 	var $editor = $textarea
 		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteYaml({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.yamlDashboardFilters
-		})
+		// .cerbCodeEditorAutocompleteYaml({
+		// 	autocomplete_suggestions: kataDashboardFilters
+		// })
 		.nextAll('pre.ace_editor')
 	;
+
+	var editor = ace.edit($editor.attr('id'));
+
+	var $placeholder_output = $frm.find('.cerb-code-editor-preview-output');
+
+	$frm.find('.cerb-editor-button-run').on('click', function (e) {
+		$placeholder_output.html('');
+
+		$('<span class="cerb-ajax-spinner"/>').appendTo($placeholder_output);
+
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'workspace_tab');
+		formData.set('action', 'previewDashboardPrompts');
+		formData.set('kata', editor.getValue());
+
+		genericAjaxPost(formData, null, null, function (html) {
+			$placeholder_output.html(html);
+		});
+	});
+
+	var $button_add = $frm.find('.cerb-editor-button-add');
+	var $menu_add = $button_add.next('ul');
+
+	$button_add.on('click', function(e) {
+		$menu_add.toggle();
+	});
+
+	$menu_add.menu({
+		select: function(e, ui) {
+			e.stopPropagation();
+
+			var $li = $(ui.item);
+			var type = $li.attr('data-type');
+			var snippet = '';
+
+			$menu_add.hide();
+
+			{literal}
+			if('date_range' === type) {
+				snippet = "date_range/prompt_${1:" + Devblocks.uniqueId() + "}:\n" +
+					"  label: ${2:Date range}:\n" +
+					"  default: ${3:-1 month to now}\n" +
+					"  params:\n" +
+					"    presets:\n" +
+					"      ${4:1d}:\n" +
+					"        label: today\n" +
+					"        query: today to now\n" +
+					"      1mo:\n" +
+					"        query: -1 month\n" +
+					"      ytd:\n" +
+					"        query: jan 1 to now\n" +
+					"      all:\n" +
+					"        query: big bang to now\n" +
+					"\n"
+				;
+			} else if('picklist' === type) {
+				snippet = "picklist/prompt_${1:" + Devblocks.uniqueId() + "}:\n" +
+					"  label: ${2:Picklist}:\n" +
+					"  default: ${3:month}\n" +
+					"  params:\n" +
+					"    options@list:\n" +
+					"      ${4:day}\n" +
+					"      week\n" +
+					"      month\n" +
+					"      year\n" +
+					"\n"
+				;
+			} else if('chooser' === type) {
+				snippet = "chooser/prompt_${1:" + Devblocks.uniqueId() + "}:\n" +
+					"  label: ${2:Chooser}:\n" +
+					"  params:\n" +
+					"    context: ${3:worker}\n" +
+					"    single@bool: yes\n" +
+					"\n"
+				;
+			} else if('text' === type) {
+				snippet = "text/prompt_${1:" + Devblocks.uniqueId() + "}:\n" +
+					"  label: ${2:Text}:\n" +
+					"  default: ${3:text}\n" +
+					"\n"
+				;
+			}
+			{/literal}
+
+			$editor.triggerHandler($.Event('cerb.appendText', { content: snippet } ));
+		}
+	});
 });
 </script>

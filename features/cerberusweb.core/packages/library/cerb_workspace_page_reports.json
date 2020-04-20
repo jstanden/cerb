@@ -3,7 +3,7 @@
     "name": "Page Wizard: Reports",
     "revision": 1,
     "requires": {
-      "cerb_version": "9.2.0",
+      "cerb_version": "9.6.0",
       "plugins": [
 
       ]
@@ -56,7 +56,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: \"Date range:\"\ntype: date_range\ndefault: today -1 week\n---\nplaceholder: input_date_subtotal_by\nlabel: \"By:\"\ntype: picklist\ndefault: day\nparams:\n  options: [day, week, month, year]\n--- \nplaceholder: input_groups\nlabel: \"Groups:\"\ntype: chooser\ndefault:\nparams:\n  context: group\n  single: false"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default:\n  params:\n    context: group\n    single@bit: false"
       }
     },
     {
@@ -130,7 +130,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_orgs\nlabel: 'Orgs:'\ntype: chooser\ndefault: ~\nparams:\n  context: org\n  single: false"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_orgs:\n  label: Orgs:\n  default@json: null\n  params:\n    context: org\n    single@bit: false"
       }
     },
     {
@@ -239,7 +239,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params@json: []\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bit: false\n"
       }
     },
     {
@@ -313,7 +313,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_workers\nlabel: 'Workers:'\ntype: chooser\ndefault: ~\nparams:\n  context: worker\n  single: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_workers:\n  label: Workers:\n  default@json: null\n  params:\n    context: worker\n    single@bit: false\n"
       }
     },
     {
@@ -419,7 +419,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params@json: []\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bit: false\n"
       }
     },
     {
@@ -490,7 +490,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_groups\nlabel: 'Groups:'\ntype: chooser\ndefault: ~\nparams:\n  context: group\n  single: false\n"
+        "prompts_kata": "chooser/input_groups:\n  label: Groups:\n  default@json: null\n  params:\n    context: group\n    single@bit: false\n"
       }
     },
     {
@@ -526,7 +526,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_activities\nlabel: 'Activities:'\ntype: chooser\ndefault: ~\nparams:\n  context: timetracking_activity\n  single: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_activities:\n  label: Activities:\n  default@json: null\n  params:\n    context: timetracking_activity\n    single@bit: false\n"
       }
     },
     {
@@ -594,7 +594,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_orgs\nlabel: 'Orgs:'\ntype: chooser\ndefault: ~\nparams:\n  context: org\n  single: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_orgs:\n  label: Orgs:\n  default@json: null\n  params:\n    context: org\n    single@bit: false\n"
       }
     },
     {
@@ -662,7 +662,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -1 week\nparams: []\n---\nplaceholder: input_date_subtotal_by\nlabel: 'By:'\ntype: picklist\ndefault: day\nparams:\n  options:\n  - day\n  - week\n  - month\n  - year\n---\nplaceholder: input_workers\nlabel: 'Workers:'\ntype: chooser\ndefault: ~\nparams:\n  context: worker\n  single: false\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -1 week\n  params:\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\nchooser/input_workers:\n  label: Workers:\n  default@json: null\n  params:\n    context: worker\n    single@bit: false\n"
       }
     },
     {
@@ -777,7 +777,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": ""
+        "prompts_kata": ""
       }
     },
     {
@@ -825,7 +825,7 @@
       "page_id": "{{{uid.workspace_reports}}}",
       "params": {
         "layout": "",
-        "placeholder_prompts": "---\nplaceholder: input_date_range\nlabel: 'Date range:'\ntype: date_range\ndefault: today -30 days\nparams: []\n"
+        "prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -30 days\n  params:\n"
       }
     },
     {

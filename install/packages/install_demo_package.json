@@ -4297,7 +4297,7 @@
 			"pos": 1,
 			"params": {
 				"layout": "sidebar_left",
-				"placeholder_prompts": "---\r\nplaceholder: input_date_range\r\nlabel: \"Date range:\"\r\ntype: date_range\r\ndefault: today -7 days\r\n---\r\nplaceholder: input_date_subtotal_by\r\nlabel: \"By:\"\r\ntype: picklist\r\ndefault: day\r\nparams:\r\n  options: [day, week, month, year]\r\n---\r\nplaceholder: input_statuses\r\nlabel: \"Statuses:\"\r\ntype: picklist\r\ndefault: []\r\nparams:\r\n  multiple: true\r\n  options: [open, waiting, closed, deleted]\r\n---\r\nplaceholder: input_groups\r\nlabel: \"Groups:\"\r\ntype: chooser\r\ndefault:\r\nparams:\r\n  context: group\r\n  single: false"
+				"prompts_kata": "date_range/input_date_range:\n  label: Date range:\n  default: today -7 days\n\npicklist/input_date_subtotal_by:\n  label: By:\n  default: day\n  params:\n    options@csv: day, week, month, year\n\npicklist/input_statuses:\n  label: Statuses:\n  default@json: []\n  params:\n    multiple@bit: true\n    options@csv: open, waiting, closed, deleted\n\nchooser/input_groups:\n  label: Groups:\n  default:\n  params:\n    context: group\n    single@bit: false"
 			}
 		},
 		{

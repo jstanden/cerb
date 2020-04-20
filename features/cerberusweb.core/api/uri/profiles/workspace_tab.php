@@ -37,6 +37,8 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 					return $this->_profileAction_saveDashboardTabPrefs();
 				case 'getTabParams':
 					return $this->_profileAction_getTabParams();
+				case 'previewDashboardPrompts':
+					return $this->_profileAction_previewDashboardPrompts();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
 			}
@@ -67,6 +69,25 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 		}
 		
 		$tab_extension->renderTabConfig($page, $tab);
+	}
+	
+	private function _profileAction_previewDashboardPrompts() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$kata_string = DevblocksPlatform::importGPC($_REQUEST['kata'],'string','');
+		
+		$workspace_tab = new Model_WorkspaceTab();
+		$workspace_tab->params = [
+			'prompts_kata' => $kata_string,
+		];
+		
+		$prompts = $workspace_tab->getPlaceholderPrompts();
+		
+		$tpl->assign('prompts', $prompts);
+		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/tabs/dashboard/config_preview_placeholders.tpl');
 	}
 	
 	private function _profileAction_savePeekJson() {

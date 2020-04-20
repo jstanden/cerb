@@ -507,7 +507,7 @@ class SearchFields_WorkspaceTab extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKSPACE_TAB)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKSPACE_TAB), '%s'), self::getPrimaryKey());
 				break;
 				
 			default:
@@ -631,29 +631,49 @@ class Model_WorkspaceTab {
 	}
 	
 	function getPlaceholderPrompts() {
-		if(false == (@$placeholder_prompts = $this->params['placeholder_prompts']))
+		if(false == (@$prompts_kata = $this->params['prompts_kata']))
 			return [];
 		
-		if(false == (@$placeholder_prompts = yaml_parse($placeholder_prompts, -1)))
+		if(false == (@$placeholder_tree = DevblocksPlatform::services()->kata()->parse($prompts_kata)))
 			return [];
 		
-		$keys = array_map(function($prompt) { return $prompt['placeholder']; }, $placeholder_prompts);
+		$placeholder_prompts = DevblocksPlatform::services()->kata()->formatTree($placeholder_tree);
 		
-		// Set placeholder names as keys
-		return array_combine($keys, $placeholder_prompts);
-		
-		// Handle PHP's single document YAML format
-		/*
-		if(
-			array_key_exists(0, $placeholder_prompts) 
-			&& !array_key_exists('placeholder', $placeholder_prompts[0])
-			&& array_key_exists(0, $placeholder_prompts[0])
-		) {
-			$placeholder_prompts = $placeholder_prompts[0];
+		$prompts = [];
+
+		foreach($placeholder_prompts as $prompt_key => $prompt) {
+			list($prompt_type, $prompt_placeholder) = explode('/', $prompt_key, 2);
+			$prompt['placeholder'] = $prompt_placeholder;
+			$prompt['type'] = $prompt_type;
+			
+			switch($prompt_type) {
+				case 'date_range':
+					if(!array_key_exists('params', $prompt))
+						break;
+					
+					if(!array_key_exists('presets', $prompt['params']))
+						break;
+					
+					$presets = [];
+					
+					foreach($prompt['params']['presets'] as $preset_label => $preset) {
+						if(!array_key_exists('query', $preset))
+							continue;
+						
+						if(array_key_exists('label', $preset))
+							$preset_label = $preset['label'];
+						
+						$presets[$preset_label] = $preset['query'];
+					}
+					
+					$prompt['params']['presets'] = $presets;
+					break;
+			}
+			
+			$prompts[$prompt_placeholder] = $prompt;
 		}
-		*/
 		
-		return $placeholder_prompts;
+		return $prompts;
 	}
 	
 	function getDashboardPrefsAsWorker(Model_Worker $worker) {
@@ -661,9 +681,9 @@ class Model_WorkspaceTab {
 		
 		if(false != ($placeholder_prompts = $this->getPlaceholderPrompts()) 
 			&& is_array($placeholder_prompts)) {
-				
+			
 			foreach($placeholder_prompts as $prompt) {
-				$prefs[$prompt['placeholder']] = $prompt['default'];
+				$prefs[$prompt['placeholder']] = @$prompt['default'] ?: null;
 			}
 		}
 		
