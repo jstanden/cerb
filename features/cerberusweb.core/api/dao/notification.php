@@ -876,9 +876,9 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		
 		$this->doResetCriteria();
 	}
-
-	function getData() {
-		$objects = DAO_Notification::search(
+	
+	protected function _getData() {
+		return DAO_Notification::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -887,6 +887,10 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+
+	function getData() {
+		$objects = $this->_getDataWithinBounds();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Notification');
 		
@@ -1076,6 +1080,13 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
+		
+		$results = $this->getData();
+		list($data, $total) = $results;
+		
+		$tpl->assign('results', $results);
+		$tpl->assign('data', $data);
+		$tpl->assign('total', $total);
 		
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/notifications/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
