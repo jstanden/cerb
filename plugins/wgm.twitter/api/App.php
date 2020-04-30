@@ -72,7 +72,7 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		if(!$id || null == ($message = DAO_TwitterMessage::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(!Context_TwitterMessage::isWriteableByActor($message))
+		if(!Context_TwitterMessage::isWriteableByActor($message, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 			
 		if(!$message->connected_account_id || false == ($connected_account = DAO_ConnectedAccount::get($message->connected_account_id)))
