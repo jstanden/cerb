@@ -3264,7 +3264,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		
 		$properties['mention_name'] = array(
 			'label' => mb_ucfirst($translate->_('worker.at_mention_name')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->at_mention_name,
 		);
 		
