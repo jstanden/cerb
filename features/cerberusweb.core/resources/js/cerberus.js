@@ -2500,6 +2500,11 @@ var ajax = new cAjaxCalls();
 				e.editor.completer = new Autocomplete();
 			}
 
+			if('Return' === e.command.name) {
+				e.editor.completer.getPopup().hide();
+				return;
+			}
+
 			if('insertstring' == e.command.name) {
 				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
 					if(1 == e.args.length) {
@@ -2717,6 +2722,7 @@ var ajax = new cAjaxCalls();
 					}
 				},
 				getCompletions: function(editor, session, pos, prefix, callback) {
+					editor.completer.autoSelect = false;
 					completer.returnCompletions(editor, session, pos, prefix, callback);
 				}
 			};
