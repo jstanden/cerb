@@ -62,19 +62,10 @@ abstract class C4_AbstractView {
 		
 		$objects = $this->_getData();
 		
-		if($this->renderPage && !$objects[0]) {
-			if($this->renderTotal) {
-				$total = $objects[1];
-				
-				if(!$total) {
-					$this->renderPage = 0;
-				} else {
-					$this->renderPage = max(floor($total/$this->renderLimit)-1, 0);
-				}
-			} else {
-				$this->renderPage = 0;
-			}
-			
+		// If we have no results, it's not the first page, and we're returning totals
+		if(!$objects[0] && $this->renderPage && $this->renderTotal) {
+			$total = $objects[1];
+			$this->renderPage = max(floor($total/$this->renderLimit)-1, 0);
 			$objects = $this->_getData();
 		}
 		
