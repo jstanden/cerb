@@ -138,7 +138,7 @@ class WgmTwitter_MessageProfileSection extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'],'string');
 		@$row_ids = DevblocksPlatform::importGPC($_POST['row_id'],'array', []);
 		
-		$models = DAO_TimeTrackingEntry::getIds($row_ids);
+		$models = DAO_TwitterMessage::getIds($row_ids);
 		
 		// Privs
 		$models = array_intersect_key(
