@@ -40,9 +40,7 @@
 </div>
 
 <script type="text/javascript">
-$(function(e) {
-	e.stopPropagation();
-
+$(function() {
 	var $action = $('#{$namePrefix}_{$nonce}');
 	var $snippet_preview = $action.find('div.snippet-preview');
 	
