@@ -188,7 +188,17 @@ $(function() {
 		e.stopPropagation();
 		$('#spanProfileWatchers button:first').click();
 	});
-	
+
+	$body.bind('keypress', 'Shift+W', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		var event = new $.Event('click');
+		event.shiftKey = true;
+
+		$('#spanProfileWatchers button:first').triggerHandler(event);
+	});
+
 	$body.bind('keypress', '1 2 3 4 5 6 7 8 9 0', function(e) {
 		e.preventDefault();
 		e.stopPropagation();
