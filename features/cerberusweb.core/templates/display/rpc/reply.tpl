@@ -300,7 +300,7 @@
 
 {$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, CerberusContexts::CONTEXT_TICKET)}
 
-{if $custom_fields || $custom_fields_available}
+{if $custom_fields || $custom_fieldsets_available}
 <fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0px;{/if}">
 	<legend>
 		<label>
