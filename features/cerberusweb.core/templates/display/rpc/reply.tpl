@@ -139,6 +139,16 @@
 	<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
 
 	<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
+		{if $html_templates}
+		<select name="html_template_id" style="max-width:150px;">
+			<optgroup label="{'common.template'|devblocks_translate|capitalize}">
+				<option value="">({'common.default'|devblocks_translate|capitalize})</option>
+				{foreach from=$html_templates item=html_template}
+					<option value="{$html_template->id}" {if $draft->params.html_template_id==$html_template->id}selected="selected"{/if}>{$html_template->name}</option>
+				{/foreach}
+			</optgroup>
+		</select>
+		{/if}
 		<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
 		<button type="button" title="Italics (Ctrl+I)" data-cerb-key-binding="ctrl+i" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
 		<button type="button" title="Link (Ctrl+K)" data-cerb-key-binding="ctrl+k" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
@@ -718,6 +728,7 @@ $(function() {
 			formData.set('format', $frm.find('input[name=format]').val());
 			formData.set('group_id', $frm.find('select[name=group_id]').val());
 			formData.set('bucket_id', $frm.find('select[name=bucket_id]').val());
+			formData.set('html_template_id', $frm.find('select[name=html_template_id]').val());
 			formData.set('content', $frm.find('textarea[name=content]').val());
 
 			genericAjaxPopup(
