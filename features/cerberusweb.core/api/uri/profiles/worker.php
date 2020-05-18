@@ -550,8 +550,11 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 		if(0 != strlen($location))
 			$do['location'] = $location;
 		
-		if(0 != strlen($gender))
+		if(in_array($gender,['M','F','U'])) {
+			if('U' == $gender)
+				$gender = '';
 			$do['gender'] = $gender;
+		}
 		
 		if(0 != strlen($language))
 			$do['language'] = $language;

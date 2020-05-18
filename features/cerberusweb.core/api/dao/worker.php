@@ -844,7 +844,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 					break;
 					
 				case 'gender':
-					if(in_array($v, array('M', 'F', '')))
+					if(in_array($v, ['M', 'F', '']))
 						$change_fields[DAO_Worker::GENDER] = $v;
 					break;
 					
