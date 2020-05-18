@@ -751,10 +751,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$group_id = DevblocksPlatform::importGPC($_REQUEST['group_id'],'integer',0);
-		@$bucket_id = DevblocksPlatform::importGPC($_REQUEST['bucket_id'],'integer',0);
-		@$content = DevblocksPlatform::importGPC($_REQUEST['content'],'string','');
-		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string','');
+		@$group_id = DevblocksPlatform::importGPC($_POST['group_id'],'integer',0);
+		@$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'],'integer',0);
+		@$content = DevblocksPlatform::importGPC($_POST['content'],'string','');
+		@$format = DevblocksPlatform::importGPC($_POST['format'],'string','');
 		
 		if(false == ($group = DAO_Group::get($group_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);

@@ -1532,8 +1532,7 @@ var ajax = new cAjaxCalls();
 
 		getSelection: function() {
 			var bounds = this.getSelectionBounds();
-			var selectedText = this.editor.value.substring(bounds.start,bounds.end);
-			return selectedText;
+			return this.editor.value.substring(bounds.start,bounds.end);
 		},
 
 		setSelection: function(start, end) {
@@ -1566,6 +1565,9 @@ var ajax = new cAjaxCalls();
 
 		replaceSelection: function(replaceWith) {
 			var bounds = this.getSelectionBounds();
+
+			// Normalize line endings
+			replaceWith = replaceWith.replace(/\r/g, '');
 
 			var newValue =
 				this.editor.value.substring(0,bounds.start)

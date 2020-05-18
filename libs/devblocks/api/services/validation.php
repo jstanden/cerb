@@ -746,6 +746,14 @@ class _DevblocksValidationService {
 	}
 	
 	// (ip, email, phone, etc)
+	
+	/**
+	 * @param DevblocksValidationField $field
+	 * @param mixed $value
+	 * @param array $scope
+	 * @return bool
+	 * @throws Exception_DevblocksValidationError
+	 */
 	function validate(DevblocksValidationField $field, &$value, $scope=[]) {
 		$field_name = $field->_name;
 		$field_label = $field->_label;
