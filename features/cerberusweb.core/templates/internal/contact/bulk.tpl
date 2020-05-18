@@ -74,6 +74,7 @@
 					<option value=""></option>
 					<option value="M">{'common.gender.male'|devblocks_translate|capitalize}</option>
 					<option value="F">{'common.gender.female'|devblocks_translate|capitalize}</option>
+					<option value="U">({'common.clear'|devblocks_translate|lower})</option>
 				</select>
 				<button type="button" onclick="this.form.gender.selectedIndex = 1;">{'common.gender.male'|devblocks_translate|lower}</button>
 				<button type="button" onclick="this.form.gender.selectedIndex = 2;">{'common.gender.female'|devblocks_translate|lower}</button>

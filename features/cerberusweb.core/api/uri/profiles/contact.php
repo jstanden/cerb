@@ -423,9 +423,12 @@ class PageSection_ProfilesContact extends Extension_PageSection {
 			$do['timezone'] = $timezone;
 		
 		// Do: Gender
-		if(0 != strlen($gender) && in_array($gender, array('M','F')))
+		if(in_array($gender,['M','F','U'])) {
+			if('U' == $gender)
+				$gender = '';
 			$do['gender'] = $gender;
-			
+		}
+		
 		// Do: Org ID
 		if(0 != $org_id)
 			$do['org_id'] = $org_id;
