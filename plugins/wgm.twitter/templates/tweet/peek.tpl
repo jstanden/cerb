@@ -66,7 +66,6 @@
 
 </form>
 
-<script type="text/javascript" src="{devblocks_url}c=resource&p=wgm.twitter&f=twitter-text-2.0.0.min.js{/devblocks_url}"></script>
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
@@ -77,18 +76,19 @@ $(function() {
 		
 		{if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
 		var $txt = $popup.find('textarea:first').autosize().insertAtCursor('@{$message->user_screen_name|escape:'javascript'} ');
-		var $counter = $popup.find('div.tweet-counter');
+		var $counter = $popup.find('div.tweet-counter').css('margin-top','5px');
 		
 		$txt.on('keyup', function() {
-			var parsedTweet = twttr.txt.parseTweet($txt.val());
-			var percentage = Math.round(parsedTweet.permillage / 10);
-			$counter.text(percentage + '%');
-			
-			if(percentage >= 100) {
+			var tweet_length = $txt.val().length;
+			var tweet_label = tweet_length + ' / 280';
+
+			if(tweet_length > 280) {
 				$counter.css('color','red');
 			} else {
 				$counter.css('color','green');
 			}
+
+			$counter.text(tweet_label);
 		});
 		
 		$popup.find('input:checkbox[name=do_reply]').click(function(e) {
