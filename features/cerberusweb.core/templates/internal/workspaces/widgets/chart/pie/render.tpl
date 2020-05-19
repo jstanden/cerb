@@ -34,7 +34,7 @@ $(function() {
 					
 					if(series_meta.query) {
 						var $trigger = $('<div/>')
-							.attr('data-context', chart_meta.context)
+                            .attr('data-context', series_meta.context ? series_meta.context : chart_meta.context)
 							.attr('data-query', series_meta.query)
 							.cerbSearchTrigger()
 							.on('cerb-search-opened', function(e) {

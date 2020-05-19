@@ -49,6 +49,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				],
 			],
 			'format:' => [
+				'pie',
 				'table',
 			]
 		];
@@ -333,6 +334,10 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 		@$format = $chart_model['format'] ?: 'table';
 		
 		switch($format) {
+			case 'pie':
+				return $this->_formatDataAsPie($chart_model);
+				break;
+				
 			case 'table':
 				return $this->_formatDataAsTable($chart_model);
 				break;
@@ -346,8 +351,37 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 		}
 	}
 	
+	private function _formatDataAsPie(array $chart_model=[]) {
+		if(!isset($chart_model['values']))
+			return [];
+		
+		$output = [];
+		$series_meta = [];
+		
+		foreach($chart_model['values'] as $series) {
+			$label = @$series['label'] ?: '';
+			$value = @$series['value'] ?: '0';
+			
+			$output[] = [$label, $value];
+			
+			$series_meta[$series['label']] = [
+				'key' => $value,
+				'context' => @$series['context'] ?: '',
+				'query' => @$series['query'] ?: '',
+			];
+		}
+		
+		return [
+			'data' => $output,
+			'_' => [
+				'type' => 'worklist.metrics',
+				'format' => 'pie',
+				'series' => $series_meta,
+			]
+		];
+	}
+	
 	private function _formatDataAsTable(array $chart_model=[]) {
-		$response = [];
 		$rows = [];
 		
 		$table = [
@@ -397,14 +431,12 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			$rows[] = $row;
 		}
 		
-		$response = [
+		return [
 			'data' => $table,
 			'_' => [
 				'type' => 'worklist.metrics',
 				'format' => 'table',
 			]
 		];
-		
-		return $response;
 	}
 };
