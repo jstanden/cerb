@@ -1,4 +1,4 @@
-<div id="cardWidget{$widget->getUniqueId($dict->id)}">
+<div id="cardWidget{$widget->getUniqueId($card_context_id)}">
 	{if $rows}
 	<table cellpadding="0" cellspacing="0" style="width:100%;" class="cerb-sheet cerb-widget-data-table">
 		{if $layout.headings}
@@ -75,7 +75,7 @@
 
 <script type="text/javascript">
 $(function() {
-	var $widget = $('#cardWidget{$widget->getUniqueId($dict->id)}');
+	var $widget = $('#cardWidget{$widget->getUniqueId($card_context_id)}');
 	var $popup = genericAjaxPopupFind($widget);
 
 	$widget.find('.cerb-peek-trigger')
