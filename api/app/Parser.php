@@ -765,55 +765,48 @@ class CerberusParser {
 				$do_ignore = true;
 				$do_recurse = false;
 				
-				for($n = 1; $n < $part->get_child_count(); $n++) {
-					$child = $part->get_child($n);
-					
-					if(0 == strcasecmp(@$child->data['content-name'], 'encrypted.asc')) {
-						$encrypted_content = $child->extract_body(MAILPARSE_EXTRACT_RETURN);
+				// We must have at least two parts (control + encrypted)
+				if($part->get_child_count() < 2)
+					break;
+				
+				$control_part = $part->get_child(1);
+				$encrypted_part = $part->get_child(2);
+				
+				// PGP Encrypted
+				if(0 == strcasecmp('application/pgp-encrypted', @$control_part->data['content-type'])) {
+					try {
+						$gpg = DevblocksPlatform::services()->gpg();
 						
-						try {
-							$gpg = DevblocksPlatform::services()->gpg();
-							
-							if(false == ($decrypt_results = $gpg->decrypt($encrypted_content)))
-								throw new Exception("Failed to find a decryption key for PGP message content.");
-							
-							if(false == ($decrypted_mime = new MimeMessage("var", rtrim($decrypt_results['data'], PHP_EOL) . PHP_EOL)))
-								throw new Exception("Failed to parse decrypted MIME content.");
-							
-							// Denote encryption on saved message
-							$mime_meta['gpg_encrypted'] = true;
-							
-							// Signed?
-							if(array_key_exists('verified_signatures', $decrypt_results))
-								$mime_meta['gpg_verified_signatures'] = $decrypt_results['verified_signatures'];
-								
-							// Add to the mime tree
-							$new_mime_parts = [];
-							
-							self::_recurseMimeParts($decrypted_mime, $new_mime_parts, $mime_meta);
-							
-							$mime_meta['references'][] = $decrypted_mime;
-							
-							foreach($new_mime_parts as $k => $v) {
-								$results[$k] = $v;
-							}
-							
-						} catch(Exception $e) {
-							// If we failed, keep the whole part
-							$results[spl_object_hash($part)] = $part;
+						$encrypted_content = $encrypted_part->extract_body(MAILPARSE_EXTRACT_RETURN);
+						
+						if (false == ($decrypt_results = $gpg->decrypt($encrypted_content))) {
+							throw new Exception("Failed to find a decryption key for PGP message content.");
 						}
 						
-					} else {
-						switch(DevblocksPlatform::strLower($child->data['content-type'])) {
-							// We don't want to add these parts
-							case 'application/pgp-encrypted':
-							case 'multipart/encrypted':
-								break;
-							
-							default:
-								$results[spl_object_hash($child)] = $child;
-								break;
+						if (false == ($decrypted_mime = new MimeMessage("var", rtrim($decrypt_results['data'], PHP_EOL) . PHP_EOL)))
+							throw new Exception("Failed to parse decrypted MIME content.");
+						
+						// Denote encryption on saved message
+						$mime_meta['gpg_encrypted'] = true;
+						
+						// Signed?
+						if (array_key_exists('verified_signatures', $decrypt_results))
+							$mime_meta['gpg_verified_signatures'] = $decrypt_results['verified_signatures'];
+						
+						// Add to the mime tree
+						$new_mime_parts = [];
+						
+						self::_recurseMimeParts($decrypted_mime, $new_mime_parts, $mime_meta);
+						
+						$mime_meta['references'][] = $decrypted_mime;
+						
+						foreach ($new_mime_parts as $k => $v) {
+							$results[$k] = $v;
 						}
+						
+					} catch (Exception $e) {
+						// If we failed, keep the whole part
+						$results[spl_object_hash($part)] = $part;
 					}
 				}
 				break;
