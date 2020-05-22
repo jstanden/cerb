@@ -3909,15 +3909,19 @@ var ajax = new cAjaxCalls();
 			var context = $trigger.attr('data-context');
 			
 			// [TODO] If $ul is null, create it
-			
-			$trigger.click(function() {
+
+			$trigger.on('click', function() {
 				var field_name = $trigger.attr('data-field-name');
 				var context = $trigger.attr('data-context');
-				
+				var worklist_columns = $trigger.attr('data-worklist-columns');
+
 				var query = $trigger.attr('data-query');
 				var query_req = $trigger.attr('data-query-required');
 				var chooser_url = 'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context);
 				
+				if(worklist_columns)
+					chooser_url += '&worklist[columns]=' + encodeURIComponent(worklist_columns);
+
 				if($trigger.attr('data-single'))
 					chooser_url += '&single=1';
 				

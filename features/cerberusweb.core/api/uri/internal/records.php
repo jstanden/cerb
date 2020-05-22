@@ -151,12 +151,17 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		@$single = DevblocksPlatform::importGPC($_REQUEST['single'],'integer',0);
 		@$query = DevblocksPlatform::importGPC($_REQUEST['q'],'string', '');
 		@$query_req = DevblocksPlatform::importGPC($_REQUEST['qr'],'string', '');
+		@$worklist = DevblocksPlatform::importGPC($_REQUEST['worklist'], 'array', []);
 		
 		if(null == ($context_extension = Extension_DevblocksContext::getByAlias($context, true)))
 			return;
 		
 		if(false == ($view = $context_extension->getChooserView()))
 			return;
+		
+		if(array_key_exists('columns', $worklist)) {
+			$view->view_columns = DevblocksPlatform::parseCsvString($worklist['columns']);
+		}
 		
 		// Required params
 		if(!empty($query_req)) {
