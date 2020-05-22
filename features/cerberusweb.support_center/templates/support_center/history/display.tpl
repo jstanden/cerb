@@ -196,7 +196,7 @@
 		
 		<fieldset style="margin:10px 0px 0px 0px;border:0;">
 			<legend>Attachments:</legend>
-			<input type="file" name="attachments[]" class="multi"><br>
+			<input type="file" name="attachments[]" multiple="multiple"><br>
 		</fieldset>
 		
 		<button type="submit"><span class="glyphicons glyphicons-send"></span> {'portal.public.send_message'|devblocks_translate}</button>
