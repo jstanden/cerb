@@ -1076,6 +1076,11 @@ IMG.cerb-avatar {
 	vertical-align:middle;
 }
 
+IMG.cerb-rounded {
+	@include border-radius(100px);
+	vertical-align:middle;
+}
+
 // Badges
 
 DIV.badge-count {

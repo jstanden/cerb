@@ -1116,6 +1116,14 @@ IMG.cerb-avatar {
   vertical-align: middle;
 }
 
+IMG.cerb-rounded {
+  -webkit-border-radius: 100px;
+  -moz-border-radius: 100px;
+  -ms-border-radius: 100px;
+  border-radius: 100px;
+  vertical-align: middle;
+}
+
 DIV.badge-count {
   font-size: 12px;
   padding: 0px 5px;
