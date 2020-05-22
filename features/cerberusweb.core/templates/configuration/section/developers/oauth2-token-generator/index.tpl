@@ -33,7 +33,7 @@
 		
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top">
-				<b>Worker:</b>
+				<b>{'common.worker'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%" valign="top">
 				<button type="button" class="chooser-abstract" data-field-name="worker_id" data-context="{Context_Worker::ID}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
@@ -50,10 +50,25 @@
 		
 		<tr>
 			<td width="1%" nowrap="nowrap" valign="top">
-				<b>Scopes:</b>
+				<b>{'common.scopes'|devblocks_translate|capitalize}:</b>
 			</td>
 			<td width="99%" valign="top">
 				<input type="text" name="scopes" size="45" value="api" placeholder="e.g. api profile">
+			</td>
+		</tr>
+
+		<tr>
+			<td width="1%" nowrap="nowrap" valign="top">
+				<b>{'common.expires'|devblocks_translate|capitalize}:</b>
+			</td>
+			<td width="99%" valign="top">
+				<input type="text" name="expires_duration" size="4" value="1" placeholder="1">
+				<select name="expires_term">
+					{$terms = ['minutes','hours','days','weeks','months','years']}
+					{foreach from=$terms item=term}
+					<option value="{$term}" {if $term=='hours'}selected="selected"{/if}>{$term}</option>
+					{/foreach}
+				</select>
 			</td>
 		</tr>
 	</table>

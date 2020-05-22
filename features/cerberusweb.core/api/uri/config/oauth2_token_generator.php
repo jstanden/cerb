@@ -58,6 +58,8 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 		@$oauth_app_id = DevblocksPlatform::importGPC($_POST['oauth_app_id'], 'integer', 0);
 		@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', 0);
 		@$scopes = DevblocksPlatform::importGPC($_POST['scopes'], 'string', '');
+		@$expires_duration = DevblocksPlatform::importGPC($_POST['expires_duration'], 'integer', 0);
+		@$expires_term = DevblocksPlatform::importGPC($_POST['expires_term'], 'string', '');
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -70,6 +72,12 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 			
 			if(!$scopes)
 				throw new Exception_DevblocksAjaxValidationError('A valid scope is required.');
+			
+			if(!$expires_duration || !in_array($expires_term,['minutes','hours','days','weeks','months','years'])) {
+				$expires_at = '1 hours';
+			} else {
+				$expires_at = sprintf("%d %s", $expires_duration, $expires_term);
+			}
 			
 			// Validate scopes against app
 			
@@ -87,7 +95,9 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 			$bearer_token = $grant->generateBearerToken(
 				$oauth_app,
 				$worker->id,
-				$scopes
+				$scopes,
+				$expires_at,
+				$expires_at . ' + 1 month'
 			);
 			
 			if(false === $bearer_token)

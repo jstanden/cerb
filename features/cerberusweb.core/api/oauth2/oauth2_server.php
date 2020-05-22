@@ -384,10 +384,9 @@ class Cerb_OAuth2GrantManual extends AbstractGrant {
 	public function respondToAccessTokenRequest(ServerRequestInterface $request, ResponseTypeInterface $responseType, \DateInterval $accessTokenTTL) {}
 	public function getIdentifier() {}
 	
-	public function generateBearerToken(Model_OAuthApp $oauth2_app, $actor_identifier, array $scopes=[]) {
-		// [TODO] From app
-		$accessTokenTTL = \DateInterval::createFromDateString('1 hour');
-		$refreshTokenTTL = \DateInterval::createFromDateString('1 month');
+	public function generateBearerToken(Model_OAuthApp $oauth2_app, $actor_identifier, array $scopes=[], $access_expires_at='1 hour', $refresh_expires_at='1 month') {
+		$accessTokenTTL = \DateInterval::createFromDateString($access_expires_at);
+		$refreshTokenTTL = \DateInterval::createFromDateString($refresh_expires_at);
 		
 		$encrypt = DevblocksPlatform::services()->encryption();
 		
