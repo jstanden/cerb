@@ -1,17 +1,17 @@
 {
   "package": {
     "name": "Bot Behavior: Auto-Reply Template",
-    "revision": 1,
+    "revision": 2,
     "requires": {
-      "cerb_version": "9.2.0",
+      "cerb_version": "9.5.0",
       "plugins": [
 
       ]
     },
     "library": {
-      "name": "Auto-Reply",
+      "name": "Global Auto-Reply",
       "uri": "cerb_bot_behavior_auto_reply",
-      "description": "A behavior that automatically replies to new messages",
+      "description": "A behavior that automatically replies to new messages in all groups",
       "point": "behavior",
       "image": ""
     },
@@ -79,6 +79,30 @@
                   "title": "Does the message have auto-reply characteristics?",
                   "status": "live",
                   "nodes": [
+                    {
+                      "type": "outcome",
+                      "title": "Yes, it's from mailer-daemon or postmaster",
+                      "status": "live",
+                      "params": {
+                        "groups": [
+                          {
+                            "any": 1,
+                            "conditions": [
+                              {
+                                "condition": "sender_address",
+                                "oper": "like",
+                                "value": "mailer-daemon@*"
+                              },
+                              {
+                                "condition": "sender_address",
+                                "oper": "like",
+                                "value": "postmaster@*"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
                     {
                       "type": "outcome",
                       "title": "Yes, it has an Auto-Submitted header",
