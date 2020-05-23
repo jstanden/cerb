@@ -1190,6 +1190,8 @@ var ajax = new cAjaxCalls();
 						editor.completer.insertMatch(data);
 					},
 					getCompletions: function(editor, session, pos, prefix, callback) {
+						editor.completer.autoSelect = false;
+
 						var token = session.getTokenAt(pos.row, pos.column);
 						
 						if(null == token)
@@ -1942,6 +1944,8 @@ var ajax = new cAjaxCalls();
 					});
 				},
 				getCompletions: function(editor, session, pos, prefix, callback) {
+					editor.completer.autoSelect = false;
+
 					var token_path = Devblocks.cerbCodeEditor.getYamlTokenPath(pos, editor);
 
 					// Normalize path (remove namespaces)
@@ -2883,8 +2887,11 @@ var ajax = new cAjaxCalls();
 					});
 				}
 			}
-			
-			if('Return' !== e.command.name && (!e.editor.completer.activated || e.editor.completer.isDynamic)) {
+
+			if ('Return' === e.command.name) {
+				e.editor.completer.getPopup().hide();
+
+			} else if((!e.editor.completer.activated || e.editor.completer.isDynamic)) {
 				if(e.args && 1 === e.args.length) {
 					e.editor.completer.showPopup(e.editor);
 				}
@@ -2932,6 +2939,8 @@ var ajax = new cAjaxCalls();
 					});
 				},
 				getCompletions: function(editor, session, pos, prefix, callback) {
+					editor.completer.autoSelect = false;
+
 					var token = session.getTokenAt(pos);
 					
 					// Don't give suggestions inside Twig elements
