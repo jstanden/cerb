@@ -438,19 +438,27 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		if(false == ($private_key = DAO_GpgPrivateKey::getByFingerprint($key_fingerprint)))
 			return false;
 		
-		// [TODO] Error checking
 		$priv_key = OpenPGP_Message::parse(OpenPGP::unarmor($private_key->key_text, 'PGP PRIVATE KEY BLOCK'));
 		
-		$data = new OpenPGP_LiteralDataPacket($plaintext, ['format'=>'u', 'filename'=>'stuff.txt']);
-		$data->normalize(false);
-		
-		$sign = new OpenPGP_Crypt_RSA($priv_key[0]);
-		
-		$m = $sign->sign($data);
-		
-		$packets = $m->signatures()[0];
-		
-		return OpenPGP::enarmor($packets[1][0]->to_bytes(), "PGP SIGNATURE");
+		foreach($priv_key as $key_packet) {
+			if (!($key_packet instanceof OpenPGP_SecretKeyPacket))
+				continue;
+			
+			// Get the encrypted password from the private key record
+			if ($key_packet->encrypted_data) {
+				$key_passphrase = DevblocksPlatform::services()->encryption()->decrypt($private_key->passphrase_encrypted);
+				$key_packet = OpenPGP_Crypt_Symmetric::decryptSecretKey($key_passphrase, $key_packet);
+			}
+			
+			$data = new OpenPGP_LiteralDataPacket($plaintext, ['format' => 'u', 'filename' => 'stuff.txt']);
+			$data->normalize(false);
+			
+			$sign = new OpenPGP_Crypt_RSA($key_packet);
+			$m = $sign->sign($data);
+			$packets = $m->signatures()[0];
+			
+			return OpenPGP::enarmor($packets[1][0]->to_bytes(), "PGP SIGNATURE");
+		}
 	}
 	
 	function verify($signed_content, $signature = false) {
