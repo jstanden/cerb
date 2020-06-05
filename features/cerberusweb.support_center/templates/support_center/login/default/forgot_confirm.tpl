@@ -14,9 +14,18 @@
 	<br>
 	
 	<b>Enter the confirmation code sent to your email address:</b><br>
-	<input type="text" name="confirm" size="10" maxlength="8"><br>
+	<input type="text" name="confirm" size="10" maxlength="8" autofocus="autofocus"><br>
 	<br>
-	
+
+	<b>Choose a new password:</b><br>
+	<input type="password" name="password_new" size="24"><br>
+	<small>(at least 8 characters)</small><br>
+	<br>
+
+	<b>Confirm your new password:</b><br>
+	<input type="password" name="password_new_confirm" size="24"><br>
+	<br>
+
 	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button><br>
 	<br>
 	

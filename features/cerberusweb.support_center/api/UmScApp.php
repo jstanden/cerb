@@ -866,6 +866,8 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		
 		@$email = DevblocksPlatform::importGPC($_POST['email'],'string','');
 		@$confirm = DevblocksPlatform::importGPC($_POST['confirm'],'string','');
+		@$password_new = DevblocksPlatform::importGPC($_POST['password_new'],'string','');
+		@$password_new_confirm = DevblocksPlatform::importGPC($_POST['password_new_confirm'],'string','');
 		
 		try {
 			// Verify email is a contact
@@ -890,9 +892,27 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			// Compare to email address
 			if(!isset($code->meta['address_id']) || $address->id != $code->meta['address_id'])
 				throw new Exception("Your confirmation code is invalid.");
-				
+			
+			if(!$password_new || !$password_new_confirm)
+				throw new Exception("A new password is required.");
+			
+			if(strlen($password_new) < 8)
+				throw new Exception("Your new password must be at least 8 characters.");
+			
+			if($password_new != $password_new_confirm)
+				throw new Exception("Your confirmed password does not match.");
+			
 			// Success (delete token and one-time log in token)
 			DAO_ConfirmationCode::delete($code->id);
+			
+			// Set new password
+			$salt = CerberusApplication::generatePassword(8);
+			DAO_Contact::update($contact->id, [
+				DAO_Contact::AUTH_SALT => $salt,
+				DAO_Contact::AUTH_PASSWORD => md5($salt.md5($password_new)),
+			]);
+			
+			// Log in the session
 			$umsession->login($contact);
 			header("Location: " . $url_writer->write('c=account&a=password', true));
 			exit;
