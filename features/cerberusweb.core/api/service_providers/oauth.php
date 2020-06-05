@@ -403,38 +403,63 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		}
 	}
 	
-	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []) : bool {
-		$params = $account->decryptParams();
-		
-		if(false == ($service = $account->getService()))
-			return false;
-		
-		if(false == ($provider = $this->_getProvider($service)))
+	/**
+	 * @param Model_ConnectedAccount $account
+	 * @return AccessToken|false
+	 */
+	function getAccessToken(Model_ConnectedAccount $account) {
+		if(false == ($params = $account->decryptParams()))
 			return false;
 		
 		$access_token = new AccessToken($params);
 		
 		// If expired, try the refresh token
 		if($access_token->getExpires() && $access_token->hasExpired()) {
-			try {
-				if(false == ($refresh_token = $access_token->getRefreshToken()))
-					return false;
-				
-				$access_token = $provider->getAccessToken('refresh_token', [
-					'refresh_token' => $refresh_token
-				]);
-				
-			} catch(Exception $e) {
-				error_log($e->getMessage());
+			if(false == ($access_token = $this->_refreshToken($access_token, $params, $account)))
 				return false;
-			}
-			
-			// Merge new params
-			$new_params = $access_token->jsonSerialize();
-			$params = array_merge($params, $new_params);
-			
-			DAO_ConnectedAccount::setAndEncryptParams($account->id, $params);
 		}
+		
+		return $access_token;
+	}
+	
+	private function _refreshToken(AccessToken $access_token, array $params, Model_ConnectedAccount $account) {
+		try {
+			if(false == ($service = $account->getService()))
+				return false;
+			
+			if(false == ($provider = $this->_getProvider($service)))
+				return false;
+			
+			if(false == ($refresh_token = $access_token->getRefreshToken()))
+				return false;
+			
+			$access_token = $provider->getAccessToken('refresh_token', [
+				'refresh_token' => $refresh_token
+			]);
+			
+		} catch(Exception $e) {
+			error_log($e->getMessage());
+			return false;
+		}
+		
+		// Merge new params
+		$new_params = $access_token->jsonSerialize();
+		$params = array_merge($params, $new_params);
+		
+		DAO_ConnectedAccount::setAndEncryptParams($account->id, $params);
+		
+		return $access_token;
+	}
+	
+	function authenticateHttpRequest(Model_ConnectedAccount $account, Psr\Http\Message\RequestInterface &$request, array &$options = []) : bool {
+		if(false == ($access_token = $this->getAccessToken($account)))
+			return false;
+		
+		if(false == ($service = $account->getService()))
+			return false;
+		
+		if(false == ($provider = $this->_getProvider($service)))
+			return false;
 		
 		$authed_request = $provider->getAuthenticatedRequest(
 			$request->getMethod(),
