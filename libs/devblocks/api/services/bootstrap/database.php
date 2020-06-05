@@ -434,7 +434,7 @@ class _DevblocksDatabaseManager {
 			DevblocksPlatform::services()->log('MASTER');
 		
 		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
-		return $this->_GetOne($rs);
+		return $this->GetOneFromResultset($rs);
 	}
 	
 	function GetOneSlave($sql) {
@@ -442,10 +442,10 @@ class _DevblocksDatabaseManager {
 			DevblocksPlatform::services()->log('SLAVE');
 		
 		$rs = $this->ExecuteSlave($sql);
-		return $this->_GetOne($rs);
+		return $this->GetOneFromResultset($rs);
 	}
-
-	private function _GetOne($rs) {
+	
+	function GetOneFromResultset($rs) {
 		if($rs instanceof mysqli_result) {
 			if(0 == mysqli_num_rows($rs))
 				return false;
