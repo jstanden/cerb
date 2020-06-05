@@ -268,8 +268,11 @@ $(function() {
         {/if}
 
         var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
-            var $widget = $popup.find('.cerb-card-widget[data-widget-id=' + widget_id + '] .cerb-card-widget--content').empty();
-            $('<span class="cerb-ajax-spinner"/>').appendTo($widget);
+            var $widget = $popup.find('.cerb-card-widget[data-widget-id=' + widget_id + '] .cerb-card-widget--content').fadeTo('fast', 0.3);
+
+            $('<span class="cerb-ajax-spinner cerb-float"/>')
+                .prependTo($widget)
+            ;
 
             var formData;
 
@@ -312,6 +315,8 @@ $(function() {
                             console.error(e);
                     }
                 }
+
+                $widget.fadeTo('fast', 1.0);
                 callback();
             });
         };

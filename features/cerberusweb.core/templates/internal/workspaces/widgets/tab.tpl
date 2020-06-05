@@ -277,13 +277,18 @@ $(function() {
 	{/if}
 	
 	var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
-		var $widget = $('#workspaceWidget' + widget_id).empty();
-		$('<span class="cerb-ajax-spinner"/>').appendTo($widget);
+		var $widget = $('#workspaceWidget' + widget_id).fadeTo('fast', 0.3);
+
+		$('<span class="cerb-ajax-spinner cerb-float"/>')
+			.prependTo($widget)
+		;
+
+		var formData;
 
 		if(refresh_options instanceof FormData) {
-			var formData = refresh_options;
+			formData = refresh_options;
 		} else {
-			var formData = new FormData();
+			formData = new FormData();
 		}
 
 		formData.set('c', 'profiles');
@@ -317,6 +322,8 @@ $(function() {
 						console.error(e);
 				}
 			}
+
+			$widget.fadeTo('fast', 1.0);
 			callback();
 		});
 	};
