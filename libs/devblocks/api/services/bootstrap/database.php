@@ -502,4 +502,17 @@ class _DevblocksDatabaseManager {
 		
 		return mysqli_error($db);
 	}
+	
+	function Free($resultsets) {
+		if($resultsets instanceof mysqli_result) {
+			$resultsets = [$resultsets];
+		} else if(!is_array($resultsets)) {
+			return false;
+		}
+		
+		foreach($resultsets as $rs) {
+			if($rs instanceof mysqli_result)
+				@mysqli_free_result($rs);
+		}
+	}
 };
