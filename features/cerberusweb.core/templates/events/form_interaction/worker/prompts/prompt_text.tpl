@@ -10,3 +10,16 @@
 	<input name="prompts[{$var}]" type="text" placeholder="{$placeholder}" value="{$value|default:$default}" autocomplete="off">
 	{/if}
 </div>
+
+<script type="text/javascript">
+$(function() {
+	var $prompt = $('#{$element_id}');
+
+	var $input = $prompt.find('input[type=text],textarea');
+	var input = $input.get(0);
+
+	// Move the cursor to the end of the text
+	input.focus();
+	input.setSelectionRange(input.value.length, input.value.length);
+});
+</script>
