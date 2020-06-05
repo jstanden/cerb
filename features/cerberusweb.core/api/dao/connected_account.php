@@ -512,6 +512,7 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_OWNER = '*_owner';
+	const VIRTUAL_SERVICE_SEARCH = '*_service_search';
 	
 	static private $_fields = null;
 	
@@ -538,7 +539,11 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'connected_account.owner_context', 'connected_account.owner_context_id');
 				break;
-				
+			
+			case self::VIRTUAL_SERVICE_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONNECTED_SERVICE, 'connected_account.service_id');
+				break;
+			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
 					return self::_getWhereSQLFromCustomFields($param);
@@ -626,6 +631,7 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner'), null, false),
+			self::VIRTUAL_SERVICE_SEARCH => new DevblocksSearchField(self::VIRTUAL_SERVICE_SEARCH, '*', 'service_search', null, null, false),
 		);
 		
 		// Custom Fields
@@ -711,6 +717,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 			SearchFields_ConnectedAccount::OWNER_CONTEXT_ID,
 			SearchFields_ConnectedAccount::VIRTUAL_CONTEXT_LINK,
 			SearchFields_ConnectedAccount::VIRTUAL_HAS_FIELDSET,
+			SearchFields_ConnectedAccount::VIRTUAL_SERVICE_SEARCH,
 		));
 		
 		$this->doResetCriteria();
@@ -859,12 +866,18 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CONNECTED_SERVICE, 'q' => ''],
 					]
 				),
-			'service' => 
+			'service' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_ConnectedAccount::SERVICE_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [
+						'param_key' => SearchFields_ConnectedAccount::VIRTUAL_SERVICE_SEARCH,
+						'select_key' => 'connected_account.service_id',
+					],
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CONNECTED_SERVICE, 'q' => ''],
+					]
 				),
-			'updated' => 
+			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_ConnectedAccount::UPDATED_AT),
@@ -899,6 +912,10 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
 			
+			case 'service':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ConnectedAccount::VIRTUAL_SERVICE_SEARCH);
+				break;
+				
 			default:
 				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
 					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_ConnectedAccount::VIRTUAL_OWNER);
@@ -960,6 +977,13 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 				
 			case SearchFields_ConnectedAccount::VIRTUAL_OWNER:
 				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners', 'Owner matches');
+				break;
+			
+			case SearchFields_ConnectedAccount::VIRTUAL_SERVICE_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.service')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
 				break;
 		}
 	}
