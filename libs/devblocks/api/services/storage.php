@@ -200,12 +200,12 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				}
 				break;
 				
-			case '_slave_db':
-				if(isset($this->_connections['slave_db']))
-					return $this->_connections['slave_db'];
+			case '_reader_db':
+				if(isset($this->_connections['reader_db']))
+					return $this->_connections['reader_db'];
 					
 				if(false != ($conn = $this->_getConnection(false))) {
-					$this->_connections['slave_db'] = $conn;
+					$this->_connections['reader_db'] = $conn;
 					return $conn;
 				}
 				break;
@@ -225,7 +225,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				$conn = $db->getMasterConnection();
 				
 			} else {
-				$conn = $db->getSlaveConnection();
+				$conn = $db->getReaderConnection();
 			}
 			
 		// Use the provided connection details
@@ -439,7 +439,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 
 	// Pass an optional file pointer to write the response to (by reference)
 	public function get($namespace, $key, &$fp=null) {
-		if(false === ($result = mysqli_query($this->_slave_db, sprintf("SELECT data FROM storage_%s WHERE id=%d ORDER BY chunk ASC",
+		if(false === ($result = mysqli_query($this->_reader_db, sprintf("SELECT data FROM storage_%s WHERE id=%d ORDER BY chunk ASC",
 				$this->escapeNamespace($namespace),
 				$key
 			))))

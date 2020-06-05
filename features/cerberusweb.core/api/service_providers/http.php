@@ -29,7 +29,7 @@ class ServiceProvider_HttpBasic extends Extension_ConnectedServiceProvider {
 		
 		// [TODO] Each line should validate as a URL prefix
 		$validation
-			->addField('url_whitelist','URL whitelist')
+			->addField('url_whitelist','URL allowlist')
 			->string()
 			->setMaxLength(65536)
 			->setNotEmpty(false)

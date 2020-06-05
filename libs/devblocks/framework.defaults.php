@@ -22,20 +22,20 @@ if(!defined('APP_DB_USER'))
 if(!defined('APP_DB_PASS'))
 	define('APP_DB_PASS','');
 
-if(!defined('APP_DB_SLAVE_HOST'))
-	define('APP_DB_SLAVE_HOST','');
+if(!defined('APP_DB_READER_HOST'))
+	define('APP_DB_READER_HOST', defined('APP_DB_SLAVE_HOST') ? APP_DB_SLAVE_HOST : '');
 
-if(!defined('APP_DB_SLAVE_USER'))
-	define('APP_DB_SLAVE_USER','');
+if(!defined('APP_DB_READER_USER'))
+	define('APP_DB_READER_USER', defined('APP_DB_SLAVE_USER') ? APP_DB_SLAVE_USER : '');
 
-if(!defined('APP_DB_SLAVE_PASS'))
-	define('APP_DB_SLAVE_PASS','');
+if(!defined('APP_DB_READER_PASS'))
+	define('APP_DB_READER_PASS', defined('APP_DB_SLAVE_PASS') ? APP_DB_SLAVE_PASS : '');
 
 if(!defined('APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS'))
 	define('APP_DB_OPT_MASTER_CONNECT_TIMEOUT_SECS', 5);
 
-if(!defined('APP_DB_OPT_SLAVE_CONNECT_TIMEOUT_SECS'))
-	define('APP_DB_OPT_SLAVE_CONNECT_TIMEOUT_SECS', 1);
+if(!defined('APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS'))
+	define('APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS', 1);
 
 if(!defined('APP_DB_OPT_READ_MASTER_AFTER_WRITE'))
 	define('APP_DB_OPT_READ_MASTER_AFTER_WRITE', 0);

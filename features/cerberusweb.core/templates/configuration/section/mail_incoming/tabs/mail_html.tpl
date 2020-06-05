@@ -84,7 +84,7 @@
         </div>
 
         <fieldset class="peek black">
-            <legend>Whitelist</legend>
+            <legend>Allow</legend>
 
             <p>
                 Links matching these patterns will <b>not</b> display a warning:

@@ -37,7 +37,7 @@ if(isset($tables['preparse_rule'])) {
 			$db->qstr('cerberusweb.contexts.app'),
 			0,
 			$db->qstr('event.mail.received.app'),
-			$db->qstr('Delivery Blacklist')
+			$db->qstr('Delivery Blocklist')
 		));
 		$trigger_id = $db->LastInsertId();
 		

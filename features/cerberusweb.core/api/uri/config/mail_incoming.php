@@ -620,7 +620,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			;
 		
 		$validation
-			->addField('links_whitelist', 'Links whitelist')
+			->addField('links_whitelist', 'Links allowlist')
 			->string()
 			->setMaxLength('16 bits')
 			;
