@@ -69,6 +69,21 @@
 		</td>
 	</tr>
 	<tr>
+		<td width="0%" nowrap="nowrap"><b>XOAuth2:</b><br><small>({'common.optional'|devblocks_translate|lower})</small></td>
+		<td width="100%">
+			<button type="button" class="chooser-abstract" data-field-name="connected_account_id" data-context="{Context_ConnectedAccount::ID}" data-single="true" data-query="service:(type:oauth2)"><span class="glyphicons glyphicons-search"></span></button>
+
+			<ul class="bubbles chooser-container">
+				{if $model && $model->connected_account_id}
+					{$account = DAO_ConnectedAccount::get($model->connected_account_id)}
+					{if $account}
+						<li><input type="hidden" name="connected_account_id" value="{$account->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_ConnectedAccount::ID}" data-context-id="{$account->id}">{$account->name}</a></li>
+					{/if}
+				{/if}
+			</ul>
+		</td>
+	</tr>
+	<tr>
 		<td width="0%" nowrap="nowrap"><b>Port:</b></td>
 		<td width="100%">
 			<input type="text" name="port" value="{$model->port}" size="5"> (leave blank for default)
@@ -133,6 +148,9 @@ $(function() {
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{'Mailbox'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
+
+		$popup.find('.chooser-abstract').cerbChooserTrigger();
+		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);

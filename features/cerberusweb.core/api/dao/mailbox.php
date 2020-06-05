@@ -17,6 +17,7 @@
 
 class DAO_Mailbox extends Cerb_ORMHelper {
 	const CHECKED_AT = 'checked_at';
+	const CONNECTED_ACCOUNT_ID = 'connected_account_id';
 	const DELAY_UNTIL = 'delay_until';
 	const ENABLED = 'enabled';
 	const HOST = 'host';
@@ -40,6 +41,12 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		$validation
 			->addField(self::CHECKED_AT)
 			->timestamp()
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::CONNECTED_ACCOUNT_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(Context_ConnectedAccount::ID, true))
 			;
 		// int(10) unsigned
 		$validation
@@ -86,7 +93,6 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			->addField(self::PASSWORD)
 			->string()
 			->setMaxLength(128)
-			->setRequired(true)
 			;
 		// smallint(5) unsigned
 		$validation
@@ -217,7 +223,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 
 		// SQL
-		$sql = "SELECT id, enabled, name, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, updated_at, checked_at ".
+		$sql = "SELECT id, enabled, name, protocol, host, username, password, port, num_fails, delay_until, timeout_secs, max_msg_size_kb, updated_at, checked_at, connected_account_id ".
 			"FROM mailbox ".
 			$where_sql.
 			$sort_sql.
@@ -297,6 +303,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			$object->max_msg_size_kb = intval($row['max_msg_size_kb']);
 			$object->updated_at = intval($row['updated_at']);
 			$object->checked_at = intval($row['checked_at']);
+			$object->connected_account_id = intval($row['connected_account_id']);
 			$objects[$object->id] = $object;
 		}
 
@@ -361,6 +368,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 			"mailbox.timeout_secs as %s, ".
 			"mailbox.max_msg_size_kb as %s, ".
 			"mailbox.updated_at as %s, ".
+			"mailbox.connected_account_id as %s, ".
 			"mailbox.checked_at as %s ",
 				SearchFields_Mailbox::ID,
 				SearchFields_Mailbox::ENABLED,
@@ -375,6 +383,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 				SearchFields_Mailbox::TIMEOUT_SECS,
 				SearchFields_Mailbox::MAX_MSG_SIZE_KB,
 				SearchFields_Mailbox::UPDATED_AT,
+				SearchFields_Mailbox::CONNECTED_ACCOUNT_ID,
 				SearchFields_Mailbox::CHECKED_AT
 			);
 
@@ -463,6 +472,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 
 class Model_Mailbox {
 	public $checked_at = 0;
+	public $connected_account_id = 0;
 	public $delay_until = 0;
 	public $enabled=1;
 	public $host;
@@ -498,6 +508,40 @@ class Model_Mailbox {
 				$options['secure'] = 'tlsv1';
 			} else if(in_array($this->protocol, ['imap-starttls','pop3-starttls'])) {
 				$options['secure'] = 'tls';
+			}
+			
+			// Are we using a connected account for XOAUTH2?
+			if($this->connected_account_id) {
+				if(false == ($connected_account = DAO_ConnectedAccount::get($this->connected_account_id))) {
+					$error = "Failed to load the connected account";
+					return false;
+				}
+				
+				if(false == ($service = $connected_account->getService())) {
+					$error = "Failed to load the connected service";
+					return false;
+				}
+				
+				if(false == ($service_extension = $service->getExtension())) {
+					$error = "Failed to load the connected service extension";
+					return false;
+				}
+				
+				if(!($service_extension instanceof ServiceProvider_OAuth2)) {
+					$error = "The connected account is not an OAuth2 provider";
+					return false;
+				}
+				
+				/** @var $service_extension ServiceProvider_OAuth2 */
+				if(false == ($access_token = $service_extension->getAccessToken($connected_account))) {
+					$error = "Failed to load the access token";
+					return false;
+				}
+				
+				$options['xoauth2_token'] = new Horde_Imap_Client_Password_Xoauth2($this->username, $access_token->getToken());
+				
+				if(!$options['password'])
+					$options['password'] = 'XOAUTH2';
 			}
 			
 			if (DevblocksPlatform::strStartsWith($this->protocol, 'pop3')) {
@@ -538,6 +582,7 @@ class Model_Mailbox {
 
 class SearchFields_Mailbox extends DevblocksSearchFields {
 	const CHECKED_AT = 'p_checked_at';
+	const CONNECTED_ACCOUNT_ID = 'p_connected_account_id';
 	const DELAY_UNTIL = 'p_delay_until';
 	const ENABLED = 'p_enabled';
 	const HOST = 'p_host';
@@ -628,6 +673,7 @@ class SearchFields_Mailbox extends DevblocksSearchFields {
 
 		$columns = array(
 			self::CHECKED_AT => new DevblocksSearchField(self::CHECKED_AT, 'mailbox', 'checked_at', $translate->_('dao.mailbox.checked_at'), Model_CustomField::TYPE_DATE, true),
+			self::CONNECTED_ACCOUNT_ID => new DevblocksSearchField(self::CONNECTED_ACCOUNT_ID, 'mailbox', 'connected_account_id', $translate->_('common.connected_account'), Model_CustomField::TYPE_NUMBER, true),
 			self::DELAY_UNTIL => new DevblocksSearchField(self::DELAY_UNTIL, 'mailbox', 'delay_until', $translate->_('dao.mailbox.delay_until'), Model_CustomField::TYPE_DATE, true),
 			self::ENABLED => new DevblocksSearchField(self::ENABLED, 'mailbox', 'enabled', $translate->_('common.enabled'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::HOST => new DevblocksSearchField(self::HOST, 'mailbox', 'host', $translate->_('common.host'), Model_CustomField::TYPE_SINGLE_LINE, true),
@@ -681,6 +727,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 			SearchFields_Mailbox::MAX_MSG_SIZE_KB,
 			SearchFields_Mailbox::UPDATED_AT,
 			SearchFields_Mailbox::CHECKED_AT,
+			SearchFields_Mailbox::CONNECTED_ACCOUNT_ID,
 		);
 
 		$this->addColumnsHidden(array(
@@ -958,6 +1005,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 
+			case SearchFields_Mailbox::CONNECTED_ACCOUNT_ID:
 			case SearchFields_Mailbox::ID:
 			case SearchFields_Mailbox::NUM_FAILS:
 			case SearchFields_Mailbox::PORT:
@@ -1059,6 +1107,15 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			'params' => [
 				'context' => self::ID,
 			],
+		);
+		
+		$properties['connected_account_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.connected_account'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->connected_account_id,
+			'params' => [
+				'context' => Context_ConnectedAccount::ID,
+			]
 		);
 		
 		$properties['id'] = array(
@@ -1184,6 +1241,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		$token_labels = array(
 			'_label' => $prefix,
 			'checked_at' => $prefix.$translate->_('dao.mailbox.checked_at'),
+			'connected_account_id' => $prefix.$translate->_('common.connected_account'),
 			'host' => $prefix.$translate->_('common.host'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_enabled' => $prefix.$translate->_('common.enabled'),
@@ -1202,6 +1260,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		$token_types = array(
 			'_label' => 'context_url',
 			'checked_at' => Model_CustomField::TYPE_DATE,
+			'connected_account_id' => Model_CustomField::TYPE_NUMBER,
 			'host' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_enabled' => Model_CustomField::TYPE_CHECKBOX,
@@ -1234,6 +1293,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $mailbox->name;
 			$token_values['checked_at'] = $mailbox->checked_at;
+			$token_values['connected_account_id'] = $mailbox->connected_account_id;
 			$token_values['host'] = $mailbox->host;
 			$token_values['id'] = $mailbox->id;
 			$token_values['is_enabled'] = $mailbox->enabled;
@@ -1260,6 +1320,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 	function getKeyToDaoFieldMap() {
 		return [
 			'checked_at' => DAO_Mailbox::CHECKED_AT,
+			'connected_account_id' => DAO_Mailbox::CONNECTED_ACCOUNT_ID,
 			'host' => DAO_Mailbox::HOST,
 			'id' => DAO_Mailbox::ID,
 			'is_enabled' => DAO_Mailbox::ENABLED,
@@ -1280,6 +1341,7 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		$keys = parent::getKeyMeta();
 		
 		$keys['checked_at']['notes'] = "The date/time this mailbox was last checked for new messages";
+		$keys['connected_account_id']['notes'] = "The optional connected account to use for XOAUTH2";
 		$keys['host']['notes'] = "The mail server hostname";
 		$keys['is_enabled']['notes'] = "Is this mailbox enabled? `1` for true and `0` for false";
 		$keys['max_msg_size_kb']['notes'] = "The maximum message size to download (in kilobytes); `0` to disable limits";

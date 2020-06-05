@@ -89,7 +89,18 @@ class _DevblocksEmailManager {
 		return $this->_lastErrorMessage;
 	}
 	
-	private function _testMailboxImap($server, $port, $service, $username, $password, $timeout_secs=30) {
+	/**
+	 * @param $server
+	 * @param $port
+	 * @param $service
+	 * @param $username
+	 * @param $password
+	 * @param int $timeout_secs
+	 * @param int $connected_account_id
+	 * @return bool
+	 * @throws Exception
+	 */
+	private function _testMailboxImap($server, $port, $service, $username, $password, $timeout_secs=30, $connected_account_id=0) {
 		$imap_timeout = !empty($timeout_secs) ? $timeout_secs : 30;
 		
 		try {
@@ -106,6 +117,30 @@ class _DevblocksEmailManager {
 				$options['secure'] = 'tlsv1';
 			} else if($service == 'imap-starttls') {
 				$options['secure'] = 'tls';
+			}
+			
+			// Are we using a connected account for XOAUTH2?
+			if($connected_account_id) {
+				if(false == ($connected_account = DAO_ConnectedAccount::get($connected_account_id)))
+					throw new Exception("Failed to load the connected account");
+					
+				if(false == ($service = $connected_account->getService()))
+					throw new Exception("Failed to load the connected service");
+				
+				if(false == ($service_extension = $service->getExtension()))
+					throw new Exception("Failed to load the connected service extension");
+				
+				if(!($service_extension instanceof ServiceProvider_OAuth2))
+					throw new Exception("The connected account is not an OAuth2 provider");
+				
+				/** @var $service_extension ServiceProvider_OAuth2 */
+				if(false == ($access_token = $service_extension->getAccessToken($connected_account)))
+					throw new Exception("Failed to load the access token");
+				
+				$options['xoauth2_token'] = new Horde_Imap_Client_Password_Xoauth2($username, $access_token->getToken());
+				
+				if(!$options['password'])
+					$options['password'] = 'XOAUTH2';
 			}
 			
 			$client = new Horde_Imap_Client_Socket($options);
@@ -153,7 +188,7 @@ class _DevblocksEmailManager {
 		return TRUE;
 	}
 	
-	function testMailbox($server, $port, $service, $username, $password, $timeout_secs=30) {
+	function testMailbox($server, $port, $service, $username, $password, $timeout_secs=30, $connected_account_id=0) {
 		switch($service) {
 			default:
 			case 'pop3':
@@ -164,7 +199,7 @@ class _DevblocksEmailManager {
 			case 'imap':
 			case 'imap-ssl':
 			case 'imap-starttls':
-				return $this->_testMailboxImap($server, $port, $service, $username, $password, $timeout_secs);
+				return $this->_testMailboxImap($server, $port, $service, $username, $password, $timeout_secs, $connected_account_id);
 		}
 	}
 	

@@ -47,7 +47,7 @@ if('utf8_general_ci' == $columns['field_value']['collation']) {
 }
 
 // ===========================================================================
-// Drop `mailbox.ssl_ignore_validation` bit
+// Drop `mailbox.ssl_ignore_validation` and `mailbox.auth_disable_plain` bits
 
 list($columns,) = $db->metaTable('mailbox');
 
@@ -56,13 +56,13 @@ if(array_key_exists('ssl_ignore_validation', $columns)) {
 	$db->ExecuteMaster($sql);
 }
 
-// ===========================================================================
-// Drop `mailbox.auth_disable_plain` bit
-
-list($columns,) = $db->metaTable('mailbox');
-
 if(array_key_exists('auth_disable_plain', $columns)) {
 	$sql = "ALTER TABLE mailbox DROP COLUMN auth_disable_plain";
+	$db->ExecuteMaster($sql);
+}
+
+if(!array_key_exists('connected_account_id', $columns)) {
+	$sql = "ALTER TABLE mailbox ADD COLUMN connected_account_id INT UNSIGNED NOT NULL DEFAULT 0";
 	$db->ExecuteMaster($sql);
 }
 
