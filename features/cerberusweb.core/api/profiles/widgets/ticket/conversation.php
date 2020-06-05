@@ -75,24 +75,16 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 			$tpl->assign('drafts', $drafts);
 		
 		// Only unqueued drafts
-		$pending_drafts = [];
+		$pending_drafts = array_filter($drafts, function($draft) {
+			return !$draft->is_queued;
+		});
 		
-		if(!empty($drafts) && is_array($drafts))
-		foreach($drafts as $draft_id => $draft) {
-			if(!$draft->is_queued)
-				$pending_drafts[$draft_id] = $draft;
-		}
-		
-		if(!empty($pending_drafts))
+		if($pending_drafts)
 			$tpl->assign('pending_drafts', $pending_drafts);
 		
 		// Messages
-		$messages = $ticket->getMessages();
-		
-		arsort($messages);
-		
-		$tpl->assign('latest_message_id',key($messages));
-		$tpl->assign('messages', $messages);
+		if(false == ($messages = $ticket->getMessages()))
+			$messages = [];
 		
 		// Thread comments and messages on the same level
 		$convo_timeline = [];
@@ -101,17 +93,61 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$message_senders = [];
 		$message_sender_orgs = [];
 		
+		// Message Notes
+		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages));
+		$message_notes = [];
+		// Index notes by message id
+		if(is_array($notes))
+			foreach($notes as $note) {
+				if(!isset($message_notes[$note->context_id]))
+					$message_notes[$note->context_id] = [];
+				$message_notes[$note->context_id][$note->id] = $note;
+			}
+		$tpl->assign('message_notes', $message_notes);
+
 		// Loop messages
-		if(is_array($messages))
+		
+		arsort($messages);
+		
+		$has_seen_worker_reply = false;
+		$messages_seen = 0;
+		$messages_highlighted = [];
+		
 		foreach($messages as $message_id => $message) { /* @var $message Model_Message */
 			$key = $message->created_date . '_m' . $message_id;
+			
+			if($message->is_outgoing)
+				$has_seen_worker_reply = true;
+			
+			$messages_seen++;
+			
+			$expanded =
+				$expand_all // If expanding everything
+				|| 1 == $messages_seen // If it's the first message
+				|| !$has_seen_worker_reply // If it's a series of client messages
+				|| array_key_exists($message_id, $message_notes) // If we have sticky notes
+			;
+			
+			if(!$has_seen_worker_reply)
+				$messages_highlighted[$message_id] = $message;
+			
 			// build a chrono index of messages
-			$convo_timeline[$key] = array('m', $message_id);
+			$convo_timeline[$key] = [
+				'type' => 'm',
+				'id' => $message_id,
+				'expand' => $expanded,
+			];
 			
 			// If we haven't cached this sender address yet
 			if($message->address_id)
 				$message_senders[$message->address_id] = null;
 		}
+		
+		if(1 == count($messages_highlighted))
+			$messages_highlighted = [];
+		
+		$tpl->assign('messages', $messages);
+		$tpl->assign('messages_highlighted', $messages_highlighted);
 		
 		// Bulk load sender address records
 		$message_senders = CerberusApplication::hashLookupAddresses(array_keys($message_senders));
@@ -147,7 +183,10 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 					} else {
 						$key = $comment->created . '_c' . $comment_id;
 					}
-					$convo_timeline[$key] = array('c',$comment_id);
+					$convo_timeline[$key] = [
+						'type' => 'c',
+						'id' => $comment_id,
+					];
 				}
 			}
 		}
@@ -160,7 +199,10 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 				} else {
 					$key = $draft->updated . '_d' . $draft_id;
 				}
-				$convo_timeline[$key] = array('d', $draft_id);
+				$convo_timeline[$key] = [
+					'type' => 'd',
+					'id' => $draft_id
+				];
 			}
 		}
 		
@@ -170,19 +212,8 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		} else {
 			ksort($convo_timeline);
 		}
-		$tpl->assign('convo_timeline', $convo_timeline);
 		
-		// Message Notes
-		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, array_keys($messages));
-		$message_notes = [];
-		// Index notes by message id
-		if(is_array($notes))
-		foreach($notes as $note) {
-			if(!isset($message_notes[$note->context_id]))
-				$message_notes[$note->context_id] = [];
-			$message_notes[$note->context_id][$note->id] = $note;
-		}
-		$tpl->assign('message_notes', $message_notes);
+		$tpl->assign('convo_timeline', $convo_timeline);
 		
 		// Draft Notes
 		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_DRAFT, array_keys($drafts));

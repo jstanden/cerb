@@ -9,18 +9,26 @@
 	</div>
 	{/if}
 	
-	{if is_array($pending_drafts)}
+	{if is_array($pending_drafts) && $pending_drafts}
 	<div style="color:rgb(236,87,29);">
-		<p>
-		<span class="glyphicons glyphicons-circle-exclamation-mark"></span> 
+		<span class="glyphicons glyphicons-circle-exclamation-mark"></span>
 		This ticket has <strong>{$drafts|count nofilter}</strong> pending draft{if $drafts|count == 1}{else}s{/if}: 
 		{foreach from=$pending_drafts item=draft name=drafts}
 			<a href="#draft{$draft->id}">{$draft->updated|devblocks_prettytime}</a>{if !$smarty.foreach.drafts.last}, {/if} 
 		{/foreach}
-		</p>
 	</div>
 	{/if}
-	
+
+	{if is_array($messages_highlighted) && $messages_highlighted}
+		<div style="color:rgb(236,87,29);">
+			<span class="glyphicons glyphicons-circle-exclamation-mark"></span>
+			There are <strong>{$messages_highlighted|count nofilter}</strong> new messages since our last response:
+			{foreach from=$messages_highlighted item=message name=messages}
+				<a href="#message{$message->id}">{$message->created_date|devblocks_prettytime}</a>{if !$smarty.foreach.messages.last}, {/if}
+			{/foreach}
+		</div>
+	{/if}
+
 	<div id="tourDisplayConversation"></div>
 	
 	{if $expand_all}
@@ -37,26 +45,25 @@
 			{foreach from=$convo_timeline item=convo_set name=items}
 				{$last_state = $state}
 				
-				{if $convo_set.0=='m'}
+				{if $convo_set.type=='m'}
 					{$state = 'message'}
-				{elseif $convo_set.0=='c'}
+				{elseif $convo_set.type=='c'}
 					{$state = 'comment'}
-				{elseif $convo_set.0=='d'}
+				{elseif $convo_set.type=='d'}
 					{$state = 'draft'}
 				{/if}
 				
 				{if $state == 'message'}
-					{assign var=message_id value=$convo_set.1}
+					{assign var=message_id value=$convo_set.id}
+					{assign var=message_expanded value=$convo_set.expand}
 					{assign var=message value=$messages.$message_id}
 					
 					<div id="message{$message->id}">
-						{assign var=expanded value=false}
-						{if $expand_all || $latest_message_id==$message_id || isset($message_notes.$message_id)}{assign var=expanded value=true}{/if}
-						{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$expanded}
+						{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$message_expanded}
 					</div>
 					
 				{elseif $state == 'comment'}
-					{assign var=comment_id value=$convo_set.1}
+					{assign var=comment_id value=$convo_set.id}
 					{assign var=comment value=$comments.$comment_id}
 					
 					<div id="comment{$comment->id}">
@@ -64,7 +71,7 @@
 					</div>
 					
 				{elseif $state == 'draft'}
-					{assign var=draft_id value=$convo_set.1}
+					{assign var=draft_id value=$convo_set.id}
 					{assign var=draft value=$drafts.$draft_id}
 					
 					<div id="draft{$draft->id}">
