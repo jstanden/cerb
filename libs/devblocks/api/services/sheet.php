@@ -183,6 +183,7 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			$value = '';
+			$card_label_is_escaped = false;
 			
 			if(array_key_exists('label', $column_params) && $column_params['label']) {
 				$card_label = $column_params['label'];
@@ -191,6 +192,7 @@ class _DevblocksSheetServiceTypes {
 			} else if(array_key_exists('label_template', $column_params)) {
 				$card_label = $tpl_builder->build($column_params['label_template'], $sheet_dict);
 				$card_label = DevblocksPlatform::purifyHTML($card_label, false, true, [$filter]);
+				$card_label_is_escaped = true;
 			} else {
 				$card_label = $sheet_dict->get($default_card_label_key);
 			}
@@ -224,11 +226,13 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			if($card_context && $card_id && $card_label) {
+				$avatar_value = '';
+				
 				// Avatar image?
 				if(array_key_exists('image', $column_params) && $column_params['image']) {
 					$avatar_size = '1.5em';
 					
-					$value .= sprintf('<img src="%s?v=%s" style="width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
+					$avatar_value .= sprintf('<img src="%s?v=%s" style="width:%s;border-radius:%s;margin-right:0.25em;vertical-align:middle;">',
 						$url_writer->write(sprintf("c=avatars&ctx=%s&id=%d",
 							DevblocksPlatform::strEscapeHtml($card_context),
 							$card_id
@@ -240,11 +244,12 @@ class _DevblocksSheetServiceTypes {
 				}
 				
 				// Card link
-				$value .= sprintf('<span class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="text-decoration:%s;cursor:pointer;">%s</span>',
+				$value .= sprintf('<div class="cerb-peek-trigger" data-context="%s" data-context-id="%d" style="text-decoration:%s;display:inline-block;cursor:pointer;">%s%s</div>',
 					DevblocksPlatform::strEscapeHtml($card_context),
 					$card_id,
-					$is_underlined ? 'underline' : false,
-					DevblocksPlatform::strEscapeHtml($card_label)
+					$is_underlined ? 'underline' : 'normal',
+					$avatar_value,
+					$card_label_is_escaped ? $card_label : DevblocksPlatform::strEscapeHtml($card_label)
 				);
 				
 			} else {
