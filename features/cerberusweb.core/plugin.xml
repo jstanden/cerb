@@ -4833,6 +4833,23 @@
 		</extension>
 		
 		<extension point="devblocks.event.action">
+			<id>core.bot.action.pgp.encrypt</id>
+			<name>PGP Encrypt</name>
+			<class>
+				<file>api/bots/actions/pgp.php</file>
+				<name>BotAction_PgpEncrypt</name>
+			</class>
+			<params>
+				<param key="label" value="Execute PGP encrypt" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.event.action">
 			<id>core.bot.action.calculate_time_elapsed</id>
 			<name>Get time elapsed using calendar availability</name>
 			<class>
