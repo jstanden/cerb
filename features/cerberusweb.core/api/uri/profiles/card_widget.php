@@ -39,6 +39,8 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 					return $this->_profileAction_renderWidget();
 				case 'renderWidgetConfig':
 					return $this->_profileAction_renderWidgetConfig();
+				case 'invokeConfig':
+					return $this->_profileAction_invokeConfig();
 				case 'reorderWidgets':
 					return $this->_profileAction_reorderWidgets();
 				case 'savePeekJson':
@@ -497,6 +499,42 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+	
+	private function _profileAction_invokeConfig() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'string', '');
+		@$config_action = DevblocksPlatform::importGPC($_POST['config_action'], 'string', '');
+		
+		if(is_numeric($id)) {
+			if(false == ($model = DAO_CardWidget::get($id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			$extension = $model->getExtension();
+			
+		} else {
+			if(false == ($extension = Extension_CardWidget::get($id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			@$record_type = DevblocksPlatform::importGPC($_POST['record_type'], 'string', '');
+			
+			$model = new Model_CardWidget();
+			$model->id = 0;
+			$model->record_type = 'ticket';
+			$model->extension_id = $id;
+		}
+		
+		if(!Context_CardWidget::isWriteableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$extension->invokeConfig($config_action, $model);
 	}
 	
 	private function _profileAction_renderWidgetConfig() {

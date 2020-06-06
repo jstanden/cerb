@@ -4524,7 +4524,18 @@
 			<params>
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.form_interaction</id>
+			<name>Form Interaction</name>
+			<class>
+				<file>api/cards/widgets/form_interaction.php</file>
+				<name>CardWidget_FormInteraction</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.kb_article.viewer</id>
 			<name>Knowledgebase Article</name>
