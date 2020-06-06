@@ -1496,6 +1496,11 @@ class Model_CustomField {
 		return $fields;
 	}
 	
+	function getTypeLabel() {
+		$types = self::getTypes();
+		return @$types[$this->type];
+	}
+	
 	static function getTypeExtensions() {
 		$fields = [];
 		$custom_field_mfts = DevblocksPlatform::getExtensions(Extension_CustomField::POINT, false);
@@ -2197,6 +2202,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'name' => $prefix.$translate->_('common.name'),
 			'pos' => $prefix.$translate->_('common.order'),
 			'type' => $prefix.$translate->_('common.type'),
+			'type_label' => $prefix.'Type Label',
 			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
@@ -2208,6 +2214,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'pos' => Model_CustomField::TYPE_NUMBER,
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'type_label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 		);
 		
@@ -2226,6 +2233,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			$token_values['id'] = $cfield->id;
 			$token_values['name'] = $cfield->name;
 			$token_values['type'] = $cfield->type;
+			$token_values['type_label'] = $cfield->getTypeLabel();
 			$token_values['pos'] = $cfield->pos;
 			$token_values['updated_at'] = $cfield->updated_at;
 			
