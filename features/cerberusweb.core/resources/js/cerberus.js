@@ -3462,7 +3462,7 @@ var ajax = new cAjaxCalls();
 		return this.each(function() {
 			var $trigger = $(this);
 			
-			$trigger.click(function(evt) {
+			$trigger.on('click', function(evt) {
 				evt.preventDefault();
 				evt.stopPropagation();
 				
@@ -3515,10 +3515,11 @@ var ajax = new cAjaxCalls();
 				peek_open_event.popup_ref = $peek;
 				$trigger.trigger(peek_open_event);
 				
-				$peek.on('peek_saved', function(e) {
-					e.type = 'cerb-peek-saved';
-					e.context = context;
-					$trigger.trigger(e);
+				$peek.on('peek_saved cerb-peek-saved', function(e) {
+					var save_event = $.Event(e.type, e);
+					save_event.type = 'cerb-peek-saved';
+					save_event.context = context;
+					$trigger.trigger(save_event);
 					
 					if(e.is_new) {
 						var new_event = $.Event(e.type, e);
@@ -3527,7 +3528,7 @@ var ajax = new cAjaxCalls();
 					}
 				});
 				
-				$peek.on('peek_deleted', function(e) {
+				$peek.on('peek_deleted cerb-peek-deleted', function(e) {
 					e.type = 'cerb-peek-deleted';
 					e.context = context;
 					$trigger.trigger(e);

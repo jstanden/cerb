@@ -69,9 +69,13 @@ $(function() {
         $popup.find('button.cerb-peek-edit')
             .cerbPeekTrigger({ 'view_id': '{$view_id}' })
             .on('cerb-peek-saved', function(e) {
+                $popup.trigger($.Event(e));
+
                 genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
             })
             .on('cerb-peek-deleted', function(e) {
+                $popup.trigger($.Event(e));
+
                 genericAjaxPopupClose($layer);
             })
         ;
@@ -177,7 +181,7 @@ $(function() {
 
         $popup.on('cerb-widget-refresh', function(e) {
             var widget_id = e.widget_id;
-            var refresh_options = (e.refresh_options && typeof e.refresh_options == 'object') ? e.refresh_options : {};
+            var refresh_options = (e.refresh_options && typeof e.refresh_options == 'object') ? e.refresh_options : [];
 
             async.series([ async.apply(loadWidgetFunc, widget_id, false, refresh_options) ], function(err, json) {
                 // Done

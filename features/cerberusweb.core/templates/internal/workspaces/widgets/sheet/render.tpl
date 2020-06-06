@@ -62,6 +62,10 @@ $(function() {
 	
 	$widget.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
+		.on('cerb-peek-saved cerb-peek-deleted', function(e) {
+			var $tab = $widget.closest('.cerb-workspace-layout');
+			$tab.triggerHandler($.Event('cerb-widget-refresh', { widget_id: {$widget->id} }));
+		})
 		;
 	
 	$widget.find('.cerb-search-trigger')

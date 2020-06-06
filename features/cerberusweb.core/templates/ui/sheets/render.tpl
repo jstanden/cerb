@@ -57,8 +57,13 @@
 $(function() {
 	var $sheet = $('#{$sheet_uid}');
 	
+	// [TODO] Do this on all renderers
 	$sheet.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
+		.cerbPeekTrigger() // [TODO] Link to sheet ID
+		.on('cerb-peek-saved cerb-peek-deleted', function(e) {
+			// [TODO] Reload sheet via event
+			$sheet.trigger($.Event('cerb-sheet--refresh', { }));
+		})
 		;
 	
 	$sheet.find('.cerb-search-trigger')
