@@ -2,9 +2,13 @@
 	<fieldset id="widget{$widget->id}QueryEditor" class="peek">
 		<legend>
 			Run this data query: 
-			{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
 		</legend>
-		
+
+		<div class="cerb-code-editor-toolbar">
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sample-query" title="Test query"><span class="glyphicons glyphicons-play"></span></button>
+			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/data-queries/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+		</div>
+
 		<textarea name="params[data_query]" class="cerb-data-query-editor placeholders" data-editor-mode="ace/mode/cerb_query" style="width:95%;height:50px;">{$widget->params.data_query}</textarea>
 		
 		<div>
@@ -12,38 +16,59 @@
 			<input type="text" size="5" maxlength="6" name="params[cache_secs]" placeholder="e.g. 300" value="{$widget->params.cache_secs}"> seconds
 		</div>
 		
-		<div style="margin-top:5px;">
-			<button type="button" class="cerb-button-sample-query">Test query</button>
-			
-			<div style="display:none;">
+		<div style="margin:5px 0 0 20px;">
+			<div>
 				<div>
-					<b>Simulate placeholders:</b> (YAML)
+					<legend>Simulate placeholders:</b> (KATA)</legend>
 				</div>
-				<textarea name="params[placeholder_simulator_yaml]" class="cerb-data-query-editor-placeholders" data-editor-mode="ace/mode/yaml">{$model->params.placeholder_simulator_yaml}</textarea>
+				<textarea name="params[placeholder_simulator_kata]" class="cerb-data-query-editor-placeholders" data-editor-mode="ace/mode/yaml">{$widget->params.placeholder_simulator_kata}</textarea>
 			</div>
 			
-			<div style="display:none;">
-				<div>
-					<b>{'common.results'|devblocks_translate|capitalize}:</b>
-				</div>
+			<fieldset style="display:none;position:relative;">
+				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;" onclick="$(this).closest('fieldset').hide();"></span>
+				<legend>{'common.results'|devblocks_translate|capitalize}</legend>
 				<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
-			</div>
+			</fieldset>
 		</div>
 	</fieldset>
 	
 	<fieldset id="widget{$widget->id}Columns" class="peek">
 		<legend>
-			Display this sheet schema: <small>(YAML)</small> 
-			{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/sheets/"}
+			Display this sheet schema: <small>(KATA)</small>
 		</legend>
-		
-		<textarea name="params[sheet_yaml]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/yaml" style="width:95%;height:50px;">{$widget->params.sheet_yaml}</textarea>
-		
-		<div style="margin-top:5px;">
-			<button type="button" class="cerb-button-preview-sheet">Preview sheet</button>
-			<div class="cerb-sheet-preview"></div>
+
+		<div class="cerb-code-editor-toolbar">
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-preview-sheet" title="Preview sheet"><span class="glyphicons glyphicons-play"></span></button>
+			<div class="cerb-code-editor-toolbar-divider"></div>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-button-sheet-column-add" title="Add column"><span class="glyphicons glyphicons-circle-plus"></span></button>
+			<ul class="cerb-float" style="display:none;">
+				<li>
+					<b>Column</b>
+					<ul>
+						<li data-type="card">Card</li>
+						<li data-type="date">Date</li>
+						<li data-type="link">Link</li>
+						<li data-type="search">Search</li>
+						<li data-type="search_button">Search Button</li>
+						<li data-type="slider">Slider</li>
+						<li data-type="text">Text</li>
+						<li data-type="time_elapsed">Time Elapsed</li>
+					</ul>
+				</li>
+			</ul>
+			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/sheets/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 		</div>
+
+		<textarea name="params[sheet_kata]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/yaml" style="width:95%;height:50px;">{$widget->params.sheet_kata}</textarea>
 		
+		<div style="margin:5px 0 0 20px;">
+			<fieldset style="display:none;position:relative;">
+				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;" onclick="$(this).closest('fieldset').hide();"></span>
+				<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
+				<div class="cerb-sheet-preview"></div>
+			</fieldset>
+		</div>
+
 	</fieldset>
 </div>
 
@@ -53,13 +78,13 @@ $(function() {
 	var $frm = $config.closest('form');
 	var $query_button = $config.find('button.cerb-button-sample-query');
 	
-	var $query_editor = $config.find('textarea.cerb-data-query-editor')
+	$config.find('textarea.cerb-data-query-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteDataQueries()
 		.nextAll('pre.ace_editor')
 		;
 	
-	var $query_placeholders_editor = $config.find('textarea.cerb-data-query-editor-placeholders')
+	$config.find('textarea.cerb-data-query-editor-placeholders')
 		.cerbCodeEditor()
 		.nextAll('pre.ace_editor')
 		;
@@ -75,15 +100,11 @@ $(function() {
 		// If alt+click, clear the results
 		if(e.altKey) {
 			var json_results = ace.edit($json_results.attr('id'));
-			$json_results.parent().hide();
+			$json_results.closest('fieldset').hide();
 			json_results.setValue('');
-			$query_placeholders_editor.parent().hide();
 			return;
 		}
 		
-		var query_editor = ace.edit($query_editor.attr('id'));
-		$query_placeholders_editor.parent().show();
-
 		var field_key = 'params[data_query]';
 
 		var formData = new FormData($config.closest('form').get(0));
@@ -104,7 +125,7 @@ $(function() {
 				editor.setValue(json.response);
 				editor.clearSelection();
 				
-				$json_results.parent().show();
+				$json_results.closest('fieldset').show();
 				return;
 			}
 			
@@ -122,26 +143,28 @@ $(function() {
 				editor.setValue(JSON.stringify(json, null, 2));
 				editor.clearSelection();
 				
-				$json_results.parent().show();
+				$json_results.closest('fieldset').show();
 			});
 		});
 	});
 	
 	var $yaml_editor = $config.find('textarea.cerb-sheet-yaml-editor')
 		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteYaml({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.yamlSheetSchema
-		})
+		// [TODO]
+		// .cerbCodeEditorAutocompleteYaml({
+		// 	autocomplete_suggestions: cerbAutocompleteSuggestions.yamlSheetSchema
+		// })
 		.nextAll('pre.ace_editor')
 		;
-	
-	var $sheet_button = $config.find('.cerb-button-preview-sheet');
+
+	var $sheet_button_preview = $config.find('.cerb-button-preview-sheet');
+	var $sheet_button_add = $config.find('.cerb-button-sheet-column-add');
 	var $sheet_preview = $config.find('.cerb-sheet-preview');
 	
-	$sheet_button.on('click', function(e) {
+	$sheet_button_preview.on('click', function(e) {
 		e.stopPropagation();
 		
-		$sheet_preview.html('');
+		$sheet_preview.html('').closest('fieldset').hide();
 		
 		// If alt+click, clear the results
 		if(e.altKey) {
@@ -157,18 +180,18 @@ $(function() {
 		formData.set('format', 'json');
 
 		genericAjaxPost(formData, '', '', function(json) {
-			if(false == json.status) {
-				$sheet_preview.text(json.response);
+			if(false === json.status) {
+				$sheet_preview.text(json.response).closest('fieldset').hide();
 				return;
 			}
-			
-			var editor = ace.edit($yaml_editor.attr('id'));
+
+			var yaml_editor = ace.edit($yaml_editor.attr('id'));
 			
 			var formData = new FormData();
 			formData.set('c', 'ui');
 			formData.set('a', 'sheet');
 			formData.set('data_query', json.response);
-			formData.set('sheet_yaml', editor.getValue());
+			formData.set('sheet_kata', yaml_editor.getValue());
 			formData.append('types[]', 'card');
 			formData.append('types[]', 'date');
 			formData.append('types[]', 'icon');
@@ -180,7 +203,7 @@ $(function() {
 			formData.append('types[]', 'time_elapsed');
 			
 			genericAjaxPost(formData, '', '', function(html) {
-				$sheet_preview.html(html);
+				$sheet_preview.html(html).closest('fieldset').fadeIn();
 			});
 		});
 	});
