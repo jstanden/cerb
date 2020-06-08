@@ -108,67 +108,74 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 	
 	function renderForm(Model_ProfileWidget $widget, DevblocksDictionaryDelegate $dict, $is_submit=false) {
 		// Do we have a state for this form by this session?
-		
 		$state_key = $this->_getStateKey($widget, $dict);
 		$state_ttl = time() + 7200;
 		
 		// If we're resetting the scope, delete the session and state key
 		if(array_key_exists('reset', $_POST)) {
 			$this->_resetState($state_key);
+			$state_id = null;
+		} else {
+			$state_id = DevblocksPlatform::getRegistryKey($state_key, DevblocksRegistryEntry::TYPE_STRING, null);
+		}
+		
+		// Resuming
+		if($state_id) {
+			try {
+				if (false == ($bot_session = DAO_BotSession::get($state_id)))
+					throw new Exception("Invalid bot session");
+				
+				// [TODO] Update TTL?
+				//DevblocksPlatform::setRegistryKey($state_key, $bot_session->session_id, DevblocksRegistryEntry::TYPE_STRING, true, $state_ttl);
+				
+				if(false == $this->_renderFormState($bot_session, $dict, $state_key, $is_submit))
+					throw new Exception("Invalid bot interaction state");
+				
+			} catch (Exception $e) {
+				$this->_resetState($state_key);
+				$state_id = null;
+			}
 		}
 		
 		// If the state key doesn't exist, show the interactions menu
-		if(
-			array_key_exists('reset', $_POST)
-			||  null == ($state_id = DevblocksPlatform::getRegistryKey($state_key, DevblocksRegistryEntry::TYPE_STRING, null))
-		) {
-			@$interaction_key = DevblocksPlatform::importGPC($_POST['interaction'], 'string', null);
-			
-			if($interaction_key) {
+		if(!$state_id) {
+			try {
+				@$interaction_key = DevblocksPlatform::importGPC($_POST['interaction'], 'string', null);
 				$interactions = $this->getInteractions($widget, $dict);
 				
-				if(false == (@$interaction = $interactions[$interaction_key]))
-					return;
+				if(!$interaction_key)
+					throw new Exception();
 				
-				if(!array_key_exists('id', $interaction))
-					return;
+				if (false == (@$interaction = $interactions[$interaction_key]))
+					throw new Exception();
 				
-				if(is_numeric($interaction['id'])) {
+				if (!array_key_exists('id', $interaction))
+					throw new Exception();
+				
+				if (is_numeric($interaction['id'])) {
 					$interaction_behavior = DAO_TriggerEvent::get($interaction['id']);
 				} else {
 					$interaction_behavior = DAO_TriggerEvent::getByUri($interaction['id']);
 				}
 				
-				if(!$interaction_behavior)
-					return;
+				if (!$interaction_behavior)
+					throw new Exception();
 				
 				$interaction_behavior_vars = @$interaction['inputs'] ?: [];
 				
-				if($interaction_behavior->event_point == Event_FormInteractionWorker::ID) {
-					if(false == ($bot_session = $this->_startFormSession($widget, $dict, $interaction_behavior, $interaction_behavior_vars)))
-						return;
+				if ($interaction_behavior->event_point == Event_FormInteractionWorker::ID) {
+					if (false == ($bot_session = $this->_startFormSession($widget, $dict, $interaction_behavior, $interaction_behavior_vars)))
+						throw new Exception();
 					
 					DevblocksPlatform::setRegistryKey($state_key, $bot_session->session_id, DevblocksRegistryEntry::TYPE_STRING, true, $state_ttl);
 					
-					$this->_renderFormState($bot_session, $dict, $state_key, $is_submit);
-					return;
+					if(false === ($this->_renderFormState($bot_session, $dict, $state_key, $is_submit)))
+						throw new Exception();
 				}
+			
+			} catch (Exception $e) {
+				$this->renderInteractionChooser($widget, $dict);
 			}
-			
-			$this->renderInteractionChooser($widget, $dict);
-			
-		// Resuming
-		} else {
-			if(false == ($bot_session = DAO_BotSession::get($state_id)))
-				return;
-			
-			// [TODO] Verify session ownership
-			//$bot_session->session_data
-			
-			// Update TTL?
-			//DevblocksPlatform::setRegistryKey($state_key, $bot_session->session_id, DevblocksRegistryEntry::TYPE_STRING, true, $state_ttl);
-			
-			$this->_renderFormState($bot_session, $dict, $state_key, $is_submit);
 		}
 	}
 	
@@ -346,6 +353,14 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		return true;
 	}
 	
+	/**
+	 * @param Model_BotSession $interaction
+	 * @param DevblocksDictionaryDelegate $dict
+	 * @param string $state_key
+	 * @param bool $is_submit
+	 * @return bool
+	 * @throws SmartyException
+	 */
 	private function _renderFormState(Model_BotSession $interaction, DevblocksDictionaryDelegate $dict, $state_key, $is_submit=false) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -359,7 +374,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		$actions = [];
 		
 		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
-			return;
+			return false;
 		
 		$event_params = [
 			'prompts' => $prompts,
@@ -379,10 +394,10 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		);
 		
 		if(false == ($event = Extension_DevblocksEvent::get($event_model->id, true)))
-			return;
+			return false;
 		
 		if(!($event instanceof Event_FormInteractionWorker))
-			return;
+			return false;
 		
 		$event->setEvent($event_model, $behavior);
 		
@@ -421,7 +436,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 					
 				} else {
 					if(false == ($result = $behavior->resumeDecisionTree($behavior_dict, false, $event, $resume_path)))
-						return;
+						return false;
 				}
 				
 			// Re-render without changing state
@@ -439,7 +454,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 			
 		} else {
 			if(false == ($result = $behavior->runDecisionTree($behavior_dict, false, $event)))
-				return;
+				return false;
 		}
 		
 		$values = $behavior_dict->getDictionary(null, false);
@@ -670,7 +685,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 					$error = null;
 					
 					if(false == ($results = DevblocksPlatform::services()->data()->executeQuery($params['data_query'], $error)))
-						return;
+						break;
 					
 					if(false == ($sheet = $sheets->parseYaml($params['sheet_yaml'], $error)))
 						return;
@@ -728,5 +743,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 			DAO_BotSession::SESSION_DATA => json_encode($interaction->session_data),
 			DAO_BotSession::UPDATED_AT => time(),
 		]);
+		
+		return true;
 	}
 }
