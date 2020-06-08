@@ -665,6 +665,9 @@ class CerberusMail {
 		'send_at'
 		 */
 		
+		$mail_service = DevblocksPlatform::services()->mail();
+		$email = $mail_service->createMessage();
+		
 		@$draft_id = $properties['draft_id'];
 		@$group_id = $properties['group_id'];
 		@$bucket_id = intval($properties['bucket_id']);
@@ -689,6 +692,11 @@ class CerberusMail {
 		
 		$from_replyto = $group->getReplyTo($bucket->id);
 		$personal = $group->getReplyPersonal($bucket->id, $worker);
+		
+		// Message-Id
+		$email->generateId();
+		$outgoing_message_id = $email->getHeaders()->get('message-id')->getFieldBody();
+		$properties['outgoing_message_id'] = $outgoing_message_id;
 		
 		// Changing the outgoing message through a VA (global)
 		Event_MailBeforeSent::trigger($properties, null, null, $group_id);
@@ -772,9 +780,6 @@ class CerberusMail {
 		$toList = CerberusMail::parseRfcAddresses($toStr);
 		
 		try {
-			$mail_service = DevblocksPlatform::services()->mail();
-			$email = $mail_service->createMessage();
-
 			// To
 			if(is_array($toList))
 			foreach($toList as $k => $v) {
