@@ -77,7 +77,7 @@
 				<li data-type="picklist">Picklist</li>
 				<li data-type="text">Text</li>
 			</ul>
-			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/guides/dashboards/filters/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/dashboards/#prompts" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 		</div>
 		<textarea name="params[prompts_kata]" class="cerb-code-editor" data-editor-mode="ace/mode/yaml" style="width:95%;height:50px;">{$tab->params.prompts_kata}</textarea>
 		<div class="cerb-code-editor-preview-output"></div>

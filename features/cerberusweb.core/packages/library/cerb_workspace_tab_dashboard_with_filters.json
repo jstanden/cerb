@@ -71,7 +71,7 @@
       "width_units": 4,
       "zone": "content",
       "params": {
-        "data_query": "{# These placeholders are automatically set by the dashboard filters #}\n{# See: https://cerb.ai/guides/dashboards/filters/ #}\ntype:worklist.subtotals\nof:ticket\nby.count:[created@{{input_date_subtotal_by}},group~10]\nquery:(\n  created:\"{{input_date_range}}\"\n  {% if input_groups %}\n  group.id:[{{input_groups}}]\n  {% endif %}\n  {% if input_statuses %}\n  status:[{{input_statuses|join(',')}}]\n  {% endif %}\n)\nformat:timeseries",
+        "data_query": "{# These placeholders are automatically set by the dashboard filters #}\n{# See: https://cerb.ai/docs/dashboards/#prompts #}\ntype:worklist.subtotals\nof:ticket\nby.count:[created@{{input_date_subtotal_by}},group~10]\nquery:(\n  created:\"{{input_date_range}}\"\n  {% if input_groups %}\n  group.id:[{{input_groups}}]\n  {% endif %}\n  {% if input_statuses %}\n  status:[{{input_statuses|join(',')}}]\n  {% endif %}\n)\nformat:timeseries",
         "cache_secs": "",
         "chart_as": "bar_stacked",
         "xaxis_label": "",
