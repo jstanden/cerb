@@ -1738,6 +1738,13 @@ class CerberusMail {
 			
 			// Ticket
 			DAO_Ticket::update($ticket->id, $change_fields);
+			
+			// Message custom fields
+			if(array_key_exists('message_custom_fields', $properties)) {
+				if ($message_id && is_array($properties['message_custom_fields'])) {
+					DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_MESSAGE, $message_id, $properties['message_custom_fields'], true, true, false);
+				}
+			}
 		}
 		
 		// Events

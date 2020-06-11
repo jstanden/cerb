@@ -158,7 +158,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
 		
 		foreach($custom_fields as $custom_field) {
-			$labels['custom_' . $custom_field->id] = $prefix.'custom field ' . DevblocksPlatform::strLower($custom_field->name);
+			$labels['custom_' . $custom_field->id] = $prefix.'ticket custom field ' . DevblocksPlatform::strLower($custom_field->name);
 			
 			if(
 				array_key_exists('custom_fields', $properties)
@@ -559,10 +559,31 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					],
 				],
 			]
-			+ DevblocksEventHelper::getActionCustomFieldsFromLabels($this->getLabels($trigger))
 			;
 		
-		return $actions;
+		$labels = $this->getLabels($trigger);
+		
+		$labels = array_filter($labels, function($label) {
+			if(DevblocksPlatform::strStartsWith($label, ['Sent message ticket custom field ']))
+				return false;
+			
+			return true;
+		});
+		
+		$custom_fields = DevblocksEventHelper::getActionCustomFieldsFromLabels($labels);
+		
+		$message_cfields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE, true, true);
+		
+		foreach($message_cfields as $message_cfield) {
+			$custom_fields['set_message_cf_' . $message_cfield->id] = [
+				'label' => 'Set message custom field ' . $message_cfield->name,
+				'type' => $message_cfield->type,
+			];
+		}
+		
+		$this->_cacheGetActionExtensions = $actions + $custom_fields;
+		
+		return $this->_cacheGetActionExtensions;
 	}
 	
 	function getActionDefaultOn() {
@@ -599,11 +620,18 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 
 			default:
-				$matches = [];
-				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
-					$field_id = $matches[2];
+				if(DevblocksPlatform::strStartsWith($token, 'set_message_cf_')) {
+					$field_id = substr($token, strlen('set_message_cf_'));
 					$custom_field = DAO_CustomField::get($field_id);
 					DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
+					
+				} else {
+					$matches = [];
+					if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
+						$field_id = $matches[2];
+						$custom_field = DAO_CustomField::get($field_id);
+						DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
+					}
 				}
 				break;
 		}
@@ -783,8 +811,18 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			default:
-				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
+				if(DevblocksPlatform::strStartsWith($token, 'set_message_cf_')) {
+					if(false == ($field_id = substr($token, strlen('set_message_cf_'))))
+						break;
+					
+					if(null == ($custom_field = DAO_CustomField::get($field_id)))
+						break;
+					
+					return DevblocksEventHelper::simulateActionSetAbstractField($custom_field->name, $custom_field->type, $token, $params, $dict);
+					
+				} else if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token)) {
 					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
+				}
 				break;
 		}
 	}
@@ -912,8 +950,22 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			default:
-				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
-					return DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
+				if(DevblocksPlatform::strStartsWith($token, 'set_message_cf_')) {
+					$field_id = substr($token, strlen('set_message_cf_'));
+					
+					if(false == ($custom_field = DAO_CustomField::get($field_id)))
+						break;
+					
+					if(!array_key_exists('message_custom_fields', $dict->_properties))
+						$dict->_properties['message_custom_fields'] = [];
+					
+					$value = DevblocksEventHelper::formatCustomField($custom_field, $params, $dict);
+					
+					$dict->_properties['message_custom_fields'][$field_id] = $value;
+					
+				} else if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token)) {
+					DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
+				}
 				break;
 		}
 	}
