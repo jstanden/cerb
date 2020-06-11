@@ -1447,6 +1447,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_alphanum($string, $also=null, $replace='') {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1454,6 +1457,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_base_convert($string, $base_from, $base_to) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string) && !is_numeric($string))
 			return '';
 		
@@ -1464,6 +1470,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_base64_encode($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1471,6 +1480,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_base64_decode($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1478,6 +1490,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_base64url_encode($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1485,6 +1500,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_base64url_decode($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1492,6 +1510,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_bytes_pretty($string, $precision='0') {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string) && !is_numeric($string))
 			return '';
 		
@@ -1499,14 +1520,23 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_cerb_translate($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		return DevblocksPlatform::translate($string);
 	}
 	
 	function filter_context_alias($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		return $this->filter_context_name($string, 'uri');
 	}
 	
 	function filter_context_name($string, $type='plural') {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1529,6 +1559,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_date_pretty($string, $is_delta=false) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string) && !is_numeric($string))
 			return '';
 		
@@ -1536,6 +1569,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_hash_hmac($string, $key='', $algo='sha256', $raw=false) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string) 
 			|| !is_string($key) 
 			|| !is_string($algo) 
@@ -1550,6 +1586,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_json_pretty($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1557,11 +1596,17 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_markdown_to_html($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		@$string = strval($string);
 		return DevblocksPlatform::parseMarkdown($string);
 	}
 	
 	function filter_md5($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1569,6 +1614,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_parse_emails($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1577,6 +1625,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_permalink($string, $spaces_as='-') {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1584,6 +1635,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_quote($string, $wrap_to=76) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1597,6 +1651,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 
 	function filter_regexp($string, $pattern, $group = 0) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1613,6 +1670,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_secs_pretty($string, $precision=0) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_numeric($string))
 			return '';
 		
@@ -1620,6 +1680,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_sha1($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1627,6 +1690,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_split_crlf($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1634,6 +1700,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_split_csv($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
@@ -1650,6 +1719,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	 *
 	 */
 	function filter_truncate($value, $length = 30, $preserve = false, $separator = '...') {
+		if($value instanceof Twig\Markup)
+			$value = strval($value);
+		
 		if(!is_string($value))
 			return '';
 		
@@ -1672,6 +1744,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function filter_url_decode($string, $as='') {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
 		if(!is_string($string))
 			return '';
 		
