@@ -652,32 +652,13 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				@$mode = $params['mode'];
 				$content = $tpl_builder->build($params['content'], $dict);
 				
-				if(!isset($dict->_properties['content_appends']))
-					$dict->_properties['content_appends'] = [
-						'sent' => [],
-						'saved' => [],
-					];
-					
-				$label = '';
-				
-				switch($mode) {
-					case 'saved':
-					case 'sent':
-						$label = $mode . ' ';
-						$dict->_properties['content_appends'][$mode][] = $content;
-						break;
-						
-					default:
-						$dict->_properties['content_appends']['saved'][] = $content;
-						$dict->__properties['content_appends']['sent'][] = $content;
-						break;
-				}
-				
-				$out = sprintf(">>> Appending text to %smessage content\n".
+				$out = sprintf(">>> Appending text on %s message\n".
 					"%s\n",
-					$label,
+					$mode ?: 'saved and sent',
 					$content
 				);
+				
+				$this->runActionExtension($token, $trigger, $params, $dict);
 				
 				return $out;
 				break;
@@ -685,34 +666,15 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			case 'prepend_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				@$mode = $params['mode'];
-				$content = $tpl_builder->build($params['content'], $dict);
+				@$content = $tpl_builder->build($params['content'], $dict);
 				
-				if(!isset($dict->_properties['content_prepends']))
-					$dict->_properties['content_prepends'] = [
-						'sent' => [],
-						'saved' => [],
-					];
-					
-				$label = '';
-				
-				switch($mode) {
-					case 'saved':
-					case 'sent':
-						$label = $mode . ' ';
-						$dict->_properties['content_prepends'][$mode][] = $content;
-						break;
-						
-					default:
-						$dict->_properties['content_prepends']['saved'][] = $content;
-						$dict->_properties['content_prepends']['sent'][] = $content;
-						break;
-				}
-				
-				$out = sprintf(">>> Prepending text to %smessage content\n".
+				$out = sprintf(">>> Prepending text on %s message\n".
 					"%s\n",
-					$label,
+					$mode ?: 'saved and sent',
 					$content
 				);
+				
+				$this->runActionExtension($token, $trigger, $params, $dict);
 				
 				return $out;
 				break;
@@ -841,23 +803,18 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				@$mode = $params['mode'];
 				@$content = $tpl_builder->build($params['content'], $dict);
 				
-				if(!isset($dict->_properties['content_appends']))
-					$dict->_properties['content_appends'] = [
-						'sent' => [],
-						'saved' => [],
-					];
-					
-				switch($mode) {
-					case 'saved':
-					case 'sent':
-						$dict->_properties['content_appends'][$mode][] = $content;
-						break;
-						
-					default:
-						$dict->_properties['content_appends']['saved'][] = $content;
-						$dict->_properties['content_appends']['sent'][] = $content;
-						break;
-				}
+				if(!array_key_exists('content_modifications', $dict->_properties))
+					$dict->_properties['content_modifications'] = [];
+				
+				$content_action = [
+					'action' => 'append',
+					'params' => [
+						'mode' => $mode,
+						'content' => $content,
+					]
+				];
+				
+				$dict->_properties['content_modifications'][] = $content_action;
 				break;
 				
 			case 'prepend_to_content':
@@ -865,23 +822,18 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				@$mode = $params['mode'];
 				@$content = $tpl_builder->build($params['content'], $dict);
 				
-				if(!isset($dict->_properties['content_prepends']))
-					$dict->_properties['content_prepends'] = [
-						'sent' => [],
-						'saved' => [],
-					];
-					
-				switch($mode) {
-					case 'saved':
-					case 'sent':
-						$dict->_properties['content_prepends'][$mode][] = $content;
-						break;
-						
-					default:
-						$dict->_properties['content_prepends']['saved'][] = $content;
-						$dict->_properties['content_prepends']['sent'][] = $content;
-						break;
-				}
+				if(!array_key_exists('content_modifications', $dict->_properties))
+					$dict->_properties['content_modifications'] = [];
+				
+				$content_action = [
+					'action' => 'prepend',
+					'params' => [
+						'mode' => $mode,
+						'content' => $content,
+					]
+				];
+				
+				$dict->_properties['content_modifications'][] = $content_action;
 				break;
 				
 			case 'replace_content':

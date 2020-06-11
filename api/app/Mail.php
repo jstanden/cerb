@@ -746,7 +746,7 @@ class CerberusMail {
 		}
 		
 		// Handle content appends and prepends
-		self::_generateBodiesWithPrependsAppends($properties);
+		self::_generateBodiesWithContentModifications($properties);
 		
 		@$org_id = $properties['org_id'];
 		@$toStr = $properties['to'];
@@ -1252,7 +1252,7 @@ class CerberusMail {
 			}
 			
 			// Handle content appends and prepends
-			self::_generateBodiesWithPrependsAppends($properties);
+			self::_generateBodiesWithContentModifications($properties);
 			
 			// Re-read properties
 			@$content_format = $properties['content_format'];
@@ -2535,24 +2535,66 @@ class CerberusMail {
 		}
 	}
 	
-	static private function _generateBodiesWithPrependsAppends(&$properties) {
+	static private function _generateBodiesWithContentModifications(&$properties) {
 		if(!isset($properties['content']))
 			return;
 		
-		@$content_prepends = $properties['content_prepends'];
-		@$content_appends = $properties['content_appends'];
-		
 		$properties['content_sent'] = $properties['content_saved'] = $properties['content'];
 		
-		foreach(['saved','sent'] as $type) {
-			if(is_array(@$content_prepends[$type]))
-			foreach($content_prepends[$type] as $prepend) {
-				$properties['content_'.$type] = $prepend . "\r\n" . $properties['content_'.$type];
-			}
+		// Apply content modifications in FIFO order
+		if(false != ($content_modifications = @$properties['content_modifications']))
+		foreach($content_modifications as $content_modification) {
+			@$action = $content_modification['action'];
+			@$params = $content_modification['params'];
 			
-			if(is_array(@$content_appends[$type]))
-			foreach($content_appends[$type] as $append) {
-				$properties['content_'.$type] .= "\r\n" . $append;
+			// Replacement
+			if($action == 'replace') {
+				@$replace = $params['replace'];
+				@$replace_is_regexp = $params['replace_is_regexp'];
+				@$replace_on = $params['replace_on'];
+				@$with = $params['with'];
+
+				if(!$replace_on || 'saved' == $replace_on) {
+					if($replace_is_regexp) {
+						$properties['content_saved'] = preg_replace($replace, $with, $properties['content_saved']);
+					} else {
+						$properties['content_saved'] = str_replace($replace, $with, $properties['content_saved']);
+					}
+				}
+				
+				if(!$replace_on || 'sent' == $replace_on) {
+					if($replace_is_regexp) {
+						$properties['content_sent'] = preg_replace($replace, $with, $properties['content_sent']);
+					} else {
+						$properties['content_sent'] = str_replace($replace, $with, $properties['content_sent']);
+					}
+				}
+			
+			// Prepends
+			} elseif ($action == 'prepend') {
+				@$mode = $params['mode'];
+				@$content = $params['content'];
+				
+				if(!$mode || 'saved' == $mode) {
+					$properties['content_saved'] = $content . "\r\n" . $properties['content_saved'];
+				}
+				
+				if(!$mode || 'sent' == $mode) {
+					$properties['content_sent'] = $content . "\r\n" . $properties['content_sent'];
+				}
+				
+			// Appends
+			} elseif ($action == 'append') {
+				@$mode = $params['mode'];
+				@$content = $params['content'];
+			
+				if(!$mode || 'saved' == $mode) {
+					$properties['content_saved'] = $properties['content_saved'] . "\r\n" . $content;
+				}
+				
+				if(!$mode || 'sent' == $mode) {
+					$properties['content_sent'] = $properties['content_sent'] . "\r\n" . $content;
+				}
 			}
 		}
 	}
