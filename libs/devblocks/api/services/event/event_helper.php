@@ -207,7 +207,7 @@ class DevblocksEventHelper {
 		// Set custom fields
 		foreach($labels as $key => $label) {
 			$matches = [];
-			if(preg_match('#(.*?_*)custom_([0-9]+)#', $key, $matches)) {
+			if(preg_match('#^(.*?_*)custom_([0-9]+)$#', $key, $matches)) {
 				if(!isset($matches[2]) || !isset($custom_fields[$matches[2]]))
 					continue;
 				
