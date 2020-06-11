@@ -578,9 +578,6 @@ class DevblocksEventHelper {
 					if(is_array($array))
 						$array[$field_id] = $opts;
 				}
-				
-				self::runActionSetCustomField($token, $params, $dict);
-				
 				break;
 				
 			case Model_CustomField::TYPE_MULTI_CHECKBOX:
