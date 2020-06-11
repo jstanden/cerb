@@ -1336,6 +1336,11 @@ FIELDSET.peek LEGEND A {
   color: inherit;
 }
 
+FIELDSET.block {
+  border-width: 1px 0px 0px 5px;
+  border-style: solid;
+}
+
 FIELDSET.no-legend {
   background: none;
   border: 0;
