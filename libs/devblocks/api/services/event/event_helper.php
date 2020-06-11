@@ -213,9 +213,8 @@ class DevblocksEventHelper {
 				
 				$field = $custom_fields[$matches[2]];
 				
-				// [TODO] Block nested cfields (from links) in 6.7.6, fully imp in 6.8?
-				if($field->type == Model_CustomField::TYPE_LINK)
-					continue;
+				// Condense whitespace in labels
+				$label = preg_replace('#\s{2,}#', ' ', $label);
 				
 				$actions[sprintf("set_cf_%s", $key)] = array(
 					'label' => 'Set ' . mb_convert_case($label, MB_CASE_LOWER),
@@ -229,11 +228,24 @@ class DevblocksEventHelper {
 	
 	static function renderActionSetCustomField(Model_CustomField $custom_field, $trigger) {
 		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('instructions', '');
 		
 		switch($custom_field->type) {
+			case Model_CustomField::TYPE_CURRENCY:
+			case Model_CustomField::TYPE_DECIMAL:
 			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+				break;
+			
+			case Model_CustomField::TYPE_FILE:
+				$tpl->assign('instructions', '(return an attachment record ID)');
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+				break;
+				
+			case Model_CustomField::TYPE_FILES:
+				$tpl->assign('instructions', '(return comma-separated attachment record IDs)');
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
 				break;
 				
@@ -241,12 +253,29 @@ class DevblocksEventHelper {
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_number.tpl');
 				break;
 				
+			case Model_CustomField::TYPE_LINK:
+				if(!array_key_exists('context', $custom_field->params))
+					return;
+				
+				if(false == ($context_mft = Extension_DevblocksContext::get($custom_field->params['context'], false)))
+					return;
+				
+				$aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
+				
+				$tpl->assign('instructions',
+					sprintf('(return one %s record ID)',
+						DevblocksPlatform::strLower($aliases['singular'])
+					)
+				);
+				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+				break;
+				
 			case Model_CustomField::TYPE_CHECKBOX:
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_bool.tpl');
 				break;
 				
 			case Model_CustomField::TYPE_DATE:
-				// Restricted to VA-readable calendars
+				// Restricted to bot-readable calendars
 				$calendars = DAO_Calendar::getReadableByActor(array(CerberusContexts::CONTEXT_BOT, $trigger->bot_id));
 				$tpl->assign('calendars', $calendars);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_date.tpl');
@@ -272,6 +301,12 @@ class DevblocksEventHelper {
 				$worker_values = DevblocksEventHelper::getWorkerValues($trigger);
 				$tpl->assign('worker_values', $worker_values);
 				$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_worker.tpl');
+				break;
+				
+			default:
+				if(false != ($custom_field_ext = $custom_field->getTypeExtension())) {
+					$custom_field_ext->botActionRender($custom_field);
+				}
 				break;
 		}
 	}
@@ -300,10 +335,15 @@ class DevblocksEventHelper {
 				}
 				break;
 				
-			case Model_CustomField::TYPE_SINGLE_LINE:
-			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_CURRENCY:
+			case Model_CustomField::TYPE_DECIMAL:
 			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
+			case Model_CustomField::TYPE_LINK:
+			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_NUMBER:
+			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
 				@$value = $params['value'];
 				
@@ -315,7 +355,7 @@ class DevblocksEventHelper {
 				);
 				
 				if(!empty($value_key)) {
-					$dict->$value_key = $value;
+					$dict->set($value_key, $value);
 				}
 				break;
 			
@@ -334,7 +374,7 @@ class DevblocksEventHelper {
 				}
 				
 				if(!empty($value_key)) {
-					$dict->$value_key = $value;
+					$dict->set($value_key, $value);
 				}
 				break;
 				
@@ -349,7 +389,7 @@ class DevblocksEventHelper {
 				);
 				
 				if(!empty($value_key)) {
-					$dict->$value_key = implode(',', $values);
+					$dict->set($value_key, implode(',', $values));
 				}
 				break;
 				
@@ -361,7 +401,7 @@ class DevblocksEventHelper {
 				);
 				
 				if(!empty($value_key)) {
-					$dict->$value_key = implode(',',$opts);
+					$dict->set($value_key, implode(',',$opts));
 				}
 				
 				break;
@@ -386,13 +426,17 @@ class DevblocksEventHelper {
 				}
 				
 				if(!empty($value_key)) {
-					$dict->$value_key = $worker_id;
+					$dict->set($value_key, $worker_id);
 				}
 				break;
 				
 			default:
-				//self::runActionExtension($token, $trigger, $params, $dict);
-				//self::simulateActionExtension($token, $trigger, $params, $dict);
+				if(false != ($custom_field_ext = Extension_CustomField::get($field_type))) {
+					$custom_field = new Model_CustomField();
+					$custom_field->name = $value_key;
+					$custom_field->type = $field_type;
+					return $custom_field_ext->botActionSimulate($custom_field, $params, $dict, $value_key);
+				}
 				break;
 		}
 		
@@ -446,26 +490,28 @@ class DevblocksEventHelper {
 				}
 				break;
 				
-			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_CURRENCY:
+			case Model_CustomField::TYPE_DECIMAL:
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
+			case Model_CustomField::TYPE_LINK:
 			case Model_CustomField::TYPE_MULTI_LINE:
 			case Model_CustomField::TYPE_NUMBER:
+			case Model_CustomField::TYPE_SINGLE_LINE:
 			case Model_CustomField::TYPE_URL:
 				@$value = $params['value'];
 				
 				$builder = DevblocksPlatform::services()->templateBuilder();
 				$value = $builder->build($value, $dict);
-
-				$out .= sprintf(">>> Setting %s to:\n",
-					$custom_field->name
-				);
 				
-				$out .= sprintf("%s\n",
+				$out = sprintf(">>> Setting %s to:\n%s\n",
+					$custom_field->name,
 					$value
 				);
-				
+			
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
-					$dict->$key_to_set = $value;
+					$dict->set($key_to_set, $value);
 					
 					$array =& $dict->$value_key;
 					if(is_array($array))
@@ -632,21 +678,215 @@ class DevblocksEventHelper {
 				
 				if(!empty($value_key)) {
 					$key_to_set = $value_key.'_'.$field_id;
-					$dict->$key_to_set = $value;
+					$dict->set($key_to_set, $worker_id);
 
 					$array =& $dict->$value_key;
 					if(is_array($array))
-						$array[$field_id] = $value;
+						$array[$field_id] = $worker_id;
 				}
 				break;
 				
 			default:
-				//$this->runActionExtension($token, $trigger, $params, $dict);
-				//$this->simulateActionExtension($token, $trigger, $params, $dict);
+				if(false != ($custom_field_ext = $custom_field->getTypeExtension())) {
+					$out = $custom_field_ext->botActionSimulate($custom_field, $params, $dict, $value_key);
+				}
 				break;
 		}
 		
 		return $out;
+	}
+	
+	/**
+	 * @param Model_CustomField $custom_field
+	 * @param array $params
+	 * @param DevblocksDictionaryDelegate $dict
+	 * @return mixed|false
+	 */
+	static function formatCustomField(Model_CustomField $custom_field, array $params, DevblocksDictionaryDelegate $dict) {
+		switch($custom_field->type) {
+			case Model_CustomField::TYPE_CHECKBOX:
+			case Model_CustomField::TYPE_CURRENCY:
+			case Model_CustomField::TYPE_DECIMAL:
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_NUMBER:
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
+				@$value = $params['value'];
+				
+				$builder = DevblocksPlatform::services()->templateBuilder();
+				$value = $builder->build($value, $dict);
+				
+				return $value;
+				
+			case Model_CustomField::TYPE_DATE:
+				@$mode = $params['mode'];
+				
+				switch($mode) {
+					case 'calendar':
+						@$calendar_id = $params['calendar_id'];
+						@$rel_date = $params['calendar_reldate'];
+						
+						$rel_now = $dict->get('_current_time', time());
+						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
+						
+						break;
+					
+					default:
+						if(!isset($params['value']))
+							return false;
+						
+						$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+						$value = $tpl_builder->build($params['value'], $dict);
+						break;
+				}
+				
+				$value = is_numeric($value) ? $value : @strtotime($value);
+				return $value;
+				
+			case Model_CustomField::TYPE_LIST:
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				@$values = $tpl_builder->build($params['values'], $dict);
+				return DevblocksPlatform::parseCrlfString($values) ?: [];
+				
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				@$opts = $params['values'];
+				return $opts;
+			
+			case Model_CustomField::TYPE_WORKER:
+				@$worker_id = $params['worker_id'];
+				
+				// Variable?
+				if(DevblocksPlatform::strStartsWith($worker_id, 'var_')) {
+					if(is_array($dict->$worker_id)) {
+						@$worker_id = intval(key($dict->worker_id));
+					} else {
+						@$worker_id = intval($dict->$worker_id);
+					}
+				}
+				return $worker_id;
+				
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_LINK:
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				@$file_id = $tpl_builder->build($params['value'], $dict);
+				return intval($file_id);
+				
+			case Model_CustomField::TYPE_FILES:
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				@$values = $tpl_builder->build($params['value'], $dict);
+				$values = DevblocksPlatform::parseCsvString($values) ?: [];
+				return DevblocksPlatform::sanitizeArray($values, 'int');
+				
+			default:
+				if(false != ($custom_field_ext = $custom_field->getTypeExtension())) {
+					return $custom_field_ext->botActionGetValueFromParams($custom_field, $params, $dict);
+				}
+				break;
+		}
+	}
+	
+	static private function _runActionSetCustomField(Model_CustomField $custom_field, array $params, DevblocksDictionaryDelegate $dict, $context, $context_id, $value_key) {
+		switch($custom_field->type) {
+			case Model_CustomField::TYPE_CHECKBOX:
+			case Model_CustomField::TYPE_CURRENCY:
+			case Model_CustomField::TYPE_DATE:
+			case Model_CustomField::TYPE_DECIMAL:
+			case Model_CustomField::TYPE_DROPDOWN:
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
+			case Model_CustomField::TYPE_LINK:
+			case Model_CustomField::TYPE_MULTI_LINE:
+			case Model_CustomField::TYPE_NUMBER:
+			case Model_CustomField::TYPE_SINGLE_LINE:
+			case Model_CustomField::TYPE_URL:
+			case Model_CustomField::TYPE_WORKER:
+				$value = self::formatCustomField($custom_field, $params, $dict);
+				
+				DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$custom_field->id => $value]);
+				
+				if(!empty($value_key)) {
+					$key_to_set = $value_key.'_'.$custom_field->id;
+					$dict->set($key_to_set, $value);
+
+					$array =& $dict->$value_key;
+					if(is_array($array))
+						$array[$custom_field->id] = $value;
+				}
+				break;
+			
+			case Model_CustomField::TYPE_LIST:
+				$opts = self::formatCustomField($custom_field, $params, $dict);
+				
+				@$mode = $params['mode'];
+				$is_delta = !($mode == 'replace');
+				
+				if(!$is_delta) {
+					DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$custom_field->id => $opts]);
+					
+					if(!empty($value_key)) {
+						$key_to_set = $value_key.'_'.$custom_field->id;
+						$dict->$key_to_set = implode(', ', $opts);
+						
+						$array =& $dict->$value_key;
+						
+						if(is_array($array))
+							$array[$custom_field->id] = $opts;
+					}
+				} else {
+					DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$custom_field->id => $opts], true, true);
+					
+					$value_key_prefix = $value_key . '_';
+					
+					if(!empty($value_key)) {
+						$dict->$value_key_prefix;
+						
+						$key_to_set = $value_key_prefix.$custom_field->id;
+						$dict->set($key_to_set, implode(', ', $opts));
+						
+						$array =& $dict->$value_key;
+						
+						if(!array_key_exists($custom_field->id, $array) || !is_array($array[$custom_field->id]))
+							$array[$custom_field->id] = [];
+						
+						if(is_array($opts))
+							foreach($opts as $opt) {
+								// Remove
+								if(DevblocksPlatform::strStartsWith($opt, '-')) {
+									$opt = ltrim($opt, '-');
+									unset($array[$custom_field->id][$opt]);
+									
+								} else {
+									$array[$custom_field->id][$opt] = $opt;
+								}
+							}
+					}
+				}
+				break;
+			
+			case Model_CustomField::TYPE_MULTI_CHECKBOX:
+				@$opts = self::formatCustomField($custom_field, $params, $dict);
+				
+				DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$custom_field->id => $opts], true, true);
+				
+				if(!empty($value_key)) {
+					// Set the string variant of the custom field
+					$key_to_set = $value_key.'_'.$custom_field->id;
+					$dict->set($key_to_set, implode(', ', $opts));
+					
+					// Set the raw variant of the custom field
+					$custom_field_values = $dict->get($value_key, []);
+					$custom_field_values[$custom_field->id] = array_combine($opts, $opts);
+					$dict->set($value_key, $custom_field_values);
+				}
+				break;
+			
+			default:
+				if(false != ($custom_field_ext = $custom_field->getTypeExtension())) {
+					$custom_field_ext->botActionRun($custom_field, $params, $dict, $context, $context_id, $value_key);
+				}
+				break;
+		}
 	}
 	
 	static function runActionSetCustomField($token, $params, DevblocksDictionaryDelegate $dict) {
@@ -663,7 +903,7 @@ class DevblocksEventHelper {
 		
 		$context = $custom_field->context;
 		$custom_key_id = $custom_key . 'id';
-		$context_id = $dict->$custom_key_id;
+		$context_id = $dict->get($custom_key_id);
 		$value_key = $custom_key . 'custom';
 		
 		if(empty($field_id) || empty($context) || empty($context_id))
@@ -672,185 +912,7 @@ class DevblocksEventHelper {
 		// Lazy load custom fields
 		$dict->custom_;
 		
-		switch($custom_field->type) {
-			case Model_CustomField::TYPE_SINGLE_LINE:
-			case Model_CustomField::TYPE_MULTI_LINE:
-			case Model_CustomField::TYPE_CHECKBOX:
-			case Model_CustomField::TYPE_NUMBER:
-			case Model_CustomField::TYPE_URL:
-				@$value = $params['value'];
-				
-				$builder = DevblocksPlatform::services()->templateBuilder();
-				$value = $builder->build($value, $dict);
-				
-				if(false === (DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $value])))
-					break;
-				
-				if(!empty($value_key)) {
-					$key_to_set = $value_key.'_'.$field_id;
-					$dict->$key_to_set = $value;
-
-					$array =& $dict->$value_key;
-					if(is_array($array))
-						$array[$field_id] = $value;
-				}
-				break;
-				
-			case Model_CustomField::TYPE_DROPDOWN:
-				@$value = $params['value'];
-				
-				$builder = DevblocksPlatform::services()->templateBuilder();
-				$value = $builder->build($value, $dict);
-				
-				if(false === (DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $value])))
-					break;
-				
-				if(!empty($value_key)) {
-					$key_to_set = $value_key.'_'.$field_id;
-					$dict->$key_to_set = $value;
-
-					$array =& $dict->$value_key;
-					if(is_array($array))
-						$array[$field_id] = $value;
-				}
-				break;
-			
-			case Model_CustomField::TYPE_DATE:
-				@$mode = $params['mode'];
-				
-				switch($mode) {
-					case 'calendar':
-						@$calendar_id = $params['calendar_id'];
-						@$rel_date = $params['calendar_reldate'];
-						
-						$rel_now = $dict->get('_current_time', time());
-						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
-						
-						break;
-						
-					default:
-						if(!isset($params['value']))
-							return;
-						
-						$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-						$value = $tpl_builder->build($params['value'], $dict);
-						break;
-				}
-
-				$value = is_numeric($value) ? $value : @strtotime($value);
-				
-				if(false === (DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $value])))
-					break;
-				
-				if(!empty($value_key)) {
-					$key_to_set = $value_key.'_'.$field_id;
-					$dict->$key_to_set = $value;
-					
-					$array =& $dict->$value_key;
-					if(is_array($array))
-						$array[$field_id] = $value;
-				}
-				
-				break;
-				
-			case Model_CustomField::TYPE_LIST:
-				@$mode = $params['mode'];
-				$is_delta = !($mode == 'replace');
-				
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				@$values = $tpl_builder->build($params['values'], $dict);
-				
-				$opts = DevblocksPlatform::parseCrlfString($values) ?: [];
-				
-				if(!$is_delta) {
-					DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $opts]);
-					
-					if(!empty($value_key)) {
-						$key_to_set = $value_key.'_'.$field_id;
-						$dict->$key_to_set = implode(', ', $opts);
-						
-						$array =& $dict->$value_key;
-						
-						if(is_array($array))
-							$array[$field_id] = $opts;
-					}
-				} else {
-					DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $opts], true, true);
-					
-					$value_key_prefix = $value_key . '_';
-					
-					if(!empty($value_key)) {
-						$dict->$value_key_prefix;
-						
-						$key_to_set = $value_key_prefix.$field_id;
-						$dict->$key_to_set = implode(', ', $opts);
-						
-						$array =& $dict->$value_key;
-						
-						if(!is_array($array[$field_id]))
-							$array[$field_id] = [];
-						
-						
-						if(is_array($opts))
-						foreach($opts as $opt) {
-							// Remove
-							if(DevblocksPlatform::strStartsWith($opt, '-')) {
-								$opt = ltrim($opt, '-');
-								unset($array[$field_id][$opt]);
-								
-							} else {
-								$array[$field_id][$opt] = $opt;
-							}
-						}
-					}
-				}
-				break;
-				
-			case Model_CustomField::TYPE_MULTI_CHECKBOX:
-				@$opts = $params['values'];
-				
-				DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $opts], true, true);
-
-				if(!empty($value_key)) {
-					// Set the string variant of the custom field
-					$key_to_set = $value_key.'_'.$field_id;
-					$dict->set($key_to_set, implode(', ', $opts));
-					
-					// Set the raw variant of the custom field
-					$custom_field_values = $dict->get($value_key, []);
-					$custom_field_values[$field_id] = array_combine($opts, $opts);
-					$dict->set($value_key, $custom_field_values);
-				}
-				break;
-				
-			case Model_CustomField::TYPE_WORKER:
-				@$worker_id = $params['worker_id'];
-				
-				// Variable?
-				if(DevblocksPlatform::strStartsWith($worker_id, 'var_')) {
-					if(is_array($dict->$worker_id)) {
-						@$worker_id = intval(key($dict->worker_id));
-					} else {
-						@$worker_id = intval($dict->$worker_id);
-					}
-				}
-				
-				DAO_CustomFieldValue::formatAndSetFieldValues($context, $context_id, [$field_id => $worker_id]);
-				
-				if(!empty($value_key)) {
-					$key_to_set = $value_key.'_'.$field_id;
-					$dict->$key_to_set = $worker_id;
-					
-					$array =& $dict->$value_key;
-					if(is_array($array))
-						$array[$field_id] = $worker_id;
-				}
-				break;
-				
-			default:
-				self::runActionExtension($token, $trigger, $params, $dict);
-				break;
-		}
+		self::_runActionSetCustomField($custom_field, $params, $dict, $context, $context_id, $value_key);
 	}
 	
 	static function renderActionCreateRecordSetCustomFields($context, &$tpl) {

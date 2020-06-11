@@ -60,6 +60,11 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	abstract function unsetFieldValue(Model_CustomField $field, $context, $context_id, $value=null);
 	abstract function validationRegister(Model_CustomField $field, _DevblocksValidationService &$validation);
 	
+	abstract function botActionRender(Model_CustomField $field);
+	abstract function botActionSimulate(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $value_key);
+	abstract function botActionGetValueFromParams(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict);
+	abstract function botActionRun(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $context, $context_id, $value_key);
+	
 	function hasMultipleValues() {
 		return false;
 	}

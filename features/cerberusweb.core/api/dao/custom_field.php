@@ -953,7 +953,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				default:
 					if(false != ($field_ext = Extension_CustomField::get($field->type))) {
 						$value = $field_ext->formatFieldValue($value);
-						self::setFieldValue($context, $context_id, $field_id, $value);
+						$field_ext->setFieldValue($field, $context, $context_id, $value);
 					}
 					break;
 			}

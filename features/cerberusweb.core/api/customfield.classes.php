@@ -124,6 +124,49 @@ class CustomField_GeoPoint extends Extension_CustomField {
 			implode(',', $context_ids)
 		);
 	}
+	
+	function botActionRender(Model_CustomField $field) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('instructions', '(a pair of comma-separated latitude/longitude coordinates; e.g. `44.787197, 20.457273`)');
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+	}
+	
+	function botActionSimulate(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $value_key) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		$out = ">>> Setting value to:\n";
+		
+		@$value = $params['value'];
+		$value = $tpl_builder->build($value, $dict);
+
+		$value = $this->getValue($field, $value);
+		
+		$out .= $value;
+		
+		$dict->set($value_key, $value);
+		
+		return $out;
+	}
+	
+	function botActionRun(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $context, $context_id, $value_key) {
+		$value = $this->botActionGetValueFromParams($field, $params, $dict);
+		
+		$this->setFieldValue($field, $context, $context_id, $value);
+		
+		if(!empty($value_key)) {
+			$key_to_set = $value_key.'_'.$field->id;
+			$dict->set($key_to_set, $value);
+			
+			$array =& $dict->$value_key;
+			if(is_array($array))
+				$array[$field->id] = $value;
+		}
+	}
+	
+	function botActionGetValueFromParams(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict) {
+		@$value = $params['value'];
+		return $this->formatFieldValue($value);
+	}
 };
 
 class CustomField_Slider extends Extension_CustomField {
@@ -305,6 +348,56 @@ class CustomField_Slider extends Extension_CustomField {
 			implode(',', $context_ids)
 		);
 	}
+	
+	function botActionRender(Model_CustomField $field) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('instructions',
+			sprintf('(return a number between %d and %d)',
+				$field->params['value_min'],
+				$field->params['value_max']
+			)
+		);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+	}
+	
+	function botActionSimulate(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $value_key) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		$out = ">>> Setting value to:\n";
+		
+		@$value = $params['value'];
+		$value = $tpl_builder->build($value, $dict);
+		
+		$value = $this->getValue($field, $value);
+		
+		$out .= $value;
+		
+		$dict->set($value_key, $value);
+		
+		return $out;
+	}
+	
+	function botActionRun(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $context, $context_id, $value_key) {
+		$value = $this->botActionGetValueFromParams($field, $params, $dict);
+		
+		$this->setFieldValue($field, $context, $context_id, $value);
+		
+		if(!empty($value_key)) {
+			$key_to_set = $value_key.'_'.$field->id;
+			$dict->set($key_to_set, $value);
+			
+			$array =& $dict->$value_key;
+			if(is_array($array))
+				$array[$field->id] = $value;
+		}
+	}
+	
+	function botActionGetValueFromParams(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict) {
+		@$value = $params['value'];
+		return $this->formatFieldValue($value);
+	}
 };
 
 class CustomField_RecordLinks extends Extension_CustomField {
@@ -355,7 +448,13 @@ class CustomField_RecordLinks extends Extension_CustomField {
 	}
 	
 	function formatFieldValue($value) {
-		return $value;
+		if (is_array($value)) {
+			return $value;
+		} else if(is_string($value)) {
+			return DevblocksPlatform::parseCsvString($value);
+		} else {
+			return [];
+		}
 	}
 	
 	function parseFormPost(Model_CustomField $field) {
@@ -546,5 +645,62 @@ class CustomField_RecordLinks extends Extension_CustomField {
 			$context,
 			implode(',', $context_ids)
 		);
+	}
+	
+	function botActionRender(Model_CustomField $field) {
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if(!array_key_exists('context', $field->params))
+			return;
+		
+		if(false == ($context_mft = Extension_DevblocksContext::get($field->params['context'], false)))
+			return;
+		
+		$aliases = Extension_DevblocksContext::getAliasesForContext($context_mft);
+		
+		$tpl->assign('instructions',
+			sprintf('(return comma-separated %s ids)',
+				DevblocksPlatform::strLower($aliases['plural'])
+			)
+		);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
+	}
+	
+	function botActionSimulate(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $value_key) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
+		$out = ">>> Setting value to:\n";
+		
+		@$value = $params['value'];
+		$value = $tpl_builder->build($value, $dict);
+		
+		$value = $this->getValue($field, $value);
+		
+		$out .= $value;
+		
+		$dict->set($value_key, $value);
+		
+		return $out;
+	}
+	
+	function botActionRun(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict, $context, $context_id, $value_key) {
+		$value = $this->botActionGetValueFromParams($field, $params, $dict);
+		
+		$this->setFieldValue($field, $context, $context_id, $value);
+		
+		if(!empty($value_key)) {
+			$key_to_set = $value_key.'_'.$field->id;
+			$dict->set($key_to_set, $value);
+			
+			$array =& $dict->$value_key;
+			if(is_array($array))
+				$array[$field->id] = $value;
+		}
+	}
+	
+	function botActionGetValueFromParams(Model_CustomField $field, array $params, DevblocksDictionaryDelegate $dict) {
+		@$value = $params['value'];
+		return $this->formatFieldValue($value);
 	}
 };
