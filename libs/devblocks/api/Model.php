@@ -1255,7 +1255,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					$field_id
 				);
 				break;
-				
+
 			default:
 				return sprintf("%s %sIN (SELECT context_id FROM %s AS %s WHERE %s.context = %s AND %s.context_id = %s AND %s.field_id=%d AND %s)",
 					$cfield_key,

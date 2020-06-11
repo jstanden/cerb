@@ -1448,6 +1448,11 @@
 				<seg>inactive</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.in">
+			<tuv xml:lang="en_US">
+				<seg>in</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.inbox">
 			<tuv xml:lang="en_US">
 				<seg>inbox</seg>

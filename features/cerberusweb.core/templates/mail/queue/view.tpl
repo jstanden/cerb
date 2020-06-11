@@ -165,9 +165,8 @@ $frm = $('#viewForm{$view->id}');
 $frm.bind('keyboard_shortcut',function(event) {
 	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
 	
-	$view_actions = $('#{$view->id}_actions');
-	
-	hotkey_activated = true;
+	var $view_actions = $('#{$view->id}_actions');
+	var hotkey_activated = true;
 
 	switch(event.keypress_event.which) {
 		case 98: // (b) bulk update

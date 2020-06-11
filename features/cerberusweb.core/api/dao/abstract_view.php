@@ -4437,7 +4437,7 @@ class CerbQuickSearchLexer {
 				case 'T_QUOTED_TEXT':
 				case 'T_TEXT':
 					$oper = $not ? DevblocksSearchCriteria::OPER_NIN : DevblocksSearchCriteria::OPER_IN;
-					$value = array($token->value);
+					$value = [$token->value];
 					break;
 					
 				case 'T_ARRAY':
