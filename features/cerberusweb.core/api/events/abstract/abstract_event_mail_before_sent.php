@@ -515,14 +515,15 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 							'type' => 'bit',
 							'notes' => '`0` (plaintext match), `1` (regular expression match)',
 						],
-						'replace_mode' => [
-							'type' => 'text',
-							'notes' => '`text`, `html`, or omit for both',
-						],
 						'replace' => [
 							'type' => 'text',
 							'required' => true,
 							'notes' => 'The content to match in the message body',
+						],
+						'replace_on' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => '`sent` (only sent message), `saved` (only saved message), or omit for both',
 						],
 						'with' => [
 							'type' => 'text',
@@ -608,6 +609,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 				
 			case 'replace_content':
+				$tpl->assign('is_sent', true);
 				$tpl->display('devblocks:cerberusweb.core::events/mail_before_sent_by_group/action_replace_content.tpl');
 				break;
 				
@@ -717,27 +719,30 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$replace = $tpl_builder->build($params['replace'], $dict);
-				$with = $tpl_builder->build($params['with'], $dict);
 				
-				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
-					@$value = preg_replace($replace, $with, $dict->content);
+				@$replace = $tpl_builder->build($params['replace'], $dict);
+				@$with = $tpl_builder->build($params['with'], $dict);
+				@$replace_on = $params['replace_on'];
+				@$replace_is_regexp = $params['is_regexp'];
+				
+				if($replace_is_regexp) {
+					@$after = preg_replace($replace, $with, $dict->content);
 				} else {
-					$value = str_replace($replace, $with, $dict->content);
+					$after = str_replace($replace, $with, $dict->content);
 				}
 				
-				$before = $dict->content;
-				
-				if(!empty($value)) {
-					$dict->content = trim($value,"\r\n");
-				}
-				
-				$out = sprintf(">>> Replacing content\n".
-					"Before:\n%s\n".
-					"After:\n%s\n",
-					$before,
-					$dict->content
+				$out = sprintf(">>> On %s message\n\n".
+					">>> Replace (%s):\n%s\n\n".
+					">>> With:\n%s\n\n".
+					">>> After:\n%s\n\n",
+					$replace_on ?: 'saved and sent',
+					$replace_is_regexp ? 'regex' : 'text',
+					$replace,
+					$with,
+					$after
 				);
+				
+				$this->runActionExtension($token, $trigger, $params, $dict);
 				
 				return $out;
 				break;
@@ -881,18 +886,26 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				$replace = $tpl_builder->build($params['replace'], $dict);
-				$with = $tpl_builder->build($params['with'], $dict);
 				
-				if(isset($params['is_regexp']) && !empty($params['is_regexp'])) {
-					@$value = preg_replace($replace, $with, $dict->content);
-				} else {
-					$value = str_replace($replace, $with, $dict->content);
-				}
+				@$replace = $tpl_builder->build($params['replace'], $dict);
+				@$with = $tpl_builder->build($params['with'], $dict);
+				@$replace_on = $params['replace_on'];
+				@$replace_is_regexp = $params['is_regexp'];
 				
-				if(!empty($value)) {
-					$dict->content = trim($value,"\r\n");
-				}
+				if(!array_key_exists('content_modifications', $dict->_properties))
+					$dict->_properties['content_modifications'] = [];
+				
+				$content_action = [
+					'action' => 'replace',
+					'params' => [
+						'replace' => $replace,
+						'replace_is_regexp' => @$params['is_regexp'] ? true : false,
+						'replace_on' => @$params['replace_on'],
+						'with' => $with
+					],
+				];
+				
+				$dict->_properties['content_modifications'][] = $content_action;
 				break;
 				
 			case 'set_header':
