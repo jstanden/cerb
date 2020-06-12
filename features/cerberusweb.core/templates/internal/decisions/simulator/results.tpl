@@ -24,7 +24,7 @@
 		<h3>Action: {$output.action}</h3>
 		{$last_action = $output.action}
 	{/if}
-	<fieldset><!--
+	<fieldset class="block"><!--
 		-->{if $output.title}<legend><a href="javascript:;" onclick="$(this).parent().next('pre').toggle();" style="text-decoration:none;cursor:pointer;">{$output.title}</a></legend>{/if}<!--
 		--><pre class="emailbody" style="margin:0;">{$output.content}</pre><!--
 	--></fieldset>
@@ -35,7 +35,7 @@
 <h3 style="margin-top:10px;">Log</h3>
 
 {if !empty($conditions_output)}
-<fieldset>
+<fieldset class="block black">
 <pre class="emailbody">{$conditions_output}</pre>
 </fieldset>
 {/if}

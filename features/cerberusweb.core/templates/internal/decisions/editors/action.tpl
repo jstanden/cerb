@@ -35,23 +35,20 @@
 		{$seq = null}
 		{if $model && isset($model->params.actions) && is_array($model->params.actions)}
 		{foreach from=$model->params.actions item=params key=seq}
-		<fieldset id="action{$seq}_{$nonce}" class="cerb-bot-action">
-			<legend class="cerb-bot-action--title" style="cursor:move;">
-				<a href="javascript:;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a>
-				{if $actions[$params.action]}
-					{$actions[$params.action].label}
-				{else}
-					(missing action: {$params.action})
-				{/if}
+		<fieldset id="action{$seq}_{$nonce}" class="cerb-bot-action block-cell">
+			<legend class="cerb-bot-action--title" style="font-size:135%;">
+				{if $actions[$params.action]}{$actions[$params.action].label}{else}(missing action: {$params.action}){/if}<!--
+				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span><!--
+				--><span data-cerb-onhover style="display:none;cursor:pointer;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-remove"></span></span>
 			</legend>
 			
 			<input type="hidden" name="actions[]" value="{$seq}">
 			<input type="hidden" name="action{$seq}[action]" value="{$params.action}">
-			
+
 			{if $actions.{$params.action}}
 				{$event->renderAction({$params.action},$trigger,$params,$seq)}
 			{else}
-				The defined action could not be found. It may no longer be supported, or its plugin may be disabled. 
+				The defined action could not be found. It may no longer be supported, or its plugin may be disabled.
 				The action will be ignored by this behavior until it becomes available again.
 			{/if}
 		</fieldset>
@@ -104,12 +101,10 @@
 		<input type="hidden" name="nonce" value="{$nonce}">
 		{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
-		<fieldset>
-			<legend>{'common.actions'|devblocks_translate|capitalize}</legend>
-		
-			<button type="button" class="action cerb-popupmenu-trigger">{'common.action'|devblocks_translate|capitalize} &#x25be;</button>
-		
+
+		<div style="margin:10px 0 10px 0;">
+			<button type="button" class="action cerb-popupmenu-trigger"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize} &#x25be;</button>
+
 			{function menu level=0}
 				{foreach from=$keys item=data key=idx}
 					{if is_array($data->children) && !empty($data->children)}
@@ -128,12 +123,11 @@
 					{/if}
 				{/foreach}
 			{/function}
-			
-			<ul class="actions-menu" style="width:150px;display:none;">
+
+			<ul class="actions-menu" style="width:150px;">
 			{menu keys=$actions_menu}
 			</ul>
-		
-		</fieldset>
+		</div>
 		</form>
 
 		{if isset($id)}
@@ -309,8 +303,23 @@ $(function() {
 		});
 
 		$popup.find('#frmDecisionAction{$id}Action DIV.actions')
-			.sortable({ 'items':'fieldset.cerb-bot-action', 'placeholder':'ui-state-highlight', 'handle':'legend.cerb-bot-action--title' })
+			.sortable({
+				'items': 'fieldset.cerb-bot-action',
+				'placeholder': 'ui-state-highlight',
+				'handle': 'legend span.glyphicons-move',
+				'tolerance': 'pointer',
+				'opacity': 0.7
+			})
 		;
+
+		$popup.find('#frmDecisionAction{$id}Action DIV.actions').on({
+			mouseenter: function() {
+				$(this).find(':hidden[data-cerb-onhover]').show();
+			},
+			mouseleave: function() {
+				$(this).find(':visible[data-cerb-onhover]').hide();
+			}
+		}, "fieldset");
 
 		// Placeholders
 		
@@ -464,9 +473,13 @@ $(function() {
 					var seq = parseInt($frm_add_action.find('input[name=seq]').val());
 					if(null == seq)
 						seq = 0;
-					
-					var $container = $('<fieldset/>').attr('id','action' + seq + '_{$nonce}').addClass('cerb-bot-action');
-					$container.prepend('<legend class="cerb-bot-action--title" style="cursor:move;"><a href="javascript:;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></a> ' + label + '</legend>');
+
+					var $container = $('<fieldset class="cerb-bot-action block-cell" />').attr('id','action' + seq + '_{$nonce}').addClass('cerb-bot-action');
+					$container.prepend('<legend class="cerb-bot-action--title" style="font-size:135%;">'
+						+ label
+						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span>'
+						+ '<span data-cerb-onhover style="display:none;cursor:pointer;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-remove"></span></span>'
+					);
 					$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
 					$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
 					$ul.append($container);

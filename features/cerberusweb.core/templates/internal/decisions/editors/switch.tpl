@@ -36,7 +36,7 @@
 		{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 		
-		<fieldset class="peek">
+		<fieldset class="block black">
 			<legend>Determine an outcome based on multiple choices</legend>
 			
 			A <b>decision</b> will evaluate multiple choices and choose the first outcome that satisfies all conditions. 

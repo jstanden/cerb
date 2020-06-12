@@ -36,7 +36,7 @@
 			{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
-			<fieldset class="peek">
+			<fieldset class="block black">
 				<legend>Repeat this branch for each object in a list</legend>
 				A <b>loop</b> branch will repeat its decisions and actions for each object in a list.
 			</fieldset>
