@@ -112,47 +112,50 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		 * Properties
 		 */
 		
+		if(is_null($event_model))
+			$event_model = new Model_DevblocksEvent();
+		
+		if(!array_key_exists('properties', $event_model->params))
+			$event_model->params['properties'] = [];
+		
 		@$properties =& $event_model->params['properties'];
 		$values['_properties'] =& $properties;
 		
 		$prefix = 'Sent message ';
 		
 		$labels['content'] = $prefix.'content';
-		$values['content'] =& $properties['content'];
+		$values['content'] = $properties['content'] ?? null;
 		
 		$labels['content_format'] = $prefix.'content is HTML';
 		$values['content_format'] = (@$properties['content_format'] == 'parsedown') ? 1 : 0;
 		
-		if(!isset($properties['headers']))
-			$properties['headers'] = [];
-			
 		$labels['headers'] = $prefix.'headers';
-		$values['headers'] =& $properties['headers'];
+		$values['headers'] = $properties['headers'] ?? [];
 		
 		$labels['to'] = $prefix.'to';
-		$values['to'] =& $properties['to'];
+		$values['to'] = $properties['to'] ?? null;
 		
 		$labels['cc'] = $prefix.'cc';
-		$values['cc'] =& $properties['cc'];
+		$values['cc'] = $properties['cc'] ?? null;
 		
 		$labels['bcc'] = $prefix.'bcc';
-		$values['bcc'] =& $properties['bcc'];
+		$values['bcc'] = $properties['bcc'] ?? null;
 
 		$labels['subject'] = $prefix.'subject';
-		$values['subject'] =& $properties['subject'];
+		$values['subject'] = $properties['subject'] ?? null;
 		
 		$labels['message_id'] = $prefix.'ID';
-		$values['message_id'] =& $properties['outgoing_message_id'];
+		$values['message_id'] = $properties['outgoing_message_id'] ?? null;
 		
-		$values['waiting_until'] =& $properties['ticket_reopen'];
+		$values['waiting_until'] = $properties['ticket_reopen'] ?? null;
 		
-		$values['status_id'] =& $properties['status_id'];
+		$values['status_id'] = $properties['status_id'] ?? null;
 		
-		//$labels['worker_id'] = $prefix.'worker id';
-		$values['worker_id'] =& $properties['worker_id'];
+		$values['worker__context'] = CerberusContexts::CONTEXT_WORKER;
+		$values['worker_id'] = $properties['worker_id'] ?? null;
 		
 		$labels['send_at'] = $prefix.'send at';
-		$values['send_at'] =& $properties['send_at'];
+		$values['send_at'] = $properties['send_at'] ?? null;
 		
 		// Ticket custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
