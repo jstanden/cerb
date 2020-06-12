@@ -331,4 +331,77 @@ class DevblocksDateTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testParseDays() {
+		$date = DevblocksPlatform::services()->date();
+		
+		// Weekdays
+		$expected = [1,2,3,4,5];
+		$actual = $date->parseDays('weekdays');
+		$this->assertEquals($expected, $actual);
+		
+		// Weekends
+		$expected = [0,6];
+		$actual = $date->parseDays('weekends');
+		$this->assertEquals($expected, $actual);
+		
+		// Mon + Wed + Fri
+		$expected = [1,3,5];
+		$actual = $date->parseDays('mon,w,friday');
+		$this->assertEquals($expected, $actual);
+		
+		// Mon + Fri (array)
+		$expected = [1,5];
+		$actual = $date->parseDays(['mon','friday']);
+		$this->assertEquals($expected, $actual);
+		
+		// Mon + Tue + nonsense (array)
+		$expected = [1,2];
+		$actual = $date->parseDays(['m','z-day','tues']);
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testParseTimes() {
+		$date = DevblocksPlatform::services()->date();
+		
+		$expected = ['08:00'];
+		$actual = $date->parseTimes('08:00');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = ['20:00'];
+		$actual = $date->parseTimes('8p');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = ['21:00'];
+		$actual = $date->parseTimes('9pm');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = [['09:00','17:00']];
+		$actual = $date->parseTimes('09:00-17:00');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = [['08:00','17:00']];
+		$actual = $date->parseTimes('8a-5p');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = [['08:00','09:00']];
+		$actual = $date->parseTimes('8-9a');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = [[46800, 61200]];
+		$actual = $date->parseTimes('1-5p', true);
+		$this->assertEquals($expected, $actual);
+		
+		$expected = [['09:00','17:00']];
+		$actual = $date->parseTimes('9-5p');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = [['12:00','13:00']];
+		$actual = $date->parseTimes('12-1p');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = [['08:00','09:00'],['14:00','15:30']];
+		$actual = $date->parseTimes('8-9a,2-3:30p');
+		$this->assertEquals($expected, $actual);
+	}
 }

@@ -2161,6 +2161,13 @@ abstract class C4_AbstractView {
 					break;
 					
 				case Model_CustomField::TYPE_DATE:
+					if($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+						if (array_key_exists('label', $param->value)) {
+							echo $param->value['label'];
+							return;
+						}
+					}
+					
 					$implode_token = ' to ';
 					break;
 					
@@ -2218,6 +2225,12 @@ abstract class C4_AbstractView {
 						$field_ext->prepareCriteriaParam($cfield, $param, $vals, $implode_token);
 					}
 					break;
+			}
+			
+		} else if ($param->operator == DevblocksSearchCriteria::OPER_CUSTOM) {
+			if(array_key_exists('label', $param->value)) {
+				echo $param->value['label'];
+				return;
 			}
 		}
 		
@@ -2317,6 +2330,10 @@ abstract class C4_AbstractView {
 						[
 							'caption' => '(date range)',
 							'snippet' => '"${1:-1 week} to ${2:now}"'
+						],
+						[
+							'caption' => '(advanced)',
+							'snippet' => '(since:"${1:-1 week}" until:"${2:now}" days:[${3:Weekdays}] hours:${4:9a-5p})'
 						],
 					];
 					break;

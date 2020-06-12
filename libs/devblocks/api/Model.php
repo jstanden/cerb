@@ -1476,32 +1476,130 @@ class DevblocksSearchCriteria {
 		// [TODO] If not a range search, and not a relative start point, we could treat this as an absolute (=)
 		// [TODO] Handle >=, >, <=, <, =, !=
 		
-		$oper = DevblocksSearchCriteria::OPER_BETWEEN;
-		$values = array();
-		
 		foreach($tokens as $token) {
 			switch($token->type) {
+				// Parameterized expression
+				case 'T_GROUP':
+					$query = substr(CerbQuickSearchLexer::getTokensAsQuery($tokens),1,-1);
+					
+					$fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
+					
+					$params = [];
+					$oper = $value = null;
+					
+					foreach($fields as $field) {
+						switch($field->key) {
+							case 'since':
+								CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+								$params['since'] = $value;
+								break;
+								
+							case 'until':
+								CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+								$params['until'] = $value;
+								break;
+								
+							case 'day':
+							case 'days':
+								CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+								
+								if(is_array($value) && 1 == count($value))
+									$value = DevblocksPlatform::parseCsvString(array_shift($value));
+								
+								$params['day'] = $value;
+								break;
+								
+							case 'time':
+							case 'times':
+								CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+								
+								if(is_array($value) && 1 == count($value))
+									$value = DevblocksPlatform::parseCsvString(array_shift($value));
+								
+								$params['time'] = $value;
+								break;
+						}
+					}
+					
+					$sql_parts = [];
+				
+					if(array_key_exists('since', $params) || array_key_exists('until', $params)) {
+						@$range_since = $params['since'] ?: 'big bang';
+						@$range_until = $params['until'] ?: 'now';
+						$range = DevblocksPlatform::services()->date()->parseDateRange($range_since . ' to ' . $range_until);
+						$sql_parts[] = sprintf("%%1\$s BETWEEN %d AND %d", $range['from_ts'], $range['to_ts']);
+					}
+					
+					if(array_key_exists('day', $params)) {
+						$range_days = DevblocksPlatform::services()->date()->parseDays($params['day']);
+						$sql_part = "DATE_FORMAT(FROM_UNIXTIME(%1\$s),'%%w') ";
+						
+						if(0 == count($range_days)) {
+							$sql_part .= '= -1';
+						} else {
+							$sql_part .= sprintf('IN (%s)', implode(',', $range_days));
+						}
+						
+						$sql_parts[] = $sql_part;
+					}
+					
+					if(array_key_exists('time', $params)) {
+						$range_times = DevblocksPlatform::services()->date()->parseTimes($params['time'], true);
+						$sql_field = "TIME_TO_SEC(DATE_FORMAT(FROM_UNIXTIME(%1\$s), '%%H:%%i')) ";
+						$time_parts = [];
+						
+						foreach($range_times as $range_time) {
+							if (!is_array($range_time)) {
+								$time_parts[] = $sql_field . '= ' . $range_time;
+							} elseif (is_array($range_time) && 2 == count($range_time)) {
+								$time_parts[] = $sql_field . sprintf('BETWEEN %d AND %d ', $range_time[0], $range_time[1]);
+							}
+						}
+						
+						if($time_parts)
+							$sql_parts[] = '(' . implode(' OR ', $time_parts) . ')';
+					}
+					
+					if($sql_parts) {
+						$sql = '(' . implode(' AND ', $sql_parts) . ')';
+					} else {
+						$sql = '';
+					}
+					
+					return new DevblocksSearchCriteria(
+						$field_key,
+						DevblocksSearchCriteria::OPER_CUSTOM,
+						[
+							'label' => $query,
+							'sql' => $sql,
+						]
+					);
+					break;
+					
+				// String
 				case 'T_QUOTED_TEXT':
 				case 'T_TEXT':
+					$oper = DevblocksSearchCriteria::OPER_BETWEEN;
+				
 					if(0 == strcasecmp(trim($token->value), 'never') || empty($token->value)) {
-						$oper = DevblocksSearchCriteria::OPER_EQ;
-						$values = 'never';
-						
-					} else {
-						$values = explode(' to ', DevblocksPlatform::strLower($token->value), 2);
-						
-						if(1 == count($values))
-							$values[] = 'now';
-					}
+							$oper = DevblocksSearchCriteria::OPER_EQ;
+							$values = 'never';
+							
+						} else {
+							$values = explode(' to ', DevblocksPlatform::strLower($token->value), 2);
+							
+							if(1 == count($values))
+								$values[] = 'now';
+						}
+				
+					return new DevblocksSearchCriteria(
+						$field_key,
+						$oper,
+						$values
+					);
 					break;
 			}
 		}
-
-		return new DevblocksSearchCriteria(
-			$field_key,
-			$oper,
-			$values
-		);
 	}
 	
 	public static function getBooleanParamFromTokens($field_key, $tokens) {
@@ -2436,13 +2534,17 @@ class DevblocksSearchCriteria {
 				break;
 			
 			case DevblocksSearchCriteria::OPER_CUSTOM:
-				if(!isset($this->value['where']))
+				if(array_key_exists('sql', $this->value)) {
+					$where = sprintf($this->value['sql'], $db_field_name);
+					
+				} else if(array_key_exists('where', $this->value)) {
+					$where = sprintf("%s %s",
+						$db_field_name,
+						$this->value['where']
+					);
+				} else {
 					return 0;
-				
-				$where = sprintf("%s %s",
-					$db_field_name,
-					$this->value['where']
-				);
+				}
 				break;
 				
 			case DevblocksSearchCriteria::OPER_GEO_POINT_EQ:
