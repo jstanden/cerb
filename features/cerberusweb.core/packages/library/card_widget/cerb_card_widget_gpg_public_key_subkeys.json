@@ -3,7 +3,7 @@
     "name": "Card Widget: GPG Public Key Subkeys",
     "revision": 1,
     "requires": {
-      "cerb_version": "9.4.0",
+      "cerb_version": "9.6.0",
       "plugins": [
 
       ]
@@ -43,10 +43,10 @@
       "width_units": "4",
       "zone": "",
       "extension_params": {
-        "data_query": "type:gpg.keyinfo\r\nfilter:subkeys\r\nfingerprint:{{record_fingerprint}}\r\nformat:dictionaries",
+        "data_query": "type:gpg.keyinfo\nfilter:subkeys\nfingerprint:{{record_fingerprint}}\nformat:dictionaries",
         "cache_secs": "",
-        "placeholder_simulator_yaml": "",
-        "sheet_yaml": "layout:\r\n  style: table\r\n  headings: true\r\n  paging: true\r\n  #title_column: _label\r\ncolumns:\r\n- text:\r\n    key: fingerprint\r\n    label: Fingerprint\r\n- date:\r\n    key: expires\r\n    label: Expires\r\n    params:\r\n      #image: true\r\n      #bold: true\r\n- icon:\r\n    key: can_sign\r\n    label: Sign\r\n    params:\r\n      image_template: |\r\n        {% if can_sign %}\r\n        circle-ok\r\n        {% endif %}\r\n- icon:\r\n    key: can_encrypt\r\n    label: Encrypt\r\n    params:\r\n      image_template: |\r\n        {% if can_encrypt %}\r\n        circle-ok\r\n        {% endif %}\r\n- \r\n"
+        "placeholder_simulator_kata": "",
+        "sheet_kata": "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n  #title_column: _label\n\ncolumns:\n  text/fingerprint:\n    label: Fingerprint\n\n  date/expires:\n    label: Expires\n    params:\n      #image@bool: yes\n      #bold@bool: yes\n\n  icon/can_sign:\n    label: Sign\n    params:\n      image_template@raw:\n        {% if can_sign %}\n        circle-ok\n        {% endif %}\n\n  icon/can_encrypt:\n    label: Encrypt\n    params:\n      image_template@raw:\n        {% if can_encrypt %}\n        circle-ok\n        {% endif %}\n\n  "
       }
     }
   ]

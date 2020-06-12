@@ -3,7 +3,7 @@
     "name": "Profile Widget: Ticket Draft Generator",
     "revision": 1,
     "requires": {
-      "cerb_version": "9.5.0",
+      "cerb_version": "9.6.0",
       "plugins": []
     },
     "library": {
@@ -127,9 +127,9 @@
                 "actions": [
                   {
                     "action": "respond_sheet",
-                    "data_query": "type:worklist.records\r\nof:behavior\r\nquery.required:(\r\n  id:{{{uid.behavior_draft_interaction}}}\r\n)\r\nquery:(\r\n)\r\nexpand:[custom_]\r\nformat:dictionaries",
-                    "placeholder_simulator_yaml": "# key: value\r\n",
-                    "sheet_yaml": "layout:\r\n  style: table\r\n  headings: false\r\n  paging: false\r\n  #title_column: _label\r\ncolumns:\r\ncolumns:\r\n- card:\r\n    key: _label\r\n    label: Name\r\n    params:\r\n      label: (edit the draft presets)"
+                    "data_query": "type:worklist.records\nof:behavior\nquery.required:(\n  id:{{{uid.behavior_draft_interaction}}}\n)\nquery:(\n)\nexpand:[custom_]\nformat:dictionaries",
+                    "placeholder_simulator_kata": "#key: value\n",
+                    "sheet_kata": "layout:\n  style: table\n  headings@bool: no\n  paging@bool: no\n  #title_column: _label\n\ncolumns:\n  card/_label:\n    label: Name\n    params:\n      label: (edit the draft presets)"
                   }
                 ]
               }

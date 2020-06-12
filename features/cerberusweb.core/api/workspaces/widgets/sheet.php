@@ -71,8 +71,9 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 			case 'dictionaries':
 				$sheets = DevblocksPlatform::services()->sheet();
 				
-				@$sheet_yaml = DevblocksPlatform::importGPC($widget->params['sheet_yaml'], 'string', null);
-				$sheet = $sheets->parseYaml($sheet_yaml, $error);
+				@$sheet_kata = DevblocksPlatform::importGPC($widget->params['sheet_kata'], 'string', null);
+				
+				$sheet = $sheets->parse($sheet_kata, $error);
 				
 				$sheets->addType('card', $sheets->types()->card());
 				$sheets->addType('date', $sheets->types()->date());
@@ -121,8 +122,8 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 			$widget->params['data_query'] = "type:worklist.records\nof:ticket\nexpand: [custom_,]\nquery:(\n  status:o\n  limit:10\n  sort:[id]\n)\nformat:dictionaries";
 		}
 		
-		if(!array_key_exists('sheet_yaml', $widget->params)) {
-			$widget->params['sheet_yaml'] = "layout:\n  style: table\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- text:\n    key: id\n    label: ID\n- card:\n    key: _label\n    label: Label\n    params:\n      #image: true\n      #bold: true\n- ";
+		if(!array_key_exists('sheet_kata', $widget->params)) {
+			$widget->params['sheet_kata'] = "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n  #title_column: _label\n\ncolumns:\n  text/id:\n    label: ID\n\n  card/_label:\n    label: Label\n    params:\n      #image@bool: yes\n      #bold@bool: yes\n  ";
 		}
 		
 		$tpl->assign('widget', $widget);

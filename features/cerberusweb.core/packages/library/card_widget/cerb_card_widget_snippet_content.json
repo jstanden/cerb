@@ -3,7 +3,7 @@
     "name": "Card Widget: Snippet Content",
     "revision": 1,
     "requires": {
-      "cerb_version": "9.4.0",
+      "cerb_version": "9.6.0",
       "plugins": [
 
       ]
@@ -43,10 +43,10 @@
       "width_units": "4",
       "zone": "",
       "extension_params": {
-        "data_query": "type:worklist.records\r\nof:snippet\r\nexpand: [custom_,]\r\nquery:(\r\n  id:{{record_id}}\r\n  limit:1\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+        "data_query": "type:worklist.records\nof:snippet\nexpand: [custom_,]\nquery:(\n  id:{{record_id}}\n  limit:1\n  sort:[id]\n)\nformat:dictionaries",
         "cache_secs": "",
-        "placeholder_simulator_yaml": "",
-        "sheet_yaml": "layout:\r\n  style: fieldsets\r\n  headings: false\r\n  paging: false\r\ncolumns:\r\n- text:\r\n    key: content\r\n    label: Content\r\n    params:\r\n      value_template: |\r\n        {{content|e|nl2br}}\r\n- "
+        "placeholder_simulator_kata": "",
+        "sheet_kata": "layout:\n  style: fieldsets\n  headings@bool: no\n  paging@bool: no\n\ncolumns:\n  text/content:\n    label: Content\n    params:\n      value_template@raw:\n        {{content|e|nl2br}}\n\n  "
       }
     }
   ]

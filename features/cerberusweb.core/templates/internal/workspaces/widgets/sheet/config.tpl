@@ -207,5 +207,55 @@ $(function() {
 			});
 		});
 	});
+	
+	$sheet_preview.on('cerb-sheet--refresh', function(e) {
+		e.stopPropagation();
+		$sheet_button_preview.click();
+	});
+
+	var $sheet_button_add_menu = $sheet_button_add.next('ul').menu({
+		"select": function(e, $ui) {
+			e.stopPropagation();
+			$sheet_button_add_menu.hide();
+
+			var column_type = $ui.item.attr('data-type');
+
+			if(null == column_type)
+				return;
+
+			var snippet = '';
+
+			{literal}
+			if('card' === column_type) {
+				snippet = "card/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Name}\n  params:\n    context_key: _context\n    id_key: id\n    label_key: _label\n    image@bool: no\n    bold@bool: no\n    underline@bool: no\n";
+			} else if('date' === column_type) {
+				snippet = "date/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Date}\n  params:\n    # See: https://php.net/date\n    format: d-M-Y H:i:s T\n    #value: 1577836800\n    #value_key: updated\n";
+			} else if('icon' === column_type) {
+				snippet = "icon/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Sign}\n  params:\n    #image: circle-ok\n    #image_key: icon_key\n    image_template@raw:\n      {% if can_sign %}\n      circle-ok\n      {% endif %}";
+			} else if('link' === column_type) {
+				snippet = "link/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Link}\n  params:\n    #href: https://example.com/\n    href_key: record_url\n    #href_template@raw: /profiles/task/{{id}}-{{title|permalink}}\n    #text: Link title\n    text_key: _label\n    #text_template@raw: {{title}}\n";
+			} else if('search' === column_type) {
+				snippet = "search/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Count}\n  params:\n    context: ticket\n    #query_key: query\n    query_template@raw: owner.id:{{id}}\n";
+			} else if('search_button' === column_type) {
+				snippet = "search_button/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Assignments}\n  params:\n    context: ticket\n    #query_key: query\n    query_template@raw: owner.id:{{id}}\n";
+			} else if('slider' === column_type) {
+				snippet = "slider/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Importance}\n  params:\n    min: 0\n    max: 100\n    #value: 50\n    #value_key: importance\n    #value_template@raw: {{importance+10}}\n";
+			} else if('text' === column_type) {
+				snippet = "text/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Gender}\n  params:\n    #value: Female\n    #value_key: gender\n    #value_template@raw: {{gender}}\n    value_map:\n      F: Female\n      M: Male\n";
+			} else if('time_elapsed' === column_type) {
+				snippet = "time_elapsed/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:First Response}\n  params:\n    precision: 2\n";
+			}
+			{/literal}
+
+			if(snippet.length > 0) {
+				$yaml_editor.triggerHandler($.Event('cerb.insertAtCursor', { content: snippet } ));
+			}
+		}
+	});
+
+	$sheet_button_add.on('click', function() {
+		$sheet_button_add_menu.toggle();
+	});
+
 });
 </script>

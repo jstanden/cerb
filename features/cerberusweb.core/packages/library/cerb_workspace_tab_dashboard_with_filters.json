@@ -1,5 +1,8 @@
 {
   "package": {
+    "requires": {
+      "cerb_version": "9.6.0"
+    },
     "library": {
       "name": "Dashboard with filters",
       "uri": "cerb_workspace_tab_dashboard_with_filters",

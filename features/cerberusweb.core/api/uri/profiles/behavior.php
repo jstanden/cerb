@@ -1905,10 +1905,12 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		@$response_format = DevblocksPlatform::importGPC($_POST['format'],'string','');
 		@$trigger_id = DevblocksPlatform::importGPC($_POST['trigger_id'],'integer',0);
 		
-		@$placeholders_yaml = DevblocksPlatform::importVar($_POST[$prefix]['placeholder_simulator_yaml'], 'string', '');
-		$placeholders = DevblocksPlatform::services()->string()->yamlParse($placeholders_yaml, 0);
+		@$placeholders_kata = DevblocksPlatform::importVar($_POST[$prefix]['placeholder_simulator_kata'], 'string', '');
 		
+		$error = null;
 		$content = '';
+		
+		$placeholders = DevblocksPlatform::services()->kata()->parse($placeholders_kata, $error);
 		
 		if(array_key_exists('field', $_POST) && is_array($_POST['field'])) {
 			@$fields = DevblocksPlatform::importGPC($_POST['field'],'array',[]);

@@ -8,7 +8,7 @@
 	<textarea name="{$namePrefix}[data]" class="placeholders">{$params.data}</textarea>
 </div>
 
-<b>{'common.schema'|devblocks_translate|capitalize}:</b> (YAML) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/sheets/"}
+<b>{'common.schema'|devblocks_translate|capitalize}:</b> (KATA) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/sheets/"}
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	<textarea name="{$namePrefix}[schema]" data-editor-mode="ace/mode/yaml">{$params.schema}</textarea>
 </div>

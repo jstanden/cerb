@@ -47,7 +47,7 @@
         "extension_params": {
             "data_query": "type:worklist.records\nof:addresses\nexpand:[]\nquery:(\n  ticket.id:[{{record_id}}]\n  sort:email\n  limit: 10\n)\nformat:dictionaries",
             "cache_secs": "0",
-            "sheet_yaml": "---\r\nlayout:\r\n  style: table\r\n  headings: false\r\n  paging: true\r\ncolumns:\n- card:\n    key: id\n    label: Email\n    params:\n      image: true\n      bold: true\n"
+            "sheet_kata": "layout:\n  style: table\n  headings@bool: no\n  paging@bool: yes\n\ncolumns:\n  card/id:\n    label: Email\n    params:\n      image@bool: yes\n      bold@bool: yes\n"
         }
 	}
   ]

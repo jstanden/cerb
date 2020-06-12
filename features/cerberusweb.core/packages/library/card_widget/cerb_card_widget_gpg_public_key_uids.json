@@ -3,7 +3,7 @@
     "name": "Card Widget: GPG Public Key UIDs",
     "revision": 1,
     "requires": {
-      "cerb_version": "9.4.0",
+      "cerb_version": "9.6.0",
       "plugins": [
 
       ]
@@ -43,10 +43,10 @@
       "width_units": "4",
       "zone": "",
       "extension_params": {
-        "data_query": "type:gpg.keyinfo\r\nfilter:uids\r\nfingerprint:{{record_fingerprint}}\r\nformat:dictionaries",
+        "data_query": "type:gpg.keyinfo\nfilter:uids\nfingerprint:{{record_fingerprint}}\nformat:dictionaries",
         "cache_secs": "",
-        "placeholder_simulator_yaml": "",
-        "sheet_yaml": "layout:\r\n  style: table\r\n  headings: false\r\n  paging: false\r\n  #title_column: _label\r\ncolumns:\r\n- text:\r\n    key: uid\r\n    label: UID\r\n- "
+        "placeholder_simulator_kata": "",
+        "sheet_kata": "layout:\n  style: table\n  headings@bool: no\n  paging@bool: no\n  #title_column: _label\n\ncolumns:\n  search/uid:\n    label: UID\n    params:\n      label_key: uid\n      context: address\n      query_template@raw:\n        {% set email = uid|parse_emails %}\n        {% if email|length > 0 %}\n        email:{{email|first.email}}\n        {% endif %}\n\n  "
       }
     }
   ]

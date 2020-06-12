@@ -157,8 +157,8 @@
 							{
 								"action": "respond_sheet",
 								"data_query": "type:worklist.records\nof:task\nquery.required:(\n  id:{{_record.id}}\n)\nquery:(\n)\nexpand:[]\nformat:dictionaries",
-								"placeholder_simulator_yaml": "# key: value\n_record:\n  id: 1",
-								"sheet_yaml": "layout:\n  style: fieldsets\n  headings: true\n  paging: false\ncolumns:\n- card:\n    key: _label\n    label: Task\n- card:\n    key: owner__label\n    label: Owner\n    params:\n      image: true\n- slider:\n    key: importance\n- date:\n    key: due\n    label: Due\n- date:\n    key: updated\n    label: Updated\n- "
+								"placeholder_simulator_kata": "#key: value\n_record:\n  id: 1",
+								"sheet_kata": "layout:\n  style: fieldsets\n  headings@bool: yes\n  paging@bool: no\ncolumns:\n  card/_label:\n    label: Task\n  card/owner__label:\n    label: Owner\n    params:\n      image@bool: yes\n\n  slider/importance:\n\n  date/due:\n    label: Due\n\n  date/updated:\n    label: Updated\n\n  "
 							}
 						]
 					}

@@ -347,11 +347,12 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		@$index = DevblocksPlatform::importGPC($_POST['index'], 'integer', 0);
 		@$format = DevblocksPlatform::importGPC($_POST['format'], 'string', '');
 		
-		@$placeholders_yaml = DevblocksPlatform::importVar($params['placeholder_simulator_yaml'], 'string', '');
+		@$placeholders_kata = DevblocksPlatform::importVar($params['placeholder_simulator_kata'], 'string', '');
 		
-		$placeholders = DevblocksPlatform::services()->string()->yamlParse($placeholders_yaml, 0);
-		
+		$error = null;
 		$template = null;
+		
+		$placeholders = DevblocksPlatform::services()->kata()->parse($placeholders_kata, $error);
 		
 		if(DevblocksPlatform::strStartsWith($template_key, 'params[')) {
 			$template_key = trim(substr($template_key, 6),'[]');
