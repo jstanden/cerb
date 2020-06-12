@@ -1753,13 +1753,13 @@ class DevblocksPlatform extends DevblocksEngine {
 			$config->set('URI.Host', DevblocksPlatform::getHostname());
 			
 			$config->set('URI.AllowedSchemes', array(
+				'data' => true,
+				'ftp' => true,
 				'http' => true,
 				'https' => true,
 				'mailto' => true,
-				'ftp' => true,
-				'nntp' => true,
 				'news' => true,
-				'data' => true,
+				'tel' => true,
 			));
 			
 			$dir_htmlpurifier_cache = APP_TEMP_PATH . '/cache/htmlpurifier/';

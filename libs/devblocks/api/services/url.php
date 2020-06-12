@@ -383,14 +383,14 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 		}
 		
 		// Block non-HTTP, non-mailto links
-		if(!$is_embedded && !in_array($scheme, ['http', 'https','mailto'])) {
+		if(!$is_embedded && !in_array($scheme, ['http', 'https','mailto','tel'])) {
 			$this->_logBlockedLink($uri);
 			$uri = $this->parser->parse(null);
 			return false;
 		}
 		
 		// Block other (non-mail) URIs with no host
-		if(!$uri->host && $scheme != 'mailto') {
+		if(!$uri->host && !in_array($scheme, ['mailto', 'tel'])) {
 			if($is_embedded) {
 				$this->_logBlockedImage($uri);
 			} else {
