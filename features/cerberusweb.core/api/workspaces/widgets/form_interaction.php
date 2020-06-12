@@ -607,8 +607,8 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					@$var = $params['_prompt']['var'];
 					
 					$sheets = DevblocksPlatform::services()->sheet();
-					@$sheet_yaml = DevblocksPlatform::importGPC($schema, 'string', null);
-					$sheet = $sheets->parseYaml($sheet_yaml, $error);
+					@$sheet_kata = DevblocksPlatform::importGPC($schema, 'string', null);
+					$sheet = $sheets->parse($sheet_kata, $error);
 					
 					if(!array_key_exists('layout', $sheet))
 						$sheet['layout'] = [];

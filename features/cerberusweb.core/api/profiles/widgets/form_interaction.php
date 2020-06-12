@@ -615,9 +615,9 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 					@$var = $params['_prompt']['var'];
 					
 					$sheets = DevblocksPlatform::services()->sheet();
-					@$sheet_yaml = DevblocksPlatform::importGPC($schema, 'string', null);
+					@$sheet_kata = DevblocksPlatform::importGPC($schema, 'string', null);
 					
-					$sheet = $sheets->parseYaml($sheet_yaml, $error);
+					$sheet = $sheets->parse($sheet_kata, $error);
 					
 					if(!array_key_exists('layout', $sheet))
 						$sheet['layout'] = [];
@@ -687,8 +687,8 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 					if(false == ($results = DevblocksPlatform::services()->data()->executeQuery($params['data_query'], $error)))
 						break;
 					
-					if(false == ($sheet = $sheets->parseYaml($params['sheet_yaml'], $error)))
-						return;
+					if(false == ($sheet = $sheets->parse($params['sheet_kata'], $error)))
+						break;
 					
 					$sheets->addType('card', $sheets->types()->card());
 					$sheets->addType('date', $sheets->types()->date());

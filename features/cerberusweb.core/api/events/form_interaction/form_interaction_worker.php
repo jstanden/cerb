@@ -377,12 +377,12 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 							'required' => true,
 							'notes' => "The [data query](/docs/data-queries/) to run",
 						],
-						'placeholder_simulator_yaml' => [
+						'placeholder_simulator_kata' => [
 							'type' => 'yaml',
 							'notes' => "The test placeholder values when using the simulator",
 						],
-						'sheet_yaml' => [
-							'type' => 'yaml',
+						'sheet_kata' => [
+							'type' => 'kata',
 							'required' => true,
 							'notes' => "The [sheet](/docs/sheets/) schema to display",
 						],
@@ -479,11 +479,11 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				if(!array_key_exists('data_query', $params))
 					$params['data_query'] = "type:worklist.records\nof:tickets\nquery.required:(\n)\nquery:(\n)\nexpand:[custom_]\nformat:dictionaries";
 					
-				if(!array_key_exists('placeholder_simulator_yaml', $params))
-					$params['placeholder_simulator_yaml'] = "# key: value\n";
+				if(!array_key_exists('placeholder_simulator_kata', $params))
+					$params['placeholder_simulator_kata'] = "#key: value\n";
 				
-				if(!array_key_exists('sheet_yaml', $params))
-					$params['sheet_yaml'] = "layout:\n  style: table # [table,fieldsets]\n  headings: true\n  paging: true\n  #title_column: _label\ncolumns:\n- card:\n    key: _label\n    label: Name";
+				if(!array_key_exists('sheet_kata', $params))
+					$params['sheet_kata'] = "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n  #title_column: _label\n\ncolumns:\n  card/_label:\n    label: Name";
 				
 				$tpl->assign('params', $params);
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/responses/action_respond_sheet.tpl');
@@ -881,13 +881,13 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$data_query = $tpl_builder->build($params['data_query'], $dict);
 				
-				$sheet_yaml = $params['sheet_yaml'];
+				$sheet_kata = $params['sheet_kata'];
 				
 				$actions[] = array(
 					'_action' => 'respond.sheet',
 					'_trigger_id' => $trigger->id,
 					'data_query' => $data_query,
-					'sheet_yaml' => $sheet_yaml,
+					'sheet_kata' => $sheet_kata,
 				);
 				break;
 		}

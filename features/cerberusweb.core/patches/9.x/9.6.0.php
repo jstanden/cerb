@@ -492,6 +492,61 @@ foreach($workspace_sheet_widgets as $workspace_sheet_widget) {
 }
 
 // ===========================================================================
+// Convert bot interaction behavior sheets to KATA
+
+if(!array_key_exists('decision_node', $tables))
+	return false;
+
+$behavior_nodes = $db->GetArrayMaster("select id, params_json from decision_node where node_type = 'action' and (params_json like '%sheet_yaml%' OR params_json like '%placeholder_simulator_yaml%')");
+
+foreach($behavior_nodes as $behavior_node) {
+	$behavior_params = json_decode($behavior_node['params_json'], true);
+	
+	$changed = false;
+	
+	foreach($behavior_params['actions'] as &$action) {
+		if('respond_sheet' == $action['action']) {
+			if(array_key_exists('sheet_yaml', $action)) {
+				// If we failed to parse the YAML, keep it for now
+				if(false === ($kata = $cerb960_sheetWidgetYamlToKata($action['sheet_yaml']))) {
+					$kata = "---\n# TODO: Convert to KATA (https://cerb.ai/docs/sheets/)\n" . ltrim($action['sheet_yaml'],"\r\n -");
+					
+				} else {
+					$kata = $kata . "\n" . DevblocksPlatform::services()->string()->indentWith($action['sheet_yaml'], '#');
+				}
+				
+				$action['sheet_kata'] = $kata;
+				unset($action['sheet_yaml']);
+				$changed = true;
+			}
+			
+			if(array_key_exists('placeholder_simulator_yaml', $action)) {
+				// If we failed to parse the YAML, keep it for now
+				if(false === ($kata = $cerb960_sheetWidgetYamlToKata($action['placeholder_simulator_yaml']))) {
+					$kata = "---\n# TODO: Convert to KATA (https://cerb.ai/docs/kata/)\n" . ltrim($action['placeholder_simulator_yaml'],"\r\n -");
+					
+				} else {
+					$kata = $kata . "\n" . DevblocksPlatform::services()->string()->indentWith($action['placeholder_simulator_yaml'], '#');
+				}
+				
+				$action['placeholder_simulator_kata'] = $kata;
+				unset($action['placeholder_simulator_yaml']);
+				$changed = true;
+			}
+		}
+	}
+	
+	if($changed) {
+		$sql = sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+			$db->qstr(json_encode($behavior_params)),
+			$behavior_node['id']
+		);
+		
+		$db->ExecuteMaster($sql);
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return true;
