@@ -4,6 +4,7 @@
 {$content nofilter}
 </div>
 
+{if !$is_inline}
 <script type="text/javascript">
 $(function() {
     var $div = $('#{$div_id}');
@@ -15,3 +16,4 @@ $(function() {
     });
 });
 </script>
+{/if}

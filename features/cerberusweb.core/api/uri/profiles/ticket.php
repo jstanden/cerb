@@ -800,6 +800,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			$output = nl2br(DevblocksPlatform::strEscapeHtml($output));
 		}
 		
+		$tpl->assign('is_inline', true);
 		$tpl->assign('content', $output);
 		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
 	}
