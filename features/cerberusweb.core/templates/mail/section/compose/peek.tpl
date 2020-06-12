@@ -503,16 +503,20 @@ $(function() {
 				null,
 				'',
 				function(json) {
+					$this.removeAttr('disabled');
+
 					var obj = $.parseJSON(json);
 
-					if(!obj || !obj.html || !obj.draft_id)
+					if(!obj)
 						return;
 
-					$('#divDraftStatus{$popup_uniqid}').html(obj.html);
+					if(obj.error) {
+						$('#divDraftStatus{$popup_uniqid}').html(obj.error);
 
-					$frm.find('input[name=draft_id]').val(obj.draft_id);
-
-					$this.removeAttr('disabled');
+					} else if(obj.html && obj.draft_id) {
+						$('#divDraftStatus{$popup_uniqid}').html(obj.html);
+						$frm.find('input[name=draft_id]').val(obj.draft_id);
+					}
 				}
 			);
 		});
@@ -959,30 +963,45 @@ $(function() {
 			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 				return;
 
-			// Stop the draft auto-save
-			if(null != draftComposeAutoSaveInterval) {
-				clearTimeout(draftComposeAutoSaveInterval);
-				draftComposeAutoSaveInterval = null;
-			}
-
+			Devblocks.clearAlerts();
 			showLoadingPanel();
 
 			var formData = new FormData($frm[0]);
 			formData.set('c', 'profiles');
 			formData.set('a', 'invoke');
 			formData.set('module', 'draft');
-			formData.set('action', 'saveDraftCompose');
+			formData.set('action', 'validateComposeJson');
 
-			genericAjaxPost(
-				formData,
-				null,
-				'',
-				function() {
+			// Validate via Ajax before sending
+			genericAjaxPost(formData, '', '', function(json) {
+				if(json && json.status) {
+					if(null != draftComposeAutoSaveInterval) {
+						clearTimeout(draftComposeAutoSaveInterval);
+						draftComposeAutoSaveInterval = null;
+					}
+
+					var formData = new FormData($frm[0]);
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'draft');
+					formData.set('action', 'saveDraftCompose');
+
+					genericAjaxPost(
+						formData,
+						null,
+						'',
+						function() {
+							hideLoadingPanel();
+							genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+							genericAjaxPopupClose($popup);
+						}
+					);
+
+				} else {
 					hideLoadingPanel();
-					genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
-					genericAjaxPopupClose($popup);
+					Devblocks.createAlertError(json.message);
 				}
-			);
+			});
 		});
 
 		$frm.find('button.discard').on('click', function(e) {
