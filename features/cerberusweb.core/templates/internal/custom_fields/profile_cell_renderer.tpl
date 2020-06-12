@@ -87,17 +87,14 @@
 	{$file_id = $v.value}
 	{$file = DAO_Attachment::get($file_id)}
 	{if $file}
-	<ul class="bubbles">
-		<li>
-			<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name} ({$file->storage_size|devblocks_prettybytes})</a>
-		</li>
+		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes})
 	</ul>
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_FILES}
 	{foreach from=$v.value item=file_id name=files}
 		{$file = DAO_Attachment::get($file_id)}
 		{if $file}
-		<a href="{devblocks_url}c=files&id={$file->id}&file={$file->name|escape:'url'}{/devblocks_url}" target="_blank" rel="noopener">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
+		<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$file->id}">{$file->name}</a> ({$file->storage_size|devblocks_prettybytes}){if !$smarty.foreach.files.last}, {/if}
 		{/if}
 	{/foreach}
 {elseif $v.type == 'context'}
