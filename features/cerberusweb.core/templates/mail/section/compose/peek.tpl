@@ -71,7 +71,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{if $draft}{$draft->getParam('subject')}{/if}" autocomplete="off">
+			<input type="text" name="subject" style="width:98%;border:1px solid rgb(180,180,180);padding:2px;" value="{if $draft}{$draft->getParam('subject')}{/if}" autocomplete="off" maxlength="255">
 		</td>
 	</tr>
 	<tr>
