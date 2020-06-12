@@ -647,10 +647,13 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			);
 			
 			if(empty($properties['to']))
-				throw new Exception_DevblocksAjaxValidationError("The 'To:' is required.");
+				throw new Exception_DevblocksAjaxValidationError("`To:` is required.");
 			
 			if(empty($properties['subject']))
-				throw new Exception_DevblocksAjaxValidationError("The 'Subject:' is required.");
+				throw new Exception_DevblocksAjaxValidationError("`Subject:` is required.");
+			
+			if(strlen($properties['subject']) > 255)
+				throw new Exception_DevblocksAjaxValidationError("`Subject:` must be shorter than 255 characters.");
 			
 			// Validate GPG for signature
 			if($properties['gpg_sign']) {

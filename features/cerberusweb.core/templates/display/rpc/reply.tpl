@@ -636,12 +636,18 @@ $(function() {
 
 				genericAjaxPost(formData,null,'',
 					function(obj) {
-						if(null != obj.html && null != obj.draft_id) {
+						$this.removeAttr('disabled');
+
+						if(!obj)
+							return;
+
+						if(obj.error) {
+							$('#divDraftStatus{$message->id}').html(obj.error);
+
+						} else if (obj.html && obj.draft_id) {
 							$('#divDraftStatus{$message->id}').html(obj.html);
 							$frm.find('input[name=draft_id]').val(obj.draft_id);
 						}
-
-						$this.removeAttr('disabled');
 					}
 				);
 			})
@@ -906,55 +912,89 @@ $(function() {
 				return;
 			
 			var $button = $(this);
-			
-			// Stop draft auto-save
-			if(null != draftAutoSaveInterval) {
-				clearTimeout(draftAutoSaveInterval);
-				draftAutoSaveInterval = null;
-			}
-			
+
+			Devblocks.clearAlerts();
 			showLoadingPanel();
-			
-			$frm.find('input:hidden[name=reply_mode]').val('save');
 			$button.closest('td').hide();
-			
-			genericAjaxPost($frm, '', null, function() {
-				hideLoadingPanel();
-				
-				var event = new $.Event('cerb-reply-saved');
-				$reply.trigger(event);
-				
-				$reply.triggerHandler('cerb-reply--close');
+
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'ticket');
+			formData.set('action', 'validateReplyJson');
+
+			// Validate via Ajax before saving
+			genericAjaxPost(formData, '', '', function(json) {
+				if(json && json.status) {
+					if(null != draftAutoSaveInterval) {
+						clearTimeout(draftAutoSaveInterval);
+						draftAutoSaveInterval = null;
+					}
+
+					$frm.find('input:hidden[name=reply_mode]').val('save');
+
+					genericAjaxPost($frm, '', null, function() {
+						hideLoadingPanel();
+
+						var event = new $.Event('cerb-reply-saved');
+						$reply.trigger(event);
+
+						$reply.triggerHandler('cerb-reply--close');
+					});
+
+				} else {
+					Devblocks.createAlertError(json.message);
+					hideLoadingPanel();
+					$button.closest('td').show();
+				}
 			});
 		});
 		
 		$buttons.find('.draft').click(function(e) {
 			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 				return;
-			
-			// Stop the draft auto-save
-			if(null != draftAutoSaveInterval) {
-				clearTimeout(draftAutoSaveInterval);
-				draftAutoSaveInterval = null;
-			}
+
+			var $button = $(this);
+
+			Devblocks.clearAlerts();
+			showLoadingPanel();
+			$button.closest('td').hide();
 
 			var formData = new FormData($frm[0]);
 			formData.set('c', 'profiles');
 			formData.set('a', 'invoke');
-			formData.set('module', 'draft');
-			formData.set('action', 'saveDraftReply');
+			formData.set('module', 'ticket');
+			formData.set('action', 'validateReplyJson');
 
-			$(this).closest('td').hide();
-			
-			showLoadingPanel();
-			
-			genericAjaxPost(formData, '', null, function() {
-				hideLoadingPanel();
-				
-				var event = new $.Event('cerb-reply-draft');
-				$reply.trigger(event);
-				
-				$reply.triggerHandler('cerb-reply--close');
+			// Validate via Ajax before saving
+			genericAjaxPost(formData, '', '', function(json) {
+				if(json && json.status) {
+					if(null != draftAutoSaveInterval) {
+						clearTimeout(draftAutoSaveInterval);
+						draftAutoSaveInterval = null;
+					}
+
+					var formData = new FormData($frm[0]);
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'draft');
+					formData.set('action', 'saveDraftReply');
+
+					genericAjaxPost(formData, '', null, function() {
+						hideLoadingPanel();
+						$button.closest('td').show();
+
+						var event = new $.Event('cerb-reply-draft');
+						$reply.trigger(event);
+
+						$reply.triggerHandler('cerb-reply--close');
+					});
+
+				} else {
+					Devblocks.createAlertError(json.message);
+					hideLoadingPanel();
+					$button.closest('td').show();
+				}
 			});
 		});
 		
