@@ -1341,6 +1341,28 @@ FIELDSET.block {
   border-style: solid;
 }
 
+FIELDSET.block-cell {
+  border-width: 1px 1px 1px 8px;
+  border-color: #e1e1e1;
+  border-style: solid;
+  position: relative;
+  margin-bottom: 10px;
+}
+FIELDSET.block-cell legend {
+  color: #007800;
+  margin: 0;
+  padding: 0 5px 0 5px;
+  font-weight: bold;
+}
+FIELDSET.block-cell legend span.glyphicons {
+  vertical-align: baseline;
+  color: #afafaf;
+  margin-left: 5px;
+}
+FIELDSET.block-cell legend span.glyphicons:hover {
+  color: #646464;
+}
+
 FIELDSET.no-legend {
   background: none;
   border: 0;

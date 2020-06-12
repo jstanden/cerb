@@ -1313,6 +1313,31 @@ FIELDSET.block {
 	border-style: solid;
 }
 
+FIELDSET.block-cell {
+	border-width: 1px 1px 1px 8px;
+	border-color: rgb(225,225,225);
+	border-style: solid;
+	position: relative;
+	margin-bottom: 10px;
+
+	legend {
+		color: $green;
+		margin: 0;
+		padding: 0 5px 0 5px;
+		font-weight: bold;
+
+		span.glyphicons {
+			vertical-align: baseline;
+			color: rgb(175,175,175);
+			margin-left: 5px;
+
+			&:hover {
+				color:rgb(100,100,100);
+			}
+		}
+	}
+}
+
 FIELDSET.no-legend {
 	background: none;
 	border: 0;

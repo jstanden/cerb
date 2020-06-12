@@ -1,5 +1,5 @@
 {$fieldset_domid = "peek_fieldset_{uniqid()}"}
-<fieldset class="peek" id="{$fieldset_domid}">
+<fieldset class="block" id="{$fieldset_domid}">
 	{$owner = $custom_fieldset->getOwnerDictionary()}
 	<legend>
 		{$custom_fieldset->name}
