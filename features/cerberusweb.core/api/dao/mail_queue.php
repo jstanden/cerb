@@ -598,6 +598,9 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		if(array_key_exists('custom_fields', $properties))
 			$params['custom_fields'] = $properties['custom_fields'];
 		
+		if(array_key_exists('message_custom_fields', $properties))
+			$params['message_custom_fields'] = $properties['message_custom_fields'];
+		
 		$change_fields[DAO_MailQueue::PARAMS_JSON] = json_encode($params);
 		$change_fields[DAO_MailQueue::UPDATED] = time();
 		

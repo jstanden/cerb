@@ -213,9 +213,6 @@ class DevblocksEventHelper {
 				
 				$field = $custom_fields[$matches[2]];
 				
-				// Condense whitespace in labels
-				$label = preg_replace('#\s{2,}#', ' ', $label);
-				
 				$actions[sprintf("set_cf_%s", $key)] = array(
 					'label' => 'Set ' . mb_convert_case($label, MB_CASE_LOWER),
 					'type' => $field->type,

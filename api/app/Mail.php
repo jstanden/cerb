@@ -1079,6 +1079,13 @@ class CerberusMail {
 			DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
 		}
 		
+		// Message custom fields
+		if(array_key_exists('message_custom_fields', $properties)) {
+			if ($message_id && is_array($properties['message_custom_fields'])) {
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_MESSAGE, $message_id, $properties['message_custom_fields'], true, true, false);
+			}
+		}
+		
 		// Finalize ticket
 		$ticket_fields = [
 			DAO_Ticket::FIRST_MESSAGE_ID => $message_id,

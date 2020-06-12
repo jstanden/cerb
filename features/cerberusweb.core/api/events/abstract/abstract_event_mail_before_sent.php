@@ -155,7 +155,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$values['send_at'] =& $properties['send_at'];
 		
 		// Ticket custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, true, true);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		
 		foreach($custom_fields as $custom_field) {
 			$labels['custom_' . $custom_field->id] = $prefix.'ticket custom field ' . DevblocksPlatform::strLower($custom_field->name);
@@ -576,8 +576,15 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		$message_cfields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MESSAGE, true, true);
 		
 		foreach($message_cfields as $message_cfield) {
+			$label = DevblocksPlatform::strLower($message_cfield->name);
+			
+			$label = str_replace(':', ' ', $label);
+			
+			// Condense whitespace in labels
+			$label = preg_replace('#\s{2,}#', ' ', $label);
+			
 			$custom_fields['set_message_cf_' . $message_cfield->id] = [
-				'label' => 'Set message custom field ' . $message_cfield->name,
+				'label' => 'Set message custom field ' . $label,
 				'type' => $message_cfield->type,
 			];
 		}
@@ -629,7 +636,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					
 				} else {
 					$matches = [];
-					if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token, $matches)) {
+					if(preg_match('#^set_cf_(.*?_*)custom_([0-9]+)$#', $token, $matches)) {
 						$field_id = $matches[2];
 						$custom_field = DAO_CustomField::get($field_id);
 						DevblocksEventHelper::renderActionSetCustomField($custom_field, $trigger);
@@ -644,8 +651,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		@$ticket_id = $dict->ticket_id;
-
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -773,9 +778,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 		}
 
-		if(empty($ticket_id))
-			return;
-		
 		switch($token) {
 			default:
 				if(DevblocksPlatform::strStartsWith($token, 'set_message_cf_')) {
@@ -787,16 +789,14 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					
 					return DevblocksEventHelper::simulateActionSetAbstractField($custom_field->name, $custom_field->type, $token, $params, $dict);
 					
-				} else if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token)) {
-					return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
+				} else if(preg_match('#^set_cf_(.*?_*)custom_([0-9]+)$#', $token)) {
+						return DevblocksEventHelper::simulateActionSetCustomField($token, $params, $dict);
 				}
 				break;
 		}
 	}
 	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
-		@$ticket_id = $dict->ticket_id;
-		
 		switch($token) {
 			case 'append_to_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -910,11 +910,10 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				break;
 		}
 
-		if(empty($ticket_id))
-			return;
-		
 		switch($token) {
 			default:
+				$matches = [];
+				
 				if(DevblocksPlatform::strStartsWith($token, 'set_message_cf_')) {
 					$field_id = substr($token, strlen('set_message_cf_'));
 					
@@ -928,8 +927,30 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 					
 					$dict->_properties['message_custom_fields'][$field_id] = $value;
 					
-				} else if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token)) {
-					DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
+				} else if(preg_match('#^set_cf_(.*?_*)custom_([0-9]+)$#', $token, $matches)) {
+					// Reply
+					if($dict->get('ticket_id')) {
+						DevblocksEventHelper::runActionSetCustomField($token, $params, $dict);
+						
+					} else { // Compose
+						// [TODO] This can't set nested custom fields on the eventual ticket (e.g. ticket->org->custom)
+						
+						// We currently can only set top-level ticket fields on compose
+						if($matches[1] !== 'ticket_')
+							break;
+						
+						if(false == ($field_id = $matches[2]))
+							break;
+						
+						if(false == ($custom_field = DAO_CustomField::get($field_id)))
+							break;
+						
+						if(!array_key_exists('custom_fields', $dict->_properties))
+							$dict->_properties['custom_fields'] = [];
+						
+						$value = DevblocksEventHelper::formatCustomField($custom_field, $params, $dict);
+						$dict->_properties['custom_fields'][$field_id] = $value;
+					}
 				}
 				break;
 		}
