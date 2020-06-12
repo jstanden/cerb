@@ -9,7 +9,7 @@
     {/if}
 
     <div style="float:left;">
-        <h1>
+        <h1 style="word-break:break-all;">
             {$dict->_label}
         </h1>
 
