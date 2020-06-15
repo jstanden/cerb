@@ -836,7 +836,6 @@ class Model_Bucket {
 	 * @return Model_Address
 	 */
 	public function getReplyTo() {
-		$from_id = 0;
 		$froms = DAO_Address::getLocalAddresses();
 		
 		// Cascade to bucket

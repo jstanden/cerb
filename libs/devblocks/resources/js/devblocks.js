@@ -637,6 +637,7 @@ function DevblocksClass() {
 
 			// If the suggestion and the current token start with a quote
 			if(token && (token.type === 'text' || token.type === 'string')
+				&& 'string' === typeof token.value
 				&& token.value.substr(0,1) === '"'
 				&& data.value.substr(0,1) === '"'
 				) {

@@ -641,10 +641,6 @@ class DAO_Message extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		// [TODO] This is only needed in <= 7.2.5, not 7.3 release
-		if(isset($params['req_*_in_groups_of_worker']))
-			unset($params['req_*_in_groups_of_worker']);
-		
 		if(!empty($fulltext_params)) {
 			$prefetch_sql = null;
 			

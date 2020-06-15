@@ -2522,7 +2522,7 @@ var ajax = new cAjaxCalls();
 		
 		var doCerbLiveAutocomplete = function(e) {
 			e.stopPropagation();
-			
+
 			if(!e.editor.completer) {
 				var Autocomplete = require('ace/autocomplete').Autocomplete;
 				e.editor.completer = new Autocomplete();
@@ -2533,9 +2533,9 @@ var ajax = new cAjaxCalls();
 				return;
 			}
 
-			if('insertstring' == e.command.name) {
+			if('insertstring' === e.command.name) {
 				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
-					if(1 == e.args.length) {
+					if(1 === e.args.length) {
 						e.editor.completer.showPopup(e.editor);
 					}
 				}
@@ -2712,7 +2712,7 @@ var ajax = new cAjaxCalls();
 								}
 							}
 							
-							if('' == expand_context) {
+							if('' === expand_context) {
 								callback(null, []);
 								return;
 							}
@@ -2724,12 +2724,12 @@ var ajax = new cAjaxCalls();
 									return;
 								}
 								
-								for(path_key in json) {
-									if(path_key == '_contexts') {
+								for(var path_key in json) {
+									if(path_key === '_contexts') {
 										if(!autocomplete_suggestions['_contexts'])
 											autocomplete_suggestions['_contexts'] = {};
 										
-										for(context_key in json[path_key]) {
+										for(var context_key in json[path_key]) {
 											autocomplete_suggestions['_contexts'][expand_prefix + context_key] = json[path_key][context_key];
 										}
 										
@@ -2781,16 +2781,16 @@ var ajax = new cAjaxCalls();
 		
 		var doCerbLiveAutocomplete = function(e) {
 			e.stopPropagation();
-			
-			if(!(
+
+			if (!(
 				'insertstring' === e.command.name
 				|| 'paste' === e.command.name
 				|| 'Return' === e.command.name
 				|| 'backspace' === e.command.name)) {
 				return;
 			}
-			
-			if(!e.editor.completer) {
+
+			if (!e.editor.completer) {
 				e.editor.completer = new Autocomplete();
 			}
 
@@ -2798,90 +2798,90 @@ var ajax = new cAjaxCalls();
 			var pos = e.editor.getCursorPosition();
 			var current_field = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, e.editor, 1);
 			var is_dirty = false;
-			
+
 			// If we're in the middle of typing a dynamic series alias, ignore it
-			if(1 === current_field.scope.length
+			if (1 === current_field.scope.length
 				&& 0 === current_field.nodes.length
-				&& -1 !== ['series.','values.'].indexOf(current_field.scope[0].substr(0,7))
-				) {
+				&& -1 !== ['series.', 'values.'].indexOf(current_field.scope[0].substr(0, 7))
+			) {
 				return;
 			}
-			
-			if(0 === value.length) {
+
+			if (0 === value.length) {
 				autocomplete_suggestions = {};
 				autocomplete_scope.type = '';
 				autocomplete_scope.of = '';
 				is_dirty = true;
-				
+
 			// If we pasted content, rediscover the scope
-			} else if('paste' === e.command.name) {
+			} else if ('paste' === e.command.name) {
 				autocomplete_suggestions = {};
 				autocomplete_scope.type = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(e.editor, 'type:') || '';
 				autocomplete_scope.of = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(e.editor, 'of:') || '';
 				is_dirty = true;
-				
+
 			// If we're typing
-			} else if(current_field.hasOwnProperty('scope')) {
+			} else if (current_field.hasOwnProperty('scope')) {
 				var current_field_name = current_field.scope.slice(-1)[0];
-				
-				if(current_field_name === 'type:' && current_field.nodes[0]) {
+
+				if (current_field_name === 'type:' && current_field.nodes[0]) {
 					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, e.editor);
-					
-					if(1 === token_path.scope.length) {
+
+					if (1 === token_path.scope.length) {
 						var type = current_field.nodes[0].value;
-						
-						if(autocomplete_scope.type !== type) {
+
+						if (autocomplete_scope.type !== type) {
 							autocomplete_scope.type = type;
 							autocomplete_scope.of = Devblocks.cerbCodeEditor.getQueryTokenValueByPath(e.editor, 'of:') || '';
 							is_dirty = true;
 						}
 					}
-					
-				} else if(current_field_name === 'of:' && current_field.nodes[0]) {
+
+				} else if (current_field_name === 'of:' && current_field.nodes[0]) {
 					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, e.editor);
-					
-					if(1 === token_path.scope.length) {
+
+					if (1 === token_path.scope.length) {
 						var of = current_field.nodes[0].value;
-						
-						if(autocomplete_scope.of !== of) {
+
+						if (autocomplete_scope.of !== of) {
 							autocomplete_scope.of = of;
-							
+
 							// If it's not a known context, ignore
-							if(-1 !== autocomplete_contexts.indexOf(of)) {
+							if (-1 !== autocomplete_contexts.indexOf(of)) {
 								is_dirty = true;
 							}
 						}
-					
-					} else if(-1 !== ['series.','values.'].indexOf(token_path.scope[0].substr(0,7))) {
+
+					} else if (-1 !== ['series.', 'values.'].indexOf(token_path.scope[0].substr(0, 7))) {
 						var series_key = token_path.scope[0];
 						var series_of = token_path.nodes[0].value;
-						
-						if(autocomplete_scope[series_key + 'of:'] !== series_of) {
+
+						if (autocomplete_scope[series_key + 'of:'] !== series_of) {
 							autocomplete_scope[series_key + 'of:'] = series_of;
 							
 							for(key in autocomplete_suggestions._contexts) {
 								if(series_key === key.substr(0,series_key.length))
 									autocomplete_suggestions._contexts[key] = null;
 							}
-							
-							for(key in autocomplete_suggestions) {
-								if(series_key === key.substr(0,series_key.length))
+
+							for (var key in autocomplete_suggestions) {
+								if (series_key === key.substr(0, series_key.length))
 									autocomplete_suggestions[key] = null;
 							}
-							
-							if(-1 !== autocomplete_contexts.indexOf(series_of)) {
+
+							if (-1 !== autocomplete_contexts.indexOf(series_of)) {
 								autocomplete_scope[series_key + 'x:'] = {
 									'_type': 'series_of_field'
 								};
-								
+
 								autocomplete_scope[series_key + 'y:'] = {
 									'_type': 'series_of_field'
 								};
-								
+
 								autocomplete_scope[series_key + 'query:'] = {
 									'_type': 'series_of_query'
 								};
-								
+
 								autocomplete_scope[series_key + 'query.required:'] = {
 									'_type': 'series_of_query'
 								};
@@ -2890,18 +2890,18 @@ var ajax = new cAjaxCalls();
 					}
 				}
 			}
-			
-			if(is_dirty) {
+
+			if (is_dirty) {
 				var type = autocomplete_scope.type;
 				var of = autocomplete_scope.of;
-				
+
 				// If type: is invalid
-				if('' === type || -1 === autocomplete_suggestions_types['type:'].indexOf(type)) {
+				if ('' === type || -1 === autocomplete_suggestions_types['type:'].indexOf(type)) {
 					autocomplete_suggestions = autocomplete_suggestions_types;
-					
+
 				} else {
-					genericAjaxGet('', 'c=ui&a=dataQuerySuggestions&type=' + encodeURIComponent(type) + '&of=' + encodeURIComponent(of), function(json) {
-						if('object' == typeof json) {
+					genericAjaxGet('', 'c=ui&a=dataQuerySuggestions&type=' + encodeURIComponent(type) + '&of=' + encodeURIComponent(of), function (json) {
+						if ('object' == typeof json) {
 							autocomplete_suggestions = json;
 						} else {
 							autocomplete_suggestions = autocomplete_suggestions_types;
@@ -3151,27 +3151,27 @@ var ajax = new cAjaxCalls();
 									
 									if(autocomplete_suggestions[scope_key]) {
 										editor.completer.showPopup(editor);
-										
+
 									} else {
 										callback(null, []);
 									}
 									return;
 								});
-								
+
 								editor.completer.showPopup(editor);
 								return;
-								
+
 							} else if(1 === token_path.scope.length) {
 								editor.completer.showPopup(editor);
 								return;
 							}
 						}
-						
+
 						(function() {
 							var expand = '';
 							var expand_prefix = '';
 							var expand_context = '';
-							
+
 							if(autocomplete_suggestions[scope_key]) {
 								editor.completer.showPopup(editor);
 								return;
@@ -3222,7 +3222,6 @@ var ajax = new cAjaxCalls();
 								
 								if(autocomplete_suggestions[scope_key]) {
 									editor.completer.showPopup(editor);
-									
 								} else {
 									callback(null, []);
 								}
@@ -3939,7 +3938,7 @@ var ajax = new cAjaxCalls();
 			
 			var field_name = $trigger.attr('data-field-name');
 			var context = $trigger.attr('data-context');
-			
+
 			// [TODO] If $ul is null, create it
 
 			$trigger.on('click', function() {
@@ -3956,7 +3955,7 @@ var ajax = new cAjaxCalls();
 
 				if($trigger.attr('data-single'))
 					chooser_url += '&single=1';
-				
+
 				if(typeof query == 'string' && query.length > 0) {
 					chooser_url += '&q=' + encodeURIComponent(query);
 				}

@@ -41,7 +41,7 @@
 				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span><!--
 				--><span data-cerb-onhover style="display:none;cursor:pointer;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-remove"></span></span>
 			</legend>
-			
+
 			<input type="hidden" name="actions[]" value="{$seq}">
 			<input type="hidden" name="action{$seq}[action]" value="{$params.action}">
 
@@ -55,14 +55,14 @@
 		{/foreach}
 		{/if}
 		</div>
-		
+
 		<div id="divDecisionActionToolbar{$id}" style="display:none;">
 			<div class="tester"></div>
-		
+
 			<button type="button" class="cerb-popupmenu-trigger">Insert placeholder &#x25be;</button>
 			<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
 			<button type="button" data-cerb-button="toolbar-help">Help</button>
-			
+
 			{$types = $values._types}
 			{function tree level=0}
 				{foreach from=$keys item=data key=idx}
@@ -83,14 +83,14 @@
 					{/if}
 				{/foreach}
 			{/function}
-			
+
 			<ul class="menu" style="width:150px;">
 			{tree keys=$placeholders}
 			</ul>
 		</div>
-		
+
 		</form>
-		
+
 		<form id="frmDecisionActionAdd{$id}" action="javascript:;" onsubmit="return false;" method="post">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
@@ -138,7 +138,7 @@
 			<button type="button" class="red" data-cerb-button="delete-reject"> {'common.no'|devblocks_translate|capitalize}</button>
 		</fieldset>
 		{/if}
-		
+
 		<div class="toolbar">
 			{if !isset($id)}
 				<button type="button" data-cerb-button="save-create"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
@@ -150,7 +150,7 @@
 			{/if}
 		</div>
 	</div>
-	
+
 	{if !$id && $packages}
 	<div id="action{$id}-library" class="package-library">
 		<form id="frmDecisionAction{$id}Library" onsubmit="return false;">
@@ -163,7 +163,7 @@
 		{if isset($type)}<input type="hidden" name="type" value="{$type}">{/if}
 		{if isset($trigger_id)}<input type="hidden" name="trigger_id" value="{$trigger_id}">{/if}
 		<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-		
+
 		{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
 		</form>
 	</div>
@@ -173,12 +173,12 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFetch('node_action{$id}');
-	
+
 	$popup.one('popup_open', function(event,ui) {
 		$popup.dialog('option','title',"{if empty($id)}New {/if}Actions");
 		$popup.find('input:text').first().focus();
 		$popup.css('overflow', 'inherit');
-		
+
 		var $toolbar = $('#divDecisionActionToolbar{$id}');
 		var $frm_build = $('#frmDecisionAction{$id}Action');
 		var $frm_library = $('#frmDecisionAction{$id}Library');
@@ -246,51 +246,51 @@ $(function() {
 			$toolbar.detach();
 			$target.remove();
 		});
-		
+
 		// Close confirmation
-		
+
 		$popup.on('dialogbeforeclose', function(e) {
 			var keycode = e.keyCode || e.which;
 			if(keycode === 27)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
-		
+
 		// Package Library
-		
+
 		{if !$id && $packages}
 			var $tabs = $popup.find('.cerb-tabs').tabs();
 			var $library_container = $tabs;
 			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
-			
+
 			$library_container.on('cerb-package-library-form-submit', function(e) {
 				Devblocks.clearAlerts();
-				
+
 				genericAjaxPost($frm_library,null,null,function(json) {
 					$library_container.triggerHandler('cerb-package-library-form-submit--done');
-					
+
 					if(json.error) {
 						Devblocks.createAlertError(json.error);
-						
+
 					} else if (json.id && json.type) {
 						genericAjaxPopupDestroy('node_action{$id}');
-						
+
 						genericAjaxGet('decisionTree{$trigger_id}','c=profiles&a=invoke&module=behavior&action=renderDecisionTree&id={$trigger_id}', function() {
 							genericAjaxPopup('node_' + json.type + json.id,'c=profiles&a=invoke&module=behavior&action=renderDecisionPopup&id=' + encodeURIComponent(json.id),null,false,'50%');
 						});
 					}
 				});
-				
+
 			});
 		{/if}
-		
+
 		// Choosers
-		
+
 		$popup.find('BUTTON.chooser_group.unbound').each(function() {
 			var seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.group','action'+seq+'[group_id]', { autocomplete:true });
 			$(this).removeClass('unbound');
 		});
-		
+
 		$popup.find('BUTTON.chooser_worker.unbound').each(function() {
 			var seq = $(this).closest('fieldset').find('input:hidden[name="actions[]"]').val();
 			ajax.chooser(this,'cerberusweb.contexts.worker','action'+seq+'[worker_id]', { autocomplete:true });
@@ -322,28 +322,28 @@ $(function() {
 		}, "fieldset");
 
 		// Placeholders
-		
+
 		$popup.find('textarea.placeholders, :text.placeholders').each(function() {
 			var $this = $(this);
-			
+
 			$this.cerbCodeEditor();
-			
+
 			if('ace/mode/cerb_query' == $this.attr('data-editor-mode'))
 				$this.cerbCodeEditorAutocompleteDataQueries();
 		});
-		
+
 		$popup.delegate(':text.placeholders, textarea.placeholders, pre.placeholders', 'focus', function(e) {
 			e.stopPropagation();
-			
+
 			var $target = $(e.target);
 			var $parent = $target.closest('.ace_editor');
-			
+
 			if(0 != $parent.length) {
 				$toolbar.find('div.tester').html('');
 				$toolbar.find('ul.menu').hide();
 				$toolbar.show().insertAfter($parent);
 				$toolbar.data('src', $parent);
-				
+
 			} else {
 				if(0 == $target.nextAll('#divDecisionActionToolbar{$id}').length) {
 					$toolbar.find('div.tester').html('');
@@ -354,40 +354,40 @@ $(function() {
 				}
 			}
 		});
-		
+
 		// Placeholder menu
-		
+
 		var $placeholder_menu_trigger = $toolbar.find('button.cerb-popupmenu-trigger');
 		var $placeholder_menu = $toolbar.find('ul.menu').hide();
-		
+
 		// Quick insert token menu
-		
+
 		$placeholder_menu.menu({
 			select: function(event, ui) {
 				var token = ui.item.attr('data-token');
 				var label = ui.item.attr('data-label');
-				
+
 				if(undefined == token || undefined == label)
 					return;
-				
+
 				var $field = null;
-				
+
 				if($toolbar.data('src')) {
 					$field = $toolbar.data('src');
-				
+
 				} else {
 					$field = $toolbar.prev(':text, textarea');
 				}
-				
+
 				if(null == $field)
 					return;
-				
+
 				if(null == $field)
 					return;
-				
+
 				if($field.is(':text, textarea')) {
 					$field.focus().insertAtCursor('{literal}{{{/literal}' + token + '{literal}}}{/literal}');
-					
+
 				} else if($field.is('.ace_editor')) {
 					var evt = new jQuery.Event('cerb.insertAtCursor');
 					evt.content = '{literal}{{{/literal}' + token + '{literal}}}{/literal}';
@@ -395,32 +395,31 @@ $(function() {
 				}
 			}
 		});
-		
+
 		$toolbar.find('button.tester').click(function(e) {
 			var divTester = $toolbar.find('div.tester').first();
-			
+
 			var $field = null;
-			
-			
+
 			if($toolbar.data('src')) {
 				$field = $toolbar.data('src');
 			} else {
 				$field = $toolbar.prev(':text, textarea');
 			}
-			
+
 			if(null == $field)
 				return;
-			
+
 			if($field.is('.ace_editor')) {
 				var $field = $field.prev('textarea, :text');
 			}
-			
+
 			var regexpName = /^(.*?)(\[.*?\])$/;
 			var hits = regexpName.exec($field.attr('name'));
-			
+
 			if(null == hits || hits.length < 3)
 				return;
-			
+
 			var strNamespace = hits[1];
 			var strName = hits[2];
 
@@ -434,7 +433,7 @@ $(function() {
 
 			genericAjaxPost(formData, divTester, null);
 		});
-		
+
 		$placeholder_menu_trigger
 			.click(
 				function(e) {
@@ -447,29 +446,29 @@ $(function() {
 				}
 			)
 		;
-		
+
 		// Action menu
-		
+
 		var $actions_menu_trigger = $frm_add_action.find('button.action.cerb-popupmenu-trigger');
 		var $actions_menu = $frm_add_action.find('ul.actions-menu');
 
 		$actions_menu_trigger.click(function() {
 			$actions_menu.toggle();
 		});
-		
+
 		$actions_menu.menu({
 			select: function(event, ui) {
 				var token = ui.item.attr('data-token');
 				var label = ui.item.attr('data-label').replace('(Common) ','');
-				
+
 				if(undefined == token || undefined == label)
 					return;
-				
+
 				$frm_add_action.find('input[name=action_uid]').val(token);
 
 				genericAjaxPost($frm_add_action,null,null,function(html) {
 					var $ul = $('#frmDecisionAction{$id}Action DIV.actions');
-					
+
 					var seq = parseInt($frm_add_action.find('input[name=seq]').val());
 					if(null == seq)
 						seq = 0;

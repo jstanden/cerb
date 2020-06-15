@@ -20,37 +20,36 @@ class _DevblocksDateManager {
 	public function getIntervals($unit, $start_time, $end_time) {
 		// [TODO] start/end time test
 		
-		$ticks = array();
-		$time = 0;
+		$ticks = [];
 		
 		$from = strtotime(sprintf("-1 %s", $unit), $start_time);
 		$to = $end_time;
 		
 		switch($unit) {
 			case 'year':
-				$date_group_mysql = '%Y';
+				//$date_group_mysql = '%Y';
 				$date_group_php = '%Y';
 				break;
 				
 			case 'month':
-				$date_group_mysql = '%Y-%m';
+				//$date_group_mysql = '%Y-%m';
 				$date_group_php = '%Y-%m';
 				break;
 				
 			case 'week':
 				$from = strtotime("Monday this week 00:00:00", $start_time);
 				$to = strtotime("Sunday this week 23:59:59", $end_time);
-				$date_group_mysql = '%x-%v';
+				//$date_group_mysql = '%x-%v';
 				$date_group_php = '%Y-%W';
 				break;
 				
 			case 'day':
-				$date_group_mysql = '%Y-%m-%d';
+				//$date_group_mysql = '%Y-%m-%d';
 				$date_group_php = '%Y-%m-%d';
 				break;
 				
 			case 'hour':
-				$date_group_mysql = '%Y-%m-%d %H';
+				//$date_group_mysql = '%Y-%m-%d %H';
 				$date_group_php = '%Y-%m-%d %H';
 				break;
 				

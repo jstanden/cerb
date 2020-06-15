@@ -81,7 +81,7 @@ $(function() {
 			var $tab = $this.closest('.cerb-profile-layout');
 			var page = $this.attr('data-page');
 			
-			if(undefined == page)
+			if('undefined' == typeof page)
 				return;
 			
 			e.stopPropagation();

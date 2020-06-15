@@ -3490,8 +3490,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 					break;
 				case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 					$where_sql .= sprintf("AND owner_context = %s AND owner_context_id NOT = 0 ",
-						self::qstr(CerberusContexts::CONTEXT_WORKER),
-						implode(',', $worker_ids)
+						self::qstr(CerberusContexts::CONTEXT_WORKER)
 					);
 					break;
 				case DevblocksSearchCriteria::OPER_NIN_OR_NULL:

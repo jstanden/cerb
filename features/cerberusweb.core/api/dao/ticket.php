@@ -2798,8 +2798,7 @@ class Model_Ticket {
 	}
 	
 	function getMessages() {
-		$messages = DAO_Message::getMessagesByTicket($this->id);
-		return $messages;
+		return DAO_Message::getMessagesByTicket($this->id);
 	}
 	
 	function getTimeline($is_ascending=true, $target_context=null, $target_context_id=null, &$start_at=0) {

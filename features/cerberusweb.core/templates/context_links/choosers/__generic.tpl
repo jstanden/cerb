@@ -19,28 +19,32 @@
 <script type="text/javascript">
 $(function() {
 	var $popup = genericAjaxPopupFetch('{$layer}');
-	
+
 	$popup.find('UL.buffer').sortable({ placeholder: 'ui-state-highlight' });
-	
+
 	$popup.one('popup_open',function(event,ui) {
 		$popup.css('overflow', 'inherit');
 		event.stopPropagation();
 
 		$popup.dialog('option','title','{$context->manifest->name|escape:'javascript' nofilter} Chooser');
-		
+
 		// Progressive de-enhancement
-		
+
 		var on_refresh = function() {
 			var $view = $('#view{$view->id}');
 			var $worklist = $view.find('TABLE.worklist');
 			$worklist.css('background','none');
 			$worklist.css('background-color','rgb(100,100,100)');
-			
+
 			var $header = $worklist.find('> tbody > tr:first > td:first > span.title');
 			var $header_links = $worklist.find('> tbody > tr:first td:nth(1)');
+
 			$header_links.children().each(function(e) {
-				if(!$(this).is('a.minimal, input:checkbox'))
-					$(this).remove();
+				var $this = $(this);
+
+				if(!$this.is('a.minimal, input:checkbox')) {
+					$this.remove();
+				}
 			});
 
 			var $worklist_body = $('#view{$view->id}').find('TABLE.worklistBody');
@@ -49,20 +53,20 @@ $(function() {
 				$txt.insertBefore($(this));
 				$(this).remove();
 			});
-			
+
 			var $actions = $('#{$view->id}_actions');
 			$actions.html('');
-			
+
 			// If there is a marquee, add its record to the selection
 			var $marquee = $view.find('div.cerb-view-marquee');
-			
+
 			if($marquee.length > 0) {
 				var $marquee_trigger = $marquee.find('a.cerb-peek-trigger');
 				var $buffer = $('form#chooser{$view->id} UL.buffer');
-				
+
 				var $label = $marquee_trigger.text();
 				var $value = $marquee_trigger.attr('data-context-id');
-				
+
 				if($label.length > 0 && $value.length > 0) {
 					if(0==$buffer.find('input:hidden[value="'+$value+'"]').length) {
 						var $li = $('<li></li>').text($label);
@@ -72,24 +76,24 @@ $(function() {
 						$hidden.attr('title', $label);
 						$hidden.attr('value', $value);
 						$hidden.appendTo($li);
-						
+
 						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 						$a.appendTo($li);
-						
+
 						$buffer.append($li);
 					}
-					
+
 					{if $single}
 					$buffer.closest('form').find('button.submit').click();
 					{/if}
 				}
 			}
 		}
-		
+
 		on_refresh();
 
 		$popup.delegate('DIV[id^=view]','view_refresh', on_refresh);
-		
+
 		$('#view{$view->id}').delegate('TABLE.worklistBody input:checkbox', 'check', function(event) {
 			var checked = $(this).is(':checked');
 
@@ -100,7 +104,7 @@ $(function() {
 
 			var $label = $tbody.find('.subject').text();
 			var $value = $(this).val();
-		
+
 			if(checked) {
 				if($label.length > 0 && $value.length > 0) {
 					if(0==$buffer.find('input:hidden[value="'+$value+'"]').length) {
@@ -111,50 +115,50 @@ $(function() {
 						$hidden.attr('title', $label);
 						$hidden.attr('value', $value);
 						$hidden.appendTo($li);
-						
+
 						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 						$a.appendTo($li);
-						
+
 						$buffer.append($li);
 					}
-					
+
 					{if $single}
 					$buffer.closest('form').find('button.submit').click();
 					{/if}
 				}
-				
+
 			} else {
 				$buffer.find('input:hidden[value="'+$value+'"]').closest('li').remove();
 			}
-			
+
 		});
-		
+
 		$("form#chooser{$view->id} button.submit").click(function(event) {
 			event.stopPropagation();
 			var $popup = genericAjaxPopupFetch('{$layer}');
 			var $buffer = $($popup).find('UL.buffer input:hidden');
 			var $labels = [];
 			var $values = [];
-			
+
 			$buffer.each(function() {
 				$labels.push($(this).attr('title'));
 				$values.push($(this).val());
 			});
-		
+
 			// Trigger event
 			var event = jQuery.Event('chooser_save');
 			event.labels = $labels;
 			event.values = $values;
 			$popup.trigger(event);
-			
+
 			genericAjaxPopupDestroy('{$layer}');
 		});
 	});
-	
+
 	$popup.one('dialogclose', function(event) {
 		event.stopPropagation();
 		genericAjaxPopupDestroy('{$layer}');
 	});
-	
+
 });
 </script>

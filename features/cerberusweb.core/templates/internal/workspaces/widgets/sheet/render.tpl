@@ -73,7 +73,7 @@ $(function() {
 		;
 	
 	$widget.find('.cerb-paging')
-		.click(function(e) {
+		.click(function() {
 			var $this = $(this);
 			var $tab = $this.closest('.cerb-workspace-layout');
 			var page = $this.attr('data-page');

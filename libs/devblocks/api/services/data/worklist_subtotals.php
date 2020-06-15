@@ -576,8 +576,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		// [TODO] Sort by label/metric?
 		// [TODO] Handle currency/decimal fields
 		
-		$sort_children = null;
-		
 		$sort_children = function(&$children) use (&$sort_children) {
 			usort($children, function($a, $b) {
 				if($a['hits'] == $b['hits'])
@@ -787,7 +785,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		$rows = [];
-		$recurse = null;
 		
 		// Build a table recursively from the tree
 		$recurse = function($node, $depth=0, $parents=[]) use (&$recurse, $chart_model, &$rows) {
@@ -1042,7 +1039,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		}
 		
 		$rows = [];
-		$recurse = null;
 		
 		// Build a table recursively from the tree
 		$recurse = function($node, $depth=0, $parents=[]) use (&$recurse, $chart_model, &$rows) {

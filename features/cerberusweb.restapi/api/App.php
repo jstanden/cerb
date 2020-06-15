@@ -257,7 +257,6 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 				$methods = ['DELETE', 'GET', 'PATCH', 'POST','PUT'];
 				
 				$endpoint_pattern = null;
-				$endpoint_methods = [];
 				
 				if(is_array($data)) {
 					$endpoint_pattern = key($data);
@@ -329,7 +328,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		$controllers = $this->_getRestControllers();
 
 		if(isset($controllers[$controller_uri])
-			&& null != ($controller = DevblocksPlatform::getExtension($controllers[$controller_uri]->id, true, true))) {
+			&& null != ($controller = DevblocksPlatform::getExtension($controllers[$controller_uri]->id, true))) {
 			/* @var $controller Extension_RestController */
 
 			// Set the active worker

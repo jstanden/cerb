@@ -94,8 +94,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		 * Behavior
 		 */
 		
-		$merge_labels = [];
-		$merge_values = [];
+		$merge_labels = $merge_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_BEHAVIOR, $trigger, $merge_labels, $merge_values, null, true);
 
 			// Merge
@@ -178,8 +177,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 
 		@$ticket_id = $event_model->params['ticket_id'];
 		
-		$ticket_labels = [];
-		$ticket_values = [];
+		$ticket_labels = $ticket_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $ticket_id, $ticket_labels, $ticket_values, null, true);
 		
 			// Fill some custom values
@@ -190,7 +188,6 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				$ticket_values,
 				[
 					"#^group_#",
-					//"#^id$#",
 				]
 			);
 			
@@ -208,8 +205,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		 * Group
 		 */
 		@$group_id = $properties['group_id'] ?: $event_model->params['group_id'];
-		$group_labels = [];
-		$group_values = [];
+		$group_labels = $group_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group_id, $group_labels, $group_values, null, true);
 				
 			// Merge
@@ -226,8 +222,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 		 * Worker
 		 */
 		@$worker_id = $properties['worker_id'];
-		$worker_labels = [];
-		$worker_values = [];
+		$worker_labels = $worker_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker_id, $worker_labels, $worker_values, '', true);
 				
 			// Clear dupe content

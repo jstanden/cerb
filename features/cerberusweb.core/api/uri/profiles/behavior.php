@@ -1797,7 +1797,6 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 		
 		$data = $trigger->getDecisionTreeData();
 		$tree =& $data['tree'];
-		$recursive_duplicate = null;
 		
 		$recursive_duplicate = function($node_id, $new_parent_id) use ($tree, &$recursive_duplicate) {
 			$new_node_id = DAO_DecisionNode::duplicate($node_id, $new_parent_id);

@@ -1897,13 +1897,13 @@ class DevblocksSearchCriteria {
 	public static function getVirtualQuickSearchParamFromTokens($field_key, $tokens, $search_field_key) {
 		$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 		
-		$param = new DevblocksSearchCriteria(
+		return new DevblocksSearchCriteria(
 			$search_field_key,
 			DevblocksSearchCriteria::OPER_CUSTOM,
 			sprintf('%s', $query)
 		);
-		return $param;
 	}
+	
 	public static function getVirtualContextParamFromTokens($field_key, $tokens, $prefix, $search_field_key) {
 		// Is this a nested subquery?
 		if(DevblocksPlatform::strStartsWith($field_key, $prefix.'.')) {
@@ -1911,12 +1911,11 @@ class DevblocksSearchCriteria {
 			
 			$query = CerbQuickSearchLexer::getTokensAsQuery($tokens);
 			
-			$param = new DevblocksSearchCriteria(
+			return new DevblocksSearchCriteria(
 				$search_field_key,
 				DevblocksSearchCriteria::OPER_CUSTOM,
 				sprintf('%s:%s', $alias, $query)
 			);
-			return $param;
 			
 		} else {
 			$aliases = Extension_DevblocksContext::getAliasesForAllContexts();
@@ -1958,12 +1957,11 @@ class DevblocksSearchCriteria {
 					$link_contexts[$aliases[$alias]] = true;
 			}
 			
-			$param = new DevblocksSearchCriteria(
+			return new DevblocksSearchCriteria(
 				$search_field_key,
 				$oper,
 				array_keys($link_contexts)
 			);
-			return $param;
 		}
 	}
 	
