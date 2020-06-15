@@ -467,7 +467,7 @@ class Controller_UI extends DevblocksControllerExtension {
 
 		$sheets = DevblocksPlatform::services()->sheet()->newInstance();
 		@$data_query = DevblocksPlatform::importGPC($_POST['data_query'], 'string', '');
-		@$sheet_yaml = DevblocksPlatform::importGPC($_POST['sheet_yaml'], 'string', '');
+		@$sheet_kata = DevblocksPlatform::importGPC($_POST['sheet_kata'], 'string', '');
 		@$types = DevblocksPlatform::importGPC($_POST['types'], 'array', []);
 		
 		$error = null;
@@ -477,7 +477,7 @@ class Controller_UI extends DevblocksControllerExtension {
 			return;
 		}
 		
-		if(false == ($sheet = $sheets->parseYaml($sheet_yaml, $error))) {
+		if (false == ($sheet = $sheets->parse($sheet_kata, $error))) {
 			$tpl->assign('success', false);
 			$tpl->assign('output', $error);
 			$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
