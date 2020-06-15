@@ -1086,9 +1086,10 @@ class DevblocksEventHelper {
 	 * Action: Set variable (string)
 	 */
 	
-	static function renderActionSetVariableString($labels) {
+	static function renderActionSetVariableString($labels, $instructions=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('token_labels', $labels);
+		$tpl->assign('instructions', $instructions);
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_set_var_string.tpl');
 	}
 	
@@ -1323,6 +1324,23 @@ class DevblocksEventHelper {
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$value = $tpl_builder->build($params['value'], $dict);
 				$dict->$token = intval($value);
+				break;
+				
+			case Model_CustomField::TYPE_LINK:
+				if(!isset($params['value']))
+					break;
+				
+				if(false == ($link_context_mft = Extension_DevblocksContext::get($var['params']['context'], false)))
+					break;
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$record_id = $tpl_builder->build($params['value'], $dict);
+				$dict->set($token, $record_id);
+				
+				// Enable lazy loading
+				if(DevblocksPlatform::strEndsWith($token, '_id')) {
+					$dict->set(substr($token,0, -2) . '_context', $link_context_mft->id);
+				}
 				break;
 				
 			case Model_CustomField::TYPE_SINGLE_LINE:

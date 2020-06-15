@@ -3484,6 +3484,17 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 							case Model_CustomField::TYPE_SINGLE_LINE:
 								return DevblocksEventHelper::renderActionSetVariableString($this->getLabels($trigger));
 								break;
+							case Model_CustomField::TYPE_LINK:
+								if(false == ($link_context_mft = Extension_DevblocksContext::get(@$var['params']['context'], false)))
+									break;
+								
+								$aliases = Extension_DevblocksContext::getAliasesForContext($link_context_mft);
+								
+								return DevblocksEventHelper::renderActionSetVariableString(
+									$this->getLabels($trigger),
+									sprintf('(enter one %s record ID)', $aliases['singular'])
+								);
+								break;
 							case Model_CustomField::TYPE_DROPDOWN:
 								return DevblocksEventHelper::renderActionSetVariablePicklist($token, $trigger, $params);
 								break;
