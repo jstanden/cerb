@@ -288,7 +288,16 @@ $(function() {
 		$popup.find('fieldset.behavior-variables')
 			.sortable({ 'items':'FIELDSET', 'placeholder':'ui-state-highlight', 'handle':'legend' })
 			;
-		
+
+		$popup.find('fieldset.behavior-variables').on({
+			mouseenter: function() {
+				$(this).find(':hidden[data-cerb-onhover]').show();
+			},
+			mouseleave: function() {
+				$(this).find(':visible[data-cerb-onhover]').hide();
+			}
+		}, "fieldset");
+
 		var $variables = $('#divBehaviorVariables{$model->id}');
 		
 		var $menu_variables = $popup.find('ul.add-variable-menu')

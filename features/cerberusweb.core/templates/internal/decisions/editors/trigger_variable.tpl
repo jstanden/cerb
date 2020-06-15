@@ -1,7 +1,7 @@
 {$var_type_label = $variable_types.{$var.type}}
 	
-<fieldset class="peek" style="margin-bottom:5px;">
-	<legend style="cursor:move;"><a href="javascript:;" onclick="$(this).closest('fieldset').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);vertical-align:middle;"></span></a> {$var_type_label}</legend>
+<fieldset class="block-cell" style="margin-bottom:5px;">
+	<legend style="cursor:move;">{$var_type_label} <span data-cerb-onhover class="glyphicons glyphicons-circle-minus" style="display:none;cursor:pointer;" onclick="$(this).closest('fieldset').remove();"></span></legend>
 	<input type="hidden" name="var[]" value="{$seq}">
 	<input type="hidden" name="var_key[]" value="{$var.key}">
 	<input type="hidden" name="var_type[]" value="{$var.type}">
