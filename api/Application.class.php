@@ -1189,8 +1189,13 @@ class CerberusContexts {
 				array_walk($labels, function(&$label) use ($finished) {
 					$label = strtr(trim($label), ':',' ');
 
-					if($finished)
+					if($finished) {
+						// Condense whitespace in labels
+						$label = preg_replace('#\s{2,}#', ' ', $label);
+						
+						// Title
 						$label = DevblocksPlatform::strUpperFirst($label, true);
+					}
 				});
 
 				if($finished)
