@@ -169,7 +169,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 						$field_end_date
 					]);
 					$view->renderPage = 0;
-					$view->renderLimit = -1;
+					$view->renderLimit = 0;
 					$view->setAutoPersist(false);
 
 					// [TODO] Paging

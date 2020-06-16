@@ -273,7 +273,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		// Build a map of distinct queries and their results
 		foreach(array_keys($query_cache) as $query) {
 			$view->addParamsWithQuickSearch($query, true);
-			$view->renderLimit = -1;
+			$view->renderLimit = 0;
 			$view->renderTotal = false;
 			$view->renderSubtotals = null;
 			

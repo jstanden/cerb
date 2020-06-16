@@ -225,7 +225,7 @@ class PageSection_InternalPortals extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// Load all data
-		$view->renderLimit = -1;
+		$view->renderLimit = 0;
 		$view->renderPage = 0;
 		$view->setAutoPersist(false);
 		list($results,) = $view->getData();

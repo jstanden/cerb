@@ -134,6 +134,9 @@ class Exception_DevblocksAjaxValidationError extends Exception_Devblocks {
 	}
 };
 
+class Exception_DevblocksDatabaseQueryError extends Exception_Devblocks {};
+class Exception_DevblocksDatabaseQueryTimeout extends Exception_Devblocks {};
+
 interface IDevblocksHandler_Session {
 	static function open($save_path, $session_name);
 	static function close();

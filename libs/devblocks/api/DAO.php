@@ -291,6 +291,78 @@ abstract class DevblocksORMHelper {
 		return true;
 	}
 	
+	/**
+	 * @param string $id_key
+	 * @param string $select_sql
+	 * @param string $join_sql
+	 * @param string $where_sql
+	 * @param string $sort_sql
+	 * @param int $page
+	 * @param int $limit
+	 * @param bool $withCounts
+	 * @param int $timeout_ms
+	 * @return array|bool
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected static function _searchWithTimeout(string $id_key, string $select_sql, string $join_sql, ?string $where_sql, ?string $sort_sql, int $page, int $limit, $withCounts=true, int $timeout_ms=10000) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$limit = DevblocksPlatform::intClamp($limit, 0, PHP_INT_MAX);
+		
+		$sql =
+			$select_sql.
+			$join_sql.
+			$where_sql.
+			$sort_sql.
+			($limit ? sprintf(" LIMIT %d,%d", $page*$limit, $limit) : '')
+		;
+		
+		try {
+			if(false == ($rs = $db->QueryReaderAsync($sql, $timeout_ms)))
+				return false;
+			
+			$data = [];
+			
+			if($rs instanceof Exception_DevblocksDatabaseQueryTimeout)
+				throw $rs;
+			
+			if(!$rs instanceof mysqli_result)
+				return false;
+			
+			$total = $rs->num_rows;
+			
+			while($row = mysqli_fetch_assoc($rs)) {
+				$id = intval($row[$id_key]);
+				$data[$id] = $row;
+			}
+			
+			$db->Free($rs);
+			
+			if($withCounts && (!(0 == $page && $total < $limit))) {
+				$sql =
+					"SELECT COUNT(1) " .
+					$join_sql .
+					$where_sql
+				;
+				
+				if(false != ($rs = $db->QueryReaderAsync($sql, $timeout_ms))) {
+					if($rs instanceof Exception_DevblocksDatabaseQueryTimeout) {
+						throw $rs;
+					} else if($rs instanceof mysqli_result) {
+						$total = $db->GetOneFromResultset($rs);
+					}
+					
+					$db->Free($rs);
+				}
+			}
+			
+			return [$data, $total];
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			throw $e;
+		}
+	}
+	
 	static protected function _buildSortClause($sortBy, $sortAsc, $fields, &$select_sql, $search_class=null) {
 		$sort_sql = null;
 		

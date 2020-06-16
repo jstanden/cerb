@@ -297,6 +297,109 @@ class _DevblocksDatabaseManager {
 		return $this->_Execute($sql, $db);
 	}
 	
+	/**
+	 * @param string|string[] $sqls
+	 * @param int $time_limit_ms
+	 * @return mysqli_result[]|mysqli_result|false
+	 */
+	function QueryReaderAsync($sqls, $time_limit_ms=10000) {
+		$return_single = false;
+		
+		if(is_string($sqls)) {
+			$return_single = true;
+			$sqls = [$sqls];
+		}
+		
+		if(!is_array($sqls))
+			return false;
+		
+		$user = (defined('APP_DB_READER_USER') && APP_DB_READER_USER) ? APP_DB_READER_USER : APP_DB_USER;
+		$pass = (defined('APP_DB_READER_PASS') && APP_DB_READER_PASS) ? APP_DB_READER_PASS : APP_DB_PASS;
+		
+		$started_at = microtime(true) * 1000;
+		
+		$results = [];
+		$connections = [];
+		$processed = 0;
+		
+		foreach($sqls as $idx => $sql) {
+			if(0 == $idx) {
+				$db = $this->getReaderConnection();
+			} else {
+				$db = $this->_connect(APP_DB_READER_HOST, $user, $pass, APP_DB_DATABASE, false, APP_DB_OPT_READER_CONNECT_TIMEOUT_SECS);
+			}
+			
+			if(!($db instanceof mysqli))
+				return false;
+			
+			mysqli_query($db, $sql, MYSQLI_ASYNC);
+			$connections[] = $db;
+			$results[$db->thread_id] = false;
+		}
+		
+		do {
+			$links = $errors = $rejects = [];
+			
+			foreach($connections as $db)
+				$links[] = $errors[] = $rejects[] = $db;
+			
+			// If we timed out
+			if ((microtime(true) * 1000) - $started_at >= $time_limit_ms) {
+				// Close any incomplete connections
+				foreach($connections as $idx => $db) {
+					if(!($results[$db->thread_id] instanceof mysqli_result)) {
+						// Mark the thread as timed out
+						$results[$db->thread_id] = new Exception_DevblocksDatabaseQueryTimeout();
+						mysqli_kill($db, $db->thread_id);
+						error_log('Timed out ::SQL:: ' . $sqls[$idx]);
+					}
+				}
+				
+				if($return_single) {
+					return array_shift($results);
+				} else {
+					return array_values($results);
+				}
+			}
+			
+			if (!mysqli_poll($links, $errors, $rejects, 1))
+				continue;
+			
+			foreach ($links as $idx => $link) {
+				if ($rs = mysqli_reap_async_query($link)) {
+					$results[$link->thread_id] = $rs;
+					
+				} else {
+					$mysql_errno = mysqli_errno($link);
+					$mysql_error = mysqli_error($link);
+					
+					$results[$link->thread_id] = new Exception_DevblocksDatabaseQueryError();
+					
+					$error_msg = sprintf("[%d] %s ::SQL:: %s",
+						$mysql_errno,
+						$mysql_error,
+						$sqls[$idx]
+					);
+					
+					if (DEVELOPMENT_MODE && php_sapi_name() != 'cli') {
+						trigger_error($error_msg, E_USER_WARNING);
+					} else {
+						error_log($error_msg);
+					}
+				}
+				
+				$processed++;
+			}
+			
+		} while ($processed < count($sqls));
+		
+		if($return_single) {
+			return array_shift($results);
+		} else {
+			return array_values($results);
+		}
+	}
+	
 	private function _Execute($sql, $db, $option_bits = 0) {
 		if(DEVELOPMENT_MODE_QUERIES) {
 			if($console = DevblocksPlatform::services()->log(null))
@@ -349,17 +452,6 @@ class _DevblocksDatabaseManager {
 		}
 		
 		return $rs;
-	}
-	
-	// Always reader
-	function SelectLimit($sql, $limit, $start=0) {
-		$limit = intval($limit);
-		$start = intval($start);
-		
-		if($limit > 0)
-			return $this->ExecuteReader($sql . sprintf(" LIMIT %d,%d", $start, $limit));
-		else
-			return $this->ExecuteReader($sql);
 	}
 	
 	function escape($string) {

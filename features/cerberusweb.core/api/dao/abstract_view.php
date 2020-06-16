@@ -56,20 +56,33 @@ abstract class C4_AbstractView {
 	function getDataSample($size) { return []; }
 	
 	// Adjust the last page if we hit the list bounds
-	protected function _getDataWithinBounds() {
+	protected function _getDataBoundedTimed() {
 		if(!method_exists($this, '_getData'))
 			return [];
 		
-		$objects = $this->_getData();
-		
-		// If we have no results, it's not the first page, and we're returning totals
-		if(!$objects[0] && $this->renderPage && $this->renderTotal) {
-			$total = $objects[1];
-			$this->renderPage = max(floor($total/$this->renderLimit)-1, 0);
+		try {
 			$objects = $this->_getData();
+			
+			if(false === $objects) {
+				$error = "The query failed.";
+				C4_AbstractView::marqueeAppend($this->id, $error);
+				return [[], -1];
+			}
+
+			// If we have no results, it's not the first page, and we're returning totals
+			if(!$objects[0] && $this->renderPage && $this->renderTotal) {
+				$total = $objects[1];
+				$this->renderPage = max(floor($total/$this->renderLimit)-1, 0);
+				$objects = $this->_getData();
+			}
+			
+			return $objects;
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$error = "The query timed out.";
+			C4_AbstractView::marqueeAppend($this->id, $error);
+			return [[], -1];
 		}
-		
-		return $objects;
 	}
 	
 	private $_placeholderLabels = [];
