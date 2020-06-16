@@ -151,6 +151,7 @@
 	{/foreach}
 </table>
 
+{if $total >= 0}
 <table cellpadding="2" cellspacing="0" border="0" width="100%" id="{$view->id}_actions">
 	<tr>
 		<td align="right" valign="top" nowrap="nowrap">
@@ -176,4 +177,6 @@
 		</td>
 	</tr>
 </table>
+{/if}
+
 </form>

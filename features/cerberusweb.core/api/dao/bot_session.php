@@ -262,47 +262,16 @@ class DAO_BotSession extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql =
-			$select_sql.
-			$join_sql.
-			$where_sql.
-			$sort_sql;
-			
-		if($limit > 0) {
-			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
-				return false;
-		} else {
-			if(false == ($rs = $db->ExecuteSlave($sql)))
-				return false;
-			$total = mysqli_num_rows($rs);
-		}
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		$results = array();
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$object_id = $row[SearchFields_BotSession::SESSION_ID];
-			$results[$object_id] = $row;
-		}
-
-		$total = count($results);
-		
-		if($withCounts) {
-			// We can skip counting if we have a less-than-full single page
-			if(!(0 == $page && $total < $limit)) {
-				$count_sql =
-					"SELECT COUNT(bot_session.session_id) ".
-					$join_sql.
-					$where_sql;
-				$total = $db->GetOneSlave($count_sql);
-			}
-		}
-		
-		mysqli_free_result($rs);
-		
-		return array($results,$total);
+		return self::_searchWithTimeout(
+			SearchFields_BotSession::SESSION_ID,
+			$select_sql,
+			$join_sql,
+			$where_sql,
+			$sort_sql,
+			$page,
+			$limit,
+			$withCounts
+		);
 	}
 };
 

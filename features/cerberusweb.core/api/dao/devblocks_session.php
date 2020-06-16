@@ -299,10 +299,9 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	 * @param boolean $sortAsc
 	 * @param boolean $withCounts
 	 * @return array
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::services()->database();
-		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
@@ -311,47 +310,16 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql =
-			$select_sql.
-			$join_sql.
-			$where_sql.
-			$sort_sql;
-			
-		if($limit > 0) {
-			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
-				return false;
-		} else {
-			if(false == ($rs = $db->ExecuteSlave($sql)))
-				return false;
-			$total = mysqli_num_rows($rs);
-		}
-		
-		$results = array();
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$object_id = $row[SearchFields_DevblocksSession::SESSION_ID];
-			$results[$object_id] = $row;
-		}
-
-		$total = count($results);
-		
-		if($withCounts) {
-			// We can skip counting if we have a less-than-full single page
-			if(!(0 == $page && $total < $limit)) {
-				$count_sql =
-					"SELECT COUNT(devblocks_session.session_id) ".
-					$join_sql.
-					$where_sql;
-				$total = $db->GetOneSlave($count_sql);
-			}
-		}
-		
-		mysqli_free_result($rs);
-		
-		return array($results,$total);
+		return self::_searchWithTimeout(
+			SearchFields_DevblocksSession::SESSION_ID,
+			$select_sql,
+			$join_sql,
+			$where_sql,
+			$sort_sql,
+			$page,
+			$limit,
+			$withCounts
+		);
 	}
 
 };
@@ -489,9 +457,13 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 		
 		$this->doResetCriteria();
 	}
-
-	function getData() {
-		$objects = DAO_DevblocksSession::search(
+	
+	/**
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected function _getData() {
+		return DAO_DevblocksSession::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -500,6 +472,10 @@ class View_DevblocksSession extends C4_AbstractView implements IAbstractView_Qui
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+	
+	function getData() {
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_DevblocksSession');
 		

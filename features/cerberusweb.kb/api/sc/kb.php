@@ -356,11 +356,15 @@ class UmSc_KbArticleView extends C4_AbstractView {
 		
 		$this->doResetCriteria();
 	}
-
-	function getData() {
+	
+	/**
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected function _getData() {
 		$columns = array_merge($this->view_columns, array($this->renderSortBy));
 		
-		$objects = DAO_KbArticle::search(
+		return DAO_KbArticle::search(
 			$columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -369,6 +373,10 @@ class UmSc_KbArticleView extends C4_AbstractView {
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+	
+	function getData() {
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_KbArticle');
 		

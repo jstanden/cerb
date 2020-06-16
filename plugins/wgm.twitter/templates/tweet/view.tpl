@@ -1,4 +1,7 @@
 {$view_context = Context_TwitterMessage::ID}
+
+{include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
+
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -107,6 +110,7 @@
 	{/foreach}
 </table>
 
+{if $total >= 0}
 <div style="padding-top:5px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
@@ -130,12 +134,11 @@
 		{/if}
 	</div>
 	
-	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-close" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=action]').val('viewMarkClosed');genericAjaxPost($frm,'view{$view->id}',null);"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.close'|devblocks_translate|lower}</button>
 	</div>
-	{/if}
 </div>
+{/if}
 
 <div style="clear:both;"></div>
 

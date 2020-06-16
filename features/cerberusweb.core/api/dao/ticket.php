@@ -2095,10 +2095,19 @@ class DAO_Ticket extends Cerb_ORMHelper {
 
 		return true;
 	}
-
+	
+	/**
+	 * @param $columns
+	 * @param $params
+	 * @param int $limit
+	 * @param int $page
+	 * @param null $sortBy
+	 * @param null $sortAsc
+	 * @param bool $withCounts
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::services()->database();
-		
 		$fulltext_params = [];
 		
 		foreach($params as $param_key => $param) {
@@ -2132,7 +2141,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$sort_by = 't.created_date';
 				}
 				
-				$prefetch_sql = 
+				$prefetch_sql =
 					sprintf('SELECT message.id FROM message INNER JOIN (SELECT t.id %s%s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.ticket_id)',
 						$join_sql,
 						$where_sql,
@@ -2152,43 +2161,17 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			}
 		}
 		
-		$sql =
-			$select_sql.
-			$join_sql.
-			$where_sql.
-			$sort_sql;
-		
-		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
-			return false;
-		
-		$results = [];
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$id = intval($row[SearchFields_Ticket::TICKET_ID]);
-			$results[$id] = $row;
-		}
-
-		$total = count($results);
-		
-		if($withCounts) {
-			// We can skip counting if we have a less-than-full single page
-			if(!(0 == $page && $total < $limit)) {
-				$count_sql =
-					"SELECT COUNT(t.id) ".
-					$join_sql.
-					$where_sql;
-				$total = $db->GetOneSlave($count_sql);
-			}
-		}
-		
-		mysqli_free_result($rs);
-		
-		return array($results, $total);
+		return self::_searchWithTimeout(
+			SearchFields_Ticket::TICKET_ID,
+			$select_sql,
+			$join_sql,
+			$where_sql,
+			$sort_sql,
+			$page,
+			$limit,
+			$withCounts
+		);
 	}
-	
 };
 
 class SearchFields_Ticket extends DevblocksSearchFields {
@@ -3004,10 +2987,13 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$this->doResetCriteria();
 	}
-
-	function getData() {
-		// [TODO] Only return IDs here
-		$objects = DAO_Ticket::search(
+	
+	/**
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected function _getData() {
+		return DAO_Ticket::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -3016,12 +3002,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+	
+	function getData() {
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Ticket');
 		
 		return $objects;
 	}
-
+	
 	function getDataAsObjects($ids=null) {
 		return $this->_getDataAsObjects('DAO_Ticket', $ids);
 	}
@@ -3930,7 +3920,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
-		$results = self::getData();
+		$results = $this->getData();
 		$tpl->assign('results', $results);
 		
 		$this->_checkFulltextMarquee();

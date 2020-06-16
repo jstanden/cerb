@@ -361,11 +361,10 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 	 * @param string $sortBy
 	 * @param boolean $sortAsc
 	 * @param boolean $withCounts
-	 * @return array
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::services()->database();
-		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
@@ -374,47 +373,16 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql =
-			$select_sql.
-			$join_sql.
-			$where_sql.
-			$sort_sql;
-			
-		if($limit > 0) {
-			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
-				return false;
-		} else {
-			if(false == ($rs = $db->ExecuteSlave($sql)))
-				return false;
-			$total = mysqli_num_rows($rs);
-		}
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		$results = array();
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$object_id = intval($row[SearchFields_ProjectBoardColumn::ID]);
-			$results[$object_id] = $row;
-		}
-
-		$total = count($results);
-		
-		if($withCounts) {
-			// We can skip counting if we have a less-than-full single page
-			if(!(0 == $page && $total < $limit)) {
-				$count_sql =
-					"SELECT COUNT(project_board_column.id) ".
-					$join_sql.
-					$where_sql;
-				$total = $db->GetOneSlave($count_sql);
-			}
-		}
-		
-		mysqli_free_result($rs);
-		
-		return array($results,$total);
+		return self::_searchWithTimeout(
+			SearchFields_ProjectBoardColumn::ID,
+			$select_sql,
+			$join_sql,
+			$where_sql,
+			$sort_sql,
+			$page,
+			$limit,
+			$withCounts
+		);
 	}
 
 };
@@ -677,9 +645,13 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 		
 		$this->doResetCriteria();
 	}
-
-	function getData() {
-		$objects = DAO_ProjectBoardColumn::search(
+	
+	/**
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected function _getData() {
+		return DAO_ProjectBoardColumn::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -688,6 +660,10 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+	
+	function getData() {
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_ProjectBoardColumn');
 		

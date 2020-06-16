@@ -84,9 +84,9 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		
 		$this->doResetCriteria();
 	}
-
+	
 	function getData() {
-		$objects = array();
+		$objects = [];
 
 		$mail_fail_path = APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR;
 		
@@ -95,12 +95,12 @@ class View_MailParseFail extends C4_AbstractView implements IAbstractView_QuickS
 		foreach($fail_files as $file) {
 			$stat = stat($file);
 			
-			$result = array(
+			$result = [
 				SearchFields_MailParseFail::NAME => basename($file),
 				SearchFields_MailParseFail::SIZE => $stat['size'],
 				SearchFields_MailParseFail::CTIME => $stat['ctime'],
 				SearchFields_MailParseFail::MTIME => $stat['mtime'],
-			);
+			];
 			
 			$objects[] = $result;
 		}

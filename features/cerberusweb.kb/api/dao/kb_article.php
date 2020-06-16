@@ -503,9 +503,18 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		return intval($db->GetOneSlave($sql));
 	}
 	
+	/**
+	 * @param string[] $columns
+	 * @param DevblocksSearchCriteria[] $params
+	 * @param int $limit
+	 * @param int $page
+	 * @param null $sortBy
+	 * @param null $sortAsc
+	 * @param bool $withCounts
+	 * @return array|bool
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::services()->database();
-
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
@@ -514,42 +523,16 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql =
-			$select_sql.
-			$join_sql.
-			$where_sql.
-			$sort_sql
-			;
-		
-		if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
-			return false;
-		
-		$results = [];
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$id = intval($row[SearchFields_KbArticle::ID]);
-			$results[$id] = $row;
-		}
-		
-		$total = count($results);
-		
-		if($withCounts) {
-			// We can skip counting if we have a less-than-full single page
-			if(!(0 == $page && $total < $limit)) {
-				$count_sql =
-					"SELECT COUNT(kb.id) ".
-					$join_sql.
-					$where_sql;
-				$total = $db->GetOneSlave($count_sql);
-			}
-		}
-		
-		mysqli_free_result($rs);
-		
-		return array($results,$total);
+		return self::_searchWithTimeout(
+			SearchFields_KbArticle::ID,
+			$select_sql,
+			$join_sql,
+			$where_sql,
+			$sort_sql,
+			$page,
+			$limit,
+			$withCounts
+		);
 	}
 };
 
@@ -1468,9 +1451,13 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 		
 		$this->doResetCriteria();
 	}
-
-	function getData() {
-		$objects = DAO_KbArticle::search(
+	
+	/**
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected function _getData() {
+		return DAO_KbArticle::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -1479,6 +1466,10 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+	
+	function getData() {
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_KbArticle');
 		

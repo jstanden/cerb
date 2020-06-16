@@ -348,10 +348,14 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 		$this->doResetCriteria();
 	}
 
-	function getData() {
+	/**
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected function _getData() {
 		$columns = array_merge($this->view_columns, array($this->renderSortBy));
 		
-		$objects = DAO_Ticket::search(
+		return DAO_Ticket::search(
 			$columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -360,6 +364,10 @@ class UmSc_TicketHistoryView extends C4_AbstractView implements IAbstractView_Qu
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+	
+	function getData() {
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Ticket');
 		

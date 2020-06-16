@@ -466,9 +466,13 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 		
 		$this->doResetCriteria();
 	}
-
-	function getData() {
-		$objects = DAO_Translation::search(
+	
+	/**
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected function _getData() {
+		return DAO_Translation::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -477,6 +481,10 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+	
+	function getData() {
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Translation');
 		

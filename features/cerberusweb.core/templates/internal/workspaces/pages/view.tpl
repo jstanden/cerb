@@ -122,6 +122,7 @@
 	{/foreach}
 </table>
 
+{if $total >= 0}
 <div style="padding-top:5px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
@@ -145,11 +146,10 @@
 		{/if}
 	</div>
 	
-	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 	</div>
-	{/if}
 </div>
+{/if}
 
 <div style="clear:both;"></div>
 

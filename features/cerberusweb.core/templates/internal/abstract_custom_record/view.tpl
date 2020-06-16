@@ -154,6 +154,7 @@
 	{/foreach}
 </table>
 
+{if $total >= 0}
 <div style="padding-top:5px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
@@ -177,14 +178,13 @@
 		{/if}
 	</div>
 	
-	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-play-button"></span> {'common.explore'|devblocks_translate|lower}</button>
 		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=invoke&module={$custom_record->uri}&action=showBulkPopup&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
 		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=invoke&module=records&action=renderMergePopup&view_id={$view->id}&context={$view_context}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|lower}</button>{/if}
 	</div>
-	{/if}
 </div>
+{/if}
 
 <div style="clear:both;"></div>
 

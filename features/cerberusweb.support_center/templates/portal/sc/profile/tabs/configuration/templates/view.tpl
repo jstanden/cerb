@@ -76,6 +76,7 @@
 	{/foreach}
 </table>
 
+{if $total >= 0}
 <div style="padding-top:5px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
@@ -99,14 +100,13 @@
 		{/if}
 	</div>
 	
-	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		{if $active_worker && $active_worker->is_superuser}
 			<button type="button" class="action-always-show" onclick="genericAjaxPopup('peek','c=internal&a=invoke&module=portals&action=showExportTemplatesPeek&view_id={$view->id|escape:'url'}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','row_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-file-export"></span></a> {'common.export'|devblocks_translate|lower}</button>
 		{/if}
 	</div>
-	{/if}
 </div>
+{/if}
 
 <div style="clear:both;"></div>
 

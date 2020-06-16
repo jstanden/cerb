@@ -617,10 +617,9 @@ class DAO_Notification extends Cerb_ORMHelper {
 	 * @param boolean $sortAsc
 	 * @param boolean $withCounts
 	 * @return array
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::services()->database();
-
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
 
@@ -629,48 +628,16 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$where_sql = $query_parts['where'];
 		$sort_sql = $query_parts['sort'];
 		
-		$sql =
-			$select_sql.
-			$join_sql.
-			$where_sql.
-			$sort_sql;
-		
-		// [TODO] Could push the select logic down a level too
-		if($limit > 0) {
-			if(false == ($rs = $db->SelectLimit($sql,$limit,$page*$limit)))
-				return false;
-		} else {
-			if(false == ($rs = $db->ExecuteSlave($sql)))
-				return false;
-			$total = mysqli_num_rows($rs);
-		}
-		
-		$results = [];
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$object_id = intval($row[SearchFields_Notification::ID]);
-			$results[$object_id] = $row;
-		}
-
-		$total = count($results);
-		
-		if($withCounts) {
-			// We can skip counting if we have a less-than-full single page
-			if(!(0 == $page && $total < $limit)) {
-				$count_sql =
-					"SELECT COUNT(we.id) ".
-					$join_sql.
-					$where_sql;
-				$total = $db->GetOneSlave($count_sql);
-			}
-		}
-		
-		mysqli_free_result($rs);
-		
-		return array($results,$total);
+		return self::_searchWithTimeout(
+			SearchFields_Notification::ID,
+			$select_sql,
+			$join_sql,
+			$where_sql,
+			$sort_sql,
+			$page,
+			$limit,
+			$withCounts
+		);
 	}
 	
 };
@@ -911,6 +878,10 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 		$this->doResetCriteria();
 	}
 	
+	/**
+	 * @return array
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
 	protected function _getData() {
 		return DAO_Notification::search(
 			$this->view_columns,
@@ -922,9 +893,9 @@ class View_Notification extends C4_AbstractView implements IAbstractView_Subtota
 			$this->renderTotal
 		);
 	}
-
+	
 	function getData() {
-		$objects = $this->_getDataWithinBounds();
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Notification');
 		

@@ -2,6 +2,9 @@
 {$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
+
+{include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
+
 <table cellpadding="0" cellspacing="0" border="0" width="100%" class="worklist">
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -76,6 +79,7 @@
 	{/foreach}
 </table>
 
+{if $total >= 0}
 <div style="padding-top:5px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
@@ -99,12 +103,11 @@
 		{/if}
 	</div>
 	
-	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-delete"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|lower}</button>
 	</div>
-	{/if}
 </div>
+{/if}
 
 <div style="clear:both;"></div>
 

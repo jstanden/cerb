@@ -2,6 +2,9 @@
 {$results = $view->getData()}
 {$total = $results[1]}
 {$data = $results[0]}
+
+{include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
+
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
@@ -140,6 +143,7 @@
 	{/foreach}
 </table>
 
+{if $total >= 0}
 <div style="padding-top:5px;">
 	<div style="float:right;">
 		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
@@ -163,13 +167,12 @@
 		{/if}
 	</div>
 	
-	{if $total}
 	<div style="float:left;" id="{$view->id}_actions">
 		<button type="button" class="action-always-show" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 		<button type="button" class="action-always-show" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=invoke&module=translations&action=exportTmx';"><span class="glyphicons glyphicons-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
 	</div>
-	{/if}
 </div>
+{/if}
 
 <div style="clear:both;"></div>
 

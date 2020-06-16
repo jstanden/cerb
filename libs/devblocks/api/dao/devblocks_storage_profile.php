@@ -63,9 +63,13 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 		
 		$this->doResetCriteria();
 	}
-
-	function getData() {
-		$objects = DAO_DevblocksStorageProfile::search(
+	
+	/**
+	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	protected function _getData() {
+		return DAO_DevblocksStorageProfile::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -74,6 +78,10 @@ class View_DevblocksStorageProfile extends C4_AbstractView implements IAbstractV
 			$this->renderSortAsc,
 			$this->renderTotal
 		);
+	}
+	
+	function getData() {
+		$objects = $this->_getDataBoundedTimed();
 		
 		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_DevblocksStorageProfile');
 		
