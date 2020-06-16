@@ -879,10 +879,8 @@ abstract class C4_AbstractView {
 			
 		}
 		
-		if(empty($string))
-			self::unsetMarquee($view_id);
-		else
-			self::setMarquee($view_id, $string);
+		if($string)
+			self::marqueeAppend($view_id, $string);
 	}
 	
 	static function setMarqueeContextImported($view_id, $context, $count) {
@@ -896,31 +894,27 @@ abstract class C4_AbstractView {
 			);
 		}
 		
-		if(empty($string))
-			self::unsetMarquee($view_id);
-		else
-			self::setMarquee($view_id, $string);
+		if($string)
+			self::marqueeAppend($view_id, $string);
 	}
 	
-	static function setMarquee($view_id, $string) {
-		$visit = CerberusApplication::getVisit();
-		$visit->set($view_id . '_marquee', $string);
+	static function marqueeAppend($view_id, $string) {
+		if(null == ($visit = CerberusApplication::getVisit()))
+			return false;
+		
+		$visit->append($view_id . '_marquee', $string);
 	}
 	
-	static function unsetMarquee($view_id) {
-		$visit = CerberusApplication::getVisit();
-		$visit->remove($view_id . '_marquee');
-	}
-	
-	static function getMarquee($view_id, $pop=true) {
-		$visit = CerberusApplication::getVisit();
+	static function marqueeFlush($view_id) {
+		if(null == ($visit = CerberusApplication::getVisit()))
+			return false;
 		
-		$string = $visit->get($view_id . '_marquee');
+		$mar_key = $view_id . '_marquee';
 		
-		if($pop)
-			self::unsetMarquee($view_id);
+		$marquees = $visit->get($mar_key);
+		$visit->remove($mar_key);
 		
-		return $string;
+		return $marquees;
 	}
 	
 	protected function _checkFulltextMarquee() {
@@ -952,7 +946,7 @@ abstract class C4_AbstractView {
 			}
 			
 			if(!empty($marquees)) {
-				C4_AbstractView::setMarquee($this->id, implode('<br>', $marquees));
+				C4_AbstractView::marqueeAppend($this->id, implode('<br>', $marquees));
 			}
 			
 			DevblocksPlatform::setRegistryKey('fulltext_meta', [], DevblocksRegistryEntry::TYPE_JSON, false);

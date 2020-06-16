@@ -889,7 +889,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			// If successful, delete the referenced file and update marquee
 			
 			if(is_object($dict) && !empty($dict->id)) {
-				C4_AbstractView::setMarquee($view_id, sprintf('<b>Created:</b> <a href="%s">%s</a>',
+				C4_AbstractView::marqueeAppend($view_id, sprintf('<b>Created:</b> <a href="%s">%s</a>',
 					$dict->url,
 					$dict->_label
 				));
@@ -897,7 +897,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			} elseif(null === $dict) {
 				$log = ob_get_contents();
 				
-				C4_AbstractView::setMarquee($view_id, sprintf('<b>Rejected:</b> %s',
+				C4_AbstractView::marqueeAppend($view_id, sprintf('<b>Rejected:</b> %s',
 					$log
 				));
 			}
@@ -960,7 +960,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			
 			@unlink($full_path);
 			
-			C4_AbstractView::setMarquee($view_id, sprintf('<b>Deleted file:</b> %s',
+			C4_AbstractView::marqueeAppend($view_id, sprintf('<b>Deleted file:</b> %s',
 				$file
 			));
 			

@@ -2948,6 +2948,16 @@ abstract class DevblocksVisit {
 		return $value;
 	}
 	
+	public function append($key, $object) {
+		if(!array_key_exists($key, $this->registry))
+			$this->registry[$key] = [];
+		
+		if(!is_array($this->registry[$key]))
+			$this->registry[$key] = [$this->registry[$key]];
+		
+		$this->registry[$key][] = $object;
+	}
+	
 	public function set($key, $object) {
 		$this->registry[$key] = $object;
 	}
