@@ -70,7 +70,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 			$widget->extension_id = $widget_extension->id;
 		}
 		
-		if($widget && $widget_id->id) {
+		if($widget && $widget->id) {
 			if(!Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker))
 				DevblocksPlatform::dieWithHttpError(null, 403);
 		}
