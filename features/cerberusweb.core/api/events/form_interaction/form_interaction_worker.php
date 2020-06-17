@@ -252,6 +252,21 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 						],
 					],
 				],
+				'prompt_compose' => [
+					'label' => 'Prompt with compose email editor',
+					'notes' => '',
+					'params' => [
+						'draft_id' => [
+							'type' => 'text',
+							'notes' => 'The optional [draft](/docs/records/types/draft/#params-mailcompose) record ID to resume',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's choices",
+						],
+					],
+				],
 				'prompt_files' => [
 					'label' => 'Prompt with file upload',
 					'notes' => '',
@@ -432,6 +447,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_chooser.tpl');
 				break;
 				
+			case 'prompt_compose':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_compose.tpl');
+				break;
+				
 			case 'prompt_files':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_files.tpl');
 				break;
@@ -502,6 +521,15 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$out = sprintf(">>> Prompting with record chooser\nLabel: %s\nOptions: %s\n",
 					$label,
 					$options
+				);
+				break;
+				
+			case 'prompt_compose':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$draft_id = $tpl_builder->build($params['draft_id'], $dict);
+				
+				$out = sprintf(">>> Prompting with compose popup\nDraft ID: %d\n",
+					$draft_id
 				);
 				break;
 				
@@ -653,6 +681,24 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					'record_type' => $record_type,
 					'record_query' => $record_query,
 					'record_query_required' => $record_query_required,
+				];
+				break;
+				
+			case 'prompt_compose':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$draft_id = $tpl_builder->build($params['draft_id'], $dict);
+				@$var = $params['var'];
+				
+				$actions[] = [
+					'_action' => 'prompt.compose',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+					],
+					'draft_id' => $draft_id,
 				];
 				break;
 				

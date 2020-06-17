@@ -275,6 +275,21 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 						}, $prompt_value);
 						break;
 					
+					case 'prompt.compose':
+						$prompt_value = intval($prompt_value);
+						
+						if(!$prompt_value) {
+							$validation_errors[] = 'You must compose a message before continuing.';
+						} else {
+							$ticket_dict = DevblocksDictionaryDelegate::instance([
+								'_context' => CerberusContexts::CONTEXT_TICKET,
+								'id' => $prompt_value,
+							]);
+							
+							$prompt_value = $ticket_dict;
+						}
+						break;
+					
 					case 'prompt.files':
 						if(is_null($prompt_value)) {
 							$prompt_value = [];
@@ -485,6 +500,17 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					$tpl->assign('records', $records);
 					$tpl->assign('dict', $behavior_dict);
 					$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_chooser.tpl');
+					break;
+				
+				case 'prompt.compose':
+					@$draft_id = $params['draft_id'];
+					@$var = $params['_prompt']['var'];
+					
+					$tpl->assign('draft_id', $draft_id);
+					$tpl->assign('var', $var);
+					$tpl->assign('params', $params);
+					$tpl->assign('dict', $behavior_dict);
+					$tpl->display('devblocks:cerberusweb.core::events/form_interaction/worker/prompts/prompt_compose.tpl');
 					break;
 				
 				case 'prompt.files':
