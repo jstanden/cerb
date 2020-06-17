@@ -40,7 +40,7 @@ class DAO_ContextAlias extends Cerb_ORMHelper {
 	static function get($context, $id, $with_primary=false) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$results = $db->GetArraySlave(sprintf("SELECT name FROM context_alias WHERE context = %s AND id = %d %s",
+		$results = $db->GetArrayReader(sprintf("SELECT name FROM context_alias WHERE context = %s AND id = %d %s",
 			$db->qstr($context),
 			$id,
 			($with_primary ? 'ORDER BY is_primary DESC' : 'AND is_primary = 0')
@@ -111,7 +111,7 @@ class DAO_ContextAlias extends Cerb_ORMHelper {
 		
 		$wheres = self::prepare($terms);
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id FROM context_alias WHERE context = %s AND terms IN (%s)",
+		$results = $db->GetArrayReader(sprintf("SELECT id FROM context_alias WHERE context = %s AND terms IN (%s)",
 			$db->qstr($context),
 			implode(',', $db->qstrArray($wheres))
 		));

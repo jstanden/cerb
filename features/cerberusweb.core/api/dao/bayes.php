@@ -42,7 +42,7 @@ class DAO_Bayes {
 			implode("','", $tmp)
 		);
 		
-		if(false == ($rs = $db->ExecuteSlave($sql)))
+		if(false == ($rs = $db->QueryReader($sql)))
 			return false;
 		
 		// [JAS]: Keep a list of words we can check off as we index them with IDs
@@ -90,7 +90,7 @@ class DAO_Bayes {
 		
 		// [JAS]: [TODO] Change this into a 'replace' index?
 		$sql = "SELECT spam, nonspam FROM bayes_stats";
-		if(false == ($rs = $db->ExecuteSlave($sql)))
+		if(false == ($rs = $db->QueryReader($sql)))
 			return false;
 		
 		if($row = mysqli_fetch_assoc($rs)) {

@@ -125,7 +125,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -294,7 +294,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 			$context_id
 		);
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return DAO_CustomFieldset::getIds(array_column($results, 'custom_fieldset_id'));
 	}
@@ -344,7 +344,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	
 	static public function count($owner_context, $owner_context_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(*) FROM custom_fieldset ".
+		return $db->GetOneReader(sprintf("SELECT count(*) FROM custom_fieldset ".
 			"WHERE owner_context = %s AND owner_context_id = %d",
 			$db->qstr($owner_context),
 			$owner_context_id

@@ -236,7 +236,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -416,7 +416,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 				$db->qstr($context),
 				implode(',', $context_ids)
 			);
-			$link_results = $db->GetArraySlave($sql);
+			$link_results = $db->GetArrayReader($sql);
 			$results = [];
 			
 			foreach($link_results as $row) {
@@ -448,7 +448,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			(!empty($file_size) ? (sprintf("AND storage_size=%d", $file_size)) : '')
 		);
 		
-		return $db->GetOneSlave($sql);
+		return $db->GetOneReader($sql);
 	}
 	
 	/**
@@ -559,7 +559,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 					$context_id,
 					$context_id
 				);
-				return $db->GetOneSlave($sql);
+				return $db->GetOneReader($sql);
 				break;
 				
 			default:
@@ -590,7 +590,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			$query_parts['where']
 			;
 		
-		return $db->GetOneSlave($sql);
+		return $db->GetOneReader($sql);
 	}
 	
 	static function delete($ids) {
@@ -1067,7 +1067,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 		
 		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM attachment WHERE id IN (%s)", implode(',',$ids));
 		
-		if(false == ($rs = $db->ExecuteSlave($sql)))
+		if(false == ($rs = $db->QueryReader($sql)))
 			return false;
 		
 		// Delete the physical files
@@ -1114,7 +1114,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 				$db->qstr($src_profile->extension_id),
 				$src_profile->id
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -1149,7 +1149,7 @@ class Storage_Attachments extends Extension_DevblocksStorageSchema {
 				$db->qstr($dst_profile->extension_id),
 				$dst_profile->id
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -1715,7 +1715,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			implode(',', array_keys($dicts)),
 			implode(',', array_keys($memberships))
 		);
-		$approved_files = $db->GetArraySlave($sql_approve_by_messages);
+		$approved_files = $db->GetArrayReader($sql_approve_by_messages);
 		
 		foreach($approved_files as $approved_file) {
 			$results[$approved_file['attachment_id']] = true;

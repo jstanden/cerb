@@ -326,7 +326,7 @@ class _DevblocksBayesClassifierService {
 			$oper,
 			$n
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return array_column($results, 'token', 'id');
 	}
@@ -671,7 +671,7 @@ class _DevblocksBayesClassifierService {
 			),
 		]);
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		$hits = [];
 		
 		// Tag me|my|i as the current user if we know who they are
@@ -1164,7 +1164,7 @@ class _DevblocksBayesClassifierService {
 								key($org['value'])
 							);
 							
-							$res = $db->GetArraySlave($sql);
+							$res = $db->GetArrayReader($sql);
 							
 							// If we found no matches, the whole contact + org is invalid
 							if(empty($res)) {

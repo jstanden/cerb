@@ -178,7 +178,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -278,7 +278,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	
 	static public function countByBot($bot_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(*) FROM classifier ".
+		return $db->GetOneReader(sprintf("SELECT count(*) FROM classifier ".
 			"WHERE owner_context = %s AND owner_context_id = %d",
 			$db->qstr(CerberusContexts::CONTEXT_BOT),
 			$bot_id

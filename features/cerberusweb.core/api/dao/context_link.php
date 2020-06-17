@@ -226,7 +226,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		
 		$rows = array();
 		
-		$rs = $db->ExecuteSlave(sprintf("SELECT DISTINCT to_context AS context FROM context_link WHERE from_context = %s AND from_context_id = %d",
+		$rs = $db->QueryReader(sprintf("SELECT DISTINCT to_context AS context FROM context_link WHERE from_context = %s AND from_context_id = %d",
 			$db->qstr($context),
 			$context_id
 		));
@@ -246,7 +246,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 	static public function getContextLinkCounts($context, $context_id, $ignore_contexts=array()) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$rs = $db->ExecuteSlave(sprintf("SELECT count(to_context_id) AS hits, to_context as context ".
+		$rs = $db->QueryReader(sprintf("SELECT count(to_context_id) AS hits, to_context as context ".
 			"FROM context_link ".
 			"WHERE from_context = %s ".
 			"AND from_context_id = %d ".
@@ -306,7 +306,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			self::FROM_CONTEXT_ID,
 			$from_context_id
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		$objects = [];
 		
@@ -351,7 +351,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			self::FROM_CONTEXT_ID,
 			implode(',', $from_context_ids)
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		$objects = [];
 		
@@ -376,7 +376,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 	
 	static public function count($from_context, $from_context_id, $ignore_internal=true) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(*) FROM context_link ".
+		return $db->GetOneReader(sprintf("SELECT count(*) FROM context_link ".
 			"WHERE from_context = %s AND from_context_id = %d ".
 			"%s",
 			$db->qstr($from_context),
@@ -445,7 +445,7 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 				implode(' OR ', $wheres)
 			);
 			
-			$results = $db->GetArraySlave($sql);
+			$results = $db->GetArrayReader($sql);
 			
 			$out = array();
 			

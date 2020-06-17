@@ -214,7 +214,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -345,7 +345,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			$db->qstr($context),
 			$fieldset_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByFieldsetId($fieldset_id) {
@@ -354,7 +354,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM custom_field WHERE custom_fieldset_id = %d",
 			$fieldset_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	public static function delete($ids) {
@@ -1310,7 +1310,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		 */
 		
 		$sql = implode(' UNION ALL ', $sqls);
-		if(false == ($rs = $db->ExecuteSlave($sql)))
+		if(false == ($rs = $db->QueryReader($sql)))
 			return false;
 		
 		if(!($rs instanceof mysqli_result))

@@ -489,7 +489,7 @@ class DAO_Address extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 
 		$objects = self::_getObjectsFromResult($rs);
 
@@ -622,7 +622,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(address_id) FROM requester WHERE ticket_id = %d",
 			$ticket_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByTransportId($transport_id) {
@@ -631,7 +631,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM address WHERE mail_transport_id = %d",
 			$transport_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByWorkerId($worker_id) {
@@ -640,7 +640,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM address WHERE worker_id = %d",
 			$worker_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByContactId($org_id) {
@@ -649,7 +649,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM address WHERE contact_id = %d",
 			$org_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByOrgId($org_id) {
@@ -658,7 +658,7 @@ class DAO_Address extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM address WHERE contact_org_id = %d",
 			$org_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	/**

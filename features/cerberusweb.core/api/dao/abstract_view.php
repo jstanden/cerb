@@ -209,7 +209,7 @@ abstract class C4_AbstractView {
 			$where_sql.
 			$sort_sql;
 
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		$objects = [];
 		while($row = mysqli_fetch_row($rs)) {
@@ -994,7 +994,7 @@ abstract class C4_AbstractView {
 		$view->setAutoPersist(false);
 		
 		// Use the worker's timezone for MySQL date functions
-		$db->ExecuteSlave(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
+		$db->QueryReader(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
 		
 		$data = [];
 		
@@ -1166,7 +1166,7 @@ abstract class C4_AbstractView {
 					'ORDER BY histo ASC'
 					;
 					
-					$results = $db->GetArraySlave($sql);
+					$results = $db->GetArrayReader($sql);
 					
 					if(empty($results))
 						return [];
@@ -1363,7 +1363,7 @@ abstract class C4_AbstractView {
 						$group_by,
 						$order_by
 					);
-					$results = $db->GetArraySlave($sql);
+					$results = $db->GetArrayReader($sql);
 					
 					if(empty($results))
 						return [];
@@ -2718,9 +2718,9 @@ abstract class C4_AbstractView {
 			"LIMIT 0,250 "
 		;
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 //		$total = count($results);
-//		$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
+//		$total = ($total < 20) ? $total : $db->GetOneReader("SELECT FOUND_ROWS()");
 
 		return $results;
 	}
@@ -2776,7 +2776,7 @@ abstract class C4_AbstractView {
 			"LIMIT 0,250 "
 		;
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 
 		return $results;
 	}
@@ -3029,7 +3029,7 @@ abstract class C4_AbstractView {
 			"LIMIT 0,250 "
 		;
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 
 		return $results;
 	}
@@ -3162,7 +3162,7 @@ abstract class C4_AbstractView {
 			
 		}
 
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 
 		return $results;
 	}
@@ -3306,7 +3306,7 @@ abstract class C4_AbstractView {
 			);
 		}
 
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 
 		return $results;
 	}
@@ -3437,7 +3437,7 @@ abstract class C4_AbstractView {
 				$query_parts['where']
 			)
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return $results;
 	}
@@ -3534,7 +3534,7 @@ abstract class C4_AbstractView {
 					"ORDER BY hits DESC "
 				;
 				
-				$results = $db->GetArraySlave($sql);
+				$results = $db->GetArrayReader($sql);
 		
 				if(is_array($results))
 				foreach($results as $result) {
@@ -3606,9 +3606,9 @@ abstract class C4_AbstractView {
 					;
 				}
 				
-				$results = $db->GetArraySlave($sql);
+				$results = $db->GetArrayReader($sql);
 //				$total = count($results);
-//				$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
+//				$total = ($total < 20) ? $total : $db->GetOneReader("SELECT FOUND_ROWS()");
 
 				if(is_array($results))
 				foreach($results as $result) {
@@ -3696,9 +3696,9 @@ abstract class C4_AbstractView {
 					"LIMIT 20 "
 				;
 				
-				$results = $db->GetArraySlave($sql);
+				$results = $db->GetArrayReader($sql);
 //				$total = count($results);
-//				$total = ($total < 20) ? $total : $db->GetOneSlave("SELECT FOUND_ROWS()");
+//				$total = ($total < 20) ? $total : $db->GetOneReader("SELECT FOUND_ROWS()");
 		
 				if(is_array($results))
 				foreach($results as $result) {
@@ -5201,7 +5201,7 @@ class DAO_WorkerViewModel extends Cerb_ORMHelper {
 			(!empty($where) ? ('WHERE ' . $where) : '')
 		);
 		
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		if($rs instanceof mysqli_result)
 		while($row = mysqli_fetch_array($rs)) {

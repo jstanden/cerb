@@ -267,7 +267,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 				$query_parts['where']
 			);
 			
-			$value = $db->GetOneSlave($sql);
+			$value = $db->GetOneReader($sql);
 			
 			if(array_key_exists('field', $series))
 			switch($series['field']['type']) {

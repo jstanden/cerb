@@ -738,7 +738,7 @@ class DAO_Domain extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM datacenter_domain WHERE server_id = %d",
 			$server_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	/**
@@ -760,7 +760,7 @@ class DAO_Domain extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -910,7 +910,7 @@ class DAO_Domain extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$ids = [];
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id ".
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
 			"FROM datacenter_domain ".
 			"WHERE name LIKE %s ".
 			"LIMIT 25",

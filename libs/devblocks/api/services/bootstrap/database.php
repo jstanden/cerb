@@ -262,15 +262,15 @@ class _DevblocksDatabaseManager {
 	}
 	
 	/**
-	 * @deprecated
+	 * @deprecated Remove in 10.0
 	 * @param string $sql
 	 * @return mysqli_result|false
 	 */
 	function ExecuteSlave($sql) {
-		return $this->ExecuteReader($sql);
+		return $this->QueryReader($sql);
 	}
 	
-	function ExecuteReader($sql) {
+	function QueryReader($sql) {
 		$db = $this->_reader_db;
 		
 		// Check if we're redirecting read-after-write to master
@@ -418,7 +418,7 @@ class _DevblocksDatabaseManager {
 
 				// Reconnect
 				if(spl_object_hash($db) == spl_object_hash($this->_connections['master'])) {
-					error_log("Attempting to reconnect to master database...");
+					error_log("Attempting to reconnect to writer database...");
 					unset($this->_connections['master']);
 					$master_db = $this->_connectMaster(APP_DB_OPT_CONNECTION_RECONNECTS, APP_DB_OPT_CONNECTION_RECONNECTS_WAIT_MS);
 					$db = $master_db;
@@ -514,7 +514,7 @@ class _DevblocksDatabaseManager {
 		if(DEVELOPMENT_MODE_QUERIES)
 			DevblocksPlatform::services()->log('READER');
 		
-		$rs = $this->ExecuteReader($sql);
+		$rs = $this->QueryReader($sql);
 		
 		return $this->_GetArray($rs);
 	}
@@ -559,7 +559,7 @@ class _DevblocksDatabaseManager {
 		if(DEVELOPMENT_MODE_QUERIES)
 			DevblocksPlatform::services()->log('READER');
 		
-		$rs = $this->ExecuteReader($sql);
+		$rs = $this->QueryReader($sql);
 		return $this->_GetRow($rs);
 	}
 	
@@ -593,7 +593,7 @@ class _DevblocksDatabaseManager {
 		if(DEVELOPMENT_MODE_QUERIES)
 			DevblocksPlatform::services()->log('READER');
 		
-		$rs = $this->ExecuteReader($sql);
+		$rs = $this->QueryReader($sql);
 		return $this->GetOneFromResultset($rs);
 	}
 	

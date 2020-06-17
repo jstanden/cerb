@@ -252,7 +252,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				$view->renderLimit
 			);
 			
-			$results = $db->GetArraySlave($sql);
+			$results = $db->GetArrayReader($sql);
 			
 			$results = array_column($results, 'metric', 'value');
 			ksort($results);

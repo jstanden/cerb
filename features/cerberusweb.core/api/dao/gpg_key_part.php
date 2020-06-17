@@ -10,7 +10,7 @@ class DAO_GpgKeyPart {
 			is_array($part_value) ? ('(' . implode(',', $db->qstrArray($part_value)) . ')') : $db->qstr($part_value)
 		);
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return DAO_GpgPublicKey::getIds(array_column($results, 'key_id'));
 	}
@@ -25,7 +25,7 @@ class DAO_GpgKeyPart {
 			is_array($part_value) ? ('(' . implode(',', $db->qstrArray($part_value)) . ')') : $db->qstr($part_value)
 		);
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return DAO_GpgPrivateKey::getIds(array_column($results, 'key_id'));
 	}

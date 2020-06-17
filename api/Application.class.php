@@ -2830,7 +2830,7 @@ class Cerb_DevblocksSessionHandler implements IDevblocksHandler_Session {
 		// [TODO] Allow Cerb to enable user-agent comparisons as setting
 		// [TODO] Limit the IPs a worker can log in from (per-worker?)
 
-		if(null != (@$session = $db->GetRowSlave(sprintf("SELECT session_id, refreshed_at, session_data FROM devblocks_session WHERE session_token = %s", $db->qstr($id))))) {
+		if(null != (@$session = $db->GetRowReader(sprintf("SELECT session_id, refreshed_at, session_data FROM devblocks_session WHERE session_token = %s", $db->qstr($id))))) {
 			$maxlifetime = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::SESSION_LIFESPAN, CerberusSettingsDefaults::SESSION_LIFESPAN);
 			//$is_ajax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest');
 
@@ -3444,8 +3444,8 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 
 	static protected function _getRandom($table, $pkey='id') {
 		$db = DevblocksPlatform::services()->database();
-		$offset = $db->GetOneSlave(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $table));
-		return $db->GetOneSlave(sprintf("SELECT %s FROM %s LIMIT %d,1", $pkey, $table, $offset));
+		$offset = $db->GetOneReader(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $table));
+		return $db->GetOneReader(sprintf("SELECT %s FROM %s LIMIT %d,1", $pkey, $table, $offset));
 	}
 
 	static function _searchComponentsVirtualOwner(&$param, &$join_sql, &$where_sql) {

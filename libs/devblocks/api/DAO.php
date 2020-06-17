@@ -1446,7 +1446,7 @@ class DAO_Translation extends DevblocksORMHelper {
 			"FROM translation ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY string_id ASC, lang_code ASC";
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -1555,7 +1555,7 @@ class DAO_Translation extends DevblocksORMHelper {
 		
 		// Look up distinct land codes from existing translations
 		$sql = sprintf("SELECT DISTINCT lang_code FROM translation ORDER BY lang_code ASC");
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		// Languages
 		$langs = $translate->getLanguageCodes();
@@ -1973,7 +1973,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 			"FROM devblocks_storage_profile ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}

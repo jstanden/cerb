@@ -341,7 +341,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 			"FROM timetracking_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -392,7 +392,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	
 	static function getItemCount() {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave("SELECT count(id) FROM timetracking_entry");
+		return $db->GetOneReader("SELECT count(id) FROM timetracking_entry");
 	}
 	
 	static function delete($ids) {

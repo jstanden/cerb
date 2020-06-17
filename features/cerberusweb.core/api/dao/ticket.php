@@ -209,7 +209,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(empty($participant_ids) || empty($message_ids))
 			return false;
 		
-		$result = $db->GetOneSlave(sprintf("SELECT COUNT(t.id) from message m inner join ticket t on (t.id=m.ticket_id) inner join requester r on (r.ticket_id=t.id) where r.address_id in (%s) and m.id in (%s)",
+		$result = $db->GetOneReader(sprintf("SELECT COUNT(t.id) from message m inner join ticket t on (t.id=m.ticket_id) inner join requester r on (r.ticket_id=t.id) where r.address_id in (%s) and m.id in (%s)",
 			implode(',', DevblocksPlatform::sanitizeArray($participant_ids, 'int')),
 			implode(',', DevblocksPlatform::sanitizeArray($message_ids, 'int'))
 		));
@@ -250,7 +250,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT t.id FROM ticket t WHERE t.mask = %s",
 			$db->qstr($mask)
 		);
-		$ticket_id = $db->GetOneSlave($sql);
+		$ticket_id = $db->GetOneReader($sql);
 
 		// If we found a hit on a ticket record, return the ID
 		if(!empty($ticket_id)) {
@@ -261,7 +261,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$sql = sprintf("SELECT new_ticket_id FROM ticket_mask_forward WHERE old_mask = %s",
 				$db->qstr($mask)
 			);
-			$ticket_id = $db->GetOneSlave($sql);
+			$ticket_id = $db->GetOneReader($sql);
 			
 			if(!empty($ticket_id))
 				return intval($ticket_id);
@@ -278,7 +278,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$db->qstr($old_mask)
 		);
 		
-		$new_mask = $db->GetOneSlave($sql);
+		$new_mask = $db->GetOneReader($sql);
 		
 		if(empty($new_mask))
 			return null;
@@ -328,7 +328,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$db->qstr(sha1($raw_message_id))
 		);
 		
-		if(false == ($row = $db->GetRowSlave($sql)) || empty($row))
+		if(false == ($row = $db->GetRowReader($sql)) || empty($row))
 			return false;
 		
 		$ticket_id = intval($row['ticket_id']);
@@ -351,7 +351,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$db->qstr(CerberusContexts::CONTEXT_WORKER),
 			$ticket_id
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return $results;
 	}
@@ -375,7 +375,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			);
 		}
 		
-		$rows = $db->GetArraySlave($sql);
+		$rows = $db->GetArrayReader($sql);
 		
 		foreach($rows as $row) {
 			$ticket_id = $row['ticket_id'];
@@ -415,7 +415,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"GROUP BY ticket.status_id",
 			$contact_id
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
@@ -455,7 +455,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"GROUP BY ticket.status_id",
 			$bucket_id
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
@@ -495,7 +495,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"GROUP BY ticket.status_id",
 			$group_id
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
@@ -535,7 +535,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"GROUP BY ticket.status_id",
 			$worker_id
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
@@ -576,7 +576,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"GROUP BY ticket.status_id",
 			$address_id
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
@@ -616,7 +616,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"GROUP BY status_id",
 			$org_id
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		if(is_array($results))
 		foreach($results as $result) {
@@ -794,7 +794,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -1504,7 +1504,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"ORDER BY a.email ASC ",
 			$ticket_id
 		);
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 
 		if(is_array($results))
 		foreach($results as $result) {
@@ -1866,7 +1866,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$objects = [];
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id ".
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
 			"FROM ticket ".
 			"WHERE ticket.status_id != 3 ".
 			"AND (".
@@ -3187,7 +3187,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			"ORDER BY hits DESC "
 		;
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 
 		return $results;
 	}
@@ -3321,7 +3321,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			' GROUP BY t.status_id'
 		;
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return $results;
 	}

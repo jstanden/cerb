@@ -234,7 +234,7 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 			"FROM call_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY updated_date desc";
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}

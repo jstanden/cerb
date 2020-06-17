@@ -240,7 +240,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -285,7 +285,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$responsibilities = array();
 		
-		$results = $db->GetArraySlave(sprintf("SELECT worker_id, responsibility_level FROM worker_to_bucket WHERE bucket_id = %d",
+		$results = $db->GetArrayReader(sprintf("SELECT worker_id, responsibility_level FROM worker_to_bucket WHERE bucket_id = %d",
 			$bucket_id
 		));
 		
@@ -387,7 +387,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM bucket WHERE reply_address_id = %d",
 			$email_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByEmailSignatureId($sig_id) {
@@ -396,7 +396,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM bucket WHERE reply_signature_id = %d",
 			$sig_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByEmailTemplateId($template_id) {
@@ -405,7 +405,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM bucket WHERE reply_html_template_id = %d",
 			$template_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByGroupId($group_id) {
@@ -414,7 +414,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM bucket WHERE group_id = %d",
 			$group_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function delete($ids) {

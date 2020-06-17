@@ -1006,7 +1006,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		// Bots
 		
 		if($context != CerberusContexts::CONTEXT_BOT) {
-			$rs = $db->ExecuteSlave(sprintf("SELECT id FROM bot WHERE owner_context = %s AND owner_context_id NOT IN (SELECT %s FROM %s)",
+			$rs = $db->QueryReader(sprintf("SELECT id FROM bot WHERE owner_context = %s AND owner_context_id NOT IN (SELECT %s FROM %s)",
 				$db->qstr($context),
 				$db->escape($context_index),
 				$db->escape($context_table)

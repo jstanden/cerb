@@ -42,7 +42,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 			$contact_id,
 			$contact_id
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		if($rs instanceof mysqli_result)
 		while($row = mysqli_fetch_array($rs)) {
@@ -95,7 +95,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 			implode(',', $address_ids),
 			($only_enabled ? sprintf("AND sas.is_enabled=1 ") : "")
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::getObjectsFromResultSet($rs);
 	}
@@ -113,7 +113,7 @@ class DAO_SupportCenterAddressShare extends Cerb_ORMHelper {
 			implode(',', $address_ids),
 			($only_enabled ? sprintf("AND sas.is_enabled=1 ") : "")
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::getObjectsFromResultSet($rs);
 	}

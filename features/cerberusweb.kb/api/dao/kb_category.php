@@ -142,7 +142,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		
 		// Add counts (and bubble up)
 		$sql = "SELECT count(*) AS hits, kb_category_id FROM kb_article_to_category GROUP BY kb_category_id";
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -298,7 +298,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -425,7 +425,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$ids = [];
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id ".
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
 			"FROM kb_category ".
 			"WHERE name LIKE %s ".
 			"LIMIT 25",
@@ -454,7 +454,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(kb_category_id) FROM kb_article_to_category WHERE kb_article_id = %d",
 			$article_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByParentId($parent_id) {
@@ -463,7 +463,7 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM kb_category WHERE parent_id = %d",
 			$parent_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	/**

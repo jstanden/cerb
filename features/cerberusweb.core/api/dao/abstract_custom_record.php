@@ -219,7 +219,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -361,7 +361,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			static::_ID
 		);
 		
-		return $db->getOneSlave($sql);
+		return $db->GetOneReader($sql);
 	}
 	
 	static function clearOtherOwners($owners) {
@@ -495,7 +495,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		$objects = [];
 		$table_name = self::_getTableName();
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id ".
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
 			"FROM %s ".
 			"WHERE ".
 			"name LIKE %s ".

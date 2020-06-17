@@ -268,7 +268,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -350,7 +350,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		if(!$address_id)
 			return 0;
 		
-		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id = %d)",
+		return $db->GetOneReader(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id = %d)",
 			$address_id
 		));
 	}
@@ -361,7 +361,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		if(!$contact_id)
 			return 0;
 		
-		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id in (select id from address where contact_id = %d))",
+		return $db->GetOneReader(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id in (select id from address where contact_id = %d))",
 			$contact_id
 		));
 	}
@@ -372,7 +372,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		if(!$org_id)
 			return 0;
 		
-		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id in (select id from address where contact_org_id = %d))",
+		return $db->GetOneReader(sprintf("select max(id) from message where is_outgoing=1 and ticket_id in (select ticket_id from requester where address_id in (select id from address where contact_org_id = %d))",
 			$org_id
 		));
 	}
@@ -383,7 +383,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		if(!$address_id)
 			return 0;
 		
-		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=0 and address_id = %d",
+		return $db->GetOneReader(sprintf("select max(id) from message where is_outgoing=0 and address_id = %d",
 			$address_id
 		));
 	}
@@ -394,7 +394,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		if(!$contact_id)
 			return 0;
 		
-		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=0 and address_id in (select id from address where contact_id = %d)",
+		return $db->GetOneReader(sprintf("select max(id) from message where is_outgoing=0 and address_id in (select id from address where contact_id = %d)",
 			$contact_id
 		));
 	}
@@ -405,7 +405,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		if(!$org_id)
 			return 0;
 		
-		return $db->GetOneSlave(sprintf("select max(id) from message where is_outgoing=0 and address_id in (select id from address where contact_org_id = %d)",
+		return $db->GetOneReader(sprintf("select max(id) from message where is_outgoing=0 and address_id in (select id from address where contact_org_id = %d)",
 			$org_id
 		));
 	}
@@ -416,7 +416,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM message WHERE ticket_id = %d",
 			$ticket_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 
 	static function delete($ids) {
@@ -1545,7 +1545,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 				$db->qstr($src_profile->extension_id),
 				$src_profile->id
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -1582,7 +1582,7 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 				$db->qstr($dst_profile->extension_id),
 				$dst_profile->id
 		);
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		if(!($rs instanceof mysqli_result))
 			return false;

@@ -88,7 +88,7 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 		
 		if(NULL === ($count = $cache->load($cache_key))) {
 			$db = DevblocksPlatform::services()->database();
-			$count = $db->GetOneSlave(sprintf("SELECT COUNT(*) FROM bot_interaction_proactive WHERE worker_id = %d AND (expires_at = 0 OR expires_at > %d)", $worker_id, time()));
+			$count = $db->GetOneReader(sprintf("SELECT COUNT(*) FROM bot_interaction_proactive WHERE worker_id = %d AND (expires_at = 0 OR expires_at > %d)", $worker_id, time()));
 			$cache->save($count, $cache_key, [], 3600);
 		}
 		
@@ -101,7 +101,7 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$sql = sprintf("SELECT id, worker_id, actor_bot_id, behavior_id, interaction, interaction_params_json FROM bot_interaction_proactive WHERE worker_id = %d AND (expires_at = 0 OR expires_at > %d) ORDER BY id LIMIT %d", $worker_id, time(), $limit);
 		
-		return $db->GetArraySlave($sql);
+		return $db->GetArrayReader($sql);
 	}
 	
 	static function clearCountByWorker($worker_id) {

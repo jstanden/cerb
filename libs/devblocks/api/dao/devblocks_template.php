@@ -169,7 +169,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 			"FROM devblocks_template ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}

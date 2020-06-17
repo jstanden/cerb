@@ -185,7 +185,7 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -546,7 +546,7 @@ class Model_PackageLibrary {
 	function getInstructions() {
 		$db = DevblocksPlatform::services()->database();
 		
-		return $db->GetOneSlave(sprintf("SELECT instructions FROM package_library WHERE id = %d",
+		return $db->GetOneReader(sprintf("SELECT instructions FROM package_library WHERE id = %d",
 			$this->id
 		));
 	}
@@ -561,7 +561,7 @@ class Model_PackageLibrary {
 	function getPackageJson() {
 		$db = DevblocksPlatform::services()->database();
 		
-		return $db->GetOneSlave(sprintf("SELECT package_json FROM package_library WHERE id = %d",
+		return $db->GetOneReader(sprintf("SELECT package_json FROM package_library WHERE id = %d",
 			$this->id
 		));
 	}

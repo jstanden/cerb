@@ -386,7 +386,7 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 
 		$objects = self::_getObjectsFromResultSet($rs);
 

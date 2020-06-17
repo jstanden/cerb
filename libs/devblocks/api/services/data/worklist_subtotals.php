@@ -310,7 +310,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$limit
 			);
 			
-			$results = $db->GetArraySlave($sql);
+			$results = $db->GetArrayReader($sql);
 			
 			$values = array_column($results, $by['key_select']);
 			
@@ -383,7 +383,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$sql = $outer_sql;
 			}
 			
-			if(false == ($rows = $db->GetArraySlave($sql)))
+			if(false == ($rows = $db->GetArrayReader($sql)))
 				$rows = [];
 			
 		} else {

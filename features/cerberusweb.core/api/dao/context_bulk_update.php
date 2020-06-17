@@ -221,7 +221,7 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 	 */
 	static function getTotalByCursor($cursor) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT SUM(num_records) FROM context_bulk_update WHERE batch_key = %s", $db->qstr($cursor)));
+		return $db->GetOneReader(sprintf("SELECT SUM(num_records) FROM context_bulk_update WHERE batch_key = %s", $db->qstr($cursor)));
 	}
 	
 	/**
@@ -247,7 +247,7 @@ class DAO_ContextBulkUpdate extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);

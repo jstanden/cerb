@@ -210,7 +210,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 			
 			$sql = sprintf("SELECT role_id, is_member, is_editable, is_readable FROM worker_to_role WHERE worker_id = %d", $worker_id);
 			
-			$role_data = $db->GetArraySlave($sql);
+			$role_data = $db->GetArrayReader($sql);
 			
 			if(!is_array($role_data))
 				return [];
@@ -394,7 +394,7 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -592,7 +592,7 @@ class Model_WorkerRole {
 		if(is_null($this->_privs)) {
 			$db = DevblocksPlatform::services()->database();
 			
-			$privs_json = $db->GetOneSlave(sprintf("SELECT privs_json FROM worker_role WHERE id = %d", $this->id));
+			$privs_json = $db->GetOneReader(sprintf("SELECT privs_json FROM worker_role WHERE id = %d", $this->id));
 			
 			if(false == ($privs = json_decode($privs_json, true)))
 				return [];

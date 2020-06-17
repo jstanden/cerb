@@ -72,7 +72,7 @@ class DAO_CommunitySession extends Cerb_ORMHelper {
 			$db->qstr($session_id),
 			$portal_id
 		);
-		$row = $db->GetRowSlave($sql);
+		$row = $db->GetRowReader($sql);
 		
 		if(empty($row)) {
 			$session = self::create($session_id, $portal_id);

@@ -459,7 +459,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 			$db->qstr($starts_with.'%')
 		);
 		
-		if(false == ($rs = $db->ExecuteSlave($sql)))
+		if(false == ($rs = $db->QueryReader($sql)))
 			return false;
 		
 		$list = [];

@@ -625,7 +625,7 @@ class View_Translation extends C4_AbstractView implements IAbstractView_Subtotal
 			"LIMIT 0,250 "
 		;
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		return $results;
 	}
 	

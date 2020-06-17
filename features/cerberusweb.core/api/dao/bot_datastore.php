@@ -46,7 +46,7 @@ class DAO_BotDatastore extends Cerb_ORMHelper {
 			$db->qstr($key),
 			time()
 		);
-		return $db->GetOneSlave($sql);
+		return $db->GetOneReader($sql);
 	}
 	
 	static function set($bot_id, $key, $value, $expires_at=0) {

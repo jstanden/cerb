@@ -93,7 +93,7 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 			$end_time
 		);
 		
-		$stats = $db->GetArraySlave($sql);
+		$stats = $db->GetArrayReader($sql);
 		
 		$bots = DAO_Bot::getAll();
 		
@@ -220,7 +220,7 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 				strtotime('first day of this month -1 year 00:00:00'),
 				strtotime('today 00:00:00')
 			);
-			$results = $db->GetArraySlave($sql);
+			$results = $db->GetArrayReader($sql);
 			$chart_model['ids'] = array_column($results, 'behavior_id');
 		}
 		
@@ -244,7 +244,7 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 				: ''
 		);
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		$output = [
 			'data' => [

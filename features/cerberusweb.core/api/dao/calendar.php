@@ -179,7 +179,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -295,7 +295,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 	
 	static public function count($owner_context, $owner_context_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(*) FROM calendar ".
+		return $db->GetOneReader(sprintf("SELECT count(*) FROM calendar ".
 			"WHERE owner_context = %s AND owner_context_id = %d",
 			$db->qstr($owner_context),
 			$owner_context_id
@@ -391,7 +391,7 @@ class DAO_Calendar extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$ids = array();
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id ".
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
 			"FROM calendar ".
 			"WHERE ".
 			"name LIKE %s ".
@@ -680,7 +680,7 @@ class Model_Calendar {
 			$date_from
 		);
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		foreach($results as $row) {
 			// If the event spans multiple days, split them up into distinct events

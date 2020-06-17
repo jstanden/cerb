@@ -647,7 +647,7 @@ class DAO_Server extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -795,7 +795,7 @@ class DAO_Server extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$ids = [];
 		
-		$results = $db->GetArraySlave(sprintf("SELECT id ".
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
 			"FROM server ".
 			"WHERE name LIKE %s ".
 			"LIMIT 25",

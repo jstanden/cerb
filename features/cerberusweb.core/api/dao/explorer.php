@@ -85,7 +85,7 @@ class DAO_ExplorerSet extends Cerb_ORMHelper {
 		
 		$db = DevblocksPlatform::services()->database();
 		
-		$rs = $db->ExecuteSlave(sprintf("SELECT hash, pos, params_json ".
+		$rs = $db->QueryReader(sprintf("SELECT hash, pos, params_json ".
 			"FROM explorer_set ".
 			"WHERE hash = %s ".
 			"AND pos IN (%s) ",

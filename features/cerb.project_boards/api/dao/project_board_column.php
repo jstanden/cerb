@@ -164,7 +164,7 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -213,7 +213,7 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(board_id) FROM project_board_column WHERE board_id = %d",
 			$ticket_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function getByBoardId($board_id) {

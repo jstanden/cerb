@@ -360,7 +360,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			"FROM crm_opportunity ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -414,7 +414,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	
 	static function getItemCount() {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave("SELECT count(id) FROM crm_opportunity");
+		return $db->GetOneReader("SELECT count(id) FROM crm_opportunity");
 	}
 	
 	static function maint() {

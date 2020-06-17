@@ -29,7 +29,7 @@ class DAO_WorkerDashboardPref {
 			$worker->id
 		);
 		
-		$results = $db->getArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return $results;
 	}

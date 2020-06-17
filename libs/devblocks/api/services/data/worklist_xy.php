@@ -220,7 +220,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				$view->renderLimit
 			);
 			
-			if(false == ($results = $db->GetArraySlave($sql)))
+			if(false == ($results = $db->GetArrayReader($sql)))
 				$results = [];
 			
 			$x_labels = $search_class::getLabelsForKeyValues($series['x']['key_select'], array_column($results, 'x'));

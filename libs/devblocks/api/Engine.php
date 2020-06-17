@@ -603,9 +603,9 @@ abstract class DevblocksEngine {
 		
 		// Security: IP Whitelist
 		
-		if(!in_array($controller_uri, array('sso', 'oauth', 'portal')) && defined('APP_SECURITY_FIREWALL_WHITELIST') && !empty(APP_SECURITY_FIREWALL_WHITELIST)) {
+		if(!in_array($controller_uri, array('sso', 'oauth', 'portal')) && defined('APP_SECURITY_FIREWALL_ALLOWLIST') && !empty(APP_SECURITY_FIREWALL_ALLOWLIST)) {
 			@$remote_addr = DevblocksPlatform::getClientIp();
-			$valid_ips = DevblocksPlatform::parseCsvString(APP_SECURITY_FIREWALL_WHITELIST);
+			$valid_ips = DevblocksPlatform::parseCsvString(APP_SECURITY_FIREWALL_ALLOWLIST);
 			
 			if(!DevblocksPlatform::isIpAuthorized($remote_addr, $valid_ips)) {
 				DevblocksPlatform::dieWithHttpError(sprintf("<h1>403 Forbidden for %s</h1>", $remote_addr), 403);

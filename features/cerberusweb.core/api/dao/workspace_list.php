@@ -255,7 +255,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -341,7 +341,7 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(workspace_tab_id) FROM workspace_list WHERE workspace_tab_id = %d",
 			$tab_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function delete($ids) {

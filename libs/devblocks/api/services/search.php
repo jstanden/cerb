@@ -592,17 +592,17 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			$filtered_query = $query;
 			
 			if($prefetch_sql) {
-				$db->ExecuteSlave($prefetch_sql);
+				$db->QueryReader($prefetch_sql);
 			
 				$sql = sprintf("SELECT id FROM %s LIMIT %d",
 					$db->escape($temp_table),
 					$max_results
 				);
 				
-				if(false == ($results = $db->GetArraySlave($sql)))
+				if(false == ($results = $db->GetArrayReader($sql)))
 					$results = [];
 				
-				$db->ExecuteSlave(sprintf("DROP TABLE %s", $db->escape($temp_table)));
+				$db->QueryReader(sprintf("DROP TABLE %s", $db->escape($temp_table)));
 					
 				$filter_ids = array_column($results, 'id');
 				
@@ -642,11 +642,11 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 			$temp_table = sprintf("_search_%s", uniqid());
 			
 			$sql = sprintf("CREATE TEMPORARY TABLE IF NOT EXISTS %s (id int unsigned not null, PRIMARY KEY (id))", $temp_table);
-			$db->ExecuteSlave($sql);
+			$db->QueryReader($sql);
 			
 			while($ids_part = array_splice($ids, 0, 500, null)) {
 				$sql = sprintf("INSERT IGNORE INTO %s (id) VALUES (%s)", $temp_table, implode('),(', $ids_part));
-				$db->ExecuteSlave($sql);
+				$db->QueryReader($sql);
 			}
 			
 			$ids = $temp_table;
@@ -791,7 +791,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		return intval($db->GetOneSlave(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
+		return intval($db->GetOneReader(sprintf("SELECT MAX(id) FROM fulltext_%s", $db->escape($ns))));
 	}
 	
 	private function _getCount(Extension_DevblocksSearchSchema $schema) {
@@ -802,7 +802,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		if(!isset($tables['fulltext_' . $ns]))
 			return false;
 		
-		$row = $db->GetRowSlave(sprintf("EXPLAIN SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns)));
+		$row = $db->GetRowReader(sprintf("EXPLAIN SELECT COUNT(id) FROM fulltext_%s", $db->escape($ns)));
 		
 		if(array_key_exists('rows', $row))
 			return intval($row['rows']);
@@ -925,17 +925,17 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				$is_cached = false;
 				
 				// Without locks
-				$db->ExecuteSlave("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
+				$db->QueryReader("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
 				
 				$sql = sprintf("CREATE TEMPORARY TABLE %s (id int unsigned, content text) ENGINE=MyISAM SELECT id, content FROM fulltext_%s WHERE id IN (%s)",
 					$db->escape($temp_table),
 					$this->escapeNamespace($ns),
 					$attributes['id']['sql']
 				);
-				$db->ExecuteSlave($sql);
+				$db->QueryReader($sql);
 				
 				// Resume locking
-				$db->ExecuteSlave("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ");
+				$db->QueryReader("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ");
 				
 				$sql = sprintf("SELECT id ".
 					"FROM %s ".
@@ -947,9 +947,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
 					$max_results
 				);
-				$results = $db->GetArraySlave($sql);
+				$results = $db->GetArrayReader($sql);
 				
-				$db->ExecuteSlave(sprintf("DROP TABLE %s",
+				$db->QueryReader(sprintf("DROP TABLE %s",
 					$temp_table
 				));
 				
@@ -973,7 +973,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
 				$is_cached = false;
 				
-				if(false === ($results = $db->GetArraySlave($sql))) {
+				if(false === ($results = $db->GetArrayReader($sql))) {
 					$ids = array();
 				} else {
 					$ids = DevblocksPlatform::sanitizeArray(array_column($results, 'id'), 'int');

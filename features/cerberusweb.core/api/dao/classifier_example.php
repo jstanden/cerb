@@ -173,7 +173,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -270,7 +270,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	
 	static public function countByClassifier($classifier_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(id) FROM classifier_example ".
+		return $db->GetOneReader(sprintf("SELECT count(id) FROM classifier_example ".
 			"WHERE classifier_id = %d",
 			$classifier_id
 		));
@@ -278,7 +278,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 	
 	static public function countByClass($class_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(id) FROM classifier_example ".
+		return $db->GetOneReader(sprintf("SELECT count(id) FROM classifier_example ".
 			"WHERE class_id = %d",
 			$class_id
 		));

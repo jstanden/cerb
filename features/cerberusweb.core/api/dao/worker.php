@@ -421,7 +421,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_createObjectsFromResultSet($rs);
@@ -478,7 +478,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$responsibilities = [];
 		
-		$results = $db->GetArraySlave(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE worker_id = %d",
+		$results = $db->GetArrayReader(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE worker_id = %d",
 			$worker_id
 		));
 		
@@ -689,7 +689,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			"SELECT 'cerberusweb.contexts.notification' AS context, worker_id, COUNT(id) AS hits FROM notification WHERE is_read = 0 GROUP BY worker_id ".
 			""
 			;
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		foreach($results as $result) {
 			$context = $result['context'];
@@ -993,7 +993,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(worker_id) FROM worker_to_group WHERE group_id = %d",
 			$group_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function delete($id) {
@@ -1088,7 +1088,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	static function hasAuth($worker_id) {
 		$db = DevblocksPlatform::services()->database();
-		$worker_auth = $db->GetRowSlave(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker_id));
+		$worker_auth = $db->GetRowReader(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker_id));
 		return (is_array($worker_auth) && isset($worker_auth['pass_hash']));
 	}
 	
@@ -1127,7 +1127,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		if($worker->is_password_disabled)
 			return null;
 		
-		$worker_auth = $db->GetRowSlave(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker->id));
+		$worker_auth = $db->GetRowReader(sprintf("SELECT pass_hash, pass_salt, method FROM worker_auth_hash WHERE worker_id = %d", $worker->id));
 		
 		if(!isset($worker_auth['pass_hash']))
 			return null;
@@ -1195,7 +1195,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	public static function random() {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave("SELECT id FROM worker WHERE is_disabled=0 ORDER BY rand() LIMIT 1");
+		return $db->GetOneReader("SELECT id FROM worker WHERE is_disabled=0 ORDER BY rand() LIMIT 1");
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -1297,7 +1297,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 			'LIMIT 25 '
 			;
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		if(is_array($results))
 		foreach($results as $row) {
@@ -1529,7 +1529,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				$db = DevblocksPlatform::services()->database();
 				$workspace_page_sql = self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_WORKSPACE_PAGE, '%s');
 				
-				if(false == ($rows = $workspace_page_ids = $db->GetArraySlave($workspace_page_sql)))
+				if(false == ($rows = $workspace_page_ids = $db->GetArrayReader($workspace_page_sql)))
 					return '0';
 				
 				if(false == ($worker_ids = DAO_WorkspacePage::getUsers(array_column($rows, 'id'))))
@@ -2381,7 +2381,7 @@ class View_Worker extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		
 		$counts = [];
 		
-		if(false == ($results = $db->GetArraySlave($sql)))
+		if(false == ($results = $db->GetArrayReader($sql)))
 			return $counts;
 		
 		if(is_callable($label_map)) {
@@ -3125,7 +3125,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 			$db = DevblocksPlatform::services()->database();
 			$sql = sprintf("SELECT setting, value FROM worker_pref WHERE worker_id = %d", $worker_id);
 			
-			if(false === ($rs = $db->ExecuteSlave($sql)))
+			if(false === ($rs = $db->QueryReader($sql)))
 				return false;
 			
 			$objects = [];

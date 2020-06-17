@@ -122,7 +122,7 @@ class DAO_OAuthToken extends Cerb_ORMHelper {
 			$db->qstr($token_id)
 		);
 		
-		if(false == ($row = $db->GetRowSlave($sql)))
+		if(false == ($row = $db->GetRowReader($sql)))
 			return null;
 		
 		$model = new Model_OAuthToken();

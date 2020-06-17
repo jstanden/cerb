@@ -170,7 +170,7 @@ class WorkspaceWidgetDatasource_WorklistMetric extends Extension_WorkspaceWidget
 		if(empty($sql))
 			return false;
 		
-		$params['metric_value'] = $db->GetOneSlave($sql);
+		$params['metric_value'] = $db->GetOneReader($sql);
 		
 		return $params;
 	}
@@ -224,7 +224,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 		$db = DevblocksPlatform::services()->database();
 		
 		// Use the worker's timezone for MySQL date functions
-		$db->ExecuteSlave(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
+		$db->QueryReader(sprintf("SET time_zone = %s", $db->qstr($date->formatTime('P', time()))));
 		
 		$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
 		
@@ -422,7 +422,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 					'ORDER BY histo ASC'
 					;
 					
-					$results = $db->GetArraySlave($sql);
+					$results = $db->GetArrayReader($sql);
 					
 					// Find the first and last date
 					@$xaxis_param = array_shift(C4_AbstractView::findParam($xaxis_field->token, $view->getParams()));
@@ -613,7 +613,7 @@ class WorkspaceWidgetDatasource_WorklistSeries extends Extension_WorkspaceWidget
 						$order_by
 					);
 					
-					$results = $db->GetArraySlave($sql);
+					$results = $db->GetArrayReader($sql);
 					$data = [];
 					
 					$counter = 0;

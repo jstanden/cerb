@@ -216,7 +216,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -235,7 +235,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 			$db->qstr($context),
 			implode(',', $ids)
 		);
-		$rows = $db->GetArraySlave($sql);
+		$rows = $db->GetArrayReader($sql);
 		
 		$ids = array();
 		
@@ -319,7 +319,7 @@ class DAO_Comment extends Cerb_ORMHelper {
 	
 	static public function count($from_context, $from_context_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(*) FROM comment ".
+		return $db->GetOneReader(sprintf("SELECT count(*) FROM comment ".
 			"WHERE context = %s AND context_id = %d",
 			$db->qstr($from_context),
 			$from_context_id

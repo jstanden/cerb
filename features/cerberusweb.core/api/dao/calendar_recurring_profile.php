@@ -227,7 +227,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -296,7 +296,7 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 	
 	static function countByCalendar($calendar_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(id) FROM calendar_recurring_profile ".
+		return $db->GetOneReader(sprintf("SELECT count(id) FROM calendar_recurring_profile ".
 			"WHERE calendar_id = %d",
 			$calendar_id
 		));

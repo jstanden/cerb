@@ -71,7 +71,7 @@ class DAO_MessageHeaders extends Cerb_ORMHelper {
 			$message_id
 		);
 		
-		if(false === ($raw_headers = $db->GetOneSlave($sql)))
+		if(false === ($raw_headers = $db->GetOneReader($sql)))
 			return false;
 		
 		return trim($raw_headers) . "\r\n\r\n";

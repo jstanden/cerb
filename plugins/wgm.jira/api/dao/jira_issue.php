@@ -212,7 +212,7 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -243,10 +243,10 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		// With a specific issue ID?
-		if($issue_id && false != ($comment_id = $db->GetOneSlave(sprintf("SELECT id FROM jira_issue_comment WHERE issue_id = %d ORDER BY RAND() LIMIT 1", $issue_id))))
+		if($issue_id && false != ($comment_id = $db->GetOneReader(sprintf("SELECT id FROM jira_issue_comment WHERE issue_id = %d ORDER BY RAND() LIMIT 1", $issue_id))))
 			return $comment_id;
 		
-		return $db->GetOneSlave("SELECT id FROM jira_issue_comment ORDER BY RAND() LIMIT 1");
+		return $db->GetOneReader("SELECT id FROM jira_issue_comment ORDER BY RAND() LIMIT 1");
 	}
 	
 	static function getByJiraId($remote_id) {
@@ -265,7 +265,7 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 			$remote_id,
 			$account_id
 		);
-		$local_id = $db->GetOneSlave($sql);
+		$local_id = $db->GetOneReader($sql);
 		
 		if(empty($local_id))
 			return NULL;
@@ -322,7 +322,7 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 	static function getCommentsByIssueId($issue_id) {
 		$db = DevblocksPlatform::services()->database();
 
-		$results = $db->GetArraySlave(sprintf("SELECT jira_comment_id, jira_issue_id, created, jira_author, body ".
+		$results = $db->GetArrayReader(sprintf("SELECT jira_comment_id, jira_issue_id, created, jira_author, body ".
 			"FROM jira_issue_comment ".
 			"WHERE issue_id = %d ".
 			"ORDER BY created DESC",
@@ -335,7 +335,7 @@ class DAO_JiraIssue extends Cerb_ORMHelper {
 	static function getComment($comment_id) {
 		$db = DevblocksPlatform::services()->database();
 
-		$results = $db->GetRowSlave(sprintf("SELECT id, issue_id, jira_comment_id, jira_issue_id, created, jira_author, body ".
+		$results = $db->GetRowReader(sprintf("SELECT id, issue_id, jira_comment_id, jira_issue_id, created, jira_author, body ".
 			"FROM jira_issue_comment ".
 			"WHERE id = %d ".
 			"ORDER BY created DESC",

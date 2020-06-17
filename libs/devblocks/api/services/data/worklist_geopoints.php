@@ -200,7 +200,7 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 				$view->renderLimit
 			);
 			
-			if(false == ($results = $db->GetArraySlave($sql)))
+			if(false == ($results = $db->GetArrayReader($sql)))
 				$results = [];
 			
 			

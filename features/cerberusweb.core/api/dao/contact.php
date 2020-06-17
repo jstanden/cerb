@@ -370,7 +370,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		return self::_getObjectsFromResult($rs);
@@ -449,7 +449,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM contact WHERE org_id = %d",
 			$org_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function random() {
@@ -590,7 +590,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 				$db->qstr(substr($term, 1) . '%'),
 				25
 			);
-			$results = $db->GetArraySlave($sql);
+			$results = $db->GetArrayReader($sql);
 			
 		} else {
 			$sql = sprintf("SELECT contact.id, address.num_nonspam ".
@@ -610,7 +610,7 @@ class DAO_Contact extends Cerb_ORMHelper {
 					: ''),
 				25
 			);
-			$results = $db->GetArraySlave($sql);
+			$results = $db->GetArrayReader($sql);
 		}
 		
 		if(is_array($results))

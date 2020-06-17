@@ -1562,7 +1562,7 @@ class DevblocksEventHelper {
 						$sql = sprintf("SELECT COUNT(id) AS hits, owner_id FROM ticket WHERE status_id = 0 AND owner_id != 0 AND owner_id IN (%s) GROUP BY owner_id",
 							implode(',', array_keys($possible_workers))
 						);
-						$results = $db->GetArraySlave($sql);
+						$results = $db->GetArrayReader($sql);
 						
 						if(!empty($results))
 						foreach($results as $row) {
@@ -1956,7 +1956,7 @@ class DevblocksEventHelper {
 			return false;
 		
 		$db = DevblocksPlatform::services()->database();
-		$value = $db->GetOneSlave($sql);
+		$value = $db->GetOneReader($sql);
 		
 		$dict->$var = $value;
 	}

@@ -232,7 +232,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -336,7 +336,7 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(workspace_tab_id) FROM workspace_widget WHERE workspace_tab_id = %d",
 			$tab_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function delete($ids) {

@@ -168,7 +168,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		if($options & Cerb_ORMHelper::OPT_GET_MASTER_ONLY) {
 			$rs = $db->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		} else {
-			$rs = $db->ExecuteSlave($sql);
+			$rs = $db->QueryReader($sql);
 		}
 		
 		$objects = self::_getObjectsFromResultSet($rs);
@@ -246,7 +246,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		$responsibilities = [];
 		
-		$results = $db->GetArraySlave(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
+		$results = $db->GetArrayReader(sprintf("SELECT worker_id, bucket_id, responsibility_level FROM worker_to_bucket WHERE bucket_id IN (SELECT id FROM bucket WHERE group_id = %d)",
 			$group_id
 		));
 		
@@ -482,7 +482,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM worker_group WHERE reply_address_id = %d",
 			$email_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByEmailSignatureId($sig_id) {
@@ -491,7 +491,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM worker_group WHERE reply_signature_id = %d",
 			$sig_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByEmailTemplateId($template_id) {
@@ -500,7 +500,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(id) FROM worker_group WHERE reply_html_template_id = %d",
 			$template_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	static function countByMemberId($worker_id) {
@@ -509,7 +509,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(group_id) FROM worker_to_group WHERE worker_id = %d",
 			$worker_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	/**
@@ -826,7 +826,7 @@ class DAO_Group extends Cerb_ORMHelper {
 				"ORDER BY g.name ASC, w.first_name ASC "
 			);
 			
-			if(false == ($rs = $db->ExecuteSlave($sql)))
+			if(false == ($rs = $db->QueryReader($sql)))
 				return false;
 			
 			$objects = [];
@@ -1321,7 +1321,7 @@ class DAO_GroupSettings extends Cerb_ORMHelper {
 			
 			$sql = "SELECT group_id, setting, value FROM group_setting";
 			
-			if(false == ($rs = $db->ExecuteSlave($sql)))
+			if(false == ($rs = $db->QueryReader($sql)))
 				return false;
 			
 			if(!($rs instanceof mysqli_result))

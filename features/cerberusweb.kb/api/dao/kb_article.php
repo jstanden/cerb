@@ -125,7 +125,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 			;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_createObjectsFromResultSet($rs);
 	}
@@ -141,7 +141,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	
 	static function getContent($id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT content FROM kb_article WHERE id = %d", $id));
+		return $db->GetOneReader(sprintf("SELECT content FROM kb_article WHERE id = %d", $id));
 	}
 	
 	/**
@@ -341,7 +341,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		
 		$categories = [];
 		
-		$rs = $db->ExecuteSlave(sprintf("SELECT kb_category_id ".
+		$rs = $db->QueryReader(sprintf("SELECT kb_category_id ".
 			"FROM kb_article_to_category ".
 			"WHERE kb_article_id = %d",
 			$article_id
@@ -376,7 +376,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 				implode(',', DAO_KbCategory::getDescendents($category_id, $tree)),
 				$limit
 			);
-			$results = $db->GetArraySlave($sql);
+			$results = $db->GetArrayReader($sql);
 			
 			if(is_array($results))
 			foreach($results as $result) {
@@ -500,7 +500,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$sql = sprintf("SELECT count(kb_article_id) FROM kb_article_to_category WHERE kb_category_id = %d",
 			$category_id
 		);
-		return intval($db->GetOneSlave($sql));
+		return intval($db->GetOneReader($sql));
 	}
 	
 	/**
@@ -1603,7 +1603,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			$where_sql
 		);
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return $results;
 	}
@@ -1676,7 +1676,7 @@ class View_KbArticle extends C4_AbstractView implements IAbstractView_Subtotals,
 			$where_sql
 		);
 		
-		$results = $db->GetArraySlave($sql);
+		$results = $db->GetArrayReader($sql);
 		
 		return $results;
 	}

@@ -185,7 +185,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			$view->renderLimit
 		);
 		
-		if(false == ($results = $db->GetArraySlave($sql)))
+		if(false == ($results = $db->GetArrayReader($sql)))
 			$results = [];
 		
 		// Paging
@@ -195,7 +195,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			$query_parts['where'],
 			$view->renderLimit
 		);
-		$total = $db->GetOneSlave($sql_count);
+		$total = $db->GetOneReader($sql_count);
 		
 		$paging = [
 			'page' => [

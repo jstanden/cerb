@@ -4452,7 +4452,7 @@ abstract class Extension_DevblocksStorageSchema extends DevblocksExtension {
 
 		$stats = [];
 
-		$results = $db->GetArraySlave(sprintf("SELECT storage_extension, storage_profile_id, count(id) as hits, sum(storage_size) as bytes FROM %s GROUP BY storage_extension, storage_profile_id ORDER BY storage_extension",
+		$results = $db->GetArrayReader(sprintf("SELECT storage_extension, storage_profile_id, count(id) as hits, sum(storage_size) as bytes FROM %s GROUP BY storage_extension, storage_profile_id ORDER BY storage_extension",
 			$table_name
 		));
 		foreach($results as $result) {

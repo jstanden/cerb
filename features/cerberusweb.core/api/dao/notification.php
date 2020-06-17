@@ -261,7 +261,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 
 		$objects = self::_getObjectsFromResult($rs);
 
@@ -374,7 +374,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 				$worker_id
 			);
 			
-			if(false === ($count = intval($db->GetOneSlave($sql))))
+			if(false === ($count = intval($db->GetOneReader($sql))))
 				return false;
 			
 			$cache->save($count, self::CACHE_COUNT_PREFIX.$worker_id);

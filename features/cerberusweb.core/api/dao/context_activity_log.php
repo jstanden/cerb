@@ -174,7 +174,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			$sort_sql.
 			$limit_sql
 		;
-		$rs = $db->ExecuteSlave($sql);
+		$rs = $db->QueryReader($sql);
 		
 		return self::_getObjectsFromResult($rs);
 	}
@@ -337,7 +337,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	
 	static public function countByTarget($from_context, $from_context_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneSlave(sprintf("SELECT count(*) FROM context_activity_log ".
+		return $db->GetOneReader(sprintf("SELECT count(*) FROM context_activity_log ".
 			"WHERE target_context = %s AND target_context_id = %d",
 			$db->qstr($from_context),
 			$from_context_id

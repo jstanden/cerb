@@ -186,7 +186,7 @@ if(!isset($tables['context_alias'])) {
 	};
 	
 	$sql = "SELECT id, name FROM contact_org";
-	$rs = $db->ExecuteSlave($sql);
+	$rs = $db->QueryReader($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$name = DevblocksPlatform::strAlphaNum($row['name'], ' ', '');
@@ -207,7 +207,7 @@ if(!isset($tables['context_alias'])) {
 	mysqli_free_result($rs);
 	
 	$sql = "SELECT id, concat_ws(' ', first_name, last_name) as name FROM contact";
-	$rs = $db->ExecuteSlave($sql);
+	$rs = $db->QueryReader($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$name = DevblocksPlatform::strAlphaNum($row['name'], ' ', '');
@@ -228,7 +228,7 @@ if(!isset($tables['context_alias'])) {
 	mysqli_free_result($rs);
 	
 	$sql = "SELECT id, concat_ws(' ', first_name, last_name) as name FROM worker";
-	$rs = $db->ExecuteSlave($sql);
+	$rs = $db->QueryReader($sql);
 	
 	while($row = mysqli_fetch_assoc($rs)) {
 		$name = DevblocksPlatform::strAlphaNum($row['name'], ' ', '');
