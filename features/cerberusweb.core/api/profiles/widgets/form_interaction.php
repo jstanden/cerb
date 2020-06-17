@@ -99,6 +99,13 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/form_interaction/interaction_chooser.tpl');
 	}
 	
+	private function _resetState($state_key) {
+		if(false != ($state_id = DevblocksPlatform::getRegistryKey($state_key, DevblocksRegistryEntry::TYPE_STRING, null)))
+			DAO_BotSession::delete($state_id);
+		
+		DevblocksPlatform::services()->registry()->delete($state_key);
+	}
+	
 	function renderForm(Model_ProfileWidget $widget, DevblocksDictionaryDelegate $dict, $is_submit=false) {
 		// Do we have a state for this form by this session?
 		
@@ -107,10 +114,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		
 		// If we're resetting the scope, delete the session and state key
 		if(array_key_exists('reset', $_POST)) {
-			if(false != ($state_id = DevblocksPlatform::getRegistryKey($state_key, DevblocksRegistryEntry::TYPE_STRING, null)))
-				DAO_BotSession::delete($state_id);
-			
-			DevblocksPlatform::services()->registry()->delete($state_key);
+			$this->_resetState($state_key);
 		}
 		
 		// If the state key doesn't exist, show the interactions menu
@@ -428,6 +432,10 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 		
 		foreach($actions as $params) {
 			switch(@$params['_action']) {
+				case 'interaction.end':
+					$this->_resetState($state_key);
+					break;
+				
 				case 'prompt.captcha':
 					$captcha = DevblocksPlatform::services()->captcha();
 					

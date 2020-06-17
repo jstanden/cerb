@@ -198,6 +198,11 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	function getActionExtensions(Model_TriggerEvent $trigger) {
 		$actions =
 			[
+				'interaction_end' => [
+					'label' => 'Interaction end',
+					'notes' => '',
+					'params' => [],
+				],
 				'prompt_captcha' => [
 					'label' => 'Prompt with CAPTCHA challenge',
 					'notes' => '',
@@ -408,6 +413,10 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 		$tpl->assign('token_labels', $labels);
 			
 		switch($token) {
+			case 'interaction_end':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/action_end.tpl');
+				break;
+				
 			case 'prompt_captcha':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_captcha.tpl');
 				break;
@@ -467,6 +476,9 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 		$out = '';
 		
 		switch($token) {
+			case 'interaction_end':
+				break;
+			
 			case 'prompt_captcha':
 				$out = ">>> Prompting with CAPTCHA challenge\n";
 				break;
@@ -553,6 +565,15 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	
 	function runActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		switch($token) {
+			case 'interaction_end':
+				$actions =& $dict->_actions;
+				
+				$actions[] = [
+					'_action' => 'interaction.end',
+					'_trigger_id' => $trigger->id,
+				];
+				break;
+				
 			case 'prompt_captcha':
 				$actions =& $dict->_actions;
 				
