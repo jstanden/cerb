@@ -919,9 +919,18 @@ $(function() {
 						clearTimeout(draftComposeAutoSaveInterval);
 						draftComposeAutoSaveInterval = null;
 					}
-					
-					genericAjaxPopupPostCloseReloadView(null,'frmComposePeek{$popup_uniqid}','{$view_id}',false,'compose_save');
-					
+
+					genericAjaxPost($frm, null, null,
+						function(json) {
+							$popup.trigger('popup_saved');
+
+							var post_event = $.Event('compose_save', {
+								record: json
+							});
+							genericAjaxPopupClose($popup, post_event);
+						}
+					);
+
 				} else {
 					hideLoadingPanel();
 					Devblocks.createAlertError(json.message);

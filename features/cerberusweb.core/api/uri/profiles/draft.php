@@ -568,6 +568,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 	private function _profileAction_saveComposePeek() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		header('Content-Type: application/json; charset=utf-8');
+		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
@@ -592,6 +594,12 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			if($view_id) {
 				C4_AbstractView::setMarqueeContextCreated($view_id, $response[0], $response[1]);
 			}
+			
+			$labels = $values = [];
+			CerberusContexts::getContext($response[0], $response[1], $labels, $values, null, true, true);
+			
+			// Return the new record data
+			echo json_encode($values);
 		}
 		DevblocksPlatform::exit();
 	}

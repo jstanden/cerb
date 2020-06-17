@@ -14,7 +14,7 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('compose' + new Date().getTime(),'c=internal&a=invoke&module=records&action=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}&bucket_id={$view->options.compose_bucket_id}',null,false,'80%');"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" data-cerb-worklist-action="add"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
 			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=invoke&module=worklists&action=showQuickSearchPopup&view_id={$view->id}',null,false,'400');"><span class="glyphicons glyphicons-search"></span></a>
 			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=invoke&module=worklists&action=customize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
 			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
@@ -366,6 +366,20 @@
 $(function() {
 	var $view = $('#view{$view->id}');
 	$view.data('total', {$total|default:0});
+
+	$view.find('[data-cerb-worklist-action=add]').on('click', function() {
+		var $popup_compose = genericAjaxPopup(
+			'compose' + new Date().getTime(),
+			'c=internal&a=invoke&module=records&action=showPeekPopup&context={$view_context}&context_id=0&view_id={$view->id}&bucket_id={$view->options.compose_bucket_id}',
+			null,
+			false,
+			'80%'
+		);
+
+		$popup_compose.on('compose_save', function() {
+			genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
+		});
+	});
 	
 	var $frm = $('#viewForm{$view->id}');
 	
