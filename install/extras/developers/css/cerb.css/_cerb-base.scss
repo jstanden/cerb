@@ -84,7 +84,13 @@ FORM {
 	}
 
 	SELECT {
+		-webkit-appearance: menulist;
 		-moz-appearance: menulist;
+
+		padding: 2px 5px;
+		border: 1px solid rgb(200,200,200);
+		border-radius: 10px;
+		background: white none;
 
 		OPTGROUP {
 			font-style: normal;

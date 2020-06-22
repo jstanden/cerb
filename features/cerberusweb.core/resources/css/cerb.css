@@ -79,7 +79,12 @@ FORM TEXTAREA:focus {
   border: 1px solid #79b7e7;
 }
 FORM SELECT {
+  -webkit-appearance: menulist;
   -moz-appearance: menulist;
+  padding: 2px 5px;
+  border: 1px solid #c8c8c8;
+  border-radius: 10px;
+  background: white none;
 }
 FORM SELECT OPTGROUP {
   font-style: normal;
