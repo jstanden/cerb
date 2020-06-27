@@ -131,7 +131,30 @@ $(function() {
 			// Done
 		});
 	});
-	
+
+	$container.on('cerb-widgets-refresh', function(e) {
+		var widget_ids = (e.widget_ids && $.isArray(e.widget_ids)) ? e.widget_ids : [];
+		var refresh_options = (e.refresh_options && typeof e.refresh_options == 'object') ? e.refresh_options : { };
+
+		var jobs = [];
+
+		$container.find('.cerb-profile-widget').each(function() {
+			var $widget = $(this);
+			var widget_id = parseInt($widget.attr('data-widget-id'));
+
+			// If we're refreshing this widget or all widgets
+			if(widget_id && (0 === widget_ids.length || -1 !== $.inArray(widget_id, widget_ids))) {
+				jobs.push(
+					async.apply(loadWidgetFunc, widget_id, false, refresh_options)
+				);
+			}
+		});
+
+		async.parallelLimit(jobs, 2, function(err, json) {
+			// Done
+		});
+	});
+
 	var addEvents = function($target) {
 		var $menu = $target.find('.cerb-profile-widget--menu');
 		var $menu_link = $target.find('.cerb-profile-widget--link');
@@ -198,8 +221,6 @@ $(function() {
 		addEvents($(this));
 	});
 
-	var jobs = [];
-	
 	{if $active_worker->is_superuser}
 	$add_button
 		.cerbPeekTrigger()
@@ -266,17 +287,7 @@ $(function() {
 			callback();
 		});
 	};
-	
-	{foreach from=$zones item=zone}
-	{foreach from=$zone item=widget}
-	jobs.push(
-		async.apply(loadWidgetFunc, {$widget->id|default:0}, false, {})
-	);
-	{/foreach}
-	{/foreach}
-	
-	async.parallelLimit(jobs, 2, function(err, json) {
-		
-	});
+
+	$container.triggerHandler($.Event('cerb-widgets-refresh'));
 });
 </script>
