@@ -9,16 +9,6 @@
 	</div>
 	{/if}
 	
-	{if is_array($pending_drafts) && $pending_drafts}
-	<div style="color:rgb(236,87,29);">
-		<span class="glyphicons glyphicons-circle-exclamation-mark"></span>
-		This ticket has <strong>{$drafts|count nofilter}</strong> pending draft{if $drafts|count == 1}{else}s{/if}: 
-		{foreach from=$pending_drafts item=draft name=drafts}
-			<a href="#draft{$draft->id}">{$draft->updated|devblocks_prettytime}</a>{if !$smarty.foreach.drafts.last}, {/if} 
-		{/foreach}
-	</div>
-	{/if}
-
 	{if is_array($messages_highlighted) && $messages_highlighted}
 		<div style="color:rgb(236,87,29);">
 			<span class="glyphicons glyphicons-circle-exclamation-mark"></span>

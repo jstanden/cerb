@@ -74,14 +74,6 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		if(!empty($drafts))
 			$tpl->assign('drafts', $drafts);
 		
-		// Only unqueued drafts
-		$pending_drafts = array_filter($drafts, function($draft) {
-			return !$draft->is_queued;
-		});
-		
-		if($pending_drafts)
-			$tpl->assign('pending_drafts', $pending_drafts);
-		
 		// Messages
 		if(false == ($messages = $ticket->getMessages()))
 			$messages = [];
@@ -161,7 +153,22 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 
 		$tpl->assign('message_senders', $message_senders);
 		$tpl->assign('message_sender_orgs', $message_sender_orgs);
-
+		
+		// Thread drafts into conversation (always at top)
+		if(!empty($drafts)) {
+			foreach($drafts as $draft_id => $draft) { /* @var $draft Model_MailQueue */
+				if(!empty($draft->queue_delivery_date)) {
+					$key = $draft->queue_delivery_date . '_d' . $draft_id;
+				} else {
+					$key = $draft->updated . '_d' . $draft_id;
+				}
+				$convo_timeline[$key] = [
+					'type' => 'd',
+					'id' => $draft_id
+				];
+			}
+		}
+		
 		// Comments
 		
 		// If we're not hiding them
@@ -191,26 +198,15 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 			}
 		}
 		
-		// Thread drafts into conversation
-		if(!empty($drafts)) {
-			foreach($drafts as $draft_id => $draft) { /* @var $draft Model_MailQueue */
-				if(!empty($draft->queue_delivery_date)) {
-					$key = $draft->queue_delivery_date . '_d' . $draft_id;
-				} else {
-					$key = $draft->updated . '_d' . $draft_id;
-				}
-				$convo_timeline[$key] = [
-					'type' => 'd',
-					'id' => $draft_id
-				];
-			}
-		}
-		
 		// Sort the timeline
-		if(!$expand_all) {
-			krsort($convo_timeline);
-		} else {
-			ksort($convo_timeline);
+		
+		uksort(
+			$convo_timeline,
+			[$this, '_sortTimeline']
+		);
+		
+		if($expand_all) {
+			$convo_timeline = array_reverse($convo_timeline, true);
 		}
 		
 		$tpl->assign('convo_timeline', $convo_timeline);
@@ -244,6 +240,19 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		$tpl->assign('mail_reply_format', $mail_reply_format);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/conversation.tpl');
+	}
+	
+	private function _sortTimeline($a, $b) {
+		$a_type = DevblocksPlatform::services()->string()->strAfter($a, '_')[0];
+		$b_type = DevblocksPlatform::services()->string()->strAfter($b, '_')[0];
+		
+		if($a_type == 'd' && $b_type != 'd') {
+			return -1;
+		} else if($b_type == 'd' && $a_type != 'd') {
+			return 1;
+		} else {
+			return $b <=> $a;
+		}
 	}
 	
 	function renderConfig(Model_ProfileWidget $model) {
