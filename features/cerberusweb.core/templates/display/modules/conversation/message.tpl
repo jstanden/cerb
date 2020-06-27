@@ -123,8 +123,12 @@
 			{/if}
 		</div>
 
-		{if !empty($message->response_time)}
-			<span style="margin-left:10px;color:rgb(100,140,25);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
+		{if !$expanded}
+		<div style="margin-top:0.5em;">
+			<div class="cerb-code-editor-toolbar" style="display:inline-block;">
+				<button class="cerb-code-editor-toolbar-button" onclick="$('#btnMsgMax{$message->id}').click();"><span class="glyphicons glyphicons-file"></span> Read message ({$message->storage_size|devblocks_prettybytes})</button>
+			</div>
+		</div>
 		{/if}
 	</div>
 
