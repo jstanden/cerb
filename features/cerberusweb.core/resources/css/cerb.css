@@ -193,6 +193,33 @@ DIV.cerb-form > DIV TEXTAREA {
   height: 50px;
 }
 
+DIV.cerb-form-flex {
+  display: flex;
+  flex-flow: row wrap;
+  margin: 0px 0px 10px 0px;
+  box-sizing: border-box;
+}
+DIV.cerb-form-flex > DIV {
+  flex: 2 2 100%;
+  min-width: 250px;
+}
+DIV.cerb-form-flex > DIV LABEL {
+  display: block;
+  font-weight: bold;
+}
+DIV.cerb-form-flex > DIV INPUT[type=text] {
+  width: 98%;
+  padding: 2px;
+}
+DIV.cerb-form-flex > DIV TEXTAREA {
+  width: 98%;
+  padding: 2px;
+  min-height: 50px;
+}
+DIV.cerb-form-flex .cerb-form-flex--half {
+  flex: 1 1 50%;
+}
+
 FIELDSET.delete {
   color: #960000;
 }

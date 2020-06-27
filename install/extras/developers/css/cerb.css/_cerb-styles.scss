@@ -72,6 +72,38 @@ DIV.cerb-form {
 	}
 }
 
+DIV.cerb-form-flex {
+	display: flex;
+	flex-flow: row wrap;
+	margin: 0px 0px 10px 0px;
+	box-sizing: border-box;
+
+	> DIV {
+		flex: 2 2 100%;
+		min-width: 250px;
+
+		LABEL {
+			display: block;
+			font-weight: bold;
+		}
+
+		INPUT[type=text] {
+			width: 98%;
+			padding: 2px;
+		}
+
+		TEXTAREA {
+			width: 98%;
+			padding: 2px;
+			min-height: 50px;
+		}
+	}
+
+	.cerb-form-flex--half {
+		flex: 1 1 50%;
+	}
+}
+
 // Fieldsets
 
 FIELDSET.delete {
