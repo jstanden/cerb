@@ -279,9 +279,7 @@ $(function() {
 	var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
 		var $widget = $('#workspaceWidget' + widget_id).fadeTo('fast', 0.3);
 
-		$('<span class="cerb-ajax-spinner cerb-float"/>')
-			.prependTo($widget)
-		;
+		Devblocks.getSpinner(true).prependTo($widget);
 
 		var formData;
 

@@ -16,7 +16,15 @@ function DevblocksClass() {
 			if(window.console)
 				console.log(e);
 		}
-	}
+	};
+
+	this.getSpinner = function(float) {
+		if(float) {
+			return $('<svg class="cerb-spinner cerb-float" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45"/></svg>');
+		} else {
+			return $('<svg class="cerb-spinner" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45"/></svg>');
+		}
+	};
 	
 	this.getObjectKeyByPath = function(o, path) {
 		path = path.split('.');
@@ -256,7 +264,7 @@ function DevblocksClass() {
 				var $div = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
 					.text('Loading: ' + $.trim(tab_title.text()))
 					.append($('<br>'))
-					.append($('<span class="cerb-ajax-spinner"/>'))
+					.append(Devblocks.getSpinner())
 					;
 				ui.panel.html($div);
 			}
@@ -353,8 +361,8 @@ function DevblocksClass() {
 		}
 		
 		// Show a spinner
-		var $spinner = $('<span class="cerb-ajax-spinner"/>')
-			.css('zoom', '0.5')
+		var $spinner = Devblocks.getSpinner()
+			.css('max-width', '16px')
 			.css('margin-right', '5px')
 			;
 		$spinner.insertBefore($button);
@@ -1017,7 +1025,11 @@ function showLoadingPanel() {
 	}
 
 	// Set the content
-	$("#loadingPanel").html('<span class="cerb-ajax-spinner"></span><h3>Loading, please wait...</h3>');
+	$("#loadingPanel")
+		.empty()
+		.append(Devblocks.getSpinner())
+		.append($('<h3>Loading, please wait...</h3>'))
+	;
 	
 	// Render
 	loadingPanel = $("#loadingPanel").dialog(options);
@@ -1250,7 +1262,7 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 		});
 
 	// Show a spinner
-	var $spinner = $('<a href="#" style="outline:none;"><span class="cerb-ajax-spinner"/></a>');
+	var $spinner = $('<a href="#" style="outline:none;"/>').append(Devblocks.getSpinner());
 	$popup.append($spinner);
 
 	// Open

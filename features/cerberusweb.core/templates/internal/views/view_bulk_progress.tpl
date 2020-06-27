@@ -2,7 +2,7 @@
 	<div>
 		Bulk updated <span class="at">0</span> of <span class="total">{$total}</span>...
 	</div>
-	<span class="cerb-ajax-spinner"/>
+	{include file="devblocks:cerberusweb.core::ui/spinner.tpl"}
 </div>
 
 <script type="text/javascript">

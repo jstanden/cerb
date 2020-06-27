@@ -3612,8 +3612,8 @@ var ajax = new cAjaxCalls();
 					var xhr = new XMLHttpRequest();
 
 					if(xhr.upload) {
-						var $spinner = $('<span class="cerb-ajax-spinner"/>')
-							.css('zoom', '0.5')
+						var $spinner = Devblocks.getSpinner()
+							.css('max-width', '16px')
 							.css('margin-right', '5px')
 						;
 
@@ -3730,8 +3730,8 @@ var ajax = new cAjaxCalls();
 					var xhr = new XMLHttpRequest();
 
 					if(xhr.upload) {
-						var $spinner = $('<span class="cerb-ajax-spinner"/>')
-							.css('zoom', '0.5')
+						var $spinner = Devblocks.getSpinner()
+							.css('max-width', '16px')
 							.css('margin-right', '5px')
 						;
 
@@ -3855,7 +3855,7 @@ var ajax = new cAjaxCalls();
 				e.preventDefault();
 				e.stopPropagation();
 				
-				var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($attachments);
+				Devblocks.getSpinner().appendTo($attachments);
 				
 				$attachments.css('border', '');
 				
@@ -3905,7 +3905,7 @@ var ajax = new cAjaxCalls();
 				
 				async.series(jobs, function(err, json) {
 					var $ul = $attachments.find('ul.chooser-container');
-					$attachments.find('span.cerb-ajax-spinner').first().remove();
+					$attachments.find('.cerb-spinner').first().remove();
 					
 					for(var i = 0; i < json.length; i++) {
 						if(0 == $ul.find('input:hidden[value="' + json[i].id + '"]').length) {

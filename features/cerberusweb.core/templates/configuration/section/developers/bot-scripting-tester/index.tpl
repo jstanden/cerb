@@ -27,7 +27,7 @@ $(function() {
 	var $frm = $('#frmSetupBotScriptingTester');
 	var $status = $frm.find('div.status');
 	var $button = $frm.find('BUTTON.submit');
-	var $spinner = $('<span class="cerb-ajax-spinner"/>');
+	var $spinner = Devblocks.getSpinner();
 	
 	$frm.find('textarea')
 		.cerbCodeEditor()

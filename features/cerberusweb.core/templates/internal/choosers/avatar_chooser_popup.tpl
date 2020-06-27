@@ -46,7 +46,7 @@
 	<div style="clear:both;"></div>
 	
 	<div>
-		<div class="cerb-ajax-spinner" style="display:none;"></div>
+		{include file="devblocks:cerberusweb.core::ui/spinner.tpl" hidden=true}
 		<button type="button" class="canvas-avatar-zoomin" title="{'common.zoom.in'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-in"></span></button>
 		<button type="button" class="canvas-avatar-zoomout" title="{'common.zoom.out'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-zoom-out"></span></button>
 		<button type="button" class="canvas-avatar-remove" title="{'common.clear'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-erase"></span></button>
@@ -71,7 +71,7 @@ $(function() {
 		var $export = $popup.find('button.canvas-avatar-export');
 		var $imagedata = $popup.find('input.canvas-avatar-imagedata');
 		var $error = $popup.find('div.cerb-avatar-error');
-		var $spinner = $popup.find('div.cerb-ajax-spinner');
+		var $spinner = $popup.find('svg.cerb-spinner');
 		var $suggested = $popup.find('div.cerb-avatar-suggested-photos');
 		var $bgcolor_well = $popup.find('input.color-picker');
 		var $monogram = $popup.find('fieldset.cerb-avatar-monogram');

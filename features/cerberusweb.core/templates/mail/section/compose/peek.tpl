@@ -301,7 +301,7 @@ $(function() {
 				if(ui.newTab.attr('data-cerb-tab') !== 'preview')
 					return;
 
-				$('<span class="cerb-ajax-spinner"/>').appendTo(ui.newPanel.html(''));
+				Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
 
 				var formData = new FormData();
 				formData.set('c', 'profiles');

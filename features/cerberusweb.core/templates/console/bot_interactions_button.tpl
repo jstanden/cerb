@@ -54,9 +54,7 @@ $(function() {
 		}
 
 		if(null == $menu) {
-			$('<span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span>')
-				.appendTo($interaction_menu)
-				;
+			Devblocks.getSpinner().css('max-width', '16px').appendTo($interaction_menu);
 			
 			genericAjaxGet($interaction_menu, 'c=profiles&a=invoke&module=bot&action=getInteractionsMenu', function(html) {
 				$menu = $interaction_menu.find('> ul');

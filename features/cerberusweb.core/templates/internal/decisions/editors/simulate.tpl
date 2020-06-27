@@ -77,7 +77,7 @@ $(function() {
 		
 		$popup.find('button.submit').click(function() {
 			var $button = $(this).hide();
-			var $output = $('#divBehaviorSimulatorResults{$trigger->id}').html('<span class="cerb-ajax-spinner"></span>');
+			var $output = $('#divBehaviorSimulatorResults{$trigger->id}').empty().append(Devblocks.getSpinner());
 			
 			genericAjaxPost('frmBehaviorSimulator{$trigger->id}',$output,null, function() {
 				$button.show();

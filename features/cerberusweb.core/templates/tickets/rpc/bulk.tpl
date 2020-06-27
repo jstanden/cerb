@@ -220,7 +220,7 @@ $(function() {
 				if(json.cursor) {
 					// Pull the cursor
 					var $tips = $('#{$view_id}_tips').html('');
-					$('<span class="cerb-ajax-spinner"/>').appendTo($tips);
+					Devblocks.getSpinner().appendTo($tips);
 
 					var formData = new FormData();
 					formData.set('c', 'internal');

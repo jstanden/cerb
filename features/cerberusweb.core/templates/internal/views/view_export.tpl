@@ -162,7 +162,8 @@ $(function() {
 			// If in progress, continue looping pages
 			var $html = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
 				.text('Exported ' + json.rows_exported + ' records')
-				.append('<br><span class="cerb-ajax-spinner"></span>')
+				.append('<br/>')
+				.append(Devblocks.getSpinner())
 				;
 			
 			$status.html($html).fadeIn();
@@ -178,7 +179,8 @@ $(function() {
 		// If in progress, continue looping pages
 		var $html = $('<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;"/>')
 			.text('Exporting...')
-			.append('<br><span class="cerb-ajax-spinner"></span>')
+			.append('<br/>')
+			.append(Devblocks.getSpinner())
 			;
 		
 		$status.html($html).fadeIn();

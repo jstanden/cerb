@@ -23,7 +23,7 @@ $(function() {
 	var $frm = $('#frmSetupDataQueryTester');
 	var $status = $frm.find('div.status');
 	var $button = $frm.find('BUTTON.submit');
-	var $spinner = $('<span class="cerb-ajax-spinner"/>');
+	var $spinner = Devblocks.getSpinner();
 	
 	var $editor_results = 
 		$frm.find('.cerb-data-query-results')

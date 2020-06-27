@@ -36,7 +36,7 @@ $(function() {
 		e.stopPropagation();
 		$placeholder_output.html('');
 
-		$('<span class="cerb-ajax-spinner"/>').appendTo($placeholder_output);
+		Devblocks.getSpinner().appendTo($placeholder_output);
 
 		var formData = new FormData();
 		formData.set('c', 'profiles');

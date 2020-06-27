@@ -18,7 +18,7 @@
 	<div id="worklistPlaceholder{$worklist_id}" style="margin-bottom:10px;">
 		<div style="font-size:18px;font-weight:bold;text-align:center;padding:10px;margin:10px;">
 			Loading: {$worklist->name}<br>
-			<span class="cerb-ajax-spinner"></span>
+			{include file="devblocks:cerberusweb.core::ui/spinner.tpl"}
 		</div>
 	</div>
 {/foreach}

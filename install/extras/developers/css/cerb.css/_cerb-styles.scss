@@ -1630,18 +1630,6 @@ DIV.cerb-menu {
 	}
 }
 
-// Spinner
-
-.cerb-ajax-spinner {
-	background: url(ajax-spinner.gif?v=#{$timestamp});
-	background-repeat:no-repeat;
-	background-position:top left;
-	display:inline-block;
-	vertical-align:middle;
-	width: 32px;
-	height: 32px;
-}
-
 // Plugins
 
 SPAN.plugin_icon_overlay_disabled {

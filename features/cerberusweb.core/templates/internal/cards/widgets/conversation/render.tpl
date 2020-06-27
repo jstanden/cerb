@@ -19,7 +19,7 @@
 <div style="overflow:auto;">
     <fieldset class="peek cerb-peek-timeline" style="margin:0;padding:0;border:0;">
         <div class="cerb-peek-timeline-preview" style="margin:0;">
-            <span class="cerb-ajax-spinner"></span>
+            {include file="devblocks:cerberusweb.core::ui/spinner.tpl"}
         </div>
     </fieldset>
 </div>
@@ -36,7 +36,7 @@ $(function() {
 
     $timeline_fieldset.on('cerb-redraw', function() {
         // Spinner
-        $timeline_preview.html('<span class="cerb-ajax-spinner"></span>');
+        $timeline_preview.empty().append(Devblocks.getSpinner());
 
         // Label
         $timeline_pager.find('span.cerb-peek-timeline-label').text('{'common.message'|devblocks_translate|capitalize} ' + ($timeline.index+1) + ' of ' + $timeline.length);

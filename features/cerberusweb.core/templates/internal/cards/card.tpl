@@ -274,9 +274,7 @@ $(function() {
         var loadWidgetFunc = function(widget_id, is_full, refresh_options, callback) {
             var $widget = $popup.find('.cerb-card-widget[data-widget-id=' + widget_id + '] .cerb-card-widget--content').fadeTo('fast', 0.3);
 
-            $('<span class="cerb-ajax-spinner cerb-float"/>')
-                .prependTo($widget)
-            ;
+            Devblocks.getSpinner(true).prependTo($widget);
 
             var formData;
 

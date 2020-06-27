@@ -88,7 +88,7 @@ $(function() {
 			return;
 		}
 		
-		var $spinner = $('<span class="cerb-ajax-spinner"/>').appendTo($columns.empty());
+		var $spinner = Devblocks.getSpinner().appendTo($columns.empty());
 		
 		genericAjaxGet('','c=profiles&a=invoke&module=profile_tab&action=getContextColumnsJson&context=' + encodeURIComponent(ctx), function(json) {
 			if('object' == typeof(json) && json.length > 0) {

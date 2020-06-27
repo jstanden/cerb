@@ -3,7 +3,7 @@ var $package_chooser = $package_library.find('.package-library--package-chooser'
 var $package_chooser_search = $package_library.find('.package-library--package-search');
 var $package_info = $package_library.find('.package-library--package-info');
 var $package_info_submit = null;
-var $package_spinner = $('<span class="cerb-ajax-spinner"/>').css('zoom','0.5').css('margin-right', '5px');
+var $package_spinner = Devblocks.getSpinner().css('max-width', '16px').css('margin-right', '5px');
 
 $package_chooser.on('cerb-enable', function(e) {
 	$package_info.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd', function() {
