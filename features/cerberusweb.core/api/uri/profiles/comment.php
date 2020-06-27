@@ -158,6 +158,10 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 					$tpl->assign('note', $model);
 					$html = $tpl->fetch('devblocks:cerberusweb.core::internal/comments/note.tpl');
 					
+				} else if($model->context == CerberusContexts::CONTEXT_COMMENT) {
+					$tpl->assign('note', $model);
+					$html = $tpl->fetch('devblocks:cerberusweb.core::internal/comments/note.tpl');
+					
 				} else {
 					$tpl->assign('comment', $model);
 					
@@ -165,6 +169,18 @@ class PageSection_ProfilesComment extends Extension_PageSection {
 						$ticket = DAO_Ticket::get($model->context_id);
 						$tpl->assign('ticket', $ticket);
 					}
+					
+					// Comment notes
+					$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_COMMENT, $id);
+					$comment_notes = [];
+					// Index notes by comment_id
+					if(is_array($notes))
+						foreach($notes as $note) {
+							if(!isset($comment_notes[$note->context_id]))
+								$comment_notes[$note->context_id] = [];
+							$comment_notes[$note->context_id][$note->id] = $note;
+						}
+					$tpl->assign('comment_notes', $comment_notes);
 					
 					$html = $tpl->fetch('devblocks:cerberusweb.core::internal/comments/comment.tpl');
 				}
