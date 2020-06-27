@@ -1,5 +1,8 @@
 {$headers = $message->getHeaders()}
-<div class="block" style="margin-bottom:10px;">
+{$is_outgoing = $message->is_outgoing}
+{$is_not_sent = $message->is_not_sent}
+
+<div class="block" style="margin-bottom:10px;padding-top:8px;padding-left:10px;position:relative;">
 	{$sender_id = $message->address_id}
 	{if isset($message_senders.$sender_id)}
 		{$sender = $message_senders.$sender_id}
@@ -7,8 +10,6 @@
 		{$sender_org = $message_sender_orgs.$sender_org_id}
 		{$sender_contact = $sender->getContact()}
 		{$sender_worker = $message->getWorker()}
-		{$is_outgoing = $message->is_outgoing}
-		{$is_not_sent = $message->is_not_sent}
 
 		{if $expanded}
 		{$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_MESSAGE, $message->id)}
@@ -17,7 +18,7 @@
 		{/if}
 
 		{if !$embed}
-		<div class="toolbar-minmax" style="float:right;display:none;">
+		<div class="toolbar-minmax" style="position:absolute;right:5px;display:none;">
 			{if $active_worker->hasPriv('contexts.cerberusweb.contexts.message.update')}
 			<button type="button" class="edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
@@ -50,7 +51,7 @@
 		</div>
 
 		{if $sender_worker}
-			<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
+			<a href="javascript:;" class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$sender_worker->id}">{if 0 != strlen($sender_worker->getName())}{$sender_worker->getName()}{else}&lt;{$sender_worker->getEmailString()}&gt;{/if}</a>
 			&nbsp;
 			{if $sender_worker->title}
 				{$sender_worker->title}
@@ -58,7 +59,7 @@
 		{else}
 			{if $sender_contact}
 				{$sender_org = $sender_contact->getOrg()}
-				<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$sender_contact->id}">{$sender_contact->getName()}</a>
+				<a href="javascript:;" class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_CONTACT}" data-context-id="{$sender_contact->id}">{$sender_contact->getName()}</a>
 				&nbsp;
 				{if $sender_contact->title}
 					{$sender_contact->title}
@@ -69,7 +70,7 @@
 				{/if}
 			{else}
 				{$sender_org = $sender->getOrg()}
-				<a href="javascript:;" class="cerb-peek-trigger" style="font-weight:bold;{if $expanded}font-size:1.3em;{/if}" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_id}">&lt;{$sender->email}&gt;</a>
+				<a href="javascript:;" class="cerb-peek-trigger" style="font-size:1.2em;font-weight:bold;" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_id}">&lt;{$sender->email}&gt;</a>
 				&nbsp;
 				{if $sender_org}
 					<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$sender_org->id}"><b>{$sender_org->name}</b></a>
@@ -80,7 +81,7 @@
 		{if !$message->is_outgoing}
 			{if $message->signed_key_fingerprint}
 				<span style="margin-left:15px;">
-					<span class="glyphicons glyphicons-circle-ok" style="{if $expanded}font-size:1.3em;{/if}color:rgb(66,131,73);" title="{'common.encrypted.verified'|devblocks_translate|capitalize}"></span>
+					<span class="glyphicons glyphicons-circle-ok" style="font-size:1.2em;color:rgb(66,131,73);" title="{'common.encrypted.verified'|devblocks_translate|capitalize}"></span>
 					Verified
 					(<a href="javascript:;" class="cerb-search-trigger" data-context="{Context_GpgPublicKey::ID}" data-query="fingerprint:{$message->signed_key_fingerprint}">{$message->signed_key_fingerprint|substr:-16}</a>)
 					{if false && $message->signed_at}
@@ -89,34 +90,38 @@
 				</span>
 			{elseif $message->was_encrypted && !$message->is_outgoing}
 				<span style="margin-left:15px;">
-					<span class="glyphicons glyphicons-circle-exclamation-mark" style="{if $expanded}font-size:1.3em;{/if}"></span>
+					<span class="glyphicons glyphicons-circle-exclamation-mark" style=""></span>
 					Unverified
 				</span>
 			{/if}
 		{/if}
 
-		<div style="float:left;margin:0px 5px 5px 0px;">
+		<div style="float:left;margin:0 10px 10px 0;">
 			{if $sender_worker}
-				<img src="{devblocks_url}c=avatars&context=worker&context_id={$sender_worker->id}{/devblocks_url}?v={$sender_worker->updated}" style="height:64px;width:64px;border-radius:64px;">
+				<img src="{devblocks_url}c=avatars&context=worker&context_id={$sender_worker->id}{/devblocks_url}?v={$sender_worker->updated}" style="height:48px;width:48px;border-radius:48px;">
 			{else}
 				{if $sender_contact}
-				<img src="{devblocks_url}c=avatars&context=contact&context_id={$sender_contact->id}{/devblocks_url}?v={$sender_contact->updated_at}" style="height:64px;width:64px;border-radius:64px;">
+				<img src="{devblocks_url}c=avatars&context=contact&context_id={$sender_contact->id}{/devblocks_url}?v={$sender_contact->updated_at}" style="height:48px;width:48px;border-radius:48px;">
 				{else}
-				<img src="{devblocks_url}c=avatars&context=address&context_id={$sender->id}{/devblocks_url}?v={$sender->updated}" style="height:64px;width:64px;border-radius:64px;">
+				<img src="{devblocks_url}c=avatars&context=address&context_id={$sender->id}{/devblocks_url}?v={$sender->updated}" style="height:48px;width:48px;border-radius:48px;">
 				{/if}
 			{/if}
 		</div>
-
-		<br>
 	{/if}
 
-	<div {if !$embed}id="{$message->id}sh"{/if} style="display:block;margin-top:2px;">
-		{if isset($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from|escape|nl2br nofilter}<br>{/if}
-		{if isset($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to|escape|nl2br nofilter}<br>{/if}
-		{if isset($headers.cc)}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc|escape|nl2br nofilter}<br>{/if}
-		{if isset($headers.bcc)}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$headers.bcc|escape|nl2br nofilter}<br>{/if}
-		{if isset($headers.subject)}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$headers.subject}<br>{/if}
-		<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$message->created_date|devblocks_date} (<abbr title="{$headers.date}">{$message->created_date|devblocks_prettytime}</abbr>)
+	<div {if !$embed}id="{$message->id}sh"{/if} style="display:block;margin-top:2px;overflow:hidden;">
+		<div style="line-height:1.4em;">
+			{if isset($headers.from)}<b>{'message.header.from'|devblocks_translate|capitalize}:</b> {$headers.from|escape|nl2br nofilter}<br>{/if}
+			{if isset($headers.to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$headers.to|escape|nl2br nofilter}<br>{/if}
+			{if isset($headers.cc)}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$headers.cc|escape|nl2br nofilter}<br>{/if}
+			{if isset($headers.bcc)}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$headers.bcc|escape|nl2br nofilter}<br>{/if}
+			{if isset($headers.subject)}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$headers.subject}<br>{/if}
+			<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$message->created_date|devblocks_date} (<abbr title="{$headers.date}">{$message->created_date|devblocks_prettytime}</abbr>)
+
+			{if !empty($message->response_time)}
+				<span style="margin-left:10px;color:rgb(100,140,25);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
+			{/if}
+		</div>
 
 		{if !empty($message->response_time)}
 			<span style="margin-left:10px;color:rgb(100,140,25);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
@@ -126,7 +131,7 @@
 	<div style="clear:both;{if $expanded}margin-bottom:1em;{else}margin-bottom:0.5em;{/if}"></div>
 
 	{if $expanded}
-	<div style="clear:both;display:block;">
+	<div style="display:block;margin-left:58px;">
 		{$filtering_results = null}
 		{$html_body = null}
 
@@ -279,16 +284,17 @@
 				{/foreach}
 			{/if}
 		</form>
+		
+		<div id="{$message->id}b"></div>
+		<div id="{$message->id}notes" style="margin-top:10px;margin-left:15px;border-left:2px solid #c8c8c8;">
+			{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
+		</div>
 		{/if}
 	</div> <!-- end visible -->
 	{/if}
 </div>
 
 {if !$embed}
-<div id="{$message->id}b"></div>
-<div id="{$message->id}notes">
-	{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
-</div>
 <div id="reply{$message->id}"></div>
 {/if}
 
