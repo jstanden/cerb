@@ -2221,7 +2221,7 @@ UL.ui-menu li.ui-state-focus {
   content: "⟲";
 }
 .cerb-form-builder .cerb-form-builder-response-text P {
-  margin: 0;
+  margin: 0 0 0.75em 0;
   padding: 0;
 }
 .cerb-form-builder .cerb-form-builder-response-say {
