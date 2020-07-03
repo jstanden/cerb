@@ -66,6 +66,17 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		if(!Context_Draft::isReadableByActor($draft, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null,403);
 		
+		// Draft notes
+		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_DRAFT, $id);
+		$draft_notes = [];
+		if(is_array($notes))
+			foreach($notes as $note) {
+				if(!isset($draft_notes[$note->context_id]))
+					$draft_notes[$note->context_id] = [];
+				$draft_notes[$note->context_id][$note->id] = $note;
+			}
+		$tpl->assign('draft_notes', $draft_notes);
+		
 		$tpl->assign('draft', $draft);
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/draft.tpl');
 	}
