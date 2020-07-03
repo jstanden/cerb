@@ -1,6 +1,6 @@
 {$width_units = $widget->width_units|default:1}
 {$widget_extension = $widget->getExtension()}
-<div class="cerb-profile-widget" data-widget-id="{$widget->id}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
+<div class="cerb-profile-widget" data-widget-id="{$widget->id}" data-widget-name="{$widget->name}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
 	<div>
 		<div class="cerb-profile-widget--header {if $active_worker->is_superuser}cerb-draggable{/if}">
 			<b>
