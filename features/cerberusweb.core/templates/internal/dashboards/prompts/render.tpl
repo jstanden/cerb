@@ -25,7 +25,7 @@ $(function() {
 			genericAjaxPost($frm, '', '', function() {
 				// Reload the entire dashboard
 				var $container = $('#workspaceTab{$tab->id}');
-				$container.triggerHandler('cerb-dashboard-refresh');
+				$container.triggerHandler('cerb-widgets-refresh');
 			});
 		})
 	;
