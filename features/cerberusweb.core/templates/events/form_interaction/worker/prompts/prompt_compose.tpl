@@ -21,8 +21,8 @@ $(function() {
 				$element.find('input[name="prompts[{$var}]"]').val(json.record.id);
 
 				// Automatically continue
-				var $widget_content = $element.closest('.cerb-workspace-widget--content');
-				$widget_content.find('.cerb-form-builder-continue').click();
+				var $widget_form = $element.closest('form');
+				$widget_form.find('.cerb-form-builder-continue').click();
 			}
 		});
 	}

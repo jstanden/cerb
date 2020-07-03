@@ -1136,6 +1136,10 @@ class CerberusMail {
 		}
 	}
 	
+	/**
+	 * @param array $properties
+	 * @return array|false
+	 */
 	static function sendTicketMessage($properties=[]) {
 		/*
 		'draft_id'
@@ -1246,7 +1250,7 @@ class CerberusMail {
 					DAO_MailQueue::update($draft->id, $draft_fields);
 				}
 				
-				return true;
+				return [CerberusContexts::CONTEXT_DRAFT, $draft_id];
 			}
 			
 			$worker = null;
@@ -1276,6 +1280,7 @@ class CerberusMail {
 			
 			@$is_autoreply = $properties['is_autoreply'];
 			
+			$message_id = null;
 			$message_headers = DAO_MessageHeaders::getAll($reply_message_id);
 
 			$from_replyto = $group->getReplyTo($ticket->bucket_id);
@@ -1611,7 +1616,7 @@ class CerberusMail {
 				DAO_Comment::create($fields);
 			}
 			
-			return false;
+			return [CerberusContexts::CONTEXT_DRAFT, $draft_id];
 		}
 		
 		$change_fields = [];
@@ -1800,8 +1805,8 @@ class CerberusMail {
 		if($draft_id)
 			DAO_MailQueue::delete($draft_id);
 		
-		if(isset($message_id))
-			return $message_id;
+		if($message_id)
+			return [CerberusContexts::CONTEXT_MESSAGE, $message_id];
 		
 		return true;
 	}

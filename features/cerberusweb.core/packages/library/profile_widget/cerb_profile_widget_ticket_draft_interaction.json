@@ -1,13 +1,13 @@
 {
   "package": {
-    "name": "Profile Widget: Ticket Draft Generator",
+    "name": "Profile Widget: Ticket Reply Draft Generator",
     "revision": 1,
     "requires": {
       "cerb_version": "9.6.0",
       "plugins": []
     },
     "library": {
-      "name": "Draft Generator",
+      "name": "Ticket Reply Draft Generator",
       "uri": "cerb_profile_widget_ticket_draft_interaction",
       "description": "Automatically generate drafts from ticket profiles",
       "point": "profile_widget:ticket",
@@ -70,7 +70,7 @@
       "behaviors": [
         {
           "uid": "behavior_draft_interaction",
-          "title": "Form: Draft Generator",
+          "title": "Form: Reply Draft Generator",
           "is_disabled": false,
           "is_private": false,
           "priority": 50,
@@ -251,8 +251,47 @@
                 "actions": [
                   {
                     "action": "respond_text",
-                    "message": "<script type=\"text/javascript\">\r\n$(function() {\r\n\tsetTimeout(function() {\r\n\t\tvar $msg = $('#message{{var_ticket_latest_message_id}}');\r\n\t\tvar evt = jQuery.Event('cerb_reply');\r\n\t\t\r\n\t\tevt.message_id = '';\r\n\t\tevt.is_forward = 0;\r\n\t\tevt.draft_id = {{record_draft.id|default(0)}};\r\n\t\tevt.reply_mode = 0;\r\n\t\tevt.is_confirmed = 1;\r\n\t\t\r\n\t\t$msg.trigger(evt);\r\n\t\t\r\n\t\t$('#profileWidget{{var_profile_widget_id}}')\r\n\t\t\t.find('button.cerb-form-builder-reset')\r\n\t\t\t.click()\r\n\t\t\t;\r\n\t}, 0);\r\n});\r\n</script>",
+                    "message": "Write a response.",
+                    "format": ""
+                  },
+                  {
+                    "action": "prompt_reply",
+                    "draft_id": "{{record_draft.id|default(0)}}",
+                    "var": "record_message"
+                  },
+                  {
+                    "action": "prompt_submit"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "action",
+              "title": "Respond with new message",
+              "status": "live",
+              "params": {
+                "actions": [
+                  {
+                    "action": "respond_text",
+                    "message": "Sent!",
+                    "format": ""
+                  },
+                  {
+                    "action": "respond_text",
+                    "message": "<script type=\"text/javascript\">\r\n$(function() {\r\n\t// Reload conversation widget\t\r\n\tvar $widget = $('#profileWidget{{var_profile_widget_id}}')\r\n\tvar $tab = $widget.closest('.cerb-profile-layout');\r\n\r\n\tvar convo_widget_id = $tab.find('.cerb-conversation').closest('.cerb-profile-widget').attr('data-widget-id');\r\n\r\n\tvar evt = $.Event('cerb-widget-refresh');\r\n\tevt.widget_id = convo_widget_id;\r\n\t$tab.triggerHandler(evt);\r\n});\r\n</script>",
                     "format": "html"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "action",
+              "title": "End interaction",
+              "status": "live",
+              "params": {
+                "actions": [
+                  {
+                    "action": "interaction_end"
                   }
                 ]
               }

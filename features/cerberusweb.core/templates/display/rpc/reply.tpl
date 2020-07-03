@@ -890,10 +890,12 @@ $(function() {
 					
 					$frm.find('input:hidden[name=reply_mode]').val('');
 					
-					genericAjaxPost($frm, '', null, function() {
+					genericAjaxPost($frm, '', null, function(json) {
 						hideLoadingPanel();
-						
-						var event = new $.Event('cerb-reply-sent');
+
+						var event = new $.Event('cerb-reply-sent', {
+							record: json
+						});
 						$reply.trigger(event);
 						
 						$reply.triggerHandler('cerb-reply--close');
@@ -933,10 +935,12 @@ $(function() {
 
 					$frm.find('input:hidden[name=reply_mode]').val('save');
 
-					genericAjaxPost($frm, '', null, function() {
+					genericAjaxPost($frm, '', null, function(json) {
 						hideLoadingPanel();
 
-						var event = new $.Event('cerb-reply-saved');
+						var event = new $.Event('cerb-reply-saved', {
+							record: json
+						});
 						$reply.trigger(event);
 
 						$reply.triggerHandler('cerb-reply--close');
@@ -980,11 +984,13 @@ $(function() {
 					formData.set('module', 'draft');
 					formData.set('action', 'saveDraftReply');
 
-					genericAjaxPost(formData, '', null, function() {
+					genericAjaxPost(formData, '', null, function(json) {
 						hideLoadingPanel();
 						$button.closest('td').show();
 
-						var event = new $.Event('cerb-reply-draft');
+						var event = new $.Event('cerb-reply-draft', {
+							record: json
+						});
 						$reply.trigger(event);
 
 						$reply.triggerHandler('cerb-reply--close');

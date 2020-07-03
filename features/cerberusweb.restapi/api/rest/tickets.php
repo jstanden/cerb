@@ -795,10 +795,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 
 		// Send the message
 		
-		if(false == ($message_id = CerberusMail::sendTicketMessage($properties)))
+		if(false == ($response = CerberusMail::sendTicketMessage($properties)))
 			$this->error(self::ERRNO_CUSTOM, "Failed to create a reply message.");
 		
-		return $message->ticket_id;
+		return $ticket->id;
 	}
 	
 	private function postReply() {

@@ -724,6 +724,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 	private function _profileAction_sendReply() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		header('Content-Type: application/json; charset=utf-8');
+		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
@@ -735,7 +737,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 		
 		$draft_id = $result['draft_id'];
-		$ticket = $result['ticket'];
 		
 		if(false == ($draft = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -743,9 +744,13 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$draft->send();
-		
-		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('profiles','ticket',$ticket->mask)));
+		if(false !== ($response = $draft->send()) && is_array($response)) {
+			$labels = $values = [];
+			CerberusContexts::getContext($response[0], $response[1], $labels, $values, null, true, true);
+
+			// Return the new record data
+			echo json_encode($values);
+		}
 	}
 	
 	private function _profileAction_previewReplyMessage() {

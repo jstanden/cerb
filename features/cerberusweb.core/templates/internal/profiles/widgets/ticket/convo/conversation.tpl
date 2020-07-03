@@ -173,7 +173,7 @@ $(function() {
 					$reply.html(html);
 					$reply[0].scrollIntoView();
 					
-					$reply.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(e) {
+					$reply.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function() {
 						// Profile reload
 						document.location.reload();
 					});

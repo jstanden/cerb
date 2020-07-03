@@ -253,7 +253,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					],
 				],
 				'prompt_compose' => [
-					'label' => 'Prompt with compose email editor',
+					'label' => 'Prompt with email compose',
 					'notes' => '',
 					'params' => [
 						'draft_id' => [
@@ -263,7 +263,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 						'var' => [
 							'type' => 'placeholder',
 							'required' => true,
-							'notes' => "The placeholder to set with the user's choices",
+							'notes' => "The placeholder to set with the new ticket dictionary",
 						],
 					],
 				],
@@ -316,6 +316,61 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 							'type' => 'placeholder',
 							'required' => true,
 							'notes' => "The placeholder to set with the user's choices",
+						],
+						'var_format' => [
+							'type' => 'text',
+							'notes' => "A template for formatting this prompt",
+						],
+						'var_validate' => [
+							'type' => 'text',
+							'notes' => "A template for validating this prompt",
+						],
+					],
+				],
+				'prompt_reply' => [
+					'label' => 'Prompt with email reply',
+					'notes' => '',
+					'params' => [
+						'draft_id' => [
+							'type' => 'text',
+							'notes' => 'The optional [draft](/docs/records/types/draft/#params-ticketreply) record ID to resume',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the new message dictionary",
+						],
+					],
+				],
+				'prompt_sheet' => [
+					'label' => 'Prompt with sheet',
+					'notes' => '',
+					'params' => [
+						'label' => [
+							'type' => 'text',
+							'required' => true,
+							'notes' => 'The label for the sheet input',
+						],
+						'data' => [
+							'type' => 'text',
+							'notes' => 'The data to display as rows in the sheet',
+						],
+						'schema' => [
+							'type' => 'text',
+							'notes' => 'The sheet schema',
+						],
+						'mode' => [
+							'type' => 'text',
+							'notes' => '`multiple` (multiple row selection), or omit for single selection',
+						],
+						'selection_key' => [
+							'type' => 'text',
+							'notes' => 'The key from `data` rows to return when a row is selected',
+						],
+						'var' => [
+							'type' => 'placeholder',
+							'required' => true,
+							'notes' => "The placeholder to set with the user's input",
 						],
 						'var_format' => [
 							'type' => 'text',
@@ -458,7 +513,11 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 			case 'prompt_radios':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_radios.tpl');
 				break;
-				
+			
+			case 'prompt_reply':
+				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_reply.tpl');
+				break;
+			
 			case 'prompt_sheet':
 				$tpl->display('devblocks:cerberusweb.core::events/form_interaction/_common/prompts/action_prompt_sheet.tpl');
 				break;
@@ -559,7 +618,16 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					$options
 				);
 				break;
+			
+			case 'prompt_reply':
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				$draft_id = $tpl_builder->build($params['draft_id'], $dict);
 				
+				$out = sprintf(">>> Prompting with reply popup\nDraft ID: %d\n",
+					$draft_id
+				);
+				break;
+
 			case 'prompt_sheet':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				$label = $tpl_builder->build($params['label'], $dict);
@@ -775,6 +843,42 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					'orientation' => $orientation,
 					'options' => $options,
 					'default' => $default,
+				];
+				break;
+			
+			case 'prompt_reply':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$draft_id = $tpl_builder->build($params['draft_id'], $dict);
+				@$var = $params['var'];
+				
+				$actions[] = [
+					'_action' => 'prompt.reply',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+					],
+					'draft_id' => $draft_id,
+				];
+				break;
+			
+			case 'prompt_reply':
+				$actions =& $dict->_actions;
+				
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				@$draft_id = $tpl_builder->build($params['draft_id'], $dict);
+				@$var = $params['var'];
+				
+				$actions[] = [
+					'_action' => 'prompt.reply',
+					'_trigger_id' => $trigger->id,
+					'_prompt' => [
+						'var' => $var,
+					],
+					'draft_id' => $draft_id,
 				];
 				break;
 			
