@@ -500,6 +500,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 		
 		switch($token) {
 			case 'interaction_end':
+				$out = ">>> Interaction end\n";
 				break;
 			
 			case 'prompt_captcha':
