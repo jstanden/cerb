@@ -378,6 +378,16 @@ $cerb960_sheetWidgetYamlToKata = function($yaml_string) {
 };
 
 // ===========================================================================
+// Interaction widget YAML to KATA
+
+$cerb960_interactionWidgetYamlToKata = function($yaml_string) {
+	if('---' == substr($yaml_string,0,3))
+		return $yaml_string;
+	
+	return "---\n" . $yaml_string;
+};
+
+// ===========================================================================
 // Convert card sheet widgets to KATA
 
 list($columns,) = $db->metaTable('card_widget');
@@ -544,6 +554,64 @@ foreach($behavior_nodes as $behavior_node) {
 		
 		$db->ExecuteMaster($sql);
 	}
+}
+
+// ===========================================================================
+// Convert profile interaction widgets to KATA
+
+list($columns,) = $db->metaTable('profile_widget');
+
+$profile_interaction_widgets = $db->GetArrayMaster("SELECT id, extension_params_json FROM profile_widget WHERE extension_id = 'cerb.profile.tab.widget.form_interaction' AND (extension_params_json LIKE '%interactions_yaml%')");
+
+foreach($profile_interaction_widgets as $profile_interaction_widget) {
+	if(!array_key_exists('extension_params_json', $profile_interaction_widget))
+		continue;
+	
+	$profile_interaction_widget_params = json_decode($profile_interaction_widget['extension_params_json'], true);
+	
+	if(array_key_exists('interactions_yaml', $profile_interaction_widget_params)) {
+		$kata = $cerb960_interactionWidgetYamlToKata($profile_interaction_widget_params['interactions_yaml']);
+		
+		$profile_interaction_widget_params['interactions_kata'] = $kata;
+		
+		unset($profile_interaction_widget_params['interactions_yaml']);
+	}
+	
+	$sql = sprintf("UPDATE profile_widget SET extension_params_json = %s WHERE id = %d",
+		$db->qstr(json_encode($profile_interaction_widget_params)),
+		$profile_interaction_widget['id']
+	);
+	
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
+// Convert workspace interaction widgets to KATA
+
+list($columns,) = $db->metaTable('workspace_widget');
+
+$workspace_interaction_widgets = $db->GetArrayMaster("SELECT id, params_json FROM workspace_widget WHERE extension_id = 'core.workspace.widget.form_interaction' AND (params_json LIKE '%interactions_yaml%')");
+
+foreach($workspace_interaction_widgets as $workspace_interaction_widget) {
+	if(!array_key_exists('params_json', $workspace_interaction_widget))
+		continue;
+	
+	$workspace_interaction_widget_params = json_decode($workspace_interaction_widget['params_json'], true);
+	
+	if(array_key_exists('interactions_yaml', $workspace_interaction_widget_params)) {
+		$kata = $cerb960_interactionWidgetYamlToKata($workspace_interaction_widget_params['interactions_yaml']);
+		
+		$workspace_interaction_widget_params['interactions_kata'] = $kata;
+		
+		unset($workspace_interaction_widget_params['interactions_yaml']);
+	}
+	
+	$sql = sprintf("UPDATE workspace_widget SET params_json = %s WHERE id = %d",
+		$db->qstr(json_encode($workspace_interaction_widget_params)),
+		$workspace_interaction_widget['id']
+	);
+	
+	$db->ExecuteMaster($sql);
 }
 
 // ===========================================================================

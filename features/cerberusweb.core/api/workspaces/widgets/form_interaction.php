@@ -12,8 +12,8 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	function renderConfig(Model_WorkspaceWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		if(!array_key_exists('interactions_yaml', $widget->params)) {
-			$widget->params['interactions_yaml'] = "behaviors:\r\n- ";
+		if (!array_key_exists('interactions_kata', $widget->params)) {
+			$widget->params['interactions_kata'] = "";
 		}
 		
 		$tpl->assign('widget', $widget);

@@ -40,6 +40,9 @@ class CardWidget_FormInteraction extends Extension_CardWidget {
 		
 		if($dao_class && method_exists($dao_class, 'random')) {
 			$values = [
+				'widget__context' => CerberusContexts::CONTEXT_CARD_WIDGET,
+				'widget_id' => $model->id,
+				
 				'record__context' => $record_context_ext->id,
 				'record_id' => $dao_class::random(),
 			];

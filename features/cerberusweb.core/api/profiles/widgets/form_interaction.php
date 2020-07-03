@@ -20,8 +20,8 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 	function renderConfig(Model_ProfileWidget $widget) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		if(!array_key_exists('interactions_yaml', $widget->extension_params)) {
-			$widget->extension_params['interactions_yaml'] = "behaviors:\r\n- ";
+		if(!array_key_exists('interactions_kata', $widget->extension_params)) {
+			$widget->extension_params['interactions_kata'] = "";
 		}
 		
 		$tpl->assign('widget', $widget);
