@@ -2148,6 +2148,12 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 			'value' => $model->id,
 		);
 		
+		$properties['uri'] = array(
+			'label' => DevblocksPlatform::translate('common.uri'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->uri,
+		);
+		
 		return $properties;
 	}
 	
