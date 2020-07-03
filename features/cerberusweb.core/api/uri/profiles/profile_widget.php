@@ -39,6 +39,8 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 					return $this->_profileAction_getExtensionsByTabContextJson();
 				case 'getFieldsTabsByContext':
 					return $this->_profileAction_getFieldsTabsByContext();
+				case 'invokeConfig':
+					return $this->_profileAction_invokeConfig();
 				case 'testWidgetTemplate':
 					return $this->_profileAction_testWidgetTemplate();
 				case 'viewExplore':
@@ -369,6 +371,42 @@ class PageSection_ProfilesProfileWidget extends Extension_PageSection {
 		$widget_manifests = Extension_ProfileWidget::getByContext($profile_tab->context, false);
 		
 		echo json_encode(array_column(DevblocksPlatform::objectsToArrays($widget_manifests), 'name', 'id'));
+	}
+	
+	private function _profileAction_invokeConfig() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$id = DevblocksPlatform::importGPC($_POST['id'], 'string', '');
+		@$config_action = DevblocksPlatform::importGPC($_POST['config_action'], 'string', '');
+		
+		if(is_numeric($id)) {
+			if(false == ($model = DAO_ProfileWidget::get($id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			$extension = $model->getExtension();
+			
+		} else {
+			if(false == ($extension = Extension_ProfileWidget::get($id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			@$profile_tab_id = DevblocksPlatform::importGPC($_POST['profile_tab_id'], 'integer', 0);
+			
+			$model = new Model_ProfileWidget();
+			$model->id = 0;
+			$model->extension_id = $id;
+			$model->profile_tab_id = $profile_tab_id;
+		}
+		
+		if(!Context_ProfileWidget::isWriteableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$extension->invokeConfig($config_action, $model);
 	}
 	
 	private function _profileAction_testWidgetTemplate() {

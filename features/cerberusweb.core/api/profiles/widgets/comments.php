@@ -56,4 +56,8 @@ class ProfileWidget_Comments extends Extension_ProfileWidget {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/comments/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
 }

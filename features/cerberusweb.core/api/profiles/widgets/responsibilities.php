@@ -73,6 +73,10 @@ class ProfileWidget_Responsibilities extends Extension_ProfileWidget {
 		//$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/responsibilities/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
+	
 	private function _profileWidgetAction_renderPopup(Model_ProfileWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();

@@ -115,6 +115,10 @@ class ProfileWidget_CalendarAvailability extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/calendar_availability/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
+	
 	private function _profileWidgetAction_showCalendarAvailabilityTab(Model_ProfileWidget $model) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();

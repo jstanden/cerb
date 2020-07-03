@@ -160,4 +160,8 @@ class ProfileWidget_ChartTimeSeries extends Extension_ProfileWidget {
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/chart/timeseries/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
 }

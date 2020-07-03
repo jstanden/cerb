@@ -112,6 +112,10 @@ class WorkspaceWidget_PieChart extends Extension_WorkspaceWidget implements ICer
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/pie_chart/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		

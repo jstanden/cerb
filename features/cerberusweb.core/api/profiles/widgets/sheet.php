@@ -135,6 +135,10 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
+	
 	/*
 	function saveConfig(array $fields, $id, &$error=null) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);

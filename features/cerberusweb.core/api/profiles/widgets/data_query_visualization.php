@@ -84,6 +84,10 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/visualization/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(array $fields, $id=null, &$error=null) {
 		$cache = DevblocksPlatform::services()->cache();
 		

@@ -440,6 +440,7 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 	abstract function render(Model_ProfileWidget $model, $context, $context_id);
 	abstract function invoke(string $action, Model_ProfileWidget $model);
 	abstract function renderConfig(Model_ProfileWidget $model);
+	abstract function invokeConfig($config_action, Model_ProfileWidget $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }
 	
 	/**
@@ -846,6 +847,7 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 	abstract function render(Model_WorkspaceWidget $widget);
 	abstract function invoke(string $action, Model_WorkspaceWidget $model);
 	abstract function renderConfig(Model_WorkspaceWidget $widget);
+	abstract function invokeConfig($config_action, Model_WorkspaceWidget $model);
 	abstract function saveConfig(Model_WorkspaceWidget $widget);
 	
 	/**

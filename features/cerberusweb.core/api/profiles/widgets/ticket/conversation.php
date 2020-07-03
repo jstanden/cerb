@@ -274,4 +274,8 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/ticket/convo/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
 }

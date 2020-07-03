@@ -78,6 +78,10 @@ class WorkspaceWidget_KnowledgebaseBrowser extends Extension_WorkspaceWidget {
 		$tpl->display('devblocks:cerberusweb.kb::widgets/browser/articles/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		
@@ -263,5 +267,9 @@ class ProfileWidget_KbArticle extends Extension_ProfileWidget {
 		$tpl->assign('context_mfts', $context_mfts);
 		
 		$tpl->display('devblocks:cerberusweb.kb::widgets/kb_article/config.tpl');
+	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
 	}
 };

@@ -99,6 +99,10 @@ class ProfileWidget_Calendar extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/calendar/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
+	
 	private function _profileWidgetAction_showCalendarTab(Model_ProfileWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		

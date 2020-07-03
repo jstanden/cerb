@@ -95,6 +95,10 @@ class ProfileWidget_Worklist extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/worklist/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(array $fields, $id=null, &$error=null) {
 		if($id) {
 			// Remove worker view models

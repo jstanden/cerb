@@ -99,4 +99,8 @@ class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/bot/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
 }

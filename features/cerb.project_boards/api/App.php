@@ -83,6 +83,10 @@ class ProfileWidget_ProjectBoard extends Extension_ProfileWidget {
 		
 		$tpl->display('devblocks:cerb.project_boards::widgets/project_board/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
 }
 
 class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
@@ -130,6 +134,10 @@ class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
 		$tpl->assign('widget', $widget);
 		
 		$tpl->display('devblocks:cerb.project_boards::workspaces/widgets/project_board/config.tpl');
+	}
+	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {

@@ -47,6 +47,10 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/_legacy/custom_html/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		

@@ -46,4 +46,8 @@ class ProfileWidget_TicketSpamAnalysis extends Extension_ProfileWidget {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('widget', $model);
 	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
 }

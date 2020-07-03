@@ -68,6 +68,10 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/map/geopoints/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		

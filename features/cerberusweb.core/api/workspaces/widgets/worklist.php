@@ -95,6 +95,10 @@ class WorkspaceWidget_Worklist extends Extension_WorkspaceWidget implements ICer
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/worklist/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		

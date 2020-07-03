@@ -84,4 +84,8 @@ class ProfileWidget_BehaviorTree extends Extension_ProfileWidget {
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/behavior_tree/config.tpl');
 	}
+	
+	function invokeConfig($config_action, Model_ProfileWidget $model) {
+		return false;
+	}
 }

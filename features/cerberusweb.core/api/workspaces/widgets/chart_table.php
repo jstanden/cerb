@@ -70,6 +70,10 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/table/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		

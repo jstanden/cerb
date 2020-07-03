@@ -244,6 +244,10 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/fields/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
+	
 	private function _getSearchButtons(Model_ProfileWidget $model, DevblocksDictionaryDelegate $dict=null) {
 		@$search = $model->extension_params['search'] ?: [];
 		

@@ -62,6 +62,10 @@ class WorkspaceWidget_Counter extends Extension_WorkspaceWidget implements ICerb
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/counter/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', array());
 		

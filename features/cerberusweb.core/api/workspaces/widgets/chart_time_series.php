@@ -168,6 +168,10 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/chart/timeseries/config.tpl');
 	}
 	
+	function invokeConfig($action, Model_WorkspaceWidget $model) {
+		return false;
+	}
+	
 	function saveConfig(Model_WorkspaceWidget $widget) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		

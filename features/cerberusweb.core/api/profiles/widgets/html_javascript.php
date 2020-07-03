@@ -43,4 +43,8 @@ class ProfileWidget_CustomHtml extends Extension_ProfileWidget {
 		$tpl->assign('widget', $model);
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/html/config.tpl');
 	}
+	
+	function invokeConfig($action, Model_ProfileWidget $model) {
+		return false;
+	}
 }
