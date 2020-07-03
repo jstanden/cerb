@@ -103,8 +103,8 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 			->setUnique(get_class())
 			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
-				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum(DevblocksPlatform::strLower($string), '_'))) {
-					$error = "may only contain lowercase letters, numbers, and underscores";
+				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '_'))) {
+					$error = "may only contain letters, numbers, and underscores";
 					return false;
 				}
 				
