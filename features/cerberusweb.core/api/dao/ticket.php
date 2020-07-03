@@ -5044,6 +5044,13 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
+		$keys['group'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'The [group](/docs/records/types/group/) of the ticket; alternative to `group_id`',
+			'type' => 'string',
+		];
+		
 		$keys['org'] = [
 			'is_immutable' => false,
 			'is_required' => false,
@@ -5093,6 +5100,15 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
 		$dict_key = DevblocksPlatform::strLower($key);
 		switch($dict_key) {
+			case 'group':
+				if(false == ($group_id = DAO_Group::getByName($value))) {
+					$error = sprintf("Failed to lookup group: %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Ticket::GROUP_ID] = $group_id;
+				break;
+				
 			case 'org':
 				if(false == ($org_id = DAO_ContactOrg::lookup($value, true))) {
 					$error = sprintf("Failed to lookup org: %s", $value);
