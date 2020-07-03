@@ -43,7 +43,12 @@
 		</tbody>
 	{/foreach}
 	</table>
-	
+	{else}
+		<div>
+			({'common.data.no'|devblocks_translate|lower})
+		</div>
+	{/if}
+
 	{if $paging}
 	<div style="text-align:right;margin-top:5px;">
 		{if array_key_exists('first', $paging.page)}<a href="javascript:;" class="cerb-paging" data-page="{$paging.page.first}">&lt;&lt;</a>{/if}

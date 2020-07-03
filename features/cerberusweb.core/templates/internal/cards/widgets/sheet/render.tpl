@@ -44,6 +44,10 @@
 		</tbody>
 	{/foreach}
 	</table>
+	{else}
+		<div>
+			({'common.data.no'|devblocks_translate|lower})
+		</div>
 	{/if}
 	
 	{if $buttons}
