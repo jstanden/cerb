@@ -3,11 +3,10 @@
 
 {if $attachments}
 <fieldset class="properties" style="padding:5px 0;border:0;">
-	<legend>{'common.attachments'|devblocks_translate|capitalize}</legend>
-
 	<ul id="{$attach_uniqid}" class="bubbles" style="display:block;">
 		{foreach from=$attachments item=attachment}
 		<li>
+			<span class="glyphicons glyphicons-paperclip" style="vertical-align:baseline;"></span>
 			<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ATTACHMENT}" data-context-id="{$attachment->id}" data-profile-url="{devblocks_url}c=files&id={$attachment->id}&name={$attachment->name|devblocks_permalink}{/devblocks_url}">
 				<b>{$attachment->name}</b>
 				({$attachment->storage_size|devblocks_prettybytes}
