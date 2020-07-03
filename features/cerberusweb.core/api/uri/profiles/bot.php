@@ -645,6 +645,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$values = $dict->getDictionary(null, false);
 		$values = array_diff_key($values, $event->getValues());
 		
+		$tpl->assign('layer', $layer);
+		
 		// Hibernate
 		if($result['exit_state'] == 'SUSPEND') {
 			// Keep everything as it is
@@ -676,7 +678,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$tpl->assign('bot', $bot);
 		$tpl->assign('bot_name', $bot_name);
-		$tpl->assign('layer', $layer);
 		
 		foreach($actions as $params) {
 			// Are we handling the next response message in a special way?
