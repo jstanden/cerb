@@ -121,8 +121,9 @@
 		{if !empty($message->response_time)}
 			<span style="margin-left:10px;color:rgb(100,140,25);">Replied in {$message->response_time|devblocks_prettysecs:2}</span>
 		{/if}
-		<br>
 	</div>
+
+	<div style="clear:both;{if $expanded}margin-bottom:1em;{else}margin-bottom:0.5em;{/if}"></div>
 
 	{if $expanded}
 	<div style="clear:both;display:block;padding-top:10px;">
