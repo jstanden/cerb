@@ -82,8 +82,15 @@ class _DevblocksUrlManager {
 			}
 		}, array_keys($args));
 		
-		$query = http_build_query(array_combine($arg_keys, $args));
-		return $query;
+		return http_build_query(array_combine($arg_keys, $args));
+	}
+	
+	function arrayToQueryString(array $args) {
+		return preg_replace(
+			'/%5B[0-9]+%5D/simU',
+			'%5B%5D',
+			http_build_query($args)
+		);
 	}
 	
 	function write($sQuery='',$full=false,$check_proxy=true) {

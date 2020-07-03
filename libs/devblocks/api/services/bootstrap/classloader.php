@@ -245,6 +245,10 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/translation.php', array(
 			'_DevblocksTranslationManager',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/ui.php', array(
+			'_DevblocksUiManager',
+			'DevblocksUiToolbar',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/url.php', array(
 			'_DevblocksUrlManager',
 			'Cerb_HTMLPurifier_URIFilter_Email',

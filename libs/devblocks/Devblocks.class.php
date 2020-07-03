@@ -242,6 +242,13 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 * @return _DevblocksUiManager
+	 */
+	function ui() {
+		return _DevblocksUiManager::getInstance();
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksUrlManager
 	 */
