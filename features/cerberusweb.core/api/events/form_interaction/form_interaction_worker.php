@@ -665,6 +665,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				@$record_type = $tpl_builder->build($params['record_type'], $dict);
 				@$record_query = $tpl_builder->build($params['record_query'], $dict);
 				@$record_query_required = $tpl_builder->build($params['record_query_required'], $dict);
+				@$default = DevblocksPlatform::parseCrlfString($tpl_builder->build($params['default'], $dict));
 				@$var = $params['var'];
 				@$var_validate = $params['var_validate'];
 				
@@ -681,6 +682,7 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					'record_type' => $record_type,
 					'record_query' => $record_query,
 					'record_query_required' => $record_query_required,
+					'default' => $default,
 				];
 				break;
 				

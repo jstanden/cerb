@@ -481,14 +481,32 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					@$record_query_required = $params['record_query_required'];
 					@$selection = $params['selection'];
 					@$autocomplete = !empty($params['autocomplete']);
+					@$default = $params['default'];
+				
+					if(!$behavior_dict->exists($var)) {
+						$records = [];
 					
-					$records = array_map(function($record) {
-						if($record instanceof DevblocksDictionaryDelegate)
-							return $record;
+						if(is_array($default) && $default) {
+							foreach($default as $record_id) {
+								$records[] = DevblocksDictionaryDelegate::instance([
+									'_context' => $record_type,
+									'id' => $record_id,
+								]);
 						
-						return DevblocksDictionaryDelegate::instance($record);
-					}, $behavior_dict->get($var,[]));
+								if('single' == $selection)
+									break;
+							}
+						}
 					
+					} else {
+						$records = array_map(function($record) {
+							if($record instanceof DevblocksDictionaryDelegate)
+								return $record;
+						
+							return DevblocksDictionaryDelegate::instance($record);
+						}, $behavior_dict->get($var,[]));
+					}
+				
 					$tpl->assign('label', $label);
 					$tpl->assign('record_type', $record_type);
 					$tpl->assign('record_query', $record_query);
