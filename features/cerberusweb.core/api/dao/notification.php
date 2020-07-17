@@ -819,15 +819,50 @@ class Model_Notification {
 	public $entry_json;
 	
 	public function getURL() {
+		$url_writer = DevblocksPlatform::services()->url();
+		
 		$url = null;
 		
+		// Specific handling for comments on tickets
+		if('comment.create' == $this->activity_point) {
+			$ctx_ticket = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET, true);
+			$entry = json_decode($this->entry_json, true);
+			
+			if(array_key_exists('urls', $entry) && array_key_exists('common.commented', $entry['urls'])) {
+				$ctx_parts = CerberusContexts::parseContextUrl($entry['urls']['common.commented']);
+				
+				if(array_key_exists('id', $ctx_parts)) {
+					// Comment on a reply draft
+					if($this->context == CerberusContexts::CONTEXT_DRAFT) {
+						if(false != ($model = DAO_MailQueue::get($this->context_id))) {
+							if($model->ticket_id) {
+								$url = $ctx_ticket->profileGetUrl($model->ticket_id);
+								$url .= '#comment' . $ctx_parts['id'];
+							}
+						}
+						
+					// Comment on a ticket message
+					} else if($this->context == CerberusContexts::CONTEXT_MESSAGE) {
+						if(false != ($model = DAO_Message::get($this->context_id))) {
+							if($model->ticket_id) {
+								$url = $ctx_ticket->profileGetUrl($model->ticket_id);
+								$url .= '#comment' . $ctx_parts['id'];
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		// Invoke context class
-		if(!empty($this->context)) {
+		if(!$url && $this->context) {
 			if(null != ($ctx = Extension_DevblocksContext::get($this->context))) { /* @var $ctx Extension_DevblocksContext */
-				if($ctx instanceof IDevblocksContextProfile) { /* @var $ctx IDevblocksContextProfile */
+				if($ctx instanceof IDevblocksContextProfile) {
+					/* @var $ctx IDevblocksContextProfile */
 					$url = $ctx->profileGetUrl($this->context_id);
-					
-				} else {
+				}
+				
+				if(!$url) {
 					$meta = $ctx->getMeta($this->context_id);
 					if(isset($meta['permalink']) && !empty($meta['permalink']))
 						$url = $meta['permalink'];
@@ -835,8 +870,7 @@ class Model_Notification {
 			}
 		}
 		
-		if(empty($url)) {
-			$url_writer = DevblocksPlatform::services()->url();
+		if(!$url) {
 			$url = $url_writer->write('c=profiles&obj=worker&who=me&what=notifications', true);
 		}
 		
