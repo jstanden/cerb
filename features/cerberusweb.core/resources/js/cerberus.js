@@ -3309,37 +3309,11 @@ var ajax = new cAjaxCalls();
 			$trigger.on('click', function(e) {
 				e.stopPropagation();
 				
+				var interaction_uri = $trigger.attr('data-interaction-uri');
 				var interaction = $trigger.attr('data-interaction');
 				var interaction_params = $trigger.attr('data-interaction-params');
 				var behavior_id = $trigger.attr('data-behavior-id');
-				
-				var data = {
-					"interaction": interaction,
-					"browser": {
-						"url": window.location.href,
-					},
-					"params": {}
-				};
-				
-				if(interaction_params && interaction_params.length > 0) {
-					var parts = interaction_params.split('&');
-					for(var idx in parts) {
-						var keyval = parts[idx].split('=');
-						data.params[keyval[0]] = decodeURIComponent(keyval[1]);
-					}
-				}
-				
-				if(null != behavior_id) {
-					data.behavior_id = behavior_id;
-				}
-				
-				// @deprecated
-				$.each(this.attributes, function() {
-					if('data-interaction-param-' == this.name.substring(0,23)) {
-						data.params[this.name.substring(23)] = this.value;
-					}
-				});
-				
+
 				var layer = Devblocks.uniqueId();
 
 				var formData = new FormData();
@@ -3348,9 +3322,80 @@ var ajax = new cAjaxCalls();
 				formData.set('module', 'bot');
 				formData.set('action', 'startInteraction');
 
-				Devblocks.objectToFormData(data, formData);
+				formData.set('interaction', interaction);
+				formData.set('browser[url]', window.location.href);
 
-				genericAjaxPopup(layer,formData, null, false, '300');
+				if(null != interaction_uri)
+					formData.set('interaction_uri', interaction_uri);
+
+				if(null != behavior_id)
+					formData.set('behavior_id', behavior_id);
+
+				if(interaction_params && interaction_params.length > 0) {
+					var parts = new URLSearchParams(interaction_params);
+
+					for(var pair of parts.entries()) {
+						if('[]' === pair[0].substr(-2)) {
+							formData.append('params[' + pair[0].slice(0,-2) + '][]', pair[1]);
+						} else {
+							formData.set('params[' + pair[0] + ']', pair[1]);
+						}
+					}
+				}
+
+				// @deprecated
+				$.each(this.attributes, function() {
+					if('data-interaction-param-' === this.name.substring(0,23)) {
+						formData.append('params[' + this.name.substring(23) + ']', this.value);
+					}
+				});
+
+				// Do we start the interaction inline or in a popup?
+
+				if(options && options.container) {
+					formData.set('interaction_style', 'inline');
+					genericAjaxPost(formData, null, null, function(html) {
+						var $html = $('<div/>')
+							.on('cerb-interaction-reset', function(e) {
+								e.stopPropagation();
+								if(options && options.reset && 'function' == typeof options.reset) {
+									options.reset($.Event(e));
+								}
+							})
+							.on('cerb-interaction-done', function(e) {
+								e.stopPropagation();
+								if(options && options.done && 'function' == typeof options.done) {
+									options.done($.Event('cerb-interaction-done', { trigger: $trigger }));
+								}
+							})
+							.html(html)
+						;
+						options.container.html($html);
+					});
+
+				} else {
+					// [TODO] If mobile, use 100% width
+					var $popup = genericAjaxPopup(layer, formData, null, false, '50%');
+
+					$popup
+						.on('cerb-interaction-reset', function(e) {
+							e.stopPropagation();
+
+							if(options && options.reset && 'function' == typeof options.reset) {
+								options.reset($.Event(e));
+							}
+						})
+						.on('cerb-interaction-done', function(e) {
+							e.stopPropagation();
+
+							if(options && options.done && 'function' == typeof options.done) {
+								options.done($.Event('cerb-interaction-done', { trigger: $trigger }));
+							}
+
+							genericAjaxPopupClose($popup);
+						})
+					;
+				}
 			});
 		});
 	}

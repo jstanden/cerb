@@ -15,6 +15,12 @@
 						{menu keys=$data->children level=$level+1}
 					</ul>
 				</li>
+			{elseif !is_null($data->interaction_id)}
+				<li class="cerb-bot-trigger" data-interaction-id="{$data->interaction_id}" data-interaction="{$data->interaction}" data-interaction-params="{http_build_query($data->params)}">
+					<div style="font-weight:bold;">
+						{$data->label}
+					</div>
+				</li>
 			{elseif !is_null($data->key)}
 				<li class="cerb-bot-trigger" data-behavior-id="{$data->key}" data-interaction="{$data->interaction}" data-interaction-params="{http_build_query($data->params)}">
 					<div style="font-weight:bold;">
