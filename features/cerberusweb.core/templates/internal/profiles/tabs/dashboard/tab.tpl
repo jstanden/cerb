@@ -125,7 +125,7 @@ $(function() {
 	
 	$container.on('cerb-widget-refresh', function(e) {
 		var widget_id = e.widget_id;
-		var refresh_options = (e.refresh_options && typeof e.refresh_options == 'object') ? e.refresh_options : {};
+		var refresh_options = (e.refresh_options && typeof e.refresh_options == 'object') ? e.refresh_options : { };
 
 		async.series([ async.apply(loadWidgetFunc, widget_id, false, refresh_options) ], function(err, json) {
 			// Done

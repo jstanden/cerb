@@ -20,7 +20,7 @@ $(function() {
         e.stopPropagation();
         var keycode = e.keyCode || e.which;
 
-        if(13 == keycode) {
+        if(13 === keycode) {
             e.preventDefault();
 
             var formData = new FormData();

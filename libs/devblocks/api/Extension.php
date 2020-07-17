@@ -40,7 +40,7 @@ trait DevblocksExtensionGetterTrait {
 	/**
 	 * @internal
 	 * @param string $extension_id
-	 * @return Extension_CustomField|DevblocksExtensionManifest|null
+	 * @return DevblocksExtensionManifest|null
 	 */
 	public static function get($extension_id, $as_instance=true) {
 		if($as_instance && isset(self::$_registry[$extension_id]))

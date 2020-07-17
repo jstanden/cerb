@@ -48,8 +48,6 @@
                 {/if}
             </table>
 
-            {*include file="devblocks:cerberusweb.core::internal/peek/peek_editor_workflow.tpl" peek_context=$peek_context peek_context_id=$peek_context_id automation_triggers=['example']*}
-
             {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
             {if !empty($model->id)}
@@ -183,13 +181,6 @@
                 if(keycode == 27)
                     return confirm('{'warning.core.editor.close'|devblocks_translate}');
             });
-
-            // Editors
-            /*
-            $popup.find('.cerb-automation-editor-trigger')
-                .cerbAutomationEditorTrigger()
-                ;
-            */
 
             // [UI] Editor behaviors
             {include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}

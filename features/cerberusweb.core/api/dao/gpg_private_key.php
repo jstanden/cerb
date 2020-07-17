@@ -478,24 +478,6 @@ class Model_GpgPrivateKey {
 	public $updated_at;
 	public $key_text;
 	public $passphrase_encrypted;
-	
-	/*
-	private $_automations = [];
-	
-	// Load and cache the automation
-	function getAutomation($trigger_name) {
-		if(!array_key_exists($trigger_name, $this->_automations)) {
-			if(false == ($automation = DAO_Automation::getByRecordTypeIdTrigger(Context_GpgPrivateKey::ID, $this->id, $trigger_name))) {
-				$this->_automations[$trigger_name] = false;
-				
-			} else {
-				$this->_automations[$trigger_name] = $automation;
-			}
-		}
-		
-		return $this->_automations[$trigger_name];
-	}
-	*/
 };
 
 class View_GpgPrivateKey extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

@@ -70,8 +70,8 @@ class DevblocksValidationField {
 	}
 	
 	/**
-	 * 
-	 * @return _DevblocksValidationTypeNumber
+	 *
+	 * @return _DevblocksValidationTypeIdArray
 	 */
 	function idArray() {
 		$this->_type = new _DevblocksValidationTypeIdArray('idArray');
@@ -79,7 +79,7 @@ class DevblocksValidationField {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return _DevblocksValidationTypeString
 	 */
 	function image($type='image/png', $min_width=1, $min_height=1, $max_width=1000, $max_height=1000, $max_size=512000) {
@@ -101,7 +101,7 @@ class DevblocksValidationField {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return _DevblocksValidationTypeString
 	 */
 	function string($options = 0) {
@@ -143,7 +143,7 @@ class DevblocksValidationField {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return _DevblocksValidationTypeNumber
 	 */
 	function uint($bytes=4) {

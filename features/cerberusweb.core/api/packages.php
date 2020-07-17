@@ -923,7 +923,6 @@ class Cerb_Packages {
 		
 		unset($json['package']);
 		
-		$findTemplates = null;
 		$findTemplates = function($array) use (&$findTemplates, $tpl_builder, $placeholders, $lexer) {
 			$result = [];
 			

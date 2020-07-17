@@ -695,8 +695,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 			case 'prompt_captcha':
 				$actions =& $dict->_actions;
 				
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				
 				@$var = $params['var'];
 				
 				$label = 'Please prove you are not a robot:';

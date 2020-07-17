@@ -1762,7 +1762,7 @@ class CerberusMail {
 		// Events
 		if(!empty($message_id)) {
 			// After message sent (global)
-			Event_MailAfterSent::trigger($message_id, $group->id);
+			Event_MailAfterSent::trigger($message_id);
 			
 			// After message sent in group
 			Event_MailAfterSentByGroup::trigger($message_id, $group->id);

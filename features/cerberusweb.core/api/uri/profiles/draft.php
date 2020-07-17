@@ -625,7 +625,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
 			return false;
 		
-		$drafts_ext = DevblocksPlatform::getExtension('core.page.profiles.draft', true, true);
+		$drafts_ext = DevblocksPlatform::getExtension('core.page.profiles.draft', true);
 		
 		$error = null;
 		

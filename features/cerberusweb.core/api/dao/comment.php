@@ -1378,8 +1378,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=comment&id='.$context_id, true);
-		return $url;
+		return $url_writer->writeNoProxy('c=profiles&type=comment&id='.$context_id, true);
 	}
 	
 	function profileGetFields($model=null) {

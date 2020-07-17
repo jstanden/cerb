@@ -52,7 +52,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$page = DevblocksPlatform::importGPC($_REQUEST['page'], 'integer', 0);
+		@$page = DevblocksPlatform::importGPC($_POST['page'], 'integer', 0);
 		
 		$error = null;
 		

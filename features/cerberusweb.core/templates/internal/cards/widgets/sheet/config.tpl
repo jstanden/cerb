@@ -71,8 +71,6 @@
 			</fieldset>
 		</div>
 	</fieldset>
-	
-	{*include file="devblocks:cerberusweb.core::internal/peek/peek_editor_workflow.tpl" peek_context=CerberusContexts::CONTEXT_CARD_WIDGET peek_context_id=$widget->id automation_triggers=['cardWidgetSheet']*}
 </div>
 
 <script type="text/javascript">
@@ -92,12 +90,7 @@ $(function() {
 		;
 	
 	// Editors
-	/*
-	$config.find('.cerb-automation-editor-trigger')
-		.cerbAutomationEditorTrigger()
-		;
-	 */
-	
+
 	$config.find('textarea.cerb-data-query-editor-placeholders')
 		.cerbCodeEditor()
 		.nextAll('pre.ace_editor')

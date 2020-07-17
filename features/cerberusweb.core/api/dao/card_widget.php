@@ -547,24 +547,6 @@ class Model_CardWidget {
 	public $width_units;
 	public $zone;
 	
-	/*
-	private $_automations = [];
-	
-	// Load and cache the automation
-	function getAutomation($trigger_name) {
-		if(!array_key_exists($trigger_name, $this->_automations)) {
-			if(false == ($automation = DAO_Automation::getByRecordTypeIdTrigger(Context_CardWidget::ID, $this->id, $trigger_name))) {
-				$this->_automations[$trigger_name] = false;
-				
-			} else {
-				$this->_automations[$trigger_name] = $automation;
-			}
-		}
-		
-		return $this->_automations[$trigger_name];
-	}
-	*/
-	
 	/**
 	 * @return Extension_CardWidget|null
 	 */

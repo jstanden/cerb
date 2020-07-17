@@ -144,7 +144,7 @@ class WorkspaceWidget_ChartCategories extends Extension_WorkspaceWidget implemen
 		));
 	}
 	
-		// Export
+	// Export
 	
 	function exportData(Model_WorkspaceWidget $widget, $format=null) {
 		switch(DevblocksPlatform::strLower($format)) {

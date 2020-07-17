@@ -1,4 +1,7 @@
 <?php
+/**
+ * Class WorkspaceWidget_FormInteraction
+ */
 class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	public function invoke(string $action, Model_WorkspaceWidget $model) {
 		$active_worker = CerberusApplication::getActiveWorker();

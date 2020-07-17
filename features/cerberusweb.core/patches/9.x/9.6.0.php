@@ -8,7 +8,6 @@ $tables = $db->metaTables();
 $packages = [
 	'cerb_bot_behavior_auto_reply.json',
 	'cerb_bot_behavior_form_interaction_worker.json',
-	'cerb_connected_service_yahoo.json',
 	'cerb_profile_widget_ticket_participants.json',
 	'cerb_project_board_kanban.json',
 	'cerb_workspace_page_reports.json',

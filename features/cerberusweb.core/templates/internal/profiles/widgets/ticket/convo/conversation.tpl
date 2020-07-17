@@ -220,7 +220,7 @@ $(function() {
 	
 	if('message' === anchor.substr(0,7) || 'comment' === anchor.substr(0,7) || 'draft' === anchor.substr(0,5)) {
 		var $anchor = $('#' + anchor);
-		
+
 		if($anchor.length > 0) {
 			var offset = $anchor.offset();
 			window.scrollTo(offset.left, offset.top);

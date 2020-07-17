@@ -268,7 +268,7 @@
 </div>
 
 <div class="submit-normal">
-	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'display.ui.send_message'|devblocks_translate}</button>
+	<button type="button" class="submit" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-send"></span> {'display.ui.send_message'|devblocks_translate}</button>
 	<button type="button" class="draft"><span class="glyphicons glyphicons-disk-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
 	<button type="button" class="discard"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(180,0,0);"></span> {'common.discard'|devblocks_translate|capitalize}</button>
 </div>

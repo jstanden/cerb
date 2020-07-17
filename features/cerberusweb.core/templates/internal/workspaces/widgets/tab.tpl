@@ -338,7 +338,7 @@ $(function() {
 	var tick = function() {
 		var $dashboard = $('#workspaceTab{$model->id}');
 		
-		if($dashboard.length == 0 || !$dashboard.is(':visible')) {
+		if($dashboard.length === 0 || !$dashboard.is(':visible')) {
 			clearInterval(window.dashboardTimer{$model->id});
 			delete window.dashboardTimer{$model->id};
 			return;

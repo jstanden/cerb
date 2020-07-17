@@ -1322,6 +1322,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	/**
 	 *
+	 * @param array $columns
 	 * @param DevblocksSearchCriteria[] $params
 	 * @param integer $limit
 	 * @param integer $page

@@ -87,22 +87,6 @@ $(function() {
             genericAjaxPopupClose($popup);
         });
 
-        {*
-        $popup.find('[data-cerb-button=refresh]').on('click', function(e) {
-            e.stopPropagation();
-
-            var formData = new FormData();
-            formData.set('c', 'profiles');
-            formData.set('a', 'invoke');
-            formData.set('module', 'message');
-            formData.set('action', 'renderImagesPopup');
-            formData.set('id', '{$message->id}');
-            formData.set('type', 'images');
-
-            genericAjaxPopup($layer, formData, 'reuse');
-        });
-        *}
-
         $popup.find('[data-cerb-button=trust]').on('click', function(e) {
             e.stopPropagation();
 

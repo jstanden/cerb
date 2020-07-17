@@ -142,7 +142,7 @@ class CerberusParserModel {
 	}
 	
 	/**
-	 * @return Model_Address|null
+	 * @return void
 	 */
 	private function _parseHeadersFrom() {
 		try {
@@ -180,14 +180,14 @@ class CerberusParserModel {
 							$this->setSenderWorkerModel($fromWorker);
 					}
 					
-					return null;
+					return;
 				}
 			}
 			
 		} catch (Exception $e) {
 			$this->_sender_address_model = null;
 			$this->_sender_worker_model = null;
-			return null;
+			return;
 		}
 	}
 	
