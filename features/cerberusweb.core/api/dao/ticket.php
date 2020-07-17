@@ -653,6 +653,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		if(!isset($fields[self::MASK]))
 			$fields[self::MASK] = CerberusApplication::generateTicketMask();
 		
+		if(!isset($fields[self::IMPORTANCE]))
+			$fields[self::IMPORTANCE] = 50;
+		
 		$sql = sprintf("INSERT INTO ticket (created_date, updated_date) ".
 			"VALUES (%d,%d)",
 			time(),

@@ -824,7 +824,6 @@ class CerberusMail {
 			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
 			DAO_Ticket::ORG_ID => intval($org_id),
-			DAO_Ticket::IMPORTANCE => 50,
 		);
 		
 		$ticket_id = DAO_Ticket::create($fields);
