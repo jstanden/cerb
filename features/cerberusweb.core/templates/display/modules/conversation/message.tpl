@@ -126,7 +126,7 @@
 	<div style="clear:both;{if $expanded}margin-bottom:1em;{else}margin-bottom:0.5em;{/if}"></div>
 
 	{if $expanded}
-	<div style="clear:both;display:block;padding-top:10px;">
+	<div style="clear:both;display:block;">
 		{$filtering_results = null}
 		{$html_body = null}
 
