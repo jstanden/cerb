@@ -117,6 +117,9 @@ class DAO_Task extends Cerb_ORMHelper {
 		if(!isset($fields[DAO_Task::CREATED_AT]))
 			$fields[DAO_Task::CREATED_AT] = time();
 		
+		if(!isset($fields[DAO_Task::IMPORTANCE]))
+			$fields[DAO_Task::IMPORTANCE] = 50;
+		
 		self::update($id, $fields);
 		
 		if(!empty($custom_fields)) {
