@@ -2009,6 +2009,14 @@ UL.ui-menu li.ui-state-focus {
   background: whitesmoke;
   border: 0;
 }
+.cerb-code-editor-toolbar .cerb-code-editor-toolbar-button img {
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+}
+.cerb-code-editor-toolbar .cerb-code-editor-toolbar-button img:hover {
+  filter: grayscale(0%);
+  -webkit-filter: grayscale(0%);
+}
 .cerb-code-editor-toolbar .cerb-code-editor-toolbar-button.cerb-code-editor-toolbar-button--enabled {
   background-color: #fadc4a;
 }
