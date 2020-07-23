@@ -1325,6 +1325,16 @@
 				<seg>Markdown</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.function">
+			<tuv xml:lang="en_US">
+				<seg>function</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.functions">
+			<tuv xml:lang="en_US">
+				<seg>functions</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.gender">
 			<tuv xml:lang="en_US">
 				<seg>gender</seg>
@@ -1461,6 +1471,16 @@
 		<tu tuid="common.inboxes">
 			<tuv xml:lang="en_US">
 				<seg>inboxes</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.input">
+			<tuv xml:lang="en_US">
+				<seg>input</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.inputs">
+			<tuv xml:lang="en_US">
+				<seg>inputs</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.instructions">
@@ -1648,6 +1668,11 @@
 				<seg>mobile</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.mode.state">
+			<tuv xml:lang="en_US">
+				<seg>state</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.month">
 			<tuv xml:lang="en_US">
 				<seg>month</seg>
@@ -1806,6 +1831,16 @@
 		<tu tuid="common.other">
 			<tuv xml:lang="en_US">
 				<seg>other</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.output">
+			<tuv xml:lang="en_US">
+				<seg>output</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.outputs">
+			<tuv xml:lang="en_US">
+				<seg>outputs</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.owner">
@@ -2378,6 +2413,11 @@
 				<seg>resume</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.resume.at">
+			<tuv xml:lang="en_US">
+				<seg>resume at</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.retry">
 			<tuv xml:lang="en_US">
 				<seg>retry</seg>
@@ -2431,6 +2471,21 @@
 		<tu tuid="common.saved_searches">
 			<tuv xml:lang="en_US">
 				<seg>saved searches</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.schema">
+			<tuv xml:lang="en_US">
+				<seg>schema</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.scope">
+			<tuv xml:lang="en_US">
+				<seg>scope</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.scopes">
+			<tuv xml:lang="en_US">
+				<seg>scopes</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.script">
@@ -2698,6 +2753,16 @@
 				<seg>Target</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.target.type">
+			<tuv xml:lang="en_US">
+				<seg>Target Type</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.target.id">
+			<tuv xml:lang="en_US">
+				<seg>Target ID</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.targets">
 			<tuv xml:lang="en_US">
 				<seg>targets</seg>
@@ -2783,6 +2848,16 @@
 				<seg>today</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.token">
+			<tuv xml:lang="en_US">
+				<seg>token</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.tokens">
+			<tuv xml:lang="en_US">
+				<seg>tokens</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.total">
 			<tuv xml:lang="en_US">
 				<seg>total</seg>
@@ -2796,6 +2871,16 @@
 		<tu tuid="common.training">
 			<tuv xml:lang="en_US">
 				<seg>training</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.trigger">
+			<tuv xml:lang="en_US">
+				<seg>trigger</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.triggers">
+			<tuv xml:lang="en_US">
+				<seg>triggers</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.type">
