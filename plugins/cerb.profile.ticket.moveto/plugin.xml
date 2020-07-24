@@ -11,13 +11,13 @@
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.5" max="9.5.99" />
+		<app_version min="9.6" max="9.6.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="9.4" />
+		<require plugin_id="cerberusweb.core" />
 	</dependencies>
 
 	<!-- Extensions -->

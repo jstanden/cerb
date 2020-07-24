@@ -4,20 +4,20 @@
 	<name>Knowledgebase</name>
 	<description>Create and categorize articles to share knowledge between workers or your community.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>9.5.5</version>
+	<version>9.6.0</version>
 	<link>http://wiki.cerbweb.com/Features:Knowledgebase</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="9.5" max="9.5.99" />
+		<app_version min="9.6" max="9.6.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="9.4" />
+		<require plugin_id="cerberusweb.core" />
 	</dependencies>
 	
 	<!-- Patches -->
