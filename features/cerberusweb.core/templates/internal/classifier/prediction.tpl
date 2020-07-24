@@ -104,14 +104,13 @@ $(function() {
 	var $container = $('#{$div_id}');
 	var $parent = $container.closest('div.output');
 	var $popup = genericAjaxPopupFind($container);
-	var $layer = $popup.attr('data-layer');
 
 	$container.find('.cerb-peek-trigger').cerbPeekTrigger();
 	
 	$container.find('.cerb-train-trigger')
 		.cerbPeekTrigger()
-			.on('cerb-peek-saved', function() {
-				$parent.trigger('cerb-peek-saved');
+			.on('cerb-peek-saved', function(e) {
+				$parent.trigger($.Event('cerb-widgets-refresh'));
 			})
 		;
 
@@ -120,8 +119,8 @@ $(function() {
 		.click(function() {
 			var $import_popup = genericAjaxPopup('classifier_import','c=profiles&a=invoke&module=classifier&action=showImportPopup&classifier_id={$prediction.classifier.id}',null,false,'50%');
 
-			$import_popup.on('dialogclose', function() {
-				genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_CLASSIFIER}&context_id={$prediction.classifier.id}','reuse',false,'50%');
+			$import_popup.on('popup_close', function() {
+				$popup.triggerHandler($.Event('cerb-widgets-refresh'));
 			});
 		})
 		;

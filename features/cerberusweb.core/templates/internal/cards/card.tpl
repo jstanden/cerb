@@ -60,7 +60,7 @@ $(function() {
     var $popup = genericAjaxPopupFind($div);
     var $layer = $popup.attr('data-layer');
 
-    $popup.one('popup_open',function(event,ui) {
+    $popup.one('popup_open',function() {
         $popup.dialog('option','title', "{$record_aliases.singular|capitalize|escape:'javascript' nofilter}");
         $popup.css('overflow', 'inherit');
 
@@ -71,7 +71,7 @@ $(function() {
             .on('cerb-peek-saved', function(e) {
                 $popup.trigger($.Event(e));
 
-                genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+                $popup.trigger($.Event('cerb-widgets-refresh'));
             })
             .on('cerb-peek-deleted', function(e) {
                 $popup.trigger($.Event(e));
@@ -85,7 +85,7 @@ $(function() {
         $popup.find('button.cerb-peek-comments-add')
             .cerbPeekTrigger()
             .on('cerb-peek-saved', function() {
-                genericAjaxPopup($layer,'c=internal&a=invoke&module=records&action=showPeekPopup&context={$peek_context}&context_id={$dict->id}&view_id={$view_id}','reuse',false,'50%');
+                $popup.trigger($.Event('cerb-widgets-refresh'));
             })
         ;
 

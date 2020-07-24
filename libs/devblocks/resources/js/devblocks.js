@@ -1144,10 +1144,11 @@ function genericAjaxPopup($layer,request,target,modal,width,cb) {
 			$dialog.css('height', 'auto');
 		},
 		close: function(event, ui) {
-			var $this = $(this);
+			var $popup = $(this);
+			$popup.triggerHandler($.Event('popup_close'));
 			$('#devblocksPopups').removeData($layer);
-			$this.unbind().find(':focus').blur();
-			$this.closest('.ui-dialog').remove();
+			$popup.unbind().find(':focus').blur();
+			$popup.closest('.ui-dialog').remove();
 		}
 	};
 	
