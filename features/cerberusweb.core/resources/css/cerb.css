@@ -52,11 +52,20 @@ FIELDSET H1 {
 }
 FIELDSET LEGEND {
   color: #007800;
+  padding: 0 5px 0 0;
   font-size: 120%;
   font-weight: bold;
 }
 FIELDSET LEGEND A {
   color: #007800;
+}
+FIELDSET LEGEND span.glyphicons {
+  vertical-align: baseline;
+  color: #afafaf;
+  margin-left: 5px;
+}
+FIELDSET LEGEND span.glyphicons:hover {
+  color: #646464;
 }
 FIELDSET P {
   padding: 0px;
@@ -1380,16 +1389,6 @@ FIELDSET.block-cell {
 FIELDSET.block-cell legend {
   color: #007800;
   margin: 0;
-  padding: 0 5px 0 5px;
-  font-weight: bold;
-}
-FIELDSET.block-cell legend span.glyphicons {
-  vertical-align: baseline;
-  color: #afafaf;
-  margin-left: 5px;
-}
-FIELDSET.block-cell legend span.glyphicons:hover {
-  color: #646464;
 }
 
 FIELDSET.no-legend {

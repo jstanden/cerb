@@ -35,7 +35,7 @@
 		{$seq = null}
 		{if $model && isset($model->params.actions) && is_array($model->params.actions)}
 		{foreach from=$model->params.actions item=params key=seq}
-		<fieldset id="action{$seq}_{$nonce}" class="cerb-bot-action block-cell">
+		<fieldset id="action{$seq}_{$nonce}" class="cerb-bot-action">
 			<legend class="cerb-bot-action--title" style="font-size:135%;">
 				{if $actions[$params.action]}{$actions[$params.action].label}{else}(missing action: {$params.action}){/if}<!--
 				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span><!--
@@ -475,7 +475,7 @@ $(function() {
 					if(null == seq)
 						seq = 0;
 
-					var $container = $('<fieldset class="cerb-bot-action block-cell" />').attr('id','action' + seq + '_{$nonce}').addClass('cerb-bot-action');
+					var $container = $('<fieldset class="cerb-bot-action" />').attr('id','action' + seq + '_{$nonce}').addClass('cerb-bot-action');
 					$container.prepend('<legend class="cerb-bot-action--title" style="font-size:135%;">'
 						+ label
 						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span>'

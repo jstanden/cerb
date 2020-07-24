@@ -50,11 +50,22 @@ FIELDSET {
 
 	LEGEND {
 		color: $green;
+		padding: 0 5px 0 0;
 		font-size: 120%;
 		font-weight: bold;
 
 		A {
 			color: $green;
+		}
+
+		span.glyphicons {
+			vertical-align: baseline;
+			color: rgb(175,175,175);
+			margin-left: 5px;
+
+			&:hover {
+				color:rgb(100,100,100);
+			}
 		}
 	}
 

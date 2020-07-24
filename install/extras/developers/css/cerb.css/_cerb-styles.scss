@@ -1332,7 +1332,7 @@ FIELDSET.peek {
 
 	LEGEND {
 		color:$green;
-		
+
 		A {
 			color:inherit;
 		}
@@ -1354,18 +1354,6 @@ FIELDSET.block-cell {
 	legend {
 		color: $green;
 		margin: 0;
-		padding: 0 5px 0 5px;
-		font-weight: bold;
-
-		span.glyphicons {
-			vertical-align: baseline;
-			color: rgb(175,175,175);
-			margin-left: 5px;
-
-			&:hover {
-				color:rgb(100,100,100);
-			}
-		}
 	}
 }
 
