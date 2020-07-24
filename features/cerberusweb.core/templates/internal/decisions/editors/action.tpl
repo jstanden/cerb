@@ -42,15 +42,17 @@
 				--><span data-cerb-onhover style="display:none;cursor:pointer;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-remove"></span></span>
 			</legend>
 
-			<input type="hidden" name="actions[]" value="{$seq}">
-			<input type="hidden" name="action{$seq}[action]" value="{$params.action}">
+			<div style="margin-left:10px;">
+				<input type="hidden" name="actions[]" value="{$seq}">
+				<input type="hidden" name="action{$seq}[action]" value="{$params.action}">
 
-			{if $actions.{$params.action}}
-				{$event->renderAction({$params.action},$trigger,$params,$seq)}
-			{else}
-				The defined action could not be found. It may no longer be supported, or its plugin may be disabled.
-				The action will be ignored by this behavior until it becomes available again.
-			{/if}
+				{if $actions.{$params.action}}
+					{$event->renderAction({$params.action},$trigger,$params,$seq)}
+				{else}
+					The defined action could not be found. It may no longer be supported, or its plugin may be disabled.
+					The action will be ignored by this behavior until it becomes available again.
+				{/if}
+			</div>
 		</fieldset>
 		{/foreach}
 		{/if}
@@ -479,11 +481,13 @@ $(function() {
 						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span>'
 						+ '<span data-cerb-onhover style="display:none;cursor:pointer;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-remove"></span></span>'
 					);
-					$container.append('<input type="hidden" name="actions[]" value="' + seq + '">');
-					$container.append('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
+					var $div = $('<div style="margin-left:10px;" />').appendTo($container);
 					$ul.append($container);
 					
-					var $html = $('<div/>').html(html);
+					var $html = $div.html(html);
+					$div.prepend('<input type="hidden" name="action'+seq+'[action]" value="' + token + '">');
+					$div.prepend('<input type="hidden" name="actions[]" value="' + seq + '">');
+
 					$container.append($html);
 					
 					$html.find('BUTTON.chooser_group.unbound').each(function() {
