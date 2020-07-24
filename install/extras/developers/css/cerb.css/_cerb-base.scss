@@ -78,8 +78,9 @@ FIELDSET {
 FORM {
 	margin: 0px;
 
-	INPUT[type=text], INPUT[type=password] {
+	INPUT[type=text], INPUT[type=password], INPUT[type=search] {
 		border: 1px solid rgb(150,150,150);
+		padding: 3px;
 
 		&:focus {
 			border: 1px solid rgb(121,183,231);
@@ -88,6 +89,7 @@ FORM {
 
 	TEXTAREA {
 		border: 1px solid rgb(150,150,150);
+		padding: 3px;
 
 		&:focus {
 			border: 1px solid rgb(121,183,231);
@@ -100,7 +102,6 @@ FORM {
 
 		padding: 2px 5px;
 		border: 1px solid rgb(200,200,200);
-		border-radius: 10px;
 		background: white none;
 
 		OPTGROUP {

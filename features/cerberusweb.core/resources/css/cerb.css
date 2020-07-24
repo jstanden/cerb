@@ -75,14 +75,16 @@ FIELDSET P {
 FORM {
   margin: 0px;
 }
-FORM INPUT[type=text], FORM INPUT[type=password] {
+FORM INPUT[type=text], FORM INPUT[type=password], FORM INPUT[type=search] {
   border: 1px solid #969696;
+  padding: 3px;
 }
-FORM INPUT[type=text]:focus, FORM INPUT[type=password]:focus {
+FORM INPUT[type=text]:focus, FORM INPUT[type=password]:focus, FORM INPUT[type=search]:focus {
   border: 1px solid #79b7e7;
 }
 FORM TEXTAREA {
   border: 1px solid #969696;
+  padding: 3px;
 }
 FORM TEXTAREA:focus {
   border: 1px solid #79b7e7;
@@ -92,7 +94,6 @@ FORM SELECT {
   -moz-appearance: menulist;
   padding: 2px 5px;
   border: 1px solid #c8c8c8;
-  border-radius: 10px;
   background: white none;
 }
 FORM SELECT OPTGROUP {
