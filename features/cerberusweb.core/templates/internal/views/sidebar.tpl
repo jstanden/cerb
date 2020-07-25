@@ -14,14 +14,14 @@
 			<td style="padding-right:10px;" nowrap="nowrap" valign="top">
 				{if $category.filter.query}
 					<a href="javascript:;" onclick="ajax.viewAddQuery('{$view_id}', '{$category.filter.query}', '{$category.filter.field}', true);">
-					<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:25}</span>
+					<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:32}</span>
 					</a>
 				{elseif $category.filter.field}
 					<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$category.filter.field}', '{$category.filter.oper}', { {foreach from=$category.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} }, '{$category.filter.field}');">
-					<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:25}</span>
+					<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:32}</span>
 					</a>
 				{else}
-					<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:25}</span>
+					<span style="font-weight:bold;" title="{$category.label}">{$category.label|truncate:32}</span>
 				{/if}
 			</td>
 			<td align="right" nowrap="nowrap" valign="top">
@@ -34,14 +34,14 @@
 			<td style="padding-left:10px;padding-right:10px;" nowrap="nowrap" valign="top">
 				{if $subcategory.filter.query}
 					<a href="javascript:;" onclick="ajax.viewAddQuery('{$view_id}', '{$subcategory.filter.query}', '{$subcategory.filter.field}');">
-					<span>{$subcategory.label|truncate:25}</span>
+					<span>{$subcategory.label|truncate:32}</span>
 					</a>
 				{elseif $subcategory.filter.field}
 					<a href="javascript:;" onclick="ajax.viewAddFilter('{$view_id}', '{$subcategory.filter.field}', '{$subcategory.filter.oper}', { {foreach from=$subcategory.filter.values name=values item=value key=key}'{$key}':'{$value|escape:'quotes'}'{if !$smarty.foreach.values.last},{/if}{/foreach} }, '{$subcategory.filter.field}');">
-					<span>{$subcategory.label|truncate:25}</span>
+					<span>{$subcategory.label|truncate:32}</span>
 					</a>
 				{else}
-					<span>{$subcategory.label|truncate:25}</span>
+					<span>{$subcategory.label|truncate:32}</span>
 				{/if}
 			</td>
 			<td align="right" nowrap="nowrap" valign="top">
