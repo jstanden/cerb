@@ -3978,14 +3978,10 @@ var ajax = new cAjaxCalls();
 		return this.each(function() {
 			var $trigger = $(this);
 			var $ul = $trigger.siblings('ul.chooser-container');
-			
-			var field_name = $trigger.attr('data-field-name');
-			var context = $trigger.attr('data-context');
 
 			// [TODO] If $ul is null, create it
 
 			$trigger.on('click', function() {
-				var field_name = $trigger.attr('data-field-name');
 				var context = $trigger.attr('data-context');
 				var worklist_columns = $trigger.attr('data-worklist-columns');
 
@@ -4015,9 +4011,10 @@ var ajax = new cAjaxCalls();
 				
 				$chooser.one('chooser_save', function(event) {
 					// Trigger a selected event
-					var evt = jQuery.Event('cerb-chooser-selected');
-					evt.labels = event.labels;
-					evt.values = event.values;
+					var evt = $.Event('cerb-chooser-selected', {
+						labels: event.labels,
+						values: event.values
+					});
 					$trigger.trigger(evt);
 					
 					if(typeof event.values == "object" && event.values.length > 0) {
@@ -4026,10 +4023,11 @@ var ajax = new cAjaxCalls();
 							$ul.find('li').remove();
 						
 						// Check for dupes
-						for(i in event.labels) {
-							var evt = jQuery.Event('bubble-create');
-							evt.label = event.labels[i];
-							evt.value = event.values[i];
+						for(var i in event.labels) {
+							var evt = $.Event('bubble-create', {
+								label: event.labels[i],
+								value: event.values[i]
+							});
 							$ul.trigger(evt);
 						}
 						
@@ -4048,17 +4046,17 @@ var ajax = new cAjaxCalls();
 			$ul.on('bubble-create', function(e) {
 				var field_name = $trigger.attr('data-field-name');
 				var context = $trigger.attr('data-context');
-				
+
 				e.stopPropagation();
 				var $label = e.label;
 				var $value = e.value;
 				var icon_url = e.icon;
 				
 				if(undefined != $label && undefined != $value) {
-					if(0 == $ul.find('input:hidden[value="'+$value+'"]').length) {
+					if(0 === $ul.find('input:hidden[value="'+$value+'"]').length) {
 						var $li = $('<li/>');
 						
-						var $a = $('<a/>')
+						$('<a/>')
 							.text($label)
 							.attr('href','javascript:;')
 							.attr('data-context',context)
@@ -4071,7 +4069,7 @@ var ajax = new cAjaxCalls();
 							var $img = $('<img class="cerb-avatar">').attr('src',icon_url).prependTo($li);
 						}
 						
-						var $hidden = $('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
+						$('<input type="hidden">').attr('name', field_name).attr('title', $label).attr('value', $value).appendTo($li);
 						var $a = $('<span class="glyphicons glyphicons-circle-remove"></span>').appendTo($li);
 						$ul.append($li);
 					}
@@ -4085,11 +4083,11 @@ var ajax = new cAjaxCalls();
 				$trigger.trigger('cerb-chooser-saved');
 			});
 			
+			var context = $trigger.attr('data-context');
+
 			// Create
 			if($trigger.attr('data-create')) {
-				var field_name = $trigger.attr('data-field-name');
-				var context = $trigger.attr('data-context');
-				var is_create_ifnull = $trigger.attr('data-create') == 'if-null';
+				var is_create_ifnull = $trigger.attr('data-create') === 'if-null';
 				
 				var $button = $('<button type="button"/>')
 					.addClass('chooser-create')
@@ -4123,7 +4121,7 @@ var ajax = new cAjaxCalls();
 					
 					$trigger.on('cerb-chooser-saved', function() {
 						// If we have zero bubbles, show autocomplete
-						if($ul.find('>li').length == 0) {
+						if(0 === $ul.find('>li')) {
 							$button.show();
 						} else { // otherwise, hide it.
 							$button.hide();
@@ -4131,16 +4129,14 @@ var ajax = new cAjaxCalls();
 					});
 				}
 			}
-			
+
 			// Autocomplete
 			if(undefined != $trigger.attr('data-autocomplete')) {
-				var field_name = $trigger.attr('data-field-name');
-				var context = $trigger.attr('data-context');
 				var is_single = $trigger.attr('data-single');
 				var placeholder = $trigger.attr('data-placeholder');
 				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete-if-empty');
 				var autocomplete_placeholders = $trigger.attr('data-autocomplete-placeholders');
-				var shortcuts = null == $trigger.attr('data-shortcuts') || 'false' != $trigger.attr('data-shortcuts');
+				var shortcuts = null == $trigger.attr('data-shortcuts') || 'false' !== $trigger.attr('data-shortcuts');
 				
 				var $autocomplete = $('<input type="text" size="32" autofocus="autofocus">');
 				
@@ -4165,12 +4161,12 @@ var ajax = new cAjaxCalls();
 						return false;
 					},
 					response: function(event, ui) {
-						if(!(typeof autocomplete_placeholders == 'string') || 0 == autocomplete_placeholders.length)
+						if(!(typeof autocomplete_placeholders == 'string') || 0 === autocomplete_placeholders.length)
 							return;
 						
 						var placeholders = autocomplete_placeholders.split(',');
 						
-						if(0 == placeholders.length)
+						if(0 === placeholders.length)
 							return;
 						
 						for(var i = 0; i < placeholders.length; i++) {
@@ -4211,9 +4207,8 @@ var ajax = new cAjaxCalls();
 					}
 					
 					if(typeof item.meta == 'object') {
-						for(k in item.meta) {
-							var $div = $('<div/>').append($('<small/>').text(item.meta[k]));
-							$li.append($div);
+						for(var k in item.meta) {
+							$('<div/>').append($('<small/>').text(item.meta[k])).appendTo($li);
 						}
 					}
 					
@@ -4228,7 +4223,7 @@ var ajax = new cAjaxCalls();
 					
 					$trigger.on('cerb-chooser-saved', function() {
 						// If we have zero bubbles, show autocomplete
-						if($ul.find('>li').length == 0) {
+						if(0 === $ul.find('>li').length) {
 							$autocomplete.show();
 						} else { // otherwise, hide it.
 							$autocomplete.hide();
@@ -4238,7 +4233,7 @@ var ajax = new cAjaxCalls();
 			}
 			
 			// Show a 'me' shortcut on worker choosers
-			if(shortcuts && context == 'cerberusweb.contexts.worker') {
+			if(shortcuts && context === 'cerberusweb.contexts.worker') {
 				var $account = $('#lnkSignedIn');
 				
 				var $button = $('<button type="button"/>')
@@ -4260,7 +4255,7 @@ var ajax = new cAjaxCalls();
 				
 				$trigger.on('cerb-chooser-saved', function() {
 					// If we have zero bubbles, show autocomplete
-					if($ul.find('>li').length == 0) {
+					if(0 === $ul.find('>li').length) {
 						$button.show();
 					} else { // otherwise, hide it.
 						$button.hide();
