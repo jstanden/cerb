@@ -471,6 +471,10 @@ class CerberusMail {
 							if(false !== $attachment->getFileContents($fp)) {
 								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
 								$attach->setFilename($attachment->name);
+								
+								if('message/rfc822' == $attachment->mime_type)
+									$attach->setContentType('application/octet-stream');
+								
 								$mail->attach($attach);
 								fclose($fp);
 							}
@@ -714,8 +718,15 @@ class CerberusMail {
 				foreach ($files['tmp_name'] as $idx => $file) {
 					if(empty($file) || empty($files['name'][$idx]))
 						continue;
+					
+					@$mime_type = $files['type'][$idx];
+					
+					$attach = Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx], $mime_type);
+					
+					if('message/rfc822' == $mime_type)
+						$attach->setContentType('application/octet-stream');
 	
-					$email->attach(Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx]));
+					$email->attach($attach);
 				}
 			}
 			
@@ -727,6 +738,10 @@ class CerberusMail {
 							if(false !== $attachment->getFileContents($fp)) {
 								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
 								$attach->setFilename($attachment->name);
+								
+								if('message/rfc822' == $attachment->mime_type)
+									$attach->setContentType('application/octet-stream');
+								
 								$email->attach($attach);
 								fclose($fp);
 							}
@@ -1318,7 +1333,14 @@ class CerberusMail {
 						if (empty($file) || empty($files['name'][$idx]))
 							continue;
 						
-						$mail->attach(Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx]));
+						@$mime_type = $files['type'][$idx];
+						
+						$attach = Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx], $mime_type);
+						
+						if('message/rfc822' == $mime_type)
+							$attach->setContentType('application/octet-stream');
+						
+						$mail->attach($attach);
 					}
 			}
 			
@@ -1331,6 +1353,10 @@ class CerberusMail {
 							if (false !== $attachment->getFileContents($fp)) {
 								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
 								$attach->setFilename($attachment->name);
+								
+								if('message/rfc822' == $attachment->mime_type)
+									$attach->setContentType('application/octet-stream');
+								
 								$mail->attach($attach);
 								fclose($fp);
 							}
@@ -2080,6 +2106,10 @@ class CerberusMail {
 						if(false !== $file->getFileContents($fp)) {
 							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
 							$attach->setFilename($file->name);
+							
+							if('message/rfc822' == $file->mime_type)
+								$attach->setContentType('application/octet-stream');
+							
 							$mail->attach($attach);
 							fclose($fp);
 						}
@@ -2258,7 +2288,16 @@ class CerberusMail {
 					$fp = DevblocksPlatform::getTempFile();
 					$fp_path = DevblocksPlatform::getTempFileInfo($fp);
 					$file->getFileContents($fp);
-					$mail->attach(Swift_Attachment::fromPath($fp_path)->setFilename($file->name)->setContentType($file->mime_type));
+					
+					$attach = Swift_Attachment::fromPath($fp_path)
+						->setFilename($file->name)
+						->setContentType($file->mime_type)
+						;
+					
+					if('message/rfc822' == $file->mime_type)
+						$attach->setContentType('application/octet-stream');
+					
+					$mail->attach($attach);
 				}
 			}
 			
@@ -2329,7 +2368,15 @@ class CerberusMail {
 			// Files
 			if(is_array($message->files))
 			foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
-				$mail->attach(Swift_Attachment::fromPath($file->tmpname)->setFilename($file_name));
+				$attach = Swift_Attachment::fromPath($file->tmpname)
+					->setFilename($file_name)
+					->setContentType($file->mime_type)
+					;
+				
+				if('message/rfc822' == $file->mime_type)
+					$attach->setContentType('application/octet-stream');
+				
+				$mail->attach($attach);
 			}
 		
 			$result = $mail_service->send($mail);
