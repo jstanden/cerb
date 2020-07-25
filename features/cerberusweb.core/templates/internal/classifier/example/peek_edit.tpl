@@ -56,8 +56,7 @@
 	
 	<div class="cerb-expression-editor">
 		<div class="expression" contenteditable="true" autofocus="autofocus" spellcheck="false" style="border:1px solid rgb(150,150,150);padding:2px;min-height:1.2em;line-height:1.2em;width:100%;">
-			{$expression = preg_replace('#\\{\{(.*?)\:(.*?)\}\}#', '<span class="\1">\2</span>', $model->expression)}
-			{$expression nofilter}
+			{$model->expression|escape|devblocks_rangy_deserialize nofilter}
 		</div>
 		
 		<ul class="expression-toolbar" style="margin-top:5px;display:none;">

@@ -70,7 +70,7 @@
 		<tr class="{$tableRowClass}">
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&type=classifier_example&id={$result.c_id}-{$result.c_expression|devblocks_permalink}{/devblocks_url}" class="subject expression no-underline">{$result.c_expression|devblocks_rangy_deserialize nofilter}</a>
+				<a href="{devblocks_url}c=profiles&type=classifier_example&id={$result.c_id}-{$result.c_expression|devblocks_permalink}{/devblocks_url}" class="subject expression no-underline">{$result.c_expression|escape|devblocks_rangy_deserialize nofilter}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt" style="margin-left:2px" title="{$translate->_('views.peek')}"></span></button>
 			</td>
 		</tr>
