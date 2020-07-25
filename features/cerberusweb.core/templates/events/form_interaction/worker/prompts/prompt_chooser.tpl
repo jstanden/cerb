@@ -2,7 +2,7 @@
 <div class="cerb-form-builder-prompt cerb-form-builder-prompt-chooser" id="{$element_id}">
 	<h6>{$label}</h6>
 
-	<button type="button" class="chooser-abstract" data-field-name="prompts[{$var}][]" data-context="{$record_type}" {if $selection == "single"}data-single="true"{/if} {if $autocomplete == 1}data-autocomplete="{$query}"{/if} data-query="{$record_query}" data-query-required="{$record_query_required}" data-shortcuts="false"><span class="glyphicons glyphicons-search"></span></button>
+	<button type="button" class="chooser-abstract" data-field-name="prompts[{$var}][]" data-context="{$record_type}" {if $selection == "single"}data-single="true"{/if} {if $autocomplete == 1}data-autocomplete="{$query}"{/if} data-query="{$record_query}" data-query-required="{$record_query_required}" data-shortcuts><span class="glyphicons glyphicons-search"></span></button>
 	<ul class="bubbles chooser-container">
 		{if $records && is_array($records)}
 			{foreach from=$records item=record}
