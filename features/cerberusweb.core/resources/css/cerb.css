@@ -1654,6 +1654,17 @@ LABEL.error {
   vertical-align: top;
 }
 
+DIV.cerb-markdown-content P {
+  margin: 0.2em;
+}
+DIV.cerb-markdown-content PRE {
+  margin: 0.2em;
+}
+DIV.cerb-markdown-content CODE {
+  background-color: whitesmoke;
+  padding: 2px;
+}
+
 DIV.emailBodyHtml {
   overflow-x: scroll;
 }

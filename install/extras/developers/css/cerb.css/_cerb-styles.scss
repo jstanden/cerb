@@ -1670,6 +1670,23 @@ LABEL.error {
 	vertical-align: top;
 }
 
+// Markdown container
+
+DIV.cerb-markdown-content {
+	P {
+		margin: 0.2em;
+	}
+
+	PRE {
+		margin: 0.2em;
+	}
+
+	CODE {
+		background-color: rgb(245,245,245);
+		padding: 2px;
+	}
+}
+
 // HTML email container (reset styles)
 
 DIV.emailBodyHtml {

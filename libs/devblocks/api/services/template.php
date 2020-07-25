@@ -58,6 +58,7 @@ class _DevblocksTemplateManager {
 			$instance->registerPlugin('modifier','devblocks_hyperlinks', array('_DevblocksTemplateManager', 'modifier_devblocks_hyperlinks'));
 			$instance->registerPlugin('modifier','devblocks_hideemailquotes', array('_DevblocksTemplateManager', 'modifier_devblocks_hide_email_quotes'));
 			$instance->registerPlugin('modifier','devblocks_permalink', array('_DevblocksTemplateManager', 'modifier_devblocks_permalink'));
+			$instance->registerPlugin('modifier','devblocks_markdown_to_html', array('_DevblocksTemplateManager', 'modifier_devblocks_markdown_to_html'));
 			$instance->registerPlugin('modifier','devblocks_prettytime', array('_DevblocksTemplateManager', 'modifier_devblocks_prettytime'));
 			$instance->registerPlugin('modifier','devblocks_prettybytes', array('_DevblocksTemplateManager', 'modifier_devblocks_prettybytes'));
 			$instance->registerPlugin('modifier','devblocks_prettysecs', array('_DevblocksTemplateManager', 'modifier_devblocks_prettysecs'));
@@ -217,6 +218,14 @@ class _DevblocksTemplateManager {
 	
 	static function modifier_devblocks_permalink($string) {
 		return DevblocksPlatform::strToPermalink($string);
+	}
+
+	static function modifier_devblocks_markdown_to_html($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		@$string = strval($string);
+		return DevblocksPlatform::parseMarkdown($string);
 	}
 	
 	static function modifier_devblocks_prettytime($string, $is_delta=false) {
