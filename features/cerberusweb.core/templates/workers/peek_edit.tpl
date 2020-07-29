@@ -225,6 +225,14 @@
 				<label><input type="radio" name="is_mfa_required" value="0" {if !$worker->is_mfa_required}checked="checked"{/if}> {'common.optional'|devblocks_translate|capitalize}</label>
 			</div>
 		</fieldset>
+
+		<fieldset class="peek black">
+			<legend>Timeout</legend>
+
+			<div>
+				Consider idle after <input type="text" name="timeout_idle_secs" value="{$worker->timeout_idle_secs}" maxlength="7" size="6"> seconds of inactivity.
+			</div>
+		</fieldset>
 	</div>
 	
 	<div id="{$form_id}Groups">

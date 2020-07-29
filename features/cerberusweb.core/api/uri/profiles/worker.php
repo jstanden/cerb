@@ -120,6 +120,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 				@$language = DevblocksPlatform::importGPC($_POST['lang_code'],'string');
 				@$timezone = DevblocksPlatform::importGPC($_POST['timezone'],'string');
 				@$time_format = DevblocksPlatform::importGPC($_POST['time_format'],'string');
+				@$timeout_idle_secs = DevblocksPlatform::importGPC($_POST['timeout_idle_secs'],'int', 0);
 				@$calendar_id = DevblocksPlatform::importGPC($_POST['calendar_id'],'string');
 				@$is_superuser = DevblocksPlatform::importGPC($_POST['is_superuser'],'bit', 0);
 				@$disabled = DevblocksPlatform::importGPC($_POST['is_disabled'],'bit',0);
@@ -167,6 +168,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::PHONE => $phone,
 						DAO_Worker::TIME_FORMAT => $time_format,
 						DAO_Worker::TIMEZONE => $timezone,
+						DAO_Worker::TIMEOUT_IDLE_SECS => $timeout_idle_secs,
 						DAO_Worker::TITLE => $title,
 					];
 					
@@ -208,6 +210,7 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 						DAO_Worker::PHONE => $phone,
 						DAO_Worker::TIME_FORMAT => $time_format,
 						DAO_Worker::TIMEZONE => $timezone,
+						DAO_Worker::TIMEOUT_IDLE_SECS => $timeout_idle_secs,
 						DAO_Worker::TITLE => $title,
 					];
 					

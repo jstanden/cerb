@@ -614,6 +614,18 @@ foreach($workspace_interaction_widgets as $workspace_interaction_widget) {
 }
 
 // ===========================================================================
+// Add `worker.timeout_idle_secs`
+
+list($columns,) = $db->metaTable('worker');
+
+if(!array_key_exists('timeout_idle_secs', $columns)) {
+	$sql = "ALTER TABLE worker ADD COLUMN timeout_idle_secs INT UNSIGNED NOT NULL DEFAULT 0";
+	$db->ExecuteMaster($sql);
+	
+	$db->ExecuteMaster("UPDATE worker SET timeout_idle_secs = 600");
+}
+
+// ===========================================================================
 // Finish up
 
 return true;

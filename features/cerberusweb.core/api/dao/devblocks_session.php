@@ -321,7 +321,6 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 			$withCounts
 		);
 	}
-
 };
 
 class Model_DevblocksSession {
