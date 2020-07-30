@@ -773,7 +773,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			'bucket_id' => $bucket_id,
 			'content' => $content,
 			'content_format' => $format,
-			'html_template_id' => 0, // [TODO] From group/bucket?
+			'html_template_id' => $html_template ? $html_template->id : 0,
 		);
 		
 		$hash_commands = [];
