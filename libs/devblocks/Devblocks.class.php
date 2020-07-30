@@ -1451,7 +1451,43 @@ class DevblocksPlatform extends DevblocksEngine {
 			),
 			$str
 		);
-		
+
+		// Convert hyperlinks to plaintext
+
+		$str = preg_replace_callback(
+				'@<a[^>]*?>(.*?)</a>@si',
+				function($matches) {
+						if(!isset($matches[0]))
+								return false;
+
+						if(false == ($dom = simplexml_load_string($matches[0]))) {
+								return false;
+						}
+
+						@$href_link = $dom['href'];
+						@$href_label = trim(dom_import_simplexml($dom)->textContent);
+
+						// Skip if there is no label text (images, etc)
+						if(empty($href_label)) {
+								$out = null;
+
+						// If the link and label are the same, ignore label
+						} elseif($href_label == $href_link) {
+								$out = $href_link;
+
+						// Otherwise, format like Markdown
+						} else {
+								$out = sprintf("[%s](%s)",
+										$href_label,
+										$href_link
+								);
+						}
+
+						return $out;
+				},
+				$str
+		);
+
 		// Pre-process blockquotes
 		if(!$skip_blockquotes) {
 			$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
@@ -1504,44 +1540,7 @@ class DevblocksPlatform extends DevblocksEngine {
 				unset($html);
 			}
 		}
-		
-		// Convert hyperlinks to plaintext
-		
-		$str = preg_replace_callback(
-			'@<a[^>]*?>(.*?)</a>@si',
-			function($matches) {
-				if(!isset($matches[0]))
-					return false;
-				
-				$out = '';
-				
-				if(false == ($dom = simplexml_load_string($matches[0])))
-					return false;
-				
-				@$href_link = $dom['href'];
-				@$href_label = trim(dom_import_simplexml($dom)->textContent);
-				
-				// Skip if there is no label text (images, etc)
-				if(empty($href_label)) {
-					$out = null;
-					
-				// If the link and label are the same, ignore label
-				} elseif($href_label == $href_link) {
-					$out = $href_link;
-					
-				// Otherwise, format like Markdown
-				} else {
-					$out = sprintf("[%s](%s)",
-						$href_label,
-						$href_link
-					);
-				}
-				
-				return $out;
-			},
-			$str
-		);
-		
+
 		// Code blocks to plaintext
 		
 		$str = preg_replace_callback(
