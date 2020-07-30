@@ -238,7 +238,7 @@ $(function() {
 
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-			$editor.cerbTextEditor('insertText', '![Image](' + event.url + ')');
+			$editor.cerbTextEditor('insertText', '![inline-image](' + event.url + ')');
 
 			setTimeout(function() {
 				$editor.focus();

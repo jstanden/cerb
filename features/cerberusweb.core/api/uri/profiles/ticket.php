@@ -789,6 +789,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Markdown
 		
 		if('parsedown' == $format) {
+			$output = preg_replace('/^#signature$/m', @$message_properties['signature_html'], $output);
 			$output = DevblocksPlatform::parseMarkdown($output);
 			
 			// Wrap the reply in a template if we have one
@@ -805,7 +806,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 			
 		} else {
-			$output = nl2br(DevblocksPlatform::strEscapeHtml($output));
+			$output = preg_replace('/^#signature$/m', @$message_properties['signature'], $output);
+			$output = nl2br(DevblocksPlatform::strEscapeHtml(CerberusMail::generateTextFromMarkdown($output)));
 		}
 		
 		$tpl->assign('is_inline', true);

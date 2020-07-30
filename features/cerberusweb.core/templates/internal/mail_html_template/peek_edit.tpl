@@ -253,7 +253,7 @@ $(function() {
 
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-			editor_signature.insertSnippet('![Image](' + event.url + ')');
+			editor_signature.insertSnippet('![inline-image](' + event.url + ')');
 			editor_signature.focus();
 		});
 

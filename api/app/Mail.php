@@ -586,7 +586,7 @@ class CerberusMail {
 			
 			switch($format) {
 				case 'parsedown':
-					self::_generateMailBodyMarkdown($mail, $body, null, null, $html_template_id);
+					self::_generateMailBodyMarkdown($mail, $body, [], null, null, $html_template_id);
 					break;
 					
 				default:
@@ -758,8 +758,6 @@ class CerberusMail {
 		@$files = $properties['files'];
 		@$embedded_files = [];
 		@$forward_files = $properties['forward_files'];
-		@$content_saved = $properties['content_saved'];
-		@$content_sent = $properties['content_sent'];
 		@$is_broadcast = intval($properties['is_broadcast']);
 		
 		if(empty($subject)) $subject = '(no subject)';
@@ -843,10 +841,11 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateMailBodyMarkdown($email, $content_sent, $group_id, $bucket->id, $html_template_id);
+					$embedded_files = self::_generateMailBodyMarkdown($email, @$properties['content_sent'], $properties, $group_id, $bucket->id, $html_template_id);
 					break;
 					
 				default:
+					$content_sent = preg_replace('/^#signature$/m', @$properties['signature'], @$properties['content_sent']);
 					$email->setBody($content_sent);
 					break;
 			}
@@ -984,20 +983,19 @@ class CerberusMail {
 		// Save a copy of the sent HTML body
 		$html_body_id = 0;
 		if($content_format == 'parsedown') {
-			if(false !== ($html = DevblocksPlatform::parseMarkdown($content_saved))) {
+			$html_saved = preg_replace('/^#signature$/m', @$properties['signature_html'], @$properties['content_saved']);
+			if(false !== ($html_saved = DevblocksPlatform::parseMarkdown($html_saved))) {
 				$html_body_id = DAO_Attachment::create([
 					DAO_Attachment::NAME => 'original_message.html',
 					DAO_Attachment::MIME_TYPE => 'text/html',
-					DAO_Attachment::STORAGE_SHA1HASH => sha1($html),
+					DAO_Attachment::STORAGE_SHA1HASH => sha1($html_saved),
 				]);
 				
-				Storage_Attachments::put($html_body_id, $html);
+				Storage_Attachments::put($html_body_id, $html_saved);
+				unset($html_saved);
 				
 				$embedded_files[] = $html_body_id;
 			}
-			
-			// Convert to a plaintext part
-			$content_saved = self::_generateTextFromMarkdown($content_saved);
 		}
 
 		$fields = array(
@@ -1021,8 +1019,12 @@ class CerberusMail {
 		
 		$message_id = DAO_Message::create($fields);
 		
-		// Content
-		Storage_MessageContent::put($message_id, $content_saved);
+		// Convert to a plaintext part
+		$plaintext_saved = preg_replace('/^#signature$/m', @$properties['signature'], @$properties['content_saved']);
+		$plaintext_saved = self::generateTextFromMarkdown($plaintext_saved);
+		
+		Storage_MessageContent::put($message_id, $plaintext_saved);
+		unset($plaintext_saved);
 
 		// Set recipients to requesters
 		foreach(array_keys($toList) as $to_addy) {
@@ -1267,8 +1269,6 @@ class CerberusMail {
 			
 			// Re-read properties
 			@$content_format = $properties['content_format'];
-			@$content_saved = $properties['content_saved'];
-			@$content_sent = $properties['content_sent'];
 			@$html_template_id = intval($properties['html_template_id']);
 			@$files = $properties['files'];
 			@$is_forward = $properties['is_forward'];
@@ -1468,10 +1468,11 @@ class CerberusMail {
 			
 			switch ($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateMailBodyMarkdown($mail, $content_sent, $ticket->group_id, $ticket->bucket_id, $html_template_id);
+					$embedded_files = self::_generateMailBodyMarkdown($mail, @$properties['content_sent'], $properties, $ticket->group_id, $ticket->bucket_id, $html_template_id);
 					break;
 				
 				default:
+					$content_sent = preg_replace('/^#signature$/m', @$properties['signature'], @$properties['content_sent']);
 					$mail->setBody($content_sent);
 					break;
 			}
@@ -1644,20 +1645,19 @@ class CerberusMail {
 			// Save a copy of the sent HTML body
 			$html_body_id = 0;
 			if($content_format == 'parsedown') {
-				if(false !== ($html = DevblocksPlatform::parseMarkdown($content_saved))) {
+				$html_saved = preg_replace('/^#signature$/m', @$properties['signature_html'], @$properties['content_saved']);
+				if(false !== ($html_saved = DevblocksPlatform::parseMarkdown($html_saved))) {
 					$html_body_id = DAO_Attachment::create([
 						DAO_Attachment::NAME => 'original_message.html',
 						DAO_Attachment::MIME_TYPE => 'text/html',
-						DAO_Attachment::STORAGE_SHA1HASH => sha1($html),
+						DAO_Attachment::STORAGE_SHA1HASH => sha1($html_saved),
 					]);
 					
-					Storage_Attachments::put($html_body_id, $html);
+					Storage_Attachments::put($html_body_id, $html_saved);
+					unset($html_saved);
 					
 					$embedded_files[] = $html_body_id;
 				}
-				
-				// Convert to a plaintext part
-				$content_saved = self::_generateTextFromMarkdown($content_saved);
 			}
 			
 			// Fields
@@ -1694,8 +1694,12 @@ class CerberusMail {
 				$change_fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = $response_time;
 			}
 			
-			// Content
-			Storage_MessageContent::put($message_id, $content_saved);
+			// Convert to a plaintext part
+			$plaintext_saved = preg_replace('/^#signature$/m', @$properties['signature'], @$properties['content_saved']);
+			$plaintext_saved = self::generateTextFromMarkdown($plaintext_saved);
+			
+			Storage_MessageContent::put($message_id, $plaintext_saved);
+			unset($plaintext_saved);
 
 			// Save cached headers
 			DAO_MessageHeaders::upsert($message_id, $outgoing_mail_headers);
@@ -1937,6 +1941,10 @@ class CerberusMail {
 						@$html_template_id = $message_properties['html_template_id'];
 						
 						$group = DAO_Group::get($group_id);
+						$message_properties['signature'] = null;
+						
+						if($group instanceof Model_Group)
+							$message_properties['signature'] = $group->getReplySignature($bucket_id, $worker, false);
 						
 						switch($content_format) {
 							case 'parsedown':
@@ -1952,19 +1960,7 @@ class CerberusMail {
 								// Determine signature
 								
 								if(!$html_template || false == ($signature = $html_template->getSignature($worker))) {
-									$signature = $group->getReplySignature($bucket_id, $worker, true);
-								}
-								
-								// Replace signature
-								
-								$line = $signature;
-								break;
-							
-							default:
-								if($group instanceof Model_Group) {
-									$line = $group->getReplySignature($bucket_id, $worker, false);
-								} else {
-									$line = null;
+									$message_properties['signature_html'] = $group->getReplySignature($bucket_id, $worker, true);
 								}
 								break;
 						}
@@ -2071,9 +2067,11 @@ class CerberusMail {
 						@$bucket_id = $message_properties['bucket_id'];
 						@$content_format = $message_properties['content_format'];
 						
-						$signature = null;
-						
 						$group = DAO_Group::get($group_id);
+						$message_properties['signature'] = null;
+						
+						if($group instanceof Model_Group)
+							$message_properties['signature'] = $group->getReplySignature($bucket_id, $worker, false);
 						
 						switch($content_format) {
 							case 'parsedown':
@@ -2085,20 +2083,9 @@ class CerberusMail {
 								// Determine signature
 								
 								if(!$html_template || false == ($signature = $html_template->getSignature($worker))) {
+									// Replace signature
 									if($group instanceof Model_Group)
-										$signature = $group->getReplySignature($bucket_id, $worker, true);
-								}
-								
-								// Replace signature
-								
-								$line = $signature;
-								break;
-							
-							default:
-								if($group instanceof Model_Group) {
-									$line = $group->getReplySignature($bucket_id, $worker, false);
-								} else {
-									$line = null;
+										$message_properties['signature_html'] = $group->getReplySignature($bucket_id, $worker, true);
 								}
 								break;
 						}
@@ -2611,7 +2598,7 @@ class CerberusMail {
 		}
 	}
 	
-	static private function _generateTextFromMarkdown($markdown) {
+	static function generateTextFromMarkdown($markdown) {
 		$plaintext = null;
 		
 		$url_writer = DevblocksPlatform::services()->url();
@@ -2643,7 +2630,7 @@ class CerberusMail {
 				sprintf('|(\!\[Image\]\((.*?)\))|'),
 				function($matches) {
 					if(3 == count($matches)) {
-						return sprintf("%s", $matches[2]);
+						return sprintf("[Image %s]", $matches[2]);
 					}
 					
 					return $matches[0];
@@ -2655,26 +2642,24 @@ class CerberusMail {
 			error_log($e->getMessage());
 		}
 		
-		try {
-			$plaintext = DevblocksPlatform::parseMarkdown($plaintext);
-			$plaintext = DevblocksPlatform::stripHTML($plaintext);
-			
-		} catch (Exception $e) {
-			error_log($e->getMessage());
-		}
-		
 		return $plaintext;
 	}
 	
-	static private function _generateMailBodyMarkdown(&$mail, &$content, $group_id=0, $bucket_id=0, $html_template_id=0) {
+	static private function _generateMailBodyMarkdown(&$mail, $content, $properties=[], $group_id=0, $bucket_id=0, $html_template_id=0) {
+		$url_writer = DevblocksPlatform::services()->url();
+		
 		$embedded_files = [];
 		$exclude_files = [];
 		
-		$url_writer = DevblocksPlatform::services()->url();
+		// Replace signatures for each part
+		$text_body = preg_replace('/^#signature$/m', @$properties['signature'], $content);
+		$html_body = preg_replace('/^#signature$/m', @$properties['signature_html'], $content);
+		
+		//
 		$base_url = $url_writer->write('c=files', true) . '/';
 		
 		// Generate an HTML part using Parsedown
-		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($content))) {
+		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($html_body))) {
 			
 			// Determine if we have an HTML template
 			if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
@@ -2731,7 +2716,7 @@ class CerberusMail {
 			$mail->addPart($html_body, 'text/html');
 		}
 		
-		$plaintext = self::_generateTextFromMarkdown($content);
+		$plaintext = self::generateTextFromMarkdown($text_body);
 		
 		$mail->addPart($plaintext, 'text/plain');
 		

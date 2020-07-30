@@ -216,7 +216,7 @@ $(function() {
 
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-			editor.insertSnippet('![Image](' + event.url + ')');
+			editor.insertSnippet('![inline-image](' + event.url + ')');
 			editor.focus();
 		});
 
