@@ -184,11 +184,6 @@
                 <seg>[Zgłoszenia] Może oznaczać zgłoszenia jako spam</seg>
             </tuv>
         </tu>
-        <tu tuid="acl.core.ticket.view.actions.broadcast_reply">
-            <tuv xml:lang="pl_PL">
-                <seg>[Zgłoszenia] Może zamieszczać odpowiedzi na liście zgłoszeń</seg>
-            </tuv>
-        </tu>
         <tu tuid="acl.core.ticket.view.actions.bulk_update">
             <tuv xml:lang="pl_PL">
                 <seg>[Zgłoszenia] Może zbiorczo aktualizować zgłoszenia na listach</seg>

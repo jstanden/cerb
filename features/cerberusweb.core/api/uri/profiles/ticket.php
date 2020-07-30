@@ -1013,7 +1013,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 		
 		// Broadcast: Mass Reply
-		if($active_worker->hasPriv('core.ticket.view.actions.broadcast_reply')) {
+		if($active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.broadcast')) {
 			@$do_broadcast = DevblocksPlatform::importGPC($_POST['do_broadcast'],'string',null);
 			@$broadcast_message = DevblocksPlatform::importGPC($_POST['broadcast_message'],'string',null);
 			@$broadcast_format = DevblocksPlatform::importGPC($_POST['broadcast_format'],'string',null);
