@@ -1287,7 +1287,7 @@ class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
 		
 		// Convert links
 		$html = '<a href="http://www.example.com/">link text</a>';
-		$expected = "[link text](http://www.example.com/)\n";
+		$expected = "[link text](http://www.example.com/)\n\n";
 		$actual = DevblocksPlatform::stripHTML($html, true, false);
 		$this->assertEquals($expected, $actual);
 		
