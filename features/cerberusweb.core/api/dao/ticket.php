@@ -903,7 +903,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// If we were given a group but not a bucket, use the default bucket
 		if(isset($fields[self::GROUP_ID]) && (!isset($fields[self::BUCKET_ID]) || !$fields[self::BUCKET_ID])) {
 			if(false !== ($dest_group = DAO_Group::get($fields[self::GROUP_ID]))) {
-				$fields[self::BUCKET_ID] = $dest_group->getDefaultBucket()->id;
+				if(false != ($dest_bucket = $dest_group->getDefaultBucket()))
+					$fields[self::BUCKET_ID] = $dest_bucket->id;
 			}
 		}
 		
