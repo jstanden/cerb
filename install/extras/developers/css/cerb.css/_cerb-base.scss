@@ -100,9 +100,11 @@ FORM {
 		-webkit-appearance: menulist;
 		-moz-appearance: menulist;
 
-		padding: 2px 5px;
-		border: 1px solid rgb(200,200,200);
 		background: white none;
+		border: 1px solid rgb(200,200,200);
+		padding: 2px 4px;
+
+		@include border-radius(5px);
 
 		OPTGROUP {
 			font-style: normal;

@@ -92,9 +92,13 @@ FORM TEXTAREA:focus {
 FORM SELECT {
   -webkit-appearance: menulist;
   -moz-appearance: menulist;
-  padding: 2px 5px;
-  border: 1px solid #c8c8c8;
   background: white none;
+  border: 1px solid #c8c8c8;
+  padding: 2px 4px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  border-radius: 5px;
 }
 FORM SELECT OPTGROUP {
   font-style: normal;
