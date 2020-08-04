@@ -2592,7 +2592,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			
 			// URL
 			$url_writer = DevblocksPlatform::services()->url();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d/message/%d", $message->ticket_id, $message->id), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d", $message->ticket_id), true) . '#message' . $message->id;
 		}
 
 		$context_stack = CerberusContexts::getStack();
