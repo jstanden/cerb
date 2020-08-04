@@ -259,8 +259,11 @@ class _DevblocksSheetServiceTypes {
 			if(is_string($ts))
 				$ts = intval($ts);
 			
-			if(array_key_exists('format', $column_params) && false != ($date_str = @date($column_params['format'], $ts))) {
-				$value = DevblocksPlatform::strEscapeHtml($date_str);
+			$value = '';
+			
+			if(array_key_exists('format', $column_params)) {
+				if($ts && false != ($date_str = @date($column_params['format'], $ts)))
+					$value = DevblocksPlatform::strEscapeHtml($date_str);
 				
 			} else {
 				$value = sprintf('<abbr title="%s">%s</abbr>',
