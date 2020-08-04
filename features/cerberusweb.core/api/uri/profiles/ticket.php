@@ -770,9 +770,12 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id)))
 			$html_template = $group->getReplyHtmlTemplate($bucket_id);
 		
+		@$in_reply_message_id = DevblocksPlatform::importGPC($_POST['id'],'integer',0);
+		
 		// Parse #commands
 		
 		$message_properties = array(
+			'message_id' => $in_reply_message_id,
 			'group_id' => $group_id,
 			'bucket_id' => $bucket_id,
 			'content' => $content,
@@ -789,8 +792,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Markdown
 		
 		if('parsedown' == $format) {
-			$output = preg_replace('/^#signature$/m', @$message_properties['signature_html'], $output);
-			$output = DevblocksPlatform::parseMarkdown($output);
+			$output = CerberusMail::getMailTemplateFromContent($output, $message_properties, 'html');
 			
 			// Wrap the reply in a template if we have one
 			
@@ -806,8 +808,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 			
 		} else {
-			$output = preg_replace('/^#signature$/m', @$message_properties['signature'], $output);
-			$output = nl2br(DevblocksPlatform::strEscapeHtml(CerberusMail::generateTextFromMarkdown($output)));
+			$output = nl2br(DevblocksPlatform::strEscapeHtml(CerberusMail::getMailTemplateFromContent($output, $message_properties, 'text')));
 		}
 		
 		$tpl->assign('is_inline', true);

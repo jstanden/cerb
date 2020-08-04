@@ -845,7 +845,7 @@ class CerberusMail {
 					break;
 					
 				default:
-					$content_sent = preg_replace('/^#signature$/m', @$properties['signature'], @$properties['content_sent']);
+					$content_sent = CerberusMail::getMailTemplateFromContent(@$properties['content_sent'], $properties, 'text');
 					$email->setBody($content_sent);
 					break;
 			}
@@ -983,8 +983,7 @@ class CerberusMail {
 		// Save a copy of the sent HTML body
 		$html_body_id = 0;
 		if($content_format == 'parsedown') {
-			$html_saved = preg_replace('/^#signature$/m', @$properties['signature_html'], @$properties['content_saved']);
-			if(false !== ($html_saved = DevblocksPlatform::parseMarkdown($html_saved))) {
+			if(false !== ($html_saved = CerberusMail::getMailTemplateFromContent(@$properties['content_saved'], $properties, 'html'))) {
 				$html_body_id = DAO_Attachment::create([
 					DAO_Attachment::NAME => 'original_message.html',
 					DAO_Attachment::MIME_TYPE => 'text/html',
@@ -1020,8 +1019,7 @@ class CerberusMail {
 		$message_id = DAO_Message::create($fields);
 		
 		// Convert to a plaintext part
-		$plaintext_saved = preg_replace('/^#signature$/m', @$properties['signature'], @$properties['content_saved']);
-		$plaintext_saved = self::generateTextFromMarkdown($plaintext_saved);
+		$plaintext_saved = CerberusMail::getMailTemplateFromContent(@$properties['content_saved'], $properties, 'text');
 		
 		Storage_MessageContent::put($message_id, $plaintext_saved);
 		unset($plaintext_saved);
@@ -1472,7 +1470,7 @@ class CerberusMail {
 					break;
 				
 				default:
-					$content_sent = preg_replace('/^#signature$/m', @$properties['signature'], @$properties['content_sent']);
+					$content_sent = CerberusMail::getMailTemplateFromContent(@$properties['content_sent'], $properties, 'text');
 					$mail->setBody($content_sent);
 					break;
 			}
@@ -1645,8 +1643,7 @@ class CerberusMail {
 			// Save a copy of the sent HTML body
 			$html_body_id = 0;
 			if($content_format == 'parsedown') {
-				$html_saved = preg_replace('/^#signature$/m', @$properties['signature_html'], @$properties['content_saved']);
-				if(false !== ($html_saved = DevblocksPlatform::parseMarkdown($html_saved))) {
+				if(false !== ($html_saved = CerberusMail::getMailTemplateFromContent(@$properties['content_saved'], $properties, 'html'))) {
 					$html_body_id = DAO_Attachment::create([
 						DAO_Attachment::NAME => 'original_message.html',
 						DAO_Attachment::MIME_TYPE => 'text/html',
@@ -1695,8 +1692,7 @@ class CerberusMail {
 			}
 			
 			// Convert to a plaintext part
-			$plaintext_saved = preg_replace('/^#signature$/m', @$properties['signature'], @$properties['content_saved']);
-			$plaintext_saved = self::generateTextFromMarkdown($plaintext_saved);
+			$plaintext_saved = CerberusMail::getMailTemplateFromContent(@$properties['content_saved'], $properties, 'text');
 			
 			Storage_MessageContent::put($message_id, $plaintext_saved);
 			unset($plaintext_saved);
@@ -1836,6 +1832,10 @@ class CerberusMail {
 						$is_cut = true;
 						$handled = true;
 						break;
+						
+					case 'original_message':
+						$handled = true;
+						break;
 					
 					case 'signature':
 						@$group_id = $message_properties['group_id'] ?: 0;
@@ -1931,6 +1931,10 @@ class CerberusMail {
 					
 					case 'cut':
 						$is_cut = true;
+						$handled = true;
+						break;
+					
+					case 'original_message':
 						$handled = true;
 						break;
 					
@@ -2060,6 +2064,41 @@ class CerberusMail {
 					case 'cut':
 						$is_cut = true;
 						$handled = true;
+						break;
+					
+					case 'original_message':
+						if(false == (@$in_reply_message_id = $message_properties['message_id']))
+							break;
+						
+						if(false == ($message = DAO_Message::get($in_reply_message_id)))
+							break;
+						
+						// Is the worker able to view this message?
+						if(!Context_Message::isReadableByActor($message, $worker))
+							break;
+						
+						$message_properties['original_message'] = sprintf("\nOn %s, %s wrote:\n%s",
+							date('D, d M Y'),
+							$message->getSender()->getNameWithEmail(),
+							DevblocksPlatform::services()->string()->indentWith($message->getContent(), '> ')
+						);
+						
+						if('parsedown' == @$message_properties['content_format']) {
+							if($message->html_attachment_id) {
+								$message_content = $message->getContentAsHtml();
+							} else {
+								$message_content = nl2br(DevblocksPlatform::strEscapeHtml($message->getContent()));
+							}
+							
+							$message_properties['original_message_html'] = sprintf('<div style="margin-top:10px;font-weight:bold;">On %s, %s wrote:</div>',
+									date('D, d M Y'),
+									DevblocksPlatform::strEscapeHtml($message->getSender()->getNameWithEmail())
+							)
+							. '<div style="margin-left: 5px;border-left: 3px solid gray;padding-left: 10px;">'
+							. $message_content
+							. '</div>'
+							;
+						}
 						break;
 					
 					case 'signature':
@@ -2652,14 +2691,14 @@ class CerberusMail {
 		$exclude_files = [];
 		
 		// Replace signatures for each part
-		$text_body = preg_replace('/^#signature$/m', @$properties['signature'], $content);
-		$html_body = preg_replace('/^#signature$/m', @$properties['signature_html'], $content);
+		$text_body = CerberusMail::getMailTemplateFromContent($content, $properties, 'text');
+		$html_body = CerberusMail::getMailTemplateFromContent($content, $properties, 'html');
 		
 		//
 		$base_url = $url_writer->write('c=files', true) . '/';
 		
 		// Generate an HTML part using Parsedown
-		if(false !== ($html_body = DevblocksPlatform::parseMarkdown($html_body))) {
+		if($html_body) {
 			
 			// Determine if we have an HTML template
 			if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
@@ -2716,10 +2755,21 @@ class CerberusMail {
 			$mail->addPart($html_body, 'text/html');
 		}
 		
-		$plaintext = self::generateTextFromMarkdown($text_body);
-		
-		$mail->addPart($plaintext, 'text/plain');
+		$mail->addPart($text_body, 'text/plain');
 		
 		return $embedded_files;
+	}
+	
+	public static function getMailTemplateFromContent($output, array $message_properties, string $format='text') {
+		if('html' == $format) {
+			$output = preg_replace('/^#signature$/m', @$message_properties['signature_html'], $output);
+			$output = preg_replace('/^#original_message/m', @$message_properties['original_message_html'], $output);
+			return DevblocksPlatform::parseMarkdown($output);
+			
+		} else {
+			$output = preg_replace('/^#signature$/m', @$message_properties['signature'], $output);
+			$output = preg_replace('/^#original_message/m', @$message_properties['original_message'], $output);
+			return CerberusMail::generateTextFromMarkdown($output);
+		}
 	}
 };

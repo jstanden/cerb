@@ -723,7 +723,8 @@ class Model_MailQueue {
 		$message_properties = [
 			'group_id' => $this->getParam('group_id', 0),
 			'content' => $this->getParam('content', ''),
-			'content_format' => $this->getParam('format', '')
+			'content_format' => $this->getParam('format', ''),
+			'in_reply_message_id' => $this->getParam('in_reply_message_id', 0),
 		];
 		
 		if($this->hasParam('bucket_id'))

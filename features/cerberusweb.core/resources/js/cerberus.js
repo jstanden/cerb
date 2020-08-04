@@ -2180,6 +2180,11 @@ var ajax = new cAjaxCalls();
 							description: 'Remove remaining quoted text from this line'
 						},
 						{
+							label: '#original_message',
+							value: '#original_message',
+							description: 'Insert the full original message placeholder'
+						},
+						{
 							label: '#signature',
 							value: '#signature\n',
 							description: 'Insert the signature placeholder'
