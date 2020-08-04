@@ -1526,6 +1526,15 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($object, $token_values);
+			
+			$url_writer = DevblocksPlatform::services()->url();
+			
+			// URL
+			if(in_array($object->type, [Model_MailQueue::TYPE_TICKET_FORWARD, Model_MailQueue::TYPE_TICKET_REPLY])) {
+				$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=ticket&id=%d", $object->ticket_id), true) . '#draft' . $object->id;
+			} else {
+				$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=draft&id=%d", $object->id));
+			}
 		}
 		
 		// Worker
