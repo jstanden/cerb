@@ -1534,23 +1534,25 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		@$excludes = DevblocksPlatform::parseCrlfString($exclude_list);
 		
 		if(is_array($addys))
-		foreach($addys as $addy => $addy_data) {
+		foreach($addys as $addy_data) {
+			$addy_data['email'] = DevblocksPlatform::strLower($addy_data['email']);
+			
 			try {
 				// Filter out our own addresses
-				if(DAO_Address::isLocalAddress($addy))
+				if(DAO_Address::isLocalAddress($addy_data['email']))
 					continue;
 				
 				// Filter explicit excludes
 				if(is_array($excludes) && !empty($excludes))
 				foreach($excludes as $excl_pattern) {
-					if(@preg_match(DevblocksPlatform::parseStringAsRegExp($excl_pattern), $addy)) {
+					if(@preg_match(DevblocksPlatform::parseStringAsRegExp($excl_pattern), $addy_data['email'])) {
 						throw new Exception();
 					}
 				}
 				
 				// If we aren't given a personal name, attempt to look them up
 				if(empty($addy_data['personal'])) {
-					if(null != ($addy_lookup = DAO_Address::lookupAddress($addy))) {
+					if(null != ($addy_lookup = DAO_Address::lookupAddress($addy_data['email']))) {
 						$addy_fullname = $addy_lookup->getName();
 						if(!empty($addy_fullname)) {
 							$addy_data['personal'] = $addy_fullname;
@@ -1559,7 +1561,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					}
 				}
 				
-				$results[$addy] = $addy_data;
+				$results[$addy_data['email']] = $addy_data;
 				
 			} catch(Exception $e) {
 			}
