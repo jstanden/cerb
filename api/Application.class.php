@@ -1762,7 +1762,28 @@ class CerberusContexts {
 		if(!is_array($entry)) {
 			return '';
 		}
-
+		
+		// Adjust things for certain messages
+		
+		if('activities.comment.create' == $entry['message']) {
+			if(@$entry['urls']['target']) {
+				if(false != ($target = CerberusContexts::parseContextUrl($entry['urls']['target']))) {
+					if(CerberusContexts::CONTEXT_COMMENT == $target['context']) {
+						if(@$entry['variables']['target']) {
+							$entry['variables']['object'] = $entry['variables']['target'];
+							$entry['variables']['target'] = null;
+						} else {
+							$parent_comment = DAO_Comment::get($target['id']);
+							$entry['variables']['object'] = $parent_comment->getActorDictionary()->get('_label') . "'s comment";
+							$entry['variables']['target'] = null;
+						}
+						
+						$entry['urls']['object'] = $entry['urls']['target'];
+					}
+				}
+			}
+		}
+		
 		// Load the translated version of the message
 		$entry['message'] = $translate->_($entry['message']);
 

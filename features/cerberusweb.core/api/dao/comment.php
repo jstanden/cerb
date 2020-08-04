@@ -1431,9 +1431,11 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		
 		$url = $this->profileGetUrl($context_id);
 		
+		$actor = $comment->getActorDictionary();
+		
 		return array(
 			'id' => $comment->id,
-			'name' => '',
+			'name' => sprintf("%s's comment", $actor->get('_label')),
 			'permalink' => $url,
 			'updated' => $comment->created,
 		);
@@ -1573,6 +1575,17 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		switch($token) {
+			case 'record_url':
+				$dict = DevblocksDictionaryDelegate::instance($dictionary);
+				
+				if(CerberusContexts::CONTEXT_COMMENT == $dict->get('target__context')) {
+					$values['record_url'] = $dict->get('target_target_record_url') . '#comment' . $dict->get('id');
+					
+				} else {
+					$values['record_url'] = $dict->get('target_record_url');
+				}
+				break;
+				
 			default:
 				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
 				$values = array_merge($values, $defaults);
