@@ -162,14 +162,54 @@
 	display: none;
 }
 
-.cerb-bot-chat-window .cerb-ajax-spinner {
-	background: url(ajax-spinner.gif?v=2017041801);
-	background-repeat: no-repeat;
-	background-position: top left;
+/* See: https://glennmccomb.com/articles/building-a-pure-css-animated-svg-spinner/ */
+
+svg.cerb-spinner {
+	animation: 2s linear infinite cerb-spinner-animation;
 	display: inline-block;
+	max-width: 32px;
+	margin: 5px;
 	vertical-align: middle;
-	width: 32px;
-	height: 32px;
+	opacity: 1;
+}
+
+svg.cerb-spinner circle {
+	animation: 1.4s ease-in-out infinite both cerb-spinner-circle-animation;
+	fill: transparent;
+	stroke: #2f3d4c;
+	stroke-linecap: round;
+	stroke-dasharray: 283;
+	stroke-dashoffset: 280;
+	stroke-width: 10px;
+	transform-origin: 50% 50%;
+}
+
+@keyframes cerb-spinner-animation {
+	0% {
+		transform: rotateZ(0deg);
+	}
+	100% {
+		transform: rotateZ(360deg)
+	}
+}
+
+@keyframes cerb-spinner-circle-animation {
+	0%,
+	25% {
+		stroke-dashoffset: 280;
+		transform: rotate(0);
+	}
+
+	50%,
+	75% {
+		stroke-dashoffset: 75;
+		transform: rotate(45deg);
+	}
+
+	100% {
+		stroke-dashoffset: 280;
+		transform: rotate(360deg);
+	}
 }
 
 .cerb-bot-chat-window INPUT.cerb-bot-chat-input {

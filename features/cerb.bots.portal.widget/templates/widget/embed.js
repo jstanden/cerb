@@ -31,7 +31,7 @@
 	$css.prependTo($head);
 	
 	var $window = null;
-	var $spinner = $('<div class="cerb-bot-chat-message cerb-bot-chat-left"><div class="cerb-bot-chat-message-bubble"><span class="cerb-ajax-spinner" style="zoom:0.5;-moz-transform:scale(0.5);"></span></div></div>');
+	var $spinner = $('<div class="cerb-bot-chat-message cerb-bot-chat-left"><div class="cerb-bot-chat-message-bubble"><svg class="cerb-spinner" viewBox="0 0 100 100" style="width:16px;" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45"/></svg></div></div>');
 	
 	if(!bubble_disable) {
 		var $chat_button = $('<div/>')
