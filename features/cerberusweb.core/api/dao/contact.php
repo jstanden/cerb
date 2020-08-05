@@ -2109,6 +2109,13 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			'type' => 'string',
 		];
 		
+		$keys['org'] = [
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'Organization (e.g. `Fiaflux Software`); alternative to `org_id`',
+			'type' => 'string',
+		];
+		
 		$keys['dob']['notes'] = "Date of birth: `YYYY-MM-DD`";
 		$keys['email_id']['notes'] = "ID of this contact's primary [email address](/docs/records/types/address/)";
 		$keys['first_name']['notes'] = "Given name";
@@ -2141,7 +2148,15 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 			case 'image':
 				$out_fields[DAO_Contact::_IMAGE] = $value;
 				break;
-			
+				
+			case 'org':
+				if(false == ($org_id = DAO_ContactOrg::lookup($value, true))) {
+					$error = sprintf("Failed to lookup org: %s", $value);
+					return false;
+				}
+				
+				$out_fields[DAO_Contact::ORG_ID] = $org_id;
+				break;
 		}
 		
 		return true;
