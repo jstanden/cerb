@@ -22,7 +22,6 @@ class ChRest_Bots extends Extension_RestController {
 	}
 	
 	function putAction($stack) {
-		//@$action = array_shift($stack);
 		$this->error(self::ERRNO_NOT_IMPLEMENTED);
 	}
 	
@@ -38,17 +37,20 @@ class ChRest_Bots extends Extension_RestController {
 				
 				if(is_numeric($behavior_id)) {
 					$behavior_id = intval($behavior_id);
+				
+				} else if(is_string($behavior_id)) {
+					if(false == ($behavior = DAO_TriggerEvent::getByUri($behavior_id)))
+						$this->error(self::ERRNO_NOT_FOUND);
 					
-					@$subaction = array_shift($stack);
+					$behavior_id = $behavior->id;
+				}
 					
-					switch($subaction) {
-						case 'run':
-							$this->_postVaBehaviorApiRequest($behavior_id);
-							break;
-							
-						default:
-							break;
-					}
+				@$subaction = array_shift($stack);
+				
+				switch($subaction) {
+					case 'run':
+						$this->_postVaBehaviorApiRequest($behavior_id);
+						break;
 				}
 				
 				$this->error(self::ERRNO_NOT_IMPLEMENTED);
