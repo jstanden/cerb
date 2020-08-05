@@ -21,7 +21,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const SIGNATURE = 'signature';
+	const SIGNATURE_ID = 'signature_id';
 	const UPDATED_AT = 'updated_at';
 	
 	const _CACHE_ALL = 'mail_html_templates_all';
@@ -62,11 +62,11 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			->id()
 			->setRequired(true)
 			;
-		// mediumtext
+		// int(11)
 		$validation
-			->addField(self::SIGNATURE)
-			->string()
-			->setMaxLength(16777215)
+			->addField(self::SIGNATURE_ID)
+			->id()
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, true))
 			;
 		// int(10) unsigned
 		$validation
@@ -188,7 +188,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, updated_at, owner_context, owner_context_id, content, signature ".
+		$sql = "SELECT id, name, updated_at, owner_context, owner_context_id, content, signature_id ".
 			"FROM mail_html_template ".
 			$where_sql.
 			$sort_sql.
@@ -272,7 +272,7 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
 			$object->content = $row['content'];
-			$object->signature = $row['signature'];
+			$object->signature_id = intval($row['signature_id']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -333,14 +333,14 @@ class DAO_MailHtmlTemplate extends Cerb_ORMHelper {
 			"mail_html_template.owner_context as %s, ".
 			"mail_html_template.owner_context_id as %s, ".
 			"mail_html_template.content as %s, ".
-			"mail_html_template.signature as %s ",
+			"mail_html_template.signature_id as %s ",
 				SearchFields_MailHtmlTemplate::ID,
 				SearchFields_MailHtmlTemplate::NAME,
 				SearchFields_MailHtmlTemplate::UPDATED_AT,
 				SearchFields_MailHtmlTemplate::OWNER_CONTEXT,
 				SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID,
 				SearchFields_MailHtmlTemplate::CONTENT,
-				SearchFields_MailHtmlTemplate::SIGNATURE
+				SearchFields_MailHtmlTemplate::SIGNATURE_ID
 			);
 			
 		$join_sql = "FROM mail_html_template ";
@@ -405,7 +405,7 @@ class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 	const NAME = 'm_name';
 	const OWNER_CONTEXT = 'm_owner_context';
 	const OWNER_CONTEXT_ID = 'm_owner_context_id';
-	const SIGNATURE = 'm_signature';
+	const SIGNATURE_ID = 'm_signature_id';
 	const UPDATED_AT = 'm_updated_at';
 
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
@@ -491,7 +491,7 @@ class SearchFields_MailHtmlTemplate extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'mail_html_template', 'owner_context', null, null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'mail_html_template', 'owner_context_id', null, null, true),
 			self::CONTENT => new DevblocksSearchField(self::CONTENT, 'mail_html_template', 'content', $translate->_('common.content'), Model_CustomField::TYPE_MULTI_LINE, true),
-			self::SIGNATURE => new DevblocksSearchField(self::SIGNATURE, 'mail_html_template', 'signature', $translate->_('common.signature'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::SIGNATURE_ID => new DevblocksSearchField(self::SIGNATURE_ID, 'mail_html_template', 'signature_id', $translate->_('common.signature'), Model_CustomField::TYPE_NUMBER, true),
 
 			self::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 				
@@ -522,24 +522,21 @@ class Model_MailHtmlTemplate {
 	public $name;
 	public $owner_context;
 	public $owner_context_id;
-	public $signature;
+	public $signature_id;
 	public $updated_at;
 	
-	function getSignature($worker=null) {
-		$signature = $this->signature;
+	function getSignatureRecord() {
+		if(false == ($model = DAO_EmailSignature::get($this->signature_id)))
+			return null;
 		
-		if(!empty($worker)) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance();
-			
-			$dict = new DevblocksDictionaryDelegate([
-				'_context' => CerberusContexts::CONTEXT_WORKER,
-				'id' => $worker->id,
-			]);
-			
-			$signature = $tpl_builder->build($signature, $dict);
-		}
+		return $model;
+	}
+	
+	function getSignature($worker=null, $format='html') {
+		if(false == ($model = $this->getSignatureRecord()))
+			return null;
 		
-		return $signature;
+		return $model->getSignature($worker, 'html' == $format);
 	}
 	
 	function getAttachments() {
@@ -702,12 +699,12 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_MailHtmlTemplate::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'signature' => 
+			'signature.id' =>
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_MailHtmlTemplate::SIGNATURE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_MailHtmlTemplate::SIGNATURE_ID),
 				),
-			'updated' => 
+			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_MailHtmlTemplate::UPDATED_AT),
@@ -774,6 +771,10 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Email signatures
+		$email_signatures = DAO_EmailSignature::getAll();
+		$tpl->assign('email_signatures', $email_signatures);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/mail_html_template/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -814,12 +815,12 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 			case SearchFields_MailHtmlTemplate::NAME:
 			case SearchFields_MailHtmlTemplate::OWNER_CONTEXT:
 			case SearchFields_MailHtmlTemplate::CONTENT:
-			case SearchFields_MailHtmlTemplate::SIGNATURE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
 			case SearchFields_MailHtmlTemplate::ID:
 			case SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID:
+			case SearchFields_MailHtmlTemplate::SIGNATURE_ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -907,6 +908,15 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			'value' => $model->id,
 		);
 		
+		$properties['signature_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.signature'),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->signature_id,
+			'params' => [
+				'context' => Context_EmailSignature::ID,
+			],
+		);
+		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -989,7 +999,6 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			'id' => $prefix.$translate->_('common.id'),
 			'content' => $prefix.$translate->_('common.content'),
 			'name' => $prefix.$translate->_('common.name'),
-			'signature' => $prefix.$translate->_('common.signature'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1000,7 +1009,6 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'content' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'signature' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1025,7 +1033,6 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			$token_values['content'] = $mail_html_template->content;
 			$token_values['id'] = $mail_html_template->id;
 			$token_values['name'] = $mail_html_template->name;
-			$token_values['signature'] = $mail_html_template->signature;
 			$token_values['updated_at'] = $mail_html_template->updated_at;
 			
 			// Custom fields
@@ -1035,6 +1042,20 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=html_template&id=%d-%s",$mail_html_template->id, DevblocksPlatform::strToPermalink($mail_html_template->name)), true);
 		}
+		
+		// Email signature
+		$merge_token_labels = [];
+		$merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_EMAIL_SIGNATURE, null, $merge_token_labels, $merge_token_values, '', true);
+		
+		CerberusContexts::merge(
+			'signature_',
+			$prefix.'Signature:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
 		
 		return true;
 	}
@@ -1047,7 +1068,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 			'name' => DAO_MailHtmlTemplate::NAME,
 			'owner__context' => DAO_MailHtmlTemplate::OWNER_CONTEXT,
 			'owner_id' => DAO_MailHtmlTemplate::OWNER_CONTEXT_ID,
-			'signature' => DAO_MailHtmlTemplate::SIGNATURE,
+			'signature_id' => DAO_MailHtmlTemplate::SIGNATURE_ID,
 			'updated_at' => DAO_MailHtmlTemplate::UPDATED_AT,
 		];
 	}
@@ -1056,7 +1077,7 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		$keys = parent::getKeyMeta();
 		
 		$keys['content']['notes'] = "The content of the template";
-		$keys['signature']['notes'] = "A template-specific email signature [template](/docs/bots/scripting/)";
+		$keys['signature_id']['notes'] = "The optional [email signature](/docs/records/types/email_signature/) of this template";
 		
 		return $keys;
 	}

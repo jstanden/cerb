@@ -586,7 +586,10 @@ class CerberusMail {
 			
 			switch($format) {
 				case 'parsedown':
-					self::_generateMailBodyMarkdown($mail, $body, [], null, null, $html_template_id);
+					$properties = [
+						'html_template_id' => $html_template_id,
+					];
+					self::_generateMailBodyMarkdown($mail, $body, $properties, null, null);
 					break;
 					
 				default:
@@ -754,7 +757,6 @@ class CerberusMail {
 		@$bcc = $properties['bcc'];
 		@$subject = $properties['subject'];
 		@$content_format = $properties['content_format'];
-		@$html_template_id = $properties['html_template_id'];
 		@$files = $properties['files'];
 		@$embedded_files = [];
 		@$forward_files = $properties['forward_files'];
@@ -841,7 +843,7 @@ class CerberusMail {
 			
 			switch($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateMailBodyMarkdown($email, @$properties['content_sent'], $properties, $group_id, $bucket->id, $html_template_id);
+					$embedded_files = self::_generateMailBodyMarkdown($email, @$properties['content_sent'], $properties, $group_id, $bucket->id);
 					break;
 					
 				default:
@@ -1267,7 +1269,6 @@ class CerberusMail {
 			
 			// Re-read properties
 			@$content_format = $properties['content_format'];
-			@$html_template_id = intval($properties['html_template_id']);
 			@$files = $properties['files'];
 			@$is_forward = $properties['is_forward'];
 			@$is_broadcast = $properties['is_broadcast'];
@@ -1466,7 +1467,7 @@ class CerberusMail {
 			
 			switch ($content_format) {
 				case 'parsedown':
-					$embedded_files = self::_generateMailBodyMarkdown($mail, @$properties['content_sent'], $properties, $ticket->group_id, $ticket->bucket_id, $html_template_id);
+					$embedded_files = self::_generateMailBodyMarkdown($mail, @$properties['content_sent'], $properties, $ticket->group_id, $ticket->bucket_id);
 					break;
 				
 				default:
@@ -1842,7 +1843,6 @@ class CerberusMail {
 						@$content_format = $message_properties['content_format'] ?: '';
 						@$html_template_id = $message_properties['html_template_id'] ?: 0;
 						
-						// [TODO] Error that group is required
 						if(false == ($group = DAO_Group::get($group_id))) {
 							$line = '';
 							break;
@@ -1861,7 +1861,7 @@ class CerberusMail {
 								
 								// Determine signature
 								
-								if(!$html_template || false == ($signature = $html_template->getSignature($worker))) {
+								if(!$html_template || false == ($signature = $html_template->getSignature($worker, 'html'))) {
 									$signature = $group->getReplySignature($bucket->id, $worker, true);
 								}
 								
@@ -1944,29 +1944,45 @@ class CerberusMail {
 						@$content_format = $message_properties['content_format'];
 						@$html_template_id = $message_properties['html_template_id'];
 						
-						$group = DAO_Group::get($group_id);
-						$message_properties['signature'] = null;
+						if(false == ($group = DAO_Group::get($group_id)))
+							break;
 						
-						if($group instanceof Model_Group)
+						if($content_format == 'parsedown') {
+							// Template override
+							
+							$html_template = null;
+							
+							if($html_template_id)
+								$html_template = DAO_MailHtmlTemplate::get($html_template_id);
+							
+							$signature_text = $signature_html = null;
+							
+							// If we don't have an HTML template yet, try the group
+							if(!$html_template)
+								$html_template = $group->getReplyHtmlTemplate($bucket_id);
+							
+							// If we have a template, use those signatures first
+							if($html_template) {
+								$signature_text = $html_template->getSignature($worker, 'text');
+								$signature_html = $html_template->getSignature($worker, 'html');
+							}
+							
+							// If we don't have a plaintext sig still, use the group one
+							if(!$signature_text)
+								$signature_text = $group->getReplySignature($bucket_id, $worker, false);
+							
+							// If we don't have an HTML sig still, use the group one
+							if(!$signature_html)
+								$signature_html = $group->getReplySignature($bucket_id, $worker, true);
+							
+							if($signature_text)
+								$message_properties['signature'] = $signature_text;
+							
+							if($signature_html)
+								$message_properties['signature_html'] = $signature_html;
+							
+						} else {
 							$message_properties['signature'] = $group->getReplySignature($bucket_id, $worker, false);
-						
-						switch($content_format) {
-							case 'parsedown':
-								$html_template = null;
-								
-								// Determine if we have an HTML template
-								
-								if(!$html_template_id || false == ($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
-									if(false == ($html_template = $group->getReplyHtmlTemplate($bucket_id)))
-										$html_template = null;
-								}
-								
-								// Determine signature
-								
-								if(!$html_template || false == ($signature = $html_template->getSignature($worker))) {
-									$message_properties['signature_html'] = $group->getReplySignature($bucket_id, $worker, true);
-								}
-								break;
 						}
 						break;
 					
@@ -2105,28 +2121,47 @@ class CerberusMail {
 						@$group_id = $message_properties['group_id'];
 						@$bucket_id = $message_properties['bucket_id'];
 						@$content_format = $message_properties['content_format'];
+						@$html_template_id = $message_properties['html_template_id'];
 						
-						$group = DAO_Group::get($group_id);
-						$message_properties['signature'] = null;
+						if(false == ($group = DAO_Group::get($group_id)))
+							break;
+
 						
-						if($group instanceof Model_Group)
+						if ($content_format == 'parsedown') {
+							$signature_text = $signature_html = null;
+							
+							// HTML template override
+							
+							$html_template = null;
+							
+							if($html_template_id)
+								$html_template = DAO_MailHtmlTemplate::get($html_template_id);
+							
+							// Determine if we have an HTML template
+							
+							// If we don't have an HTML template override, try the group template
+							if(!$html_template)
+								$html_template = $group->getReplyHtmlTemplate($bucket_id);
+							
+							if($html_template) {
+								$signature_text = $html_template->getSignature($worker, 'text');
+								$signature_html = $html_template->getSignature($worker, 'html');
+							}
+							
+							if(!$signature_text)
+								$signature_text = $group->getReplySignature($bucket_id, $worker, false);
+							
+							if(!$signature_html)
+								$signature_html = $group->getReplySignature($bucket_id, $worker, true);
+							
+							if($signature_text)
+								$message_properties['signature'] = $signature_text;
+							
+							if($signature_html)
+								$message_properties['signature_html'] = $signature_html;
+							
+						} else {
 							$message_properties['signature'] = $group->getReplySignature($bucket_id, $worker, false);
-						
-						switch($content_format) {
-							case 'parsedown':
-								// Determine if we have an HTML template
-								
-								if(!$group || false == ($html_template = $group->getReplyHtmlTemplate($bucket_id)))
-									$html_template = null;
-								
-								// Determine signature
-								
-								if(!$html_template || false == ($signature = $html_template->getSignature($worker))) {
-									// Replace signature
-									if($group instanceof Model_Group)
-										$message_properties['signature_html'] = $group->getReplySignature($bucket_id, $worker, true);
-								}
-								break;
 						}
 						break;
 					
@@ -2684,8 +2719,9 @@ class CerberusMail {
 		return $plaintext;
 	}
 	
-	static private function _generateMailBodyMarkdown(&$mail, $content, $properties=[], $group_id=0, $bucket_id=0, $html_template_id=0) {
+	static private function _generateMailBodyMarkdown(&$mail, $content, $properties=[], $group_id=0, $bucket_id=0) {
 		$url_writer = DevblocksPlatform::services()->url();
+		@$html_template_id = $properties['html_template_id'] ?: 0;
 		
 		$embedded_files = [];
 		$exclude_files = [];
@@ -2712,9 +2748,9 @@ class CerberusMail {
 				
 				$html_body = $tpl_builder->build(
 					$html_template->content,
-					array(
+					[
 						'message_body' => $html_body
-					)
+					]
 				);
 				
 				// Load the attachment links from the HTML template

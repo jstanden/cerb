@@ -626,6 +626,51 @@ if(!array_key_exists('timeout_idle_secs', $columns)) {
 }
 
 // ===========================================================================
+// Migrate html signatures to signature records
+
+list($columns,) = $db->metaTable('mail_html_template');
+
+if(!array_key_exists('signature_id', $columns)) {
+	$sql = "ALTER TABLE mail_html_template ADD COLUMN signature_id INT UNSIGNED NOT NULL DEFAULT 0";
+	$db->ExecuteMaster($sql);
+	
+	$seen_hashes = [];
+	
+	$signatures = $db->GetArrayMaster("SELECT name, signature, SHA1(signature) AS sha_hash FROM mail_html_template WHERE signature != ''");
+	
+	foreach($signatures as $signature) {
+		if(array_key_exists($signature['sha_hash'], $seen_hashes))
+			continue;
+		
+		$insert_sql = sprintf("INSERT INTO email_signature (name, signature, signature_html, is_default, updated_at, owner_context, owner_context_id) ".
+			"VALUES (%s, %s, %s, %d, %d, %s, %d)",
+			$db->qstr($signature['name']),
+			$db->qstr(''),
+			$db->qstr($signature['signature']),
+			0,
+			time(),
+			$db->qstr(CerberusContexts::CONTEXT_APPLICATION),
+			0
+		);
+		
+		$db->ExecuteMaster($insert_sql);
+		
+		$new_signature_id = $db->LastInsertId();
+		
+		$seen_hashes[$signature['sha_hash']] = $new_signature_id;
+		
+		$update_sql = sprintf("UPDATE mail_html_template SET signature_id = %d WHERE SHA1(signature) = %s",
+			$new_signature_id,
+			$db->qstr($signature['sha_hash'])
+		);
+		
+		$db->ExecuteMaster($update_sql);
+	}
+	
+	$db->ExecuteMaster("ALTER TABLE mail_html_template DROP COLUMN signature");
+}
+
+// ===========================================================================
 // Finish up
 
 return true;

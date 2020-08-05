@@ -65,47 +65,17 @@ blockquote a {
 <fieldset class="peek black" style="margin-top:15px;">
 	<legend>{'common.signature'|devblocks_translate|capitalize} ({'common.optional'|devblocks_translate|lower})</legend>
 
-	<div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--signature">
-		<button type="button" title="Insert placeholder" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--placeholders"><span class="glyphicons glyphicons-sampler"></span></button>
-		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
-		<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
-		<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
-		<button type="button" title="Image" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
-		<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
-		<button type="button" title="Quote" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
-		<button type="button" title="Code" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
-		<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
-		<div class="cerb-code-editor-toolbar-divider"></div>
-		<button type="button" title="Preview" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--preview"><span class="glyphicons glyphicons-eye-open"></span></button>
-	</div>
+	<button type="button" class="chooser-abstract" data-field-name="signature_id" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 
-	{$types = $values._types}
-	{function tree level=0}
-		{foreach from=$keys item=data key=idx}
-			{$type = $types.{$data->key}}
-			{if is_array($data->children) && !empty($data->children)}
-				<li {if $data->key}data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"{/if}>
-					{if $data->key}
-						<div style="font-weight:bold;">{$data->l|capitalize}</div>
-					{else}
-						<div>{$idx|capitalize}</div>
-					{/if}
-					<ul>
-						{tree keys=$data->children level=$level+1}
-					</ul>
-				</li>
-			{elseif $data->key}
-				<li data-token="{$data->key}{if $type == Model_CustomField::TYPE_DATE}|date{/if}" data-label="{$data->label}"><div style="font-weight:bold;">{$data->l|capitalize}</div></li>
+	{if $model}
+		{$signature = $model->getSignatureRecord()}
+
+		<ul class="bubbles chooser-container">
+			{if $signature}
+				<li><input type="hidden" name="signature_id" value="{$signature->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$signature->id}">{$signature->name}</a></li>
 			{/if}
-		{/foreach}
-	{/function}
-
-	<ul class="menu cerb-float" style="width:250px;display:none;">
-		{tree keys=$placeholders}
-	</ul>
-
-	<textarea name="signature" class="cerb-code-editor-html placeholders" data-editor-mode="ace/mode/twig" data-editor-lines="15" data-editor-line-numbers="false">{$model->signature}</textarea>
+		</ul>
+	{/if}
 </fieldset>
 
 <fieldset class="peek black">
@@ -176,7 +146,15 @@ $(function() {
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		
+
+		// Choosers
+
+		$popup.find('button.chooser-abstract')
+			.cerbChooserTrigger()
+		;
+
+		// Editors
+
 		var $content = $popup.find('textarea[name=content]')
 			.cerbCodeEditor()
 			;
@@ -211,62 +189,6 @@ $(function() {
 
 			genericAjaxPopup(
 				'preview_html_template',
-				formData,
-				'reuse',
-				false
-			);
-		});
-
-		var $signature = $popup.find('textarea[name=signature]')
-			.cerbCodeEditor()
-			;
-
-		var editor_signature = ace.edit($signature.nextAll('pre.ace_editor').attr('id'));
-
-		var $signature_toolbar = $popup.find('.cerb-code-editor-toolbar--signature')
-			.cerbCodeEditorToolbarMarkdown()
-			;
-
-		$signature_toolbar.find('.cerb-markdown-editor-toolbar-button--placeholders').on('click', function(e) {
-			var $editor = $signature.nextAll('pre.ace_editor');
-			var $cursor = $editor.find('.ace_text-input');
-
-			$placeholder_menu
-				.toggle()
-				.position({
-					my: 'left bottom',
-					at: 'left top',
-					of: $cursor
-				})
-			;
-
-			editor_signature.focus();
-		});
-
-		$signature_toolbar.on('cerb-editor-toolbar-image-inserted', function(event) {
-			event.stopPropagation();
-
-			var new_event = $.Event('cerb-chooser-save', {
-				labels: event.labels,
-				values: event.values
-			});
-
-			$popup.find('button.chooser_file').triggerHandler(new_event);
-
-			editor_signature.insertSnippet('![inline-image](' + event.url + ')');
-			editor_signature.focus();
-		});
-
-		$signature_toolbar.find('.cerb-markdown-editor-toolbar-button--preview').on('click', function(e) {
-			var formData = new FormData();
-			formData.set('c', 'profiles');
-			formData.set('a', 'invoke');
-			formData.set('module', 'html_template');
-			formData.set('action', 'previewSignature');
-			formData.set('signature', editor_signature.getValue());
-
-			genericAjaxPopup(
-				'preview_html_template_sig',
 				formData,
 				'reuse',
 				false

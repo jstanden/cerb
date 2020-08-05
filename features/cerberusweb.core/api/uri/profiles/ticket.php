@@ -774,14 +774,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Parse #commands
 		
-		$message_properties = array(
+		$message_properties = [
 			'message_id' => $in_reply_message_id,
 			'group_id' => $group_id,
 			'bucket_id' => $bucket_id,
 			'content' => $content,
 			'content_format' => $format,
 			'html_template_id' => $html_template ? $html_template->id : 0,
-		);
+		];
 		
 		$hash_commands = [];
 		

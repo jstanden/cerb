@@ -35,10 +35,6 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 					return $this->_profileAction_savePeekJson();
 				case 'preview':
 					return $this->_profileAction_preview();
-				case 'previewSignature':
-					return $this->_profileAction_previewSignature();
-				case 'getSignatureParsedownPreview':
-					return $this->_profileAction_getSignatureParsedownPreview();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
 			}
@@ -84,7 +80,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 			} else {
 				@$content = DevblocksPlatform::importGPC($_POST['content'], 'string', '');
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$signature = DevblocksPlatform::importGPC($_POST['signature'], 'string', '');
+				@$signature_id = DevblocksPlatform::importGPC($_POST['signature_id'], 'integer', 0);
 				
 				$owner_ctx = CerberusContexts::CONTEXT_APPLICATION;
 				$owner_ctx_id = 0;
@@ -94,7 +90,7 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 					DAO_MailHtmlTemplate::NAME => $name,
 					DAO_MailHtmlTemplate::OWNER_CONTEXT => $owner_ctx,
 					DAO_MailHtmlTemplate::OWNER_CONTEXT_ID => $owner_ctx_id,
-					DAO_MailHtmlTemplate::SIGNATURE => $signature,
+					DAO_MailHtmlTemplate::SIGNATURE_ID => $signature_id,
 					DAO_MailHtmlTemplate::UPDATED_AT => time(),
 				);
 				
@@ -180,53 +176,6 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		$tpl->assign('content', $output);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
-	}
-	
-	private function _profileAction_previewSignature() {
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		@$signature = DevblocksPlatform::importGPC($_REQUEST['signature'],'string', '');
-		
-		$dict = DevblocksDictionaryDelegate::instance([
-			'_context' => CerberusContexts::CONTEXT_WORKER,
-			'id' => $active_worker->id,
-		]);
-		
-		$output = $tpl_builder->build($signature, $dict);
-		
-		$output = DevblocksPlatform::parseMarkdown($output);
-		
-		$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
-		$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
-		
-		$tpl->assign('content', $output);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/editors/preview_popup.tpl');
-	}
-	
-	private function _profileAction_getSignatureParsedownPreview() {
-		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		@$signature = DevblocksPlatform::importGPC($_REQUEST['data'],'string', '');
-		
-		header('Content-Type: text/html; charset=' . LANG_CHARSET_CODE);
-		
-		// Token substitution
-		
-		$labels = $values = [];
-		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $labels, $values, null, true, true);
-		$dict = new DevblocksDictionaryDelegate($values);
-		
-		$signature = $tpl_builder->build($signature, $dict);
-		
-		// Parsedown
-		
-		$output = DevblocksPlatform::parseMarkdown($signature);
-		
-		echo $output;
 	}
 	
 	private function _profileAction_viewExplore() {
