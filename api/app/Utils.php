@@ -94,6 +94,9 @@ class CerberusUtils {
 			if(strlen($addy_row->mailbox) == 1 && preg_match('/[^a-zA-Z0-9]/', $addy_row->mailbox))
 				continue;
 			
+			if(!Swift_Validate::email($addy_row->mailbox . '@' . $addy_row->host))
+				continue;
+			
 			$results[] = $addy_row;
 		}
 		
