@@ -3,11 +3,11 @@
 		{if is_array($data->children) && !empty($data->children)}
 			<li {if $data->key}data-token="{$data->key}" data-label="{$data->label}"{/if}>
 				{if $data->key}
-					<div style="font-weight:bold;">{$data->l|capitalize}</div>
+					<div style="font-weight:bold;">{$data->l|capitalize|truncate:30}</div>
 				{else}
-					<div>{$idx|capitalize}</div>
+					<div>{$idx|capitalize|truncate:30}</div>
 				{/if}
-				<ul style="max-width:250px;width:250px;">
+				<ul style="{if count($data->children) > 15}width:calc(50vw);column-width:200px;column-count:auto;{else}width:200px;{/if}">
 					{menu keys=$data->children level=$level+1}
 				</ul>
 			</li>
@@ -16,7 +16,7 @@
 			<li data-token="{$data->key}" data-label="{$data->label}">
 				<div style="font-weight:bold;">
 					<img class="cerb-avatar" src="{devblocks_url}c=avatars&context={$item_context.0}&context_id={$item_context.1}{/devblocks_url}?v={$smarty.const.APP_BUILD}">
-					{$data->l|capitalize}
+					{$data->l|capitalize|truncate:30}
 				</div>
 			</li>
 		{/if}
