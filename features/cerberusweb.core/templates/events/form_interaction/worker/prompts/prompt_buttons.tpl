@@ -8,7 +8,7 @@
 	
 		{foreach from=$options item=option}
 		<div style="margin:2px 0;{if $orientation == 'horizontal'}display:inline-block;{/if}">
-			<button type="button" value="{$option}" {if $value==$option}style="border:2px solid rgb(39,123,214);"{/if}>{$option}</button>
+			<button type="button" value="{$option}" {if $value|default:$default==$option}style="border:2px solid rgb(39,123,214);"{/if}>{$option}</button>
 		</div>
 		{/foreach}
 	</div>
