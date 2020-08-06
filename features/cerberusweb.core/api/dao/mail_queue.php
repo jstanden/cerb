@@ -902,6 +902,9 @@ class Model_MailQueue {
 		if($this->hasParam('org_id'))
 			$properties['org_id'] = $this->getParam('org_id');
 		
+		if($this->hasParam('org_name'))
+			$properties['org_id'] = DAO_ContactOrg::lookup($this->getParam('org_name'));
+		
 		if($this->hasParam('status_id'))
 			$properties['status_id'] = $this->getParam('status_id');
 			
@@ -1597,6 +1600,8 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 					'format' => '`parsedown` (Markdown), or blank for plaintext',
 					'file_ids' => 'An array of [attachment](/docs/records/types/attachment/) IDs',
 					'group_id' => 'The [group](/docs/records/types/group/) ID to move the ticket to',
+					'org_id' => 'The [org](/docs/records/types/org/) ID to assign',
+					'org_name' => 'The [org](/docs/records/types/org/) name to assign',
 					'owner_id' => 'The [worker](/docs/records/types/worker/) ID to assign',
 					'send_at' => 'The optional timestamp to deliver the message at',
 					'status_id' => '`0` (open), `1` (waiting), `2` (closed)',
