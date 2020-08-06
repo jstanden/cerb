@@ -19,7 +19,6 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		@$auth_enabled = $params['auth_enabled'];
 		@$auth_user = $params['auth_user'];
 		@$auth_pass = $params['auth_pass'];
-		@$timeout = $params['timeout'];
 		
 		if(empty($host)) {
 			$error = 'The SMTP "host" parameter is required.';
@@ -37,7 +36,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			'host' => $host,
 			'port' => $port,
 			'enc' => $encryption,
-			'timeout' => $timeout,
+			'timeout' => 10,
 		);
 		
 		if($auth_enabled) {
