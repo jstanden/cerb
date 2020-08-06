@@ -4121,7 +4121,7 @@ var ajax = new cAjaxCalls();
 				var autocomplete_placeholders = $trigger.attr('data-autocomplete-placeholders');
 				var shortcuts = null == $trigger.attr('data-shortcuts') || 'false' != $trigger.attr('data-shortcuts');
 				
-				var $autocomplete = $('<input type="search" size="32" autofocus="autofocus">');
+				var $autocomplete = $('<input type="text" size="32" autofocus="autofocus">');
 				
 				if(placeholder)
 					$autocomplete.attr('placeholder', placeholder);
