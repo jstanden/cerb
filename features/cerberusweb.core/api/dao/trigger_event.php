@@ -1822,6 +1822,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_TriggerEvent::URI),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.records of:behaviors query:(uri:*{{term}}* limit:25) format:dictionaries',
+						'key' => 'uri',
+						'limit' => 25,
+					]
 				),
 			'usableBy.bot' => 
 				array(
