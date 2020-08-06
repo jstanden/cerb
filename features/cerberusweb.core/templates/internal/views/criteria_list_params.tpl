@@ -4,7 +4,7 @@
 {foreach from=$params item=param key=param_key name=params}
 	{if !$nested && !$readonly}<div><span class="glyphicons glyphicons-circle-remove" style="cursor:pointer;margin-right:5px;"></span> <input type="checkbox" name="field_deletes[]" value="{$param_key}" style="display:none;"> {/if}
 	{if !$nested && $readonly}<li class="bubble-blue" style="position:relative;{if is_array($param)}white-space:normal;{/if}">{/if}
-		
+
 	{if '*_' == substr($param->field,0,2)}
 		{$view->renderVirtualCriteria($param)}
 	{elseif is_array($param)}
@@ -22,14 +22,23 @@
 				{elseif $p == DevblocksSearchCriteria::GROUP_OR_NOT}
 					{$group_oper = 'OR'}
 					{$group_not = true}
+				{else}
+					{$group_oper = null}
+					{$group_not = false}
 				{/if}
-				
+
 				{if $group_not}
-					<tt style="color:black;font-weight:bold;padding:0px 5px;">NOT (</tt>
+					<code style="color:black;font-weight:bold;padding:0px 5px;">NOT (</code>
+				{/if}
+
+				{if $nested}
+				<code style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">(</code>
 				{/if}
 			{else}
 				{if is_array($p)}
+					<code style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">(</code>
 					{include file="devblocks:cerberusweb.core::internal/views/criteria_list_params.tpl" params=$p nested=true}
+					<code style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">)</code>
 				{else}
 					{if '*_' == substr($p->field,0,2)}
 						{$view->renderVirtualCriteria($p)}
@@ -84,18 +93,22 @@
 						{/if}
 					{/if}
 				{/if}
-				
-				{if !$smarty.foreach.p.last} 
-					<tt style="color:black;font-weight:bold;padding:0px 5px;">{$group_oper}</tt>
+
+				{if !$smarty.foreach.p.last}
+					<code style="color:black;font-weight:bold;padding:0px 5px;">{$group_oper}</code>
 				{else}
 					{if $group_not}
-					<tt style="color:black;font-weight:bold;padding:0px 5px;">)</tt>
+					<code style="color:black;font-weight:bold;padding:0px 5px;">)</code>
 					{/if}
 				{/if}
 			{/if}
 		{/foreach}
+
+		{if $nested}
+		<code style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">)</code>
+		{/if}
 	{else}
-		{$field = $param->field} 
+		{$field = $param->field}
 		{$view_filters.$field->db_label|capitalize}
 		{* [TODO] Add operator labels to platform *}
 		{if $param->operator=='='}
@@ -145,11 +158,10 @@
 			{$param->operator} 
 			<b>{$view->renderCriteriaParam($param)}</b>
 		{/if}
-		
-		{if $nested}{if $smarty.foreach.params.first}<tt style="color:black;font-weight:bold;padding:0px 2px 0px 0px;">(</tt>{/if}
-			{if !$smarty.foreach.params.first && !$smarty.foreach.params.last}<tt style="color:black;font-weight:bold;padding:0px 5px;">{$params.0}</tt>{/if}
-			{if $smarty.foreach.params.last}<tt style="color:black;font-weight:bold;padding:0px 0px 0px 2px;">)</tt>{/if} 
-		{/if}
+	{/if}
+
+	{if $nested && !$smarty.foreach.params.first && !$smarty.foreach.params.last}
+		<code style="color:black;font-weight:bold;padding:0px 5px;">{$params.0}</code>
 	{/if}
 		
 	{if !$nested && !$readonly}</div>{/if}
