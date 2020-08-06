@@ -137,8 +137,7 @@
 			"name": "Default HTML Layout",
 			"owner__context": "app",
 			"owner_id": "0",
-			"content": "<div id=\"body\">\n{{message_body}}\n</div>\n\n<style type=\"text/css\">\n#body {\n  font-family: Arial, Verdana, sans-serif;\n  font-size: 10pt;\n}\n\na { \n  color: black;\n}\n\nblockquote {\n  color: rgb(0, 128, 255);\n  font-style: italic;\n  margin-left: 0px;\n  border-left: 1px solid rgb(0, 128, 255);\n  padding-left: 5px;\n}\n\nblockquote a {\n  color: rgb(0, 128, 255);\n}\n</style>",
-			"signature": ""
+			"content": "<div id=\"body\">\n{{message_body}}\n</div>\n\n<style type=\"text/css\">\n#body {\n  font-family: Arial, Verdana, sans-serif;\n  font-size: 10pt;\n}\n\na { \n  color: black;\n}\n\nblockquote {\n  color: rgb(0, 128, 255);\n  font-style: italic;\n  margin-left: 0px;\n  border-left: 1px solid rgb(0, 128, 255);\n  padding-left: 5px;\n}\n\nblockquote a {\n  color: rgb(0, 128, 255);\n}\n</style>"
 		},
 		{
 			"uid": "signature_default",
