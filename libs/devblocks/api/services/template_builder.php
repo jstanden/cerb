@@ -893,6 +893,19 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		return true;
 	}
 	
+	public static function getDictionaryFromModel($model, $context, array $keys=[]) {
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(
+			[$model->id => $model],
+			CerberusContexts::CONTEXT_ATTACHMENT,
+			$keys
+		);
+		
+		if(array_key_exists($model->id, $dicts))
+			return $dicts[$model->id];
+	
+		return null;
+	}
+	
 	public static function getDictionariesFromModels(array $models, $context, array $keys=[]) {
 		$dicts = [];
 		
