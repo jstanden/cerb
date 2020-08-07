@@ -1093,7 +1093,7 @@ class Cerb_Packages {
 				if(false != (@$event = Extension_DevblocksEvent::get($behavior['event']['key'], true)))
 					$event->prepareEventParams(null, $event_params, $error);
 				
-				DAO_TriggerEvent::update($id, [
+				$fields_behavior = [
 					DAO_TriggerEvent::EVENT_POINT => $behavior['event']['key'],
 					DAO_TriggerEvent::EVENT_PARAMS_JSON => json_encode($event_params),
 					DAO_TriggerEvent::IS_DISABLED => 1, // until successfully imported
@@ -1102,8 +1102,12 @@ class Cerb_Packages {
 					DAO_TriggerEvent::TITLE => $behavior['title'],
 					DAO_TriggerEvent::UPDATED_AT => time(),
 					DAO_TriggerEvent::VARIABLES_JSON => isset($behavior['variables']) ? json_encode($behavior['variables']) : '',
-				]);
+				];
 				
+				if(array_key_exists('uri', $behavior) && $behavior['uri'])
+					$fields_behavior[DAO_TriggerEvent::URI] = $behavior['uri'];
+				
+				DAO_TriggerEvent::update($id, $fields_behavior);
 				
 				// Create records for all child nodes and link them to the proper parents
 				
