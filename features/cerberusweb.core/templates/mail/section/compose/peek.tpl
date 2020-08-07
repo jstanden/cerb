@@ -995,7 +995,7 @@ $(function() {
 			}
 		});
 
-		{if $org}
+		{if $org || $draft->params.org_name}
 		$frm.find('input:text[name=org_name]').trigger('autocompletechange');
 		{/if}
 
