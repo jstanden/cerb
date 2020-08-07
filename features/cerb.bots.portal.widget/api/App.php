@@ -514,6 +514,7 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 		
 		if(isset($params[self::PARAM_CORS_ALLOW_ORIGIN])) {
 			$value = strval($params[self::PARAM_CORS_ALLOW_ORIGIN]);
+			$value = rtrim($value, '/');
 			DAO_CommunityToolProperty::set($instance->code, self::PARAM_CORS_ALLOW_ORIGIN, $value);
 		}
 		
