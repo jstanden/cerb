@@ -1571,6 +1571,7 @@ class Model_TriggerEvent {
 			$export_type => array(
 				'uid' => 'behavior_'.$this->id,
 				'title' => $this->title,
+				'uri' => null,
 				'is_disabled' => $this->is_disabled ? true : false,
 				'is_private' => $this->is_private ? true : false,
 				'priority' => $this->priority,
@@ -1580,6 +1581,12 @@ class Model_TriggerEvent {
 				),
 			),
 		);
+		
+		if($this->uri) {
+			$array[$export_type]['uri'] = $this->uri;
+		} else {
+			unset($array[$export_type]['uri']);
+		}
 		
 		if(isset($this->event_params) && !empty($this->event_params))
 			$array[$export_type]['event']['params'] = $this->event_params;
