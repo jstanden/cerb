@@ -332,7 +332,11 @@ abstract class DevblocksORMHelper {
 			$total = $rs->num_rows;
 			
 			while($row = mysqli_fetch_assoc($rs)) {
-				$id = intval($row[$id_key]);
+				$id = $row[$id_key];
+				
+				if(is_numeric($id))
+					$id = intval($id);
+				
 				$data[$id] = $row;
 			}
 			
