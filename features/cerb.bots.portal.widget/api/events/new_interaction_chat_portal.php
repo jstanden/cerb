@@ -229,62 +229,16 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 	}
 	
 	function simulateActionExtension($token, $trigger, $params, DevblocksDictionaryDelegate $dict) {
+		$out = '';
+		
 		switch($token) {
 			case 'switch_behavior':
 				@$behavior_id = intval($params['behavior_id']);
-				
-				// [TODO] Params
 				
 				$out = sprintf(">>> Using behavior\n".
 					"%d\n",
 					$behavior_id
 				);
-				
-				// [TODO]?
-				
-				// Variables as parameters
-				/*
-				$vars = [];
-				
-				if(is_array($params))
-				foreach($params as $k => $v) {
-					if(DevblocksPlatform::strStartsWith($k, 'var_')) {
-						if(!isset($behavior->variables[$k]))
-							continue;
-						
-						try {
-							if(is_string($v))
-								$v = $tpl_builder->build($v, $dict);
-		
-							$v = $behavior->formatVariable($behavior->variables[$k], $v);
-							
-							$vars[$k] = $v;
-							
-						} catch(Exception $e) {
-							
-						}
-					}
-				}
-				
-				if(is_array($vars) && !empty($vars)) {
-					foreach($vars as $k => $v) {
-						
-						if(is_array($v)) {
-							$vals = [];
-							foreach($v as $kk => $vv)
-								if(isset($vv->_label))
-									$vals[] = $vv->_label;
-							$v = implode("\n  ", $vals);
-						}
-						
-						$out .= sprintf("\n* %s:%s\n",
-							$behavior->variables[$k]['label'],
-							!empty($v) ? (sprintf("\n   %s", $v)) : ('')
-						);
-					}
-				}
-				*/
-				
 				break;
 		}
 		

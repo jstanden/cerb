@@ -614,8 +614,6 @@ class Event_NewMessageChatPortal extends Extension_DevblocksEvent {
 				
 			case 'switch_behavior':
 				@$behavior_id = $params['behavior_id'];
-				//$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				//$content = $tpl_builder->build($params['script'], $dict);
 				
 				$out = sprintf(">>> Switching behavior\n".
 					"%d\n",
