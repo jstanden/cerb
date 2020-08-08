@@ -747,6 +747,7 @@ class Model_MailQueue {
 		
 		if('parsedown' == $message_properties['content_format']) {
 			$output = $message_properties['content'];
+			$output = CerberusMail::getMailTemplateFromContent($output, $message_properties, 'html');
 			$output = DevblocksPlatform::parseMarkdown($output);
 			
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
@@ -755,7 +756,10 @@ class Model_MailQueue {
 			return $output;
 		
 		} else {
-			return $message_properties['content'];
+			$output = $message_properties['content'];
+			$output = CerberusMail::getMailTemplateFromContent($output, $message_properties, 'text');
+			
+			return $output;
 		}
 	}
 	
