@@ -5,6 +5,7 @@ require(APP_PATH . '/api/Application.class.php');
 
 DevblocksPlatform::init();
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
+DevblocksPlatform::setStateless(true);
 
 if(!file_exists('./out/records/') || !is_dir('./out/'))
 	die('The ./out/records/ directory does not exist.');
@@ -21,9 +22,9 @@ foreach($all_contexts as $context_ext) {
 	
 	// Skip internal record types
 	if(in_array($context_ext->id, [
-		Context_JiraIssue::ID,
-		Context_JiraProject::ID,
-		Context_WgmCerbLicense::ID,
+		'cerberusweb.contexts.jira.issue',
+		'cerberusweb.contexts.jira.project',
+		'wgm.cerb_licensing.contexts.license',
 	]))
 		continue;
 	

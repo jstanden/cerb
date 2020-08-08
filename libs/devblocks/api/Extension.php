@@ -3317,16 +3317,16 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 			];
 		}
 
-		$bot = $trigger->getBot();
-
 		// Add plugin extensions
 
 		$manifests = Extension_DevblocksEventAction::getAll(false, $trigger->event_point);
 
 		// Filter extensions by VA permissions
-
-		$manifests = $bot->filterActionManifestsByAllowed($manifests);
-
+		
+		if(false != ($bot = $trigger->getBot())) {
+			$manifests = $bot->filterActionManifestsByAllowed($manifests);
+		}
+		
 		if(is_array($manifests))
 		foreach($manifests as $manifest) {
 			$action = [];

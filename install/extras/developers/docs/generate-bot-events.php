@@ -5,6 +5,7 @@ require(APP_PATH . '/api/Application.class.php');
 
 DevblocksPlatform::init();
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
+DevblocksPlatform::setStateless(true);
 
 if(!file_exists('./out') || !is_dir('./out/'))
 	die('The ./out/ directory does not exist.');

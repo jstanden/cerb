@@ -5,6 +5,7 @@ require_once(APP_PATH . '/api/Application.class.php');
 
 DevblocksPlatform::init();
 DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
+DevblocksPlatform::setStateless(true);
 
 if(!file_exists('./out/'))
 	mkdir('./out/');
@@ -24,6 +25,9 @@ if(!file_exists('./out/extensions/'))
 if(!file_exists('./out/points/'))
 	mkdir('./out/points/');
 
+if(!file_exists('./out/points-include/'))
+	mkdir('./out/points-include/');
+
 $plugins = DevblocksPlatform::getPluginRegistry();
 
 DevblocksPlatform::sortObjects($plugins, 'name');
@@ -33,6 +37,12 @@ $extension_point_meta = [
 		'label' => 'Plugin Setup',
 		'class' => 'Extension_PluginSetup',
 		'examples' => [],
+		],
+	'cerb.card.widget' => [
+		'label' => 'Card Widget',
+		'class' => 'Extension_CardWidget',
+		'examples' => [],
+		'extensible' => true,
 		],
 	'cerb.custom_field' => [
 		'label' => 'Custom Field Type',
@@ -503,7 +513,8 @@ EOD;
 		
 		foreach($params as $param) {
 			$params_out[] = sprintf("%s\$%s%s",
-				$param->hasType() ? ($param->getType() . ' ') : '',
+				//$param->hasType() ? ($param->getType() . ' ') : '',
+				'',
 				$param->getName(),
 				//$param->isDefaultValueAvailable() ? ('=' . $param->getDefaultValue()) : ''
 				''
