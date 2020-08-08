@@ -9,8 +9,12 @@ php:
   - 7.2
   - 7.3
   - 7.4
+  
+before_install:
+  - sudo apt-get -y install libyaml-dev
 
 before_script:
+  - printf "\n" | pecl install yaml
   - pecl install mailparse
   - echo 'upload_tmp_dir = "/tmp"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
