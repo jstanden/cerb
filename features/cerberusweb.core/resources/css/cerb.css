@@ -2361,7 +2361,6 @@ UL.ui-menu li.ui-state-focus {
 .cerb-card-widget--header {
   border-bottom: 1px solid #f0f0f0;
   margin: 0 0 5px 0;
-  border-radius: 5px;
   position: relative;
 }
 .cerb-card-widget--header b {
@@ -2391,7 +2390,6 @@ UL.ui-menu li.ui-state-focus {
 .cerb-profile-widget--header {
   border-bottom: 1px solid #f0f0f0;
   margin: 0 0 10px 0;
-  border-radius: 5px;
   position: relative;
 }
 .cerb-profile-widget--header b {
@@ -2464,7 +2462,6 @@ svg.cerb-spinner circle {
 .cerb-workspace-widget--header {
   border-bottom: 1px solid #f0f0f0;
   margin: 0 0 10px 0;
-  border-radius: 5px;
   position: relative;
 }
 .cerb-workspace-widget--header b {
