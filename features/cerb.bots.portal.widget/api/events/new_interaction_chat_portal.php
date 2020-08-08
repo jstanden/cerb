@@ -302,6 +302,7 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 					$actions = [];
 				
 				@$behavior_id = intval($params['behavior_id']);
+				@$var_key = $params['var'] ?? '_behavior';
 				
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;
@@ -330,12 +331,13 @@ class Event_NewInteractionChatPortal extends Extension_DevblocksEvent {
 					}
 				}
 				
-				$actions[] = array(
+				$actions[] = [
 					'_action' => 'behavior.switch',
 					'_trigger_id' => $trigger->id,
 					'behavior_id' => $behavior_id,
 					'behavior_variables' => $vars,
-				);
+					'var' => $var_key,
+				];
 				break;
 		}
 	}

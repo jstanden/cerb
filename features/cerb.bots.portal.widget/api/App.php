@@ -271,13 +271,14 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 							// Return to the caller if we have one
 							@$caller = array_pop($interaction->session_data['callers']);
 							$interaction->session_data['behavior_has_parent'] = !empty($interaction->session_data['callers']) ? 1 : 0;
+							@$caller_result_key = $caller['result'] ?? '_behavior';
 							
 							if(is_array($caller)) {
 								$caller_behavior_id = $caller['behavior_id'];
 								
 								if($caller_behavior_id && isset($interaction->session_data['behaviors'][$caller_behavior_id])) {
 									$interaction->session_data['behavior_id'] = $caller_behavior_id;
-									$interaction->session_data['behaviors'][$caller_behavior_id]['dict']['_behavior'] = $values;
+									$interaction->session_data['behaviors'][$caller_behavior_id]['dict'][$caller_result_key] = $values;
 								}
 								
 								$tpl->display('devblocks:cerb.bots.portal.widget::widget/convo/prompt_wait.tpl');
@@ -304,13 +305,14 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 							switch(@$params['_action']) {
 								case 'behavior.switch':
 									@$variables = $params['behavior_variables'];
+									@$var_key = $params['var'] ?: '_behavior';
 									
 									if(!isset($interaction->session_data['callers']))
 										$interaction->session_data['callers'] = [];
 									
 									$interaction->session_data['callers'][] = [
 										'behavior_id' => $behavior->id,
-										'return' => '_behavior', // [TODO] Configurable
+										'return' => $var_key,
 									];
 									
 									if(false == ($behavior_id = @$params['behavior_id']))

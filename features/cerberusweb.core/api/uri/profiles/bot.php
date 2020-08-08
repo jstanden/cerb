@@ -1279,7 +1279,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
 		@$message = DevblocksPlatform::importGPC($_POST['message'], 'string', '');
 		
-		
 		if(false == (@$bot_name = $bot_session->session_data['bot_name']))
 			$bot_name = 'Cerb';
 		
@@ -1357,13 +1356,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			// Return to the caller if we have one
 			@$caller = array_pop($bot_session->session_data['callers']);
 			$bot_session->session_data['behavior_has_parent'] = !empty($bot_session->session_data['callers']) ? 1 : 0;
+			@$caller_result_key = $caller['return'] ?? '_behavior';
 			
 			if(is_array($caller)) {
 				$caller_behavior_id = $caller['behavior_id'];
 				
 				if($caller_behavior_id && isset($bot_session->session_data['behaviors'][$caller_behavior_id])) {
 					$bot_session->session_data['behavior_id'] = $caller_behavior_id;
-					$bot_session->session_data['behaviors'][$caller_behavior_id]['dict']['_behavior'] = $values;
+					$bot_session->session_data['behaviors'][$caller_behavior_id]['dict'][$caller_result_key] = $values;
 				}
 				
 				$tpl->display('devblocks:cerberusweb.core::console/prompt_wait.tpl');
@@ -1389,6 +1389,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				case 'behavior.switch':
 					@$behavior_return = $params['behavior_return'];
 					@$variables = $params['behavior_variables'];
+					@$var_key = $params['var'] ?: '_behavior';
 					
 					if(!isset($bot_session->session_data['callers']))
 						$bot_session->session_data['callers'] = [];
@@ -1396,7 +1397,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					if($behavior_return) {
 						$bot_session->session_data['callers'][] = [
 							'behavior_id' => $behavior->id,
-							'return' => '_behavior', // [TODO] Configurable
+							'return' => $var_key,
 						];
 					} else {
 						$bot_session->session_data['behaviors'][$behavior->id]['dict'] = [];

@@ -974,6 +974,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 
 				@$behavior_id = intval($params['behavior_id']);
 				@$behavior_return = intval($params['return']) ? true : false;
+				@$var_key = $params['var'] ?? '_behavior';
 
 				if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 					break;
@@ -1005,13 +1006,14 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 					}
 				}
 
-				$actions[] = array(
+				$actions[] = [
 					'_action' => 'behavior.switch',
 					'_trigger_id' => $trigger->id,
 					'behavior_id' => $behavior_id,
 					'behavior_variables' => $vars,
 					'behavior_return' => $behavior_return,
-				);
+					'var' => $var_key,
+				];
 
 				$dict->__exit = 'suspend';
 				break;
