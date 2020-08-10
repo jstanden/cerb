@@ -1467,125 +1467,6 @@ class DevblocksPlatform extends DevblocksEngine {
 			$str
 		);
 
-		// Convert hyperlinks to plaintext
-
-		$str = preg_replace_callback(
-				'@<a[^>]*?>(.*?)</a>@si',
-				function($matches) {
-						if(!isset($matches[0]))
-								return false;
-
-						if(false == ($dom = simplexml_load_string($matches[0]))) {
-								return false;
-						}
-
-						@$href_link = $dom['href'];
-						@$href_label = trim(dom_import_simplexml($dom)->textContent);
-
-						// Skip if there is no label text (images, etc)
-						if(empty($href_label)) {
-								$out = null;
-
-						// If the link and label are the same, ignore label
-						} elseif($href_label == $href_link) {
-								$out = $href_link;
-
-						// Otherwise, format like Markdown
-						} else {
-								$out = sprintf("[%s](%s)",
-										$href_label,
-										$href_link
-								);
-						}
-
-						return $out;
-				},
-				$str
-		);
-
-		// Pre-process blockquotes
-		if(!$skip_blockquotes) {
-			$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
-			$dom->preserveWhiteSpace = true;
-			$dom->formatOutput = false;
-			$dom->strictErrorChecking = false;
-			$dom->recover = true;
-			$dom->validateOnParse = false;
-			
-			libxml_use_internal_errors(true);
-			
-			$dom->loadHTML(sprintf('<?xml version="1.0" encoding="%s">', LANG_CHARSET_CODE) . $str);
-			
-			libxml_get_errors();
-			libxml_clear_errors();
-			
-			$xpath = new DOMXPath($dom);
-			
-			while(($blockquotes = $xpath->query('//blockquote')) && $blockquotes->length) {
-			
-				foreach($blockquotes as $blockquote) { /* @var $blockquote DOMElement */
-					$nested = $xpath->query('.//blockquote', $blockquote);
-					
-					// If the blockquote contains another blockquote, ignore it for now
-					if($nested->length > 0)
-						continue;
-					
-					// Change the blockquote tags to DIV, prefixed with '>'
-					$div = $dom->createElement('span');
-					
-					$plaintext = DevblocksPlatform::stripHTML($dom->saveXML($blockquote), $strip_whitespace, true);
-					
-					$out = explode("\n", trim($plaintext));
-					
-					array_walk($out, function($line) use ($dom, $div) {
-						$text = $dom->createTextNode('> ' . $line);
-						$div->appendChild($text);
-						$div->appendChild($dom->createElement('br'));
-					});
-					
-					$blockquote->parentNode->replaceChild($div, $blockquote);
-				}
-			}
-			
-			$html = $dom->saveHTML();
-			
-			// Make sure it's not blank before trusting it.
-			if(!empty($html)) {
-				$str = $html;
-				unset($html);
-			}
-		}
-
-		// Code blocks to plaintext
-		
-		$str = preg_replace_callback(
-			'@<code[^>]*?>(.*?)</code>@si',
-			function($matches) {
-				if(isset($matches[1])) {
-					$out = $matches[1];
-					$out = str_replace(" ","&nbsp;", $out);
-					return $out;
-				}
-			},
-			$str
-		);
-		
-		// Preformatted blocks to plaintext
-		
-		$str = preg_replace_callback(
-			'#<pre.*?/pre\>#si',
-			function($matches) {
-				if(isset($matches[0])) {
-					$out = $matches[0];
-					$out = str_replace("\n","<br>", trim($out));
-					return '<br>' . $out . '<br>';
-				}
-			},
-			$str
-		);
-		
-		// Unordered and ordered lists
-		
 		$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
 		$dom->preserveWhiteSpace = true;
 		$dom->formatOutput = false;
@@ -1602,42 +1483,76 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$xpath = new DOMXPath($dom);
 		
+		// Convert hyperlinks to plaintext
+		$anchors = $xpath->query('//a');
+		foreach($anchors as $anchor) { /* @var $anchor DOMElement */
+			if(!$anchor->textContent)
+				continue;
+			
+			$href = $anchor->getAttribute('href');
+			
+			if($href && $anchor->textContent != $href) {
+				$anchor->textContent .= ' [' . $href . ']';
+			}
+		}
+		
+		// Pre-process blockquotes
+		$blockquotes = $xpath->query('//blockquote');
+		if(!$skip_blockquotes) {
+			while ($blockquotes && $blockquotes->length) {
+				foreach ($blockquotes as $blockquote) {
+					/* @var $blockquote DOMElement */
+					$nested = $xpath->query('.//blockquote', $blockquote);
+					
+					// If the blockquote contains another blockquote, ignore it for now
+					if ($nested->length > 0)
+						continue;
+					
+					// Change the blockquote tags to DIV, prefixed with '>'
+					$div = $dom->createElement('span');
+					
+					$plaintext = DevblocksPlatform::stripHTML($dom->saveXML($blockquote), $strip_whitespace, true);
+					
+					$out = explode("\n", trim($plaintext));
+					
+					array_walk($out, function ($line) use ($dom, $div) {
+						$text = $dom->createTextNode('> ' . $line);
+						$div->appendChild($text);
+						$div->appendChild($dom->createElement('br'));
+					});
+					
+					$blockquote->parentNode->replaceChild($div, $blockquote);
+				}
+			}
+		}
+		
+		// Preformatted blocks to plaintext
+		$pre_blocks = $xpath->query('//pre');
+		foreach($pre_blocks as $pre_block) { /* @var $pre_block DOMElement */
+			$text = trim($pre_block->textContent);
+			$text = str_replace("\n", "{{BR}}", $text);
+			$text = str_replace(" ", "{{SP}}", $text);
+			$pre_block->textContent = $text . '{{BR}}';
+		}
+		
 		// Ordered lists
-		
 		$lists = $xpath->query('//ol');
-		
 		foreach($lists as $list) { /* @var $list DOMElement */
 			$items = $xpath->query('./li', $list);
 			
 			$counter = 1;
 			foreach($items as $item) { /* @var $item DOMElement */
-				if(false == (@$inner_html = $dom->saveXML($item)))
-					continue;
-				
-				$value = DevblocksPlatform::stripHTML($inner_html);
-				
-				$txt = $dom->createTextNode($counter++ . '. ' . str_replace("\n", "{{BR}}", $value));
-				$item->parentNode->insertBefore($txt, $item);
-				$item->parentNode->removeChild($item);
+				$item->textContent = $counter++ . '. ' . $item->textContent;
 			}
 		}
-
+		
 		// Unordered lists
-		
 		$lists = $xpath->query('//ul');
-		
 		foreach($lists as $list) { /* @var $list DOMElement */
 			$items = $xpath->query('./li', $list);
 			
 			foreach($items as $item) { /* @var $item DOMElement */
-				if(false == (@$inner_html = $dom->saveXML($item)))
-					continue;
-				
-				$value = DevblocksPlatform::stripHTML($inner_html);
-				
-				$txt = $dom->createTextNode('- ' . str_replace("\n", "{{BR}}", $value));
-				$item->parentNode->insertBefore($txt, $item);
-				$item->parentNode->removeChild($item);
+				$item->textContent = '- ' . $item->textContent;
 			}
 		}
 		
@@ -1648,7 +1563,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			$str = $html;
 			unset($html);
 		}
-		
+
 		// Strip all CRLF and tabs, spacify </TD>
 		if($strip_whitespace) {
 			$str = str_ireplace(
@@ -1701,7 +1616,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			"\n",
 			$str
 		);
-
+		
 		// Strip non-content tags
 		$search = array(
 			'@<head[^>]*?>.*?</head>@si',
@@ -1729,11 +1644,13 @@ class DevblocksPlatform extends DevblocksEngine {
 		$str = html_entity_decode($str, ENT_COMPAT, LANG_CHARSET_CODE);
 		
 		// Wrap quoted lines
-		// [TODO] This should be more reusable
 		$str = _DevblocksTemplateManager::modifier_devblocks_email_quote($str);
 		
 		// Clean up bytes (needed after HTML entities)
 		$str = mb_convert_encoding($str, LANG_CHARSET_CODE, LANG_CHARSET_CODE);
+		
+		// Replace nbsp
+		$str = str_replace('{{SP}}', ' ', $str);
 		
 		return ltrim($str);
 	}

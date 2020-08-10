@@ -1707,7 +1707,7 @@ DIV.emailBodyHtml H1, DIV.emailBodyHtml H2, DIV.emailBodyHtml H3, DIV.emailBodyH
 DIV.emailBodyHtml IMG {
   max-width: 100%;
 }
-DIV.emailBodyHtml UL {
+DIV.emailBodyHtml UL, DIV.emailBodyHtml OL {
   padding-left: 2em;
 }
 
