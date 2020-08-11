@@ -1199,11 +1199,8 @@ class Model_TriggerEvent {
 						break;
 					}
 					
-					$as_placeholder_stack = $as_placeholder . '__stack';
-					$dict->$as_placeholder_stack = $json;
-					
-					$as_placeholder_counter = $as_placeholder . '__counter';
-					$dict->$as_placeholder_counter = 0;
+					$dict->set($as_placeholder . '__stack', $json);
+					$dict->set($as_placeholder . '__counter', 0);
 					
 					if($replay_id)
 						break;
@@ -1322,19 +1319,19 @@ class Model_TriggerEvent {
 				@$as_placeholder_stack = $as_placeholder . '__stack';
 				@$as_placeholder_counter = $as_placeholder . '__counter';
 				
-				if(is_array($dict->$as_placeholder_stack) && !empty($dict->$as_placeholder_stack)) {
-					$dict->$as_placeholder_key = key($dict->$as_placeholder_stack);
-					$dict->$as_placeholder = current($dict->$as_placeholder_stack);
-					$dict->$as_placeholder_counter = intval($dict->$as_placeholder_counter) + 1;
+				if(is_array($dict->$as_placeholder_stack) && count($dict->$as_placeholder_stack)) {
+					$dict->set($as_placeholder_key, key($dict->$as_placeholder_stack));
+					$dict->set($as_placeholder, current($dict->$as_placeholder_stack));
+					$dict->set($as_placeholder_counter, intval($dict->$as_placeholder_counter) + 1);
 					
-					if($dict->$as_placeholder != '*')
+					if($dict->$as_placeholder !== '*')
 						array_shift($dict->$as_placeholder_stack);
 					
 					$loop = true;
 				} else {
-					unset($dict->$as_placeholder);
-					unset($dict->$as_placeholder_key);
-					unset($dict->$as_placeholder_stack);
+					$dict->unset($as_placeholder);
+					$dict->unset($as_placeholder_key);
+					$dict->unset($as_placeholder_stack);
 					break;
 				}
 			}
