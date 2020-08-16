@@ -1499,30 +1499,16 @@ class DevblocksPlatform extends DevblocksEngine {
 		// Pre-process blockquotes
 		$blockquotes = $xpath->query('//blockquote');
 		if(!$skip_blockquotes) {
-			while ($blockquotes && $blockquotes->length) {
-				foreach ($blockquotes as $blockquote) {
-					/* @var $blockquote DOMElement */
-					$nested = $xpath->query('.//blockquote', $blockquote);
-					
-					// If the blockquote contains another blockquote, ignore it for now
-					if ($nested->length > 0)
-						continue;
-					
-					// Change the blockquote tags to DIV, prefixed with '>'
-					$div = $dom->createElement('span');
-					
-					$plaintext = DevblocksPlatform::stripHTML($dom->saveXML($blockquote), $strip_whitespace, true);
-					
-					$out = explode("\n", trim($plaintext));
-					
-					array_walk($out, function ($line) use ($dom, $div) {
-						$text = $dom->createTextNode('> ' . $line);
-						$div->appendChild($text);
-						$div->appendChild($dom->createElement('br'));
-					});
-					
-					$blockquote->parentNode->replaceChild($div, $blockquote);
-				}
+			foreach ($blockquotes as $blockquote) {
+				/* @var $blockquote DOMElement */
+				$nested = $xpath->query('.//blockquote', $blockquote);
+				
+				// If the blockquote contains another blockquote, ignore it for now
+				if ($nested->length > 0)
+					continue;
+				
+				$plaintext = DevblocksPlatform::stripHTML($dom->saveXML($blockquote), $strip_whitespace, true);
+				$blockquote->textContent = DevblocksPlatform::services()->string()->indentWith($plaintext, '{{BR}}> ');
 			}
 		}
 		
