@@ -120,6 +120,7 @@ class MailboxCron extends CerberusCronPageExtension {
 				$mailbox_runtime = microtime(true);
 				
 				$messages = [];
+				$expunge_uids = [];
 				
 				if(DevblocksPlatform::strStartsWith($account->protocol, 'pop3')) {
 					$sequence_ids = new Horde_Imap_Client_Ids_Pop3(range(1, $total), true);
@@ -223,6 +224,8 @@ class MailboxCron extends CerberusCronPageExtension {
 					 */
 					rename($filename, dirname($filename) . DIRECTORY_SEPARATOR . basename($filename) . '.msg');
 					
+					$expunge_uids[] = $message->getUid();
+					
 					$logger->info("[Mailboxes] Downloaded message ".$message->getUid()." (".sprintf("%d",($time*1000))." ms)");
 				}
 				
@@ -239,10 +242,14 @@ class MailboxCron extends CerberusCronPageExtension {
 					]);
 					
 				} else {
-					$client->expunge($mailbox_name, [
-						'delete' => true,
-						'ids' => $sequence_ids,
+					$client->store($mailbox_name, [
+						'add' => [
+							Horde_Imap_Client::FLAG_DELETED
+						],
+						'ids' => new Horde_Imap_Client_Ids($expunge_uids),
 					]);
+					
+					$client->expunge($mailbox_name);
 				}
 				
 				$client->close();
