@@ -580,6 +580,8 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_EMAIL_SEARCH = '*_email_search';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
+	const VIRTUAL_TICKET_ID = '*_ticket_id';
+	const VIRTUAL_TICKET_SEARCH = '*_ticket_search';
 	const VIRTUAL_WATCHERS = '*_workers';
 	
 	static private $_fields = null;
@@ -596,6 +598,17 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_TICKET_ID:
+				if(!is_array($param->value))
+					break;
+				
+				$ids = DevblocksPlatform::sanitizeArray($param->value, 'integer');
+				
+				return sprintf("%s IN (SELECT org_id FROM ticket t WHERE t.id IN (%s))",
+					self::getPrimaryKey(),
+					implode(',', $ids)
+				);
+
 			case self::FULLTEXT_ORG:
 				return self::_getWhereSQLFromFulltextField($param, Search_Org::ID, self::getPrimaryKey());
 				break;
@@ -623,6 +636,10 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ORG)), self::getPrimaryKey());
+				break;
+
+			case self::VIRTUAL_TICKET_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT org_id FROM ticket t WHERE t.id IN (%s)", 'c.id');
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -699,6 +716,8 @@ class SearchFields_ContactOrg extends DevblocksSearchFields {
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_EMAIL_SEARCH => new DevblocksSearchField(self::VIRTUAL_EMAIL_SEARCH, '*', 'email_search', null, null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
+			self::VIRTUAL_TICKET_ID => new DevblocksSearchField(self::VIRTUAL_TICKET_ID, '*', 'ticket_id', $translate->_('common.ticket'), null, false),
+			self::VIRTUAL_TICKET_SEARCH => new DevblocksSearchField(self::VIRTUAL_TICKET_SEARCH, '*', 'ticket_search', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
 		);
 		
@@ -990,6 +1009,8 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			SearchFields_ContactOrg::VIRTUAL_CONTEXT_LINK,
 			SearchFields_ContactOrg::VIRTUAL_EMAIL_SEARCH,
 			SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET,
+			SearchFields_ContactOrg::VIRTUAL_TICKET_ID,
+			SearchFields_ContactOrg::VIRTUAL_TICKET_SEARCH,
 			SearchFields_ContactOrg::VIRTUAL_WATCHERS,
 		));
 		
@@ -1220,7 +1241,23 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_ContactOrg::STREET, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'updated' => 
+			'ticket' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ContactOrg::VIRTUAL_TICKET_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
+					]
+				),
+			'ticket.id' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ContactOrg::VIRTUAL_TICKET_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_TICKET, 'q' => ''],
+					]
+				),
+			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_ContactOrg::UPDATED),
@@ -1300,6 +1337,26 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
 			
+			case 'ticket':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ContactOrg::VIRTUAL_TICKET_SEARCH);
+				break;
+			
+			case 'ticket.id':
+				$field_key = SearchFields_ContactOrg::VIRTUAL_TICKET_ID;
+				$oper = null;
+				$value = null;
+				
+				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value))
+					return false;
+				
+				$value = DevblocksPlatform::sanitizeArray($value, 'int');
+				
+				return new DevblocksSearchCriteria(
+					$field_key,
+					$oper,
+					$value
+				);
+				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
@@ -1370,7 +1427,22 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 			case SearchFields_ContactOrg::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
 				break;
-
+			
+			case SearchFields_ContactOrg::VIRTUAL_TICKET_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.ticket')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+			
+			case SearchFields_ContactOrg::VIRTUAL_TICKET_ID:
+				echo sprintf("%s on %s <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.organization')),
+					1 == count($param->value) ? 'ticket' : 'tickets',
+					DevblocksPlatform::strEscapeHtml(implode(' or ', $param->value))
+				);
+				break;
+				
 			case SearchFields_ContactOrg::VIRTUAL_WATCHERS:
 				$this->_renderVirtualWatchers($param);
 				break;
