@@ -27,6 +27,14 @@
 	background: linear-gradient(top, $from-color, $to-color);
 }
 
+@mixin linear-gradient-boundary($from-color, $to-color) {
+	background: -webkit-linear-gradient(top, $from-color, $to-color);
+	background: -moz-linear-gradient(270deg, $from-color, $to-color);
+	background: -o-linear-gradient(top, $from-color, $to-color);
+	background: -ms-linear-gradient(top, $from-color, $to-color);
+	background: linear-gradient(top, $from-color, $to-color);
+}
+
 @mixin whitespace-wrap() {
 	// CSS3
 	white-space: pre-wrap;

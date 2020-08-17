@@ -933,7 +933,7 @@ DIV.help-box {
 
 DIV.block {
 	padding: 5px;
-	@include linear-gradient(rgb(245,245,245) 25px, rgb(255,255,255) 75px);
+	@include linear-gradient-boundary(rgb(245,245,245) 25px, rgb(255,255,255) 75px);
 	background-color: white;
 	border: 1px solid rgb(230, 230, 230);
 
