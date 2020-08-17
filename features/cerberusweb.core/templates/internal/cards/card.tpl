@@ -69,14 +69,26 @@ $(function() {
         $popup.find('button.cerb-peek-edit')
             .cerbPeekTrigger({ 'view_id': '{$view_id}' })
             .on('cerb-peek-saved', function(e) {
-                $popup.trigger($.Event(e));
+                var saved_event = $.Event(e.type, e);
+                saved_event.is_rebroadcast = true;
+                $popup.trigger(saved_event);
 
-                $popup.trigger($.Event('cerb-widgets-refresh'));
+                e.stopPropagation();
+
+                if(!e.is_rebroadcast) {
+                    $popup.trigger($.Event('cerb-widgets-refresh'));
+                }
             })
             .on('cerb-peek-deleted', function(e) {
-                $popup.trigger($.Event(e));
+                var delete_event = $.Event(e.type, e);
+                delete_event.is_rebroadcast = true;
+                $popup.trigger(delete_event);
 
-                genericAjaxPopupClose($layer);
+                e.stopPropagation();
+
+                if(!e.is_rebroadcast) {
+                    genericAjaxPopupClose($layer);
+                }
             })
         ;
         {/if}

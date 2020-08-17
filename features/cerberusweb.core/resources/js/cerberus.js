@@ -3531,7 +3531,7 @@ var ajax = new cAjaxCalls();
 				// Open peek
 				var $peek = genericAjaxPopup(layer,peek_url,null,false,width);
 				
-				var peek_open_event = new jQuery.Event('cerb-peek-opened');
+				var peek_open_event = $.Event('cerb-peek-opened');
 				peek_open_event.peek_layer = layer;
 				peek_open_event.peek_context = context;
 				peek_open_event.peek_context_id = context_id;
@@ -3539,22 +3539,32 @@ var ajax = new cAjaxCalls();
 				$trigger.trigger(peek_open_event);
 				
 				$peek.on('peek_saved cerb-peek-saved', function(e) {
+					var is_rebroadcast = e.type === 'cerb-peek-saved';
 					var save_event = $.Event(e.type, e);
 					save_event.type = 'cerb-peek-saved';
 					save_event.context = context;
+					save_event.is_rebroadcast = is_rebroadcast;
 					$trigger.trigger(save_event);
-					
+
 					if(e.is_new) {
 						var new_event = $.Event(e.type, e);
 						new_event.type = 'cerb-peek-created';
+						new_event.is_rebroadcast = is_rebroadcast;
 						$trigger.trigger(new_event);
 					}
+
+					e.stopPropagation();
 				});
-				
+
 				$peek.on('peek_deleted cerb-peek-deleted', function(e) {
-					e.type = 'cerb-peek-deleted';
-					e.context = context;
-					$trigger.trigger(e);
+					var is_rebroadcast = e.type === 'cerb-peek-deleted';
+					var delete_event = $.Event(e.type, e);
+					delete_event.type = 'cerb-peek-deleted';
+					delete_event.context = context;
+					delete_event.is_rebroadcast = is_rebroadcast;
+					$trigger.trigger(delete_event);
+
+					e.stopPropagation();
 				});
 				
 				$peek.on('dialogclose', function(e) {

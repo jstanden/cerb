@@ -110,13 +110,17 @@ $(function() {
 		.on('cerb-peek-opened', function(e) {
 		})
 		.on('cerb-peek-saved', function(e) {
-			// [TODO] Don't refresh the page, just send an event to the current tab
 			e.stopPropagation();
-			document.location.reload();
+			// [TODO] Don't refresh the page, just send an event to the current tab
+
+			if(!e.is_rebroadcast) {
+				document.location.reload();
+			}
 		})
 		.on('cerb-peek-deleted', function(e) {
-			document.location.href = '{devblocks_url}{/devblocks_url}';
-			
+			if(!e.is_rebroadcast) {
+				document.location.href = '{devblocks_url}{/devblocks_url}';
+			}
 		})
 		.on('cerb-peek-closed', function(e) {
 		})
