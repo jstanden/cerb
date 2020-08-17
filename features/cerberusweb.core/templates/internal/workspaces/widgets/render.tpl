@@ -1,7 +1,7 @@
 {$is_widget_writeable = Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker)}
 {$width_units = $widget->width_units|default:1}
 {$widget_extension = $widget->getExtension()}
-<div class="cerb-workspace-widget" data-widget-id="{$widget->id}" data-widget-name="{$widget->name}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
+<div class="cerb-workspace-widget" data-widget-id="{$widget->id}" data-widget-name="{$widget->label}" style="flex:{$width_units} {$width_units} {$width_units * 0.25 * 100}%;">
 	<div>
 		<div class="cerb-workspace-widget--header {if $is_widget_writeable}cerb-draggable{/if}">
 			<b>
