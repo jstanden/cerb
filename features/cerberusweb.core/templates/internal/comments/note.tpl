@@ -1,5 +1,5 @@
 {$owner_meta = $note->getOwnerMeta()}
-<div class="message_note" style="margin-left:-17px;">
+<div>
 	<b>
 	{if empty($owner_meta)}
 		(system)
@@ -29,7 +29,7 @@
 	</ul>
 
 	{if isset($owner_meta.context_ext->manifest->params.alias)}
-	<div style="float:left;margin:0 5px 10px 0;">
+	<div class="cerb-comments-thread--avatar">
 		<img src="{devblocks_url}c=avatars&context={$owner_meta.context_ext->manifest->params.alias}&context_id={$owner_meta.id}{/devblocks_url}?v={$owner_meta.updated}" style="height:32px;width:32px;border-radius:32px;">
 	</div>
 	{/if}

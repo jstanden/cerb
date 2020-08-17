@@ -84,7 +84,7 @@
 			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_COMMENT} context.id:{$comment->id}"><span class="glyphicons glyphicons-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
 		{/if}
 
-		<div id="comment{$comment->id}_notes" style="margin-top:10px;margin-left:15px;border-left:2px solid #c8c8c8;">
+		<div id="comment{$comment->id}_notes" class="cerb-comments-thread">
 			{if is_array($comment_notes) && array_key_exists($comment->id, $comment_notes)}
 				{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl" message_notes=$comment_notes message_id=$comment->id readonly=false}
 			{/if}
@@ -104,7 +104,10 @@ $(function() {
 			e.stopPropagation();
 
 			if(e.id && e.comment_html) {
-				var $new_note = $('<div id="comment' + e.id + '"/>').hide();
+				var $new_note = $('<div id="comment' + e.id + '"/>')
+					.addClass('cerb-comments-thread--comment')
+					.hide()
+					;
 				$new_note.html(e.comment_html).prependTo($notes).fadeIn();
 			}
 		})

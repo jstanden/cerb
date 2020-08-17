@@ -102,7 +102,7 @@
 		</div>
 		{/if}
 
-		<div id="draft{$draft->id}_notes" style="margin-top:10px;margin-left:15px;border-left:2px solid #c8c8c8;">
+		<div id="draft{$draft->id}_notes" class="cerb-comments-thread">
 			{if is_array($draft_notes) && isset($draft_notes.{$draft->id})}
 				{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl" message_notes=$draft_notes message_id=$draft->id readonly=false}
 			{/if}
@@ -135,7 +135,10 @@ $(function() {
 			e.stopPropagation();
 
 			if(e.id && e.comment_html) {
-				var $new_note = $('<div id="comment' + e.id + '"/>').hide();
+				var $new_note = $('<div id="comment' + e.id + '"/>')
+					.addClass('cerb-comments-thread--comment')
+					.hide()
+				;
 				$new_note.html(e.comment_html).prependTo($notes).fadeIn();
 			}
 		})

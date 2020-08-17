@@ -290,7 +290,7 @@
 		</form>
 		
 		<div id="{$message->id}b"></div>
-		<div id="{$message->id}notes" style="margin-top:10px;margin-left:15px;border-left:2px solid #c8c8c8;">
+		<div id="{$message->id}notes" class="cerb-comments-thread">
 			{include file="devblocks:cerberusweb.core::display/modules/conversation/notes.tpl"}
 		</div>
 		{/if}
@@ -347,7 +347,10 @@ $(function() {
 				e.stopPropagation();
 				
 				if(e.id && e.comment_html) {
-					var $new_note = $('<div id="comment' + e.id + '"/>').hide();
+					var $new_note = $('<div id="comment' + e.id + '"/>')
+						.addClass('cerb-comments-thread--comment')
+						.hide()
+					;
 					$new_note.html(e.comment_html).prependTo($notes).fadeIn();
 				}
 			})
