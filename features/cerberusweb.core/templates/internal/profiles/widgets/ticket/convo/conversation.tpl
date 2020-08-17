@@ -8,15 +8,17 @@
 		</p>
 	</div>
 	{/if}
-	
+
 	{if is_array($messages_highlighted) && $messages_highlighted}
-		<div style="color:rgb(236,87,29);">
-			<span class="glyphicons glyphicons-circle-exclamation-mark"></span>
-			There are <strong>{$messages_highlighted|count nofilter}</strong> new messages since our last response:
-			{foreach from=$messages_highlighted item=message name=messages}
-				<a href="#message{$message->id}">{$message->created_date|devblocks_prettytime}</a>{if !$smarty.foreach.messages.last}, {/if}
-			{/foreach}
-		</div>
+    <div class="cerb-conversation--new-messages-warning" style="color:rgb(236,87,29);">
+        <span class="glyphicons glyphicons-circle-exclamation-mark"></span>
+        There are <strong>{$messages_highlighted|count nofilter}</strong> messages without a response:
+        {foreach from=$messages_highlighted item=message name=messages}
+			{if $smarty.foreach.messages.last}
+				<a href="#message{$message->id}">{$message->created_date|devblocks_prettytime}</a>
+			{/if}
+        {/foreach}
+    </div>
 	{/if}
 
 	<div id="tourDisplayConversation"></div>
