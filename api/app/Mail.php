@@ -2649,11 +2649,11 @@ class CerberusMail {
 				@$content = $params['content'];
 				
 				if(!$mode || 'saved' == $mode) {
-					$properties['content_saved'] = $content . "\r\n" . $properties['content_saved'];
+					$properties['content_saved'] = $content . "\n" . $properties['content_saved'];
 				}
 				
 				if(!$mode || 'sent' == $mode) {
-					$properties['content_sent'] = $content . "\r\n" . $properties['content_sent'];
+					$properties['content_sent'] = $content . "\n" . $properties['content_sent'];
 				}
 				
 			// Appends
@@ -2662,11 +2662,11 @@ class CerberusMail {
 				@$content = $params['content'];
 			
 				if(!$mode || 'saved' == $mode) {
-					$properties['content_saved'] = $properties['content_saved'] . "\r\n" . $content;
+					$properties['content_saved'] = $properties['content_saved'] . "\n" . $content;
 				}
 				
 				if(!$mode || 'sent' == $mode) {
-					$properties['content_sent'] = $properties['content_sent'] . "\r\n" . $content;
+					$properties['content_sent'] = $properties['content_sent'] . "\n" . $content;
 				}
 			}
 		}
@@ -2797,14 +2797,16 @@ class CerberusMail {
 	}
 	
 	public static function getMailTemplateFromContent($output, array $message_properties, string $format='text') {
+		$output = strtr($output, "\r", '');
+		
 		if('html' == $format) {
 			$output = preg_replace('/^#signature$/m', @$message_properties['signature_html'], $output);
-			$output = preg_replace('/^#original_message/m', @$message_properties['original_message_html'], $output);
+			$output = preg_replace('/^#original_message$/m', @$message_properties['original_message_html'], $output);
 			return DevblocksPlatform::parseMarkdown($output);
 			
 		} else {
 			$output = preg_replace('/^#signature$/m', @$message_properties['signature'], $output);
-			$output = preg_replace('/^#original_message/m', @$message_properties['original_message'], $output);
+			$output = preg_replace('/^#original_message$/m', @$message_properties['original_message'], $output);
 			return CerberusMail::generateTextFromMarkdown($output);
 		}
 	}
