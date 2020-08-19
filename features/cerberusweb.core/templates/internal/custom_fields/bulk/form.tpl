@@ -93,12 +93,10 @@
 					
 					<ul class="bubbles chooser-container">
 						{if $custom_field_values.$f_id}
-							{$cf_link_labels = []}
-							{$cf_link_values = []}
-							{CerberusContexts::getContext($f->params.context, $custom_field_values.$f_id, $cf_link_labels, $cf_link_values, null, true)}
+							{$link_dict = DevblocksDictionaryDelegate::instance(['_context' => $f->params.context, 'id' => $custom_field_values.$f_id])}
 							<li>
-								<a href="javascript:;" class="peek-cfield-link no-underline" data-context="{$cf_link_values._context}" data-context-id="{$cf_link_values.id}">{$cf_link_values._label}</a>
-								<input type="hidden" name="{$field_name}" value="{$custom_field_values.$f_id}">
+								<a href="javascript:;" class="peek-cfield-link no-underline" data-context="{$link_dict->_context}" data-context-id="{$link_dict->id}">{$link_dict->_label}</a>
+								<input type="hidden" name="{$field_name}" value="{$link_dict->id}">
 								<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
 							</li>
 						{/if}
