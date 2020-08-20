@@ -216,8 +216,8 @@ $(function() {
 
 			$popup.find('button.chooser_file').triggerHandler(new_event);
 
-			editor.insertSnippet('![inline-image](' + event.url + ')');
-			editor.focus();
+			editor_html.insertSnippet('![inline-image](' + event.url + ')');
+			editor_html.focus();
 		});
 
 		$editor_toolbar_html.find('.cerb-markdown-editor-toolbar-button--placeholders').on('click', function(e) {
