@@ -461,7 +461,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
 									break;
 								case 'dayofmonth':
-									$query_value = sprintf('(day:%d)', $from_date);
+									$query_value = sprintf('(dom:%d)', $from_date);
 									break;
 								case 'dayofweek':
 									$query_value = sprintf('(days:%s)', $from_date);
