@@ -361,6 +361,20 @@ class DevblocksDateTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testParseMonths() {
+		$date = DevblocksPlatform::services()->date();
+		
+		// Northern summer months
+		$expected = [6,7,8,9];
+		$actual = $date->parseMonths('Jun,July,Aug,Sept');
+		$this->assertEquals($expected, $actual);
+		
+		// Some invalid months
+		$expected = [1,2,3];
+		$actual = $date->parseMonths('Jan,February,  Zonkuary,Cerbeth, March');
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testParseTimes() {
 		$date = DevblocksPlatform::services()->date();
 		
