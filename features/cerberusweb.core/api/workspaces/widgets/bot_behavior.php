@@ -6,6 +6,7 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 	
 	function render(Model_WorkspaceWidget $widget) {
 		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$behavior_id = $widget->params['behavior_id'];
 		@$behavior_vars = DevblocksPlatform::importVar(@$widget->params['behavior_vars'], 'array', []);
@@ -16,6 +17,19 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 			) {
 			echo "A bot behavior isn't configured.";
 			return;
+		}
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+		]);
+		
+		foreach($behavior_vars as $k => $v) {
+			if(DevblocksPlatform::strStartsWith($k, 'var_') && is_string($v)) {
+				$behavior_vars[$k] = $tpl_builder->build($v, $dict);
+			}
 		}
 		
 		// Event model
