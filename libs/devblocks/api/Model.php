@@ -1509,6 +1509,15 @@ class DevblocksSearchCriteria {
 								$params['day'] = $value;
 								break;
 								
+							case 'months':
+								CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
+								
+								if(is_array($value) && 1 == count($value))
+									$value = DevblocksPlatform::parseCsvString(array_shift($value));
+								
+								$params['months'] = $value;
+								break;
+								
 							case 'time':
 							case 'times':
 								CerbQuickSearchLexer::getOperArrayFromTokens($field->tokens, $oper, $value);
@@ -1538,6 +1547,19 @@ class DevblocksSearchCriteria {
 							$sql_part .= '= -1';
 						} else {
 							$sql_part .= sprintf('IN (%s)', implode(',', $range_days));
+						}
+						
+						$sql_parts[] = $sql_part;
+					}
+					
+					if(array_key_exists('months', $params)) {
+						$range_months = DevblocksPlatform::services()->date()->parseMonths($params['months']);
+						$sql_part = "DATE_FORMAT(FROM_UNIXTIME(%1\$s),'%%m') ";
+						
+						if(0 == count($range_months)) {
+							$sql_part .= '= -1';
+						} else {
+							$sql_part .= sprintf('IN (%s)', implode(',', $range_months));
 						}
 						
 						$sql_parts[] = $sql_part;
