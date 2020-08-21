@@ -26,6 +26,7 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 			Event_DashboardWidgetRender::ID,
 			[
 				'widget' => $widget,
+				'worker' => $active_worker,
 				'_variables' => $behavior_vars,
 				'actions' => &$actions,
 			]

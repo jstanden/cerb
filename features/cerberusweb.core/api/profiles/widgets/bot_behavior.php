@@ -53,6 +53,7 @@ class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 			Event_DashboardWidgetRender::ID,
 			[
 				'widget' => $model,
+				'worker' => $active_worker,
 				'_variables' => $behavior_params,
 				'actions' => &$actions,
 			]

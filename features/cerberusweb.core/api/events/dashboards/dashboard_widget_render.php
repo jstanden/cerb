@@ -32,6 +32,7 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 			self::ID,
 			array(
 				'widget' => null,
+				'worker' => CerberusApplication::getActiveWorker(),
 				'actions' => &$actions,
 			)
 		);
@@ -82,7 +83,27 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 				$labels,
 				$values
 			);
-			
+		
+		/**
+		 * Worker
+		 */
+		
+		@$worker = $event_model->params['worker'];
+		
+		$merge_labels = [];
+		$merge_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $worker, $merge_labels, $merge_values, null, true);
+		
+		// Merge
+		CerberusContexts::merge(
+			'worker_',
+			'',
+			$merge_labels,
+			$merge_values,
+			$labels,
+			$values
+		);
+		
 		// Actions
 		if($event_model && array_key_exists('actions', $event_model->params)) {
 			$values['_actions'] =& $event_model->params['actions'];
@@ -111,6 +132,10 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 			'widget_id' => array(
 				'label' => 'Widget ID',
 				'context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			),
+			'worker_id' => array(
+				'label' => 'Worker ID',
+				'context' => CerberusContexts::CONTEXT_WORKER,
 			),
 		);
 		
