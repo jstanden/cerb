@@ -457,9 +457,15 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		if(!$format) {
 			$formats = [
+				'hourofday' => '%H:00',
+				'hour' => '%Y-%m-%d %H:00',
 				'day' => '%Y-%m-%d',
+				'dayofmonth' => '%d',
+				'dayofweek' => '%A',
 				'week' => '%Y-%m-%d',
+				'weekofyear' => '%U',
 				'month' => '%Y-%m',
+				'monthofyear' => '%B',
 				'year' => '%Y',
 			];
 			
@@ -467,6 +473,16 @@ class DevblocksPlatform extends DevblocksEngine {
 				return [];
 			
 			$format = $formats[$step];
+		}
+		
+		if($step == 'dayofmonth' || $step == 'dayofweek') {
+			$step = 'day';
+		} else if($step == 'hourofday') {
+			$step = 'hour';
+		} else if($step == 'monthofyear') {
+			$step = 'month';
+		} else if($step == 'weekofyear') {
+			$step = 'week';
 		}
 		
 		$ts = strtotime(min($array));

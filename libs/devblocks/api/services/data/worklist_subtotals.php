@@ -451,30 +451,52 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							switch($by['timestamp_step']) {
 								case 'hour':
 									$to_date = str_replace(':00',':59:59',$from_date);
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
+								case 'hourofday':
+									$query_value = sprintf('(times:"%s-%s")', $from_date, str_replace(':00',':59:59',$from_date));
 									break;
 								case 'day':
 									$to_date .= ' 23:59:59';
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
+								case 'dayofmonth':
+									$query_value = sprintf('(day:%d)', $from_date);
+									break;
+								case 'dayofweek':
+									$query_value = sprintf('(days:%s)', $from_date);
 									break;
 								case 'week':
 								case 'week-mon':
 								case 'week-monday':
 									$to_date = date('Y-m-d', strtotime('+6 days', strtotime($to_date))) . ' 23:59:59';
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
 									break;
 								case 'week-sun':
 								case 'week-sunday':
 									$to_date = date('Y-m-d', strtotime('+6 days', strtotime($to_date))) . ' 23:59:59';
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
+								case 'weekofyear':
+									$query_value = sprintf('(weeks:%s)', $from_date);
 									break;
 								case 'month':
 									$from_date .= '-01';
 									$to_date = date('Y-m-d', strtotime('last day of this month', strtotime($to_date))) . ' 23:59:59';
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
+								case 'monthofyear':
+									$query_value = sprintf('(months:%s)', $from_date);
 									break;
 								case 'year':
 									$from_date .= '-01-01';
 									$to_date .= '-12-31 23:59:59';
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
+									break;
+								default:
+									$query_value = '"' . $from_date . ' to ' . $to_date . '"';
 									break;
 							}
-							
-							$query_value = '"' . $from_date . ' to ' . $to_date . '"';
 							
 						} else if(is_numeric($query_value)) {
 							if(false !== strpos($query_value, '.')) {

@@ -265,14 +265,24 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							];
 							break;
 							
+						case 'hourofday':
 						case 'hour':
 						case 'day':
+						case 'dayofmonth':
+						case 'dayofweek':
 						case 'month':
+						case 'monthofyear':
+						case 'weekofyear':
 						case 'year':
 							$date_format = [
+								'hourofday' => '%H:00',
 								'hour' => '%Y-%m-%d %H:00',
 								'day' => '%Y-%m-%d',
+								'dayofmonth' => '%d',
+								'dayofweek' => '%W',
 								'month' => '%Y-%m',
+								'monthofyear' => '%M',
+								'weekofyear' => '%U',
 								'year' => '%Y',
 							];
 							
@@ -413,14 +423,24 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						];
 						break;
 						
+					case 'hourofday':
 					case 'hour':
 					case 'day':
+					case 'dayofmonth':
+					case 'dayofweek':
 					case 'month':
+					case 'monthofyear':
+					case 'weekofyear':
 					case 'year':
 						$date_format = [
+							'hourofday' => '%H:00',
 							'hour' => '%Y-%m-%d %H:00',
 							'day' => '%Y-%m-%d',
+							'dayofmonth' => '%d',
+							'dayofweek' => '%W',
 							'month' => '%Y-%m',
+							'monthofyear' => '%M',
+							'weekofyear' => '%U',
 							'year' => '%Y',
 						];
 						
