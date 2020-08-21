@@ -2568,7 +2568,7 @@ abstract class C4_AbstractView {
 				'caption' => 'subtotal:',
 				'snippet' => 'subtotal:[${1}]'
 			];
-			$suggestions['subtotal:'] = $this->getQueryAutocompleteFieldSuggestions();
+			$suggestions['subtotal:'] = $this->getQueryAutocompleteFieldSuggestions(null, true);
 		}
 		
 		// Saved searches
@@ -2590,7 +2590,7 @@ abstract class C4_AbstractView {
 		return $suggestions;
 	}
 	
-	function getQueryAutocompleteFieldSuggestions($types=null) {
+	function getQueryAutocompleteFieldSuggestions($types=null, $as_subtotals=false) {
 		$suggestions = [];
 		
 		if($this instanceof IAbstractView_Subtotals) {
@@ -2609,6 +2609,22 @@ abstract class C4_AbstractView {
 					continue;
 				
 				$suggestions[] = $field_key;
+				
+				if($as_subtotals) {
+					if('date' == $field['type']) {
+						$suggestions[] = $field_key . '@hourofday';
+						$suggestions[] = $field_key . '@hour';
+						$suggestions[] = $field_key . '@day';
+						$suggestions[] = $field_key . '@dayofmonth';
+						$suggestions[] = $field_key . '@dayofweek';
+						$suggestions[] = $field_key . '@week';
+						$suggestions[] = $field_key . '@week-sun';
+						$suggestions[] = $field_key . '@weekofyear';
+						$suggestions[] = $field_key . '@month';
+						$suggestions[] = $field_key . '@monthofyear';
+						$suggestions[] = $field_key . '@year';
+					}
+				}
 			}
 		}
 		
