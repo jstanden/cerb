@@ -480,7 +480,12 @@ class DevblocksPlatform extends DevblocksEngine {
 			if(!array_key_exists($tick, $values))
 				$values[$tick] = 0;
 			
-			$ts = strtotime(sprintf('+1 %s', $step), $ts);
+			$next_ts = strtotime(sprintf('+1 %s', $step), $ts);
+			
+			if($next_ts == $ts)
+				break;
+			
+			$ts = $next_ts;
 		}
 		
 		$values = array_keys($values);
