@@ -245,6 +245,18 @@ class _DevblocksDateManager {
 		return array_keys($results);
 	}
 	
+	public function parseWeeks($weeks) {
+		if (is_string($weeks))
+			$weeks = DevblocksPlatform::parseCsvString($weeks);
+		
+		if (!is_array($weeks))
+			return [];
+		
+		return array_map(function($w) {
+			return DevblocksPlatform::intClamp($w, 0, 53);
+		}, $weeks);
+	}
+	
 	public function parseMonths($months) {
 		$results = [];
 		
