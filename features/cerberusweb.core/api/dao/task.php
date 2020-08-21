@@ -436,6 +436,37 @@ class DAO_Task extends Cerb_ORMHelper {
 		return $objects;
 	}
 	
+	/**
+	 * @param string $term
+	 * @param string $as
+	 * @return array|Model_Task[]
+	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+		
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM task ".
+			"WHERE title LIKE %s ".
+			"ORDER BY id DESC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+		
+		if(is_array($results))
+			foreach($results as $row) {
+				$objects[$row['id']] = null;
+			}
+		
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+			
+			default:
+				return DAO_Task::getIds(array_keys($objects));
+		}
+	}
+	
 	static function mergeIds($from_ids, $to_id) {
 		$context = CerberusContexts::CONTEXT_TASK;
 		
@@ -1259,7 +1290,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 	}
 };
 
-class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge {
+class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.task';
 	
 	static function isReadableByActor($models, $actor) {
@@ -1421,6 +1452,21 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 			'updated',
 			'owner__label',
 		);
+	}
+	
+	function autocomplete($term, $query=null) {
+		$results = DAO_Task::autocomplete($term);
+		$list = [];
+		
+		if(is_array($results))
+			foreach($results as $task_id => $task) {
+				$entry = new stdClass();
+				$entry->label = sprintf("%s", $task->title);
+				$entry->value = sprintf("%d", $task_id);
+				$list[] = $entry;
+			}
+		
+		return $list;
 	}
 	
 	function getContext($task, &$token_labels, &$token_values, $prefix=null) {
