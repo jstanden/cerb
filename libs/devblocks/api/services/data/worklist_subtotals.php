@@ -1139,11 +1139,27 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$series_meta = [];
 		
 		foreach($response['children'] as $date) {
-			if(!isset($date['children']))
-				continue;
+			// If we have multiple series, use them
+			if(array_key_exists('children', $date)) {
+				$children = $date['children'];
+				
+			// Synthesize a single series from aggregate (group:) data
+			} else {
+				$children = [
+					[
+						'name' => $chart_model['group_function'] ?? 'count',
+						'value' => $date['value'],
+						'query' => $date['query'],
+						'hits' => $date['hits'],
+						'children' => [
+							$date,
+						],
+					]
+				];
+			}
 			
-			foreach($date['children'] as $series) {
-				if(!isset($output[$series['name']]))
+			foreach($children as $series) {
+				if(!array_key_exists($series['name'], $output))
 					$output[$series['name']] = $x_series;
 				
 				$output[$series['name']][$date['name']] = $series['hits'];
