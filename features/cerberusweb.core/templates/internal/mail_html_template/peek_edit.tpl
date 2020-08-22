@@ -21,6 +21,16 @@
 </table>
 
 <div class="cerb-code-editor-toolbar cerb-code-editor-toolbar--html">
+	<button type="button" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--insert" title="Insert placeholder"><span class="glyphicons glyphicons-tags"></span></button>
+	<ul class="cerb-float" style="display:none;">
+		<li data-token="{literal}{{message_body}}{/literal}"><b>Message Body</b></li>
+		<li data-token="{literal}{{message_id_header}}{/literal}"><b>Message-Id Header</b></li>
+		<li data-token="{literal}{{group_id}}{/literal}"><b>Group ID</b></li>
+		<li data-token="{literal}{{group__label}}{/literal}"><b>Group Name</b></li>
+		<li data-token="{literal}{{bucket_id}}{/literal}"><b>Bucket ID</b></li>
+		<li data-token="{literal}{{bucket__label}}{/literal}"><b>Bucket Name</b></li>
+	</ul>
+	<div class="cerb-code-editor-toolbar-divider"></div>
 	<button type="button" title="Bold" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
 	<button type="button" title="Italics" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
 	<button type="button" title="Link" class="cerb-code-editor-toolbar-button cerb-html-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
@@ -193,6 +203,26 @@ $(function() {
 				'reuse',
 				false
 			);
+		});
+
+		var $toolbar_button_insert = $content_toolbar.find('.cerb-html-editor-toolbar-button--insert');
+
+		var $toolbar_button_insert_menu = $toolbar_button_insert.next('ul').menu({
+			"select": function(e, $ui) {
+				e.stopPropagation();
+				$toolbar_button_insert_menu.hide();
+
+				var data_token = $ui.item.attr('data-token');
+
+				if (null == data_token)
+					return;
+
+				editor_content.insertSnippet(data_token);
+			}
+		});
+
+		$toolbar_button_insert.on('click', function() {
+			$toolbar_button_insert_menu.toggle();
 		});
 
 		// Peek triggers

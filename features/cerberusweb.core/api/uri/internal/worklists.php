@@ -511,8 +511,18 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 						if(!$html_template && false != ($group = DAO_Group::get($broadcast_group_id)))
 							$html_template = $group->getReplyHtmlTemplate(0);
 						
-						if($html_template)
-							@$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+						if($html_template) {
+							$template_values = [
+								'message_body' => $output,
+								'group__context' => CerberusContexts::CONTEXT_GROUP,
+								'group_id' => $message_properties['group_id'] ?? 0,
+								'bucket__context' => CerberusContexts::CONTEXT_BUCKET,
+								'bucket_id' => $message_properties['bucket_id'] ?? 0,
+								'message_id_header' => sprintf("<%s@message.example>", sha1(random_bytes(32))),
+							];
+							
+							@$output = $tpl_builder->build($html_template->content, $template_values);
+						}
 						
 						// HTML Purify
 						$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);

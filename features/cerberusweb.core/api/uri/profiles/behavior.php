@@ -1991,7 +1991,17 @@ class PageSection_ProfilesBehavior extends Extension_PageSection {
 								
 								if($html_template) {
 									$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-									@$output = $tpl_builder->build($html_template->content, array('message_body' => $output));
+									
+									$template_values = [
+										'message_body' => $output,
+										'group__context' => CerberusContexts::CONTEXT_GROUP,
+										'group_id' => $_group_id,
+										'bucket__context' => CerberusContexts::CONTEXT_BUCKET,
+										'bucket_id' => $_bucket_id,
+										'message_id_header' => sprintf("<%s@message.example>", sha1(random_bytes(32))),
+									];
+									
+									@$output = $tpl_builder->build($html_template->content, $template_values);
 								}
 							}
 							break;

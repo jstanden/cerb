@@ -165,7 +165,12 @@ class PageSection_ProfilesMailHtmlTemplate extends Extension_PageSection {
 		@$template = DevblocksPlatform::importGPC($_REQUEST['template'],'string', '');
 		
 		$dict = DevblocksDictionaryDelegate::instance([
-			'message_body' => '<blockquote>This text is quoted.</blockquote><p>This text contains <b>bold</b>, <i>italics</i>, <a href="javascript:;">links</a>, and <code>code formatting</code>.</p><p><ul><li>These are unordered</li><li>list items</li></ul></p>',
+			'message_body' => $message_body,
+			'group__context' => CerberusContexts::CONTEXT_GROUP,
+			'group_id' => $random_group->id ?? 0,
+			'bucket__context' => CerberusContexts::CONTEXT_BUCKET,
+			'bucket_id' => @$random_group->getDefaultBucket()->id ?? 0,
+			'message_id_header' => sprintf("<%s@message.example>", sha1(random_bytes(32))),
 		]);
 		
 		$output = $tpl_builder->build($template, $dict);

@@ -2746,11 +2746,37 @@ class CerberusMail {
 			if($html_template instanceof Model_MailHtmlTemplate) {
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 				
+				$values = [
+					'message_body' => $html_body,
+				];
+				
+				if(array_key_exists('outgoing_message_id', $properties)) {
+					$values['message_id_header'] = @$properties['outgoing_message_id'] ?? '';
+				}
+				
+				if(array_key_exists('bucket_id', $properties)) {
+					$values['bucket__context'] = CerberusContexts::CONTEXT_BUCKET;
+					$values['bucket_id'] = @$properties['bucket_id'] ?? 0;
+				}
+				
+				if(array_key_exists('group_id', $properties)) {
+					$values['group__context'] = CerberusContexts::CONTEXT_GROUP;
+					$values['group_id'] = @$properties['group_id'] ?? 0;
+				}
+				
+				if(array_key_exists('ticket_id', $properties)) {
+					$values['ticket__context'] = CerberusContexts::CONTEXT_TICKET;
+					$values['ticket_id'] = @$properties['ticket_id'] ?? 0;
+				}
+				
+				if(array_key_exists('worker_id', $properties)) {
+					$values['worker__context'] = CerberusContexts::CONTEXT_WORKER;
+					$values['worker_id'] = @$properties['worker_id'] ?? 0;
+				}
+				
 				$html_body = $tpl_builder->build(
 					$html_template->content,
-					[
-						'message_body' => $html_body
-					]
+					$values
 				);
 				
 				// Load the attachment links from the HTML template

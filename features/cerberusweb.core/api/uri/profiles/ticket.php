@@ -799,6 +799,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			if($html_template) {
 				$dict = DevblocksDictionaryDelegate::instance([
 					'message_body' => $output,
+					'group__context' => CerberusContexts::CONTEXT_GROUP,
+					'group_id' => $group_id,
+					'bucket__context' => CerberusContexts::CONTEXT_BUCKET,
+					'bucket_id' => $bucket_id,
+					'message_id_header' => sprintf("<%s@message.example>", sha1(random_bytes(32))),
 				]);
 				
 				$output = $tpl_builder->build($html_template->content, $dict);
