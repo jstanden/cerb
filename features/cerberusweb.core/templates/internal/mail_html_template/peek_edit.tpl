@@ -55,20 +55,56 @@
 	font-size: 10pt;
 }
 
-a { 
+a {
 	color: black;
 }
 
 blockquote {
-	color: rgb(0, 128, 255);
-	font-style: italic;
-	margin-left: 0px;
-	border-left: 1px solid rgb(0, 128, 255);
-	padding-left: 5px;
+	color: #646464;
+	border-left: 5px solid;
+	margin: 0 0 0 10px;
+	padding: 0 0 0 10px;
 }
 
 blockquote a {
 	color: rgb(0, 128, 255);
+}
+
+pre > code {
+	display: block;
+	overflow-x: scroll;
+	border: 1px solid #e8e8e8;
+	background-color: #f6f2f0;
+	padding: 10px;
+}
+
+p > code {
+	background-color: #f6f2f0;
+	border: 1px solid #e8e8e8;
+	font-weight: bold;
+	padding: 0.1em 0.2em;
+	line-height: 1.75em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color: black;
+	margin: 0 0 10px 0;
+	font-weight: bold;
+}
+
+h1 { font-size: 2em; }
+h2 { font-size: 1.85em; }
+h3 { font-size: 1.75em; }
+h4 { font-size: 1.5em; }
+h5 { font-size: 1.25em; }
+h6 { font-size: 1.1em; }
+
+img {
+	max-width: 100%;
+}
+
+ul, ol {
+	padding-left: 2em;
 }
 &lt;/style&gt;{/if}</textarea>
 	
