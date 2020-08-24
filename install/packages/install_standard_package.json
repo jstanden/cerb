@@ -199,8 +199,7 @@
 			"name": "Default Signature",
 			"owner__context": "app",
 			"owner_id": 0,
-			"signature": "-- \n{{first_name}}{% if title is not empty %}, {{title}}{% endif %}\n\n{{{org_name}}}",
-			"is_default": "1"
+			"signature": "-- \n{{first_name}}{% if title is not empty %}, {{title}}{% endif %}\n\n{{{org_name}}}"
 		},
 		{
 			"uid": "ticket_001",

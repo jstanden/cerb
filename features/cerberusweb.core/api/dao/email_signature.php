@@ -1,7 +1,6 @@
 <?php
 class DAO_EmailSignature extends Cerb_ORMHelper {
 	const ID = 'id';
-	const IS_DEFAULT = 'is_default';
 	const NAME = 'name';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
@@ -20,10 +19,6 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 			->addField(self::ID)
 			->id()
 			->setEditable(false)
-			;
-		$validation
-			->addField(self::IS_DEFAULT)
-			->bit()
 			;
 		$validation
 			->addField(self::NAME)
@@ -170,7 +165,7 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, signature, signature_html, owner_context, owner_context_id, is_default, updated_at ".
+		$sql = "SELECT id, name, signature, signature_html, owner_context, owner_context_id, updated_at ".
 			"FROM email_signature ".
 			$where_sql.
 			$sort_sql.
@@ -244,7 +239,6 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 			$object->owner_context_id = intval($row['owner_context_id']);
 			$object->signature = $row['signature'];
 			$object->signature_html = $row['signature_html'];
-			$object->is_default = @$row['is_default'] ? 1 : 0;
 			$object->updated_at = $row['updated_at'];
 			$objects[$object->id] = $object;
 		}
@@ -302,14 +296,12 @@ class DAO_EmailSignature extends Cerb_ORMHelper {
 			"email_signature.signature as %s, ".
 			"email_signature.owner_context as %s, ".
 			"email_signature.owner_context_id as %s, ".
-			"email_signature.is_default as %s, ".
 			"email_signature.updated_at as %s ",
 				SearchFields_EmailSignature::ID,
 				SearchFields_EmailSignature::NAME,
 				SearchFields_EmailSignature::SIGNATURE,
 				SearchFields_EmailSignature::OWNER_CONTEXT,
 				SearchFields_EmailSignature::OWNER_CONTEXT_ID,
-				SearchFields_EmailSignature::IS_DEFAULT,
 				SearchFields_EmailSignature::UPDATED_AT
 			);
 			
@@ -370,7 +362,6 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 	const OWNER_CONTEXT = 'e_owner_context';
 	const OWNER_CONTEXT_ID = 'e_owner_context_id';
 	const SIGNATURE = 'e_signature';
-	const IS_DEFAULT = 'e_is_default';
 	const UPDATED_AT = 'e_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -415,10 +406,6 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
-			case 'default':
-				$key = 'isDefault';
-				break;
-				
 			case 'owner':
 				$key = 'owner';
 				$search_key = 'owner';
@@ -447,10 +434,6 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 			case SearchFields_EmailSignature::ID:
 				$models = DAO_EmailSignature::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
-				
-			case SearchFields_EmailSignature::IS_DEFAULT:
-				return parent::_getLabelsForKeyBooleanValues();
 				break;
 				
 			case 'owner':
@@ -483,7 +466,6 @@ class SearchFields_EmailSignature extends DevblocksSearchFields {
 			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'email_signature', 'owner_context', $translate->_('common.owner_context'), null, true),
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'email_signature', 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
 			self::SIGNATURE => new DevblocksSearchField(self::SIGNATURE, 'email_signature', 'signature', $translate->_('common.signature'), null, true),
-			self::IS_DEFAULT => new DevblocksSearchField(self::IS_DEFAULT, 'email_signature', 'is_default', $translate->_('common.default'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'email_signature', 'updated_at', $translate->_('common.updated'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -511,7 +493,6 @@ class Model_EmailSignature {
 	public $owner_context_id;
 	public $signature;
 	public $signature_html;
-	public $is_default;
 	public $updated_at;
 	
 	public function getSignature($worker_model, bool $as_html) {
@@ -547,7 +528,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 
 		$this->view_columns = array(
 			SearchFields_EmailSignature::NAME,
-			SearchFields_EmailSignature::IS_DEFAULT,
 			SearchFields_EmailSignature::VIRTUAL_OWNER,
 			SearchFields_EmailSignature::UPDATED_AT,
 		);
@@ -637,10 +617,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 			return [];
 		
 		switch($column) {
-			case SearchFields_EmailSignature::IS_DEFAULT:
-				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-				break;
-
 			case SearchFields_EmailSignature::VIRTUAL_OWNER:
 				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_EmailSignature::OWNER_CONTEXT, DAO_EmailSignature::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
@@ -690,12 +666,7 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_EMAIL_SIGNATURE, 'q' => ''],
 					]
 				),
-			'isDefault' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_BOOL,
-					'options' => array('param_key' => SearchFields_EmailSignature::IS_DEFAULT),
-				),
-			'name' => 
+			'name' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_EmailSignature::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -774,10 +745,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 		$field = $param->field;
 
 		switch($field) {
-			case SearchFields_EmailSignature::IS_DEFAULT:
-				parent::_renderCriteriaParamBoolean($param);
-				break;
-				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -821,11 +788,6 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 				
 			case SearchFields_EmailSignature::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				
-			case SearchFields_EmailSignature::IS_DEFAULT:
-				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
 				
 			case SearchFields_EmailSignature::VIRTUAL_CONTEXT_LINK:
@@ -906,12 +868,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			'label' => DevblocksPlatform::translate('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
 			'value' => $model->id,
-		);
-		
-		$properties['is_default'] = array(
-			'label' => mb_ucfirst($translate->_('common.is_default')),
-			'type' => Model_CustomField::TYPE_CHECKBOX,
-			'value' => $model->is_default,
 		);
 		
 		$properties['updated'] = array(
@@ -1006,7 +962,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		$token_labels = array(
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
-			'is_default' => $prefix.$translate->_('common.is_default'),
 			'name' => $prefix.$translate->_('common.name'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1019,7 +974,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		$token_types = array(
 			'_label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'is_default' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'owner__label' => 'context_url',
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1046,7 +1000,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $email_signature->name;
 			$token_values['id'] = $email_signature->id;
-			$token_values['is_default'] = $email_signature->is_default;
 			$token_values['name'] = $email_signature->name;
 			$token_values['owner__context'] = $email_signature->owner_context;
 			$token_values['owner_id'] = $email_signature->owner_context_id;
@@ -1068,7 +1021,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_EmailSignature::ID,
-			'is_default' => DAO_EmailSignature::IS_DEFAULT,
 			'links' => '_links',
 			'name' => DAO_EmailSignature::NAME,
 			'owner__context' => DAO_EmailSignature::OWNER_CONTEXT,
@@ -1082,7 +1034,6 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 	function getKeyMeta() {
 		$keys = parent::getKeyMeta();
 		
-		$keys['is_default']['notes'] = "Is this the default signature?";
 		$keys['signature']['notes'] = "The [template](/docs/bots/scripting/) of the signature";
 		$keys['signature_html']['notes'] = "The HTML [template](/docs/bots/scripting/) of the signature";
 		

@@ -45,6 +45,16 @@ if(!isset($tables['automation_datastore'])) {
 }
 
 // ===========================================================================
+// Drop `email_signature.is_default`
+
+list($columns,) = $db->metaTable('email_signature');
+
+if(array_key_exists('is_default', $columns)) {
+	$sql = "ALTER TABLE email_signature DROP COLUMN is_default";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
