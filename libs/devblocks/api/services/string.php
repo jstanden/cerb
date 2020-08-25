@@ -89,4 +89,190 @@ class _DevblocksStringService {
 			return implode("\n", array_slice($yaml_out, 1, -1));
 		}
 	}
+	
+	private function _trimDomInlineWhitespace($str) {
+		$str = preg_replace('#[ \t]*[\r\n][ \t]*#', "\n", $str);
+		$str = strtr($str, ["\t" => ' ', "\n" => ' ']);
+		$str = preg_replace('# +#', ' ', $str);
+		return $str;
+	}
+	
+	private function _recurseNodeToText(DOMNode $node, &$text) {
+		if($node instanceof DOMText) {
+			switch(DevblocksPlatform::strLower($node->parentNode->nodeName)) {
+				case 'pre':
+					$text .= $node->textContent;
+					break;
+					
+				default:
+					$str = $this->_trimDomInlineWhitespace($node->textContent);
+					
+					if(!$node->previousSibling)
+						$str = ltrim($str);
+					
+					if(!$node->nextSibling)
+						$str = rtrim($str);
+					
+					$text .= $str;
+					break;
+			}
+		}
+		
+		if(!($node instanceof DOMElement))
+			return;
+		
+		/* @var $node DOMElement */
+		
+		switch(DevblocksPlatform::strLower($node->tagName)) {
+			case 'a':
+				if(false == ($label = trim($node->textContent)))
+					break;
+				
+				if(false == ($href = $node->getAttribute('href')))
+					break;
+				
+				if($label == $href) {
+					$text .= sprintf('%s', $href);
+					
+				} else {
+					$url_parts = parse_url($href);
+					
+					if(array_key_exists('host', $url_parts) && array_key_exists('scheme', $url_parts)) {
+						$text .= sprintf('%s <%s>', $label, $href);
+					} else {
+						$text .= $label;
+					}
+				}
+				break;
+				
+			case 'br':
+				$text .= "\n";
+				break;
+				
+			case 'p':
+			case 'div':
+			case 'h1':
+			case 'h2':
+			case 'h3':
+			case 'h4':
+			case 'h5':
+			case 'h6':
+				if($text && substr($text,-1) != "\n")
+					$text .= "\n";
+				
+				foreach($node->childNodes as $child)
+					$this->_recurseNodeToText($child, $text);
+				
+				$text .= "\n";
+				break;
+				
+			case 'pre':
+				if($text && substr($text,-1) != "\n")
+					$text .= "\n";
+				
+				if(!trim($node->textContent))
+					break;
+				
+				$text .= $node->textContent . "\n";
+				break;
+			
+			case 'ol':
+				if($text && substr($text,-1) != "\n")
+					$text .= "\n";
+				
+				$xpath = new DOMXPath($node->ownerDocument);
+				$items = $xpath->query("li", $node);
+				$counter = 1;
+				
+				foreach($items as $item) {
+					if(!trim($item->textContent))
+						continue;
+					
+					$text .= sprintf("%d. ", $counter++);
+					$this->_recurseNodeToText($item, $text);
+					$text .= "\n";
+				}
+				
+				$text .= "\n";
+				break;
+				
+			case 'ul':
+				if($text && substr($text,-1) != "\n")
+					$text .= "\n";
+				
+				$xpath = new DOMXPath($node->ownerDocument);
+				$items = $xpath->query("li", $node);
+				
+				foreach($items as $item) {
+					if(!trim($item->textContent))
+						continue;
+					
+					$text .= "* ";
+					$this->_recurseNodeToText($item, $text);
+					$text .= "\n";
+				}
+				
+				$text .= "\n";
+				break;
+				
+			// Blockquote
+			case 'blockquote':
+				$text .= DevblocksPlatform::services()->string()->indentWith($node->textContent, '> ');
+				$text .= "\n";
+				break;
+			
+			// Ignore
+			case 'head':
+			case 'script':
+			case 'style':
+				break;
+				
+			case 'img':
+				$alt = $node->getAttribute('alt');
+				$src = $node->getAttribute('src');
+				
+				$url_parts = parse_url($src);
+				
+				if(array_key_exists('host', $url_parts) && array_key_exists('scheme', $url_parts)) {
+					$text .= sprintf("[Image %s]", $alt ?: $src);
+				}
+				break;
+			
+			// Recurse
+			default:
+				foreach($node->childNodes as $child)
+					$this->_recurseNodeToText($child, $text);
+				break;
+		}
+	}
+	
+	function htmlToText($str) {
+		$dom = new DOMDocument('1.0', LANG_CHARSET_CODE);
+		$dom->preserveWhiteSpace = false;
+		$dom->formatOutput = false;
+		$dom->strictErrorChecking = false;
+		$dom->recover = true;
+		$dom->validateOnParse = false;
+		
+		libxml_use_internal_errors(true);
+		
+		$dom->loadHTML(sprintf('<?xml version="1.0" encoding="%s">', LANG_CHARSET_CODE) . $str);
+		
+		$dom->normalizeDocument();
+		
+		libxml_get_errors();
+		libxml_clear_errors();
+		
+		$text = '';
+		
+		$xpath = new DOMXPath($dom);
+		
+		$elements = $xpath->query('*');
+		
+		foreach($elements as $node) {
+			$this->_recurseNodeToText($node, $text);
+		}
+		
+		return $text;
+	}
 }

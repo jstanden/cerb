@@ -1019,7 +1019,7 @@ class CerberusParser {
 		// Generate the plaintext part (if necessary)
 		
 		if(empty($message->body) && !empty($message->htmlbody)) {
-			$message->body = DevblocksPlatform::stripHTML($message->htmlbody);
+			$message->body = DevblocksPlatform::services()->string()->htmlToText($message->htmlbody);
 		}
 
 		return $message;

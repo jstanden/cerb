@@ -30,7 +30,7 @@ class FeedsCron extends CerberusCronPageExtension {
 					DAO_FeedItem::FEED_ID => $feed_id,
 					DAO_FeedItem::CREATED_DATE => $item['date'],
 					DAO_FeedItem::GUID => $guid,
-					DAO_FeedItem::TITLE => DevblocksPlatform::stripHTML($item['title']),
+					DAO_FeedItem::TITLE => trim(DevblocksPlatform::services()->string()->htmlToText($item['title'])),
 					DAO_FeedItem::URL => $item['link'],
 				);
 				$item_id = DAO_FeedItem::create($fields);
@@ -39,7 +39,7 @@ class FeedsCron extends CerberusCronPageExtension {
 					continue;
 				
 				if(!empty($item['content'])) {
-					$comment = DevblocksPlatform::stripHTML($item['content']);
+					$comment = DevblocksPlatform::services()->string()->htmlToText($item['content']);
 					
 					if(!empty($comment)) {
 						$comment_id = DAO_Comment::create(array(
