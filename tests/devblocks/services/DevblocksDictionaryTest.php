@@ -123,6 +123,40 @@ class DevblocksDictionaryTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testSetPush() {
+		$dict = new DevblocksDictionaryDelegate([
+			'existing_key' => [1,2],
+			'deeply' => [
+				'nested' => [
+					'key' => ['a','b'],
+				],
+			],
+			'a_string' => 'a',
+			'a_number' => 1,
+		]);
+		
+		$dict->setPush('existing_key', 3);
+		$expected = [1,2,3];
+		$actual = $dict->get('existing_key');
+		$this->assertEquals($expected, $actual);
+		
+		$dict->setPush('deeply.nested.key', 'c');
+		$expected = ['a','b','c'];
+		$actual = $dict->getKeyPath('deeply.nested.key');
+		$this->assertEquals($expected, $actual);
+		
+		$dict->setPush('a_string', 'b');
+		$expected = ['a','b'];
+		$actual = $dict->getKeyPath('a_string');
+		$this->assertEquals($expected, $actual);
+		
+		$dict->setPush('a_number', 2);
+		$dict->setPush('a_number', 3);
+		$expected = [1,2,3];
+		$actual = $dict->getKeyPath('a_number');
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testUnset() {
 		$dict = new DevblocksDictionaryDelegate([
 			'existing_key' => 'existing_value',
