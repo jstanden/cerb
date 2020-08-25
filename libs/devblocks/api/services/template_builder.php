@@ -444,6 +444,20 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 		}
 		
 		$this->_dictionary = $dictionary;
+		
+		// Reconstitute
+		if(null != ($expandable_keys = $this->get('__expandable'))) {
+			foreach($expandable_keys as $k) {
+				if(null == ($node = $this->getKeyPath($k, null)))
+					continue;
+				
+				if($node instanceof DevblocksDictionaryDelegate)
+					continue;
+				
+				$this->setKeyPath($k, DevblocksDictionaryDelegate::instance($node));
+			}
+			$this->unset('__expandable');
+		}
 	}
 	
 	public static function instance($values) {
