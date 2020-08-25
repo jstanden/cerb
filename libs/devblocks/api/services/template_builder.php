@@ -426,7 +426,7 @@ class _DevblocksTemplateBuilder {
 	}
 };
 
-class DevblocksDictionaryDelegate implements JsonSerializable {
+class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate {
 	private $_dictionary = null;
 	private $_cached_contexts = null;
 	private $_null = null;
@@ -462,6 +462,10 @@ class DevblocksDictionaryDelegate implements JsonSerializable {
 	
 	public static function instance($values) {
 		return new DevblocksDictionaryDelegate($values);
+	}
+	
+	public function getIterator() {
+		return new ArrayIterator($this->_dictionary);
 	}
 	
 	function __toString() {
