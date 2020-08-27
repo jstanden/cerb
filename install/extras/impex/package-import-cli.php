@@ -8,6 +8,7 @@ DevblocksPlatform::setHandlerSession('Cerb_DevblocksSessionHandler');
 DevblocksPlatform::setStateless(true);
 
 set_time_limit(0);
+ini_set('memory_limit', '4G');
 
 // Verify CLI usage
 if('cli' != php_sapi_name())
