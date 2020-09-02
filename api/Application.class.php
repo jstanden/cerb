@@ -127,7 +127,7 @@ class CerberusApplication extends DevblocksApplication {
 	static function getWorkerPickerData($population, $sample, $group_id=0, $bucket_id=0) {
 		// Shared objects
 
-		$online_workers = DAO_Worker::getAllOnline();
+		$online_workers = DAO_Worker::getOnlineWithoutIdle();
 		$group_responsibilities = DAO_Group::getResponsibilities($group_id);
 		$bucket_responsibilities = @$group_responsibilities[$bucket_id] ?: [];
 		$workloads = DAO_Worker::getWorkloads();

@@ -1461,7 +1461,7 @@ class DevblocksEventHelper {
 				
 				// Filter: Logged in
 				if(!empty($opt_logged_in)) {
-					$workers_online = DAO_Worker::getAllOnline();
+					$workers_online = DAO_Worker::getOnlineWithoutIdle();
 				}
 				
 				foreach(array_keys($possible_workers) as $k) {

@@ -339,6 +339,24 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return DAO_Worker::getIds(array_column($results, 'user_id'));
 	}
 	
+	static public function getOnlineWithoutIdle() {
+		$db = DevblocksPlatform::services()->database();
+		
+		$sql = "SELECT devblocks_session.user_id, MAX(devblocks_session.updated+worker.timeout_idle_secs) as idle_after ".
+			"FROM devblocks_session ".
+			"INNER JOIN worker ON (worker.id=devblocks_session.user_id) ".
+			"WHERE user_id > 0 ".
+			"GROUP BY user_id ".
+			"HAVING idle_after > unix_timestamp() "
+		;
+		$results = $db->GetArrayMaster($sql);
+		
+		if(false == $results)
+			return [];
+		
+		return DAO_Worker::getIds(array_column($results, 'user_id'));
+	}
+	
 	/**
 	 * @param int $idle_kick_limit
 	 * @return Model_Worker[]
