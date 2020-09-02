@@ -2,7 +2,7 @@
 {$target_context = $comment->getTargetContext(false)}
 {$is_writeable = Context_Comment::isWriteableByActor($comment, $active_worker)}
 
-<div class="block" style="position:relative;overflow:auto;margin-bottom:10px;padding-left:10px;">
+<div class="block" style="position:relative;margin-bottom:10px;padding-left:10px;">
 	<span class="tag" style="background-color:rgb(71,133,210);color:white;margin-right:5px;">{'common.comment'|devblocks_translate|lower}</span>
 
 	<b>
@@ -30,7 +30,7 @@
 	&nbsp; <abbr title="{$comment->created|devblocks_date}">{$comment->created|devblocks_prettytime}</abbr>
 
 	{if !$embed}
-	<div class="toolbar" style="display:none;position:absolute;top:5px;right:5px;">
+	<div class="toolbar">
 		{if $is_writeable}<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="{$comment->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel" title="{'common.edit'|devblocks_translate|lower}"></span></button>{/if}
 
 		{$permalink_url = "{devblocks_url full=true}c=profiles&type={$target_context->params.alias}&id={$comment->context_id}{/devblocks_url}/#comment{$comment->id}"}
@@ -44,7 +44,7 @@
 	</div>
 	{/if}
 	
-	<div style="display:block;margin-top:2px;margin-left:58px;">
+	<div class="cerb-comment--content">
 		{if $comment->is_markdown}
 			<div class="commentBodyHtml">{$comment->getContent() nofilter}</div>
 		{else}

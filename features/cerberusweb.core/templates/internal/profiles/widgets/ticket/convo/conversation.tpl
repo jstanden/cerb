@@ -50,7 +50,7 @@
 					{assign var=message_expanded value=$convo_set.expand}
 					{assign var=message value=$messages.$message_id}
 					
-					<div id="message{$message->id}">
+					<div id="message{$message->id}" class="cerb-message">
 						{include file="devblocks:cerberusweb.core::display/modules/conversation/message.tpl" expanded=$message_expanded}
 					</div>
 					
@@ -58,7 +58,7 @@
 					{assign var=comment_id value=$convo_set.id}
 					{assign var=comment value=$comments.$comment_id}
 					
-					<div id="comment{$comment->id}">
+					<div id="comment{$comment->id}" class="cerb-comment">
 						{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
 					</div>
 					
@@ -66,7 +66,7 @@
 					{assign var=draft_id value=$convo_set.id}
 					{assign var=draft value=$drafts.$draft_id}
 					
-					<div id="draft{$draft->id}">
+					<div id="draft{$draft->id}" class="cerb-draft">
 						{include file="devblocks:cerberusweb.core::display/modules/conversation/draft.tpl"}
 					</div>
 					
@@ -123,6 +123,7 @@ $(function() {
 		.on('cerb_profile_comment_created.widget{$widget->id}', function(e) {
 			if(e.comment_id && e.comment_html) {
 				var $new_comment = $('<div id="comment' + e.comment_id + '"/>')
+					.addClass('cerb-comment')
 					.html(e.comment_html)
 					.prependTo($('#conversation'))
 				;

@@ -8,7 +8,7 @@
 
 	<div class="cerb-comments">
 		{foreach from=$comments item=comment}
-		<div id="comment{$comment->id}">
+		<div id="comment{$comment->id}" class="cerb-comment">
 			{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl"}
 		</div>
 		{/foreach}
@@ -29,6 +29,7 @@ $(function() {
 		.on('cerb_profile_comment_created.widget{$widget->id}', function(e) {
 			if(e.comment_id && e.comment_html) {
 				$('<div id="comment' + e.comment_id + '"/>')
+					.addClass('cerb-comment')
 					.html(e.comment_html)
 					.prependTo($container)
 				;
@@ -43,6 +44,7 @@ $(function() {
 
 			if(e.id && e.comment_html) {
 				$('<div id="comment' + e.id + '"/>')
+					.addClass('cerb-comment')
 					.html(e.comment_html)
 					.prependTo($container)
 				;

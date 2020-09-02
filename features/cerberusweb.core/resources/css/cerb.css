@@ -942,6 +942,39 @@ DIV.help-box SPAN.help.callout-worklist {
   border-radius: 5px 5px 0px 0px;
 }
 
+.cerb-comment .cerb-comment--content {
+  display: block;
+  margin-top: 2px;
+  margin-left: 58px;
+}
+.cerb-comment .toolbar {
+  display: none;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.cerb-draft .cerb-draft--content {
+  display: block;
+  margin-left: 58px;
+}
+.cerb-draft .toolbar-minmax {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: none;
+}
+
+.cerb-message .cerb-message--content {
+  display: block;
+  margin-left: 58px;
+}
+.cerb-message .toolbar-minmax {
+  position: absolute;
+  right: 5px;
+  display: none;
+}
+
 .cerb-comments-thread {
   margin: 10px 0 0 15px;
   border-left: 2px solid #c8c8c8;
@@ -5931,6 +5964,28 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
   }
   .cerb-workspace-layout--sidebar-right .cerb-workspace-layout-zone--sidebar {
     order: 1;
+  }
+}
+@media screen and (max-width: 700px) {
+  .cerb-comment .cerb-comment--content {
+    margin-left: 0;
+  }
+  .cerb-comment .toolbar {
+    top: -15px;
+  }
+
+  .cerb-draft .cerb-draft--content {
+    margin-left: 0;
+  }
+  .cerb-draft .toolbar-minmax {
+    top: -15px;
+  }
+
+  .cerb-message .cerb-message--content {
+    margin-left: 0;
+  }
+  .cerb-message .toolbar-minmax {
+    top: -15px;
   }
 }
 @media print {

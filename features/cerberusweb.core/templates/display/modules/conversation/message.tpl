@@ -18,7 +18,7 @@
 		{/if}
 
 		{if !$embed}
-		<div class="toolbar-minmax" style="position:absolute;right:5px;display:none;">
+		<div class="toolbar-minmax">
 			{if $active_worker->hasPriv('contexts.cerberusweb.contexts.message.update')}
 			<button type="button" class="edit" data-context="{CerberusContexts::CONTEXT_MESSAGE}" data-context-id="{$message->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 			{/if}
@@ -135,7 +135,7 @@
 	<div style="clear:both;{if $expanded}margin-bottom:1em;{else}margin-bottom:0.5em;{/if}"></div>
 
 	{if $expanded}
-	<div style="display:block;margin-left:58px;">
+	<div class="cerb-message--content">
 		{$filtering_results = null}
 		{$html_body = null}
 

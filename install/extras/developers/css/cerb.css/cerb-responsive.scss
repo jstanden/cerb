@@ -19,3 +19,35 @@
 		}
 	}
 }
+
+@media screen and (max-width:700px) {
+	.cerb-comment {
+		.cerb-comment--content {
+			margin-left: 0;
+		}
+
+		.toolbar {
+			top: -15px;
+		}
+	}
+
+	.cerb-draft {
+		.cerb-draft--content {
+			margin-left: 0;
+		}
+
+		.toolbar-minmax {
+			top: -15px;
+		}
+	}
+
+	.cerb-message {
+		.cerb-message--content {
+			margin-left: 0;
+		}
+
+		.toolbar-minmax {
+			top: -15px;
+		}
+	}
+}

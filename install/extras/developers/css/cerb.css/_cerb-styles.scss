@@ -902,6 +902,48 @@ DIV.help-box {
 
 // Misc common DIVs
 
+.cerb-comment {
+	.cerb-comment--content {
+		display:block;
+		margin-top:2px;
+		margin-left:58px;
+	}
+
+	.toolbar {
+		display:none;
+		position:absolute;
+		top:5px;
+		right:5px;
+	}
+}
+
+.cerb-draft {
+	.cerb-draft--content {
+		display:block;
+		margin-left:58px;
+	}
+
+	.toolbar-minmax {
+		position:absolute;
+		top:5px;
+		right:5px;
+		display:none;
+	}
+}
+
+.cerb-message {
+	.cerb-message--content {
+		display:block;
+		margin-left:58px;
+	}
+
+	.toolbar-minmax {
+		position:absolute;
+		right:5px;
+		display:none;
+	}
+}
+
 .cerb-comments-thread {
 	margin: 10px 0 0 15px;
 	border-left:2px solid #c8c8c8;

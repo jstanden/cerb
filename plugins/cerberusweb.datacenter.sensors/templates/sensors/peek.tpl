@@ -73,7 +73,7 @@
 
 {* Comment *}
 {if !empty($last_comment)}
-<div id="comment{$last_comment->id}">
+<div id="comment{$last_comment->id}" class="cerb-comment">
 	{include file="devblocks:cerberusweb.core::internal/comments/comment.tpl" readonly=true comment=$last_comment}
 </div>
 {/if}

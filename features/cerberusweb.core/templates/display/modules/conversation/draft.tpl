@@ -4,7 +4,7 @@
 	{$draft_worker = $draft->getWorker()}
 
 	{if !$embed}
-	<div class="toolbar-minmax" style="position:absolute;top:5px;right:5px;display:none;">
+	<div class="toolbar-minmax">
 		{if $draft_is_writeable && $active_worker->hasPriv('contexts.cerberusweb.contexts.mail.draft.update')}
 			<button type="button" class="cerb-button-edit" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$draft->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
 		{/if}
@@ -56,7 +56,11 @@
 				<b>{'message.header.date'|devblocks_translate|capitalize}:</b> {$draft->updated|devblocks_date} ({$draft->updated|devblocks_prettytime})<br>
 			{/if}
 		</div>
+	</div>
 
+	<div style="clear:both;{if $expanded}margin-bottom:1em;{else}margin-bottom:0.5em;{/if}"></div>
+
+	<div class="cerb-draft--content">
 		{if 'parsedown' == $draft->params.format}
 		<div class="emailBodyHtml">{$draft->getContent() nofilter}</div>
 		{else}
