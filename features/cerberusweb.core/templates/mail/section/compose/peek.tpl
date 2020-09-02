@@ -136,7 +136,8 @@
 
 
 #signature
-#cut{/if}{/if}</textarea>
+#cut
+{/if}{/if}</textarea>
 				</div>
 
 				<div id="compose{$popup_uniqid}EditorPreviewPanel" style="min-height:100px;max-height:400px;overflow:auto;border:1px dotted rgb(150,150,150);padding:5px;"></div>
