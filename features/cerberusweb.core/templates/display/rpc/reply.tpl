@@ -203,8 +203,8 @@
 {if 1==$signature_pos || 3==$signature_pos}
 
 
-#signature{if 1==$signature_pos}
-
+#signature
+{if 1==$signature_pos}
 #cut
 {/if}{if in_array($reply_mode,[0,2])}{*Sig above*}
 
