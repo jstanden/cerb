@@ -41,6 +41,18 @@ class ProfileWidget_Comments extends Extension_ProfileWidget {
 		
 		$comments = DAO_Comment::getByContext($target_context, $target_context_id);
 		
+		// Comment notes
+		$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_COMMENT, array_keys($comments));
+		$comment_notes = [];
+		// Index notes by comment id
+		if(is_array($notes))
+			foreach($notes as $note) {
+				if(!isset($comment_notes[$note->context_id]))
+					$comment_notes[$note->context_id] = [];
+				$comment_notes[$note->context_id][$note->id] = $note;
+			}
+		$tpl->assign('comment_notes', $comment_notes);
+		
 		$tpl->assign('context', $target_context);
 		$tpl->assign('context_id', $target_context_id);
 		$tpl->assign('comments', $comments);
