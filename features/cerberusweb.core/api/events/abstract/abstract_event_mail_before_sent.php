@@ -718,7 +718,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				$header = $tpl_builder->build($params['header'], $dict);
 				$value = $tpl_builder->build($params['value'], $dict);
 				
-				$headers =& $dict->headers;
+				$headers =& $dict->_properties['headers'];
 				
 				if(!isset($headers))
 					$headers = array();
@@ -864,7 +864,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 				$header = $tpl_builder->build($params['header'], $dict);
 				$value = $tpl_builder->build($params['value'], $dict);
 				
-				$headers =& $dict->headers;
+				$headers =& $dict->_properties['headers'];
 				
 				if(!isset($headers))
 					$headers = [];
