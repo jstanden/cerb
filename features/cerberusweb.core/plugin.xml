@@ -972,7 +972,7 @@
 			<param key="string_key" value="activities.mailbox.check.error" />
 			<param key="options" value="" />
 		</activity>
-		<activity point="record.delete">
+		<activity point="record.deleted">
 			<param key="label_key" value="Record Deleted" />
 			<param key="string_key" value="activities.record.delete" />
 			<param key="options" value="" />
