@@ -26,6 +26,17 @@ class DevblocksValidationField {
 	}
 	
 	/**
+	 *
+	 * @return _DevblocksValidationTypeBoolean
+	 */
+	function boolean() {
+		$this->_type = new _DevblocksValidationTypeBoolean('boolean');
+		
+		// Defaults for booleanß type
+		return $this->_type;
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksValidationTypeContext
 	 */
@@ -616,6 +627,13 @@ class _DevblocksValidationTypeFloat extends _DevblocksValidationType {
 	}
 }
 
+class _DevblocksValidationTypeBoolean extends _DevblocksValidationType {
+	function __construct($type_name='boolean') {
+		parent::__construct($type_name);
+		return $this;
+	}
+}
+
 class _DevblocksValidationTypeGeoPoint extends _DevblocksValidationType {
 	function __construct($type_name='geopoint') {
 		parent::__construct($type_name);
@@ -840,6 +858,12 @@ class _DevblocksValidationService {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' is not a valid context (%s).", $field_label, $value));
 				}
 				// [TODO] Filter to specific contexts for certain fields
+				break;
+				
+			case '_DevblocksValidationTypeBoolean':
+				if(!is_bool($value)) {
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a boolean.", $field_label));
+				}
 				break;
 				
 			case '_DevblocksValidationTypeGeoPoint':
