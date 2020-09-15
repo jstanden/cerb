@@ -2064,22 +2064,22 @@ UL.ui-menu li.ui-state-focus {
   border-bottom: 1px solid #e6e6e6;
   border-top: 1px solid #e6e6e6;
 }
-.cerb-code-editor-toolbar .cerb-code-editor-toolbar-button {
+.cerb-code-editor-toolbar button {
   background: whitesmoke;
   border: 0;
 }
-.cerb-code-editor-toolbar .cerb-code-editor-toolbar-button img {
+.cerb-code-editor-toolbar button img {
   -webkit-filter: grayscale(100%);
   filter: grayscale(100%);
 }
-.cerb-code-editor-toolbar .cerb-code-editor-toolbar-button img:hover {
+.cerb-code-editor-toolbar button img:hover {
   filter: grayscale(0%);
   -webkit-filter: grayscale(0%);
 }
-.cerb-code-editor-toolbar .cerb-code-editor-toolbar-button.cerb-code-editor-toolbar-button--enabled {
+.cerb-code-editor-toolbar button.cerb-code-editor-toolbar-button--enabled {
   background-color: #fadc4a;
 }
-.cerb-code-editor-toolbar .cerb-code-editor-toolbar-button.cerb-code-editor-toolbar-button--enabled span.glyphicons {
+.cerb-code-editor-toolbar button.cerb-code-editor-toolbar-button--enabled span.glyphicons {
   color: #a56421;
 }
 .cerb-code-editor-toolbar .cerb-code-editor-toolbar-divider {

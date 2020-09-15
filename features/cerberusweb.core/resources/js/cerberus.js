@@ -943,7 +943,74 @@ var ajax = new cAjaxCalls();
 			});
 		});
 	}
-	
+
+	$.fn.cerbToolbar = function(options) {
+		if('object' !== typeof options)
+			options = {};
+
+		if(!options.hasOwnProperty('done') || 'function' !== typeof options.done) {
+			options.done = function() {};
+		}
+
+		if(!options.hasOwnProperty('reset') || 'function' !== typeof options.reset) {
+			options.reset = function() {};
+		}
+
+		if(!options.hasOwnProperty('error') || 'function' !== typeof options.error) {
+			options.error = function() {};
+		}
+
+		return this.each(function() {
+			var $toolbar = $(this);
+
+			$toolbar.on('cerb-toolbar--refreshed', function() {
+				// Interactions
+				$toolbar
+					.find('.cerb-bot-trigger')
+					.cerbBotTrigger({
+						'container': options.container,
+						'reset': options.reset,
+						'done': options.done,
+						'error': options.error
+					})
+				;
+
+				// Functions
+				$toolbar
+					.find('.cerb-bot-trigger')
+					.cerbFunctionTrigger({
+						'done': options.done
+					})
+				;
+
+				// Menus
+				$toolbar
+					.find('button[data-cerb-toolbar-menu]')
+					.off('click')
+					.on('click', function() {
+						var $this = $(this);
+						var $ul = $(this).next('ul').toggle();
+
+						$ul.position({
+							my: 'left top',
+							at: 'left bottom',
+							of: $this,
+							collision: 'fit'
+						});
+					})
+					.next('ul.cerb-float')
+					.menu({
+						select: function() {
+							$(this).hide();
+						}
+					})
+				;
+			});
+
+			$toolbar.triggerHandler('cerb-toolbar--refreshed');
+		});
+	}
+
 	$.fn.cerbCodeEditor = function(options) {
 		var langTools = ace.require("ace/ext/language_tools");
 		
