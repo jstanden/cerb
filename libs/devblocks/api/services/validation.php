@@ -516,6 +516,25 @@ class _DevblocksValidators {
 		};
 	}
 	
+	function uri() {
+		return function($value, &$error=null) {
+			// [TODO] Can't start with a number or dot?
+			// [TODO] Can't be all dots or underscores
+			
+			if(0 != strcmp($value, DevblocksPlatform::strAlphaNum($value, '._'))) {
+				$error = "may only contain letters, numbers, dots, and underscores";
+				return false;
+			}
+			
+			if(strlen($value) > 128) {
+				$error = "must be shorter than 128 characters.";
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
 	function url() {
 		return function($value, &$error=null) {
 			if(!is_string($value)) {
