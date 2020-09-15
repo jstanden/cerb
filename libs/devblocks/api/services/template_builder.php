@@ -549,8 +549,8 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return $default;
 	}
 	
-	public function getKeyPath($name, $default=null) {
-		$queue = $this->_getPathFromText($name);
+	public function getKeyPath($name, $default=null, $delimiter='.') {
+		$queue = $this->_getPathFromText($name, $delimiter);
 		
 		$ptr =& $this->_dictionary;
 		
@@ -577,13 +577,13 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return $this->$name = $value;
 	}
 	
-	public function _getPathFromText($name) {
-		$path = explode('.', $name);
+	public function _getPathFromText($name, $delimiter='.') {
+		$path = explode($delimiter, $name);
 		return $path;
 	}
 	
-	public function setKeyPath($name, $value) {
-		$queue = $this->_getPathFromText($name);
+	public function setKeyPath($name, $value, $delimiter='.') {
+		$queue = $this->_getPathFromText($name, $delimiter);
 		
 		$ptr =& $this->_dictionary;
 		
@@ -633,8 +633,8 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return $this->__unset($name);
 	}
 	
-	public function unsetKeyPath($name) {
-		$path = $this->_getPathFromText($name);
+	public function unsetKeyPath($name, $delimiter='.') {
+		$path = $this->_getPathFromText($name, $delimiter);
 		
 		$ptr =& $this->_dictionary;
 		
@@ -829,8 +829,8 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		}
 	}
 	
-	public function scrubKeyPathPrefix($name, $prefix) {
-		$path = $this->_getPathFromText($name);
+	public function scrubKeyPathPrefix($name, $prefix, $delimiter='.') {
+		$path = $this->_getPathFromText($name, $delimiter);
 		
 		$ptr =& $this->_dictionary;
 		
@@ -852,8 +852,8 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return true;
 	}
 	
-	public function scrubKeyPathSuffix($name, $suffix) {
-		$path = $this->_getPathFromText($name);
+	public function scrubKeyPathSuffix($name, $suffix, $delimiter='.') {
+		$path = $this->_getPathFromText($name, $delimiter);
 		
 		$ptr =& $this->_dictionary;
 		

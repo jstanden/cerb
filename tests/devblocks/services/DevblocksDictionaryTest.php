@@ -50,29 +50,29 @@ class DevblocksDictionaryTest extends PHPUnit_Framework_TestCase {
 	function testSetKeyPath() {
 		$dict = new DevblocksDictionaryDelegate([]);
 		
-		$dict->setKeyPath('deep.deep.key', 'deep_value');
+		$dict->setKeyPath('deep:deep:key', 'deep_value', ':');
 		$expected = 'deep_value';
-		$actual = $dict->getKeyPath('deep.deep.key');
+		$actual = $dict->getKeyPath('deep:deep:key', null,':');
 		$this->assertEquals($expected, $actual);
 		
 		// Indexed elements
-		$dict->setKeyPath('deep.deep.0.key', 'deep_value');
+		$dict->setKeyPath('deep:deep:0:key', 'deep_value', ':');
 		$expected = 'deep_value';
-		$actual = $dict->getKeyPath('deep.deep.0.key');
+		$actual = $dict->getKeyPath('deep:deep:0:key', null, ':');
 		$this->assertEquals($expected, $actual);
 	}
 	
 	function testSetKeyIndexed() {
 		$dict = new DevblocksDictionaryDelegate([]);
 		
-		$dict->setKeyPath('nested.array.0', '123');
+		$dict->setKeyPath('nested:array:0', '123', ':');
 		$expected = '123';
-		$actual = $dict->getKeyPath('nested.array.0');
+		$actual = $dict->getKeyPath('nested:array:0', null, ':');
 		$this->assertEquals($expected, $actual);
 		
-		$dict->setKeyPath('nested.array.1', '456');
+		$dict->setKeyPath('nested:array:1', '456', ':');
 		$expected = '456';
-		$actual = $dict->getKeyPath('nested.array.1');
+		$actual = $dict->getKeyPath('nested:array:1', null, ':');
 		$this->assertEquals($expected, $actual);
 	}
 	
@@ -80,17 +80,17 @@ class DevblocksDictionaryTest extends PHPUnit_Framework_TestCase {
 		$dict = new DevblocksDictionaryDelegate([]);
 		
 		// Shallow set
-		$key_path = '__state.next';
-		$dict->setKeyPath($key_path, 'old_state');
+		$key_path = '__state:next';
+		$dict->setKeyPath($key_path, 'old_state', ':');
 		$expected = 'old_state';
-		$actual = $dict->getKeyPath($key_path);
+		$actual = $dict->getKeyPath($key_path, null, ':');
 		$this->assertEquals($expected, $actual);
 		
 		// Shallow set
-		$key_path = '__state.next';
-		$dict->setKeyPath($key_path, 'new_state');
+		$key_path = '__state:next';
+		$dict->setKeyPath($key_path, 'new_state', ':');
 		$expected = 'new_state';
-		$actual = $dict->getKeyPath($key_path);
+		$actual = $dict->getKeyPath($key_path, null, ':');
 		$this->assertEquals($expected, $actual);
 	}
 	
@@ -98,28 +98,28 @@ class DevblocksDictionaryTest extends PHPUnit_Framework_TestCase {
 		$dict = new DevblocksDictionaryDelegate([]);
 		
 		// Empty get
-		$key_path = '__state.memory.someNode';
-		$dict->getKeyPath($key_path);
+		$key_path = '__state:memory:someNode';
+		$dict->getKeyPath($key_path, null, ':');
 		
 		// Deep set
-		$key_path = '__state.memory.someNode';
-		$dict->setKeyPath($key_path, 'deep_value');
+		$key_path = '__state:memory:someNode';
+		$dict->setKeyPath($key_path, 'deep_value', ':');
 		$expected = 'deep_value';
-		$actual = $dict->getKeyPath($key_path);
+		$actual = $dict->getKeyPath($key_path, null, ':');
 		$this->assertEquals($expected, $actual);
 		
 		// Shallow set
-		$key_path = '__state.next';
-		$dict->setKeyPath($key_path, 'next_state');
+		$key_path = '__state:next';
+		$dict->setKeyPath($key_path, 'next_state', ':');
 		$expected = 'next_state';
-		$actual = $dict->getKeyPath($key_path);
+		$actual = $dict->getKeyPath($key_path, null, ':');
 		$this->assertEquals($expected, $actual);
 		
 		// Shallow set
-		$key_path = '__state.last';
-		$dict->setKeyPath($key_path, 'last_state');
+		$key_path = '__state:last';
+		$dict->setKeyPath($key_path, 'last_state', ':');
 		$expected = 'last_state';
-		$actual = $dict->getKeyPath($key_path);
+		$actual = $dict->getKeyPath($key_path, null, ':');
 		$this->assertEquals($expected, $actual);
 	}
 	
@@ -179,14 +179,14 @@ class DevblocksDictionaryTest extends PHPUnit_Framework_TestCase {
 			]
 		]);
 		
-		$dict->unsetKeyPath('deep.deep.key');
+		$dict->unsetKeyPath('deep:deep:key', ':');
 		
 		$expected = null;
-		$actual = $dict->getKeyPath('deep.deep.key', null);
+		$actual = $dict->getKeyPath('deep:deep:key', null, ':');
 		$this->assertEquals($expected, $actual);
 		
 		$expected = [];
-		$actual = $dict->getKeyPath('deep.deep', null);
+		$actual = $dict->getKeyPath('deep:deep', null, ':');
 		$this->assertEquals($expected, $actual);
 	}
 	
