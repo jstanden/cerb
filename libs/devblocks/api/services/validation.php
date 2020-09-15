@@ -439,6 +439,45 @@ class _DevblocksValidators {
 		};
 	}
 	
+	public function ip() {
+		return function($value, &$error) {
+			if(false === filter_var($value, FILTER_VALIDATE_IP)) {
+				$error = sprintf("(%s) is not a valid IPv4 or IPv6 address. Format like: 1.2.3.4",
+					$value
+				);
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
+	public function ipv4() {
+		return function($value, &$error) {
+			if(false === filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+				$error = sprintf("(%s) is not a valid IPv4 address. Format like: 1.2.3.4",
+					$value
+				);
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
+	public function ipv6() {
+		return function($value, &$error) {
+			if(false === filter_var($value, FILTER_VALIDATE_IP,  FILTER_FLAG_IPV6)) {
+				$error = sprintf("(%s) is not a valid IPv6 address. Format like: a1b2:c3d4:e5f6:a1b2:c3d4:e5f6:a1b2:c3d4",
+					$value
+				);
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
 	function language() {
 		return function($value, &$error) {
 			if(empty($value))
