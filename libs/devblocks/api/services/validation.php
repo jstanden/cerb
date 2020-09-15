@@ -296,6 +296,22 @@ class _DevblocksValidators {
 		};
 	}
 	
+	function date() {
+		return function($value, &$error) {
+			if(empty($value))
+				return true;
+			
+			if(false === strtotime($value)) {
+				$error = sprintf("(%s) is not a valid date string. Format like: tomorrow 8am",
+					$value
+				);
+				return false;
+			}
+			
+			return true;
+		};
+	}
+	
 	function email($allow_empty=false) {
 		return function($value, &$error=null) use ($allow_empty) {
 			if($allow_empty && 0 == strlen($value))
