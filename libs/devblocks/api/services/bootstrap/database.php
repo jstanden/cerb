@@ -261,15 +261,6 @@ class _DevblocksDatabaseManager {
 		return $this->_Execute($sql, $this->_master_db);
 	}
 	
-	/**
-	 * @deprecated Remove in 10.0
-	 * @param string $sql
-	 * @return mysqli_result|false
-	 */
-	function ExecuteSlave($sql) {
-		return $this->QueryReader($sql);
-	}
-	
 	function QueryReader($sql) {
 		$db = $this->_reader_db;
 		
@@ -498,15 +489,6 @@ class _DevblocksDatabaseManager {
 	}
 	
 	/**
-	 * @deprecated
-	 * @param $sql
-	 * @return array|bool
-	 */
-	function GetArraySlave($sql) {
-		return $this->GetArrayReader($sql);
-	}
-	
-	/**
 	 * @param $sql
 	 * @return array|bool
 	 */
@@ -543,15 +525,6 @@ class _DevblocksDatabaseManager {
 	}
 	
 	/**
-	 * @deprecated
-	 * @param $sql
-	 * @return array|false
-	 */
-	public function GetRowSlave($sql) {
-		return $this->GetRowReader($sql);
-	}
-	
-	/**
 	 * @param $sql
 	 * @return array|false
 	 */
@@ -578,15 +551,6 @@ class _DevblocksDatabaseManager {
 		
 		$rs = $this->ExecuteMaster($sql, _DevblocksDatabaseManager::OPT_NO_READ_AFTER_WRITE);
 		return $this->GetOneFromResultset($rs);
-	}
-	
-	/**
-	 * @deprecated
-	 * @param string $sql
-	 * @return array|false
-	 */
-	function GetOneSlave($sql) {
-		return $this->GetOneReader($sql);
 	}
 	
 	function GetOneReader($sql) {
