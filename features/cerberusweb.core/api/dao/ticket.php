@@ -1919,11 +1919,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		switch($as) {
 			case 'ids':
 				return array_keys($objects);
-				break;
 				
 			default:
 				return DAO_Ticket::getIds(array_keys($objects));
-				break;
 		}
 	}
 	

@@ -32,12 +32,12 @@ function DevblocksClass() {
 		while(value && path.length)
 			value = value[path.shift()];
 		return value;
-	}
+	};
 	
 	// Source: http://stackoverflow.com/a/16693578
 	this.uniqueId = function(prefix) {
 		return '' + (prefix ? prefix : '') + (Math.random().toString(16)+"000000000").substr(2,8);
-	}
+	};
 	
 	/* Source: http://bytes.com/forum/thread90068.html */
 	// [TODO] Does this matter with caret.js anymore?
@@ -51,7 +51,7 @@ function DevblocksClass() {
 		};
 		
 		return selectedString;
-	}
+	};
 	
 	this.getFormEnabledCheckboxValues = function(form_id,element_name) {
 		return $("#" + form_id + " INPUT[name='" + element_name + "']:checked")
@@ -61,7 +61,7 @@ function DevblocksClass() {
 		.get()
 		.join(',')
 		;
-	}
+	};
 
 	this.resetSelectElements = function(form_id,element_name) {
 		// Make sure the view form exists
@@ -84,7 +84,7 @@ function DevblocksClass() {
 				elements[x].selectedIndex = 0;
 			}
 		}
-	}
+	};
 	
 	this.saveAjaxTabForm = function($frm) {
 		genericAjaxPost($frm, '', null, function(json) {
@@ -115,13 +115,13 @@ function DevblocksClass() {
 				}
 			}
 		});
-	}
+	};
 	
 	this.saveAjaxForm = function($frm, options) {
 		genericAjaxPost($frm, '', null, function(json) {
 			Devblocks.handleAjaxFormResponse($frm, json, options);
 		});
-	}
+	};
 	
 	this.handleAjaxFormResponse = function($frm, json, options) {
 		Devblocks.clearAlerts();
@@ -151,16 +151,16 @@ function DevblocksClass() {
 				setTimeout(funcShowForm, 750);
 			}
 		}
-	}
+	};
 	
 	this.clearAlerts = function() {
 		var $alerts = $('#cerb-alerts');
 		$alerts.children().remove();
-	}
+	};
 	
 	this.createAlertError = function(message) {
 		return this.createAlert(message, 'error', 0);
-	}
+	};
 	
 	this.createAlert = function(message, style, duration) {
 		if(undefined == message)
@@ -201,7 +201,7 @@ function DevblocksClass() {
 				$alert.remove();
 			});
 		}
-	}
+	};
 	
 	this.showError = function(target, message, animate) {
 		$html = $('<div class="ui-widget"/>')
@@ -221,7 +221,7 @@ function DevblocksClass() {
 			$status.effect('slide',{ direction:'up', mode:'show' },250);
 		
 		return $status;
-	}
+	};
 	
 	this.showSuccess = function(target, message, autohide, animate) {
 		$html = $('<div class="ui-widget"/>')
@@ -243,7 +243,7 @@ function DevblocksClass() {
 			$status.delay(5000).effect('slide',{ direction:'up', mode:'hide' }, 250);
 			
 		return $status;
-	}
+	};
 	
 	this.getDefaultjQueryUiTabOptions = function() {
 		var $this = this;
@@ -269,7 +269,7 @@ function DevblocksClass() {
 				ui.panel.html($div);
 			}
 		};
-	}
+	};
 	
 	this.setjQueryUiTabSelected = function(tabsId, index) {
 		var selectedTabs = {};
@@ -289,7 +289,7 @@ function DevblocksClass() {
 		
 		selectedTabs[tabsId] = index;
 		localStorage.selectedTabs = JSON.stringify(selectedTabs);
-	}
+	};
 	
 	this.getjQueryUiTabSelected = function(tabsId, activeTab) {
 		if(undefined != activeTab) {
@@ -323,7 +323,7 @@ function DevblocksClass() {
 			return 0;
 		
 		return selectedTabs[tabsId];
-	}
+	};
 	
 	this.callbackPeekEditSave = function(e) {
 		if(!(typeof e == 'object'))
@@ -439,22 +439,22 @@ function DevblocksClass() {
 					$frm.find('[name=' + e.field + ']').focus();
 			}
 		});
-	}
+	};
 	
 	this.triggerEvent = function(element, e) {
 		$(element).trigger(e);
-	}
+	};
 	
 	this._loadedResources = {};
 	
 	this.getResourceState = function(url) {
 		var state = this._loadedResources.hasOwnProperty(url) ? this._loadedResources[url] : null;
 		return state;
-	}
+	};
 	
 	this.setResourceState = function(url, state) {
 		this._loadedResources[url] = state;
-	}
+	};
 	
 	this.loadStylesheet = function(url, callback) {
 		var $instance = this;
@@ -465,7 +465,7 @@ function DevblocksClass() {
 				dataType: "text",
 				cache: true,
 				url: url
-			}
+			};
 			
 			$instance.setResourceState(url, 'loading');
 			
@@ -500,7 +500,7 @@ function DevblocksClass() {
 		} else {
 			callback();
 		}
-	}
+	};
 	
 	this.loadScript = function(url, callback) {
 		var $instance = this;
@@ -511,7 +511,7 @@ function DevblocksClass() {
 				dataType: "script",
 				cache: true,
 				url: url
-			}
+			};
 			
 			$instance.setResourceState(url, 'loading');
 			
@@ -545,7 +545,7 @@ function DevblocksClass() {
 		} else {
 			callback();
 		}
-	}
+	};
 	
 	this.loadScripts = function(urls, finished) {
 		if(!$.isArray(urls))
@@ -567,7 +567,7 @@ function DevblocksClass() {
 			
 			finished();
 		});
-	}
+	};
 	
 	this.loadResources = function(resources, finished) {
 		if(typeof(resources) != 'object')
@@ -606,7 +606,7 @@ function DevblocksClass() {
 			
 			finished();
 		});
-	}
+	};
 
 	// https://gist.github.com/ghinda/8442a57f22099bdb2e34#gistcomment-2386093
 	// https://gist.github.com/ghinda/8442a57f22099bdb2e34#gistcomment-2719686
@@ -766,8 +766,7 @@ function DevblocksClass() {
 		getQueryTokenValueByPath: function(editor, path) {
 			var TokenIterator = require('ace/token_iterator').TokenIterator;
 			var iter = new TokenIterator(editor.session, 0, 0);
-			var tree = {};
-			
+
 			path = path.slice(0,-1).split(':').map(function(s) { return s + ':'; });
 			var depth = 0;
 			var matches = 0;
@@ -775,12 +774,12 @@ function DevblocksClass() {
 			do {
 				var token = iter.getCurrentToken();
 				
-				if('meta.tag' == token.type) {
-					if(path.hasOwnProperty(depth) && token.value == path[depth]) {
-						if(matches == depth) {
+				if('meta.tag' === token.type) {
+					if(path.hasOwnProperty(depth) && token.value === path[depth]) {
+						if(matches === depth) {
 							matches++;
 							
-							if(path.length == matches) {
+							if(path.length === matches) {
 								// [TODO] This could be multiple following tokens (e.g. [1,2,3])
 								var val = iter.stepForward().value;
 								return val;
@@ -788,10 +787,10 @@ function DevblocksClass() {
 						}
 					}
 					
-				} else if('paren.lparen' == token.type) {
+				} else if('paren.lparen' === token.type) {
 					depth++;
 					
-				} else if('paren.rparen' == token.type) {
+				} else if('paren.rparen' === token.type) {
 					depth--;
 				}
 				
@@ -807,21 +806,21 @@ function DevblocksClass() {
 			var token = start;
 			
 			if(null != token) {
-				if(token.type != 'meta.tag') {
+				if(token.type !== 'meta.tag') {
 					results.push(token);
 				}
 				
 				if(
-					'whitespace' == token.type
-					|| 'keyword.operator' == token.type
-					|| 'variable.other.readwrite.local.twig' == token.type
-					|| 'meta.tag.twig' == token.type
-					|| ('paren.rparen' == token.type && ']' == token.value)
-					|| ('paren.rparen' == token.type && ')' == token.value)
+					'whitespace' === token.type
+					|| 'keyword.operator' === token.type
+					|| 'variable.other.readwrite.local.twig' === token.type
+					|| 'meta.tag.twig' === token.type
+					|| ('paren.rparen' === token.type && ']' === token.value)
+					|| ('paren.rparen' === token.type && ')' === token.value)
 				) {
 					// Ignore
 					
-				} else if('meta.tag' == token.type) {
+				} else if('meta.tag' === token.type) {
 					scope.push(token.value);
 					iter.stepBackward();
 					
@@ -831,26 +830,26 @@ function DevblocksClass() {
 					while(iter.stepBackward()) {
 						token = iter.getCurrentToken();
 						
-						if('meta.tag' == token.type) {
+						if('meta.tag' === token.type) {
 							scope.push(token.value);
 							iter.stepBackward();
 							break;
 							
 						} else if (
-							'whitespace' == token.type
-							|| (lastToken.type == 'text' && token.type == lastToken.type)
-							|| ('keyword.operator' == token.type && -1 != ['OR','AND'].indexOf(token.value))
-							|| ('paren.rparen' == token.type && ']' == token.value)
-							|| ('paren.rparen' == token.type && ')' == token.value)
+							'whitespace' === token.type
+							|| (lastToken.type === 'text' && token.type === lastToken.type)
+							|| ('keyword.operator' === token.type && -1 !== ['OR','AND'].indexOf(token.value))
+							|| ('paren.rparen' === token.type && ']' === token.value)
+							|| ('paren.rparen' === token.type && ')' === token.value)
 						) {
 							break;
 							
 						} else if (
-								'string' == token.type
-								|| ('keyword.operator' == token.type && '!' == token.value)
-								|| 'text' == token.type
-								|| 'constant.numeric' == token.type
-								|| ('paren.lparen' == token.type && '[' == token.value)
+								'string' === token.type
+								|| ('keyword.operator' === token.type && '!' === token.value)
+								|| 'text' === token.type
+								|| 'constant.numeric' === token.type
+								|| ('paren.lparen' === token.type && '[' === token.value)
 						) {
 							// Keep looking
 							continue;

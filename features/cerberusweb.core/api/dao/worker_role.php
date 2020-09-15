@@ -339,7 +339,6 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 						$privs = ['*' => []];
 						$cache->save($privs, self::_CACHE_WORKER_PRIVS_PREFIX.$worker_id);
 						return;
-						break;
 						
 					case 'itemized':
 						$role_privs = array_fill_keys($role->getPrivs(), []);

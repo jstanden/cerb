@@ -180,7 +180,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$chart_model['group'] = $value;
 				$chart_model['group_function'] = 'sum';
 				
-				
 			} else if($field->key == 'metric') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['metric'] = $value;
@@ -638,27 +637,21 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		switch($format) {
 			case 'categories':
 				return $this->_formatDataAsCategories($response, $chart_model);
-				break;
 				
 			case 'dictionaries':
 				return $this->_formatDataAsDictionaries($response, $chart_model);
-				break;
 				
 			case 'pie':
 				return $this->_formatDataAsPie($response, $chart_model);
-				break;
 				
 			case 'table':
 				return $this->_formatDataAsTable($response, $chart_model);
-				break;
 				
 			case 'timeseries':
 				return $this->_formatDataAsTimeSeries($response, $chart_model);
-				break;
 				
 			case 'tree':
 				return $this->_formatDataAsTree($response, $chart_model);
-				break;
 				
 			default:
 				$error = sprintf("'format:%s' is not valid for `type:%s`. Must be one of: categories, pie, table, timeseries, tree",
@@ -666,7 +659,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					$chart_model['type']
 				);
 				return false;
-				break;
 		}
 	}
 	
@@ -690,7 +682,6 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$series_meta = [];
 		
 		if($nested) {
-			$parents = [];
 			$xvalues = [];
 			
 			$output = [
@@ -1101,12 +1092,15 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							$value = $parents[$column_index]['name'];
 					}
 					
-					switch($type) {
+					switch ($type) {
 						case DevblocksSearchCriteria::TYPE_CONTEXT:
+							if(!array_key_exists($column_index, $parents))
+								break;
+							
 							$value = $parents[$column_index]['value'];
 							
 							if(!array_key_exists('type_options', $column)) {
-								if(false !== (strpos($value,':'))) {
+								if(false !== (strpos($value, ':'))) {
 									@list($context, $context_id) = explode(':', $value, 2);
 									$row[$column['key_query'] . '__context'] = $context;
 									$row[$column['key_query']] = $context_id;
@@ -1116,14 +1110,16 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 								$row[$column['key_query']] = $value;
 								$row[$column['key_query'] . '_label'] = $parents[$column_index]['name'];
 							}
-							
 							break;
-							
+						
 						case DevblocksSearchCriteria::TYPE_WORKER:
+							if(!array_key_exists($column_index, $parents))
+								break;
+							
 							$row[$column['key_query'] . '_label'] = $parents[$column_index]['name'];
 							$row[$column['key_query']] = $parents[$column_index]['value'];
 							break;
-							
+						
 						default:
 							$row[$column['key_query']] = $value;
 							break;
@@ -1190,7 +1186,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					[
 						'name' => $chart_model['group_function'] ?? 'count',
 						'value' => $date['value'],
-						'query' => $date['query'],
+						'query' => $date['query'] ?? null,
 						'hits' => $date['hits'],
 						'children' => [
 							$date,

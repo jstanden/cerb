@@ -931,7 +931,8 @@ var ajax = new cAjaxCalls();
 			var $properties = $grid.find('> div');
 			
 			var column_width = parseInt($grid.attr('data-column-width'));
-			if(0 == column_width)
+
+			if(0 === column_width)
 				column_width = 100;
 			
 			$properties.each(function() {
@@ -1900,9 +1901,9 @@ var ajax = new cAjaxCalls();
 				e.editor.completer = new Autocomplete();
 			}
 
-			if('insertstring' == e.command.name) {
+			if('insertstring' === e.command.name) {
 				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
-					if(1 == e.args.length) {
+					if(1 === e.args.length) {
 						e.editor.completer.showPopup(e.editor);
 					}
 				}
@@ -1952,7 +1953,7 @@ var ajax = new cAjaxCalls();
 					token_path = token_path.map(function(v) {
 						var pos = v.indexOf('/');
 						
-						if(-1 == pos)
+						if(-1 === pos)
 							return v;
 						
 						return v.substr(0,pos) + ':';
@@ -2602,10 +2603,10 @@ var ajax = new cAjaxCalls();
 							return;
 						}
 					}
-					
+
 					var token_path = Devblocks.cerbCodeEditor.getQueryTokenPath(pos, editor);
 					var scope_key = token_path.scope.join('');
-					
+
 					autocomplete_suggestions = editor.completer.autocomplete_suggestions;
 					
 					editor.completer.isDynamic = false;
@@ -2846,8 +2847,8 @@ var ajax = new cAjaxCalls();
 
 						if (autocomplete_scope[series_key + 'of:'] !== series_of) {
 							autocomplete_scope[series_key + 'of:'] = series_of;
-							
-							for(key in autocomplete_suggestions._contexts) {
+
+							for(var key in autocomplete_suggestions._contexts) {
 								if(series_key === key.substr(0,series_key.length))
 									autocomplete_suggestions._contexts[key] = null;
 							}
@@ -3510,11 +3511,11 @@ var ajax = new cAjaxCalls();
 					edit_mode = true;
 				
 				// Context
-				if(!(typeof context == "string") || 0 == context.length)
+				if(!(typeof context == "string") || 0 === context.length)
 					return;
 				
 				// Layer
-				if(!(typeof layer == "string") || 0 == layer.length)
+				if(!(typeof layer == "string") || 0 === layer.length)
 					//layer = "peek" + Devblocks.uniqueId();
 					layer = $.md5(context + ':' + context_id + ':' + (edit_mode ? 'true' : 'false'));
 				

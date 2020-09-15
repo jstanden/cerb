@@ -131,7 +131,7 @@ $(function() {
 		})
 		;
 	{/if}
-	
+
 	$widget.on('cerb_reply', function(e) {
 		e.preventDefault();
 		e.stopPropagation();

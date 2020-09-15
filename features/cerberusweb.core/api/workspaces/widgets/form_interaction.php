@@ -89,6 +89,9 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 			
 			// Transpile YAML->KATA
 			foreach($interactions['behaviors'] as $interaction) {
+				if(!is_array($interaction))
+					continue;
+				
 				$results[] = [
 					'key' => $interaction['id'],
 					'type' => 'interaction',

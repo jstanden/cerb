@@ -24,9 +24,7 @@
 <script type="text/javascript">
 $(function() {
 	var $frm = $('#{$uniqid}');
-	var $popup = $frm.closest('.ui-dialog');
-	var isInPopup = ($popup.length > 0);
-	
+
 	var $editor = $frm.find('textarea.cerb-code-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteSearchQueries({
@@ -51,20 +49,20 @@ $(function() {
 	editor.focus();
 	{/if}
 	
-	var $menu_trigger = $frm.find('a.cerb-quick-search-menu-trigger').click(function() {
+	$frm.find('a.cerb-quick-search-menu-trigger').click(function() {
 		editor.focus();
 		editor.commands.byName.startAutocomplete.exec(editor);
 	});
 	
 	$frm.submit(function() {
 		genericAjaxPost('{$uniqid}','',null,function(json) {
-			if(json.status == true) {
+			if(true === json.status) {
 				{if !empty($return_url)}
 					window.location.href = '{$return_url}';
 				{else}
 					var $view_filters = $('#viewCustomFilters{$view->id}');
 					
-					if(0 != $view_filters.length) {
+					if(0 !== $view_filters.length) {
 						$view_filters.html(json.html);
 						$view_filters.trigger('view_refresh')
 					}

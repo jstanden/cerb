@@ -225,7 +225,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 									$sql_select_field
 								),
 							];
-							break;
 							
 						case 'week':
 						case 'week-mon':
@@ -245,7 +244,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 									Cerb_ORMHelper::qstr($ts_format)
 								),
 							];
-							break;
 							
 						case 'week-sun':
 						case 'week-sunday':
@@ -263,7 +261,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 									Cerb_ORMHelper::qstr($ts_format)
 								),
 							];
-							break;
 							
 						case 'hourofday':
 						case 'hour':
@@ -300,7 +297,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 									Cerb_ORMHelper::qstr($ts_format)
 								),
 							];
-							break;
 					}
 					
 				} else if (in_array($custom_field->type, [Model_CustomField::TYPE_MULTI_CHECKBOX])) {

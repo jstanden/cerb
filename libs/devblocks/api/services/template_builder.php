@@ -427,11 +427,14 @@ class _DevblocksTemplateBuilder {
 };
 
 class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate {
-	private $_dictionary = null;
+	private $_dictionary = [];
 	private $_cached_contexts = null;
 	private $_null = null;
 	
 	function __construct($dictionary) {
+		if(!is_array($dictionary))
+			$dictionary = [];
+		
 		if(is_array($dictionary))
 		foreach($dictionary as $k => $v) {
 			if(DevblocksPlatform::strStartsWith($k, 'var_') && is_array($v)) {
@@ -529,6 +532,9 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		if(is_null($this->_cached_contexts))
 			$this->_cacheContexts();
 		
+		if(!is_array($this->_cached_contexts))
+			return [];
+		
 		return array_filter($this->_cached_contexts, function($context) use ($name) {
 			return substr($name, 0, strlen($context['prefix'])) == $context['prefix'];
 		});
@@ -583,7 +589,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		
 		if(is_array($queue))
 		while(null !== ($k = array_shift($queue))) {
-			if(!array_key_exists($k, $ptr)) {
+			if(!array_key_exists($k, $ptr) || is_null($ptr[$k])) {
 				$ptr[$k] = [];
 				$ptr =& $ptr[$k];
 				

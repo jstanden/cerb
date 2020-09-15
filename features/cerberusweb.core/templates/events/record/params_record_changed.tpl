@@ -1,5 +1,5 @@
 <fieldset style="margin-top:5px;">
-	<b>Record Type:</b>
+	<b>{'common.record.type'|devblocks_translate|capitalize}:</b>
 	<br>
 
 	<select name="event_params[context]">
