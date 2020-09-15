@@ -228,6 +228,7 @@ class _DevblocksTemplateBuilder {
 				'array_combine',
 				'array_diff',
 				'array_intersect',
+				'array_matches',
 				'array_sort_keys',
 				'array_unique',
 				'array_values',
@@ -1050,6 +1051,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('array_combine', [$this, 'function_array_combine']),
 			new \Twig\TwigFunction('array_diff', [$this, 'function_array_diff']),
 			new \Twig\TwigFunction('array_intersect', [$this, 'function_array_intersect']),
+			new \Twig\TwigFunction('array_matches', [$this, 'function_array_matches']),
 			new \Twig\TwigFunction('array_sort_keys', [$this, 'function_array_sort_keys']),
 			new \Twig\TwigFunction('array_unique', [$this, 'function_array_unique']),
 			new \Twig\TwigFunction('array_values', [$this, 'function_array_values']),
@@ -1094,6 +1096,34 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return;
 		
 		return array_combine($keys, $values);
+	}
+	
+	function function_array_matches($array, $patterns) {
+		if(is_string($array))
+			$array = [$array];
+		
+		if(!is_array($array))
+			return [];
+		
+		if(is_string($patterns))
+			$patterns = [$patterns];
+		
+		if(!is_array($patterns))
+			return [];
+		
+		$matched = [];
+		
+		foreach($patterns as $pattern) {
+			$pattern = DevblocksPlatform::strToRegExp($pattern);
+			
+			foreach($array as $idx => $value) {
+				if(preg_match($pattern, $value)) {
+					$matched[] = $value;
+				}
+			}
+		}
+		
+		return $matched;
 	}
 	
 	function function_array_diff($arr1, $arr2) {
