@@ -953,6 +953,15 @@ class _DevblocksValidationService {
 				
 				break;
 				
+			case '_DevblocksValidationTypeFloat':
+				if($field->_type->canBeEmpty() && 0 == strlen($value))
+					$value = 0;
+				
+				if(!is_numeric($value)) {
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a decimal (%s: %s).", $field_label, gettype($value), $value));
+				}
+				break;
+				
 			case '_DevblocksValidationTypeId':
 			case '_DevblocksValidationTypeNumber':
 				if(!is_numeric($value)) {
