@@ -1101,6 +1101,7 @@ var ajax = new cAjaxCalls();
 					{ value: "first", meta: "filter" },
 					{ value: "format", meta: "filter" },
 					{ value: "hash_hmac()", snippet: "hash_hmac(\"${1:secret key}\",\"${2:sha256}\")", meta: "filter" },
+					{ value: "indent(marker, fromLine)", meta: "filter" },
 					{ value: "join(',')", meta: "filter" },
 					{ value: "json_encode", meta: "filter" },
 					{ value: "json_pretty", meta: "filter" },

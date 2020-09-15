@@ -172,6 +172,7 @@ class _DevblocksTemplateBuilder {
 				'context_name',
 				'date_pretty',
 				'hash_hmac',
+				'indent',
 				'json_pretty',
 				'markdown_to_html',
 				'md5',
@@ -1442,6 +1443,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('context_name', [$this, 'filter_context_name']),
 			new \Twig\TwigFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new \Twig\TwigFilter('hash_hmac', [$this, 'filter_hash_hmac']),
+			new \Twig\TwigFilter('indent', [$this, 'filter_indent']),
 			new \Twig\TwigFilter('json_pretty', [$this, 'filter_json_pretty']),
 			new \Twig\TwigFilter('markdown_to_html', [$this, 'filter_markdown_to_html']),
 			new \Twig\TwigFilter('md5', [$this, 'filter_md5']),
@@ -1596,6 +1598,20 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return $hash;
+	}
+	
+	function filter_indent($string, $marker='', $from_line=0) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string)
+			|| empty($string)
+			)
+			return '';
+		
+		$from_line = intval($from_line);
+			
+		return DevblocksPlatform::services()->string()->indentWith($string, $marker, $from_line);
 	}
 	
 	function filter_json_pretty($string) {

@@ -19,15 +19,20 @@ class _DevblocksStringService {
 		return base64_decode(strtr($string, ['-'=>'+', '_'=>'/']));
 	}
 	
-	function indentWith($string, $marker) {
+	function indentWith($string, $marker, $from_line=0) {
 		if(0 == strlen($string))
 			return '';
 		
+		$lines = DevblocksPlatform::parseCrlfString($string, true, false);
+		
 		$lines = array_map(
-			function($str) use ($marker) {
-				return $marker . $str;
+			function($idx) use ($marker, $lines, $from_line) {
+				if($from_line && $idx < $from_line-1)
+					return $lines[$idx];
+				
+				return $marker . $lines[$idx];
 			},
-			DevblocksPlatform::parseCrlfString($string, true, false)
+			array_keys($lines)
 		);
 		
 		return implode(PHP_EOL, $lines);

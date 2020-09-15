@@ -36,5 +36,15 @@ class DevblocksStringTest extends PHPUnit_Framework_TestCase {
 		$expected = "> One\n> Two\n> Three";
 		$actual = $strings->indentWith("One\nTwo\nThree", '> ');
 		$this->assertEquals($expected, $actual);
+		
+		// From line
+		
+		$expected = "> One\n> Two\n> Three";
+		$actual = $strings->indentWith("One\nTwo\nThree", '> ', 1);
+		$this->assertEquals($expected, $actual);
+		
+		$expected = "One\n> Two\n> Three";
+		$actual = $strings->indentWith("One\nTwo\nThree", '> ', 2);
+		$this->assertEquals($expected, $actual);
 	}
 }
