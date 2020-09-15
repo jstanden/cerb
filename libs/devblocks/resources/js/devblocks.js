@@ -763,6 +763,74 @@ function DevblocksClass() {
 			
 			return results.reverse();
 		},
+		getYamlRowByPath: function(editor, path) {
+			var TokenIterator = require('ace/token_iterator').TokenIterator;
+			var iter = new TokenIterator(editor.session, 0, 0);
+
+			if(typeof path != 'string')
+				return false;
+
+			path = path.split(':');
+			var depth_stack = [];
+			var depth = 0;
+			var indent = '';
+			var matches = 0;
+			var last_token_row = -1;
+			
+			do {
+				var token = iter.getCurrentToken();
+
+				if('meta.tag' === token.type) {
+					if(last_token_row === iter.getCurrentTokenRow())
+						continue;
+
+					last_token_row = iter.getCurrentTokenRow();
+
+					var token_value = token.value;
+					var tag_trimmed = token_value.trimStart();
+					var tag_indent = " ".repeat(token_value.length - tag_trimmed.length);
+
+					var annotations_pos = tag_trimmed.indexOf('@');
+
+					if(-1 !== annotations_pos) {
+						tag_trimmed = tag_trimmed.substr(0, annotations_pos);
+					}
+
+					if(tag_indent.length > indent.length) {
+						depth++;
+						depth_stack.push(tag_indent);
+						indent = tag_indent;
+						
+					} else if(tag_indent.length < indent.length) {
+						while(depth_stack.length > 0 && tag_indent.length < indent.length) {
+							indent = depth_stack.pop();
+							depth--;
+
+							if(indent.length === tag_indent.length) {
+								depth_stack.push(tag_indent);
+								depth++;
+							}
+
+							if(0 === depth)
+								indent = '';
+						}
+					}
+
+					if(path.hasOwnProperty(depth) && tag_trimmed === path[depth]) {
+						if(matches === depth) {
+							matches++;
+
+							if(path.length === matches) {
+								return last_token_row;
+							}
+						}
+					}
+				}
+				
+			} while(iter.stepForward());
+
+			return false;
+		},
 		getQueryTokenValueByPath: function(editor, path) {
 			var TokenIterator = require('ace/token_iterator').TokenIterator;
 			var iter = new TokenIterator(editor.session, 0, 0);
