@@ -857,8 +857,8 @@ class _DevblocksValidationService {
 		
 		$error = null;
 		
-		if(false == ($class_name = get_class($field->_type)))
-			throw new Exception_DevblocksValidationError("'%s' has an invalid type.", $field_label);
+		if(!$field->_type || false == ($class_name = get_class($field->_type)))
+			throw new Exception_DevblocksValidationError(sprintf("'%s' has an invalid type.", $field_label));
 		
 		$data = $field->_type->_data;
 		
@@ -867,7 +867,12 @@ class _DevblocksValidationService {
 				throw new Exception_DevblocksValidationError(sprintf("'%s' is not editable.", $field_label));
 		}
 		
-		if(isset($data['not_empty']) && $data['not_empty'] && 0 == strlen($value)) {
+		if(isset($data['not_empty']) && $data['not_empty']) {
+			if(
+				(is_string($value) && 0 == strlen($value))
+				|| (is_array($value) && 0 == count($value))
+				|| (is_null($value))
+			)
 			throw new Exception_DevblocksValidationError(sprintf("'%s' must not be blank.", $field_label));
 		}
 		
@@ -1013,8 +1018,10 @@ class _DevblocksValidationService {
 					
 					@$possible_values = $data['possible_values'];
 					
-					if($possible_values && !in_array($value, $possible_values)) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
+					if(!($field->_type->canBeEmpty() && 0 == strlen($value))) {
+						if ($possible_values && !in_array($value, $possible_values)) {
+							throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
+						}
 					}
 				}
 				break;
