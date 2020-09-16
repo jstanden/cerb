@@ -395,6 +395,61 @@
 				<seg>Autocomplete</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.automatic">
+			<tuv xml:lang="en_US">
+				<seg>automatic</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation">
+			<tuv xml:lang="en_US">
+				<seg>automation</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.event">
+			<tuv xml:lang="en_US">
+				<seg>automation event</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.events">
+			<tuv xml:lang="en_US">
+				<seg>automation events</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.function">
+			<tuv xml:lang="en_US">
+				<seg>automation function</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.functions">
+			<tuv xml:lang="en_US">
+				<seg>automation functions</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.policy">
+			<tuv xml:lang="en_US">
+				<seg>automation policy</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.policies">
+			<tuv xml:lang="en_US">
+				<seg>automation policies</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.trigger">
+			<tuv xml:lang="en_US">
+				<seg>automation trigger</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.triggers">
+			<tuv xml:lang="en_US">
+				<seg>automation triggers</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automations">
+			<tuv xml:lang="en_US">
+				<seg>automations</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.available">
 			<tuv xml:lang="en_US">
 				<seg>available</seg>

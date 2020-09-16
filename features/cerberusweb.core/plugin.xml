@@ -157,6 +157,14 @@
 			<class name="View_Attachment" />
 		</file>
 
+		<file path="api/dao/automation.php">
+			<class name="Context_Automation" />
+			<class name="DAO_Automation" />
+			<class name="Model_Automation" />
+			<class name="SearchFields_Automation" />
+			<class name="View_Automation" />
+		</file>
+
 		<file path="api/dao/automation_datastore.php">
 			<class name="DAO_AutomationDatastore" />
 		</file>
@@ -1320,6 +1328,49 @@
 			</params>
 		</extension>
 		
+		<extension point="devblocks.context">
+			<id>cerb.contexts.automation</id>
+			<name>Automation</name>
+			<class>
+				<file>api/dao/automation.php</file>
+				<name>Context_Automation</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="automation" value="singular" />
+						<data key="automations" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="automation" />
+				<param key="dao_class" value="DAO_Automation" />
+				<param key="view_class" value="View_Automation" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.profile.tab</id>
 			<name>Profile Tab</name>
@@ -5955,6 +6006,19 @@
 				</params>
 			</extension>
 			
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.automation</id>
+				<name>Automation Section</name>
+				<class>
+					<file>api/uri/profiles/automation.php</file>
+					<name>PageSection_ProfilesAutomation</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="automation" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.bucket</id>
 				<name>Bucket Section</name>

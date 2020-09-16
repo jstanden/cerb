@@ -929,6 +929,7 @@ class CerberusContexts {
 	const CONTEXT_ACTIVITY_LOG = 'cerberusweb.contexts.activity_log';
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
+	const CONTEXT_AUTOMATION = 'cerb.contexts.automation';
 	const CONTEXT_BEHAVIOR = 'cerberusweb.contexts.behavior';
 	const CONTEXT_BEHAVIOR_NODE = 'cerberusweb.contexts.behavior.node';
 	const CONTEXT_BEHAVIOR_SCHEDULED = 'cerberusweb.contexts.behavior.scheduled';
@@ -2287,7 +2288,7 @@ class CerberusContexts {
 		if(empty($ids))
 			return $models;
 
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return $models;
 
 		if(false == ($dao_class = $context_ext->getDaoClass()))
