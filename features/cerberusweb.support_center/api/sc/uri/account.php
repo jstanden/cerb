@@ -491,8 +491,6 @@ class UmScAccountController extends Extension_UmScController {
 		$umsession = ChPortalHelper::getSession();
 		$active_contact = $umsession->getProperty('sc_login', null);
 		
-		error_log(json_encode($active_contact));
-		
 		$tpl = DevblocksPlatform::services()->templateSandbox();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())

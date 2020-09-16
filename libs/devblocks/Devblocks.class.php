@@ -2218,7 +2218,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function parseCsvString($string, $keep_blanks=false, $typecast=null, $limit=null) {
-		if(0 == strlen($string))
+		if(!is_string($string) || 0 == strlen($string))
 			return [];
 		
 		if(!$keep_blanks)

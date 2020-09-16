@@ -5,6 +5,7 @@ class _DevblocksDataProviderGpgKeyInfo extends _DevblocksDataProvider {
 			'' => [
 				'fingerprint:',
 				'filter:',
+				'format:',
 			],
 			'filter:' => [
 				'subkeys',
@@ -19,8 +20,6 @@ class _DevblocksDataProviderGpgKeyInfo extends _DevblocksDataProvider {
 	}
 	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
-		$db = DevblocksPlatform::services()->database();
-		
 		$chart_model = [
 			'type' => 'gpg.keyinfo',
 			'fingerprint' => '',
@@ -34,7 +33,8 @@ class _DevblocksDataProviderGpgKeyInfo extends _DevblocksDataProvider {
 				continue;
 
 			if($field->key == 'type') {
-				// Do nothing
+				null;
+				
 			} else if($field->key == 'fingerprint') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['fingerprint'] = $value;
@@ -61,7 +61,7 @@ class _DevblocksDataProviderGpgKeyInfo extends _DevblocksDataProvider {
 		}
 		
 		if(array_key_exists('filter', $chart_model) && !in_array($chart_model['filter'], ['uids', 'subkeys'])) {
-			$error = "The `filter:` field must be one ofL uids, subkeys";
+			$error = "The `filter:` field must be one of: uids, subkeys";
 			return false;
 		}
 		
@@ -100,7 +100,6 @@ class _DevblocksDataProviderGpgKeyInfo extends _DevblocksDataProvider {
 		switch($format) {
 			case 'dictionaries':
 				return $this->_formatDataAsDictionaries($chart_model);
-				break;
 				
 			default:
 				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: dictionaries",
