@@ -66,6 +66,10 @@ class _DevblocksDataService {
 				return $provider->getSuggestions($type, $params);
 				break;
 				
+			case 'record.types':
+				$provider = new _DevblocksDataProviderRecordTypes();
+				return $provider->getSuggestions($type, $params);
+				
 			case 'sample.geo.points':
 				$provider = new _DevblocksDataProviderSampleGeoPoints();
 				return $provider->getSuggestions($type, $params);
@@ -117,6 +121,7 @@ class _DevblocksDataService {
 			'calendar.events',
 			'classifier.prediction',
 			'gpg.keyinfo',
+			'record.types',
 			'sample.geo.points',
 			'sample.timeseries',
 			'sample.xy',
@@ -187,6 +192,14 @@ class _DevblocksDataService {
 				
 			case 'gpg.keyinfo':
 				$provider = new _DevblocksDataProviderGpgKeyInfo();
+				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+				
+			case 'record.types':
+				$provider = new _DevblocksDataProviderRecordTypes();
 				
 				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
 					return false;

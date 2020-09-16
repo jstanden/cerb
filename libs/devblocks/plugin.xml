@@ -53,6 +53,9 @@
 		<file path="api/services/data/gpg_keyinfo.php">
 			<class name="_DevblocksDataProviderGpgKeyInfo" />
 		</file>
+		<file path="api/services/data/record_types.php">
+			<class name="_DevblocksDataProviderRecordTypes" />
+		</file>
 		<file path="api/services/data/sample_geopoints.php">
 			<class name="_DevblocksDataProviderSampleGeoPoints" />
 		</file>
