@@ -977,7 +977,7 @@ var ajax = new cAjaxCalls();
 
 				// Functions
 				$toolbar
-					.find('.cerb-bot-trigger')
+					.find('.cerb-function-trigger')
 					.cerbFunctionTrigger({
 						'done': options.done
 					})
@@ -3452,6 +3452,50 @@ var ajax = new cAjaxCalls();
 						})
 					;
 				}
+			});
+		});
+	}
+
+	// Abstract function trigger
+
+	$.fn.cerbFunctionTrigger = function(options) {
+		return this.each(function() {
+			var $trigger = $(this);
+
+			// Context
+
+			$trigger.on('click', function(e) {
+				e.stopPropagation();
+
+				var function_uri = $trigger.attr('data-function-uri');
+				var function_params = $trigger.attr('data-function-params');
+
+				var formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'automation');
+				formData.set('action', 'invokeUiFunction');
+
+				formData.set('function_uri', function_uri);
+
+				if(function_params && function_params.length > 0) {
+					var parts = new URLSearchParams(function_params);
+
+					for(var pair of parts.entries()) {
+						if('[]' === pair[0].substr(-2)) {
+							formData.append('params[' + pair[0].slice(0,-2) + '][]', pair[1]);
+						} else {
+							formData.set('params[' + pair[0] + ']', pair[1]);
+						}
+					}
+				}
+
+				genericAjaxPost(formData, null, null, function() {
+					// [TODO] Handle errors
+					if(options && options.done && 'function' == typeof options.done) {
+						options.done($.Event('cerb-function-done', {trigger: $trigger}));
+					}
+				});
 			});
 		});
 	}
