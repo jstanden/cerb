@@ -345,7 +345,16 @@ class _DevblocksKataService {
 				$annotations = DevblocksPlatform::parseCsvString($ann);
 			}
 			
-			if($dict && !in_array('raw', $annotations)) {
+			if($dict) {
+				if(in_array('raw', $annotations)) {
+					$annotations = array_diff($annotations, ['raw']);
+					
+					if ($annotations)
+						$k .= '@' . implode(',', $annotations);
+					
+					return [$k => $v];
+				}
+				
 				$v = $tpl_builder->build($v, $dict);
 			}
 			
@@ -385,7 +394,22 @@ class _DevblocksKataService {
 			
 		} else if (is_array($v)) {
 			$values = [];
+			$annotations = [];
 			
+			if(false !== strpos($k,'@')) {
+				@list($k, $ann) = explode('@', $k, 2);
+				$annotations = DevblocksPlatform::parseCsvString($ann);
+			}
+			
+			if(in_array('raw', $annotations)) {
+				$annotations = array_diff($annotations, ['raw']);
+				
+				if($annotations)
+					$k .= '@' . implode(',', $annotations);
+				
+				return [$k => $v];
+			}
+				
 			foreach(array_keys($v) as $kk) {
 				$result = $this->_formatTree($v[$kk], $kk, $dict, $tpl_builder);
 				$values[key($result)] = current($result);
