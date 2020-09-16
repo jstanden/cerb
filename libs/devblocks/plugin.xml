@@ -62,6 +62,9 @@
 		<file path="api/services/data/sample_xy.php">
 			<class name="_DevblocksDataProviderSampleXy" />
 		</file>
+		<file path="api/services/data/ui_icons.php">
+			<class name="_DevblocksDataProviderUiIcons" />
+		</file>
 		<file path="api/services/data/usage_bot_behaviors.php">
 			<class name="_DevblocksDataProviderUsageBotBehaviors" />
 		</file>

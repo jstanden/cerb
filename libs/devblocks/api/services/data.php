@@ -85,6 +85,10 @@ class _DevblocksDataService {
 				$provider = new _DevblocksDataProviderUsageBotBehaviors();
 				return $provider->getSuggestions($type, $params);
 				break;
+			
+			case 'ui.icons':
+				$provider = new _DevblocksDataProviderUiIcons();
+				return $provider->getSuggestions($type, $params);
 				
 			case 'usage.snippets':
 				$provider = new _DevblocksDataProviderUsageSnippets();
@@ -116,6 +120,7 @@ class _DevblocksDataService {
 			'sample.geo.points',
 			'sample.timeseries',
 			'sample.xy',
+			'ui.icons',
 			'usage.behaviors',
 			'usage.snippets',
 		];
@@ -211,7 +216,15 @@ class _DevblocksDataService {
 					return false;
 				
 				break;
+			
+			case 'ui.icons':
+				$provider = new _DevblocksDataProviderUiIcons();
 				
+				if(false === ($results = $provider->getData($query, $chart_fields, $error)))
+					return false;
+				
+				break;
+
 			case 'usage.behaviors':
 				$provider = new _DevblocksDataProviderUsageBotBehaviors();
 				

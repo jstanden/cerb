@@ -16,8 +16,8 @@
 ***********************************************************************/
 
 class PageSection_SetupDevelopersReferenceIcons extends Extension_PageSection {
-	static function getIcons() {
-		return [
+	static function getIcons($limit=null, $page=0, $filter=null, &$paging=[]) {
+		$icons = [
 			'activity',
 			'address-book',
 			'adjust',
@@ -629,6 +629,22 @@ class PageSection_SetupDevelopersReferenceIcons extends Extension_PageSection {
 			'zoom-in',
 			'zoom-out',
 		];
+		
+		if($filter) {
+			$icons = array_filter($icons, function($icon) use ($filter) {
+				return stristr($icon, $filter);
+			});
+		}
+		
+		if($limit) {
+			$total = count($icons);
+			
+			$icons = array_splice($icons, $page*$limit, $limit);
+			
+			$paging = DevblocksPlatform::services()->data()->generatePaging($icons, $total, $limit, $page);
+		}
+		
+		return $icons;
 	}
 	
 	function render() {
