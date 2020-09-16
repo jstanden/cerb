@@ -993,7 +993,8 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'extension_id' => $prefix.$translate->_('common.type'),
+			'extension_id' => $prefix.$translate->_('common.type') . ' ' . $translate->_('common.ID'),
+			'extension_name' => $prefix.$translate->_('common.type'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'uri' => $prefix.$translate->_('common.uri'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -1005,6 +1006,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
+			'extension_name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'uri' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -1025,11 +1027,14 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		$token_values['_types'] = $token_types;
 		
 		if($connected_service) {
+			$connected_service_ext = $connected_service->getExtension();
+			
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $connected_service->name;
 			$token_values['id'] = $connected_service->id;
 			$token_values['name'] = $connected_service->name;
 			$token_values['extension_id'] = $connected_service->extension_id;
+			$token_values['extension_name'] = $connected_service_ext ? $connected_service_ext->manifest->name : null;
 			$token_values['updated_at'] = $connected_service->updated_at;
 			$token_values['uri'] = $connected_service->uri;
 			
