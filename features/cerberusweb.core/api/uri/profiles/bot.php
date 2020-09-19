@@ -642,11 +642,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl->assign('session_id', $session_id);
 		$tpl->assign('layer', $layer);
 		
-		if(false && 'inline' == $interaction_style) {
-			$tpl->display('devblocks:cerberusweb.core::console/panel.tpl');
-		} else {
-			$tpl->display('devblocks:cerberusweb.core::console/window.tpl');
-		}
+		$tpl->display('devblocks:cerberusweb.core::console/window.tpl');
 	}
 	
 	private function _profileAction_sendMessage() {
