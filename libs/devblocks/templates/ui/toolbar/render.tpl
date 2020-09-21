@@ -25,6 +25,17 @@
                     {/if}
                     <b>{$item.label}</b>
                 </li>
+            {elseif 'function' == $item_key_parts[0]}
+                <li class="cerb-function-trigger"
+                    data-function-uri="{$item.name}"
+                    data-function-params="{if is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
+                    data-function-done="{if is_array($item['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($item['event/done'])}{/if}"
+                    >
+                    {if $item.icon}
+                        <span class="glyphicons glyphicons-{$item.icon}"></span>
+                    {/if}
+                    <b>{$item.label}</b>
+                </li>
             {/if}
         {/if}
     {/foreach}
@@ -40,6 +51,23 @@
                         data-interaction-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
                         data-interaction-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
                         >
+                    {if $toolbar_item.schema.icon}
+                        <span class="glyphicons glyphicons-{$toolbar_item.schema.icon}"></span>
+                    {/if}
+                    {$toolbar_item.schema.label}
+                </button>
+            {/if}
+        {elseif 'function' == $toolbar_item.type}
+            {if $toolbar_item.schema.name}
+                <button type="button" class="cerb-function-trigger"
+                        data-cerb-toolbar-button
+                        data-function-uri="{$toolbar_item.schema.name}"
+                        data-function-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
+                        data-function-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
+                        >
+                    {if $toolbar_item.schema.badge}
+                        <div class="badge-count">{$toolbar_item.schema.badge}</div>
+                    {/if}
                     {if $toolbar_item.schema.icon}
                         <span class="glyphicons glyphicons-{$toolbar_item.schema.icon}"></span>
                     {/if}
