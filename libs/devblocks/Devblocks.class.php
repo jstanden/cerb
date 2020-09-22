@@ -24,6 +24,14 @@ class _DevblocksServices {
 	
 	/**
 	 * 
+	 * @return _DevblocksAutomationService
+	 */
+	function automation() {
+		return _DevblocksAutomationService::getInstance();
+	}
+	
+	/**
+	 * 
 	 * @return _DevblocksBayesClassifierService
 	 */
 	function bayesClassifier() {
