@@ -1039,18 +1039,20 @@ class _DevblocksValidationService {
 				
 				if($data) {
 					foreach($values as $v) {
-						if(isset($data['length_min']) && strlen($v) < $data['length_min']) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' must be longer than %d characters.", $field_label, $data['length_min']));
-						}
+						if(is_string($v)) {
+							if(isset($data['length_min']) && strlen($v) < $data['length_min']) {
+								throw new Exception_DevblocksValidationError(sprintf("'%s' must be longer than %d characters.", $field_label, $data['length_min']));
+							}
+							
+							if(isset($data['length_max']) && strlen($v) > $data['length_max']) {
+								throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
+							}
 						
-						if(isset($data['length_max']) && strlen($v) > $data['length_max']) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
-						}
-						
-						@$possible_values = $data['possible_values'];
-						
-						if($possible_values && !in_array($v, $possible_values)) {
-							throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
+							@$possible_values = $data['possible_values'];
+							
+							if($possible_values && !in_array($v, $possible_values)) {
+								throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));
+							}
 						}
 					}
 				}
