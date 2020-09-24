@@ -1181,7 +1181,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		// Fields
 		if(!empty($change_fields) || !empty($custom_fields)) {
-			$change_fields[DAO_Ticket::UPDATED_DATE] = time();
+			if(!array_key_exists('skip_updated', $do))
+				$change_fields[DAO_Ticket::UPDATED_DATE] = time();
+			
 			DAO_Ticket::update($ids, $change_fields, false);
 			DAO_Ticket::processUpdateEvents($ids, $change_fields);
 		}

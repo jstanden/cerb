@@ -199,7 +199,15 @@
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_TICKET is_reply=true}
 {/if}
-	
+
+<fieldset class="peek">
+	<legend>{'common.options'|devblocks_translate|capitalize}</legend>
+	<label>
+		<input type="checkbox" name="options[skip_updated]" value="1">
+		Don't modify the updated timestamp
+	</label>
+</fieldset>
+
 <button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 <br>
 </form>

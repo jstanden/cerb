@@ -980,8 +980,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$view->setAutoPersist(false);
 		
 		// Actions
-		@$actions = DevblocksPlatform::importGPC($_POST['actions'],'array',array());
-		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',array());
+		@$actions = DevblocksPlatform::importGPC($_POST['actions'],'array',[]);
+		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
+		@$options = DevblocksPlatform::importGPC($_POST['options'],'array',[]);
 
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
@@ -1023,6 +1024,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				'when' => $behavior_when,
 				'params' => $behavior_params,
 			);
+		}
+		
+		if(array_key_exists('skip_updated', $options)) {
+			$do['skip_updated'] = true;
 		}
 		
 		// Broadcast: Mass Reply
