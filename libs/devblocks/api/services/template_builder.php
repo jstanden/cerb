@@ -228,6 +228,7 @@ class _DevblocksTemplateBuilder {
 				'array_column',
 				'array_combine',
 				'array_diff',
+				'array_filter_keys',
 				'array_intersect',
 				'array_matches',
 				'array_sort_keys',
@@ -1051,6 +1052,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('array_column', [$this, 'function_array_column']),
 			new \Twig\TwigFunction('array_combine', [$this, 'function_array_combine']),
 			new \Twig\TwigFunction('array_diff', [$this, 'function_array_diff']),
+			new \Twig\TwigFunction('array_filter_keys', [$this, 'function_array_filter_keys']),
 			new \Twig\TwigFunction('array_intersect', [$this, 'function_array_intersect']),
 			new \Twig\TwigFunction('array_matches', [$this, 'function_array_matches']),
 			new \Twig\TwigFunction('array_sort_keys', [$this, 'function_array_sort_keys']),
@@ -1138,6 +1140,29 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return;
 		
 		return array_diff($arr1, $arr2);
+	}
+	
+	function function_array_filter_keys($array, $keys) {
+		if(!is_array($array) || !is_array($keys))
+			return [];
+		
+		$keys = array_fill_keys($keys, true);
+		
+		$array = array_map(function($row) use ($keys) {
+			if (is_array($row)) {
+				true;
+			} else if (is_object($row)) {
+				$row = DevblocksPlatform::objectToArray($row);
+			} else if (is_string($row) || is_numeric($row)) {
+				$row = [$row];
+			} else {
+				$row = [];
+			}
+			
+			return array_intersect_key($row, $keys);
+		}, $array);
+		
+		return $array;
 	}
 	
 	function function_array_intersect($arr1, $arr2) {
