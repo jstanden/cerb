@@ -170,6 +170,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_translate',
 				'context_alias',
 				'context_name',
+				'csv',
 				'date_pretty',
 				'hash_hmac',
 				'indent',
@@ -1471,6 +1472,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('cerb_translate', [$this, 'filter_cerb_translate']),
 			new \Twig\TwigFilter('context_alias', [$this, 'filter_context_alias']),
 			new \Twig\TwigFilter('context_name', [$this, 'filter_context_name']),
+			new \Twig\TwigFilter('csv', [$this, 'filter_csv']),
 			new \Twig\TwigFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new \Twig\TwigFilter('hash_hmac', [$this, 'filter_hash_hmac']),
 			new \Twig\TwigFilter('indent', [$this, 'filter_indent']),
@@ -1601,6 +1603,31 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return $aliases[$type];
 		
 		return '';
+	}
+	
+	function filter_csv($array) {
+		if (!is_array($array))
+			return null;
+		
+		$fp = fopen('php://temp/maxmemory:5242880', 'rw');
+		
+		if(!$fp)
+			return null;
+		
+		foreach ($array as $row) {
+			if(!is_array($row))
+				continue;
+		
+			fputcsv($fp, $row);
+		}
+		
+		rewind($fp);
+		
+		$results = stream_get_contents($fp);
+		
+		fclose($fp);
+		
+		return $results;
 	}
 	
 	function filter_date_pretty($string, $is_delta=false) {

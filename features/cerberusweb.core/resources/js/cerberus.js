@@ -1093,6 +1093,7 @@ var ajax = new cAjaxCalls();
 					{ value: "context_alias", snippet: "context_alias", meta: "filter" },
 					{ value: "context_name()", snippet: "context_name(\"${1:plural}\")", meta: "filter" },
 					{ value: "convert_encoding()", snippet: "convert_encoding(${1:to_charset},${2:from_charset})", meta: "filter" },
+					{ value: "csv", snippet: "csv()", meta: "filter" },
 					{ value: "date('F d, Y')", meta: "filter" },
 					{ value: "date_modify('+1 day')", meta: "filter" },
 					{ value: "date_pretty", meta: "filter" },
