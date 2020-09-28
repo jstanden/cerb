@@ -2298,8 +2298,8 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['bot_id']['notes'] = "[Bot](/docs/records/types/bot/)";
 		$keys['event_point']['notes'] = 'The event of the behavior';

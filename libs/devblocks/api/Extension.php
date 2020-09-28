@@ -776,7 +776,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		return $map;
 	}
 	
-	function getKeyMeta() {
+	function getKeyMeta($with_dao_fields=true) {
 		$field_map = $this->getKeyToDaoFieldMap();
 		$dao_class = $this->getDaoClass();
 		$dao_fields = $dao_class::getFields();
@@ -828,13 +828,18 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 			}
 			
-			$keys[$record_key] = [
-				'dao_field' => $dao_field,
+			$record_meta = [
+				'key' => $record_key,
 				'is_immutable' => !$dao_field->_type->isEditable(),
 				'is_required' => $dao_field->_type->isRequired(),
 				'notes' => implode('; ', $notes),
 				'type' => $type,
 			];
+			
+			if($with_dao_fields)
+				$record_meta['dao_field'] = $dao_field;
+			
+			$keys[$record_key] = $record_meta;
 		}
 		
 		if(array_key_exists('name', $keys)) {

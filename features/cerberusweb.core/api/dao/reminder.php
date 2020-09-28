@@ -1102,15 +1102,8 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
-		
-		$keys['params'] = [
-			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => 'JSON-encoded key/value object',
-			'type' => 'object',
-		];
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['is_closed']['notes'] = "Has this reminder elapsed?";
 		$keys['remind_at']['notes'] = "The date/time of the reminder";

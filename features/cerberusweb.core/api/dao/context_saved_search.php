@@ -1097,8 +1097,8 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['context']['notes'] = "The [record type](/docs/records/types/) of this search query; e.g. `ticket`";
 		$keys['query']['notes'] = "The [search query](/docs/search/); e.g. `status:o`";

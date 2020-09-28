@@ -2197,10 +2197,11 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['members'] = [
+			'key' => 'members',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded array of [worker](/docs/records/types/worker/) IDs; `[1,2,3]`',

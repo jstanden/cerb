@@ -1402,8 +1402,8 @@ class Context_Sensor extends Extension_DevblocksContext implements IDevblocksCon
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['metric']['notes'] = "The metric's raw value";
 		$keys['metric_type']['notes'] = "The metric's type";

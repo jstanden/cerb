@@ -973,9 +973,8 @@ class Context_GpgPrivateKey extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
-		return $keys;
+	function getKeyMeta($with_dao_fields=true) {
+		return parent::getKeyMeta($with_dao_fields);
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {

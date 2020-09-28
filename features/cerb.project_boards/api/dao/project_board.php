@@ -1010,10 +1010,11 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['params'] = [
+			'key' => 'params',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',
@@ -1021,6 +1022,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		];
 		
 		$keys['columns'] = [
+			'key' => 'columns',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded array of [project board column](/docs/records/types/project_board_column/) IDs; e.g. `[1,2,3]`',

@@ -1534,8 +1534,8 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['author__context']['notes'] = "The [record type](/docs/records/#record-type) of the comment's author";
 		$keys['author_id']['notes'] = "The ID of the comment's author";

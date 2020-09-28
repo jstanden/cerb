@@ -1387,8 +1387,8 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['is_disabled']['notes'] = "Is this bot disabled?";
 		$keys['mention_name']['notes'] = "(deprecated)";

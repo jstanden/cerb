@@ -1222,8 +1222,8 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['tag']['notes'] = "A human-friendly nickname for the bundle; e.g. `tax_forms`";
 		

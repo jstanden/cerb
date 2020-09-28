@@ -1390,19 +1390,18 @@ class Context_Notification extends Extension_DevblocksContext {
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['params'] = [
+			'key' => 'params',
 			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => 'JSON-encoded key/value object',
+			'is_required' => true,
+			'notes' => 'A key/value object of notification properties',
 			'type' => 'object',
 		];
 		
 		$keys['activity_point']['notes'] = "The event that triggered the notification";
-		$keys['event_json']['type'] = "object";
-		$keys['event_json']['notes'] = "A key/value object of notification properties";
 		$keys['is_read']['notes'] = "Has this been read by the worker?";
 		$keys['target__context']['notes'] = "The [record type](/docs/records/types/) of the target record";
 		$keys['target_id']['notes'] = "The ID of the target record";

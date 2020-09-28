@@ -987,9 +987,9 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	}
 	
 	// [TODO]
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
-		return $keys;
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
+        return $keys;
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {

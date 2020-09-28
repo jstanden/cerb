@@ -1078,8 +1078,8 @@ class Context_TwitterMessage extends Extension_DevblocksContext {
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['content']['notes'] = "The content of the tweet";
 		$keys['is_closed']['notes'] = "Is the tweet resolved?";

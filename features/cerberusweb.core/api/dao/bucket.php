@@ -1283,8 +1283,8 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['group_id']['notes'] = "The ID of the parent [group](/docs/records/types/group/) containing this bucket";
 		$keys['is_default']['notes'] = "Is this the default (inbox) bucket of the group?";

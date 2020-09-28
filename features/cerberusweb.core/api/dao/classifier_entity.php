@@ -956,10 +956,11 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
-		
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
+	
 		$keys['params'] = [
+			'key' => 'params',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',

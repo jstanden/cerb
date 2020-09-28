@@ -2665,10 +2665,11 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['content'] = [
+			'key' => 'content',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'Message content',
@@ -2676,6 +2677,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		];
 		
 		$keys['headers'] = [
+			'key' => 'headers',
 			'is_immutable' => false,
 			'is_required' => true,
 			'notes' => 'Message headers',
@@ -2683,6 +2685,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		];
 		
 		$keys['sender'] = [
+			'key' => 'sender',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'The [email address](/docs/records/types/address/) of the sender; alternative to `sender_id`',
@@ -2690,6 +2693,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		];
 		
 		$keys['ticket_mask'] = [
+			'key' => 'ticket_mask',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'The parent [ticket](/docs/records/types/ticket/) mask; alternative to `ticket_id`',
@@ -2697,6 +2701,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		];
 		
 		$keys['worker'] = [
+			'key' => 'worker',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'The [worker](/docs/records/types/worker/) who sent the message (if any); alternative to `worker_id`',

@@ -3590,8 +3590,8 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['at_mention_name']['notes'] = "The nickname used for `@mention` notifications in comments";
 		$keys['calendar_id']['notes'] = "The ID of the [calendar](/docs/records/types/calendar/) used to compute worker availability";

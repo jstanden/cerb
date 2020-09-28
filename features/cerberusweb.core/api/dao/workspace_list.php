@@ -1184,8 +1184,8 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['context']['notes'] = "The [record type](/docs/records/types/) of the worklist";
 		$keys['params_required_query']['notes'] = "The [search query](/docs/search/) for required filters";
@@ -1194,6 +1194,7 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		$keys['tab_id']['notes'] = "The ID of the [workspace tab](/docs/records/types/workspace_tab/) containing this worklist";
 		
 		$keys['columns'] = [
+			'key' => 'columns',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value array of column names',
@@ -1201,6 +1202,7 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		];
 		
 		$keys['options'] = [
+			'key' => 'options',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',

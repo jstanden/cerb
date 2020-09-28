@@ -1119,8 +1119,8 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['context']['notes'] = "The [record type](/docs/records/types/) of the fieldset";
 		

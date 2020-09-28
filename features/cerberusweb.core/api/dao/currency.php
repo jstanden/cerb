@@ -1064,8 +1064,8 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['code']['notes'] = "Currency code; e.g. `USD`";
 		$keys['decimal_at']['notes'] = "The number of significant decimal places (0-16); e.g. `2` for `0.00`";

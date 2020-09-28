@@ -1099,14 +1099,15 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['name']['notes'] = "The singular name of the record; `Issue`";
 		$keys['name_plural']['notes'] = "The plural name of the record; `Issues`";
 		$keys['uri']['notes'] = "The alias of the record (e.g. `issue`); used in URLs, API, etc.";
 		
 		$keys['params'] = [
+			'key' => 'params',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',

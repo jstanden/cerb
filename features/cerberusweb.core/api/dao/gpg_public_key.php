@@ -1080,8 +1080,8 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['expires_at']['notes'] = "The expiration date of the public key";
 		$keys['fingerprint']['notes'] = "The fingerprint of the public key";

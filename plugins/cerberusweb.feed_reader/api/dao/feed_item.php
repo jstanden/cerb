@@ -1217,8 +1217,8 @@ class Context_FeedItem extends Extension_DevblocksContext implements IDevblocksC
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['feed_id']['notes'] = "The ID of the [feed](/docs/records/types/feed/) containing this item";
 		$keys['guid']['notes'] = "The globally unique ID of this item in the feed";

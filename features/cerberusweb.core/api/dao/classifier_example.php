@@ -1083,8 +1083,8 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['class_id']['notes'] = "The ID of the [classification](/docs/records/types/classifier_class/) this example trains";
 		$keys['classifier_id']['notes'] = "The ID of the [classifier](/docs/records/types/classifier/) this example belongs to";

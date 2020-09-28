@@ -801,8 +801,8 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['parent_id']['notes'] = "The ID of the parent [category](/docs/records/types/kb_category/); if `0` this is a top-level topic";
 		

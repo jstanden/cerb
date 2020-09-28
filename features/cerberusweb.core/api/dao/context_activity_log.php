@@ -1242,9 +1242,9 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
-		
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
+
 		$keys['activity_point']['notes'] = "The event that occurred";
 		$keys['actor__context']['notes'] = "The actor's record type";
 		$keys['actor_id']['notes'] = "The actor's record ID";
@@ -1252,6 +1252,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		$keys['target_id']['notes'] = "The target's record ID";
 		
 		$keys['params'] = [
+			'key' => 'params',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',

@@ -1145,10 +1145,11 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['cards'] = [
+			'key' => 'cards',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'An array of record `type:id` tuples to add to this column',
@@ -1156,6 +1157,7 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		];
 		
 		$keys['params'] = [
+			'key' => 'params',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',

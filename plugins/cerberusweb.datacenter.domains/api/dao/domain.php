@@ -262,8 +262,8 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['server_id']['notes'] = "The ID of the [server](/docs/records/types/server/) linked to this domain";
 		

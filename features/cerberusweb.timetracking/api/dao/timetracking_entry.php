@@ -1446,8 +1446,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['activity_id']['notes'] = "The ID of the [activity](/docs/records/types/timetracking_activity/) for the work";
 		$keys['is_closed']['notes'] = "Is this time entry archived?";

@@ -1346,10 +1346,11 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['variables'] = [
+			'key' => 'variables',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',

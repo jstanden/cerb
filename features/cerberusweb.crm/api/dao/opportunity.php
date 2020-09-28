@@ -1439,10 +1439,11 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['status'] = [
+			'key' => 'status',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => '`open`, `closed_won`, `closed_lost`; alternative to `status_id`',

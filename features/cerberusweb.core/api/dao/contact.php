@@ -2075,10 +2075,11 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['email'] = [
+			'key' => 'email',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'Email address (e.g. `customer@example.com`); alternative to `email_id`',
@@ -2086,6 +2087,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		];
 		
 		$keys['org'] = [
+			'key' => 'org',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'Organization (e.g. `Fiaflux Software`); alternative to `org_id`',

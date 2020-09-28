@@ -1073,8 +1073,8 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['content']['notes'] = "The content of the template";
 		$keys['signature_id']['notes'] = "The optional [email signature](/docs/records/types/email_signature/) of this template";

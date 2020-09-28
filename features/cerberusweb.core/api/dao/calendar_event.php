@@ -1143,8 +1143,8 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['calendar_id']['notes'] = "The parent [calendar](/docs/records/types/calendar/) of this event";
 		$keys['date_end']['notes'] = "The end date/time of the event";

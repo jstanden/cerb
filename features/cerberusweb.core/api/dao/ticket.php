@@ -5115,10 +5115,11 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return $map;
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['group'] = [
+			'key' => 'group',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'The [group](/docs/records/types/group/) of the ticket; alternative to `group_id`',
@@ -5126,6 +5127,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		];
 		
 		$keys['org'] = [
+			'key' => 'org',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'The exact name of the [organization](/docs/records/types/org/) linked to this ticket; alternative to `org_id`',
@@ -5133,6 +5135,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		];
 		
 		$keys['participants'] = [
+			'key' => 'participants',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'A comma-separated list of email addresses to add as participants',
@@ -5140,6 +5143,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		];
 		
 		$keys['participant_ids'] = [
+			'key' => 'participant_ids',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'A comma-separated list of email addresses IDs to add or remove as participants. Prefix an ID with `-` to remove',
@@ -5147,6 +5151,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		];
 		
 		$keys['status'] = [
+			'key' => 'status',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => '`o` (open), `w` (waiting), `c` (closed), `d` (deleted); alternative to `status_id`',

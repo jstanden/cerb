@@ -1019,8 +1019,8 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['callback_url']['notes'] = "The OAuth2 callback URL of the app";
 		$keys['client_id']['notes'] = "The client identifier of the app";

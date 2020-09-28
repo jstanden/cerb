@@ -1874,8 +1874,8 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['city']['notes'] = "City";
 		$keys['country']['notes'] = "Country";

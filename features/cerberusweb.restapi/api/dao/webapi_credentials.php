@@ -903,8 +903,8 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who owns these API credentials";
 		

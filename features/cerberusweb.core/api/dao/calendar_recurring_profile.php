@@ -1377,8 +1377,8 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['calendar_id']['notes'] = "The parent [calendar](/docs/records/types/calendar/) of this event";
 		$keys['event_end']['notes'] = "The end date/time of the event";

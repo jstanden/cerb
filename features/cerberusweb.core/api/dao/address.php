@@ -2496,8 +2496,8 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['contact_id']['notes'] = "The [contact](/docs/records/types/contact/) linked to this email";
 		$keys['email']['notes'] = "An email address";

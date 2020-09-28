@@ -1131,9 +1131,8 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	// [TODO] Params
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
-		return $keys;
+	function getKeyMeta($with_dao_fields=true) {
+		return parent::getKeyMeta($with_dao_fields);
 	}
 	
 	// [TODO] Params

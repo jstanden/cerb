@@ -1033,8 +1033,8 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['extension_id']['notes'] = "[Mail Transport Type](/docs/plugins/extensions/points/cerberusweb.mail.transport/)";
 		

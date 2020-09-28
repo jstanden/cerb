@@ -758,8 +758,8 @@ class Context_Feed extends Extension_DevblocksContext implements IDevblocksConte
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['url']['notes'] = "The URL of the RSS feed";
 		$keys['url']['type'] = "url";

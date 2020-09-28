@@ -1066,8 +1066,8 @@ class Context_ClassifierClass extends Extension_DevblocksContext implements IDev
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['classifier_id']['notes'] = "The ID of the parent [classifier](/docs/records/types/classifier/)";
 		

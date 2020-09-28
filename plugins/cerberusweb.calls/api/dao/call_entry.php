@@ -1141,8 +1141,8 @@ class Context_CallEntry extends Extension_DevblocksContext implements IDevblocks
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['is_closed']['notes'] = "Is this call resolved?";
 		$keys['is_outgoing']['notes'] = "`0` (incoming), `1` (outgoing)";

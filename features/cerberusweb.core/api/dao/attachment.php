@@ -1968,8 +1968,8 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['attach']['type'] = 'links';
 		$keys['attach']['notes'] = 'An array of `type:id` tuples to attach this file to';

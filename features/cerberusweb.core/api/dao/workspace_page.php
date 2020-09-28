@@ -1171,10 +1171,11 @@ class Context_WorkspacePage extends Extension_DevblocksContext implements IDevbl
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['extension_params'] = [
+			'key' => 'extension_params',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',

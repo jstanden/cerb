@@ -1232,10 +1232,11 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['format'] = [
+			'key' => 'format',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => '`text`, `markdown`, or `html`',

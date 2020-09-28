@@ -1613,10 +1613,11 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		return $map;
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['status'] = [
+			'key' => 'status',
 			'is_immutable' => false,
 			'is_required' => false,
 			'notes' => '`o` (open), `w` (waiting), `c` (closed); alternative to `status_id`',

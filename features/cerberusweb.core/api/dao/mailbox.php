@@ -1313,8 +1313,8 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
 		
 		$keys['checked_at']['notes'] = "The date/time this mailbox was last checked for new messages";
 		$keys['connected_account_id']['notes'] = "The optional connected account to use for XOAUTH2";
