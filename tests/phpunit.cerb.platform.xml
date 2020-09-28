@@ -26,6 +26,9 @@
 			<file>devblocks/services/DevblocksKataTest.php</file>
 		</testsuite>
 		<testsuite>
+			<file>devblocks/services/DevblocksAutomationTest.php</file>
+		</testsuite>
+		<testsuite>
 			<file>cerb/CerberusApplicationUtilsTest.php</file>
 		</testsuite>
 		<testsuite>
