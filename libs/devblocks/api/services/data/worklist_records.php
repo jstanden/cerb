@@ -197,37 +197,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 		);
 		$total = $db->GetOneReader($sql_count);
 		
-		$paging = [
-			'page' => [
-				'of' => intval(ceil($total / $view->renderLimit)),
-				'rows' => [
-					'of' => intval($total),
-					'count' => count($results),
-					'limit' => intval($view->renderLimit),
-				],
- 			]
-		];
-		
-		$paging['page']['index'] = DevblocksPlatform::intClamp($view->renderPage, 0, PHP_INT_MAX);
-		
-		$paging['page']['rows']['from'] = $paging['page']['index'] * $paging['page']['rows']['limit'] + 1;
-		$paging['page']['rows']['to'] = min($paging['page']['rows']['from']+$paging['page']['rows']['limit'] - 1, $paging['page']['rows']['of']);
-		
-		if($paging['page']['rows']['from'] > $paging['page']['rows']['of']) {
-			$paging['page']['rows']['from'] = 0;
-			$paging['page']['rows']['to'] = 0;
-		}
-		
-		if($paging['page']['index'] - 1 >= 0) {
-			$paging['page']['prev'] = $paging['page']['index'] - 1;
-			$paging['page']['first'] = 0;
-		}
-		
-		if($paging['page']['index'] + 1 < $paging['page']['of']) {
-			$paging['page']['next'] = $paging['page']['index'] + 1;
-			$paging['page']['last'] = $paging['page']['of']-1;
-		}
-		
+		$paging = $view->getPaging($results, $total);
 		$chart_model['paging'] = $paging;
 		
 		// Load models

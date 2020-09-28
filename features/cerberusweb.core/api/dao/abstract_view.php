@@ -49,6 +49,41 @@ abstract class C4_AbstractView {
 	abstract function getData();
 	function getDataAsObjects($ids=null) { return []; }
 	
+	function getPaging(array $results, int $total) {
+		$paging = [
+			'page' => [
+				'of' => intval(ceil($total / $this->renderLimit)),
+				'rows' => [
+					'of' => intval($total),
+					'count' => count($results),
+					'limit' => intval($this->renderLimit),
+				],
+			]
+		];
+		
+		$paging['page']['index'] = DevblocksPlatform::intClamp($this->renderPage, 0, PHP_INT_MAX);
+		
+		$paging['page']['rows']['from'] = $paging['page']['index'] * $paging['page']['rows']['limit'] + 1;
+		$paging['page']['rows']['to'] = min($paging['page']['rows']['from']+$paging['page']['rows']['limit'] - 1, $paging['page']['rows']['of']);
+		
+		if($paging['page']['rows']['from'] > $paging['page']['rows']['of']) {
+			$paging['page']['rows']['from'] = 0;
+			$paging['page']['rows']['to'] = 0;
+		}
+		
+		if($paging['page']['index'] - 1 >= 0) {
+			$paging['page']['prev'] = $paging['page']['index'] - 1;
+			$paging['page']['first'] = 0;
+		}
+		
+		if($paging['page']['index'] + 1 < $paging['page']['of']) {
+			$paging['page']['next'] = $paging['page']['index'] + 1;
+			$paging['page']['last'] = $paging['page']['of']-1;
+		}
+		
+		return $paging;
+	}
+	
 	/**
 	 * @param integer $size
 	 * @return array
