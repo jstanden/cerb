@@ -157,14 +157,7 @@ class _DevblocksDataService {
 		
 		$chart_fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
 		
-		@$type_field = array_shift(array_filter($chart_fields, function($field) {
-			if($field->key == 'type')
-				return true;
-			
-			return false;
-		}));
-		
-		if(!$type_field) {
+		if(false == ($type_field = CerbQuickSearchLexer::getFieldByKey('type', $chart_fields))) {
 			$error = "A data query 'type:' is required.";
 			return false;
 		}
@@ -327,5 +320,17 @@ class _DevblocksDataService {
 	
 	function stripQuotes($string) {
 		return '"' . str_replace('"','', $string) . '"';
+	}
+	
+	public function parseQuery($query) {
+		$oper = $query_type = null;
+		$query_fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
+		
+		if(false != ($type_field = CerbQuickSearchLexer::getFieldByKey('type', $query_fields)))
+			CerbQuickSearchLexer::getOperStringFromTokens($type_field->tokens, $oper, $query_type);
+		
+		return [
+			'type' => $query_type,
+		];
 	}
 }

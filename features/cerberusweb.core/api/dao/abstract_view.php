@@ -4683,6 +4683,15 @@ class CerbQuickSearchLexer {
 		
 		return $new_tokens;
 	}
+	
+	public static function getFieldByKey(string $key, array $fields) {
+		foreach($fields as $field) {
+			if($field->key == $key)
+				return $field;
+		}
+		
+		return null;
+	}
 };
 
 class CerbQuickSearchLexerToken {
