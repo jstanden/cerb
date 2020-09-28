@@ -36,13 +36,13 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$validation
 			->addField(self::ACTIVITY_POINT)
 			->string()
+			->setRequired(true)
 			->setMaxLength(255)
 			;
 		// varchar(255)
 		$validation
 			->addField(self::CONTEXT)
 			->context()
-			->setRequired(true)
 			;
 		// int(10) unsigned
 		$validation
@@ -763,7 +763,7 @@ class SearchFields_Notification extends DevblocksSearchFields {
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'we', 'worker_id', $translate->_('notification.worker_id'), Model_CustomField::TYPE_WORKER, true),
 			self::IS_READ => new DevblocksSearchField(self::IS_READ, 'we', 'is_read', $translate->_('notification.is_read'), Model_CustomField::TYPE_CHECKBOX, true),
 			self::ACTIVITY_POINT => new DevblocksSearchField(self::ACTIVITY_POINT, 'we', 'activity_point', $translate->_('dao.context_activity_log.activity_point'), Model_CustomField::TYPE_SINGLE_LINE, true),
-			self::ENTRY_JSON => new DevblocksSearchField(self::ENTRY_JSON, 'we', 'entry_json', $translate->_('dao.context_activity_log.entry'), Model_CustomField::TYPE_MULTI_LINE, true),
+			self::ENTRY_JSON => new DevblocksSearchField(self::ENTRY_JSON, 'we', 'entry_json', null, Model_CustomField::TYPE_MULTI_LINE, true),
 				
 			self::VIRTUAL_WORKER_SEARCH => new DevblocksSearchField(self::VIRTUAL_WORKER_SEARCH, '*', 'worker_search', null, null, true),
 		);
@@ -1380,7 +1380,6 @@ class Context_Notification extends Extension_DevblocksContext {
 			'activity_point' => DAO_Notification::ACTIVITY_POINT,
 			'assignee_id' => DAO_Notification::WORKER_ID,
 			'created' => DAO_Notification::CREATED_DATE,
-			'event_json' => DAO_Notification::ENTRY_JSON,
 			'id' => DAO_Notification::ID,
 			'is_read' => DAO_Notification::IS_READ,
 			'links' => '_links',
