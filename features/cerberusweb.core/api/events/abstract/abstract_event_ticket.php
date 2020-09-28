@@ -1006,12 +1006,17 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					$buckets[$bucket_id]->name
 				);
 				
-				$dict->group_id = $group_id;
-				$dict->ticket_bucket_id = $bucket_id;
+				$dict->scrubKeys('group_');
+				$dict->scrubKeys('ticket_group_');
+				$dict->scrubKeys('ticket_bucket_');
 				
+				$dict->set('group_id',$group_id);
+				$dict->set('group__context',CerberusContexts::CONTEXT_GROUP);
+				$dict->set('ticket_group_id',$group_id);
+				$dict->set('ticket_group__context',CerberusContexts::CONTEXT_GROUP);
+				$dict->set('ticket_bucket_id',$bucket_id);
+				$dict->set('ticket_bucket__context',CerberusContexts::CONTEXT_BUCKET);
 				return $out;
-				break;
-			
 				
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))
@@ -1250,8 +1255,16 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 					DAO_Ticket::BUCKET_ID => $to_bucket_id,
 				));
 				
-				$dict->group_id = $to_group_id;
-				$dict->ticket_bucket_id = $to_bucket_id;
+				$dict->scrubKeys('group_');
+				$dict->scrubKeys('ticket_group_');
+				$dict->scrubKeys('ticket_bucket_');
+				
+				$dict->set('group_id',$to_group_id);
+				$dict->set('group__context',CerberusContexts::CONTEXT_GROUP);
+				$dict->set('ticket_group_id',$to_group_id);
+				$dict->set('ticket_group__context',CerberusContexts::CONTEXT_GROUP);
+				$dict->set('ticket_bucket_id',$to_bucket_id);
+				$dict->set('ticket_bucket__context',CerberusContexts::CONTEXT_BUCKET);
 				break;
 			
 			default:

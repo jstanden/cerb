@@ -1011,6 +1011,17 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					$buckets[$bucket_id]->name
 				);
 				
+				$dict->scrubKeys('group_');
+				$dict->scrubKeys('ticket_group_');
+				$dict->scrubKeys('ticket_bucket_');
+				
+				$dict->set('group_id',$group_id);
+				$dict->set('group__context',CerberusContexts::CONTEXT_GROUP);
+				$dict->set('ticket_group_id',$group_id);
+				$dict->set('ticket_group__context',CerberusContexts::CONTEXT_GROUP);
+				$dict->set('ticket_bucket_id',$bucket_id);
+				$dict->set('ticket_bucket__context',CerberusContexts::CONTEXT_BUCKET);
+				
 				return $out;
 				break;
 
@@ -1227,7 +1238,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 				@$to_bucket_id = intval($params['bucket_id']);
 				@$current_bucket_id = intval($dict->ticket_bucket_id);
-
+				
 				$groups = DAO_Group::getAll();
 				$buckets = DAO_Bucket::getAll();
 				
@@ -1255,8 +1266,16 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 					DAO_Ticket::BUCKET_ID => $to_bucket_id,
 				));
 				
-				$dict->ticket_group_id = $to_group_id;
-				$dict->ticket_bucket_id = $to_bucket_id;
+				$dict->scrubKeys('group_');
+				$dict->scrubKeys('ticket_group_');
+				$dict->scrubKeys('ticket_bucket_');
+				
+				$dict->set('group_id',$to_group_id);
+				$dict->set('group__context',CerberusContexts::CONTEXT_GROUP);
+				$dict->set('ticket_group_id',$to_group_id);
+				$dict->set('ticket_group__context',CerberusContexts::CONTEXT_GROUP);
+				$dict->set('ticket_bucket_id',$to_bucket_id);
+				$dict->set('ticket_bucket__context',CerberusContexts::CONTEXT_BUCKET);
 				break;
 
 			default:
