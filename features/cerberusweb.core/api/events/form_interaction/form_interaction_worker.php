@@ -15,6 +15,9 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/**
+ * Class Event_FormInteractionWorker
+ */
 class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 	const ID = 'event.form.interaction.worker';
 	
@@ -841,24 +844,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					'orientation' => $orientation,
 					'options' => $options,
 					'default' => $default,
-				];
-				break;
-			
-			case 'prompt_reply':
-				$actions =& $dict->_actions;
-				
-				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-				
-				@$draft_id = $tpl_builder->build($params['draft_id'], $dict);
-				@$var = $params['var'];
-				
-				$actions[] = [
-					'_action' => 'prompt.reply',
-					'_trigger_id' => $trigger->id,
-					'_prompt' => [
-						'var' => $var,
-					],
-					'draft_id' => $draft_id,
 				];
 				break;
 			

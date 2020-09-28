@@ -290,7 +290,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::services()->cache();
 		
-		if(null === ($objects = $cache->load(self::CACHE_ALL))) {
+		if($nocache || null === ($objects = $cache->load(self::CACHE_ALL))) {
 			$objects = self::getWhere(null, [DAO_CustomField::CUSTOM_FIELDSET_ID, DAO_CustomField::POS, DAO_CustomField::NAME], [true, true, true]);
 			$cache->save($objects, self::CACHE_ALL);
 		}
@@ -1585,11 +1585,9 @@ class SearchFields_CustomField extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CUSTOM_FIELD, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_FIELDSET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'custom_field.custom_fieldset_id');
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -1597,7 +1595,6 @@ class SearchFields_CustomField extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -1615,21 +1612,17 @@ class SearchFields_CustomField extends DevblocksSearchFields {
 		switch($key) {
 			case SearchFields_CustomField::CONTEXT:
 				return parent::_getLabelsForKeyContextValues();
-				break;
 				
 			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
 				$models = DAO_CustomFieldset::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_CustomField::ID:
 				$models = DAO_CustomField::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_CustomField::TYPE:
 				return array_intersect_key(Model_CustomField::getTypes(), array_flip($values));
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -1864,12 +1857,12 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomField::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'pos' => 
+			'pos' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CustomField::POS),
 				),
-			'type' => 
+			'type' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomField::TYPE),
@@ -1877,7 +1870,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 						['type' => 'list', 'values' => $field_types]
 					],
 				),
-			'updated' => 
+			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_CustomField::UPDATED_AT),
@@ -2073,8 +2066,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=custom_field&id='.$context_id, true);
-		return $url;
+		return $url_writer->writeNoProxy('c=profiles&type=custom_field&id='.$context_id, true);
 	}
 	
 	function profileGetFields($model=null) {

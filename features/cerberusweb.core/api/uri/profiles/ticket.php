@@ -987,9 +987,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Scheduled behavior
 		@$behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'],'string','');
 		@$behavior_when = DevblocksPlatform::importGPC($_POST['behavior_when'],'string','');
-		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',array());
+		@$behavior_params = DevblocksPlatform::importGPC($_POST['behavior_params'],'array',[]);
 		
-		$do = array();
+		$do = [];
 		
 		if(is_array($actions))
 		foreach($actions as $action) {
@@ -1010,7 +1010,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 						break;
 						
 					if(!isset($do['watchers']))
-						$do['watchers'] = array();
+						$do['watchers'] = [];
 					
 					$do['watchers'][substr($action,9)] = $params[$action];
 					break;
@@ -1019,11 +1019,11 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {
-			$do['behavior'] = array(
+			$do['behavior'] = [
 				'id' => $behavior_id,
 				'when' => $behavior_when,
 				'params' => $behavior_params,
-			);
+			];
 		}
 		
 		if(array_key_exists('skip_updated', $options)) {
@@ -1040,14 +1040,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			@$broadcast_is_queued = DevblocksPlatform::importGPC($_POST['broadcast_is_queued'],'integer',0);
 			
 			if(0 != strlen($do_broadcast) && !empty($broadcast_message)) {
-				$do['broadcast'] = array(
+				$do['broadcast'] = [
 					'message' => $broadcast_message,
 					'format' => $broadcast_format,
 					'html_template_id' => $broadcast_html_template_id,
 					'is_queued' => $broadcast_is_queued,
 					'file_ids' => $broadcast_file_ids,
 					'worker_id' => $active_worker->id,
-				);
+				];
 			}
 		}
 		
@@ -1055,14 +1055,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		switch($filter) {
 			case 'checks':
-				$filter = ''; // bulk update just looks for $ids == !null
 				$ids = DevblocksPlatform::parseCsvString($ticket_id_str);
 				break;
+				
 			case 'sample':
 				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
-				$filter = '';
 				$ids = $view->getDataSample($sample_size);
 				break;
+				
 			default:
 				break;
 		}

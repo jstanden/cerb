@@ -91,6 +91,9 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		if(false == $dst_context_meta)
 			@$dst_context_meta = $ext_dst_context->getMeta($dst_context_id);
 		
+		if(!$src_context_meta || !$dst_context_meta)
+			return false;
+		
 		// [TODO] Verify contexts on both sides prior to linking, or return false
 		
 		$sql = sprintf("INSERT IGNORE INTO context_link (from_context, from_context_id, to_context, to_context_id) ".

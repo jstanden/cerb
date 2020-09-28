@@ -3,7 +3,7 @@
 	<h6>{$label}</h6>
 	
 	{$value = $dict->get($var)}
-	
+
 	{if $mode == 'multiple'}
 	<textarea name="prompts[{$var}]" placeholder="{$placeholder}" autocomplete="off" style="height:4.5em;">{$value|default:$default}</textarea>
 	{else}

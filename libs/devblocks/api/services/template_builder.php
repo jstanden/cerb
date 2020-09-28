@@ -1129,14 +1129,14 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	
 	function function_array_column($array, $column_key, $index_key=null) {
 		if(!is_array($array) || !is_string($column_key))
-			return;
+			return [];
 		
 		return array_column($array, $column_key, $index_key);
 	}
 	
 	function function_array_combine($keys, $values) {
 		if(!is_array($keys) || !is_array($values))
-			return;
+			return [];
 		
 		return array_combine($keys, $values);
 	}
@@ -1177,7 +1177,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			$arr2 = [];
 		
 		if(!is_array($arr1) || !is_array($arr2))
-			return;
+			return [];
 		
 		return array_diff($arr1, $arr2);
 	}
