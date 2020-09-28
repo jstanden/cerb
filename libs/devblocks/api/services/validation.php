@@ -201,6 +201,18 @@ class _DevblocksFormatters {
 		};
 	}
 	
+	function stringUpper() {
+		return function(&$value, &$error=null) {
+			if(!is_null($value) && !is_string($value)) {
+				$error = "is not a string.";
+				return false;
+			}
+
+			$value = DevblocksPlatform::strUpper($value);
+			return true;
+		};
+	}
+	
 	function stringWithoutEmoji() {
 		return function(&$value, &$error=null) {
 			if(!is_null($value) && !is_string($value)) {
