@@ -660,10 +660,20 @@ class EventListener_Triggers extends DevblocksEventListenerExtension {
 				
 				foreach($event->params['_whisper']['event_params'] as $k => $v) {
 					if(!$pass)
-						continue;
+						break;
 					
-					if(!(isset($trigger->event_params[$k]) && $trigger->event_params[$k] == $v))
-						$pass = false;
+					@$ref_v = $trigger->event_params[$k];
+					
+					if(is_array($ref_v)) {
+						if(!in_array($v, $ref_v)) {
+							$pass = false;
+						}
+					
+					} else {
+						if($ref_v != $v) {
+							$pass = false;
+						}
+					}
 				}
 				
 				if(!$pass)
