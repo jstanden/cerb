@@ -113,7 +113,9 @@ $(function() {
 			e.stopPropagation();
 			// [TODO] Don't refresh the page, just send an event to the current tab
 
-			if(!e.is_rebroadcast) {
+			if(e.hasOwnProperty('is_continue') && e.is_continue) {
+				// Do nothing
+			} else if(!e.is_rebroadcast) {
 				document.location.reload();
 			}
 		})

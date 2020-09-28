@@ -385,11 +385,13 @@ function DevblocksClass() {
 				
 				if(is_delete) {
 					event = new jQuery.Event('peek_deleted');
+					event.is_delete = is_delete;
+
 				} else {
 					event = new jQuery.Event('peek_saved');
-					
-					if(is_create)
-						event.is_new = true;
+
+					event.is_new = is_create;
+					event.is_continue = is_continue;
 				}
 				
 				// Meta fields
