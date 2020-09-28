@@ -45,6 +45,30 @@ if(!isset($tables['automation_datastore'])) {
 }
 
 // ===========================================================================
+// Add `automation_execution` table
+
+if(!isset($tables['automation_execution'])) {
+	$sql = sprintf("
+	CREATE TABLE `automation_execution` (
+		token varchar(64) NOT NULL DEFAULT '',
+		uri varchar(255) NOT NULL DEFAULT '',
+		state varchar(8) NOT NULL DEFAULT '',
+		state_data mediumtext,
+		expires_at int(10) unsigned NOT NULL DEFAULT 0,
+		updated_at int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (token),
+		INDEX (uri),
+		INDEX (state),
+		INDEX (expires_at),
+		INDEX (updated_at)
+	) ENGINE=%s;
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['automation_execution'] = 'automation_execution';
+}
+
+// ===========================================================================
 // Drop `email_signature.is_default`
 
 list($columns,) = $db->metaTable('email_signature');

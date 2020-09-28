@@ -649,30 +649,36 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$session_id = DevblocksPlatform::importGPC($_POST['session_id'], 'string', '');
+		@$execution_token = DevblocksPlatform::importGPC($_POST['execution_token'], 'string', '');
 		
-		// Load the session
-		if(false == ($bot_session = DAO_BotSession::get($session_id)))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		// Modern
-//		if(array_key_exists('interaction_id', $bot_session->session_data)) {
-//			return $this->_consoleSendMessageAsAutomation($bot_session);
-//
-		// Legacy
-//		} else if(array_key_exists('behavior_id', $bot_session->session_data)) {
-		if(array_key_exists('behavior_id', $bot_session->session_data)) {
-			if(false == ($behavior = DAO_TriggerEvent::get($bot_session->session_data['behavior_id'])))
+		if($execution_token) {
+			// Load the session
+			if(false == ($automation_execution = DAO_AutomationExecution::getByToken($execution_token)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
-			if($behavior->event_point == Event_FormInteractionWorker::ID) {
-				return $this->_consoleSendMessageAsFormBehavior($bot_session, $behavior);
-				
-			} else if($behavior->event_point == Event_NewMessageChatWorker::ID) {
-				return $this->_consoleSendMessageAsConvoBehavior($bot_session, $behavior);
+			return $this->_consoleSendMessageAsAutomation($automation_execution);
 			
-			} else {
-				DevblocksPlatform::dieWithHttpError(null, 403);
+		} else {
+			@$session_id = DevblocksPlatform::importGPC($_POST['session_id'], 'string', '');
+			
+			// Load the session
+			if(false == ($bot_session = DAO_BotSession::get($session_id)))
+				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			// Legacy
+			if(array_key_exists('behavior_id', $bot_session->session_data)) {
+				if(false == ($behavior = DAO_TriggerEvent::get($bot_session->session_data['behavior_id'])))
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+				if($behavior->event_point == Event_FormInteractionWorker::ID) {
+					return $this->_consoleSendMessageAsFormBehavior($bot_session, $behavior);
+					
+				} else if($behavior->event_point == Event_NewMessageChatWorker::ID) {
+					return $this->_consoleSendMessageAsConvoBehavior($bot_session, $behavior);
+				
+				} else {
+					DevblocksPlatform::dieWithHttpError(null, 403);
+				}
 			}
 		}
 	}

@@ -169,6 +169,12 @@
 			<class name="DAO_AutomationDatastore" />
 		</file>
 
+		<file path="api/dao/automation_execution.php">
+			<class name="DAO_AutomationExecution" />
+			<class name="Model_AutomationExecution" />
+			<class name="SearchFields_AutomationExecution" />
+		</file>
+
 		<file path="api/dao/bayes.php">
 			<class name="CerberusBayes" />
 			<class name="DAO_Bayes" />
