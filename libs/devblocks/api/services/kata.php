@@ -11,7 +11,7 @@ class _DevblocksKataService {
 	
 	private function __construct() {}
 	
-	function parse($kata_string, &$error=null, $dereference=true) {
+	function parse($kata_string, &$error=null, $dereference=true, &$symbol_meta=[]) {
 		$error = null;
 		
 		$lines = explode(
@@ -30,6 +30,7 @@ class _DevblocksKataService {
 		
 		do {
 			$line = current($lines);
+			$line_number = key($lines);
 			
 			// Ignore completely blank lines
 			if(0 == strlen($line))
@@ -113,27 +114,30 @@ class _DevblocksKataService {
 								}
 							}
 							
-							$ptr[$field_key] = substr($text_block, 0, -1);
+							$ptr[$field_key]['_line'] = $line_number;
+							$ptr[$field_key]['_data'] = substr($text_block, 0, -1);
 							
 							if($indent_transition > 0) {
 								$indent_stack[] = [$indent_len, &$ptr];
 							}
 							
 						} else {
-							$ptr[$field_key] = [];
+							$ptr[$field_key]['_line'] = $line_number;
+							$ptr[$field_key]['_data'] = [];
 							
 							if($indent_transition > 0) {
 								$indent_stack[] = [$indent_len, &$ptr];
 							}
 							
-							$ptr =& $ptr[$field_key];
+							$ptr =& $ptr[$field_key]['_data'];
 						}
 						
 					} else if(preg_match('#' . $field_pattern . '?\s*(.*?)$#i', $trimmed_line, $matches)) {
 						$key = $matches[1] . $matches[2];
 						$value = $matches[3];
 						
-						$ptr[$key] = $value;
+						$ptr[$key]['_line'] = $line_number;
+						$ptr[$key]['_data'] = $value;
 						
 						if($indent_transition > 0) {
 							$indent_stack[] = [$indent_len, &$ptr];
@@ -149,11 +153,53 @@ class _DevblocksKataService {
 			
 		} while(false !== next($lines));
 		
-		if($dereference) {
-			return $this->dereference($tree);
-		} else {
-			return $tree;
+		if($dereference)
+			$tree = $this->dereference($tree);
+		
+		$out_tree = [];
+		$node_path = [];
+		
+		foreach(array_keys($tree) as $k) {
+			$out_tree[$k] = $this->_processTree($tree[$k], $k, $node_path, $symbol_meta);
 		}
+		
+		return $out_tree;
+	}
+
+	private function _processTree($v, $k, &$node_path=[], &$out_meta=[]) {
+		$response = null;
+		
+		@list($key_type,) = explode('@', $k, 2);
+		
+		$node_path[] = $key_type;
+		
+		if(is_array($v) && array_key_exists('_data', $v) && array_key_exists('_line', $v)) {
+			$out_meta[implode(':', $node_path)] = $v['_line'];
+			
+			if(is_string($v['_data'])) {
+				$response = $v['_data'];
+				
+			} else if (is_array($v['_data'])) {
+				$new_v = [];
+				foreach($v['_data'] as $kk => $vv) {
+					$new_v[$kk] = $this->_processTree($vv, $kk, $node_path, $out_meta);
+				}
+				$response = $new_v;
+			}
+			
+		} else if (is_string($v)) {
+			$response = $v;
+			
+		} else if (is_array($v)) {
+			$new_v = [];
+			foreach($v as $kk => $vv) {
+				$new_v[$kk] = $this->_processTree($vv, $kk, $node_path, $out_meta);
+			}
+			$response = $new_v;
+		}
+		
+		array_pop($node_path);
+		return $response;
 	}
 	
 	function emit(array $input) {
@@ -200,21 +246,20 @@ class _DevblocksKataService {
 		return rtrim($output);
 	}
 	
-	public function _getPathFromText($name) {
-		return explode('.', $name);
-	}
-	
-	public function getKeyPath($name, $tree, $default=null, &$ptr_key=null) {
-		$queue = $this->_getPathFromText($name);
+	private function getDataKeyPath($name, $tree, $default=null, &$ptr_key=null) {
+		$queue = explode(':', $name);
 		
 		$ptr =& $tree;
 		$ptr_key = null;
 		
 		if(!is_array($queue))
 			return $default;
-			
+		
 		while(null !== ($k = array_shift($queue))) {
 			if(is_array($ptr)) {
+				if(array_key_exists('_line', $ptr) && array_key_exists('_data', $ptr))
+					$ptr =& $ptr['_data'];
+				
 				$found = false;
 				
 				foreach(array_keys($ptr) as $child_k) {
@@ -241,7 +286,7 @@ class _DevblocksKataService {
 		return $ptr;
 	}
 	
-	function dereference($tree) {
+	private function dereference($tree) {
 		$parsed_tree = [];
 		$references = [];
 		
@@ -254,23 +299,37 @@ class _DevblocksKataService {
 		}
 		
 		// Unfurl nested reference definitions
-		foreach($references as $k => $v) {
-			$result = $this->_dereference($v, $k, $references);
+		foreach(array_keys($references) as $k) {
+			$result = $this->_dereference($references[$k], $k, $references);
 			$k = key($result);
-			$v = current($result);
-			$references[$k] = $v;
+			$references[$k] = current($result);
 		}
 		
 		// Replace references in the given tree
 		foreach(array_keys($tree) as $k) {
-			$parsed_tree = array_merge($parsed_tree, $this->_dereference($tree[$k], $k, $references));
+			$result = $this->_dereference($tree[$k], $k, $references);
+			$parsed_tree[key($result)] = current($result);
 		}
 		
 		return $parsed_tree;
 	}
 	
 	private function _dereference($v, $k, array $references=[]) {
-		if(is_string($v)) {
+		if (array_key_exists('_line', $v) && array_key_exists('_data', $v) && is_array($v['_data'])) {
+			$values = [
+				'_line' => $v['_line'],
+				'_data' => [],
+			];
+			
+			foreach (array_keys($v['_data']) as $kk) {
+				$result = $this->_dereference($v['_data'][$kk], $kk, $references);
+				$kk = key($result);
+				$values['_data'][$kk] = current($result);
+			}
+			
+			return [$k => $values];
+			
+		} else if (array_key_exists('_line', $v) && array_key_exists('_data', $v) && is_string($v['_data'])) {
 			@list($key, $annotations) = explode('@', $k, 2);
 			
 			$annotations = DevblocksPlatform::parseCsvString($annotations);
@@ -278,13 +337,14 @@ class _DevblocksKataService {
 			$ref_at = array_search('ref', $annotations);
 			
 			if(false !== $ref_at) {
-				$ref_key = '&' . trim($v);
+				$ref_key = '&' . trim($v['_data']);
 				
 				$k_matched = null;
-				$v = $this->getKeyPath($ref_key, $references, null, $k_matched);
+				$ref_v = $this->getDataKeyPath($ref_key, $references, null, $k_matched);
 				
-				if(!is_null($v)) {
-					$result = $this->_dereference($v, $ref_key, $references);
+				if(!is_null($ref_v)) {
+					$result = $this->_dereference($ref_v, $ref_key, $references);
+					
 					$v = current($result);
 					
 					// Does our target key have annotations?
@@ -305,16 +365,6 @@ class _DevblocksKataService {
 			}
 			
 			return [$k => $v];
-			
-		} else if (is_array($v)) {
-			$values = [];
-			
-			foreach(array_keys($v) as $kk) {
-				$result = $this->_dereference($v[$kk], $kk, $references);
-				$values[key($result)] = current($result);
-			}
-			
-			return [$k => $values];
 			
 		} else {
 			return [$k => $v];

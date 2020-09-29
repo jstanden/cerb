@@ -278,7 +278,7 @@ EOD;
 	function testKataDeepReferences() {
 		$kata = <<< EOD
 picklist:
-  options@ref: options.colors
+  options@ref: options:colors
 
 &options:
   colors@list:
@@ -299,7 +299,7 @@ EOD;
 	function testKataNestedDeepReferences() {
 		$kata = <<< EOD
 picklist:
-  options@ref: options.colors
+  options@ref: options:colors
 
 &options:
   colors@ref: colors
