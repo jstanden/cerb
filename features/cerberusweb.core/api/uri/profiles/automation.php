@@ -211,10 +211,15 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			$path = explode(':', $node->getId());
 			$id = end($path);
 			
-			@list($node_type,) = explode('/', $id, 2);
+			@list($node_type, $node_key) = explode('/', $id, 2);
+			
+			$node_name = $node_key ?: $node_type;
+			
+			if(in_array($node_type, ['decision']) && !$node_key)
+				$node_name = '';
 			
 			$e = [
-				'name' => strval($id),
+				'name' => $node_name,
 				'path' => $node->getId(),
 				'line' => $symbol_meta[$node->getId()] ?? false,
 				'type' => $node_type,
@@ -222,8 +227,41 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			];
 			
 			if ($node->hasChildren()) {
-				foreach ($node->getChildren() as $child) {
-					$e['children'][] = $ast2json($child, $depth + 1);
+				$siblings = $node->getChildren();
+				
+				while($child = current($siblings)) {
+					$child_path = explode(':', $child->getId());
+					$child_id = end($child_path);
+					@list($child_node_type, $child_node_key) = explode('/', $child_id, 2);
+					
+					if('yield' == $child_node_type) {
+						$child_node_name = $child_node_key ?: ''; //$child_node_type
+						
+						// Reassign siblings as my children
+						$yield = [
+							'name' => $child_node_name,
+							'path' => $child->getId(),
+							'line' => $symbol_meta[$child->getId()] ?? false,
+							'type' => $child_node_type,
+							'children' => [],
+						];
+						
+						next($siblings);
+						
+						// Drain remaining siblings
+						while($new_child = current($siblings)) {
+							// [TODO] if multiple yields in a row (add to last child)
+							$yield['children'][] = $ast2json($new_child, $depth + 1);
+							next($siblings);
+						}
+						
+						$e['children'][] = $yield;
+						
+					} else {
+						$e['children'][] = $ast2json($child, $depth + 1);
+					}
+					
+					next($siblings);
 				}
 			}
 			
