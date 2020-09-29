@@ -609,9 +609,9 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return $ptr;
 	}
 	
-	public function setPush($key, $value) {
-		if(false !== strpos($key, '.')) {
-			$current_value = $this->getKeyPath($key, []);
+	public function setPush($key, $value, $delimiter='.') {
+		if(false !== strpos($key, $delimiter)) {
+			$current_value = $this->getKeyPath($key, [], $delimiter);
 		} else {
 			$current_value = $this->get($key, []);
 		}
@@ -626,7 +626,7 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 			array_push($current_value, $value);
 		}
 		
-		return $this->setKeyPath($key, $current_value);
+		return $this->setKeyPath($key, $current_value, $delimiter);
 	}
 	
 	public function unset($name) {
