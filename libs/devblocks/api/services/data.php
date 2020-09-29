@@ -333,4 +333,39 @@ class _DevblocksDataService {
 			'type' => $query_type,
 		];
 	}
+	
+	public function generatePaging($data, $total, $limit, $page) {
+		$paging = [
+			'page' => [
+				'of' => intval(ceil($total / $limit)),
+				'rows' => [
+					'of' => intval($total),
+					'count' => count($data),
+					'limit' => intval($limit),
+				],
+			]
+		];
+		
+		$paging['page']['index'] = DevblocksPlatform::intClamp($page, 0, PHP_INT_MAX);
+		
+		$paging['page']['rows']['from'] = $paging['page']['index'] * $paging['page']['rows']['limit'] + 1;
+		$paging['page']['rows']['to'] = min($paging['page']['rows']['from']+$paging['page']['rows']['limit'] - 1, $paging['page']['rows']['of']);
+		
+		if($paging['page']['rows']['from'] > $paging['page']['rows']['of']) {
+			$paging['page']['rows']['from'] = 0;
+			$paging['page']['rows']['to'] = 0;
+		}
+		
+		if($paging['page']['index'] - 1 >= 0) {
+			$paging['page']['prev'] = $paging['page']['index'] - 1;
+			$paging['page']['first'] = 0;
+		}
+		
+		if($paging['page']['index'] + 1 < $paging['page']['of']) {
+			$paging['page']['next'] = $paging['page']['index'] + 1;
+			$paging['page']['last'] = $paging['page']['of']-1;
+		}
+		
+		return $paging;
+	}
 }
