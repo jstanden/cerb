@@ -634,6 +634,206 @@ abstract class Extension_CardWidget extends DevblocksExtension {
 	}
 };
 
+abstract class Extension_AutomationTrigger extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.automation.trigger';
+	
+	static $_registry = [];
+	
+	abstract function renderConfig(Model_Automation $model);
+	abstract function validateConfig(array &$params, &$error);
+	abstract function getInputsMeta();
+	abstract function getOutputsMeta();
+	abstract function getAutocompleteSuggestions();
+	
+	public function getAutocompleteSuggestionsJson() {
+		$common_actions = [
+			'decision:',
+			[
+				'caption' => 'error:',
+				'snippet' => "error:\n\t",
+				'docHTML' => "<b>error:</b><br>Finish and return an error response",
+			],
+			'repeat:',
+			[
+				'caption' => 'return:',
+				'snippet' => "return:\n\t",
+				'docHTML' => "<b>return:</b><br>Finish and return a successful response",
+			],
+			// [TODO] If the trigger is resumable
+			[
+				'caption' => 'yield:',
+				'snippet' => "yield:\n\t",
+				'docHTML' => "<b>yield:</b><br>Pause and wait for the specified inputs",
+			],
+			[
+				'caption' => 'set:',
+				'snippet' => "set:\n\t\${1:key}: \${2:value}\n",
+				'docHTML' => "<b>set:</b><br>Set one or more placeholders",
+			],
+			[
+				'caption' => 'data.query:',
+				'snippet' => "data.query:\n\t",
+			],
+			[
+				'caption' => 'email.parse:',
+				'snippet' => "email.parse:\n\t",
+			],
+			[
+				'caption' => 'email.send:',
+				'snippet' => "email.send:\n\t",
+			],
+			[
+				'caption' => 'function:',
+				'snippet' => "function:\n\t",
+			],
+			[
+				'caption' => 'http.request:',
+				'snippet' => "http.request:\n\t",
+			],
+			[
+				'caption' => 'log:',
+				'snippet' => "log:\n\t",
+			],
+			[
+				'caption' => 'record.create:',
+				'snippet' => "record.create:\n\t",
+			],
+			[
+				'caption' => 'record.delete:',
+				'snippet' => "record.delete:\n\t",
+			],
+			[
+				'caption' => 'record.get:',
+				'snippet' => "record.get:\n\t",
+			],
+			[
+				'caption' => 'record.update:',
+				'snippet' => "record.update:\n\t",
+			],
+			[
+				'caption' => 'record.upsert:',
+				'snippet' => "record.upsert:\n\t",
+			],
+			[
+				'caption' => 'storage.delete:',
+				'snippet' => "storage.delete:\n\t",
+			],
+			[
+				'caption' => 'storage.get:',
+				'snippet' => "storage.get:\n\t",
+			],
+			[
+				'caption' => 'storage.set:',
+				'snippet' => "storage.set:\n\t",
+			],
+			[
+				'caption' => 'var.push:',
+				'snippet' => "var.push:\n\t",
+			],
+			[
+				'caption' => 'var.set:',
+				'snippet' => "var.set:\n\t",
+			],
+			[
+				'caption' => 'var.unset:',
+				'snippet' => "var.unset:\n\t",
+			]
+		];
+		
+		$action_base = [
+			'inputs:',
+			'output:',
+			'on_simulate:',
+			'on_success:',
+			'on_error:'
+		];
+		
+		$schema = [
+			''=> [
+				'start:',
+				'inputs:',
+			],
+			
+			'*' => [
+				'(.*):on_error:' => $common_actions,
+				'(.*):on_success:' => $common_actions,
+				'(.*):on_simulate:' => $common_actions,
+				
+				'(.*):decision:' => [
+					'outcome:',
+				],
+				'(.*):decision:outcome:' => [
+					'if@bool:',
+					'then:'
+				],
+				'(.*):decision:outcome:then:' => $common_actions,
+				
+				'(.*):data.query:' => $action_base,
+				'(.*):data.query:inputs:' => [
+					'query@text:',
+				],
+				
+				'(.*):email.parse:' => $action_base,
+				'(.*):email.send:' => $action_base,
+				
+				'(.*):function:' => $action_base,
+				
+				'(.*):http.request:' => $action_base,
+				'(.*):http.request:inputs:' => [
+					'url:',
+					'method:',
+				],
+				'(.*):http.request:inputs:method:' => [
+					'GET',
+					'POST',
+					'PUT',
+					'DELETE',
+					'PATCH',
+					'HEAD',
+					'OPTIONS'
+				],
+				
+				'(.*):log:' => $action_base,
+				
+				'(.*):record.create:' => $action_base,
+				'(.*):record.delete:' => $action_base,
+				'(.*):record.get:' => $action_base,
+				'(.*):record.update:' => $action_base,
+				'(.*):record.upsert:' => $action_base,
+				
+				'(.*):repeat:' => [
+					'each@list:',
+					'each@key:',
+					'each@json:',
+					'as:',
+					'do:',
+				],
+				'(.*):repeat:do:' => $common_actions,
+				
+				'(.*):storage.delete:' => $action_base,
+				'(.*):storage.get:' => $action_base,
+				'(.*):storage.set:' => $action_base,
+				
+				'(.*):var.push:' => $action_base,
+				'(.*):var.set:' => $action_base,
+				'(.*):var.unset:' => $action_base,
+				
+				'start:' => $common_actions,
+			],
+		];
+		
+		// Trigger-specific autocomplete suggestions
+		$trigger_schema = $this->getAutocompleteSuggestions();
+		
+		if(is_array($trigger_schema))
+			$schema = array_merge_recursive($trigger_schema, $schema);
+		
+		return json_encode($schema);
+	}
+};
+
 abstract class Extension_WorkspacePage extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.workspace.page';
 	
