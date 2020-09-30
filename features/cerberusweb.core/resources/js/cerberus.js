@@ -973,6 +973,9 @@ var ajax = new cAjaxCalls();
 						'done': options.done,
 						'error': options.error
 					})
+					.on('click', function(e) {
+						$(this).closest('.ui-menu').hide();
+					})
 				;
 
 				// Functions
@@ -981,12 +984,14 @@ var ajax = new cAjaxCalls();
 					.cerbFunctionTrigger({
 						'done': options.done
 					})
+					.on('click', function(e) {
+						$(this).closest('.ui-menu').hide();
+					})
 				;
 
 				// Menus
 				$toolbar
 					.find('button[data-cerb-toolbar-menu]')
-					.off('click')
 					.on('click', function() {
 						var $this = $(this);
 						var $ul = $(this).next('ul').toggle();
@@ -999,11 +1004,7 @@ var ajax = new cAjaxCalls();
 						});
 					})
 					.next('ul.cerb-float')
-					.menu({
-						select: function() {
-							$(this).hide();
-						}
-					})
+					.menu()
 				;
 			});
 
