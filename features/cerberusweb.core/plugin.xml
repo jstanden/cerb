@@ -7155,7 +7155,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.form_interaction</id>
-			<name>Form Interaction</name>
+			<name>Interactions Toolbar</name>
 			<class>
 				<file>api/workspaces/widgets/form_interaction.php</file>
 				<name>WorkspaceWidget_FormInteraction</name>
