@@ -74,41 +74,15 @@ $(function() {
 		$profile_tab.triggerHandler(evt);
 	};
 
-	$div.find('button.cerb-bot-trigger')
-		.cerbBotTrigger({
-			'container': $widget_content,
-			'reset': resetFunc,
-			'done': doneFunc
-		})
-	;
+	var errorFunc = function(e) {
+		e.stopPropagation();
+	};
 
-	// Menus
-	$div
-		.find('> button[data-cerb-toolbar-menu]')
-		.on('click', function() {
-			var $this = $(this);
-			var $ul = $(this).next('ul').toggle();
-
-			$ul.position({
-				my: 'left top',
-				at: 'left bottom',
-				of: $this,
-				collision: 'fit'
-			});
-		})
-		.next('ul.cerb-float')
-		.menu()
-		.find('li.cerb-bot-trigger')
-		.cerbBotTrigger({
-			'container': $widget_content,
-			'reset': resetFunc,
-			'done': doneFunc
-		})
-		.on('click', function(e) {
-			e.stopPropagation();
-			$(this).closest('ul.cerb-float').hide();
-		})
-	;
-
+	$div.cerbToolbar({
+		container: $widget_content,
+		done: doneFunc,
+		reset: resetFunc,
+		error: errorFunc
+	});
 });
 </script>
