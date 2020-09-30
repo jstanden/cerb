@@ -4548,6 +4548,22 @@
 		<!-- Triggers -->
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.ui.function</id>
+			<name>ui.function</name>
+			<class>
+				<file>api/automations/triggers/ui.function.php</file>
+				<name>AutomationTrigger_UiFunction</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.ui.interaction</id>
 			<name>ui.interaction</name>
 			<class>
