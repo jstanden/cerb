@@ -520,7 +520,7 @@ class _DevblocksSheetServiceTypes {
 					return;
 				
 				// Search link
-				$value .= sprintf('<div class="cerb-search-trigger" data-context="%s" data-query="%s" style="text-decoration:%s;cursor:pointer;">%s</div>',
+				$value .= sprintf('<div class="cerb-search-trigger" data-context="%s" data-query="%s" style="display:inline-block;text-decoration:%s;cursor:pointer;">%s</div>',
 					DevblocksPlatform::strEscapeHtml($context_ext->id),
 					DevblocksPlatform::strEscapeHtml($search_query),
 					$is_underlined ? 'underline' : false,
