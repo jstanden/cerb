@@ -4591,7 +4591,7 @@
 
 		<extension point="cerb.card.widget">
 			<id>cerb.card.widget.form_interaction</id>
-			<name>Form Interaction</name>
+			<name>Interactions Toolbar</name>
 			<class>
 				<file>api/cards/widgets/form_interaction.php</file>
 				<name>CardWidget_FormInteraction</name>
