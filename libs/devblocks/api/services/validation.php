@@ -1077,10 +1077,18 @@ class _DevblocksValidationService {
 	function validateAll(array &$values, &$error=null) {
 		$fields = $this->getFields();
 		
+		// Are any required fields not provided?
+		foreach($fields as $field_key => $field) { /* @var $field DevblocksValidationField */
+			if($field->_type->isRequired() && !array_key_exists($field_key, $values)) {
+				$error = sprintf("`%s` is required.", $field->_label);
+				return false;
+			}
+		}
+		
 		if(is_array($values))
 		foreach($values as $field_key => &$value) {
 			if(!array_key_exists($field_key, $fields)) {
-				$error = sprintf("'%s' is not a valid field.", $field_key);
+				$error = sprintf("`%s` is an unknown field.", $field_key);
 				return false;
 			}
 		
