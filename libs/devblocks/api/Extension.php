@@ -905,11 +905,6 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if(!$this->_getDaoCustomFieldsFromKeysAndValues($context, $data, $out_custom_fields, $error))
 			return false;
 		
-		// Remove custom fields from data
-		if(is_array($out_custom_fields))
-		foreach($out_custom_fields as $field_id => $value)
-			unset($data['custom_' . $field_id]);
-		
 		if(is_array($data))
 		foreach($data as $key => $value) {
 			$fields = [];
@@ -1440,13 +1435,28 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	/**
+	 * @param string $context
+	 * @param array $data
+	 * @param array $out_custom_fields
+	 * @param string|null $error
+	 * @return bool
 	 * @internal
 	 */
-	protected function _getDaoCustomFieldsFromKeysAndValues($context, array &$data, &$out_custom_fields, &$error=null) {
+	protected function _getDaoCustomFieldsFromKeysAndValues(string $context, array &$data, array &$out_custom_fields, &$error=null) {
 		$error = null;
 		$custom_fields = null;
 		
-		if(is_array($data))
+		$record_custom_fields = DAO_CustomField::getByContext($context);
+		$record_custom_field_uris = array_column($record_custom_fields, 'id', 'uri');
+		
+		// Convert friendly URIs to custom_123
+		foreach($data as $key => $value) {
+			if(array_key_exists($key, $record_custom_field_uris)) {
+				$data['custom_' . $record_custom_field_uris[$key]] = $value;
+				unset($data[$key]);
+			}
+		}
+		
 		foreach($data as $key => $value) {
 			if(DevblocksPlatform::strStartsWith($key, 'custom_') 
 				&& false !== ($custom_field_id = mb_substr($key,strrpos($key,'_')+1))
@@ -1461,6 +1471,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				}
 				
 				$out_custom_fields[$custom_field_id] = $value;
+				unset($data[$key]);
 			}
 		}
 		
@@ -1570,9 +1581,13 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	protected function _lazyLoadDefaults($token, $context, $context_id) {
 		$context_ext = Extension_DevblocksContext::get($context, true);
 		
-		if(('custom' == $token || DevblocksPlatform::strStartsWith($token, 'custom_')) && $context_ext->hasOption('custom_fields')) {
-			return $this->_lazyLoadCustomFields($token, $context, $context_id);
+		if('customfields' == $token && $context_ext->hasOption('custom_fields')) {
+			return $this->_lazyLoadCustomFields($token, $context, $context_id, true);
 			
+		// @deprecated
+		} else if(('custom' == $token || DevblocksPlatform::strStartsWith($token, 'custom_')) && $context_ext->hasOption('custom_fields')) {
+			return $this->_lazyLoadCustomFields($token, $context, $context_id, false);
+		
 		} else if(($token === 'links' || DevblocksPlatform::strStartsWith($token, ['links.','links:','links~'])) && $context_ext->hasOption('links')) {
 			return $this->_lazyLoadLinks($token, $context, $context_id);
 			
@@ -1759,10 +1774,12 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	/**
 	 * @internal
 	 */
-	protected function _lazyLoadCustomFields($token, $context, $context_id, $field_values=null) {
+	protected function _lazyLoadCustomFields($token, $context, $context_id, $as_keys=true, $field_values=null) {
 		$fields = DAO_CustomField::getByContext($context);
 		$token_values = [];
-		$token_values['custom'] = [];
+		
+		if(!$as_keys)
+			$token_values['custom'] = [];
 		
 		// If (0 == $context_id), we need to null out all the fields and return w/o queries
 		if(empty($context_id))
@@ -1777,39 +1794,55 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		}
 		
 		foreach(array_keys($fields) as $cf_id) {
-			$token_values['custom'][$cf_id] = '';
-			$token_values['custom_' . $cf_id] = '';
+			if(!array_key_exists($cf_id, $fields))
+				continue;
 			
-			if(isset($field_values[$cf_id])) {
-				// The literal value
-				$token_values['custom'][$cf_id] = $field_values[$cf_id];
+			if($as_keys) {
+				$key_prefix = $fields[$cf_id]->uri;
+			} else {
+				$key_prefix = 'custom_' . $cf_id;
+			}
+			
+			if(!$as_keys) {
+				$token_values['custom'][$cf_id] = '';
+			}
+			
+			$token_values[$key_prefix] = '';
+			
+			if(array_key_exists($cf_id, $field_values)) {
+				if($as_keys) {
+					$token_values[$key_prefix] = $field_values[$cf_id];
+					
+				} else {
+					$token_values['custom'][$cf_id] = $field_values[$cf_id];
 
-				// Stringify
-				if(is_array($field_values[$cf_id])) {
-					$token_values['custom_'.$cf_id] = implode(', ', $field_values[$cf_id]);
-				} elseif(is_string($field_values[$cf_id])) {
-					$token_values['custom_'.$cf_id] = $field_values[$cf_id];
+					// Stringify
+					if(is_array($field_values[$cf_id])) {
+						$token_values['custom_'.$cf_id] = implode(', ', $field_values[$cf_id]);
+					} elseif(is_string($field_values[$cf_id])) {
+						$token_values['custom_'.$cf_id] = $field_values[$cf_id];
+					}
 				}
 			}
 
 			switch($fields[$cf_id]->type) {
 				case Model_CustomField::TYPE_CURRENCY:
 					@$currency_id = intval($fields[$cf_id]->params['currency_id']);
-					@$token_values['custom_' . $cf_id . '_currency__context'] = CerberusContexts::CONTEXT_CURRENCY;
-					@$token_values['custom_' . $cf_id . '_currency_id'] = $currency_id;
+					@$token_values[$key_prefix . '_currency__context'] = CerberusContexts::CONTEXT_CURRENCY;
+					@$token_values[$key_prefix . '_currency_id'] = $currency_id;
 					if(false != ($currency = DAO_Currency::get($currency_id))) {
-						@$token_values['custom_' . $cf_id . '_label'] = $currency->format($field_values[$cf_id], true);
-						@$token_values['custom_' . $cf_id . '_decimal'] = $currency->format($field_values[$cf_id], false);
+						@$token_values[$key_prefix . '_label'] = $currency->format($field_values[$cf_id], true);
+						@$token_values[$key_prefix . '_decimal'] = $currency->format($field_values[$cf_id], false);
 					}
 					break;
 					
 				case Model_CustomField::TYPE_DECIMAL:
-					@$token_values['custom_' . $cf_id . '_decimal_at'] = intval(@$fields[$cf_id]->params['decimal_at']);
+					@$token_values[$key_prefix . '_decimal_at'] = intval(@$fields[$cf_id]->params['decimal_at']);
 					break;
 					
 				case Model_CustomField::TYPE_LINK:
-					@$token_values['custom_' . $cf_id . '_id'] = $field_values[$cf_id];
-					@$token_values['custom_' . $cf_id . '__context'] = $fields[$cf_id]->params['context'];
+					@$token_values[$key_prefix . '_id'] = $field_values[$cf_id];
+					@$token_values[$key_prefix . '__context'] = $fields[$cf_id]->params['context'];
 
 					if(!isset($token_values[$token])) {
 						$dict = new DevblocksDictionaryDelegate($token_values);
@@ -1819,8 +1852,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:
-					@$token_values['custom_' . $cf_id . '_id'] = $field_values[$cf_id];
-					@$token_values['custom_' . $cf_id . '__context'] = CerberusContexts::CONTEXT_WORKER;
+					@$token_values[$key_prefix . '_id'] = $field_values[$cf_id];
+					@$token_values[$key_prefix . '__context'] = CerberusContexts::CONTEXT_WORKER;
 
 					if(!isset($token_values[$token])) {
 						$dict = new DevblocksDictionaryDelegate($token_values);
@@ -1831,7 +1864,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 					
 				default:
 					if(false != ($field_ext = $fields[$cf_id]->getTypeExtension())) {
-						$field_ext->getDictionaryValues($fields[$cf_id], $field_values[$cf_id], $token_values);
+						$field_ext->getDictionaryValues($fields[$cf_id], $field_values[$cf_id], $as_keys, $token_values);
 					}
 					break;
 			}
