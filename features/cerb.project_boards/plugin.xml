@@ -142,7 +142,20 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<!-- Automation Triggers -->
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.projectBoard.renderCard</id>
+			<name>projectBoard.renderCard</name>
+			<class>
+				<file>api/automations/triggers/projectBoard.renderCard.php</file>
+				<name>AutomationTrigger_ProjectBoardRenderCard</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Profile Pages -->
 		
 		<extension point="cerberusweb.ui.page.section">
