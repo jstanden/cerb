@@ -4597,6 +4597,17 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.webhook.respond</id>
+			<name>webhook.respond</name>
+			<class>
+				<file>api/automations/triggers/webhook.respond.php</file>
+				<name>AutomationTrigger_WebhookRespond</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.widgetMap.getPoints</id>
 			<name>widgetMap.getPoints</name>
 			<class>
