@@ -37,6 +37,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_getAutocompleteJson();
 				case 'getExtensionConfig':
 					return $this->_profileAction_getExtensionConfig();
+				case 'invokePrompt':
+					return $this->_profileAction_invokePrompt();
 				case 'invokeUiFunction':
 					return $this->_profileAction_invokeUiFunction();
 				case 'renderEditorToolbar':
@@ -279,6 +281,51 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		}
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/tab_visualize.tpl');
+	}
+	
+	function _profileAction_invokePrompt() {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		@$execution_token = DevblocksPlatform::importGPC($_POST['execution_token'], 'string', '');
+		@$prompt_key = DevblocksPlatform::importGPC($_POST['prompt_key'], 'string', '');
+		@$prompt_action = DevblocksPlatform::importGPC($_POST['prompt_action'], 'string', '');
+		@$invoke = DevblocksPlatform::importGPC($_POST['invoke'], 'string', '');
+		
+		if(!$prompt_key)
+			return;
+		
+		// Load the execution
+		if(false == ($execution = DAO_AutomationExecution::getByToken($execution_token)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		// Check actor
+		
+		// [TODO] Do this better
+		$session_actor = [
+			'context' => @$execution->state_data['actor']['context'],
+			'context_id' => @$execution->state_data['actor']['id'],
+		];
+		
+		if(!CerberusContexts::isSameActor(CerberusApplication::getActiveWorker(), $session_actor))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$dict = $execution->state_data['dict'];
+		@$form = $dict['__return']['form'];
+		
+		if(!array_key_exists($prompt_key, $form))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$form_components = AutomationTrigger_UiInteraction::getFormComponentMeta();
+		
+		list($prompt_type, $prompt_name) = explode('/', $prompt_key, 2);
+		
+		if(!array_key_exists($prompt_type, $form_components))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$component = new $form_components[$prompt_type]($prompt_name, null, $form[$prompt_key]);
+		
+		$component->invoke($prompt_key, $prompt_action, $execution);
 	}
 	
 	private function _profileAction_invokeUiFunction() {
