@@ -51,6 +51,9 @@
                         data-interaction-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
                         data-interaction-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
                         >
+                    {if !is_null($toolbar_item.schema.badge)}
+                        <div class="badge-count">{$toolbar_item.schema.badge}</div>
+                    {/if}
                     {if $toolbar_item.schema.icon}
                         <span class="glyphicons glyphicons-{$toolbar_item.schema.icon}"></span>
                     {/if}
@@ -65,7 +68,7 @@
                         data-function-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
                         data-function-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
                         >
-                    {if $toolbar_item.schema.badge}
+                    {if !is_null($toolbar_item.schema.badge)}
                         <div class="badge-count">{$toolbar_item.schema.badge}</div>
                     {/if}
                     {if $toolbar_item.schema.icon}
@@ -76,6 +79,9 @@
             {/if}
         {elseif 'menu' == $toolbar_item.type}
             <button type="button" data-cerb-toolbar-menu>
+                {if !is_null($toolbar_item.schema.badge)}
+                    <div class="badge-count">{$toolbar_item.schema.badge}</div>
+                {/if}
                 {if $toolbar_item.schema.icon}
                     <span class="glyphicons glyphicons-{$toolbar_item.schema.icon}"></span>
                 {/if}
