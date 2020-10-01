@@ -2688,6 +2688,16 @@
 				<seg>signature</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.sheet">
+			<tuv xml:lang="en_US">
+				<seg>sheet</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.sheets">
+			<tuv xml:lang="en_US">
+				<seg>sheets</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.signature.html">
 			<tuv xml:lang="en_US">
 				<seg>signature (HTML)</seg>

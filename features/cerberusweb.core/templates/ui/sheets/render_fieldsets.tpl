@@ -2,7 +2,7 @@
 <div id="{$sheet_uid}" class="cerb-data-sheet">
 	<table width="100%" cellspacing="0" cellpadding="0" border="0" class="cerb-data-sheet--fieldset">
 	{foreach from=$rows item=row name=rows}
-		<tbody>
+		<tbody class="cerb-sheet--row">
 		{foreach from=$columns item=column name=columns}
 		{$value = $row[$column.key]}
 		{if $value}
