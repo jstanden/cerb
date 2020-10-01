@@ -84,6 +84,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 				@$pos = DevblocksPlatform::importGPC($_POST['pos'], 'integer', 0);
 				@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 				@$type = DevblocksPlatform::importGPC($_POST['type'], 'string', '');
+				@$uri = DevblocksPlatform::importGPC($_POST['uri'], 'string', '');
 				
 				// [TODO] Validate param keys by type
 				if(isset($params['options']))
@@ -100,6 +101,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 						DAO_CustomField::POS => $pos,
 						DAO_CustomField::TYPE => $type,
 						DAO_CustomField::UPDATED_AT => time(),
+						DAO_CustomField::URI => $uri,
 					);
 					
 					if(!DAO_CustomField::validate($fields, $error))
@@ -121,6 +123,7 @@ class PageSection_ProfilesCustomField extends Extension_PageSection {
 						DAO_CustomField::PARAMS_JSON => json_encode($params),
 						DAO_CustomField::POS => $pos,
 						DAO_CustomField::UPDATED_AT => time(),
+						DAO_CustomField::URI => $uri,
 					);
 					
 					if(!DAO_CustomField::validate($fields, $error, $id))

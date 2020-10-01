@@ -1558,6 +1558,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 				'custom_',
 				$token_values['_context'],
 				$token_values['id'],
+				false, // [TODO]
 				$custom_fields
 			);
 			$token_values = array_merge($token_values, $custom_values);
@@ -1586,6 +1587,11 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		} else if(($token === 'attachments' || DevblocksPlatform::strStartsWith($token, ['attachments:','attachments~'])) && $context_ext->hasOption('attachments')) {
 			return $this->_lazyLoadAttachments($token, $context, $context_id);
 		}
+		
+		// Is the key a custom field URI for this record type
+		$custom_field_uris = array_column(DAO_CustomField::getByContext($context), 'id', 'uri');
+		if(array_key_exists($token, $custom_field_uris))
+			return $this->_lazyLoadCustomFields($token, $context, $context_id, true);
 		
 		return [];
 	}

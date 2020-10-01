@@ -23,6 +23,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 	const POS = 'pos';
 	const TYPE = 'type';
+	const URI = 'uri';
 	const UPDATED_AT = 'updated_at';
 	
 	const CACHE_ALL = 'ch_customfields';
@@ -70,6 +71,76 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			->setMaxLength(255)
 			->setRequired(true)
 			->setPossibleValues(array_keys(Model_CustomField::getTypes()))
+			;
+		$validation
+			->addField(self::URI)
+			->string()
+			->setMaxLength(200)
+			->setRequired(true)
+			->setUniqueCallback(function(DevblocksValidationField $field, $value, array $scope, &$error=null) {
+				if(DevblocksPlatform::strStartsWith($value, 'custom_')) {
+					$error = "Custom field URIs can't start with `custom_`.";
+					return false;
+				}
+				
+				@$id = $scope['id'];
+				@$context = $scope['fields'][DAO_CustomField::CONTEXT];
+				
+				if(!$context && $id) {
+					if(false == ($field = DAO_CustomField::get($id)))
+						return false;
+					
+					$context = $field->context;
+				}
+				
+				if(!$context) {
+					$error = sprintf("No record type.");
+					return false;
+				}
+				
+				if(false == ($context_ext = Extension_DevblocksContext::getByAlias($context, true))) {
+					$error = sprintf("Unknown record type `%s`.", $context);
+					return false;
+				}
+				
+				$aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest);
+				$alias = $aliases['singular'] ?: $aliases['uri'];
+				
+				$fields = $context_ext->getKeyMeta(false);
+				
+				if(array_key_exists(DevblocksPlatform::strLower($value), $fields)) {
+					$error = sprintf("A field on %s records already exists for URI `%s`.", $alias, $value);
+					return false;
+				}
+				
+				$models = DAO_CustomField::getWhere(sprintf("%s = %s AND %s = %s AND id != %d",
+					Cerb_ORMHelper::escape(DAO_CustomField::CONTEXT),
+					Cerb_ORMHelper::qstr($context),
+					Cerb_ORMHelper::escape(DAO_CustomField::URI),
+					Cerb_ORMHelper::qstr($value),
+					$id
+				));
+				
+				if($models) {
+					$error = "must be unique within the same record type.";
+					return false;
+				}
+				
+				return true;
+			})
+			->addValidator(function($string, &$error=null) {
+				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '._'))) {
+					$error = "may only contain letters, numbers, dots, and underscores";
+					return false;
+				}
+				
+				if(strlen($string) > 200) {
+					$error = "must be shorter than 200 characters.";
+					return false;
+				}
+				
+				return true;
+			})
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -204,7 +275,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT context, custom_fieldset_id, id, name, params_json, pos, type, updated_at ".
+		$sql = "SELECT context, custom_fieldset_id, id, name, params_json, pos, type, uri, updated_at ".
 			"FROM custom_field ".
 			$where_sql.
 			$sort_sql.
@@ -313,6 +384,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->type = $row['type'];
+			$object->uri = $row['uri'];
 			$object->context = $row['context'];
 			$object->custom_fieldset_id = intval($row['custom_fieldset_id']);
 			$object->pos = intval($row['pos']);
@@ -413,6 +485,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 			"custom_field.params_json as %s, ".
 			"custom_field.pos as %s, ".
 			"custom_field.type as %s, ".
+			"custom_field.uri as %s, ".
 			"custom_field.updated_at as %s ",
 				SearchFields_CustomField::CONTEXT,
 				SearchFields_CustomField::CUSTOM_FIELDSET_ID,
@@ -421,6 +494,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 				SearchFields_CustomField::PARAMS_JSON,
 				SearchFields_CustomField::POS,
 				SearchFields_CustomField::TYPE,
+				SearchFields_CustomField::URI,
 				SearchFields_CustomField::UPDATED_AT
 			);
 			
@@ -1434,6 +1508,7 @@ class Model_CustomField {
 	public $params = [];
 	public $pos = 0;
 	public $type = '';
+	public $uri = '';
 	public $updated_at = 0;
 	
 	static function getTypes() {
@@ -1563,6 +1638,7 @@ class SearchFields_CustomField extends DevblocksSearchFields {
 	const PARAMS_JSON = 'c_params_json';
 	const POS = 'c_pos';
 	const TYPE = 'c_type';
+	const URI = 'c_uri';
 	const UPDATED_AT = 'c_updated_at';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -1652,6 +1728,7 @@ class SearchFields_CustomField extends DevblocksSearchFields {
 			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'custom_field', 'params_json', $translate->_('common.params'), null, true),
 			self::POS => new DevblocksSearchField(self::POS, 'custom_field', 'pos', $translate->_('common.order'), null, true),
 			self::TYPE => new DevblocksSearchField(self::TYPE, 'custom_field', 'type', $translate->_('common.type'), null, true),
+			self::URI => new DevblocksSearchField(self::URI, 'custom_field', 'uri', $translate->_('common.uri'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'custom_field', 'updated_at', $translate->_('common.updated'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -1683,6 +1760,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 
 		$this->view_columns = array(
 			SearchFields_CustomField::NAME,
+			SearchFields_CustomField::URI,
 			SearchFields_CustomField::CONTEXT,
 			SearchFields_CustomField::CUSTOM_FIELDSET_ID,
 			SearchFields_CustomField::TYPE,
@@ -1875,6 +1953,11 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_CustomField::UPDATED_AT),
 				),
+			'uri' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_CustomField::URI, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+				),
 		);
 		
 		// Add quick search links
@@ -1944,6 +2027,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 			case SearchFields_CustomField::CONTEXT:
 			case SearchFields_CustomField::CUSTOM_FIELDSET_ID:
 			case SearchFields_CustomField::TYPE:
+			case SearchFields_CustomField::URI:
 				$label_map = SearchFields_CustomField::getLabelsForKeyValues($field, $values);
 				$this->_renderCriteriaParamString($param, $label_map);
 				break;
@@ -1982,6 +2066,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 			case SearchFields_CustomField::CONTEXT:
 			case SearchFields_CustomField::NAME:
 			case SearchFields_CustomField::TYPE:
+			case SearchFields_CustomField::URI:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -2099,6 +2184,12 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'value' => @$model->getTypes()[$model->type] ?: null,
 		);
 		
+		$properties['uri'] = array(
+			'label' => $translate->_('common.uri'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->uri,
+		);
+		
 		$properties['fieldset_id'] = array(
 			'label' => mb_ucfirst($translate->_('common.fieldset')),
 			'type' => Model_CustomField::TYPE_LINK,
@@ -2137,11 +2228,12 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 	function getDefaultProperties() {
 		return array(
 			'custom_fieldset__label',
-			'id',
+			'uri',
 			'context',
 			'type',
 			'pos',
 			'updated_at',
+			'id',
 		);
 	}
 	
@@ -2171,6 +2263,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'pos' => $prefix.$translate->_('common.order'),
 			'type' => $prefix.$translate->_('common.type'),
 			'type_label' => $prefix.'Type Label',
+			'uri' => $prefix.$translate->_('common.uri'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 		);
 		
@@ -2184,6 +2277,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'type_label' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'uri' => Model_CustomField::TYPE_SINGLE_LINE,
 		);
 		
 		// Token values
@@ -2204,6 +2298,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			$token_values['type_label'] = $cfield->getTypeLabel();
 			$token_values['pos'] = $cfield->pos;
 			$token_values['updated_at'] = $cfield->updated_at;
+			$token_values['uri'] = $cfield->uri;
 			
 			if(!empty($cfield->params))
 				$token_values['params'] = $cfield->params;
@@ -2240,6 +2335,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 			'pos' => DAO_CustomField::POS,
 			'type' => DAO_CustomField::TYPE,
 			'updated_at' => DAO_CustomField::UPDATED_AT,
+			'uri' => DAO_CustomField::URI,
 		];
 	}
 	
@@ -2258,6 +2354,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		$keys['custom_fieldset_id']['notes'] = "The ID of the parent [custom fieldset](/docs/records/types/custom_fieldset/); if any";
 		$keys['pos']['notes'] = "Display order; positive integer; `0` is first";
 		$keys['type']['notes'] = "`C` (checkbox)<br>`D` (picklist)<br>`E` (date)<br>`F` (file)<br>`I` (files)<br>`L` (record link)<br>`M` (list)<br>`N` (number)<br>`O` (decimal)<br>`S` (single line of text)<br>`T` (multiple lines of text)<br>`U` (url)<br>`W` (worker)<br>`X` (multiple checkboxes)<br>`Y` (currency)<br>";
+		$keys['uri']['notes'] = "The unique alias for this custom field";
 		
 		return $keys;
 	}

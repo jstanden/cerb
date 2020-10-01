@@ -73,10 +73,15 @@ class CustomField_GeoPoint extends Extension_CustomField {
 		);
 	}
 	
-	function getDictionaryValues(Model_CustomField $field, $value, &$token_values) {
+	function getDictionaryValues(Model_CustomField $field, $value, $as_keys=true, &$token_values=[]) {
 		$value = $this->getValue($field, $value);
-		$token_values['custom'][$field->id] = $value;
-		$token_values['custom_' . $field->id] = $value;
+		
+		if($as_keys) {
+			$token_values[$field->uri] = $value;
+		} else {
+			$token_values['custom'][$field->id] = $value;
+			$token_values['custom_' . $field->id] = $value;
+		}
 	}
 	
 	function getValuesContexts(Model_CustomField $field, $token, &$values) {
@@ -272,10 +277,15 @@ class CustomField_Slider extends Extension_CustomField {
 		return $value;
 	}
 	
-	function getDictionaryValues(Model_CustomField $field, $value, &$token_values) {
+	function getDictionaryValues(Model_CustomField $field, $value, $as_keys=true, &$token_values=[]) {
 		$value = $this->getValue($field, $value);
-		$token_values['custom'][$field->id] = $value;
-		$token_values['custom_' . $field->id] = $value;
+		
+		if($as_keys) {
+			$token_values[$field->uri] = $value;
+		} else {
+			$token_values['custom'][$field->id] = $value;
+			$token_values['custom_' . $field->id] = $value;
+		}
 	}
 	
 	function getValuesContexts(Model_CustomField $field, $token, &$values) {
@@ -514,18 +524,33 @@ class CustomField_RecordLinks extends Extension_CustomField {
 		return $value;
 	}
 	
-	function getDictionaryValues(Model_CustomField $field, $value, &$token_values) {
+	function getDictionaryValues(Model_CustomField $field, $value, $as_keys=true, &$token_values=[]) {
 		$value = $this->getValue($field, $value);
-		$token_values['custom'][$field->id] = $value;
-		$token_values['custom_' . $field->id] = $value;
 		
-		// [TODO] Deprecation: Just write this to custom_
-		if(is_array($value)) {
-			foreach($value as $v) {
-				$token_values['custom_' . $field->id . '_records'][$v] = DevblocksDictionaryDelegate::instance([
-					'_context' => $field->params['context'],
-					'id' => $v,
-				]);
+		if($as_keys) {
+			$token_values[$field->uri . '_records'] = [];
+			
+			if(is_array($value)) {
+				foreach ($value as $v) {
+					$token_values[$field->uri . '_records'][$v] = DevblocksDictionaryDelegate::instance([
+						'_context' => $field->params['context'],
+						'id' => $v,
+					]);
+				}
+			}
+			
+		} else {
+			// Deprecated
+			$token_values['custom'][$field->id] = $value;
+			$token_values['custom_' . $field->id] = $value;
+			
+			if(is_array($value)) {
+				foreach($value as $v) {
+					$token_values['custom_' . $field->id . '_records'][$v] = DevblocksDictionaryDelegate::instance([
+						'_context' => $field->params['context'],
+						'id' => $v,
+					]);
+				}
 			}
 		}
 	}

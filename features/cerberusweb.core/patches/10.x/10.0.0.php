@@ -3,6 +3,32 @@ $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Add `custom_field.uri`
+
+list($columns,) = $db->metaTable('custom_field');
+
+if(!array_key_exists('uri', $columns)) {
+	$sql = "ALTER TABLE custom_field ADD COLUMN uri VARCHAR(128) NOT NULL DEFAULT '', ADD INDEX (uri)";
+	$db->ExecuteMaster($sql);
+	
+	// Generate aliases for existing custom fields
+	
+	$fields = $db->GetArrayMaster("select id, name, (select name from custom_fieldset where id = custom_field.custom_fieldset_id) as custom_fieldset from custom_field");
+	
+	foreach($fields as $field) {
+		$field_key = sprintf("%s%s",
+			$field['custom_fieldset'] ? (DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($field['custom_fieldset'], MB_CASE_TITLE))) . '_') : '',
+			DevblocksPlatform::strAlphaNum(lcfirst(mb_convert_case($field['name'], MB_CASE_TITLE)))
+		);
+		
+		$db->ExecuteMaster(sprintf("UPDATE custom_field SET uri = %s WHERE id = %d",
+			$db->qstr($field_key),
+			$field['id']
+		));
+	}
+}
+
+// ===========================================================================
 // Add `automation` table
 
 if(!isset($tables['automation'])) {

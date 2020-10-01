@@ -19,6 +19,12 @@
 		</td>
 	</tr>
 	<tr>
+		<td width="1%" nowrap="nowrap"><abbr title="The unique name for this custom field within this record type."><b>{'common.uri'|devblocks_translate}:</b></abbr></td>
+		<td width="99%">
+			<input type="text" name="uri" value="{$model->uri}" style="width:98%;">
+		</td>
+	</tr>
+	<tr>
 		<td width="1%" nowrap="nowrap"><abbr title="This custom field will be displayed on records of this type."><b>{'common.record'|devblocks_translate|capitalize}:</b></abbr></td>
 		<td width="99%">
 			{if $model->id}

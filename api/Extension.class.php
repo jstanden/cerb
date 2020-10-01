@@ -46,7 +46,7 @@ abstract class Extension_CustomField extends DevblocksExtension {
 	const POINT = 'cerb.custom_field';
 	
 	abstract function renderConfig(Model_CustomField $field);
-	abstract function getDictionaryValues(Model_CustomField $field, $value, &$token_values);
+	abstract function getDictionaryValues(Model_CustomField $field, $value, $as_keys=true, &$token_values=[]);
 	abstract function getLabelsForValues(Model_CustomField $field, $values);
 	abstract function getValueTableName();
 	abstract function getValueTableSql($context, array $context_ids);
