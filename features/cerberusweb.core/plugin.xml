@@ -4548,6 +4548,22 @@
 		<!-- Triggers -->
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.reminder.remind</id>
+			<name>reminder.remind</name>
+			<class>
+				<file>api/automations/triggers/reminder.remind.php</file>
+				<name>AutomationTrigger_ReminderRemind</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.ui.function</id>
 			<name>ui.function</name>
 			<class>
