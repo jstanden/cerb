@@ -109,15 +109,22 @@ class DevblocksUiEventHandler {
 }
 
 class DevblocksUiToolbar {
-	function parse(?string $kata, DevblocksDictionaryDelegate $dict) {
+	function parse($kata, DevblocksDictionaryDelegate $dict) {
 		$error = null;
+		$kata_tree = null;
 		
-		if(!is_string($kata))
-			return [];
-		
-		if(false == ($kata_tree = DevblocksPlatform::services()->kata()->parse($kata, $error))) {
-			return false;
+		if(is_array($kata)) {
+			$kata_tree = $kata;
+			unset($kata);
+			
+		} elseif (is_string($kata)) {
+			if(false == ($kata_tree = DevblocksPlatform::services()->kata()->parse($kata, $error))) {
+				return false;
+			}
 		}
+		
+		if(!is_array($kata_tree))
+			return [];
 		
 		$kata_tree = DevblocksPlatform::services()->kata()->formatTree($kata_tree, $dict);
 		

@@ -61,110 +61,16 @@
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
 <div data-cerb-automation-editor-script>
-	<div class="cerb-code-editor-toolbar">
-		<div data-cerb-toolbar style="display:inline-block;">
+	<div data-cerb-toolbar class="cerb-code-editor-toolbar">
+		{if is_a($extension, 'Extension_AutomationTrigger')}
 			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-			'worker_id' => $active_worker->id
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id
 			])}
-
-			{$toolbar_kata =
-"menu/insert:
-  icon: circle-plus
-  items:
-    menu/inputs:
-      label: Inputs
-      items:
-        interaction/record:
-          label: Record
-          name: ai.cerb.automationBuilder.input.record
-        interaction/records:
-          label: Records
-          name: ai.cerb.automationBuilder.input.records
-        interaction/text:
-          label: Text
-          name: ai.cerb.automationBuilder.input.text
-    menu/control:
-      label: Control
-      items:
-        interaction/decision:
-          label: Decision
-          name: ai.cerb.automationBuilder.command.decision
-        interaction/outcome:
-          label: Outcome
-          name: ai.cerb.automationBuilder.command.outcome
-        interaction/repeat:
-          label: Repeat
-          name: ai.cerb.automationBuilder.command.repeat
-    menu/actions:
-      label: Actions
-      items:
-        interaction/data_query:
-          label: Data query
-          name: ai.cerb.automationBuilder.action.dataQuery
-        menu/actions_email:
-          label: Email
-          items:
-        interaction/email_parser:
-          label: Parser
-          name: ai.cerb.automationBuilder.action.emailParser
-        interaction/function:
-          label: Function
-          name: ai.cerb.automationBuilder.action.function
-        interaction/http_request:
-          label: HTTP request
-          name: ai.cerb.automationBuilder.action.httpRequest
-        menu/actions_record:
-          label: Record
-          items:
-            interaction/record_create:
-              label: Create
-              name: ai.cerb.automationBuilder.action.recordCreate
-            interaction/record_delete:
-              label: Delete
-              name: ai.cerb.automationBuilder.action.recordDelete
-            interaction/record_get:
-              label: Get
-              name: ai.cerb.automationBuilder.action.recordGet
-            interaction/record_update:
-              label: Update
-              name: ai.cerb.automationBuilder.action.recordUpdate
-    menu/yields:
-      label: Yields
-      items:
-        menu/yield_respond:
-          label: Form Response
-          items:
-            interaction/respond_say:
-              label: Say
-              name: ai.cerb.automationBuilder.ui.interaction.yield.say
-            interaction/respond_map:
-              label: Map
-              name: ai.cerb.automationBuilder.ui.interaction.yield.map
-        menu/yield_form:
-          label: Form Prompt
-          items:
-            interaction/prompt_choice:
-              label: Choice
-              name: ai.cerb.automationBuilder.ui.interaction.yield.promptChoice
-            interaction/prompt_editor:
-              label: Editor
-              name: ai.cerb.automationBuilder.ui.interaction.yield.promptEditor
-            interaction/prompt_sheet:
-              label: Sheet
-              name: ai.cerb.automationBuilder.ui.interaction.yield.promptSheet
-            interaction/prompt_text:
-              label: Text
-              name: ai.cerb.automationBuilder.ui.interaction.yield.promptText
-"
-			}
-
-			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
-
+			{$toolbar = $extension->getEditorToolbar()}
+			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict)}
 			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
-		</div>
-
-		<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--help" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+		{/if}
 	</div>
 	<textarea name="automation_script" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->script}</textarea>
 </div>
@@ -274,9 +180,9 @@ $(function() {
 			}
 		});
 
-		var $script_toolbar = $frm.find('.cerb-code-editor-toolbar');
-
-		var $automation_yaml = $frm.find('textarea[name=automation_script]');
+		var $script = $frm.find('[data-cerb-automation-editor-script]');
+		var $script_toolbar = $script.find('.cerb-code-editor-toolbar');
+		var $automation_yaml = $script.find('textarea[name=automation_script]');
 
 		var $state_start = $frm.find('[data-cerb-automation-editor-state-start]');
 		var $state_yaml = $state_start.find('textarea[name=start_state_yaml]');
@@ -321,6 +227,8 @@ $(function() {
 			if(extension_id.length === 0) {
 				$extension_params.empty();
 
+				$script_toolbar.empty();
+
 				$editor_automation
 					.cerbCodeEditorAutocompleteKata({
 						autocomplete_suggestions: []
@@ -341,6 +249,22 @@ $(function() {
 			formData.set('extension_id', extension_id);
 
 			genericAjaxPost(formData, $extension_params);
+
+			// Update toolbar for editor
+
+			formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'automation');
+			formData.set('action', 'renderEditorToolbar');
+			formData.set('trigger', extension_id);
+
+			genericAjaxPost(formData, null, null, function(html) {
+				$script_toolbar
+					.html(html)
+					.triggerHandler('cerb-toolbar--refreshed')
+				;
+			});
 
 			// Update autocompletion for editor
 
@@ -509,14 +433,12 @@ $(function() {
 			}
 		});
 
-		var $script_custom_toolbar = $script_toolbar.find('[data-cerb-toolbar]');
-
 		var doneFunc = function(e) {
 			e.stopPropagation();
 
 			var $target = e.trigger;
 
-			if(!$target.is('.cerb-bot-trigger'))
+			if(!$target.is('.cerb-bot-trigger') && !$target.is('.cerb-function-trigger'))
 				return;
 
 			//var done_params = new URLSearchParams($target.attr('data-interaction-done'));
@@ -526,40 +448,17 @@ $(function() {
 			}
 		};
 
-		// Buttons
-		$script_custom_toolbar
-			.find('> button[data-cerb-toolbar-button]')
-			.cerbBotTrigger({
-				done: doneFunc
-			})
-		;
+		var resetFunc = function(e) {
+		}
 
-		// Menus
-		$script_custom_toolbar
-			.find('> button[data-cerb-toolbar-menu]')
-			.on('click', function() {
-				var $this = $(this);
-				var $ul = $(this).next('ul').toggle();
+		var errorFunc = function(e) {
+		};
 
-				$ul.position({
-					my: 'left top',
-					at: 'left bottom',
-					of: $this,
-					collision: 'fit'
-				});
-			})
-			.next('ul.cerb-float')
-			.menu()
-			.find('li.cerb-bot-trigger')
-			.cerbBotTrigger({
-				done: doneFunc
-			})
-			.on('click', function(e) {
-				e.stopPropagation();
-				$(this).closest('ul.cerb-float').hide();
-			})
-		;
-
+		$script_toolbar.cerbToolbar({
+			'done': doneFunc,
+			'reset': resetFunc,
+			'error': errorFunc,
+		});
 	});
 });
 </script>

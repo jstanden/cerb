@@ -645,7 +645,146 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	abstract function validateConfig(array &$params, &$error);
 	abstract function getInputsMeta();
 	abstract function getOutputsMeta();
-	abstract function getAutocompleteSuggestions();
+	abstract function getAutocompleteSuggestions() : array;
+	abstract function getEditorToolbarItems(array $toolbar) : array;
+	
+	public function getEditorToolbar() {
+		$toolbar = [
+			'menu/insert' => [
+				'icon' => 'circle-plus',
+				'items' => [
+					
+					'menu/inputs' => [
+						'label' => 'Inputs',
+						'items' => [
+							'interaction/record' => [
+								'label' => 'Record',
+								'name' => 'cerb.automationBuilder.input.record',
+							],
+							'interaction/records' => [
+								'label' => 'Records',
+								'name' => 'cerb.automationBuilder.input.records',
+							],
+							'interaction/text' => [
+								'label' => 'Text',
+								'name' => 'cerb.automationBuilder.input.text',
+							],
+						],
+					], // menu/inputs
+					
+					'menu/control' => [
+						'label' => 'Control',
+						'items' => [
+							'interaction/decision' => [
+								'label' => 'Decision',
+								'name' => 'cerb.automationBuilder.command.decision',
+							],
+							'interaction/outcome' => [
+								'label' => 'Outcome',
+								'name' => 'cerb.automationBuilder.command.outcome',
+							],
+							'interaction/repeat' => [
+								'label' => 'Repeat',
+								'name' => 'cerb.automationBuilder.command.repeat',
+							],
+						],
+					], // menu/control
+					
+					'menu/actions' => [
+						'label' => 'Actions',
+						'items' => [
+							'interaction/data_query' => [
+								'label' => 'Data query',
+								'name' => 'cerb.automationBuilder.action.dataQuery',
+							],
+							'menu/actions_email' => [
+								'label' => 'Email',
+								'items' => [
+									'interaction/email_parser' => [
+										'label' => 'Parser',
+										'name' => 'cerb.automationBuilder.action.emailParser',
+									],
+								],
+							],
+							'interaction/function' => [
+								'label' => 'Function',
+								'name' => 'cerb.automationBuilder.action.function',
+							],
+							'interaction/http_request' => [
+								'label' => 'HTTP request',
+								'name' => 'cerb.automationBuilder.action.httpRequest',
+							],
+							'menu/actions_record' => [
+								'label' => 'Record',
+								'items' => [
+									'interaction/record_create' => [
+										'label' => 'Create',
+										'name' => 'cerb.automationBuilder.action.recordCreate',
+									],
+									'interaction/record_delete' => [
+										'label' => 'Delete',
+										'name' => 'cerb.automationBuilder.action.recordDelete',
+									],
+									'interaction/record_get' => [
+										'label' => 'Get',
+										'name' => 'cerb.automationBuilder.action.recordGet',
+									],
+									'interaction/record_update' => [
+										'label' => 'Update',
+										'name' => 'cerb.automationBuilder.action.recordUpdate',
+									],
+								],
+							],
+						],
+					], // menu/actions
+					
+					'menu/exit' => [
+						'label' => 'Exit',
+						'items' => [
+							'interaction/return' => [
+								'label' => 'Return',
+								'name' => 'cerb.automationBuilder.exit.return',
+							],
+							'interaction/yield' => [
+								'label' => 'Yield',
+								'name' => 'cerb.automationBuilder.exit.yield',
+							],
+							'interaction/error' => [
+								'label' => 'Error',
+								'name' => 'cerb.automationBuilder.exit.error',
+							],
+						],
+					], // menu/exit
+				
+				], // items
+			], // menu/insert
+			
+			// [TODO] Divider
+			
+			'interaction/help' => [
+				'icon' => 'circle-question-mark',
+				'name' => 'ai.erb.automationBuilder.help',
+			]
+		]; // $toolbar
+		
+		// Trigger features
+		
+		$features = $this->manifest->params['features'][0] ?? [];
+		
+		if(!array_key_exists('inputs', $features)) {
+			unset($toolbar['menu/insert']['items']['menu/inputs']);
+		}
+		
+		if(!array_key_exists('yield', $features)) {
+			unset($toolbar['menu/insert']['items']['menu/exit']['items']['interaction/yield']);
+		}
+		
+		// Get toolbar modifications from trigger
+		
+		$toolbar = $this->getEditorToolbarItems($toolbar);
+		
+		return $toolbar;
+	}
 	
 	public function getAutocompleteSuggestionsJson() {
 		$common_actions = [

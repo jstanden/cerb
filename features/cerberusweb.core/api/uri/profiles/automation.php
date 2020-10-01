@@ -39,6 +39,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_getExtensionConfig();
 				case 'invokeUiFunction':
 					return $this->_profileAction_invokeUiFunction();
+				case 'renderEditorToolbar':
+					return $this->_profileAction_renderEditorToolbar();
 				case 'runAutomationEditor':
 					return $this->_profileAction_runAutomationEditor();
 				case 'savePeekJson':
@@ -321,6 +323,28 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			'exit_state' => $exit_state,
 			'return' => $return,
 		]);
+	}
+	
+	private function _profileAction_renderEditorToolbar() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$trigger = DevblocksPlatform::importGPC($_POST['trigger'], 'string', null);
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
+		]);
+		
+		if(false == ($trigger_ext = Extension_AutomationTrigger::get($trigger, true)))
+			return;
+		
+		/** @var $trigger_ext Extension_AutomationTrigger */
+		
+		$toolbar = $trigger_ext->getEditorToolbar();
+
+		$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar, $toolbar_dict);
+		
+		DevblocksPlatform::services()->ui()->toolbar()->render($toolbar);
 	}
 	
 	private function _profileAction_runAutomationEditor() {
