@@ -392,11 +392,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$interaction_uri = DevblocksPlatform::importGPC($_POST['interaction_uri'], 'string', null);
 		@$interaction_behavior_id = DevblocksPlatform::importGPC($_POST['behavior_id'], 'integer', 0);
 		
-//		if($interaction_uri && false != ($interaction = DAO_BotInteraction::getByUri($interaction_uri))) {
-//			return $this->_startBotInteractionAsAutomation($interaction);
-//
-//		} else if($interaction_uri && is_numeric($interaction_uri) && false != ($behavior = DAO_TriggerEvent::get($interaction_uri))) {
-		if($interaction_uri && is_numeric($interaction_uri) && false != ($behavior = DAO_TriggerEvent::get($interaction_uri))) {
+		if($interaction_uri && false != ($automation = DAO_Automation::getByUri($interaction_uri, AutomationTrigger_UiInteraction::ID))) {
+			return $this->_startBotInteractionAsAutomation($automation);
+
+		} else if($interaction_uri && is_numeric($interaction_uri) && false != ($behavior = DAO_TriggerEvent::get($interaction_uri))) {
 			return $this->_startBotInteractionAsFormBehavior($behavior);
 			
 		} else if($interaction_uri && false != ($behavior = DAO_TriggerEvent::getByUri($interaction_uri))) {
@@ -1700,5 +1699,216 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+	
+	private function _startBotInteractionAsAutomation(Model_Automation $automation) {
+		@$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'], 'string', null);
+		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
+		
+		$tpl = DevblocksPlatform::services()->template();
+		
+		$execution_token = $this->_startInteractionAutomationSession($automation, $interaction_params);
+		
+		$tpl->assign('layer', $layer);
+		$tpl->assign('popup_title', DevblocksPlatform::translateCapitalized('common.interaction'));
+		$tpl->assign('execution_token', $execution_token);
+		
+		if('inline' == $interaction_style) {
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/panel.tpl');
+			
+		} else {
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/popup.tpl');
+		}
+	}
+	
+	private function _startInteractionAutomationSession(Model_Automation $automation, array $interaction_params=[], $execution_token=null, &$error=null) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$initial_state = [
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+			'inputs' => $interaction_params,
+		];
+		
+		$dict = DevblocksDictionaryDelegate::instance($initial_state);
+		
+		$state_data = [
+			'actor' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id],
+			'interaction_params' => $interaction_params,
+			'dict' => $dict->getDictionary(),
+		];
+		
+		if(!$execution_token) {
+			$execution_token = DAO_AutomationExecution::create([
+				DAO_AutomationExecution::URI => $automation->name,
+				DAO_AutomationExecution::STATE_DATA => json_encode($state_data),
+				DAO_AutomationExecution::EXPIRES_AT => time()+3600, // 1hr
+				DAO_AutomationExecution::UPDATED_AT => time(),
+			]);
+			
+		} else {
+			DAO_AutomationExecution::update($execution_token, [
+				DAO_AutomationExecution::STATE_DATA => json_encode($state_data),
+				DAO_AutomationExecution::UPDATED_AT => time(),
+			]);
+		}
+		
+		return $execution_token;
+	}
+	
+	private function _consoleSendMessageAsAutomation(Model_AutomationExecution $execution) {
+		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
+		@$reset = DevblocksPlatform::importGPC($_POST['reset'], 'integer', 0);
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		$automator = DevblocksPlatform::services()->automation();
+		$validation = DevblocksPlatform::services()->validation();
+		
+		@$interaction_uri = $execution->uri;
+		
+		if(!$interaction_uri)
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($automation = DAO_Automation::getByUri($interaction_uri)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if($automation->extension_id != AutomationTrigger_UiInteraction::ID)
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!Context_Automation::isReadableByActor($automation, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		// Restart the session
+		if($reset) {
+			$this->_startInteractionAutomationSession($automation, $execution->state_data['interaction_params'], $execution->token);
+			$execution = DAO_AutomationExecution::getByToken($execution->token);
+		}
+		
+		$form_components = AutomationTrigger_UiInteraction::getFormComponentMeta();
+		
+		$initial_state = $execution->state_data['dict'];
+		
+		$error = null;
+		
+		unset($initial_state['__return']['form']['say/__validation']);
+		
+		@$last_prompts = $initial_state['__return']['form'] ?: [];
+		$validation_errors = [];
+		$validation_values = [];
+		
+		foreach($last_prompts as $last_prompt_key => $last_prompt) {
+			@list($last_prompt_type, $prompt_set_key) = explode('/', $last_prompt_key, 2);
+			
+			if(!$prompt_set_key)
+				continue;
+			
+			if(array_key_exists($last_prompt_type, $form_components)) {
+				@$prompt_value = $prompts[$prompt_set_key];
+				
+				$is_required = array_key_exists('required', $last_prompt) && $last_prompt['required'];
+				
+				$is_set = (is_string($prompt_value) && strlen($prompt_value))
+					|| (is_array($prompt_value) && count($prompt_value))
+					;
+				
+				if($is_required || $is_set) {
+					$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
+					
+					$component->validate($validation);
+					
+					$validation_values[$prompt_set_key] = $prompt_value;
+				}
+				
+				$initial_state[$prompt_set_key] = $prompt_value;
+			}
+		}
+		
+		if($validation_values) {
+			if(false === $validation->validateAll($validation_values, $error))
+				$validation_errors[] = $error;
+		}
+		
+		if($validation_errors) {
+			$initial_state['__return']['form'] = [
+					'say/__validation' => [
+						'content' => sprintf("# Correct the following errors to continue:\n%s",
+							implode("\n", array_map(function($error) {
+								return '* ' . rtrim($error);
+							}, $validation_errors))
+						),
+						'style' => 'error',
+					]
+				] + $last_prompts;
+			
+			$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+			
+		} else {
+			// Format dictionary keys
+			foreach($last_prompts as $last_prompt_key => $last_prompt) {
+				@list($last_prompt_type, $prompt_set_key) = explode('/', $last_prompt_key, 2);
+				@$prompt_value = $prompts[$prompt_set_key];
+				
+				if(array_key_exists($last_prompt_type, $form_components)) {
+					$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
+					$initial_state[$prompt_set_key] = $component->formatValue();
+				}
+			}
+			
+			if(false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+				$initial_state['__exit'] = 'yield';
+				$initial_state['__return'] = [
+					'form' => [
+						'say/__validation' => [
+							'content' => $error,
+							'style' => 'error',
+						]
+					]
+				];
+				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+			}
+		}
+		
+		$exit_code = $automation_results->get('__exit');
+		
+		$actions = $automation_results->getKeyPath('__return.form', []);
+		
+		// Synthesize a submit button on yields
+		if('yield' == $exit_code) {
+			$actions['submit/' . uniqid()] = [
+				'continue' => 'yield' == $exit_code,
+				'reset' => true,
+			];
+			
+			// Wait up to a day
+			$execution->expires_at = time() + 86400;
+			
+		// Synthesize an end action on other states
+		} else {
+			$actions['end/' . uniqid()] = $automation_results->get('__return', []);
+		}
+		
+		$execution->state_data['dict'] = $automation_results->getDictionary();
+		
+		foreach($actions as $action_key => $action_data) {
+			@list($action_key_type, $var) = explode('/', $action_key, 2);
+			
+			if(is_array($action_data) && array_key_exists('hidden', $action_data) && $action_data['hidden'])
+				continue;
+			
+			if(array_key_exists($action_key_type, $form_components)) {
+				$value = $automation_results->get($var, null);
+				$component = new $form_components[$action_key_type]($var, $value, $action_data);
+				$component->render($execution);
+			}
+		}
+		
+		// Save session scope
+		DAO_AutomationExecution::update($execution->token, [
+			DAO_AutomationExecution::STATE => $exit_code,
+			DAO_AutomationExecution::STATE_DATA => json_encode($execution->state_data),
+			DAO_AutomationExecution::EXPIRES_AT => $execution->expires_at,
+			DAO_AutomationExecution::UPDATED_AT => time(),
+		]);
 	}
 };

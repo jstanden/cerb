@@ -82,6 +82,8 @@
 	<!-- Exported Classes -->
 	
 	<class_loader>
+		<dir path="api/Automation/Builder/" namespace="Cerb\Automation\Builder\" />
+
 		<file path="api/packages.php">
 			<class name="Cerb_Packages" />
 		</file>
@@ -4540,6 +4542,25 @@
 					</value>
 				</param>
 				<param key="menu_key" value="Records:Record commented on" />
+			</params>
+		</extension>
+
+		<!-- Triggers -->
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.ui.interaction</id>
+			<name>ui.interaction</name>
+			<class>
+				<file>api/automations/triggers/ui.interaction.php</file>
+				<name>AutomationTrigger_UiInteraction</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+						<data key="yield" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
