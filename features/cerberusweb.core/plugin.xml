@@ -4596,6 +4596,17 @@
 			</params>
 		</extension>
 
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.widgetMap.getPoints</id>
+			<name>widgetMap.getPoints</name>
+			<class>
+				<file>api/automations/triggers/widgetMap.getPoints.php</file>
+				<name>AutomationTrigger_WidgetMapGetPoints</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Card Widgets -->
 		
 		<extension point="cerb.card.widget">
