@@ -994,8 +994,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					@$label = $params['label'];
 					@$data = $params['data'];
 					@$schema = $params['schema'];
-					@$mode = $params['mode'];
-					@$selection_key = $params['selection_key'];
 					@$var = $params['_prompt']['var'];
 					
 					$sheets = DevblocksPlatform::services()->sheet();
@@ -1005,17 +1003,13 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					if(!array_key_exists('layout', $sheet))
 						$sheet['layout'] = [];
 					
-					$sheet['layout']['selection'] = [
-						'value_key' => $selection_key,
-						'mode' => $mode,
-					];
-					
 					$sheets->addType('card', $sheets->types()->card());
 					$sheets->addType('date', $sheets->types()->date());
 					$sheets->addType('icon', $sheets->types()->icon());
 					$sheets->addType('link', $sheets->types()->link());
 					$sheets->addType('search', $sheets->types()->search());
 					$sheets->addType('search_button', $sheets->types()->searchButton());
+					$sheets->addType('selection', $sheets->types()->selection());
 					$sheets->addType('slider', $sheets->types()->slider());
 					$sheets->addType('text', $sheets->types()->text());
 					$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
@@ -1081,6 +1075,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$sheets->addType('link', $sheets->types()->link());
 					$sheets->addType('search', $sheets->types()->search());
 					$sheets->addType('search_button', $sheets->types()->searchButton());
+					$sheets->addType('selection', $sheets->types()->selection());
 					$sheets->addType('slider', $sheets->types()->slider());
 					$sheets->addType('text', $sheets->types()->text());
 					$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());

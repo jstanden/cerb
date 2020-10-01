@@ -362,14 +362,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 							'type' => 'text',
 							'notes' => 'The sheet schema',
 						],
-						'mode' => [
-							'type' => 'text',
-							'notes' => '`multiple` (multiple row selection), or omit for single selection',
-						],
-						'selection_key' => [
-							'type' => 'text',
-							'notes' => 'The key from `data` rows to return when a row is selected',
-						],
 						'var' => [
 							'type' => 'placeholder',
 							'required' => true,
@@ -636,13 +628,9 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				$label = $tpl_builder->build($params['label'], $dict);
 				$data = $tpl_builder->build($params['data'], $dict);
 				$schema = $tpl_builder->build($params['schema'], $dict);
-				$mode = $params['mode'];
-				$selection_key = $params['selection_key'];
 				
-				$out = sprintf(">>> Prompting with sheet\nLabel: %s\nSelection: %s\nSelection Key: %s\nData: %s\nSchema: %s\n",
+				$out = sprintf(">>> Prompting with sheet\nLabel: %s\nData: %s\nSchema: %s\n",
 					$label,
-					$mode ? 'multiple' : 'single',
-					$selection_key,
 					$data,
 					$schema
 				);
@@ -873,8 +861,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 				@$label = $tpl_builder->build($params['label'], $dict);
 				@$data = $tpl_builder->build($params['data'], $dict);
 				@$schema = $tpl_builder->build($params['schema'], $dict);
-				@$mode = $params['mode'];
-				@$selection_key = $params['selection_key'];
 				@$var = $params['var'];
 				@$var_format = $params['var_format'];
 				@$var_validate = $params['var_validate'];
@@ -890,8 +876,6 @@ class Event_FormInteractionWorker extends Extension_DevblocksEvent {
 					'label' => $label,
 					'data' => $data,
 					'schema' => $schema,
-					'mode' => $mode,
-					'selection_key' => $selection_key,
 				];
 				break;
 			

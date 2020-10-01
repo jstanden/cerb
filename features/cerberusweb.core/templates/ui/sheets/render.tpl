@@ -1,3 +1,5 @@
+{$is_selection_enabled = false}
+
 <div style="margin-top:5px;">
 	<table cellpadding="0" cellspacing="0" style="width:100%;" class="cerb-sheet cerb-widget-data-table">
 	{if $rows}
@@ -6,6 +8,8 @@
 			<tr>
 				{foreach from=$columns item=column name=columns}
 				{if $layout.title_column == $column.key}
+				{elseif $column._type == 'selection'}
+					<th style="width:20px;text-align:center;"></th>
 				{else}
 				<th data-column-key="{$column.key}" data-column-type="{$column._type}">{$column.label}</th>
 				{/if}
@@ -13,9 +17,24 @@
 			</tr>
 		</thead>
 		{/if}
-		
+
 		{foreach from=$rows item=row name=rows}
 			<tbody class="cerb-sheet--row">
+				{foreach from=$columns item=column name=columns}
+					{if $column._type == 'selection'}
+					{$is_selection_enabled = true}
+					<tr>
+						<td rowspan="{if $layout.title_column}3{else}2{/if}" colspan="1" style="width:20px;text-align:center;">
+							{if $column.params.mode == 'single'}
+							<input type="radio" name="{$sheet_selection_key|default:'_selection'}" value="{$row[$column.key]}" {if $row[$column.key] == $default}checked="checked"{/if}>
+							{else}
+							<input type="checkbox" name="{$sheet_selection_key|default:'_selection'}[]" value="{$row[$column.key]}" {if is_array($default) && in_array($row[$column.key], $default)}checked="checked"{/if}>
+							{/if}
+						</td>
+					</tr>
+					{/if}
+				{/foreach}
+
 				{if $layout.title_column}
 				{$column = $columns[$layout.title_column]}
 				<tr>
@@ -26,6 +45,7 @@
 				<tr>
 				{foreach from=$columns item=column name=columns}
 					{if $layout.title_column == $column.key}
+					{elseif $column._type == 'selection'}
 					{else}
 					<td style="{if $column.params.bold}font-weight:bold;{/if}">{$row[$column.key] nofilter}</td>
 					{/if}
@@ -84,5 +104,71 @@ $(function() {
 			$sheet.trigger(evt);
 		})
 	;
+
+	{if $is_selection_enabled}
+	$sheet.find('tbody')
+		.disableSelection()
+		.on('click', function(e) {
+			e.stopPropagation();
+
+			var $target = $(e.target);
+
+			if($target.is('a'))
+				return;
+
+			if($target.hasClass('cerb-peek-trigger'))
+				return;
+
+			if($target.hasClass('cerb-search-trigger'))
+				return;
+
+			var $tbody = $(this);
+			var evt;
+
+			// If removing selected, add back hover
+
+			var $checkbox = $tbody.find('input[type=radio], input[type=checkbox]');
+
+			// If our target was something other than the input toggle
+			if(!$checkbox.is($target)) {
+				if ($checkbox.is(':checked')) {
+					$checkbox.prop('checked', false);
+				} else {
+					$checkbox.prop('checked', true);
+				}
+			}
+
+			var is_multiple = $checkbox.is('[type=checkbox]');
+
+			// [TODO] Can we include a label/avatar with selections?
+			evt = $.Event('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple, selected: $checkbox.prop('checked') });
+			$sheet.trigger(evt);
+
+			// [TODO] Is this second variation really needed?
+			var row_selections = [];
+
+			$tbody.closest('table.cerb-sheet')
+				.find('input[type=radio]:checked ,input[type=checkbox]:checked')
+				.each(function() {
+					row_selections.push($(this).val());
+				})
+				;
+
+			// [TODO] Can we include a label/avatar with selections?
+			evt = $.Event('cerb-sheet--selections-changed', { row_selections: row_selections, is_multiple: is_multiple });
+			$sheet.trigger(evt);
+		})
+		.hover(
+			function(e) {
+				e.stopPropagation();
+				$(this).addClass('hover');
+			},
+			function(e) {
+				e.stopPropagation();
+				$(this).removeClass('hover');
+			}
+		)
+	;
+	{/if}
 });
 </script>

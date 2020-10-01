@@ -183,6 +183,7 @@ $(function() {
 			formData.append('types[]', 'link');
 			formData.append('types[]', 'search');
 			formData.append('types[]', 'search_button');
+			formData.append('types[]', 'selection');
 			formData.append('types[]', 'slider');
 			formData.append('types[]', 'text');
 			formData.append('types[]', 'time_elapsed');

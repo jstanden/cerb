@@ -50,6 +50,7 @@
 						<li data-type="link">Link</li>
 						<li data-type="search">Search</li>
 						<li data-type="search_button">Search Button</li>
+						<li data-type="selection">Selection</li>
 						<li data-type="slider">Slider</li>
 						<li data-type="text">Text</li>
 						<li data-type="time_elapsed">Time Elapsed</li>
@@ -198,6 +199,7 @@ $(function() {
 			formData.append('types[]', 'link');
 			formData.append('types[]', 'search');
 			formData.append('types[]', 'search_button');
+			formData.append('types[]', 'selection');
 			formData.append('types[]', 'slider');
 			formData.append('types[]', 'text');
 			formData.append('types[]', 'time_elapsed');
@@ -238,6 +240,8 @@ $(function() {
 				snippet = "search/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Count}\n  params:\n    context: ticket\n    #query_key: query\n    query_template@raw: owner.id:{{id}}\n";
 			} else if('search_button' === column_type) {
 				snippet = "search_button/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Assignments}\n  params:\n    context: ticket\n    #query_key: query\n    query_template@raw: owner.id:{{id}}\n";
+			} else if('selection' === column_type) {
+				snippet = "selection/${1:" + Devblocks.uniqueId() + "}:\n  params:\n    value_key: id\n    #value: 123\n    #value_template@raw: {{id}}\n";
 			} else if('slider' === column_type) {
 				snippet = "slider/${1:" + Devblocks.uniqueId() + "}:\n  label: ${2:Importance}\n  params:\n    min: 0\n    max: 100\n    #value: 50\n    #value_key: importance\n    #value_template@raw: {{importance+10}}\n";
 			} else if('text' === column_type) {

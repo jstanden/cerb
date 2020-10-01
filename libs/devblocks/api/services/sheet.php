@@ -98,10 +98,6 @@ class _DevblocksSheetService {
 				if(array_key_exists($sheet['layout']['title_column'], $columns))
 					$layout['title_column'] = $sheet['layout']['title_column'];
 			}
-			
-			if(array_key_exists('selection', $sheet['layout'])) {
-				$layout['selection'] = $sheet['layout']['selection'];
-			}
 		}
 		
 		return $layout;
@@ -164,17 +160,6 @@ class _DevblocksSheetService {
 			
 			if(!($sheet_dict instanceof DevblocksDictionaryDelegate))
 				$sheet_dict = DevblocksDictionaryDelegate::instance($sheet_dict);
-			
-			if(array_key_exists('selection', $layout)) {
-				if(!array_key_exists('text', $this->_types))
-					continue;
-				
-				$column = [
-					'params' => $layout['selection'],
-				];
-				
-				$row['_selection'] = $this->_types['text']($column, $sheet_dict);
-			}
 			
 			foreach($columns as $column) {
 				if(false == (@$column_key = $column['key']))
@@ -574,6 +559,33 @@ class _DevblocksSheetServiceTypes {
 				DevblocksPlatform::strEscapeHtml($context_ext->id),
 				DevblocksPlatform::strEscapeHtml($query)
 			);
+		};
+	}
+	
+	function selection() {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			@$column_params = $column['params'] ?: [];
+			
+			$value = '';
+			
+			if(array_key_exists('value', $column_params)) {
+				$text_value = $column_params['value'];
+			} else if(array_key_exists('value_key', $column_params)) {
+				$text_value = $sheet_dict->get($column_params['value_key']);
+			} else if(array_key_exists('value_template', $column_params)) {
+				$text_value = $tpl_builder->build($column_params['value_template'], $sheet_dict);
+			} else {
+				$text_value = $sheet_dict->get($column['key'], null);
+			}
+			
+			if(is_array($text_value))
+				$text_value = json_encode($text_value);
+			
+			$value .= DevblocksPlatform::strEscapeHtml($text_value);
+			
+			return $value;
 		};
 	}
 	

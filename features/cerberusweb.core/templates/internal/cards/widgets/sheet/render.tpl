@@ -22,6 +22,31 @@ $(function() {
 		})
 	;
 
+	{*
+	$sheet.on('cerb-sheet--selections-changed', function(e) {
+		e.stopPropagation();
+
+		// Update the toolbar
+		var formData = new FormData();
+		formData.set('c', 'profiles');
+		formData.set('a', 'invokeWidget');
+		formData.set('widget_id', '{$widget->id}');
+		formData.set('action', 'renderToolbar');
+		formData.set('profile_context', '{$profile_context}');
+		formData.set('profile_context_id', '{$profile_context_id}');
+
+		for(var i in e.row_selections) {
+			formData.append('row_selections[]', e.row_selections[i]);
+		}
+
+		$sheet_toolbar.html(Devblocks.getSpinner().css('max-width', '16px'));
+
+		genericAjaxPost(formData, null, null, function(html) {
+			$sheet_toolbar.html(html);
+		});
+	});
+	*}
+
 	$sheet.on('cerb-sheet--page-changed', function(e) {
 		e.stopPropagation();
 

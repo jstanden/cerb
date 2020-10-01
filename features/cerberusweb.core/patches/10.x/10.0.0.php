@@ -105,6 +105,48 @@ if(array_key_exists('is_default', $columns)) {
 }
 
 // ===========================================================================
+// Convert form interaction `prompt_sheet.selection_key` to sheet/selection col
+
+$sql = "select id, params_json from decision_node where params_json like '%prompt_sheet%' and params_json like '%selection_key%' and trigger_id in (select id from trigger_event where event_point = 'event.form.interaction.worker')";
+$nodes = $db->GetArrayMaster($sql);
+
+foreach($nodes as $node) {
+	$actions = json_decode($node['params_json'], true);
+	$is_changed = false;
+	
+	foreach($actions['actions'] as $action_idx => $action) {
+		if($action['action'] == 'prompt_sheet') {
+			@$selection_key = $action['selection_key'];
+			@$selection_mode = $action['mode'] ?: 'single';
+			@$sheet_kata = $action['schema'];
+			
+			if($selection_key && $sheet_kata) {
+				$sheet_kata = preg_replace(
+					'#^columns:#m',
+					sprintf("columns:\n  selection/%s:\n    params:\n      mode: %s",
+						$selection_key,
+						$selection_mode
+					),
+					$sheet_kata
+				);
+				
+				$actions['actions'][$action_idx]['schema'] = $sheet_kata;
+				unset($actions['actions'][$action_idx]['selection_key']);
+				unset($actions['actions'][$action_idx]['mode']);
+				$is_changed = true;
+			}
+		}
+	}
+	
+	if($is_changed) {
+		$db->ExecuteMaster(sprintf("UPDATE decision_node SET params_json = %s WHERE id = %d",
+			$db->qstr(json_encode($actions)),
+			$node['id']
+		));
+	}
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

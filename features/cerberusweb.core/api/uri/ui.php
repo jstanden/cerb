@@ -508,6 +508,9 @@ class Controller_UI extends DevblocksControllerExtension {
 		if(in_array('search_button', $types))
 			$sheets->addType('search_button', $sheets->types()->searchButton());
 		
+		if(in_array('selection', $types))
+			$sheets->addType('selection', $sheets->types()->selection());
+		
 		if(in_array('slider', $types))
 			$sheets->addType('slider', $sheets->types()->slider());
 		

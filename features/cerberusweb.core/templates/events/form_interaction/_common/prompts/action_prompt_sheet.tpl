@@ -13,17 +13,6 @@
 	<textarea name="{$namePrefix}[schema]" data-editor-mode="ace/mode/yaml">{$params.schema}</textarea>
 </div>
 
-<b>{'common.selection'|devblocks_translate|capitalize}:</b>
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<label><input type="radio" name="{$namePrefix}[mode]" value="" {if $params.mode != 'multiple'}checked="checked"{/if}> {'common.selection.single'|devblocks_translate|capitalize}</label>
-	<label><input type="radio" name="{$namePrefix}[mode]" value="multiple" {if $params.mode == 'multiple'}checked="checked"{/if}> {'common.selection.multiple'|devblocks_translate|capitalize}</label>
-</div>
-
-<b>Selection key:</b>
-<div style="margin-left:10px;margin-bottom:0.5em;">
-	<textarea name="{$namePrefix}[selection_key]" class="placeholders">{$params.selection_key}</textarea>
-</div>
-
 <b>Save the response to a placeholder named:</b> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/guides/bots/prompts#saving-placeholders"}
 <div style="margin-left:10px;margin-bottom:0.5em;">
 	&#123;&#123;<input type="text" name="{$namePrefix}[var]" size="32" value="{if !empty($params.var)}{$params.var}{else}placeholder{/if}" required="required" spellcheck="false">&#125;&#125;

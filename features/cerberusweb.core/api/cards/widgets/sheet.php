@@ -69,6 +69,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 				
 				$sheets->addType('card', $sheets->types()->card());
 				$sheets->addType('date', $sheets->types()->date());
+				$sheets->addType('selection', $sheets->types()->selection());
 				$sheets->addType('icon', $sheets->types()->icon());
 				$sheets->addType('link', $sheets->types()->link());
 				$sheets->addType('search', $sheets->types()->search());
