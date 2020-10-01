@@ -1145,7 +1145,7 @@ var ajax = new cAjaxCalls();
 					{ value: "array_column(array,column_key,index_key)", meta: "function" },
 					{ value: "array_combine(keys,values)", meta: "function" },
 					{ value: "array_diff(array1,array2)", meta: "function" },
-					{ value: "array_filter_keys(array,keys)", meta: "function" },
+					{ value: "array_extract_keys(array,keys)", meta: "function" },
 					{ value: "array_intersect(array1,array2)", meta: "function" },
 					{ value: "array_matches(values, patterns)", meta: "function" },
 					{ value: "array_sort_keys(array)", meta: "function" },

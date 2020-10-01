@@ -228,7 +228,7 @@ class _DevblocksTemplateBuilder {
 				'array_column',
 				'array_combine',
 				'array_diff',
-				'array_filter_keys',
+				'array_extract_keys',
 				'array_intersect',
 				'array_matches',
 				'array_sort_keys',
@@ -1052,7 +1052,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('array_column', [$this, 'function_array_column']),
 			new \Twig\TwigFunction('array_combine', [$this, 'function_array_combine']),
 			new \Twig\TwigFunction('array_diff', [$this, 'function_array_diff']),
-			new \Twig\TwigFunction('array_filter_keys', [$this, 'function_array_filter_keys']),
+			new \Twig\TwigFunction('array_extract_keys', [$this, 'function_array_extract_keys']),
 			new \Twig\TwigFunction('array_intersect', [$this, 'function_array_intersect']),
 			new \Twig\TwigFunction('array_matches', [$this, 'function_array_matches']),
 			new \Twig\TwigFunction('array_sort_keys', [$this, 'function_array_sort_keys']),
@@ -1142,11 +1142,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return array_diff($arr1, $arr2);
 	}
 	
-	function function_array_filter_keys($array, $keys) {
+	function function_array_extract_keys($array, $keys) {
 		if(!is_array($array) || !is_array($keys))
 			return [];
-		
-		$keys = array_fill_keys($keys, true);
 		
 		$array = array_map(function($row) use ($keys) {
 			if (is_array($row)) {
@@ -1159,7 +1157,13 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 				$row = [];
 			}
 			
-			return array_intersect_key($row, $keys);
+			$result = [];
+			
+			foreach($keys as $k) {
+				$result[$k] = $row[$k] ?? null;
+			}
+			
+			return $result;
 		}, $array);
 		
 		return $array;
