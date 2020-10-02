@@ -2,8 +2,8 @@
 	{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl"}
 
 	{if $widget->extension_params.toolbar_kata}
-		<div style="margin-top:5px;" data-cerb-toolbar>
-			{include file="devblocks:cerberusweb.core::internal/cards/widgets/sheet/toolbar.tpl" row_selections=[]}
+		<div data-cerb-toolbar>
+			{$widget_ext->renderToolbar($widget, $card_context_id)}
 		</div>
 	{/if}
 </div>
@@ -12,6 +12,7 @@
 $(function() {
 	var $widget = $('#cardWidget{$widget->getUniqueId($card_context_id)}');
 	var $sheet = $widget.find('.cerb-sheet');
+	var $sheet_toolbar = $widget.find('[data-cerb-toolbar]');
 	var $popup = genericAjaxPopupFind($widget);
 
 	$sheet.find('.cerb-peek-trigger')
@@ -22,30 +23,34 @@ $(function() {
 		})
 	;
 
-	{*
 	$sheet.on('cerb-sheet--selections-changed', function(e) {
 		e.stopPropagation();
 
 		// Update the toolbar
 		var formData = new FormData();
 		formData.set('c', 'profiles');
-		formData.set('a', 'invokeWidget');
+		formData.set('a', 'invoke');
+		formData.set('module', 'card_widget');
+		formData.set('action', 'invokeWidget');
 		formData.set('widget_id', '{$widget->id}');
-		formData.set('action', 'renderToolbar');
-		formData.set('profile_context', '{$profile_context}');
-		formData.set('profile_context_id', '{$profile_context_id}');
+		formData.set('invoke_action', 'renderToolbar');
+		formData.set('card_context_id', '{$card_context_id}');
 
-		for(var i in e.row_selections) {
-			formData.append('row_selections[]', e.row_selections[i]);
+		if(e.hasOwnProperty('row_selections')) {
+			for (var i in e.row_selections) {
+				formData.append('row_selections[]', e.row_selections[i]);
+			}
 		}
 
 		$sheet_toolbar.html(Devblocks.getSpinner().css('max-width', '16px'));
 
 		genericAjaxPost(formData, null, null, function(html) {
-			$sheet_toolbar.html(html);
+			$sheet_toolbar
+				.html(html)
+				.triggerHandler('cerb-toolbar--refreshed')
+			;
 		});
 	});
-	*}
 
 	$sheet.on('cerb-sheet--page-changed', function(e) {
 		e.stopPropagation();
@@ -57,6 +62,63 @@ $(function() {
 		};
 
 		$popup.triggerHandler(evt);
+	});
+
+	var doneFunc = function(e) {
+		e.stopPropagation();
+
+		var $target = e.trigger;
+
+		var done_params = [];
+
+		if($target.is('.cerb-bot-trigger')) {
+			done_params = new URLSearchParams($target.attr('data-interaction-done'));
+		} else if($target.is('.cerb-function-trigger')) {
+			done_params = new URLSearchParams($target.attr('data-function-done'));
+		} else {
+			return;
+		}
+
+		if(!done_params.has('refresh_widgets[]'))
+			return;
+
+		var refresh = done_params.getAll('refresh_widgets[]');
+
+		var widget_ids = [];
+
+		if(-1 !== $.inArray('all', refresh)) {
+			// Everything
+		} else {
+			$popup.find('.cerb-card-widget')
+				.filter(function() {
+					var $this = $(this);
+					var name = $this.attr('data-widget-name');
+
+					if(undefined === name)
+						return false;
+
+					return -1 !== $.inArray(name, refresh);
+				})
+				.each(function() {
+					var $this = $(this);
+					var widget_id = parseInt($this.attr('data-widget-id'));
+
+					if(widget_id)
+						widget_ids.push(widget_id);
+				})
+			;
+		}
+
+		var evt = $.Event('cerb-widgets-refresh', {
+			widget_ids: widget_ids,
+			refresh_options: { }
+		});
+
+		$popup.triggerHandler(evt);
+	}
+
+	$sheet_toolbar.cerbToolbar({
+		done: doneFunc
 	});
 });
 </script>

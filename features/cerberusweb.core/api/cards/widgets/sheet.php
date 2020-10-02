@@ -2,7 +2,21 @@
 class CardWidget_Sheet extends Extension_CardWidget {
 	const ID = 'cerb.card.widget.sheet';
 	
-	function getData(Model_CardWidget $widget, $page=null, $context, $context_id, &$error=null) {
+	function invoke(string $action, Model_CardWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		switch($action) {
+			case 'renderToolbar':
+				return $this->_cardWidgetAction_renderToolbar($model);
+		}
+		
+		return false;
+	}
+	
+	function getData(Model_CardWidget $widget, $page, $context, $context_id, &$error=null) {
 		$data = DevblocksPlatform::services()->data();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker= CerberusApplication::getActiveWorker();
@@ -125,6 +139,68 @@ class CardWidget_Sheet extends Extension_CardWidget {
 	}
 	
 	function invokeConfig($action, Model_CardWidget $model) {
+		switch($action) {
+			case 'previewToolbar':
+				return $this->_cardWidgetConfigAction_previewToolbar($model);
+		}
+		
 		return false;
+	}
+	
+	private function _cardWidgetConfigAction_previewToolbar(Model_CardWidget $widget) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'], 'string', '');
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => null,
+			'record_id' => null,
+			
+			'widget__context' => CerberusContexts::CONTEXT_CARD_WIDGET,
+			'widget_id' => $widget->id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+			
+			'row_selections' => [],
+		]);
+		
+		if(false == ($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
+			return;
+		
+		$tpl->assign('toolbar', $toolbar);
+		$tpl->display('devblocks:devblocks.core::ui/toolbar/preview.tpl');
+	}
+	
+	function renderToolbar(Model_CardWidget $widget, $record_context_id, $row_selections=[]) {
+		$ui = DevblocksPlatform::services()->ui();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $widget->record_type,
+			'record_id' => $record_context_id,
+			
+			'widget__context' => CerberusContexts::CONTEXT_CARD_WIDGET,
+			'widget_id' => $widget->id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+			
+			'row_selections' => $row_selections,
+		]);
+		
+		if(false != ($toolbar_kata = @$widget->extension_params['toolbar_kata'])) {
+			$toolbar = $ui->toolbar()->parse($toolbar_kata, $toolbar_dict);
+			
+			$ui->toolbar()->render($toolbar);
+		}
+	}
+	
+	private function _cardWidgetAction_renderToolbar(Model_CardWidget $widget) {
+		@$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'], 'array', []);
+		@$card_context_id = DevblocksPlatform::importGPC($_POST['card_context_id'], 'integer', null);
+		
+		$this->renderToolbar($widget, $card_context_id, $row_selections);
 	}
 }
