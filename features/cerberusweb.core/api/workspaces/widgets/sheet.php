@@ -6,6 +6,11 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		if(!Context_WorkspaceWidget::isReadableByActor($model, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
+		switch($action) {
+			case 'renderToolbar':
+				return $this->_workspaceWidgetAction_renderToolbar($model);
+		}
+		
 		return false;
 	}
 
@@ -132,7 +137,10 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 	}
 	
 	function invokeConfig($action, Model_WorkspaceWidget $model) {
-		return false;
+		switch($action) {
+			case 'previewToolbar':
+				return $this->_workspaceWidgetConfigAction_previewToolbar($model);
+		}
 	}
 	
 	function saveConfig(Model_WorkspaceWidget $widget) {
@@ -141,5 +149,54 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		DAO_WorkspaceWidget::update($widget->id, array(
 			DAO_WorkspaceWidget::PARAMS_JSON => json_encode($params),
 		));
+	}
+	
+	private function _workspaceWidgetConfigAction_previewToolbar(Model_WorkspaceWidget $widget) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'], 'string', '');
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+			
+			'row_selections' => [],
+		]);
+		
+		if(false == ($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
+			return;
+		
+		$tpl->assign('toolbar', $toolbar);
+		$tpl->display('devblocks:devblocks.core::ui/toolbar/preview.tpl');
+	}
+	
+	function renderToolbar(Model_WorkspaceWidget $widget, $row_selections=[]) {
+		$ui = DevblocksPlatform::services()->ui();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+			
+			'row_selections' => $row_selections
+		]);
+		
+		if(false != ($toolbar_kata = @$widget->params['toolbar_kata'])) {
+			$toolbar = $ui->toolbar()->parse($toolbar_kata, $toolbar_dict);
+			
+			$ui->toolbar()->render($toolbar);
+		}
+	}
+	
+	private function _workspaceWidgetAction_renderToolbar(Model_WorkspaceWidget $widget) {
+		@$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'], 'array', []);
+		$this->renderToolbar($widget, $row_selections);
 	}
 };

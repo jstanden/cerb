@@ -3,7 +3,7 @@
 
 	{if $widget->params.toolbar_kata}
 		<div style="margin-top:5px;" data-cerb-toolbar>
-			{include file="devblocks:cerberusweb.core::internal/workspaces/widgets/sheet/toolbar.tpl" row_selections=[]}
+			{$widget_ext->renderToolbar($widget)}
 		</div>
 	{/if}
 </div>
@@ -40,7 +40,10 @@ $(function() {
 		$sheet_toolbar.html(Devblocks.getSpinner().css('max-width', '16px'));
 
 		genericAjaxPost(formData, null, null, function(html) {
-			$sheet_toolbar.html(html);
+			$sheet_toolbar
+				.html(html)
+				.triggerHandler('cerb-toolbar--refreshed')
+			;
 		});
 	});
 	{/if}
@@ -55,6 +58,63 @@ $(function() {
 		};
 
 		$tab.triggerHandler(evt);
+	});
+
+	var doneFunc = function(e) {
+		e.stopPropagation();
+
+		var $target = e.trigger;
+
+		var done_params = [];
+
+		if($target.is('.cerb-bot-trigger')) {
+			done_params = new URLSearchParams($target.attr('data-interaction-done'));
+		} else if($target.is('.cerb-function-trigger')) {
+			done_params = new URLSearchParams($target.attr('data-function-done'));
+		} else {
+			return;
+		}
+
+		if(!done_params.has('refresh_widgets[]'))
+			return;
+
+		var refresh = done_params.getAll('refresh_widgets[]');
+
+		var widget_ids = [];
+
+		if(-1 !== $.inArray('all', refresh)) {
+			// Everything
+		} else {
+			$tab.find('.cerb-workspace-widget')
+				.filter(function() {
+					var $this = $(this);
+					var name = $this.attr('data-widget-name');
+
+					if(undefined === name)
+						return false;
+
+					return -1 !== $.inArray(name, refresh);
+				})
+				.each(function() {
+					var $this = $(this);
+					var widget_id = parseInt($this.attr('data-widget-id'));
+
+					if(widget_id)
+						widget_ids.push(widget_id);
+				})
+			;
+		}
+
+		var evt = $.Event('cerb-widgets-refresh', {
+			widget_ids: widget_ids,
+			refresh_options: { }
+		});
+
+		$tab.triggerHandler(evt);
+	};
+
+	$sheet_toolbar.cerbToolbar({
+		done: doneFunc
 	});
 });
 </script>
