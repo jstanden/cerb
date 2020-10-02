@@ -1,9 +1,9 @@
 <?php
 class DAO_Reminder extends Cerb_ORMHelper {
+	const AUTOMATIONS_KATA = 'automations_kata';
 	const ID = 'id';
 	const IS_CLOSED = 'is_closed';
 	const NAME = 'name';
-	const PARAMS_JSON = 'params_json';
 	const REMIND_AT = 'remind_at';
 	const UPDATED_AT = 'updated_at';
 	const WORKER_ID = 'worker_id';
@@ -13,6 +13,11 @@ class DAO_Reminder extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
+		$validation
+			->addField(self::AUTOMATIONS_KATA)
+			->string()
+			->setMaxLength('24 bits')
+			;
 		$validation
 			->addField(self::ID)
 			->id()
@@ -26,11 +31,6 @@ class DAO_Reminder extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setRequired(true)
-			;
-		$validation
-			->addField(self::PARAMS_JSON)
-			->string()
-			->setMaxLength('24 bits')
 			;
 		$validation
 			->addField(self::REMIND_AT)
@@ -162,7 +162,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, worker_id, remind_at, params_json, is_closed, updated_at ".
+		$sql = "SELECT id, name, worker_id, remind_at, automations_kata, is_closed, updated_at ".
 			"FROM reminder ".
 			$where_sql.
 			$sort_sql.
@@ -242,10 +242,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 			$object->remind_at = $row['remind_at'];
 			$object->is_closed = $row['is_closed'];
 			$object->updated_at = $row['updated_at'];
-			
-			@$params = json_decode($row['params_json'], true) ?: [];
-			$object->params = $params;
-			
+			$object->automations_kata = $row['automations_kata'];
 			$objects[$object->id] = $object;
 		}
 		
@@ -294,14 +291,12 @@ class DAO_Reminder extends Cerb_ORMHelper {
 			"reminder.name as %s, ".
 			"reminder.worker_id as %s, ".
 			"reminder.remind_at as %s, ".
-			"reminder.params_json as %s, ".
 			"reminder.is_closed as %s, ".
 			"reminder.updated_at as %s ",
 				SearchFields_Reminder::ID,
 				SearchFields_Reminder::NAME,
 				SearchFields_Reminder::WORKER_ID,
 				SearchFields_Reminder::REMIND_AT,
-				SearchFields_Reminder::PARAMS_JSON,
 				SearchFields_Reminder::IS_CLOSED,
 				SearchFields_Reminder::UPDATED_AT
 			);
@@ -362,7 +357,6 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 	const NAME = 'r_name';
 	const WORKER_ID = 'r_worker_id';
 	const REMIND_AT = 'r_remind_at';
-	const PARAMS_JSON = 'r_params_json';
 	const IS_CLOSED = 'r_is_closed';
 	const UPDATED_AT = 'r_updated_at';
 
@@ -461,7 +455,6 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'reminder', 'id', $translate->_('common.id'), null, true),
 			self::IS_CLOSED => new DevblocksSearchField(self::IS_CLOSED, 'reminder', 'is_closed', $translate->_('common.is_closed'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'reminder', 'name', $translate->_('common.name'), null, true),
-			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'reminder', 'params_json', $translate->_('common.params'), null, true),
 			self::REMIND_AT => new DevblocksSearchField(self::REMIND_AT, 'reminder', 'remind_at', $translate->_('common.remind_at'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'reminder', 'updated_at', $translate->_('common.updated'), null, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'reminder', 'worker_id', $translate->_('common.worker'), null, true),
@@ -485,11 +478,11 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 };
 
 class Model_Reminder {
+	public $automations_kata = null;
 	public $id = 0;
 	public $name = null;
 	public $worker_id = 0;
 	public $remind_at = 0;
-	public $params = [];
 	public $is_closed = 0;
 	public $updated_at = 0;
 	
@@ -498,45 +491,61 @@ class Model_Reminder {
 	}
 	
 	function run() {
-		if(!isset($this->params['behaviors']))
-			return;
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
-		if(false == ($behavior_ids = array_keys($this->params['behaviors'])))
-			return;
+		$error = null;
 		
-		// Load behaviors
+		$event_dict = DevblocksDictionaryDelegate::instance([
+			'reminder__context' => CerberusContexts::CONTEXT_REMINDER,
+			'reminder_id' => $this->id,
+		]);
 		
-		$behaviors = DAO_TriggerEvent::getIds($behavior_ids);
+		if(false == ($handlers = $event_handler->parse($this->automations_kata, $event_dict, $error)))
+			return false;
 		
-		// Run behaviors
+		$event_state = $event_dict->getDictionary();
 		
-		foreach($behaviors as $behavior) {
-			// Verify the type of behavior
-			if($behavior->event_point != Event_ReminderMacro::ID)
-				continue;
-			
-			if(false == ($event = $behavior->getEvent()))
-				return;
-			
-			$event_model = new Model_DevblocksEvent(
-				Event_ReminderMacro::ID,
-				[
-					'context_model' => $this,
-				]
-			);
-			
-			$event->setEvent($event_model, $behavior);
-			
-			$values = $event->getValues();
-			
-			if(isset($this->params['behaviors'][$behavior->id]) && is_array($this->params['behaviors'][$behavior->id]))
-			foreach($this->params['behaviors'][$behavior->id] as $var_key => $var_val) {
-				$values[$var_key] = $var_val;
+		$model = $this;
+		
+		$results = $event_handler->handleEach(
+			AutomationTrigger_ReminderRemind::ID,
+			$handlers,
+			$event_state,
+			$error,
+			function(Model_TriggerEvent $behavior, array $handler) use ($model) {
+				if($behavior->event_point != Event_ReminderMacro::ID)
+					return false;
+				
+				if(false == ($event = $behavior->getEvent()))
+					return false;
+				
+				$event_model = new Model_DevblocksEvent(
+					Event_ReminderMacro::ID,
+					[
+						'context_model' => $model,
+					]
+				);
+				
+				$event->setEvent($event_model, $behavior);
+				
+				$values = $event->getValues();
+				
+				// Inputs -> variables
+				
+				if(array_key_exists('inputs', $handler['data'])) {
+					foreach($handler['data']['inputs'] as $k => $v) {
+						if(DevblocksPlatform::strStartsWith($k, 'var_'))
+							$values[$k] = $v;
+					}
+				}
+				
+				// Run behavior
+				
+				$dict = DevblocksDictionaryDelegate::instance($values);
+				
+				return $behavior->runDecisionTree($dict, false, $event);
 			}
-			
-			$dict = DevblocksDictionaryDelegate::instance($values);
-			$behavior->runDecisionTree($dict, false, $event);
-		}
+		);
 		
 		// Close the reminder
 		DAO_Reminder::update($this->id, [
@@ -562,7 +571,6 @@ class View_Reminder extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Reminder::UPDATED_AT,
 		);
 		$this->addColumnsHidden(array(
-			SearchFields_Reminder::PARAMS_JSON,
 			SearchFields_Reminder::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Reminder::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Reminder::VIRTUAL_WORKER_SEARCH,
@@ -1021,6 +1029,7 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'automations_kata' => $prefix.$translate->_('common.automations'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_closed' => $prefix.$translate->_('common.is_closed'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -1032,6 +1041,7 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
+			'automations_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_closed' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1057,6 +1067,7 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 		if($reminder) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $reminder->name;
+			$token_values['automations_kata'] = $reminder->automations_kata;
 			$token_values['id'] = $reminder->id;
 			$token_values['is_closed'] = $reminder->is_closed;
 			$token_values['name'] = $reminder->name;
@@ -1091,9 +1102,9 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 	
 	function getKeyToDaoFieldMap() {
 		return [
+			'automations_kata' => DAO_Reminder::AUTOMATIONS_KATA,
 			'id' => DAO_Reminder::ID,
 			'is_closed' => DAO_Reminder::IS_CLOSED,
-			'links' => '_links',
 			'name' => DAO_Reminder::NAME,
 			'remind_at' => DAO_Reminder::REMIND_AT,
 			'updated_at' => DAO_Reminder::UPDATED_AT,
@@ -1113,24 +1124,6 @@ class Context_Reminder extends Extension_DevblocksContext implements IDevblocksC
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
-		$dict_key = DevblocksPlatform::strLower($key);
-		switch($dict_key) {
-			
-			case 'params':
-				if(!is_array($value)) {
-					$error = 'must be an object.';
-					return false;
-				}
-				
-				if(false == ($json = json_encode($value))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields[DAO_Reminder::PARAMS_JSON] = $json;
-				break;
-		}
-		
 		return true;
 	}
 	

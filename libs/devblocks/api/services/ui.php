@@ -81,7 +81,9 @@ class DevblocksUiEventHandler {
 			} elseif('behavior' == @$handler['type']) {
 				if(is_callable($behavior_callback)) {
 					if(null != ($behavior = DAO_TriggerEvent::get($handler['data']['id'])))
-						$behavior_callback($behavior, $handler);
+						return $behavior_callback($behavior, $handler);
+					
+					return false;
 				}
 			}
 		}

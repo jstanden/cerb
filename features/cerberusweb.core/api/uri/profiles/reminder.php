@@ -79,30 +79,16 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
 				@$remind_at = DevblocksPlatform::importGPC($_POST['remind_at'], 'string', '');
 				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'], 'integer', 0);
-				@$behavior_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['behavior_ids'], 'array', []), 'int');
-				@$behaviors_params = DevblocksPlatform::importGPC($_POST['behavior_params'], 'array', []);
+				@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string', '');
 				
 				$remind_at = !empty($remind_at) ? @strtotime($remind_at) : '';
 				$is_closed = ($remind_at && $remind_at <= time()) ? 1 : 0;
-				
-				// Behaviors
-				
-				$params = [
-					'behaviors' => [],
-				];
-
-				$behaviors = DAO_TriggerEvent::getIds($behavior_ids);
-				
-				foreach($behaviors as $behavior_id => $behavior) {
-					$behavior_params = @$behaviors_params[$behavior_id] ?: [];
-					$params['behaviors'][$behavior_id] = $behavior_params;
-				}
 				
 				if(empty($id)) { // New
 					$fields = array(
 						DAO_Reminder::IS_CLOSED => $is_closed,
 						DAO_Reminder::NAME => $name,
-						DAO_Reminder::PARAMS_JSON => json_encode($params),
+						DAO_Reminder::AUTOMATIONS_KATA => $automations_kata,
 						DAO_Reminder::REMIND_AT => $remind_at,
 						DAO_Reminder::UPDATED_AT => time(),
 						DAO_Reminder::WORKER_ID => $worker_id,
@@ -130,7 +116,7 @@ class PageSection_ProfilesReminder extends Extension_PageSection {
 					$fields = array(
 						DAO_Reminder::IS_CLOSED => $is_closed,
 						DAO_Reminder::NAME => $name,
-						DAO_Reminder::PARAMS_JSON => json_encode($params),
+						DAO_Reminder::AUTOMATIONS_KATA => $automations_kata,
 						DAO_Reminder::REMIND_AT => $remind_at,
 						DAO_Reminder::UPDATED_AT => time(),
 						DAO_Reminder::WORKER_ID => $worker_id,

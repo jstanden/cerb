@@ -105,6 +105,76 @@ if(array_key_exists('is_default', $columns)) {
 }
 
 // ===========================================================================
+// Add automations to reminders
+
+list($columns,) = $db->metaTable('reminder');
+
+if(!array_key_exists('automations_kata', $columns)) {
+	$sql = "ALTER TABLE reminder ADD COLUMN automations_kata mediumtext";
+	$db->ExecuteMaster($sql);
+}
+
+// Migrate behaviors to automations
+if(array_key_exists('params_json', $columns)) {
+	$sql = "select id, title FROM trigger_event WHERE event_point = 'event.macro.reminder'";
+	$behaviors = $db->GetArrayMaster($sql);
+	
+	$behaviors = array_column($behaviors, 'title', 'id');
+	
+	$sql = "select id, params_json from reminder where is_closed = 0 and params_json not in ('','[]','{\"behaviors\":[]}')";
+	$rs = $db->ExecuteMaster($sql);
+	
+	while($row = mysqli_fetch_assoc($rs)) {
+		@$params = json_decode($row['params_json'], true);
+		
+		$automations_kata = "# [TODO] Migrate to automations\n";
+		
+		// Behaviors
+		if(array_key_exists('behaviors', $params)) {
+			foreach($params['behaviors'] as $behavior_id => $behavior_data) {
+				$automations_kata .= sprintf("# %s\nbehavior/%s:\n  id: %s\n  disabled@bool: no\n",
+					$behaviors[$behavior_id] ?: 'Behavior',
+					uniqid(),
+					$behavior_id
+				);
+				
+				if(is_array($behavior_data) && $behavior_data) {
+					$automations_kata .= "  inputs:\n";
+					
+					foreach($behavior_data as $k => $v) {
+						if(is_array($v)) {
+							$automations_kata .= sprintf("    %s@list:\n      %s\n",
+								$k,
+								implode('\n      ', $v)
+							);
+							
+						} else {
+							$automations_kata .= sprintf("    %s: %s\n",
+								$k,
+								$v
+							);
+						}
+					}
+				}
+				
+				$automations_kata .= "\n";
+			}
+		}
+		
+		if($automations_kata) {
+			$sql = sprintf("UPDATE reminder SET automations_kata = %s WHERE id = %d",
+				$db->qstr($automations_kata),
+				$row['id']
+			);
+			
+			$db->ExecuteMaster($sql);
+		}
+	}
+	
+	$db->ExecuteMaster('alter table reminder drop column params_json');
+}
+
+// ===========================================================================
 // Convert form interaction `prompt_sheet.selection_key` to sheet/selection col
 
 $sql = "select id, params_json from decision_node where params_json like '%prompt_sheet%' and params_json like '%selection_key%' and trigger_id in (select id from trigger_event where event_point = 'event.form.interaction.worker')";

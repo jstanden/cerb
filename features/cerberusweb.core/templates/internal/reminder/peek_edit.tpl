@@ -45,21 +45,34 @@
 	{/if}
 </table>
 
-<div class="behaviors">
-{if $model->params.behaviors}
-{$behaviors = DAO_TriggerEvent::getIds(array_keys($model->params.behaviors))}
-{foreach from=$behaviors item=behavior}
-<fieldset class="peek black" style="position:relative;">
-	<input type="hidden" name="behavior_ids[]" value="{$behavior->id}">
-	<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"></span>
-	<legend><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></legend>
-	<div class="parameters">
-	{include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" namePrefix="behavior_params[{$behavior->id}]" params=$model->params.behaviors[$behavior->id] macro_params=$behavior->variables}
+<fieldset>
+	<legend>Event: Remind (KATA)</legend>
+	<div class="cerb-code-editor-toolbar">
+		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'webhook__context' => $peek_context,
+		'webhook_id' => $peek_context_id
+		])}
+
+		{$toolbar_kata =
+"menu/add:
+  icon: circle-plus
+  items:
+    interaction/automation:
+      label: Automation
+      name: cerb.eventHandler.automation
+      inputs:
+        trigger: cerb.trigger.reminder.remind
+"}
+
+		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+		{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+		<div class="cerb-code-editor-toolbar-divider"></div>
 	</div>
+
+	<textarea name="automations_kata" data-editor-mode="ace/mode/yaml">{$model->automations_kata}</textarea>
 </fieldset>
-{/foreach}
-{/if}
-</div>
 
 <div style="margin:5px 0px 10px 0px;">
 	<button type="button" class="chooser-behavior" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="" data-query-required="disabled:n private:n event:event.macro.reminder"><span class="glyphicons glyphicons-circle-plus"></span> {'common.behaviors'|devblocks_translate|capitalize}</button>
@@ -101,9 +114,31 @@ $(function() {
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		
-		var $behaviors = $popup.find('div.behaviors');
-		
+
+		// Editors
+		var $automation_editor = $popup.find('textarea[data-editor-mode]')
+			.cerbCodeEditor()
+			.nextAll('pre.ace_editor')
+		;
+
+		var automation_editor = ace.edit($automation_editor.attr('id'));
+
+		// Toolbars
+		$popup.find('.cerb-code-editor-toolbar').cerbToolbar({
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if(e.eventData.snippet) {
+					automation_editor.insertSnippet(e.eventData.snippet);
+				}
+			}
+		});
+
 		// Helpers
 		
 		$popup.find('input[name=remind_at]')
@@ -116,75 +151,6 @@ $(function() {
 		
 		$popup.find('.chooser-abstract')
 			.cerbChooserTrigger()
-		;
-		
-		// Abstract delete
-		$behaviors.on('click', 'span.glyphicons-circle-remove', function(e) {
-			var $this = $(this);
-			e.stopPropagation();
-			
-			// Two step confirm
-			if(!$this.attr('data-delete')) {
-				$this
-					.css('color', 'red')
-					.attr('data-delete', 'true')
-				;
-			} else {
-				$this.closest('fieldset').remove();
-			}
-		});
-		
-		// Behavior chooser
-		$popup.find('.chooser-behavior')
-			.click(function() {
-				var $trigger = $(this);
-				var context = $trigger.attr('data-context');
-				var q = $trigger.attr('data-query');
-				var qr = $trigger.attr('data-query-required');
-				var single = $trigger.attr('data-single') != null ? '1' : '';
-				var width = $(window).width()-100;
-				var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&qr=' + encodeURIComponent(qr) + '&single=' + encodeURIComponent(single),null,true,width);
-				
-				$behaviors.find('.cerb-peek-trigger').cerbPeekTrigger();
-				
-				$chooser.one('chooser_save', function(event) {
-					for(value in event.values) {
-						var behavior_label = event.labels[value];
-						var behavior_id = event.values[value];
-						
-						// Don't add the same behavior twice
-						if($behaviors.find('input:hidden[value=' + behavior_id + ']').length != 0)
-							continue;
-						
-						var $fieldset = $('<fieldset class="peek black" style="position:relative;" />');
-						var $hidden = $('<input type="hidden" name="behavior_ids[]" />').val(behavior_id).appendTo($fieldset);
-						var $remove = $('<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"/>')
-							.appendTo($fieldset)
-						;
-						
-						var $legend = $('<legend/>')
-							.appendTo($fieldset)
-						;
-						
-						var $a = $('<a/>')
-							.attr('href','javascript:;')
-							.addClass('no-underline')
-							.text(behavior_label)
-							.attr('data-context', 'cerberusweb.contexts.behavior')
-							.attr('data-context-id', behavior_id)
-							.cerbPeekTrigger()
-							.appendTo($legend)
-						;
-						
-						var $div = $('<div class="parameters" />').appendTo($fieldset);
-						var name_prefix = 'behavior_params[' + behavior_id + ']';
-						
-						$fieldset.appendTo($behaviors);
-						
-						genericAjaxGet($div, 'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix=' + encodeURIComponent(name_prefix) + '&trigger_id=' + encodeURIComponent(behavior_id));
-					}
-				});
-			})
 		;
 		
 		// [UI] Editor behaviors
