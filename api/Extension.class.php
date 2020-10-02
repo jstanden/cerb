@@ -608,6 +608,7 @@ abstract class Extension_CardWidget extends DevblocksExtension {
 	}
 	
 	abstract function render(Model_CardWidget $model, $context, $context_id);
+	abstract function invoke(string $action, Model_CardWidget $model);
 	abstract function renderConfig(Model_CardWidget $model);
 	abstract function invokeConfig($action, Model_CardWidget $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }

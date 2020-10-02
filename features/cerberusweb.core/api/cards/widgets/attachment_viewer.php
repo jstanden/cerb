@@ -2,8 +2,13 @@
 class CardWidget_AttachmentViewer extends Extension_CardWidget {
 	const ID = 'cerb.card.widget.attachment.viewer';
 	
-	function __construct($manifest = null) {
-		parent::__construct($manifest);
+	function invoke(string $action, Model_CardWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {

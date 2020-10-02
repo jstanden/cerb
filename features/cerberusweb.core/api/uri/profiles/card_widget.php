@@ -41,6 +41,8 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 					return $this->_profileAction_renderWidgetConfig();
 				case 'invokeConfig':
 					return $this->_profileAction_invokeConfig();
+				case 'invokeWidget':
+					return $this->_profileAction_invokeWidget();
 				case 'reorderWidgets':
 					return $this->_profileAction_reorderWidgets();
 				case 'savePeekJson':
@@ -500,6 +502,34 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 		} while(!empty($results));
 		
 		DevblocksPlatform::redirect(new DevblocksHttpResponse(array('explore',$hash,$orig_pos)));
+	}
+	
+	private function _profileAction_invokeWidget() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$widget_id = DevblocksPlatform::importGPC($_POST['widget_id'],'integer',0);
+		@$invoke_action = DevblocksPlatform::importGPC($_POST['invoke_action'],'string','');
+		
+		if(false == ($card_widget = DAO_CardWidget::get($widget_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($extension = $card_widget->getExtension()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_CardWidget::isReadableByActor($card_widget, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if($extension instanceof Extension_CardWidget) {
+			if(false === ($extension->invoke($invoke_action, $card_widget))) {
+				trigger_error(
+					sprintf('Call to undefined card widget action `%s::%s`',
+						get_class($extension),
+						$invoke_action
+					),
+					E_USER_NOTICE
+				);
+			}
+		}
 	}
 	
 	private function _profileAction_invokeConfig() {

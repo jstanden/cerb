@@ -5,6 +5,15 @@
 class CardWidget_FormInteraction extends Extension_CardWidget {
 	const ID = 'cerb.card.widget.form_interaction';
 	
+	function invoke(string $action, Model_CardWidget $model) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		return false;
+	}
+	
 	function renderConfig(Model_CardWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('widget', $model);
