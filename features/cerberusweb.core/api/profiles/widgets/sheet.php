@@ -12,6 +12,11 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		if(!Context_ProfileWidget::isReadableByActor($model, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
+		switch($action) {
+			case 'renderToolbar':
+				return $this->_profileWidgetAction_renderToolbar($model);
+		}
+		
 		return false;
 	}
 	
@@ -111,6 +116,8 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 				
 				$tpl->assign('widget_ext', $this);
 				$tpl->assign('widget', $model);
+				$tpl->assign('profile_context', $context);
+				$tpl->assign('profile_context_id', $context_id);
 				
 				if($layout['style'] == 'fieldsets') {
 					$tpl->display('devblocks:cerberusweb.core::internal/profiles/widgets/sheet/render_fieldsets.tpl');
@@ -137,6 +144,10 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 	}
 	
 	function invokeConfig($action, Model_ProfileWidget $model) {
+		switch($action) {
+			case 'previewToolbar':
+				return $this->_profileWidgetConfigAction_previewToolbar($model);
+		}
 		return false;
 	}
 	
@@ -149,4 +160,62 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		));
 	}
 	*/
+
+	private function _profileWidgetConfigAction_previewToolbar(Model_ProfileWidget $widget) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'], 'string', '');
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => null,
+			'record_id' => null,
+			
+			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+			'widget_id' => $widget->id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+			
+			'row_selections' => [],
+		]);
+		
+		if(false == ($toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)))
+			return;
+		
+		$tpl->assign('toolbar', $toolbar);
+		$tpl->display('devblocks:devblocks.core::ui/toolbar/preview.tpl');
+	}
+	
+	function renderToolbar(Model_ProfileWidget $widget, $record_context, $record_context_id, $row_selections=[]) {
+		$ui = DevblocksPlatform::services()->ui();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $record_context,
+			'record_id' => $record_context_id,
+			
+			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+			'widget_id' => $widget->id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+			
+			'row_selections' => $row_selections,
+		]);
+		
+		if(false != ($toolbar_kata = @$widget->extension_params['toolbar_kata'])) {
+			$toolbar = $ui->toolbar()->parse($toolbar_kata, $toolbar_dict);
+			
+			$ui->toolbar()->render($toolbar);
+		}
+	}
+	
+	private function _profileWidgetAction_renderToolbar(Model_ProfileWidget $widget) {
+		@$row_selections = DevblocksPlatform::importGPC($_POST['row_selections'], 'array', []);
+		@$profile_context = DevblocksPlatform::importGPC($_POST['profile_context'], 'string', null);
+		@$profile_context_id = DevblocksPlatform::importGPC($_POST['profile_context_id'], 'integer', null);
+		
+		$this->renderToolbar($widget, $profile_context, $profile_context_id, $row_selections);
+	}
 };

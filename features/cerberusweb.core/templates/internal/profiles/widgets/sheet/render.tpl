@@ -3,7 +3,7 @@
 
 	{if $widget->extension_params.toolbar_kata}
 		<div data-cerb-toolbar>
-			{include file="devblocks:cerberusweb.core::internal/profiles/widgets/sheet/toolbar.tpl" row_selections=[]}
+			{$widget_ext->renderToolbar($widget, $profile_context, $profile_context_id)}
 		</div>
 	{/if}
 </div>
@@ -20,7 +20,6 @@ $(function() {
 		$tab.triggerHandler($.Event('cerb-widget-refresh', { widget_id: {$widget->id} }));
 	});
 
-	// [TODO] selection
 	{if $widget->extension_params.toolbar_kata}
 	$sheet.on('cerb-sheet--selections-changed', function(e) {
 		e.stopPropagation();
@@ -42,7 +41,10 @@ $(function() {
 		$sheet_toolbar.html(Devblocks.getSpinner().css('max-width', '16px'));
 
 		genericAjaxPost(formData, null, null, function(html) {
-			$sheet_toolbar.html(html);
+			$sheet_toolbar
+				.html(html)
+				.triggerHandler('cerb-toolbar--refreshed')
+			;
 		});
 	});
 	{/if}
@@ -57,6 +59,65 @@ $(function() {
 		};
 
 		$tab.triggerHandler(evt);
+	});
+
+	// Toolbar
+
+	var doneFunc = function(e) {
+		e.stopPropagation();
+
+		var $target = e.trigger;
+
+		var done_params = [];
+
+		if($target.is('.cerb-bot-trigger')) {
+			done_params = new URLSearchParams($target.attr('data-interaction-done'));
+		} else if($target.is('.cerb-function-trigger')) {
+			done_params = new URLSearchParams($target.attr('data-function-done'));
+		} else {
+			return;
+		}
+
+		if(!done_params.has('refresh_widgets[]'))
+			return;
+
+		var refresh = done_params.getAll('refresh_widgets[]');
+
+		var widget_ids = [];
+
+		if(-1 !== $.inArray('all', refresh)) {
+			// Everything
+		} else {
+			$tab.find('.cerb-profile-widget')
+				.filter(function() {
+					var $this = $(this);
+					var name = $this.attr('data-widget-name');
+
+					if(undefined === name)
+						return false;
+
+					return -1 !== $.inArray(name, refresh);
+				})
+				.each(function() {
+					var $this = $(this);
+					var widget_id = parseInt($this.attr('data-widget-id'));
+
+					if(widget_id)
+						widget_ids.push(widget_id);
+				})
+			;
+		}
+
+		var evt = $.Event('cerb-widgets-refresh', {
+			widget_ids: widget_ids,
+			refresh_options: { }
+		});
+
+		$tab.triggerHandler(evt);
+	};
+
+	$sheet_toolbar.cerbToolbar({
+		done: doneFunc
 	});
 });
 </script>

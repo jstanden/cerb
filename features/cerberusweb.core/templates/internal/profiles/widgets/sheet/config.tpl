@@ -70,6 +70,65 @@
 			</fieldset>
 		</div>
 	</fieldset>
+
+	<fieldset id="widget{$widget->id}Toolbar" class="peek">
+		<legend>
+			<label>
+				Display this sheet toolbar: <small>(KATA)</small>
+			</label>
+		</legend>
+
+		<div style="margin-left:10px;">
+			<div class="cerb-code-editor-toolbar">
+				<button type="button" class="cerb-code-editor-toolbar-button cerb-button-preview-toolbar" title="Preview sheet"><span class="glyphicons glyphicons-play"></span></button>
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				<div data-cerb-toolbar style="display:inline-block;">
+					{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+					'widget_context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+					'widget_id' => $widget->id,
+					'worker__context' => CerberusContexts::CONTEXT_WORKER,
+					'worker_id' => $active_worker->id
+					])}
+
+					{$toolbar_kata =
+"menu/insert:
+  icon: circle-plus
+  items:
+    interaction/interaction:
+      label: Interaction
+      name: cerb.toolbarBuilder.interaction
+    interaction/function:
+      label: Function
+      name: cerb.toolbarBuilder.function
+    interaction/menu:
+      label: Menu
+      name: cerb.toolbarBuilder.menu
+"
+					}
+
+					{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+				</div>
+
+				<button type="button" class="cerb-code-editor-toolbar-button cerb-button-toolbar-insert" title="Insert placeholder"><span class="glyphicons glyphicons-tags"></span></button>
+				<ul class="cerb-float" style="display:none;">
+					<li>
+						{'common.sheet'|devblocks_translate|capitalize}
+						<ul>
+							<li data-token="{literal}{{row_selections}}{/literal}"><b>Selected row keys</b></li>
+						</ul>
+					</li>
+				</ul>
+				<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/kata/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+			</div>
+
+			<textarea name="params[toolbar_kata]" class="cerb-toolbar-yaml-editor placeholders" data-editor-mode="ace/mode/yaml" style="width:95%;height:50px;">{$widget->extension_params.toolbar_kata}</textarea>
+
+			<div class="cerb-toolbar-preview"></div>
+		</div>
+	</fieldset>
 </div>
 
 <script type="text/javascript">
@@ -84,7 +143,7 @@ $(function() {
 		.nextAll('pre.ace_editor')
 		;
 	
-	var $query_placeholders_editor = $config.find('textarea.cerb-data-query-editor-placeholders')
+	$config.find('textarea.cerb-data-query-editor-placeholders')
 		.cerbCodeEditor()
 		.nextAll('pre.ace_editor')
 		;
@@ -107,7 +166,6 @@ $(function() {
 
 		// Substitute placeholders
 		
-		var $frm = $config.closest('form');
 		var field_key = 'params[data_query]';
 
 		var formData = new FormData($frm.get(0));
@@ -256,5 +314,77 @@ $(function() {
 	$sheet_button_add.on('click', function() {
 		$sheet_button_add_menu.toggle();
 	});
+
+	// Toolbar
+
+	var $toolbar_button_preview = $config.find('.cerb-button-preview-toolbar');
+	var $toolbar_button_insert = $config.find('.cerb-button-toolbar-insert');
+	var $toolbar_preview = $config.find('.cerb-toolbar-preview');
+
+	var $toolbar_editor = $config.find('textarea.cerb-toolbar-yaml-editor')
+		.cerbCodeEditor()
+		.nextAll('pre.ace_editor')
+	;
+
+	var toolbar_editor = ace.edit($toolbar_editor.attr('id'));
+
+	var $script_custom_toolbar = $config.find('[data-cerb-toolbar]');
+
+	var doneFunc = function(e) {
+		e.stopPropagation();
+
+		var $target = e.trigger;
+
+		if(!$target.is('.cerb-bot-trigger') && !$target.is('.cerb-function-trigger'))
+			return;
+
+		if(e.eventData.snippet) {
+			toolbar_editor.insertSnippet(e.eventData.snippet);
+		}
+	};
+
+	var resetFunc = function(e) {
+		e.stopPropagation();
+	};
+
+	$script_custom_toolbar.cerbToolbar({
+		done: doneFunc,
+		reset: resetFunc,
+	});
+
+	var $toolbar_button_insert_menu = $toolbar_button_insert.next('ul').menu({
+		"select": function(e, $ui) {
+			e.stopPropagation();
+			$toolbar_button_insert_menu.hide();
+
+			var data_token = $ui.item.attr('data-token');
+
+			if (null == data_token)
+				return;
+
+			$toolbar_editor.triggerHandler($.Event('cerb.insertAtCursor', { content: data_token } ));
+		}
+	});
+
+	$toolbar_button_insert.on('click', function() {
+		$toolbar_button_insert_menu.toggle();
+	});
+
+	$toolbar_button_preview.on('click', function(e) {
+		e.stopPropagation();
+		$toolbar_preview.html('').append(Devblocks.getSpinner());
+
+		var formData = new FormData($frm.get(0));
+		formData.set('c', 'profiles');
+		formData.set('a', 'invoke');
+		formData.set('module', 'profile_widget');
+		formData.set('action', 'invokeConfig');
+		formData.set('config_action', 'previewToolbar');
+
+		genericAjaxPost(formData, null, null, function(html) {
+			$toolbar_preview.html(html);
+		});
+	})
+	;
 });
 </script>
