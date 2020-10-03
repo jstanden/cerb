@@ -1,0 +1,29 @@
+{$element_id = uniqid('prompt_')}
+
+<div class="cerb-form-builder-prompt cerb-form-builder-prompt-editor" id="{$element_id}">
+    <h6>{$label}</h6>
+
+    <div class="cerb-code-editor-toolbar">
+
+    </div>
+
+    <textarea name="prompts[{$var}]" data-editor-mode="{$editor_mode}" data-editor-lines="15">{$default}</textarea>
+</div>
+
+<script type="text/javascript">
+$(function() {
+	var $prompt = $('#{$element_id}');
+
+    var $editor = $prompt.find('textarea[data-editor-mode]')
+        .cerbCodeEditor()
+        .nextAll('pre.ace_editor')
+    ;
+
+    var editor = ace.edit($editor.attr('id'));
+    // editor.setOption('highlightActiveLine', false);
+    // editor.renderer.setOption('showGutter', false);
+    // editor.renderer.setOption('showLineNumbers', false);
+
+    editor.focus();
+});
+</script>
