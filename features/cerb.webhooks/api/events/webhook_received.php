@@ -15,6 +15,10 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/**
+ * Class Event_WebhookReceived
+ * @deprecated
+ */
 class Event_WebhookReceived extends AbstractEvent_Webhook {
 	const ID = 'event.webhook.received';
 	
@@ -23,7 +27,7 @@ class Event_WebhookReceived extends AbstractEvent_Webhook {
 		$this->_event_id = self::ID;
 	}
 	
-	static function trigger($trigger_id, $http_request, $variables=array()) {
+	static function trigger($trigger_id, $http_request, $variables=[]) {
 		if(false == ($behavior = DAO_TriggerEvent::get($trigger_id)))
 			return;
 		

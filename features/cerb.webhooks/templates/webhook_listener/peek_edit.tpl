@@ -26,21 +26,33 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-{foreach from=$webhook_listener_engines item=engine key=engine_id}
-<fieldset class="peek" style="margin-bottom:0;">
-	<legend><label><input type="radio" name="extension_id" value="{$engine->id}" {if $model->id && $model->extension_id == $engine_id}checked="checked"{/if}> {$engine->manifest->name}</label></legend>
-	
-	{if $model->extension_id == $engine_id}
-	<div>
-		{$engine->renderConfig($model)}
+<fieldset>
+	<legend>Event: Respond to webhook (KATA)</legend>
+	<div class="cerb-code-editor-toolbar">
+		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'webhook__context' => $peek_context,
+		'webhook_id' => $peek_context_id
+		])}
+
+		{$toolbar_kata =
+"menu/add:
+  icon: circle-plus
+  items:
+    interaction/automation:
+      label: Automation
+      name: cerb.eventHandler.automation
+      inputs:
+        trigger: cerb.trigger.webhook.respond
+"}
+
+		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+		{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+		<div class="cerb-code-editor-toolbar-divider"></div>
 	</div>
-	{else}
-	<div style="display:none;">
-		{$engine->renderConfig($model)}
-	</div>
-	{/if}
+	<textarea name="automations_kata" data-editor-mode="ace/mode/yaml">{$model->automations_kata}</textarea>
 </fieldset>
-{/foreach}
 
 {if !empty($model->id)}
 <fieldset style="display:none;" class="delete">
@@ -76,7 +88,31 @@ $(function() {
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		
+
+		// Editors
+		var $automation_editor = $popup.find('textarea[data-editor-mode]')
+			.cerbCodeEditor()
+			.nextAll('pre.ace_editor')
+		;
+
+		var automation_editor = ace.edit($automation_editor.attr('id'));
+
+		// Toolbars
+		$popup.find('.cerb-code-editor-toolbar').cerbToolbar({
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if(e.eventData.snippet) {
+					automation_editor.insertSnippet(e.eventData.snippet);
+				}
+			}
+		});
+
 		// Webhook listener engine fieldsets
 		
 		var $fieldsets = $popup.find('fieldset');

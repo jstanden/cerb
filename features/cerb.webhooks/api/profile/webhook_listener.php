@@ -78,23 +78,19 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
-				@$extension_params = DevblocksPlatform::importGPC($_POST['extension_params'], 'array', array());
 				
-				$extension_params = @$extension_params[$extension_id] ?: array();
-				$extension_params_json = json_encode(is_array($extension_params) ? $extension_params : array());
+				@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string', []);
 				
 				if(empty($name))
 					throw new Exception_DevblocksAjaxValidationError("The 'Name' field is required.", 'name');
 				
 				if(empty($id)) { // New
-					$fields = array(
+					$fields = [
 						DAO_WebhookListener::UPDATED_AT => time(),
 						DAO_WebhookListener::NAME => $name,
 						DAO_WebhookListener::GUID => sha1($name . time() . mt_rand(0,10000)),
-						DAO_WebhookListener::EXTENSION_ID => $extension_id,
-						DAO_WebhookListener::EXTENSION_PARAMS_JSON => $extension_params_json,
-					);
+						DAO_WebhookListener::AUTOMATIONS_KATA => $automations_kata,
+					];
 					
 					if(!DAO_WebhookListener::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -109,12 +105,11 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $id);
 					
 				} else { // Edit
-					$fields = array(
+					$fields = [
 						DAO_WebhookListener::UPDATED_AT => time(),
 						DAO_WebhookListener::NAME => $name,
-						DAO_WebhookListener::EXTENSION_ID => $extension_id,
-						DAO_WebhookListener::EXTENSION_PARAMS_JSON => $extension_params_json,
-					);
+						DAO_WebhookListener::AUTOMATIONS_KATA => $automations_kata,
+					];
 					
 					if(!DAO_WebhookListener::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
@@ -126,10 +121,12 @@ class PageSection_ProfilesWebhookListener extends Extension_PageSection {
 					DAO_WebhookListener::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
-				// Custom field saves
-				@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
+				if($id) {
+					// Custom field saves
+					@$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'], 'array', []);
+					if (!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WEBHOOK_LISTENER, $id, $field_ids, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+				}
 				
 				echo json_encode(array(
 					'status' => true,

@@ -15,6 +15,10 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/**
+ * Class AbstractEvent_Webhook
+ * @deprecated
+ */
 abstract class AbstractEvent_Webhook extends Extension_DevblocksEvent {
 	protected $_event_id = null; // override
 

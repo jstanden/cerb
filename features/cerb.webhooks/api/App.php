@@ -1,124 +1,124 @@
 <?php
-abstract class Extension_WebhookListenerEngine extends DevblocksExtension {
-	const POINT = 'cerb.webhooks.listener.engine';
-	
-	protected $_config = null;
-	
-	/**
-	 * @internal
-	 */
-	public static function getAll($as_instances=false) {
-		$engines = DevblocksPlatform::getExtensions(self::POINT, $as_instances);
-		if($as_instances)
-			DevblocksPlatform::sortObjects($engines, 'manifest->name');
-		else
-			DevblocksPlatform::sortObjects($engines, 'name');
-		return $engines;
-	}
-	
-	/**
-	 * @internal
-	 * 
-	 * @param string $id
-	 * @return Extension_WebhookListenerEngine
-	 */
-	public static function get($id) {
-		static $extensions = null;
+class Controller_Webhooks implements DevblocksHttpRequestHandler {
+	function handleRequest(DevblocksHttpRequest $request) {
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
-		if(isset($extensions[$id]))
-			return $extensions[$id];
+		$stack = $request->path;
 		
-		if(!isset($extensions[$id])) {
-			if(null == ($ext = DevblocksPlatform::getExtension($id, true)))
-				return;
+		array_shift($stack); // webhooks
+		@$guid = array_shift($stack); // guid
+		
+		$path = implode('/', $stack);
+		
+		if(!$guid)
+			DevblocksPlatform::dieWithHttpError(null, 404);
 			
-			if(!($ext instanceof Extension_WebhookListenerEngine))
-				return;
-			
-			$extensions[$id] = $ext;
-			return $ext;
-		}
-	}
-	
-	function getConfig() {
-		if(is_null($this->_config)) {
-			$this->_config = $this->getParams();
-		}
+		if(false == ($webhook = DAO_WebhookListener::getByGUID($guid)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		return $this->_config;
-	}
-	
-	abstract function renderConfig(Model_WebhookListener $model);
-	abstract function handleWebhookRequest(Model_WebhookListener $webhook);
-};
-
-class WebhookListenerEngine_BotBehavior extends Extension_WebhookListenerEngine {
-	const ID = 'cerb.webhooks.listener.engine.va';
-	
-	function renderConfig(Model_WebhookListener $model) {
-		$active_worker = CerberusApplication::getActiveWorker();
+		$dict = DevblocksDictionaryDelegate::instance([
+			'webhook__context' => CerberusContexts::CONTEXT_WEBHOOK_LISTENER,
+			'webhook_id' => $webhook->id,
+		]);
 		
-		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('engine', $this);
-		$tpl->assign('params', $model->extension_id == $this->manifest->id ? $model->extension_params : array());
+		$error = null;
 		
-		$behaviors = DAO_TriggerEvent::getReadableByActor($active_worker, 'event.webhook.received', false);
-		$bots = DAO_Bot::getReadableByActor($active_worker);
-
-		// Filter bots to those with existing behaviors
+		$request_headers = DevblocksPlatform::getHttpHeaders() ?: [];
+		unset($request_headers['cookie']);
 		
-		$visible_va_ids = array();
-
-		if(is_array($behaviors));
-		foreach($behaviors as $behavior) {
-			$visible_va_ids[$behavior->bot_id] = true;
-		}
-		
-		$bots = array_filter($bots, function($va) use ($visible_va_ids) {
-			if(isset($visible_va_ids[$va->id]))
-				return true;
-			
-			return false;
-		});
-		
-		$tpl->assign('behaviors', $behaviors);
-		$tpl->assign('bots', $bots);
-		
-		$tpl->display('devblocks:cerb.webhooks::webhook_listener/engines/bot_behavior.tpl');
-	}
-	
-	function handleWebhookRequest(Model_WebhookListener $webhook) {
-		if(false == ($behavior_id = @$webhook->extension_params['behavior_id']))
-			return false;
-
-		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
-			return false;
-		
-		if(false == ($bot = $behavior->getBot()))
-			return false;
-		
-		if($behavior->is_disabled || $bot->is_disabled) {
-			http_response_code(503);
-			echo "<h1>503: Temporarily unavailable</h1>";
-			return;
-		}
-		
-		$variables = [];
-		
-		$http_request = [
-			'body' => DevblocksPlatform::getHttpBody(),
-			'client_ip' => DevblocksPlatform::getClientIp(),
-			'headers' => DevblocksPlatform::getHttpHeaders(),
-			'params' => DevblocksPlatform::getHttpParams(),
-			'path' => '',
-			'verb' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
+		$initial_state = [
+			'request_method' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
+			'request_body' => DevblocksPlatform::getHttpBody(),
+			'request_client_ip' => DevblocksPlatform::getClientIp(),
+			'request_headers' => $request_headers,
+			'request_params' => DevblocksPlatform::getHttpParams(),
+			'request_path' => $path,
 		];
 		
-		$dicts = Event_WebhookReceived::trigger($behavior->id, $http_request, $variables);
-		$dict = $dicts[$behavior->id];
+		$handlers = $event_handler->parse($webhook->automations_kata, $dict, $error);
 		
-		if(!($dict instanceof DevblocksDictionaryDelegate))
+		$automation_results = $event_handler->handleOnce(
+			AutomationTrigger_WebhookRespond::ID,
+			$handlers,
+			$initial_state,
+			$error,
+			function(Model_TriggerEvent $behavior, array $handler) use ($path) {
+				if($behavior->event_point != Event_WebhookReceived::ID)
+					return false;
+				
+				if(false == ($bot = $behavior->getBot()))
+					return false;
+				
+				if($behavior->is_disabled || $bot->is_disabled) {
+					DevblocksPlatform::dieWithHttpError('<h1>503: Temporarily unavailable</h1>', 503);
+					return false;
+				}
+				
+				$variables = [];
+				
+				$http_request = [
+					'body' => DevblocksPlatform::getHttpBody(),
+					'client_ip' => DevblocksPlatform::getClientIp(),
+					'headers' => DevblocksPlatform::getHttpHeaders(),
+					'params' => DevblocksPlatform::getHttpParams(),
+					'path' => $path,
+					'verb' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
+				];
+				
+				$dicts = Event_WebhookReceived::trigger($behavior->id, $http_request, $variables);
+				$dict = $dicts[$behavior->id];
+				
+				if(!($dict instanceof DevblocksDictionaryDelegate))
+					return false;
+				
+				return $dict;
+			}
+		);
+		
+		if($automation_results instanceof DevblocksDictionaryDelegate && $automation_results->exists('__state')) {
+			$this->_webhookRequestAutomation($automation_results);
+			
+		} else if($automation_results instanceof DevblocksDictionaryDelegate && $automation_results->exists('__trigger')) {
+			$this->_webhookRequestBehavior($automation_results);
+			
+		} else {
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		}
+	}
+	
+	private function _webhookRequestAutomation(DevblocksDictionaryDelegate $automation_results) {
+		// [TODO] Check error status + throw error
+		
+		if(null === ($results = $automation_results->get('__return', null)))
 			return;
+		
+		// HTTP status code
+		
+		if(array_key_exists('status_code', $results))
+			http_response_code($results['status_code']);
+		
+		// HTTP response headers
+		
+		if(array_key_exists('headers', $results) && is_array($results['headers'])) {
+			foreach($results['headers'] as $header_k => $header_v) {
+				header(sprintf("%s: %s",
+					$header_k,
+					$header_v
+				));
+			}
+		}
+		
+		// HTTP response body
+		
+		if(array_key_exists('body@base64', $results)) {
+			echo base64_decode($results['body@base64']);
+		} else if(array_key_exists('body', $results)) {
+			echo $results['body'];
+		}
+	}
+	
+	// [TODO] @deprecated
+	private function _webhookRequestBehavior(DevblocksDictionaryDelegate $dict) {
 		
 		// HTTP status code
 
@@ -141,29 +141,6 @@ class WebhookListenerEngine_BotBehavior extends Extension_WebhookListenerEngine 
 		if(isset($dict->_http_response_body)) {
 			echo $dict->_http_response_body;
 		}
-	}
-};
-
-class Controller_Webhooks implements DevblocksHttpRequestHandler {
-	
-	function handleRequest(DevblocksHttpRequest $request) {
-		$stack = $request->path;
-		
-		// [TODO] Restrict by IP?
-		
-		array_shift($stack); // webhooks
-		@$guid = array_shift($stack); // guid
-		
-		if(empty($guid) || false == ($webhook = DAO_WebhookListener::getByGUID($guid)))
-			// [TODO] Return an HTTP failed status code
-			return;
-		
-		// Load the webhook listener extension
-		
-		if(false == ($webhook_ext = $webhook->getExtension()))
-			return;
-		
-		$webhook_ext->handleWebhookRequest($webhook);
 	}
 	
 	function writeResponse(DevblocksHttpResponse $response) {

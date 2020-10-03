@@ -25,15 +25,12 @@
 	<patches>
 		<patch version="6.9.0" revision="1" file="patches/6.9.0.php" />
 		<patch version="9.0.0" revision="2" file="patches/9.0.0.php" />
+		<patch version="10.0.0" revision="5" file="patches/10.0.0.php" />
 	</patches>
 
 	<!-- Classloader -->
 	
 	<class_loader>
-		<file path="api/App.php">
-			<class name="Extension_WebhookListenerEngine" />
-		</file>
-	
 		<file path="api/dao/webhook_listener.php">
 			<class name="Context_WebhookListener" />
 			<class name="DAO_WebhookListener" />
@@ -87,7 +84,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.webhook.received</id>
-			<name>Webhook received</name>
+			<name>Webhook received (DEPRECATED)</name>
 			<class>
 				<file>api/events/webhook_received.php</file>
 				<name>Event_WebhookReceived</name>
@@ -167,18 +164,5 @@
 			</params>
 		</extension>
 		
-		<!-- Webhook Listener Engines -->
-		
-		<extension point="cerb.webhooks.listener.engine">
-			<id>cerb.webhooks.listener.engine.va</id>
-			<name>Bot Behavior</name>
-			<class>
-				<file>api/App.php</file>
-				<name>WebhookListenerEngine_BotBehavior</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-	
 	</extensions>
 </plugin>

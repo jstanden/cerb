@@ -4,8 +4,6 @@
 {$total = $results[1]}
 {$data = $results[0]}
 
-{$webhook_listener_exts = Extension_WebhookListenerEngine::getAll(false)}
-
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
 <table cellpadding="0" cellspacing="0" border="0" class="worklist" width="100%" {if $view->options.header_color}style="background-color:{$view->options.header_color};"{/if}>
@@ -82,12 +80,6 @@
 			<td data-column="{$column}">
 				<a href="{devblocks_url}c=webhooks&guid={$result.$column}{/devblocks_url}">{devblocks_url full=true}c=webhooks&guid={$result.$column}{/devblocks_url}</a>
 			</td>
-			{elseif $column == "w_extension_id"}
-			<td data-column="{$column}">
-				{if isset($webhook_listener_exts.{$result.$column})}
-					{$webhook_listener_exts.{$result.$column}->name}
-				{/if}
-			</td>
 			{elseif $column == "w_updated_at"}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
@@ -140,17 +132,17 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script type="text/javascript">
-$frm = $('#viewForm{$view->id}');
+var $frm = $('#viewForm{$view->id}');
 
 {if $pref_keyboard_shortcuts}
 $frm.bind('keyboard_shortcut',function(event) {
-	$view_actions = $('#{$view->id}_actions');
+	var $view_actions = $('#{$view->id}_actions');
 	
-	hotkey_activated = true;
+	var hotkey_activated = true;
 
 	switch(event.keypress_event.which) {
 		case 101: // (e) explore
-			$btn = $view_actions.find('button.action-explore');
+			var $btn = $view_actions.find('button.action-explore');
 		
 			if(event.indirect) {
 				$btn.select().focus();

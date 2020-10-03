@@ -1,7 +1,6 @@
 <?php
 class DAO_WebhookListener extends Cerb_ORMHelper {
-	const EXTENSION_ID = 'extension_id';
-	const EXTENSION_PARAMS_JSON = 'extension_params_json';
+	const AUTOMATIONS_KATA = 'automations_kata';
 	const GUID = 'guid';
 	const ID = 'id';
 	const NAME = 'name';
@@ -12,18 +11,11 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
-		// varchar(255)
-		$validation
-			->addField(self::EXTENSION_ID)
-			->string()
-			->setRequired(true)
-			->setMaxLength(255)
-			;
 		// text
 		$validation
-			->addField(self::EXTENSION_PARAMS_JSON)
+			->addField(self::AUTOMATIONS_KATA)
 			->string()
-			->setMaxLength(65535)
+			->setMaxLength(16777216)
 			;
 		// varchar(40)
 		$validation
@@ -67,8 +59,8 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = "INSERT INTO webhook_listener (name, guid, updated_at, extension_id, extension_params_json) ".
-			"VALUES ('', '', 0, '', '')";
+		$sql = "INSERT INTO webhook_listener (name, guid, updated_at, automations_kata) ".
+			"VALUES ('', '', 0, '')";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
@@ -151,7 +143,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, guid, updated_at, extension_id, extension_params_json ".
+		$sql = "SELECT id, name, guid, updated_at, automations_kata ".
 			"FROM webhook_listener ".
 			$where_sql.
 			$sort_sql.
@@ -243,13 +235,7 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 			$object->name = $row['name'];
 			$object->guid = $row['guid'];
 			$object->updated_at = $row['updated_at'];
-			$object->extension_id = $row['extension_id'];
-			
-			$extension_params_json = $row['extension_params_json'];
-			
-			// Deserialize extension params
-			if(!empty($extension_params_json) && false != ($extension_params = json_decode($extension_params_json, true)))
-				$object->extension_params = $extension_params;
+			$object->automations_kata = $row['automations_kata'];
 			
 			$objects[$object->id] = $object;
 		}
@@ -298,15 +284,11 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 			"webhook_listener.id as %s, ".
 			"webhook_listener.name as %s, ".
 			"webhook_listener.guid as %s, ".
-			"webhook_listener.updated_at as %s, ".
-			"webhook_listener.extension_id as %s, ".
-			"webhook_listener.extension_params_json as %s ",
+			"webhook_listener.updated_at as %s ",
 				SearchFields_WebhookListener::ID,
 				SearchFields_WebhookListener::NAME,
 				SearchFields_WebhookListener::GUID,
-				SearchFields_WebhookListener::UPDATED_AT,
-				SearchFields_WebhookListener::EXTENSION_ID,
-				SearchFields_WebhookListener::EXTENSION_PARAMS_JSON
+				SearchFields_WebhookListener::UPDATED_AT
 			);
 			
 		$join_sql = "FROM webhook_listener ";
@@ -365,8 +347,6 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 	const NAME = 'w_name';
 	const GUID = 'w_guid';
 	const UPDATED_AT = 'w_updated_at';
-	const EXTENSION_ID = 'w_extension_id';
-	const EXTENSION_PARAMS_JSON = 'w_extension_params_json';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -420,12 +400,6 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 			case SearchFields_WebhookListener::ID:
 				$models = DAO_WebhookListener::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
-				
-			case SearchFields_WebhookListener::EXTENSION_ID:
-				$extensions = Extension_WebhookListenerEngine::getAll(false);
-				return array_column(DevblocksPlatform::objectsToArrays($extensions), 'name', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -452,8 +426,6 @@ class SearchFields_WebhookListener extends DevblocksSearchFields {
 			self::NAME => new DevblocksSearchField(self::NAME, 'webhook_listener', 'name', $translate->_('common.name'), null, true),
 			self::GUID => new DevblocksSearchField(self::GUID, 'webhook_listener', 'guid', $translate->_('common.url'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'webhook_listener', 'updated_at', $translate->_('common.updated'), null, true),
-			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'webhook_listener', 'extension_id', $translate->_('common.extension'), null, true),
-			self::EXTENSION_PARAMS_JSON => new DevblocksSearchField(self::EXTENSION_PARAMS_JSON, 'webhook_listener', 'extension_params_json', null, null, false),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -478,16 +450,7 @@ class Model_WebhookListener {
 	public $name = null;
 	public $guid = null;
 	public $updated_at = 0;
-	public $extension_id = null;
-	public $extension_params = array();
-	
-	/**
-	 * 
-	 * @return Extension_WebhookListenerEngine
-	 */
-	function getExtension() {
-		return Extension_WebhookListenerEngine::get($this->extension_id);
-	}
+	public $automations_kata = null;
 };
 
 class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -505,11 +468,9 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		$this->view_columns = array(
 			SearchFields_WebhookListener::NAME,
 			SearchFields_WebhookListener::GUID,
-			SearchFields_WebhookListener::EXTENSION_ID,
 			SearchFields_WebhookListener::UPDATED_AT,
 		);
 		$this->addColumnsHidden(array(
-			SearchFields_WebhookListener::EXTENSION_PARAMS_JSON,
 			SearchFields_WebhookListener::VIRTUAL_CONTEXT_LINK,
 			SearchFields_WebhookListener::VIRTUAL_HAS_FIELDSET,
 			SearchFields_WebhookListener::VIRTUAL_WATCHERS,
@@ -560,11 +521,6 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 			$pass = false;
 			
 			switch($field_key) {
-				// Fields
-				case SearchFields_WebhookListener::EXTENSION_ID:
-					$pass = true;
-					break;
-					
 				// Virtuals
 				case SearchFields_WebhookListener::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_WebhookListener::VIRTUAL_HAS_FIELDSET:
@@ -595,18 +551,6 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 			return array();
 		
 		switch($column) {
-			case SearchFields_WebhookListener::EXTENSION_ID:
-				$label_map = [];
-				$manifests = Extension_WebhookListenerEngine::getAll(false);
-				if(is_array($manifests))
-				foreach($manifests as $k => $mft) {
-					$label_map[$k] = $mft->name;
-				}
-				
-				// [TODO] in / contexts[]
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column, $label_map, '=', 'value');
-				break;
-				
 			case SearchFields_WebhookListener::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
@@ -639,13 +583,7 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WebhookListener::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			// [TODO] Virtual
-			'extension' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_WebhookListener::EXTENSION_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
-			'guid' => 
+			'guid' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_WebhookListener::GUID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -740,11 +678,6 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
-			case SearchFields_WebhookListener::EXTENSION_ID:
-				$label_map = SearchFields_WebhookListener::getLabelsForKeyValues($field, $values);
-				parent::_renderCriteriaParamString($param, $label_map);
-				break;
-				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -779,7 +712,6 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 		switch($field) {
 			case SearchFields_WebhookListener::NAME:
 			case SearchFields_WebhookListener::GUID:
-			case SearchFields_WebhookListener::EXTENSION_ID:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -880,12 +812,6 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			'value' => $model->id,
 		);
 		
-		$properties['extension_id'] = array(
-			'label' => mb_ucfirst($translate->_('common.type')),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->extension_id,
-		);
-	
 		$properties['guid'] = array(
 			'label' => mb_ucfirst($translate->_('common.guid')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -946,8 +872,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'extension_id' => $prefix.$translate->_('common.extension'),
-			'extension_params' => $prefix.$translate->_('common.params'),
+			'automations_kata' => $prefix.$translate->_('common.automations'),
 			'guid' => $prefix.$translate->_('common.guid'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -958,8 +883,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
-			'extension_params' => null,
+			'automations_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'guid' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -984,8 +908,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		if($webhook_listener) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $webhook_listener->name;
-			$token_values['extension_id'] = $webhook_listener->extension_id;
-			$token_values['extension_params'] = $webhook_listener->extension_params;
+			$token_values['automations_kata'] = $webhook_listener->automations_kata;
 			$token_values['guid'] = $webhook_listener->guid;
 			$token_values['id'] = $webhook_listener->id;
 			$token_values['name'] = $webhook_listener->name;
@@ -1004,7 +927,7 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 	
 	function getKeyToDaoFieldMap() {
 		return [
-			'extension_id' => DAO_WebhookListener::EXTENSION_ID,
+			'automations_kata' => DAO_WebhookListener::AUTOMATIONS_KATA,
 			'guid' => DAO_WebhookListener::GUID,
 			'id' => DAO_WebhookListener::ID,
 			'links' => '_links',
@@ -1013,41 +936,24 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		];
 	}
 	
-	function getKeyMeta() {
-		$keys = parent::getKeyMeta();
-		
-		$keys['extension_params'] = [
+	function getKeyMeta($with_dao_fields=true) {
+		$keys = parent::getKeyMeta($with_dao_fields);
+
+		$keys['automations_kata'] = [
+			'key' => 'automations_kata',
 			'is_immutable' => false,
 			'is_required' => false,
-			'notes' => 'JSON-encoded key/value object',
+			'notes' => 'KATA object',
 			'type' => 'object',
 		];
 		
-		$keys['extension_id']['type'] = "extension";
-		$keys['extension_id']['notes'] = "[Webhook Listener Type](/docs/plugins/extensions/points/cerb.webhooks.listener.engine/)";
 		$keys['guid']['notes'] = "The random unique alias of the webhook used in its URL; automatically generated if blank";
 		
 		return $keys;
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
-		$dict_key = DevblocksPlatform::strLower($key);
-		switch($dict_key) {
-			case 'extension_params':
-				if(!is_array($value)) {
-					$error = 'must be an object.';
-					return false;
-				}
-				
-				if(false == ($json = json_encode($value))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields[DAO_WebhookListener::EXTENSION_PARAMS_JSON] = $json;
-				break;
-		}
-		
+		//$dict_key = DevblocksPlatform::strLower($key);
 		return true;
 	}
 	
@@ -1155,10 +1061,6 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
-			
-			// Webhook listener extensions
-			$webhook_listener_engines = Extension_WebhookListenerEngine::getAll(true);
-			$tpl->assign('webhook_listener_engines', $webhook_listener_engines);
 			
 			// View
 			$tpl->assign('id', $context_id);

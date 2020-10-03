@@ -86,12 +86,6 @@ $extension_point_meta = [
 		'examples' => [],
 		'extensible' => true,
 		],
-	'cerb.webhooks.listener.engine' => [
-		'label' => 'Webhook Listener Type',
-		'class' => 'Extension_WebhookListenerEngine',
-		'examples' => [],
-		'extensible' => true,
-		],
 	'cerberusweb.calendar.datasource' => [
 		'label' => 'Calendar Datasource',
 		'class' => 'Extension_CalendarDatasource',
