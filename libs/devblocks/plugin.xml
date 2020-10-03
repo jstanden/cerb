@@ -55,6 +55,9 @@
 		<file path="api/services/data/gpg_keyinfo.php">
 			<class name="_DevblocksDataProviderGpgKeyInfo" />
 		</file>
+		<file path="api/services/data/record_fields.php">
+			<class name="_DevblocksDataProviderRecordFields" />
+		</file>
 		<file path="api/services/data/record_types.php">
 			<class name="_DevblocksDataProviderRecordTypes" />
 		</file>

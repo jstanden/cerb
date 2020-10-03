@@ -352,6 +352,49 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	public static function getMetaByContext($context) {
+		$custom_fields = DAO_CustomField::getByContext($context, true, true);
+		
+		$results = [];
+		
+		$types = [
+			'C' => 'bit',
+			'D' => 'string', // possible values
+			'E' => 'timestamp',
+			'F' => 'file',
+			'I' => 'files',
+			'L' => 'record',
+			'M' => 'list',
+			'O' => 'float', // precision
+			'N' => 'uint',
+			'S' => 'string',
+			'T' => 'string', // multiple
+			'U' => 'url',
+			'W' => 'worker', // record->worker
+			'X' => 'multi-checkbox',
+			'Y' => 'currency',
+		];
+		
+		foreach($custom_fields as $custom_field) {
+			$notes = $custom_field->name;
+			
+			$key = DevblocksPlatform::strLower($custom_field->uri);
+			
+			$results[$key] = [
+				'key' => $custom_field->uri,
+				'is_custom' => $custom_field->id,
+				'is_immutable' => false,
+				'is_required' => false,
+				'notes' => $notes,
+				'type' => $types[$custom_field->type] ?? $custom_field->type,
+			];
+		}
+		
+		uksort($results, 'strnatcmp');
+		
+		return $results;
+	}
+	
 	/**
 	 *
 	 * @param boolean $nocache
