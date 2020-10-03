@@ -69,8 +69,9 @@ class _DevblocksSheetService {
 	function getLayout(array $sheet) {
 		$layout = [
 			'style' => 'table',
-			'headings' => 'yes',
-			'paging' => 'yes',
+			'headings' => true,
+			'paging' => true,
+			'filtering' => false,
 			'title_column' => '',
 		];
 		
@@ -87,6 +88,13 @@ class _DevblocksSheetService {
 					$sheet['layout']['paging'] = $sheet['layout']['paging'] ? 'yes' : 'no';
 				
 				$layout['paging'] = in_array($sheet['layout']['paging'], [false,'no','n','false','0']) ? false: true;
+			}
+			
+			if(array_key_exists('filtering', $sheet['layout'])) {
+				if(is_bool($sheet['layout']['filtering']))
+					$sheet['layout']['filtering'] = $sheet['layout']['filtering'] ? 'yes' : 'no';
+				
+				$layout['filtering'] = in_array($sheet['layout']['filtering'], [false,'no','n','false','0']) ? false: true;
 			}
 			
 			if(array_key_exists('style', $sheet['layout']))
