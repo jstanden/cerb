@@ -142,7 +142,12 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	}
 	
 	static function getInteractionMenu(array $interactions) {
-		$interactions_menu = [];
+		$legacy_menu = new DevblocksMenuItemPlaceholder();
+		$legacy_menu->label = '(Deprecated Behaviors)';
+		$legacy_menu->children = [];
+	
+		$menu = ['_legacy' => $legacy_menu];
+		
 		$url_writer = DevblocksPlatform::services()->url();
 		
 		if(false == ($bot_ids = array_column($interactions, 'bot_id')))
@@ -157,7 +162,7 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			$bot_menu->image = $url_writer->write(sprintf('c=avatars&context=bot&context_id=%d', $bot->id)) . '?v=' . $bot->updated_at;
 			$bot_menu->children = [];
 			
-			$interactions_menu[$bot->id] = $bot_menu;
+			$legacy_menu->children[$bot->id] = $bot_menu;
 		}
 		
 		DevblocksPlatform::sortObjects($interactions, '[label]');
@@ -169,10 +174,10 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 			$item_behavior->interaction = $interaction['interaction'];
 			$item_behavior->params = $interaction['params'];
 			
-			$interactions_menu[$interaction['bot_id']]->children[] = $item_behavior;
+			$legacy_menu->children[$interaction['bot_id']]->children[] = $item_behavior;
 		}
 		
-		return $interactions_menu;
+		return $menu;
 	}
 	
 	/**
