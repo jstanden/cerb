@@ -1023,8 +1023,6 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				$dict->set('ticket_bucket__context',CerberusContexts::CONTEXT_BUCKET);
 				
 				return $out;
-				break;
-
 				
 			default:
 				if(preg_match('#set_cf_(.*?_*)custom_([0-9]+)#', $token))

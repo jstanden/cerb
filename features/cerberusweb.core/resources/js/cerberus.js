@@ -2023,7 +2023,7 @@ var ajax = new cAjaxCalls();
 						
 						if(-1 === pos)
 							return v;
-						
+
 						return v.substr(0,pos) + ':';
 					});
 					

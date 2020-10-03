@@ -325,7 +325,6 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	* @param boolean $with_fieldsets Include fieldsets
 	* @return Model_CustomField[]
 	*/
-	
 	static function getByContext($context, $with_fieldsets=true, $with_fieldset_names=false) {
 		$fields = self::getAll();
 		$fieldsets = DAO_CustomFieldset::getAll();

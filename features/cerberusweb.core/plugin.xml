@@ -87,7 +87,7 @@
 		<file path="api/packages.php">
 			<class name="Cerb_Packages" />
 		</file>
-		
+
 		<file path="api/listeners.classes.php">
 			<class name="EventListener_Triggers" />
 		</file>
@@ -99,7 +99,7 @@
 		<file path="api/service_providers/oidc.php">
 			<class name="GenericOpenIDConnectProvider" />
 		</file>
-		
+
 		<file path="api/oauth2/oauth2_server.php">
 			<class name="Cerb_OAuth2AccessTokenEntity" />
 			<class name="Cerb_OAuth2AccessTokenRepository" />
