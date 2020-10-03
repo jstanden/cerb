@@ -27,6 +27,8 @@
 	<!-- Exported Classes -->
 
 	<class_loader>
+		<dir path="api/services/automation/" namespace="Cerb\AutomationBuilder\" />
+
 		<file path="api/dao/devblocks_storage_profile.php">
 			<class name="View_DevblocksStorageProfile" />
 		</file>

@@ -149,7 +149,6 @@ class _DevblocksClassLoadManager {
 			'CerbAutomationPolicy',
 			'Exception_DevblocksAutomationError',
 		]);
-		$this->registerAutoloadPath(DEVBLOCKS_PATH . 'api/services/automation/', 'Cerb\\AutomationBuilder\\');
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/bayes_classifier.php', array(
 			'_DevblocksBayesClassifierService',
 		));
