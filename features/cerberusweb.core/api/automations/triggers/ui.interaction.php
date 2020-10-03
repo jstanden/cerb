@@ -73,6 +73,14 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 					'submit:',
 					'text:',
 				],
+				'(.*):yield:form:map:' => [
+					'region:',
+					'geojson@json:',
+				],
+				'(.*):yield:form:map:region:' => [
+					'usa',
+					'world',
+				],
 			]
 		];
 	}
