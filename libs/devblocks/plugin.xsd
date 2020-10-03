@@ -88,6 +88,12 @@
     								<xs:attribute name="path" type="xs:string" use="required" />
     							</xs:complexType>
     						</xs:element>
+    						<xs:element name="dir" minOccurs="0" maxOccurs="unbounded">
+    							<xs:complexType>
+									<xs:attribute name="path" type="xs:string" use="required" />
+									<xs:attribute name="namespace" type="xs:string" use="required" />
+    							</xs:complexType>
+    						</xs:element>
     					</xs:sequence>
     				</xs:complexType>
     			</xs:element>

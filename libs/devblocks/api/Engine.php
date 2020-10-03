@@ -235,10 +235,39 @@ abstract class DevblocksEngine {
 		}
 
 		// Class Loader
+		if(isset($plugin->class_loader->dir)) {
+			foreach($plugin->class_loader->dir as $eDir) {
+				@$sDirPath = (string) $eDir['path'];
+				@$sNsPrefix = (string) $eDir['namespace'];
+				
+				$sDirPath = rtrim($sDirPath, '/\\');
+				$path = realpath($plugin_path . '/' . $sDirPath);
+				
+				if(!file_exists($path))
+					continue;
+				
+				$dir = new RecursiveDirectoryIterator($path);
+				$iter = new RecursiveIteratorIterator($dir);
+				$regex = new RegexIterator($iter, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
+				
+				foreach($regex as $class_file => $o) {
+					if(is_null($o))
+						continue;
+					
+					$class_name = substr($class_file, strlen($path)+1, strlen($class_file)-strlen($path)-5);
+					$class_name = $sNsPrefix . str_replace(DIRECTORY_SEPARATOR, '\\', $class_name);
+					
+					$class_path = $sDirPath . substr($class_file, strlen($path));
+					
+					$manifest->class_loader[$class_path][] = $class_name;
+				}
+			}
+		}
+		
 		if(isset($plugin->class_loader->file)) {
 			foreach($plugin->class_loader->file as $eFile) {
 				@$sFilePath = (string) $eFile['path'];
-				$manifest->class_loader[$sFilePath] = array();
+				$manifest->class_loader[$sFilePath] = [];
 
 				if(isset($eFile->class))
 				foreach($eFile->class as $eClass) {
