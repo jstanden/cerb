@@ -3422,7 +3422,7 @@ var ajax = new cAjaxCalls();
 							.on('cerb-interaction-done', function(e) {
 								e.stopPropagation();
 								if(options && options.done && 'function' == typeof options.done) {
-									options.done($.Event('cerb-interaction-done', { trigger: $trigger }));
+									options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: e.eventData }));
 								}
 							})
 							.html(html)
@@ -3446,7 +3446,7 @@ var ajax = new cAjaxCalls();
 							e.stopPropagation();
 
 							if(options && options.done && 'function' == typeof options.done) {
-								options.done($.Event('cerb-interaction-done', { trigger: $trigger }));
+								options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: e.eventData }));
 							}
 
 							genericAjaxPopupClose($popup);

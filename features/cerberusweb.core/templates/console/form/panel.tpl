@@ -46,7 +46,15 @@ $(function() {
 
     $form.on('cerb-form-builder-end', function(e) {
         e.stopPropagation();
-        $form.trigger($.Event('cerb-interaction-done'));
+
+        // [TODO] Error?
+        if(e.hasOwnProperty('event_data')) {
+            var event_data = {
+                event_data: e.event_data
+            };
+
+            $form.trigger($.Event('cerb-interaction-done', event_data));
+        }
     });
 
     $form.triggerHandler('cerb-form-builder-submit');
