@@ -4615,6 +4615,11 @@
 				<name>AutomationTrigger_WidgetMapGetPoints</name>
 			</class>
 			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -4626,6 +4631,11 @@
 				<name>AutomationTrigger_WidgetMapRenderPoint</name>
 			</class>
 			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
 			</params>
 		</extension>
 

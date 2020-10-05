@@ -7,23 +7,88 @@
 			<option value="usa" {if $widget->extension_params.projection == 'usa'}selected="selected"{/if}>U.S. (States)</option>
 		</select>
 	</fieldset>
-	
-	<fieldset id="widget{$widget->id}QueryEditor" class="peek">
-		<legend>
-			Run this data query: 
-			{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/data-queries/"}
-		</legend>
-		
-		<textarea name="params[data_query]" data-editor-mode="ace/mode/cerb_query" class="placeholders" style="width:95%;height:50px;">{$widget->extension_params.data_query}</textarea>
+
+	<fieldset>
+		<legend>Event: Get map points (KATA)</legend>
+		<div class="cerb-code-editor-toolbar">
+			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			])}
+
+			{$toolbar_kata =
+"menu/add:
+  icon: circle-plus
+  items:
+    interaction/automation:
+      label: Automation
+      name: cerb.eventHandler.automation
+      inputs:
+        trigger: cerb.trigger.widgetMap.getPoints
+"}
+
+			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+			<div class="cerb-code-editor-toolbar-divider"></div>
+		</div>
+		<textarea name="params[automation_getpoints]" data-editor-mode="ace/mode/yaml">{$model->extension_params.automation_getpoints}</textarea>
+	</fieldset>
+
+	<fieldset>
+		<legend>Event: Render map point (KATA)</legend>
+		<div class="cerb-code-editor-toolbar">
+			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			])}
+
+			{$toolbar_kata =
+"menu/add:
+  icon: circle-plus
+  items:
+    interaction/automation:
+      label: Automation
+      name: cerb.eventHandler.automation
+      inputs:
+        trigger: cerb.trigger.widgetMap.renderPoint
+"}
+
+			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+			<div class="cerb-code-editor-toolbar-divider"></div>
+		</div>
+		<textarea name="params[automation_renderpoint]" data-editor-mode="ace/mode/yaml">{$model->extension_params.automation_renderpoint}</textarea>
 	</fieldset>
 </div>
 
 <script type="text/javascript">
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
-	$config.find('textarea.placeholders')
+
+	$config.find('textarea[data-editor-mode]')
 		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteDataQueries()
 		;
+
+	// Toolbars
+	$config.find('fieldset .cerb-code-editor-toolbar')
+		.cerbToolbar({
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if(e.eventData.snippet) {
+					var $toolbar = $target.closest('.cerb-code-editor-toolbar');
+					var $automation_editor = $toolbar.nextAll('pre.ace_editor');
+
+					var automation_editor = ace.edit($automation_editor.attr('id'));
+					automation_editor.insertSnippet(e.eventData.snippet);
+				}
+			}
+		})
+	;
 });
 </script>

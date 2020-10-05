@@ -16,16 +16,13 @@ $(function() {
 				.translate([width/2, height/2])
 				;
 			
-			var pointPath = d3.geoPath()
-				.projection(projection)
-				.pointRadius(5)
-				;
-				
 			var path = d3.geoPath()
 				.projection(projection)
 				;
 				
-			var widget = d3.select('#widget{$widget->id}');
+			var widget = d3.select('#widget{$widget->id}')
+				.style('position', 'relative')
+				;
 				
 			var svg = widget.append('svg:svg')
 				.attr('viewBox', '0 0 ' + width + ' ' + height)
@@ -42,10 +39,17 @@ $(function() {
 			var label = widget.append('div')
 				.style('font-weight', 'bold')
 				.style('margin', '5px')
+				.style('padding', '5px')
+				.style('position', 'absolute')
+				.style('top', '0')
+				.style('left', '0')
+				.style('background-color', 'rgba(220,220,220,0.8)')
+				.style('display', 'none')
 				;
 			
 			d3.json('{devblocks_url}c=resource&p=cerberusweb.core&f=maps/us.json{/devblocks_url}?v={$smarty.const.APP_BUILD}').then(function(us) {
 				g.append('g')
+					// [TODO] State fill
 					.style('fill', '#aaa')
 				.selectAll('path')
 					.data(topojson.feature(us, us.objects.states).features)
@@ -66,18 +70,37 @@ $(function() {
 					.attr('pointer-events', 'none')
 					.attr('d', path)
 					;
+
+                var pointPath = d3.geoPath()
+                    .projection(projection)
+                    .pointRadius(function(d) {
+                        var point_radius = Devblocks.getObjectKeyByPath(d.properties, 'cerb.map.point.radius');
+                        return point_radius || 3;
+                    })
+                ;
+
+                var points = {json_encode($points) nofilter};
 				
-				var points = {json_encode($points) nofilter};
-				
-				for(series_key in points.objects) {
+				// [TODO] Give all these to a callback first
+				for(var series_key in points.objects) {
 					g.append('g')
 						.selectAll('.point')
 							.data(topojson.feature(points, points.objects[series_key]).features)
 						.enter().append('path')
-							.attr('fill', 'red')
-							.attr('stroke', 'black')
-							.attr('stroke-width', '.5px')
+							.attr('fill', function(d,i) {
+								var point_fill = Devblocks.getObjectKeyByPath(d.properties, 'cerb.map.point.color');
+								return point_fill || 'red';
+							})
+							.attr('stroke', function(d,i) {
+								var border_color = Devblocks.getObjectKeyByPath(d.properties, 'cerb.map.point.border_color');
+								return border_color || 'black';
+							})
+							.attr('stroke-width', function(d,i) {
+								var border_width = Devblocks.getObjectKeyByPath(d.properties, 'cerb.map.point.border_width');
+								return border_width || 1;
+							})
 							.attr('class', 'point')
+							.style('cursor', 'pointer')
 							//.style('pointer-events', 'none')
 							.attr('d', pointPath)
 							.on('click.zoon', clickedPOI)
@@ -95,7 +118,15 @@ $(function() {
 					k = 2;
 					centered = d;
 					
-					label.text(JSON.stringify(d.properties));
+					var label_text = Devblocks.getObjectKeyByPath(d.properties, 'cerb.map.point.label');
+					
+					if(label_text) {
+						$(label.node()).html(label_text);
+					} else {
+						label.text(d.properties.name);
+					}
+					
+					label.style('display', 'inline-block');
 					
 				} else {
 					x = width / 2;
@@ -103,10 +134,9 @@ $(function() {
 					k = 1;
 					centered = null;
 					label.text('');
+					label.style('display', 'none');
 				}
-				
-				var selected_index = i;
-				
+
 				g.transition()
 					.duration(750)
 					.attr('transform', 'translate(' + width/2 + ',' + height/2 + ')scale(' + k + ')translate(' + -x + ',' + -y + ')')
@@ -114,6 +144,7 @@ $(function() {
 					;
 			}
 			
+			// [TODO] Callback through widget
 			function clickedState(d, i) {
 				var x, y, k;
 				
@@ -124,15 +155,15 @@ $(function() {
 					k = 2;
 					centered = d;
 					label.text(d.properties.NAME + ' (' +  d.properties.STUSPS +')');
+					label.style('display', 'inline-block');
 				} else {
 					x = width / 2;
 					y = height / 2;
 					k = 1;
 					centered = null;
 					label.text('');
+					label.style('display', 'none');
 				}
-				
-				var selected_index = i;
 				
 				g.selectAll('path')
 					.each(function(d, i) {
