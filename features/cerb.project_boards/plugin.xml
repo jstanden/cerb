@@ -156,6 +156,17 @@
 			</params>
 		</extension>
 
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.projectBoard.cardAction</id>
+			<name>projectBoard.cardAction</name>
+			<class>
+				<file>api/automations/triggers/projectBoard.cardAction.php</file>
+				<name>AutomationTrigger_ProjectBoardCardAction</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Profile Pages -->
 		
 		<extension point="cerberusweb.ui.page.section">
