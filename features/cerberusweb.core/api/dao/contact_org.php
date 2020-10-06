@@ -1785,7 +1785,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 			'city' => Model_CustomField::TYPE_SINGLE_LINE,
 			'country' => Model_CustomField::TYPE_SINGLE_LINE,
 			'created' => Model_CustomField::TYPE_DATE,
-			'phone' => 'phone',
+			'phone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'postal' => Model_CustomField::TYPE_SINGLE_LINE,
 			'province' => Model_CustomField::TYPE_SINGLE_LINE,
 			'street' => Model_CustomField::TYPE_SINGLE_LINE,
