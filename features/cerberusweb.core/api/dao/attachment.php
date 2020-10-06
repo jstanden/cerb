@@ -1688,7 +1688,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		$db = DevblocksPlatform::services()->database();
 		
 		// Approve attachments by session (worklist export)
-		// [TODO] We can remove this once we have 'files' as a first-class object (complementary to attachments)
 
 		@$view_export_file_id = $_SESSION['view_export_file_id'];
 		
@@ -1728,15 +1727,6 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		});
 		
 		// Loop through dictionaries
-		// [TODO] There may eventually be other record types with attachments
-		
-		$only_contexts = [
-			CerberusContexts::CONTEXT_COMMENT,
-			CerberusContexts::CONTEXT_DRAFT,
-			CerberusContexts::CONTEXT_FILE_BUNDLE,
-			CerberusContexts::CONTEXT_KB_ARTICLE,
-			CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE,
-		];
 		
 		foreach(array_keys($remaining) as $context_id) {
 			$dict = $dicts[$context_id];
@@ -1745,7 +1735,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			if($results[$context_id])
 				continue;
 				
-			if(false == ($links = DAO_Attachment::getLinks($dict->id, $only_contexts)) || empty($links))
+			if(false == ($links = DAO_Attachment::getLinks($dict->id)) || empty($links))
 				continue;
 			
 			foreach($links as $context => $ids) {
