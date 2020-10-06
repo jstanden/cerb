@@ -141,7 +141,7 @@ class Page_Login extends CerberusPageExtension {
 		if($url) {
 			if(
 				false != ($url_parts = parse_url($url))
-				&& 1 == count($url_parts)
+				&& !array_diff(array_keys($url_parts), ['path','query'])
 				&& array_key_exists('path', $url_parts)
 			) {
 				$login_state->pushRedirectUri($url, true);
@@ -869,17 +869,24 @@ class Page_Login extends CerberusPageExtension {
 				DevblocksPlatform::redirectURL($login_post_url, 1);
 				
 			} else {
-				$redirect_path = explode('/', $login_post_url);
+				$login_post_url_parts = parse_url($login_post_url);
+				
+				$redirect_path = explode('/', $login_post_url_parts['path']);
+				$redirect_query = DevblocksPlatform::strParseQueryString(@$login_post_url_parts['query']);
+				
+				// Sanitize (only allow 'q')
+				$redirect_query = array_intersect_key($redirect_query, ['q' => true]);
 				
 				// Only valid pages
 				if($redirect_path && is_array($redirect_path)) {
 					$redirect_uri = current($redirect_path);
 					
-					if(!in_array($redirect_uri, ['explore']) && !CerberusApplication::getPageManifestByUri($redirect_uri))
+					if(!in_array($redirect_uri, ['explore']) && !CerberusApplication::getPageManifestByUri($redirect_uri)) {
 						$redirect_path = [];
+					}
 				}
 				
-				$devblocks_response = new DevblocksHttpResponse($redirect_path);
+				$devblocks_response = new DevblocksHttpResponse($redirect_path, $redirect_query);
 				DevblocksPlatform::redirect($devblocks_response, 1);
 			}
 			

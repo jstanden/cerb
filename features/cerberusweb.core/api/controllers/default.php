@@ -93,8 +93,14 @@ class Controller_Default extends DevblocksControllerExtension {
 			$query = [];
 			// Must be a valid page controller
 			if(!empty($response->path)) {
-				if(is_array($response->path) && !empty($response->path) && CerberusApplication::getPageManifestByUri(current($response->path)))
-					$query = ['url'=> implode('/',$response->path)];
+				if(is_array($response->path) && !empty($response->path) && CerberusApplication::getPageManifestByUri(current($response->path))) {
+					$url = implode('/', $response->path);
+					
+					if(array_key_exists('q', $_GET))
+						$url .= '?' . http_build_query($_GET);
+					
+					$query = ['url' => $url];
+				}
 			}
 			DevblocksPlatform::redirect(new DevblocksHttpRequest(array('login'),$query));
 		}
