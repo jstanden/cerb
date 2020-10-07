@@ -2055,6 +2055,8 @@ var ajax = new cAjaxCalls();
 				},
 
 				select: function(event, ui)  {
+					event.stopPropagation();
+					event.preventDefault();
 					$editor.cerbTextEditor('replaceCurrentWord', ui.item.value);
 					return false;
 				},
@@ -2343,6 +2345,9 @@ var ajax = new cAjaxCalls();
 				},
 
 				select: function(event, ui)  {
+					event.stopPropagation();
+					event.preventDefault();
+
 					if(ui.item.value.startsWith('#snippet ')) {
 						if(ui.item.value === '#snippet ') {
 							$editor.cerbTextEditor('replaceCurrentWord', ui.item.value);
