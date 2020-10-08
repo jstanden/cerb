@@ -441,12 +441,18 @@ class Controller_UI extends DevblocksControllerExtension {
 	private function _uiAction_dataQuery() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$data = DevblocksPlatform::services()->data();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		@$data_query = DevblocksPlatform::importGPC($_REQUEST['q'], 'string', '');
 		
 		$error = null;
 		
 		header('Content-Type: application/json; charset=utf-8');
+		
+		if(false === ($data_query = $tpl_builder->build($data_query, []))) {
+			echo json_encode(implode("\n", $tpl_builder->getErrors()));
+			return;
+		}
 		
 		if(false == ($results = $data->executeQuery($data_query, $error))) {
 			echo DevblocksPlatform::strFormatJson(json_encode([
