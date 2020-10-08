@@ -19,6 +19,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		@$auth_enabled = $params['auth_enabled'];
 		@$auth_user = $params['auth_user'];
 		@$auth_pass = $params['auth_pass'];
+		@$connected_account_id = $params['connected_account_id'] ?? 0;
 		
 		if(empty($host)) {
 			$error = 'The SMTP "host" parameter is required.';
@@ -32,16 +33,20 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		
 		// Try connecting
 		
-		$options = array(
+		$options = [
 			'host' => $host,
 			'port' => $port,
 			'enc' => $encryption,
 			'timeout' => 10,
-		);
+		];
 		
 		if($auth_enabled) {
 			$options['auth_user'] = $auth_user;
 			$options['auth_pass'] = $auth_pass;
+		}
+		
+		if($connected_account_id && $auth_enabled) {
+			$options['connected_account_id'] = $connected_account_id;
 		}
 		
 		try {
@@ -56,16 +61,15 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			$error = $e->getMessage();
 			return false;
 		}
-		
-		return true;
 	}
 	
 	/**
 	 * @param Swift_Message $message
+	 * @param Model_MailTransport $model
 	 * @return boolean
 	 */
 	function send(Swift_Message $message, Model_MailTransport $model) {
-		$options = array(
+		$options = [
 			'host' => @$model->params['host'],
 			'port' => @$model->params['port'],
 			'auth_user' => @$model->params['auth_user'],
@@ -73,7 +77,8 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			'enc' => @$model->params['encryption'],
 			'max_sends' => @$model->params['max_sends'],
 			'timeout' => @$model->params['timeout'],
-		);
+			'connected_account_id' => @$model->params['connected_account_id'],
+		];
 		
 		if(false == ($mailer = $this->_getMailer($options)))
 			return false;
@@ -96,10 +101,11 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 	}
 	
 	/**
+	 * @param array $options
 	 * @return Swift_Mailer
 	 */
 	private function _getMailer(array $options) {
-		static $connections = array();
+		static $connections = [];
 		
 		// Options
 		$smtp_host = isset($options['host']) ? $options['host'] : '127.0.0.1';
@@ -109,6 +115,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		$smtp_enc = isset($options['enc']) ? $options['enc'] : 'None';
 		$smtp_max_sends = isset($options['max_sends']) ? intval($options['max_sends']) : 20;
 		$smtp_timeout = isset($options['timeout']) ? intval($options['timeout']) : 30;
+		$smtp_connected_account_id = intval($options['connected_account_id'] ?? 0);
 		
 		/*
 		 * [JAS]: We'll cache connection info hashed by params and hold a persistent
@@ -116,15 +123,16 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		 * we'll get the existing connection if it exists.
 		 */
 
-		$hash = md5(json_encode(array(
+		$hash = sha1(json_encode([
 			$smtp_host,
 			$smtp_user,
 			$smtp_pass,
 			$smtp_port,
 			$smtp_enc,
 			$smtp_max_sends,
-			$smtp_timeout
-		)));
+			$smtp_timeout,
+			$smtp_connected_account_id
+		]));
 		
 		if(!isset($connections[$hash])) {
 			// Encryption
@@ -145,7 +153,31 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			$smtp = Swift_SmtpTransport::newInstance($smtp_host, $smtp_port, $smtp_enc);
 			$smtp->setTimeout($smtp_timeout);
 			
-			if(!empty($smtp_user)) {
+			// Is XOAUTH2 enabled?
+			if($smtp_user && $smtp_connected_account_id) {
+				$connected_account = DAO_ConnectedAccount::get($smtp_connected_account_id);
+				
+				if(false == ($service_extension = $connected_account->getServiceExtension())) {
+					$this->_lastErrorMessage = "Failed to load the connected service extension";
+					return null;
+				}
+				
+				if(!($service_extension instanceof ServiceProvider_OAuth2)) {
+					$this->_lastErrorMessage = "The connected account is not an OAuth2 provider";
+					return null;
+				}
+				
+				/** @var $service_extension ServiceProvider_OAuth2 */
+				if(false == ($access_token = $service_extension->getAccessToken($connected_account))) {
+					$this->_lastErrorMessage = "Failed to load the access token";
+					return null;
+				}
+				
+				$smtp->setAuthMode('XOAUTH2');
+				$smtp->setUsername($smtp_user);
+				$smtp->setPassword($access_token->getToken());
+				
+			} else if($smtp_user) {
 				$smtp->setUsername($smtp_user);
 				$smtp->setPassword($smtp_pass);
 			}

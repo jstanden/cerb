@@ -41,6 +41,22 @@ This mail transport delivers mail to an <a href="http://en.wikipedia.org/wiki/Si
 			<br>
 			<input type="text" name="params[{$extension->id}][auth_pass]" value="{$model->params.auth_pass}" size="45" style="width:95%;">
 		</div>
+
+		<div style="padding:5px;">
+			<b>XOAuth2:</b> <small>({'common.optional'|devblocks_translate|lower})</small>
+			<br>
+
+			<button type="button" class="chooser-abstract" data-field-name="params[{$extension->id}][connected_account_id]" data-context="{Context_ConnectedAccount::ID}" data-single="true" data-query="service:(type:oauth2)"><span class="glyphicons glyphicons-search"></span></button>
+
+			<ul class="bubbles chooser-container">
+				{if $model && $model->params.connected_account_id}
+					{$account = DAO_ConnectedAccount::get($model->params.connected_account_id)}
+					{if $account}
+						<li><input type="hidden" name="params[{$extension->id}][connected_account_id]" value="{$account->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_ConnectedAccount::ID}" data-context-id="{$account->id}">{$account->name}</a></li>
+					{/if}
+				{/if}
+			</ul>
+		</div>
 	</div>
 </div>
 
@@ -59,6 +75,9 @@ seconds
 <script type="text/javascript">
 $(function() {
 	var $fieldset = $('#{$uniqid}');
+
+	$fieldset.find('.chooser-abstract').cerbChooserTrigger();
+
 	$fieldset.find('input:checkbox.peek-smtp-auth').click(function() {
 		if($(this).is(':checked')) {
 			$fieldset.find('div.peek-smtp-encryption')
