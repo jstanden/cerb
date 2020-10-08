@@ -675,13 +675,12 @@ function DevblocksClass() {
 				}, 50)
 			}
 		},
-		getYamlTokenPath: function(pos, editor) {
+		getKataTokenPath: function(pos, editor) {
 			var TokenIterator = require('ace/token_iterator').TokenIterator;
 			var iter = new TokenIterator(editor.session, pos.row, pos.column);
 			var results = [];
-			
-			var start = iter.getCurrentToken();
-			var token = start;
+
+			var token = iter.getCurrentToken();
 			var current_indent = null;
 			
 			if(!String.prototype.trimStart) {
@@ -702,21 +701,82 @@ function DevblocksClass() {
 				var token_column = iter.getCurrentTokenColumn();
 
 				// We're on a new indent
+				if(token.type === 'text' && token.value.length > 0 && 0 === token.value.trimStart().length) {
+					current_indent = token.value;
+					iter.stepBackward();
+				}
+
+				do {
+					token = iter.getCurrentToken();
+					token_column = iter.getCurrentTokenColumn()
+
+					if(token.type === 'meta.tag' && 0 === token_column) {
+						var token_value = token.value;
+
+						var tag_trimmed = token_value.trimStart();
+						var tag_indent = " ".repeat(token_value.length - tag_trimmed.length);
+						
+						if(null === current_indent) {
+							current_indent = tag_indent;
+							results.push(tag_trimmed);
+							
+						} else if (tag_indent.length < current_indent.length) {
+							results.push(tag_trimmed);
+							current_indent = tag_indent;
+						}
+						
+						// If we hit the root, stop early
+						if(0 === current_indent.length)
+							break;
+					}
+					
+				} while (iter.stepBackward());
+			}
+
+			return results.reverse();
+		},
+		getYamlTokenPath: function(pos, editor) {
+			var TokenIterator = require('ace/token_iterator').TokenIterator;
+			var iter = new TokenIterator(editor.session, pos.row, pos.column);
+			var results = [];
+
+			var start = iter.getCurrentToken();
+			var token = start;
+			var current_indent = null;
+
+			if(!String.prototype.trimStart) {
+				String.prototype.trimStart = function() {
+					if(String.prototype.trimLeft)
+						return this.trimLeft();
+
+					var matches = this.match(/^( +)/);
+
+					if(null === matches)
+						return this.valueOf();
+
+					return this.substr(matches[1].length);
+				}
+			}
+
+			if(null != token) {
+				var token_column = iter.getCurrentTokenColumn();
+
+				// We're on a new indent
 				if(token.type == 'text' && token.value.length > 0 && 0 == token.value.trimStart().length) {
 					current_indent = token.value;
 					iter.stepBackward();
 
 				} else if (token.type == 'list.markup' || (token.type == 'string' && token.value.substr(-2) == '- ')) {
 					var tag_indent = " ".repeat(token.value.length);
-					
+
 					if (null === current_indent || tag_indent.length < current_indent.length) {
 						results.push('-:');
 						current_indent = tag_indent;
 					}
-					
+
 					iter.stepBackward();
 				}
-				
+
 				do {
 					token = iter.getCurrentToken();
 					token_column = iter.getCurrentTokenColumn()
@@ -724,45 +784,45 @@ function DevblocksClass() {
 					if(token.type === 'meta.tag' && 0 === token_column) {
 						var token_value = token.value;
 						var prevToken = iter.stepBackward();
-						
+
 						if(prevToken && prevToken.type == 'list.markup') {
 							if(-1 == token_value.indexOf(' ')) {
 								token_value = " ".repeat(prevToken.value.length) + token_value;
 							} else {
 								token_value = " ".repeat(prevToken.value.length) + token_value;
 							}
-							
+
 						} else {
 							iter.stepForward();
 						}
-						
+
 						var tag_trimmed = token_value.trimStart();
 						var tag_indent = " ".repeat(token_value.length - tag_trimmed.length);
-						
+
 						if(null === current_indent) {
 							current_indent = tag_indent;
 							results.push(tag_trimmed + ':');
-							
+
 						} else if (tag_indent.length < current_indent.length) {
 							results.push(tag_trimmed + ':');
 							current_indent = tag_indent;
-							
+
 							if(prevToken && prevToken.type == 'list.markup' && '-:' != results.slice(-1))
 								results.push('-:');
-							
+
 						} else if (tag_indent.length == current_indent.length) {
 							if(prevToken && prevToken.type == 'list.markup' && '-:' != results.slice(-1))
 								results.push('-:');
 						}
-						
+
 						// If we hit the root, stop early
 						if(0 == current_indent.length)
 							break;
 					}
-					
+
 				} while (iter.stepBackward());
 			}
-			
+
 			return results.reverse();
 		},
 		getYamlRowByPath: function(editor, path) {

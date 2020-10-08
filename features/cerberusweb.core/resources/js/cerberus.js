@@ -1349,6 +1349,9 @@ var ajax = new cAjaxCalls();
 				
 			} else if(mode == 'ace/mode/yaml') {
 				aceOptions.useSoftTabs = true;
+
+			} else if(mode == 'ace/mode/cerb_kata') {
+				aceOptions.useSoftTabs = true;
 			}
 			
 			editor.setOptions(aceOptions);
@@ -1957,8 +1960,8 @@ var ajax = new cAjaxCalls();
           });
       });
     };
-	
-	$.fn.cerbCodeEditorAutocompleteYaml = function(autocomplete_options) {
+
+	$.fn.cerbCodeEditorAutocompleteKata = function(autocomplete_options) {
 		var Autocomplete = require('ace/autocomplete').Autocomplete;
 		
 		var doCerbLiveAutocomplete = function(e) {
@@ -2015,7 +2018,7 @@ var ajax = new cAjaxCalls();
 				getCompletions: function(editor, session, pos, prefix, callback) {
 					editor.completer.autoSelect = false;
 
-					var token_path = Devblocks.cerbCodeEditor.getYamlTokenPath(pos, editor);
+					var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor);
 
 					// Normalize path (remove namespaces)
 					token_path = token_path.map(function(v) {
@@ -2031,9 +2034,8 @@ var ajax = new cAjaxCalls();
 
 					// Simple static path full match
 					if(editor.completer.autocomplete_suggestions.hasOwnProperty(scope_key)) {
-						callback(null, autocompleterYaml.formatData(scope_key));
-						return;
-						
+						return callback(null, autocompleterYaml.formatData(scope_key));
+
 					} else if (editor.completer.autocomplete_suggestions.hasOwnProperty('*')) {
 						var regexps = editor.completer.autocomplete_suggestions['*'];
 						
@@ -2048,16 +2050,120 @@ var ajax = new cAjaxCalls();
 						// Negative lookup cache
 						editor.completer.autocomplete_suggestions[scope_key] = [];
 						
+						return callback(false);
+
+					} else {
+						return callback(false);
+					}
+				}
+			};
+			
+			editor.setOption('enableBasicAutocompletion', []);
+			editor.completers.push(autocompleterYaml);
+			editor.commands.on('afterExec', doCerbLiveAutocomplete);
+		});
+	}
+
+	$.fn.cerbCodeEditorAutocompleteYaml = function(autocomplete_options) {
+		var Autocomplete = require('ace/autocomplete').Autocomplete;
+
+		var doCerbLiveAutocomplete = function(e) {
+			e.stopPropagation();
+
+			if(!e.editor.completer) {
+				var Autocomplete = require('ace/autocomplete').Autocomplete;
+				e.editor.completer = new Autocomplete();
+			}
+
+			if('insertstring' === e.command.name) {
+				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
+					if(1 === e.args.length) {
+						e.editor.completer.showPopup(e.editor);
+					}
+				}
+			}
+		};
+
+		return this.each(function() {
+			var $editor = $(this)
+				.nextAll('pre.ace_editor')
+				;
+
+			var editor = ace.edit($editor.attr('id'));
+
+			if(!editor.completer) {
+				editor.completer = new Autocomplete();
+			}
+
+			editor.completer.autocomplete_suggestions = {};
+
+			if(autocomplete_options.autocomplete_suggestions)
+				editor.completer.autocomplete_suggestions = autocomplete_options.autocomplete_suggestions;
+
+			var autocompleterYaml = {
+				formatData: function(scope_key) {
+					return editor.completer.autocomplete_suggestions[scope_key].map(function(data) {
+						if('object' == typeof data) {
+							if(!data.hasOwnProperty('score'))
+								data.score = 1000;
+
+							return data;
+
+						} else if('string' == typeof data) {
+							return {
+								caption: data,
+								snippet: data,
+								score: 1000
+							};
+						}
+					});
+				},
+				getCompletions: function(editor, session, pos, prefix, callback) {
+					editor.completer.autoSelect = false;
+
+					var token_path = Devblocks.cerbCodeEditor.getYamlTokenPath(pos, editor);
+
+					// Normalize path (remove namespaces)
+					token_path = token_path.map(function(v) {
+						var pos = v.indexOf('/');
+
+						if(-1 === pos)
+							return v;
+
+						return v.substr(0,pos) + ':';
+					});
+
+					var scope_key = token_path.join('');
+
+					// Simple static path full match
+					if(editor.completer.autocomplete_suggestions.hasOwnProperty(scope_key)) {
+						callback(null, autocompleterYaml.formatData(scope_key));
+						return;
+
+					} else if (editor.completer.autocomplete_suggestions.hasOwnProperty('*')) {
+						var regexps = editor.completer.autocomplete_suggestions['*'];
+
+						for(var regexp in regexps) {
+							if(scope_key.match(new RegExp('^' + regexp + '$'))) {
+								editor.completer.autocomplete_suggestions[scope_key] = regexps[regexp];
+								callback(null, autocompleterYaml.formatData(scope_key));
+								return;
+							}
+						}
+
+						// Negative lookup cache
+						editor.completer.autocomplete_suggestions[scope_key] = [];
+
 						callback(false);
 						return;
-						
+
 					} else {
 						callback(false);
 						return;
 					}
 				}
 			};
-			
+
 			editor.setOption('enableBasicAutocompletion', []);
 			editor.completers.push(autocompleterYaml);
 			editor.commands.on('afterExec', doCerbLiveAutocomplete);
