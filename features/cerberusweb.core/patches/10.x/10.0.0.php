@@ -54,6 +54,41 @@ if(!isset($tables['automation'])) {
 }
 
 // ===========================================================================
+// Update automations
+
+$automations_current = $db->GetArrayMaster("SELECT name FROM automation WHERE name like 'cerb.%' OR name like 'ai.cerb.%'");
+$automations_current = array_column($automations_current, 'name', 'name');
+
+$automations_json = file_get_contents(APP_PATH . '/features/cerberusweb.core/kata/cerb.json');
+
+$automations = json_decode($automations_json, true);
+
+foreach($automations as $automation) {
+	if(array_key_exists($automation['name'], $automations_current)) {
+		$db->ExecuteMaster(sprintf('UPDATE automation SET extension_id = %s, script = %s, description = %s, policy_kata = %s, created_at = %d, updated_at = %d WHERE name = %s',
+			$db->qstr($automation['extension_id']),
+			$db->qstr($automation['script']),
+			$db->qstr($automation['description']),
+			$db->qstr($automation['policy_kata']),
+			$automation['created_at'],
+			$automation['updated_at'],
+			$db->qstr($automation['name'])
+		));
+	} else {
+		$db->ExecuteMaster(sprintf('INSERT INTO automation (name, extension_id, script, description, policy_kata, created_at, updated_at)'.
+			"VALUES (%s, %s, %s, %s, %s, %d, %d)",
+			$db->qstr($automation['name']),
+			$db->qstr($automation['extension_id']),
+			$db->qstr($automation['script']),
+			$db->qstr($automation['description']),
+			$db->qstr($automation['policy_kata']),
+			$automation['created_at'],
+			$automation['updated_at']
+		));
+	}
+}
+
+// ===========================================================================
 // Add `automation_datastore` table
 
 if(!isset($tables['automation_datastore'])) {
