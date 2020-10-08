@@ -178,6 +178,24 @@ class _DevblocksAutomationService {
 						return false;
 					}
 					
+				} else if ('array' == $input_type) {
+					$inputs_validation = DevblocksPlatform::services()->validation();
+					$input_values = [];
+					
+					$input_field = $inputs_validation->addField($input_key, sprintf('inputs:' . $input_key))
+						->array()
+						;
+					
+					if($is_required)
+						$input_field->setRequired(true);
+					
+					if($is_required || !is_null($input_value))
+						$input_values[$input_key] = $input_value;
+					
+					if(false == ($inputs_validation->validateAll($input_values, $error))) {
+						return false;
+					}
+				
 				} else if ('record' == $input_type) {
 					$inputs_validation = DevblocksPlatform::services()->validation();
 					$input_values = [];

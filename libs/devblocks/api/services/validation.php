@@ -12,6 +12,16 @@ class DevblocksValidationField {
 	}
 	
 	/**
+	 *
+	 * @return _DevblocksValidationTypeArray
+	 */
+	function array() {
+		$this->_type = new _DevblocksValidationTypeArray('array');
+		
+		return $this->_type;
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksValidationTypeNumber
 	 */
@@ -713,6 +723,13 @@ class _DevblocksValidationTypeFloat extends _DevblocksValidationType {
 	}
 }
 
+class _DevblocksValidationTypeArray extends _DevblocksValidationType {
+	function __construct($type_name='array') {
+		parent::__construct($type_name);
+		return $this;
+	}
+}
+
 class _DevblocksValidationTypeBoolean extends _DevblocksValidationType {
 	function __construct($type_name='boolean') {
 		parent::__construct($type_name);
@@ -949,6 +966,12 @@ class _DevblocksValidationService {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' is not a valid context (%s).", $field_label, $value));
 				}
 				// [TODO] Filter to specific contexts for certain fields
+				break;
+				
+			case '_DevblocksValidationTypeArray':
+				if(!is_array($value)) {
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be an array.", $field_label));
+				}
 				break;
 				
 			case '_DevblocksValidationTypeBoolean':
