@@ -3,9 +3,9 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 	const COLUMNS_JSON = 'columns_json';
 	const ID = 'id';
 	const NAME = 'name';
+	const CARDS_KATA = 'cards_kata';
 	const OWNER_CONTEXT = 'owner_context';
 	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const PARAMS_JSON = 'params_json';
 	const UPDATED_AT = 'updated_at';
 	
 	private function __construct() {}
@@ -25,6 +25,12 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 			->id()
 			->setEditable(false)
 			;
+		// mediumtext
+		$validation
+			->addField(self::CARDS_KATA)
+			->string()
+			->setMaxLength(16777215)
+			;
 		// varchar(255)
 		$validation
 			->addField(self::NAME)
@@ -41,12 +47,6 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		$validation
 			->addField(self::OWNER_CONTEXT_ID)
 			->id()
-			;
-		// text
-		$validation
-			->addField(self::PARAMS_JSON)
-			->string()
-			->setMaxLength(65535)
 			;
 		// int(10) unsigned
 		$validation
@@ -148,7 +148,7 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, updated_at, columns_json, params_json ".
+		$sql = "SELECT id, name, cards_kata, owner_context, owner_context_id, updated_at, columns_json ".
 			"FROM project_board ".
 			$where_sql.
 			$sort_sql.
@@ -225,15 +225,13 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 			$object = new Model_ProjectBoard();
 			$object->id = $row['id'];
 			$object->name = $row['name'];
+			$object->cards_kata = $row['cards_kata'];
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
 			$object->updated_at = $row['updated_at'];
 
 			@$json = json_decode($row['columns_json'], true);
 			$object->columns = (false !== $json) ? $json : [];
-			
-			@$json = json_decode($row['params_json'], true);
-			$object->params = (false !== $json) ? $json : [];
 			
 			$objects[$object->id] = $object;
 		}
@@ -441,12 +439,44 @@ class SearchFields_ProjectBoard extends DevblocksSearchFields {
 
 class Model_ProjectBoard {
 	public $id = 0;
+	public $cards_kata = null;
 	public $name = null;
 	public $owner_context = null;
 	public $owner_context_id = 0;
 	public $updated_at = 0;
 	public $columns = [];
-	public $params = [];
+	
+	/**
+	 * @param DevblocksDictionaryDelegate $card
+	 * @return array|null
+	 */
+	function getCardSheet(DevblocksDictionaryDelegate $card) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		$dict = clone $card;
+		
+		// [TODO] Make this more efficient
+		$dict->set('board_context', Context_ProjectBoard::ID);
+		$dict->set('board_id', $this->id);
+		$dict->set('worker_context', CerberusContexts::CONTEXT_WORKER);
+		$dict->set('worker_context', $active_worker->id ?? 0);
+		
+		$card_handlers = $event_handler->parse($this->cards_kata, $dict);
+		
+		if(null == ($results = $event_handler->handleOnce(
+			AutomationTrigger_ProjectBoardRenderCard::ID,
+			$card_handlers,
+			$card->getDictionary()
+			)))
+			return null;
+		
+		if('return' == $results->getKeyPath('__exit')) {
+			return $results->getKeyPath('__return.sheet', null);
+		}
+		
+		return null;
+	}
 	
 	/**
 	 * 
@@ -474,33 +504,77 @@ class Model_ProjectBoard {
 		return $columns;
 	}
 	
-	function renderCard($card, $column=null) {
-		$context = $card->_context;
+	function renderCard(DevblocksDictionaryDelegate $card, Model_ProjectBoardColumn $column=null) {
+		$tpl = DevblocksPlatform::services()->template();
+		$sheets = DevblocksPlatform::services()->sheet();
 		
-		if(empty($context))
-			return;
+		$dict = DevblocksDictionaryDelegate::instance($card->getDictionary(null, false, 'card_'));
 		
-		@$card_template = $this->params['card_templates'][$context];
-		$html = null;
+		// [TODO] Set this earlier (and expanded)
+		$dict->set('column__context', Context_ProjectBoardColumn::ID);
+		$dict->set('column_id', $this->id);
 		
-		if(!$html && !empty($card_template)) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-			$html = $tpl_builder->build($card_template, $card);
-			$html = DevblocksPlatform::purifyHTML($html, false, false);
+		// Try the column first
+		$sheet_schema = $column->getCardSheet($dict);
+		
+		// Then try the board
+		if(!$sheet_schema) {
+			if(false == ($board = $column->getProjectBoard()))
+				return null;
+			
+			$sheet_schema = $board->getCardSheet($dict);
 		}
-			
-		if(!$html) {
-			$tpl = DevblocksPlatform::services()->template();
-			
-			$tpl->assign('card', $card);
-			
-			if(false == ($context_ext = Extension_DevblocksContext::get($context)))
-				return;
-				
-			$tpl->assign('context_ext', $context_ext);
-			
-			$html = $tpl->fetch('devblocks:cerb.project_boards::boards/board/card_default.tpl');
+		
+		if(!is_array($sheet_schema)) {
+			$sheet_schema = [
+				'columns' => [
+					'card/card__label' => [],
+				],
+			];
 		}
+		
+		$sheets->addType('card', $sheets->types()->card());
+		$sheets->addType('date', $sheets->types()->date());
+		$sheets->addType('selection', $sheets->types()->selection());
+		$sheets->addType('icon', $sheets->types()->icon());
+		$sheets->addType('link', $sheets->types()->link());
+		$sheets->addType('slider', $sheets->types()->slider());
+		$sheets->addType('text', $sheets->types()->text());
+		$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
+		$sheets->setDefaultType('text');
+		
+		$columns = $sheets->getColumns($sheet_schema);
+		$tpl->assign('columns', $columns);
+		
+		// Otherwise use defaults
+		if(!$sheet_schema) {
+			$sheet_schema = [
+				'layout' => [
+					'style' => 'fieldsets',
+					'paging' => 'false',
+					'title_column' => 'card__label',
+				],
+				'columns' => [
+					'card/card__label' => [],
+				],
+			];
+		} else {
+			if(!array_key_exists('layout', $sheet_schema)) {
+				$sheet_schema['layout'] = [
+					'style' => 'fieldsets',
+					'paging' => 'false',
+					'title_column' => key($columns),
+				];
+			}
+		}
+		
+		$layout = $sheets->getLayout($sheet_schema);
+		$tpl->assign('layout', $layout);
+		
+		$rows = $sheets->getRows($sheet_schema, [$dict]);
+		$tpl->assign('rows', $rows);
+		
+		$html = $tpl->fetch('devblocks:cerberusweb.core::events/form_interaction/worker/responses/respond_sheet_fieldsets.tpl');
 		
 		echo $html;
 	}
@@ -948,6 +1022,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			'_label' => $prefix,
 			'columns' => $prefix.$translate->_('dashboard.columns'),
 			'id' => $prefix.$translate->_('common.id'),
+			'cards_kata' => $prefix.$translate->_('common.cards_kata'),
 			'name' => $prefix.$translate->_('common.name'),
 			'params' => $prefix.$translate->_('common.params'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
@@ -959,7 +1034,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			'_label' => 'context_url',
 			'columns' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
-			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'cards_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'params' => null,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
@@ -974,7 +1049,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
 		$token_values['_context'] = Context_ProjectBoard::ID;
 		$token_values['_types'] = $token_types;
@@ -983,9 +1058,9 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $project_board->name;
 			$token_values['columns'] = $project_board->columns;
+			$token_values['cards_kata'] = $project_board->cards_kata;
 			$token_values['id'] = $project_board->id;
 			$token_values['name'] = $project_board->name;
-			$token_values['params'] = $project_board->params;
 			$token_values['updated_at'] = $project_board->updated_at;
 			
 			// Custom fields
@@ -1003,6 +1078,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		return [
 			'id' => DAO_ProjectBoard::ID,
 			'links' => '_links',
+			'cards_kata' => DAO_ProjectBoard::CARDS_KATA,
 			'name' => DAO_ProjectBoard::NAME,
 			'owner__context' => DAO_ProjectBoard::OWNER_CONTEXT,
 			'owner_id' => DAO_ProjectBoard::OWNER_CONTEXT_ID,
@@ -1051,20 +1127,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 				}
 				
 				$out_fields[DAO_ProjectBoard::COLUMNS_JSON] = $json;
-				break;
-				
-			case 'params':
-				if(!is_array($value)) {
-					$error = 'must be an object.';
-					return false;
-				}
-				
-				if(false == ($json = json_encode($value))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields[DAO_ProjectBoard::PARAMS_JSON] = $json;
 				break;
 		}
 		

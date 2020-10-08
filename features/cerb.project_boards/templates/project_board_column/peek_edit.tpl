@@ -1,6 +1,7 @@
 {$peek_context = Context_ProjectBoardColumn::ID}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
+{$board = $model->getProjectBoard()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
@@ -15,7 +16,7 @@
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate}:</b></td>
 		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
+			<input type="text" name="name" value="{$model->name}" style="width:98%;">
 		</td>
 	</tr>
 	
@@ -26,7 +27,6 @@
 			
 			<ul class="bubbles chooser-container">
 				{if $model}
-					{$board = $model->getProjectBoard()}
 					{if $board}
 						<li><input type="hidden" name="board_id" value="{$board->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a></li>
 					{/if}
@@ -40,48 +40,117 @@
 	{/if}
 </table>
 
-<h3 style="font-size:1.3em;">When cards are dropped into this column:</h3>
+<fieldset class="peek" data-cerb-editor-cards>
+	<legend>Event: Render card (KATA)</legend>
 
-{* If tasks are on the board *}
-{if in_array(CerberusContexts::CONTEXT_TASK, $board->params.contexts)}
-{$action_params = $model->params.actions}
-{$has_action_task_status = is_array($action_params) && array_key_exists('task_status', $action_params)}
-<fieldset class="peek black" style="position:relative;">
-	<legend>
-		<label>
-		<input type="checkbox" name="actions[]" value="task_status" {if $has_action_task_status}checked="checked"{/if}> 
-		Set task status
-		</label>
-	</legend>
-	
-	<div class="parameters" style="{if $has_action_task_status}display:block;{else}display:none;{/if}">
-		<div class="block" style="margin-left:10px;margin-bottom:0.5em;">
-			<select name="action_params[task_status][status_id]">
-				<option value="0" {if $action_params.task_status.status_id == 0}selected="selected"{/if}>{'status.open'|devblocks_translate|lower}</option>
-				<option value="2" {if $action_params.task_status.status_id == 2}selected="selected"{/if}>{'status.waiting.abbr'|devblocks_translate|lower}</option>
-				<option value="1" {if $action_params.task_status.status_id == 1}selected="selected"{/if}>{'status.completed'|devblocks_translate|lower}</option>
-			</select>
-		</div>
+	<div class="cerb-code-editor-toolbar">
+		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'board__context' => Context_ProjectBoard::ID,
+		'board_id' => $board->id,
+		'board_column__context' => Context_ProjectBoardColumn::ID,
+		'board_column_id' => $peek_context_id,
+		'worker__context' => CerberusContexts::CONTEXT_WORKER,
+		'worker_id' => $active_worker->id
+		])}
+
+		{$toolbar_kata =
+"menu/add:
+  icon: circle-plus
+  items:
+    interaction/automation:
+      label: Automation
+      uri: ai.cerb.eventHandler.automation
+      inputs:
+        trigger: cerb.trigger.projectBoard.renderCard
+"}
+
+		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+		{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+		<div class="cerb-code-editor-toolbar-divider"></div>
+
+		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 	</div>
-</fieldset>
-{/if}
 
-<div class="behaviors">
-{foreach from=$behaviors item=behavior}
-<fieldset class="peek black" style="position:relative;">
-	<input type="hidden" name="behavior_ids[]" value="{$behavior->id}">
-	<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"></span>
-	<legend><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-context-id="{$behavior->id}">{$behavior->title}</a></legend>
-	<div class="parameters">
-	{include file="devblocks:cerberusweb.core::events/_action_behavior_params.tpl" namePrefix="behavior_params[{$behavior->id}]" params=$model->params.behaviors[$behavior->id] macro_params=$behavior->variables}
+	<textarea name="cards_kata" data-editor-mode="ace/mode/yaml">{$model->cards_kata}</textarea>
+</fieldset>
+
+<fieldset class="peek" data-cerb-editor-functions>
+	<legend>Event: Card added to column (KATA)</legend>
+
+	<div class="cerb-code-editor-toolbar">
+		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'board__context' => Context_ProjectBoard::ID,
+		'board_id' => $board->id,
+		'board_column__context' => Context_ProjectBoardColumn::ID,
+		'board_column_id' => $peek_context_id,
+		'worker__context' => CerberusContexts::CONTEXT_WORKER,
+		'worker_id' => $active_worker->id
+		])}
+
+		{$toolbar_kata =
+"menu/add:
+  icon: circle-plus
+  items:
+    interaction/automation:
+      label: Automation
+      uri: ai.cerb.eventHandler.automation
+      inputs:
+        trigger: cerb.trigger.projectBoard.cardAction
+"}
+
+		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+		{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+		<div class="cerb-code-editor-toolbar-divider"></div>
+
+		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 	</div>
-</fieldset>
-{/foreach}
-</div>
 
-<div style="margin:5px 0px 10px 0px;">
-	<button type="button" class="chooser-behavior" data-context="{CerberusContexts::CONTEXT_BEHAVIOR}" data-query="" data-query-required="disabled:n private:n event:event.macro.*"><span class="glyphicons glyphicons-circle-plus"></span> {'common.behaviors'|devblocks_translate|capitalize}</button>
-</div>
+	<textarea name="functions_kata" data-editor-mode="ace/mode/yaml">{$model->functions_kata}</textarea>
+</fieldset>
+
+<fieldset class="peek" data-cerb-editor-toolbar>
+	<legend>Toolbar: (KATA)</legend>
+
+	<div class="cerb-code-editor-toolbar">
+		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'board__context' => Context_ProjectBoard::ID,
+		'board_id' => $board->id,
+		'board_column__context' => Context_ProjectBoardColumn::ID,
+		'board_column_id' => $peek_context_id,
+		'worker__context' => CerberusContexts::CONTEXT_WORKER,
+		'worker_id' => $active_worker->id
+		])}
+
+		{$toolbar_kata =
+"menu/insert:
+  icon: circle-plus
+  items:
+    interaction/interaction:
+      label: Interaction
+      uri: ai.cerb.toolbarBuilder.interaction
+    interaction/function:
+      label: Function
+      uri: ai.cerb.toolbarBuilder.function
+    interaction/menu:
+      label: Menu
+      uri: ai.cerb.toolbarBuilder.menu
+"}
+
+		{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+		{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+		<div class="cerb-code-editor-toolbar-divider"></div>
+
+		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+	</div>
+
+	<textarea name="toolbar_kata" data-editor-mode="ace/mode/yaml">{$model->toolbar_kata}</textarea>
+</fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
@@ -100,11 +169,14 @@
 
 <div class="status"></div>
 
-<div class="buttons">
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+<div class="buttons" style="margin-top:10px;">
+	{if $model->id}
+		<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+	{else}
+		<button type="button" class="create"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+	{/if}
 </div>
-
 </form>
 
 <script type="text/javascript">
@@ -112,104 +184,106 @@ $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
-		var $behaviors = $popup.find('div.behaviors');
-		
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'projects.common.board.column'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 
 		// Buttons
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.create').click({ mode: 'create' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		
+
+		// Close confirmation
+
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			var keycode = e.keyCode || e.which;
+			if(keycode === 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+
 		// Triggers
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
-		// Choosers
-		$popup.find('.chooser-abstract').cerbChooserTrigger()
-		
-		// Abstract delete
-		$behaviors.on('click', 'span.glyphicons-circle-remove', function(e) {
-			var $this = $(this);
-			e.stopPropagation();
-			
-			// Two step confirm
-			if(!$this.attr('data-delete')) {
-				$this
-					.css('color', 'red')
-					.attr('data-delete', 'true')
-				;
-			} else {
-				$this.closest('fieldset').remove();
+		$popup.find('.chooser-abstract').cerbChooserTrigger();
+
+		// Cards
+
+		var $cards = $popup.find('[data-cerb-editor-cards]');
+
+		var $editor_cards = $cards.find('textarea[name=cards_kata]')
+			.cerbCodeEditor()
+			.nextAll('pre.ace_editor')
+		;
+
+		var editor_cards = ace.edit($editor_cards.attr('id'));
+
+		$cards.find('.cerb-code-editor-toolbar').cerbToolbar({
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if(e.eventData.snippet) {
+					editor_cards.insertSnippet(e.eventData.snippet);
+				}
 			}
 		});
-		
-		// Handle built-in actions
-		$popup.find('input:checkbox[value=task_status]')
-			.on('change', function(e) {
-				var $this = $(this);
-				var $params = $this.closest('fieldset').find('div.parameters');
-				
-				if($this.is(':checked')) {
-					$params.fadeIn();
-				} else {
-					$params.hide();
-				}
-			})
-			;
-		
-		// Behavior chooser
-		$popup.find('.chooser-behavior')
-			.click(function() {
-				var $trigger = $(this);
-				var context = $trigger.attr('data-context');
-				var q = $trigger.attr('data-query');
-				var qr = $trigger.attr('data-query-required');
-				var single = $trigger.attr('data-single') != null ? '1' : '';
-				var width = $(window).width()-100;
-				var $chooser=genericAjaxPopup('chooser' + new Date().getTime(),'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q) + '&qr=' + encodeURIComponent(qr) + '&single=' + encodeURIComponent(single),null,true,width);
-				
-				$behaviors.find('.cerb-peek-trigger').cerbPeekTrigger();
-				
-				$chooser.one('chooser_save', function(event) {
-					for(value in event.values) {
-						var behavior_label = event.labels[value];
-						var behavior_id = event.values[value];
-						
-						// Don't add the same behavior twice
-						if($behaviors.find('input:hidden[value=' + behavior_id + ']').length != 0)
-							continue;
-						
-						var $fieldset = $('<fieldset class="peek black" style="position:relative;" />');
-						var $hidden = $('<input type="hidden" name="behavior_ids[]" />').val(behavior_id).appendTo($fieldset);
-						var $remove = $('<span class="glyphicons glyphicons-circle-remove" style="position:absolute;top:0;right:0;cursor:pointer;"/>')
-							.appendTo($fieldset)
-						;
-						
-						var $legend = $('<legend/>')
-							.appendTo($fieldset)
-						;
-						
-						var $a = $('<a/>')
-							.attr('href','javascript:;')
-							.addClass('no-underline')
-							.text(behavior_label)
-							.attr('data-context', 'cerberusweb.contexts.behavior')
-							.attr('data-context-id', behavior_id)
-							.cerbPeekTrigger()
-							.appendTo($legend)
-						;
-						
-						var $div = $('<div class="parameters" />').appendTo($fieldset);
-						var name_prefix = 'behavior_params[' + behavior_id + ']';
-						
-						$fieldset.appendTo($behaviors);
-						
-						genericAjaxGet($div, 'c=profiles&a=invoke&module=behavior&action=getParams&name_prefix=' + encodeURIComponent(name_prefix) + '&trigger_id=' + encodeURIComponent(behavior_id));
-					}
-				});
-			})
+
+		// Functions
+
+		var $functions = $popup.find('[data-cerb-editor-functions]');
+
+		var $editor_functions = $functions.find('textarea[name=functions_kata]')
+			.cerbCodeEditor()
+			.nextAll('pre.ace_editor')
 		;
-		
+
+		var editor_functions = ace.edit($editor_functions.attr('id'));
+
+		$functions.find('.cerb-code-editor-toolbar').cerbToolbar({
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if(e.eventData.snippet) {
+					editor_functions.insertSnippet(e.eventData.snippet);
+				}
+			}
+		});
+
+		// Toolbar
+
+		var $toolbar = $popup.find('[data-cerb-editor-toolbar]');
+
+		var $editor_toolbar = $toolbar.find('textarea[name=toolbar_kata]')
+			.cerbCodeEditor()
+			.nextAll('pre.ace_editor')
+		;
+
+		var editor_toolbar = ace.edit($editor_toolbar.attr('id'));
+
+		$toolbar.find('.cerb-code-editor-toolbar').cerbToolbar({
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger') && !$target.is('.cerb-function-trigger'))
+					return;
+
+				if(e.eventData.snippet) {
+					editor_toolbar.insertSnippet(e.eventData.snippet);
+				}
+			}
+		});
+
+		$popup.find('input[name=name]').focus();
+
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});

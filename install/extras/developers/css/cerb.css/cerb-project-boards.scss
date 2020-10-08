@@ -36,7 +36,7 @@ div.cerb-board {
 		}
 	}
 
-	div.cerb-board-column {
+	.cerb-board-column {
 		white-space: normal;
 		text-align: center;
 		vertical-align: top;
@@ -49,7 +49,7 @@ div.cerb-board {
 		margin: 5px;
 		padding: 5px 0px;
 
-		div.cerb-board-column-toolbar-buttons {
+		.cerb-board-column-toolbar-buttons {
 			float: right;
 			margin: 0px 5px 0px 0px;
 		}
@@ -70,7 +70,7 @@ div.cerb-board {
 			display: inline-block;
 			width: 280px;
 			min-height: 50px;
-			margin: 5px;
+			margin: 2px;
 			padding: 0;
 			cursor: move;
 			overflow: hidden;
@@ -103,7 +103,7 @@ div.cerb-board {
 				padding:3px;
 				font-size:90%;
 				text-transform: uppercase;
-			}			
+			}
 		}
 	}
 }

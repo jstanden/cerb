@@ -138,16 +138,16 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 						
 					case 'build':
 						@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-						@$params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
+						@$cards_kata = DevblocksPlatform::importGPC($_POST['cards_kata'], 'string', '');
 						
 						$error = null;
 						
 						if(empty($id)) { // New
 							
 							$fields = array(
-								DAO_ProjectBoard::UPDATED_AT => time(),
+								DAO_ProjectBoard::CARDS_KATA => $cards_kata,
 								DAO_ProjectBoard::NAME => $name,
-								DAO_ProjectBoard::PARAMS_JSON => json_encode($params),
+								DAO_ProjectBoard::UPDATED_AT => time(),
 							);
 							
 							if(!DAO_ProjectBoard::validate($fields, $error))
@@ -164,9 +164,9 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 							
 						} else { // Edit
 							$fields = array(
-								DAO_ProjectBoard::UPDATED_AT => time(),
+								DAO_ProjectBoard::CARDS_KATA => $cards_kata,
 								DAO_ProjectBoard::NAME => $name,
-								DAO_ProjectBoard::PARAMS_JSON => json_encode($params),
+								DAO_ProjectBoard::UPDATED_AT => time(),
 							);
 							
 							if(!DAO_ProjectBoard::validate($fields, $error, $id))

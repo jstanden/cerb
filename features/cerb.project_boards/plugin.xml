@@ -25,6 +25,7 @@
 	<patches>
 		<patch version="8.0.0" revision="2" file="patches/8.0.0.php" />
 		<patch version="9.0.0" revision="4" file="patches/9.0.0.php" />
+		<patch version="10.0.0" revision="8" file="patches/10.0.0.php" />
 	</patches>
 
 	<!-- Classloader -->
@@ -50,7 +51,7 @@
 	<!-- Extensions -->
 
 	<extensions>
-	
+
 		<!-- Contexts -->
 	
 		<extension point="devblocks.context">
@@ -153,6 +154,11 @@
 				<name>AutomationTrigger_ProjectBoardRenderCard</name>
 			</class>
 			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
@@ -164,6 +170,11 @@
 				<name>AutomationTrigger_ProjectBoardCardAction</name>
 			</class>
 			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
 			</params>
 		</extension>
 

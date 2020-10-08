@@ -1,9 +1,9 @@
 {
   "package": {
     "name": "Project Board: Kanban Template",
-    "revision": 2019012601,
+    "revision": 2020100501,
     "requires": {
-      "cerb_version": "9.2.0",
+      "cerb_version": "10.0.0",
       "plugins": [
 
       ]
@@ -34,13 +34,6 @@
   },
   "records": [
     {
-      "uid": "card_task_instructions",
-      "_context": "task",
-      "title": "Example Task Card",
-      "importance": "50",
-      "status": "open"
-    },
-    {
       "uid": "project_board_kanban",
       "_context": "cerberusweb.contexts.project.board",
       "name": "{{{prompt_project_name}}}",
@@ -51,55 +44,40 @@
         "{{{uid.project_board_kanban_in_progress}}}",
         "{{{uid.project_board_kanban_completed}}}"
       ],
-      "params": {
-        "card_queries": {
-          "cerberusweb.contexts.task": "status:[o,w]"
-        },
-        "card_templates": {
-          "cerberusweb.contexts.task": "{% apply spaceless %}\n{% if is_completed %}\n<div style=\"font-size:120%;\">\n\t<span class=\"glyphicons glyphicons-circle-ok\" style=\"color:rgb(0,150,0);\"></span> Completed!\n</div>\n{% endif %}\n{% endapply %}"
-        },
-        "contexts": [
-          "cerberusweb.contexts.task"
-        ]
-      }
+      "cards_kata": "automation/task_sheet:\n  name: cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes"
     },
     {
       "uid": "project_board_kanban_todo",
       "_context": "cerberusweb.contexts.project.board.column",
       "name": "TODO",
       "board_id": "{{{uid.project_board_kanban}}}",
-      "params": {
-      },
       "cards": [
-        "task:{{{uid.card_task_instructions}}}"
-      ]
+      ],
+      "cards_kata": "",
+      "functions_kata": "",
+      "toolbar_kata": "interaction/add:\n  name: cerb.projectBoard.toolbar.task.add\n  icon: circle-plus\n  inputs:\n    column: {{column_id}}\n\ninteraction/find:\n  name: cerb.projectBoard.toolbar.task.find\n  icon: search\n  inputs:\n    column: {{column_id}}"
     },
     {
       "uid": "project_board_kanban_in_progress",
       "_context": "cerberusweb.contexts.project.board.column",
       "name": "In Progress",
       "board_id": "{{{uid.project_board_kanban}}}",
-      "params": {
-      },
       "cards": [
-
-      ]
+      ],
+      "cards_kata": "",
+      "functions_kata": "",
+      "toolbar_kata": ""
     },
     {
       "uid": "project_board_kanban_completed",
       "_context": "cerberusweb.contexts.project.board.column",
       "name": "Completed!",
       "board_id": "{{{uid.project_board_kanban}}}",
-      "params": {
-        "actions": {
-          "task_status": {
-            "status_id": "1"
-          }
-        }
-      },
       "cards": [
-
-      ]
+      ],
+      "cards_kata": "automation/completed:\n  name: cerb.projectBoard.card.done\n",
+      "functions_kata": "automation/close:\n  name: cerb.projectBoard.action.task.close\n  inputs:\n    status: closed\n",
+      "toolbar_kata": ""
     }
   ]
 }

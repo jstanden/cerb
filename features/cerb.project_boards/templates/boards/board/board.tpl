@@ -1,11 +1,3 @@
-{capture name="link_contexts"}
-{foreach from=$contexts item=context}
-{if empty($board->params.contexts) || (is_array($board->params.contexts) && in_array($context->id, $board->params.contexts))}
-<li data-context="{$context->id}" data-query="{$board->params.card_queries[{$context->id}]}"><b>{$context->name}</b></li>
-{/if}
-{/foreach}
-{/capture}
-
 {$columns = $board->getColumns()}
 
 <div>
@@ -23,6 +15,7 @@
 				{include file="devblocks:cerb.project_boards::boards/board/column.tpl"}
 				</div>
 				{/foreach}
+
 				{if $active_worker->hasPriv("contexts.{Context_ProjectBoardColumn::ID}.create")}
 				<div class="cerb-board-column-add">
 					<p><span class="glyphicons glyphicons-circle-plus"></span> <a href="javascript:;" data-context="{Context_ProjectBoardColumn::ID}" data-context-id="0" data-edit="board.id:{$board->id}">{'common.add'|devblocks_translate|capitalize}</a></p>
@@ -31,12 +24,6 @@
 			</div>
 		</div>
 	</div>
-	
-	{if $smarty.capture.link_contexts|trim|strlen > 0}
-	<ul class="menu cerb-float" style="width:200px;margin-top:-5px;display:none;">
-		{$smarty.capture.link_contexts nofilter}
-	</ul>
-	{/if}
 </div>
 
 <script type="text/javascript">
@@ -91,21 +78,20 @@ $(function() {
 	;
 	
 	var sortable_options = {
-		connectWith: '.cerb-board-column',
+		connectWith: '.cerb-board-column form',
 		tolerance: 'pointer',
 		items: '.cerb-board-card',
 		opacity: 0.7,
 		receive: function(event, ui) {
 			var $card = $(ui.item);
 			
-			var $a = $card.find('h3 a');
-			var card_context = $a.attr('data-context');
-			var card_id = $a.attr('data-context-id');
+			var card_context = $card.attr('data-context');
+			var card_id = $card.attr('data-context-id');
 			
-			var $from_column = $(ui.sender);
+			var $from_column = $(ui.sender).parent();
 			var from_column_id = $from_column.attr('data-column-id');
 
-			var $to_column = $(this);
+			var $to_column = $(this).parent();
 			var to_column_id = $to_column.attr('data-column-id');
 
 			var formData = new FormData();
@@ -122,8 +108,8 @@ $(function() {
 				$card.trigger('cerb-refresh');
 			});
 		},
-		update: function(event, ui) {
-			var $column = $(this);
+		update: function() {
+			var $column = $(this).parent();
 			var column_id = $column.attr('data-column-id');
 			
 			var formData = new FormData($column.find('form').get(0));
@@ -137,7 +123,7 @@ $(function() {
 			});
 		}
 	};
-	
+
 	$(document).on('cerb-project-column-changed cerb-project-column-deleted', function(e) {
 		// Event for the same board
 		if(e.board_id != {$board->id|default:0})
@@ -154,7 +140,7 @@ $(function() {
 	});
 	
 	$(document).on('cerb-peek-saved', function(e) {
-		var $card = $board.find('div.cerb-board-card a.cerb-peek-trigger[data-context="' + e.context + '"][data-context-id=' + e.id + ']')
+		var $card = $board.find('div.cerb-board-card[data-context="' + e.context + '"][data-context-id=' + e.id + ']')
 			.closest('div.cerb-board-card')
 			;
 		
@@ -162,7 +148,7 @@ $(function() {
 	});
 	
 	$(document).on('cerb-peek-deleted', function(e) {
-		var $card = $board.find('div.cerb-board-card a.cerb-peek-trigger[data-context="' + e.context + '"][data-context-id=' + e.id + ']')
+		var $card = $board.find('div.cerb-board-card[data-context="' + e.context + '"][data-context-id=' + e.id + ']')
 			.closest('div.cerb-board-card')
 			;
 		$card.remove();
@@ -213,10 +199,12 @@ $(function() {
 	
 	$board.on('cerb-refresh', 'div.cerb-board-column', function(e) {
 		e.stopPropagation();
-		
+
 		var $column = $(this);
+
+		$column.empty().append(Devblocks.getSpinner());
+
 		var column_id = $column.attr('data-column-id');
-		var is_new = 0 === $column.find('> form').length;
 
 		var formData = new FormData();
 		formData.set('c', 'profiles');
@@ -228,8 +216,7 @@ $(function() {
 		genericAjaxPost(formData, $column, '', function() {
 			//console.log("Moved from ", ui.sender, "To ", $column);
 			
-			// [TODO] Redundant
-			$column.unbind().find('button.cerb-board-column-edit')
+			$column.unbind().find('.cerb-board-column-edit')
 				.cerbPeekTrigger()
 				.on('cerb-peek-saved', function() {
 					var $column = $(this).closest('div.cerb-board-column');
@@ -241,20 +228,10 @@ $(function() {
 				})
 			;
 			
-			$column
-				.sortable('destroy')
+			$column.find('> form')
+				.disableSelection()
 				.sortable(sortable_options)
 				;
-			
-			$column
-				.find('.cerb-bot-trigger')
-					.cerbBotTrigger()
-					;
-			$column
-				.find('.cerb-peek-trigger')
-					.cerbPeekTrigger()
-					;
-			;
 		});
 	});
 	
@@ -263,12 +240,8 @@ $(function() {
 		
 		var $card = $(this);
 		
-		var $trigger = $card.find('h3 a.cerb-peek-trigger');
-		var context = $trigger.attr('data-context');
-		var context_id = $trigger.attr('data-context-id');
-
-		// var context = $card.attr('data-context');
-		// var context_id = $card.attr('data-context-id');
+		var context = $card.attr('data-context');
+		var context_id = $card.attr('data-context-id');
 
 		var formData = new FormData();
 		formData.set('c', 'profiles');
@@ -279,19 +252,7 @@ $(function() {
 		formData.set('context', context);
 		formData.set('id', context_id);
 
-		genericAjaxPost(formData, $card, '', function() {
-			$card
-				.find('.cerb-bot-trigger')
-				.cerbBotTrigger()
-				;
-			$card
-				.find('.cerb-peek-trigger')
-				.cerbPeekTrigger()
-				;
-			$card
-				.find('.cerb-search-trigger')
-				.cerbSearchTrigger()
-		});
+		genericAjaxPost(formData, $card, '');
 	});
 	
 	$board.on('click', 'button.cerb-board-card-add', function(e) {
@@ -326,11 +287,12 @@ $(function() {
 	});
 	
 	$board.find('div.cerb-board-column')
-		.sortable(sortable_options)
+		.find('> form')
 		.disableSelection()
+		.sortable(sortable_options)
 	;
 	
-	$board.find('button.cerb-board-column-edit')
+	$board.find('.cerb-board-column-edit')
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function() {
 			var $column = $(this).closest('div.cerb-board-column');
@@ -343,32 +305,28 @@ $(function() {
 		;
 	
 	$board.find('div.cerb-board-column-add a')
+		.css('cursor', 'pointer')
 		.cerbPeekTrigger()
-		.on('cerb-peek-saved', function(e) {
-			var $placeholder = $(this).closest('div.cerb-board-column-add');
+		.on('cerb-peek-created', function(e) {
+			var $this = $(this).closest('div.cerb-board-column-add');
 			
-			$column = $('<div class="cerb-board-column"/>')
+			$('<div class="cerb-board-column"/>')
 				.attr('data-column-id', e.id)
-				.insertBefore($placeholder)
-				.sortable(sortable_options)
-				.disableSelection()
+				.insertBefore($this)
 				.trigger('cerb-refresh')
 				;
 			
 			// Persist column order
 			$board.trigger('cerb-persist');
 		})
-		;
-	
-	var $cards = $board.find('div.cerb-board-card');
-	$cards.find('.cerb-bot-trigger')
-		.cerbBotTrigger()
-		;
-	$cards.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
-	$cards.find('.cerb-search-trigger')
-		.cerbSearchTrigger()
+		.on('cerb-peek-saved', function(e) {
+			var $column = $board.find('[data-column-id=' + e.id + ']');
+			$column.trigger('cerb-refresh');
+		})
+		.on('cerb-peek-deleted', function(e) {
+			var $column = $board.find('[data-column-id=' + e.id + ']');
+			$column.remove();
+		})
 		;
 });
 </script>

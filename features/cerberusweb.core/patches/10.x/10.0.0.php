@@ -217,6 +217,15 @@ foreach($nodes as $node) {
 }
 
 // ===========================================================================
+// Update package library
+
+$packages = [
+	'cerb_project_board_kanban.json',
+];
+
+CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

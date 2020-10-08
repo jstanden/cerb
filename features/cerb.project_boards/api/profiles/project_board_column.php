@@ -79,33 +79,11 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
 				@$board_id = DevblocksPlatform::importGPC($_POST['board_id'], 'integer', 0);
-				@$actions = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['actions'], 'array', []), 'string');
-				@$actions_params = DevblocksPlatform::importGPC($_POST['action_params'], 'array', []);
-				@$behavior_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_POST['behavior_ids'], 'array', []), 'int');
-				@$behaviors_params = DevblocksPlatform::importGPC($_POST['behavior_params'], 'array', []);
-				
-				$params = [
-					'actions' => [],
-					'behaviors' => [],
-				];
+				@$cards_kata = DevblocksPlatform::importGPC($_POST['cards_kata'], 'string', '');
+				@$toolbar_kata = DevblocksPlatform::importGPC($_POST['toolbar_kata'], 'string', '');
+				@$functions_kata = DevblocksPlatform::importGPC($_POST['functions_kata'], 'string', '');
 				
 				$error = null;
-				
-				// Actions
-				
-				foreach($actions as $action) {
-					$action_params = @$actions_params[$action] ?: [];
-					$params['actions'][$action] = $action_params;
-				}
-				
-				// Behaviors
-				
-				$behaviors = DAO_TriggerEvent::getIds($behavior_ids);
-				
-				foreach(array_keys($behaviors) as $behavior_id) {
-					$behavior_params = @$behaviors_params[$behavior_id] ?: [];
-					$params['behaviors'][$behavior_id] = $behavior_params;
-				}
 				
 				// DAO
 				
@@ -114,7 +92,9 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 						DAO_ProjectBoardColumn::UPDATED_AT => time(),
 						DAO_ProjectBoardColumn::BOARD_ID => $board_id,
 						DAO_ProjectBoardColumn::NAME => $name,
-						DAO_ProjectBoardColumn::PARAMS_JSON => json_encode($params),
+						DAO_ProjectBoardColumn::CARDS_KATA => $cards_kata,
+						DAO_ProjectBoardColumn::TOOLBAR_KATA => $toolbar_kata,
+						DAO_ProjectBoardColumn::FUNCTIONS_KATA => $functions_kata,
 					);
 					
 					if(!DAO_ProjectBoardColumn::validate($fields, $error))
@@ -134,7 +114,9 @@ class PageSection_ProfilesProjectBoardColumn extends Extension_PageSection {
 						DAO_ProjectBoardColumn::UPDATED_AT => time(),
 						DAO_ProjectBoardColumn::BOARD_ID => $board_id,
 						DAO_ProjectBoardColumn::NAME => $name,
-						DAO_ProjectBoardColumn::PARAMS_JSON => json_encode($params),
+						DAO_ProjectBoardColumn::CARDS_KATA => $cards_kata,
+						DAO_ProjectBoardColumn::TOOLBAR_KATA => $toolbar_kata,
+						DAO_ProjectBoardColumn::FUNCTIONS_KATA => $functions_kata,
 					);
 					
 					if(!DAO_ProjectBoardColumn::validate($fields, $error, $id))

@@ -35,42 +35,49 @@
 						<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 					</td>
 				</tr>
-				
+
 				{if !empty($custom_fields)}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
 				{/if}
-				
-				<tr>
-					<td colspan="2" width="100%">
-						<fieldset class="peek cerb-contexts-selection">
-							<legend>Allow these record types in the project:</legend>
-							{foreach from=$contexts item=context}
-							{$enabled = false}
-							{if is_array($model->params.contexts) && in_array($context->id, $model->params.contexts)}
-							{$enabled = true}
-							{/if}
-							<div>
-								<label><input type="checkbox" name="params[contexts][]" value="{$context->id}" {if $enabled}checked="checked"{/if}> {$context->name}</label>
-								<div class="cerb-contexts-params" style="margin:0px 0px 10px 20px;{if $enabled}display:block;{else}display:none;{/if};">
-									<div>
-										<b>Quick search query for adding cards:</b><br>
-										<input type="text" name="params[card_queries][{$context->id}]" value="{$model->params.card_queries[{$context->id}]}" style="width:100%;" class="cerb-query-trigger" data-context="{$context->id}">
-									</div>
-									<div>
-										<b>Card custom template:</b> (optional)<br>
-										<textarea name="params[card_templates][{$context->id}]" style="width:100%;height:100px;" class="cerb-template-trigger" data-context="{$context->id}">{$model->params.card_templates[{$context->id}]}</textarea>
-									</div>
-								</div>
-							</div>
-							{/foreach}
-						</fieldset>
-						
-						{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
-					</td>
-				</tr>
 			</tbody>
 		</table>
-		
+
+
+		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+
+		<fieldset class="peek" data-cerb-editor-cards>
+			<legend>Event: Render card (KATA)</legend>
+
+			<div class="cerb-code-editor-toolbar">
+				{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'board__context' => $peek_context,
+				'board_id' => $peek_context_id,
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id
+				])}
+
+				{$toolbar_kata =
+"menu/add:
+  icon: circle-plus
+  items:
+    interaction/automation:
+      label: Automation
+      name: cerb.eventHandler.automation
+      inputs:
+        trigger: cerb.trigger.projectBoard.renderCard
+"}
+
+				{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+			</div>
+			<textarea name="cards_kata" data-editor-mode="ace/mode/yaml">{$model->cards_kata}</textarea>
+		</fieldset>
+
 		{if !empty($model->id)}
 		<fieldset style="display:none;" class="delete">
 			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
@@ -84,9 +91,13 @@
 		</fieldset>
 		{/if}
 		
-		<div class="buttons">
-			<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-			{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+		<div class="buttons" style="margin-top:10px;">
+			{if $model->id}
+				<button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+				{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+			{else}
+				<button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+			{/if}
 		</div>
 	</div>
 </div>
@@ -98,14 +109,50 @@ $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'projects.common.board'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		
+
+		var $fieldset_cards = $popup.find('fieldset[data-cerb-editor-cards]');
+
 		// Buttons
 		
-		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
+		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
-		
+
+		// Close confirmation
+
+		$popup.on('dialogbeforeclose', function(e, ui) {
+			var keycode = e.keyCode || e.which;
+			if(keycode === 27)
+				return confirm('{'warning.core.editor.close'|devblocks_translate}');
+		});
+
+		// Editors
+
+		var $cards_editor = $fieldset_cards.find('textarea[name=cards_kata]')
+			.cerbCodeEditor()
+			.nextAll('pre.ace_editor')
+		;
+
+		var cards_editor = ace.edit($cards_editor.attr('id'));
+
+		// Toolbar
+
+		$fieldset_cards.find('.cerb-code-editor-toolbar').cerbToolbar({
+			done: function(e) {
+				e.stopPropagation();
+
+				var $target = e.trigger;
+
+				if(!$target.is('.cerb-bot-trigger'))
+					return;
+
+				if(e.eventData.snippet) {
+					cards_editor.insertSnippet(e.eventData.snippet);
+				}
+			}
+		});
+
 		// Package Library
 		
 		{if !$model->id && $packages}
@@ -118,42 +165,9 @@ $(function() {
 					$library_container.triggerHandler('cerb-package-library-form-submit--done');
 				});
 				
-				$popup.find('button.submit').click();
+				$popup.find('button.save').click();
 			});
 		{/if}
-		
-		// Query builders
-		
-		$popup.find('.cerb-query-trigger')
-			.cerbQueryTrigger()
-			.on('cerb-query-saved', function(e) {
-				//var $trigger = $(this);
-				//$trigger.val(e.worklist_quicksearch);
-			})
-		;
-		
-		// Template builders
-		
-		$popup.find('textarea.cerb-template-trigger')
-			.cerbTemplateTrigger()
-			.on('cerb-template-saved', function(e) {
-				//var $trigger = $(this);
-				//$trigger.val(e.worklist_quicksearch);
-			})
-		;
-		
-		// Checkboxes
-		
-		$popup.find('fieldset.cerb-contexts-selection').find('input[type=checkbox]').on('change', function(e) {
-			var $checkbox = $(this);
-			var $div = $checkbox.closest('div').find('div.cerb-contexts-params');
-			
-			if($checkbox.is(':checked')) {
-				$div.fadeIn();
-			} else {
-				$div.fadeOut();
-			}
-		});
 		
 		// [UI] Editor behaviors
 		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}

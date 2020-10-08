@@ -2,9 +2,11 @@
 class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 	const BOARD_ID = 'board_id';
 	const CARDS_JSON = 'cards_json';
+	const CARDS_KATA = 'cards_kata';
 	const ID = 'id';
 	const NAME = 'name';
-	const PARAMS_JSON = 'params_json';
+	const TOOLBAR_KATA = 'toolbar_kata';
+	const FUNCTIONS_KATA = 'functions_kata';
 	const UPDATED_AT = 'updated_at';
 	
 	private function __construct() {}
@@ -25,6 +27,18 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(16777215)
 			;
+		// text
+		$validation
+			->addField(self::CARDS_KATA)
+			->string()
+			->setMaxLength(16777215)
+			;
+		// text
+		$validation
+			->addField(self::FUNCTIONS_KATA)
+			->string()
+			->setMaxLength(16777215)
+			;
 		// int(10) unsigned
 		$validation
 			->addField(self::ID)
@@ -40,9 +54,9 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 			;
 		// text
 		$validation
-			->addField(self::PARAMS_JSON)
+			->addField(self::TOOLBAR_KATA)
 			->string()
-			->setMaxLength(65535)
+			->setMaxLength(16777215)
 			;
 		// int(10) unsigned
 		$validation
@@ -154,7 +168,7 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, board_id, updated_at, params_json, cards_json ".
+		$sql = "SELECT id, name, board_id, updated_at, cards_kata, toolbar_kata, functions_kata, cards_json ".
 			"FROM project_board_column ".
 			$where_sql.
 			$sort_sql.
@@ -251,10 +265,10 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->board_id = intval($row['board_id']);
+			$object->cards_kata = $row['cards_kata'];
+			$object->toolbar_kata = $row['toolbar_kata'];
+			$object->functions_kata = $row['functions_kata'];
 			$object->updated_at = intval($row['updated_at']);
-			
-			@$json = json_decode($row['params_json'], true) ?: [];
-			$object->params = $json;
 			
 			@$json = json_decode($row['cards_json'], true) ?: [];
 			$object->cards = $json;
@@ -506,12 +520,23 @@ class Model_ProjectBoardColumn {
 	public $id;
 	public $name;
 	public $board_id;
+	public $cards_kata;
+	public $toolbar_kata;
+	public $functions_kata;
 	public $updated_at;
 	public $params;
 	public $cards;
 	
+	private $_board = null;
+	
+	// Load and cache board
 	function getProjectBoard() {
-		return DAO_ProjectBoard::get($this->board_id);
+		if(is_null($this->_board)) {
+			$board = DAO_ProjectBoard::get($this->board_id);
+			$this->_board = $board ?: false;
+		}
+		
+		return $this->_board;
 	}
 	
 	function getCards() {
@@ -573,50 +598,81 @@ class Model_ProjectBoardColumn {
 		return $cards;
 	}
 	
-	function runDropActionsForCard($context, $context_id) {
-		if(!is_array($this->params))
-			return;
+	/**
+	 * @param DevblocksDictionaryDelegate $card
+	 * @return array|null
+	 */
+	function getCardSheet(DevblocksDictionaryDelegate $card) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
-		// Trigger any built-in actions
-		if(array_key_exists('actions', $this->params)) {
-			// If the card is a task
-			if($context == CerberusContexts::CONTEXT_TASK) {
-				foreach($this->params['actions'] as $action => $action_params) {
-					switch($action) {
-						case 'task_status':
-							if(!array_key_exists('status_id', $action_params))
-								break;
-								
-							@$status_id = $action_params['status_id'];
-								
-							if(!in_array($status_id, [0,1,2]))
-								break;
-							
-							DAO_Task::update($context_id, [
-								DAO_Task::STATUS_ID => $status_id,
-							]);
-							break;
-					}
-				}
-			}
+		$error = null;
+		
+		$dict = clone $card;
+		
+		$dict->set('board__context', Context_ProjectBoard::ID);
+		$dict->set('board_id', $this->board_id);
+		$dict->set('worker_context', CerberusContexts::CONTEXT_WORKER);
+		$dict->set('worker_context', $active_worker->id ?? 0);
+		
+		$handlers = $event_handler->parse($this->cards_kata, $dict, $error);
+		
+		$results = $event_handler->handleOnce(
+			AutomationTrigger_ProjectBoardRenderCard::ID,
+			$handlers,
+			$card->getDictionary(),
+			$error
+		);
+		
+		if(false == $results)
+			return null;
+		
+		$exit_state = $results->get('__exit');
+		
+		if('return' == $exit_state) {
+			return $results->getKeyPath('__return.sheet', null);
 		}
 		
-		// Setting links should trigger configured bot behaviors
-		if(array_key_exists('behaviors', $this->params)) {
-			@$behavior_params = $this->params['behaviors'];
-			$behaviors = DAO_TriggerEvent::getIds(array_keys($behavior_params));
-			
-			if(is_array($behaviors))
-			foreach($behaviors as $behavior) {
+		return null;
+	}
+	
+	function runDropActionsForCard($context, $context_id) {
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$error = null;
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'board__context' => Context_ProjectBoard::ID,
+			'board_id' => $this->board_id,
+			'card__context' => $context,
+			'card_id' => $context_id,
+			'column__context' => Context_ProjectBoardColumn::ID,
+			'column_id' => $this->id,
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id ?? 0
+		]);
+		
+		$handlers = $event_handler->parse($this->functions_kata, $dict, $error);
+		
+		$initial_state = $dict->getDictionary();
+		
+		return $event_handler->handleEach(
+			AutomationTrigger_ProjectBoardCardAction::ID,
+			$handlers,
+			$initial_state,
+			$error,
+			function(Model_TriggerEvent $behavior, array $handler) use ($context, $context_id) {
 				$event_ext = $behavior->getEvent();
 				
 				// Only run events for this context
-				if(@$event_ext->manifest->params['macro_context'] != $context)
-					continue;
+				if (@$event_ext->manifest->params['macro_context'] != $context)
+					return null;
 				
-				call_user_func([$event_ext->manifest->class, 'trigger'], $behavior->id, $context_id, @$behavior_params[$behavior->id] ?: []);
+				return call_user_func([$event_ext->manifest->class, 'trigger'], $behavior->id, $context_id, @$handler['data']['inputs'] ?: []);
 			}
-		}
+		);
 	}
 };
 
@@ -1085,6 +1141,9 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'cards_kata' => $prefix.$translate->_('common.cards_kata'),
+			'functions_kata' => $prefix.$translate->_('common.functions_kata'),
+			'toolbar_kata' => $prefix.$translate->_('common.toolbar_kata'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'board__label' => $prefix.$translate->_('projects.common.board'),
@@ -1097,6 +1156,9 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			'board__label' => 'context_url',
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'cards_kata' => Model_CustomField::TYPE_MULTI_LINE,
+			'functions_kata' => Model_CustomField::TYPE_MULTI_LINE,
+			'toolbar_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1122,6 +1184,9 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			$token_values['board_id'] = $project_board_column->board_id;
 			$token_values['id'] = $project_board_column->id;
 			$token_values['name'] = $project_board_column->name;
+			$token_values['cards_kata'] = $project_board_column->cards_kata;
+			$token_values['functions_kata'] = $project_board_column->functions_kata;
+			$token_values['toolbar_kata'] = $project_board_column->toolbar_kata;
 			$token_values['updated_at'] = $project_board_column->updated_at;
 			
 			// Custom fields
@@ -1138,6 +1203,9 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 	function getKeyToDaoFieldMap() {
 		return [
 			'board_id' => DAO_ProjectBoardColumn::BOARD_ID,
+			'cards_kata' => DAO_ProjectBoardColumn::CARDS_KATA,
+			'toolbar_kata' => DAO_ProjectBoardColumn::TOOLBAR_KATA,
+			'functions_kata' => DAO_ProjectBoardColumn::FUNCTIONS_KATA,
 			'id' => DAO_ProjectBoardColumn::ID,
 			'links' => '_links',
 			'name' => DAO_ProjectBoardColumn::NAME,
@@ -1205,20 +1273,6 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 				
 				$out_fields[DAO_ProjectBoardColumn::CARDS_JSON] = $json;
 				$out_fields['_links'] = json_encode($links);
-				break;
-				
-			case 'params':
-				if(!is_array($value)) {
-					$error = 'must be an object.';
-					return false;
-				}
-				
-				if(false == ($json = json_encode($value))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields[DAO_ProjectBoardColumn::PARAMS_JSON] = $json;
 				break;
 		}
 		

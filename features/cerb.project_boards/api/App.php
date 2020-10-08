@@ -68,11 +68,8 @@ class ProfileWidget_ProjectBoard extends Extension_ProfileWidget {
 			}
 		}
 		
-		$tpl->assign('widget', $model);
 		$tpl->assign('board', $board);
-		
-		$contexts = Extension_DevblocksContext::getAll(false, 'links');
-		$tpl->assign('contexts', $contexts);
+		$tpl->assign('widget', $model);
 		
 		$tpl->display('devblocks:cerb.project_boards::boards/board/board.tpl');
 	}
@@ -122,9 +119,6 @@ class WorkspaceWidget_ProjectBoard extends Extension_WorkspaceWidget {
 		
 		$tpl->assign('board', $board);
 		$tpl->assign('widget', $widget);
-		
-		$contexts = Extension_DevblocksContext::getAll(false, 'links');
-		$tpl->assign('contexts', $contexts);
 		
 		$tpl->display('devblocks:cerb.project_boards::boards/board/board.tpl');
 	}
