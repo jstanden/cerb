@@ -832,7 +832,6 @@ switch($step) {
 		
 		if(!empty($form_submit)) {
 			@$package = DevblocksPlatform::importGPC($_POST['package'],'string', '');
-			@$optional_packages = DevblocksPlatform::importGPC($_POST['optional_packages'],'array', []);
 			
 			$encrypt = DevblocksPlatform::services()->encryption();
 			@$setup_defaults = json_decode($encrypt->decrypt(file_get_contents(APP_TEMP_PATH . '/setup.json')), true) ?: [];
@@ -851,35 +850,6 @@ switch($step) {
 					$prompts = $setup_defaults;
 					CerberusApplication::packages()->import($json, $prompts, $records_created);
 					break;
-			}
-			
-			if($optional_packages && is_array($optional_packages)) {
-				foreach($optional_packages as $package) {
-					switch($package) {
-						case 'chat_bot':
-							$prompts = [];
-							$json = file_get_contents(APP_PATH . '/install/packages/chat_bot_package.json');
-							$results = [];
-							CerberusApplication::packages()->import($json, $prompts, $results);
-							break;
-							
-						case 'customer_satisfaction':
-							$prompts = [
-								'product_name' => $setup_defaults['org_name'],
-							];
-							$json = file_get_contents(APP_PATH . '/install/packages/customer_satisfaction_package.json');
-							$results = [];
-							CerberusApplication::packages()->import($json, $prompts, $results);
-							break;
-							
-						case 'reminder_bot':
-							$prompts = [];
-							$json = file_get_contents(APP_PATH . '/install/packages/reminder_bot_package.json');
-							$results = [];
-							CerberusApplication::packages()->import($json, $prompts, $results);
-							break;
-					}
-				}
 			}
 			
 			// Index initial content

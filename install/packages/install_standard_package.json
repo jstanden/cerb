@@ -352,110 +352,81 @@
 			"patterns": "weekdays"
 		},
 		{
-			"uid": "fieldset_getting_started",
-			"_context": "custom_fieldset",
-			"context": "task",
-			"owner__context": "bot",
-			"owner_id": "{{{uid.bot_getting_started}}}",
-			"name": "Getting Started"
-		},
-		{
-			"uid": "field_getting_started_notes",
-			"_context": "custom_field",
-			"context": "task",
-			"custom_fieldset_id": "{{{uid.fieldset_getting_started}}}",
-			"name": "Notes",
-			"type": "T",
-			"params": {
-			}
-		},
-		{
 			"uid": "card_task_001",
 			"_context": "task",
 			"title": "Welcome to Cerb!",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<p>This project board provides a quick checklist for getting Cerb up and running.</p>\n\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\n\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\n\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.project.board\" data-context-id=\"{{{uid.project_board_checklist}}}\">edit the project board</button>, <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.bot\" data-context-id=\"{{{uid.bot_getting_started}}}\">bot</button>, and <button type=\"button\" class=\"cerb-peek-trigger\" data-context=\"cerberusweb.contexts.custom_fieldset\" data-context-id=\"{{{uid.fieldset_getting_started}}}\">custom fieldset</button> to see how it works (or even make changes).</p>\n\n<p>Drag this card to <b>Completed!</b> <span class=\"glyphicons glyphicons-right-arrow\" style=\"margin-left:5px;\"></span></p>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_002",
 			"_context": "task",
 			"title": "Configure branding",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Branding</b>.</li>\n<li>Upload your logo.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_003",
 			"_context": "task",
 			"title": "Configure sender addresses",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.address\" data-query=\"mailTransport.id:>0\">List sender addresses</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new email addresses.</li>\n<li>Add a <button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mail.transport\" data-query=\"\">mail transport</button> to an address to enable it as a outgoing sender.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_004",
 			"_context": "task",
 			"title": "Configure email signatures",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.email.signature\" data-query=\"\">List email signatures</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new signatures.</li>\n<li>Modify signatures to meet your needs.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_005",
 			"_context": "task",
 			"title": "Configure mailboxes",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.mailbox\" data-query=\"\">List mailboxes</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new mailboxes.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_006",
 			"_context": "task",
 			"title": "Review groups",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.group\" data-query=\"\">List groups</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to add new groups.</li>\n<li>Review the mail settings for each group.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_007",
 			"_context": "task",
 			"title": "Invite other team members",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.worker\" data-query=\"\">List workers</button></li>\n<li>Click the <span class=\"glyphicons glyphicons-circle-plus\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon to create new workers.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_008",
 			"_context": "task",
 			"title": "Configure roles",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><button type=\"button\" class=\"cerb-search-trigger\" data-context=\"cerberusweb.contexts.role\" data-query=\"\">List roles</button></li>\n<li>Determine the permissions for each role.</li>\n<li>Assign the roles to workers and groups.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_009",
 			"_context": "task",
 			"title": "Create a mail workspace",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Click on the <span class=\"glyphicons glyphicons-chevron-down\" style=\"font-size:12px;color:rgb(50,50,50);\"></span> icon in the top navigation bar.</li>\n<li>Click <b>(+)</b> above the worklist.</li>\n<li>Click <b>Mail</b>.</li>\n<li>Click <b>Create</b>.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_010",
 			"_context": "task",
 			"title": "Add your license",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li><a href=\"https://cerb.ai/pricing/#bot/license.free\" target=\"_blank\" rel=\"noopener\"><b>Request a free 3-seat license</b></a> if you haven't already.</li>\n<li>Install your license in <b>Setup &raquo; Configure &raquo; License</b>.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "card_task_011",
 			"_context": "task",
 			"title": "Enable the scheduler",
 			"importance": "50",
-			"status": "open",
-			"custom_{{{uid.field_getting_started_notes}}}": "<ol style=\"padding:0;margin:0 0 0 20px;\">\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Scheduler</b>.</li>\n<li>Configure the scheduler to run automatically.</li>\n</ol>"
+			"status": "open"
 		},
 		{
 			"uid": "project_board_checklist",
@@ -468,25 +439,13 @@
 				"{{{uid.project_board_checklist_in_progress}}}",
 				"{{{uid.project_board_checklist_completed}}}"
 			],
-			"params": {
-				"card_queries": {
-					"cerberusweb.contexts.task": "status:[o,w]"
-				},
-				"card_templates": {
-					"cerberusweb.contexts.task": "{% apply spaceless %}\n{% if is_completed %}\n<div style=\"font-size:120%;\">\n\t<span class=\"glyphicons glyphicons-circle-ok\" style=\"color:rgb(0,150,0);\"></span> Completed!\n</div>\n{% elseif column__label == 'TODO' %}\n<div>\n\tDrag this to <b>In Progress</b> to start <span class=\"glyphicons glyphicons-right-arrow\"></span>\n</div>\n{% else %}\n{{custom_{{{uid.field_getting_started_notes}}}}}\n{% endif %}\n{% endapply %}"
-				},
-				"contexts": [
-					"cerberusweb.contexts.task"
-				]
-			}
+			"cards_kata": ""
 		},
 		{
 			"uid": "project_board_checklist_todo",
 			"_context": "cerberusweb.contexts.project.board.column",
 			"name": "TODO",
 			"board_id": "{{{uid.project_board_checklist}}}",
-			"params": {
-			},
 			"cards": [
 				"task:{{{uid.card_task_002}}}",
 				"task:{{{uid.card_task_003}}}",
@@ -498,34 +457,29 @@
 				"task:{{{uid.card_task_009}}}",
 				"task:{{{uid.card_task_010}}}",
 				"task:{{{uid.card_task_011}}}"
-			]
+			],
+			"cards_kata": "automation/todo:\n  uri: uri:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      layout:\n        headings@bool: no\n      columns:\n        text/notes:\n          label: Notes\n          params:\n            value_template@text:\n              <h2 style=\"margin:0 0 5px 0;\">{{card__label}}</h2>\n              <div>\n                Drag this to <b>In Progress</b> to start \n                <span class=\"glyphicons glyphicons-right-arrow\"></span>\n              </div>"
 		},
 		{
 			"uid": "project_board_checklist_in_progress",
 			"_context": "cerberusweb.contexts.project.board.column",
 			"name": "In Progress",
 			"board_id": "{{{uid.project_board_checklist}}}",
-			"params": {
-			},
 			"cards": [
 				"task:{{{uid.card_task_001}}}"
-			]
+			],
+			"cards_kata": "automation/progress:\n  uri: uri:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      layout:\n        headings@bool: no\n      columns:\n        text/notes:\n          label: Notes\n          params:\n            value_template@ref: cardTemplates\n\n&cardTemplates@text:\n  <h2 style=\"margin:0 0 5px 0;\">{{card__label}}</h2>\n  {% set card_templates = {\n    \"Welcome to Cerb!\": \"<p>This project board provides a quick checklist for getting Cerb up and running.</p>\\n\\n<p>Drag cards from the top of the <b>TODO</b> backlog into the <b>In Progress</b> column to work on them. You should limit the in progress cards to only a few at a time.</p>\\n\\n<p>When you finish a card, drag it from <b>In Progress</b> to <b>Completed!</b>. You'll notice that a bot automatically marks the task completed for you.</p>\\n\\n<p>This on-boarding workflow was built entirely with Cerb's tools in the browser. You can <button type=\\\"button\\\" class=\\\"cerb-peek-trigger\\\" data-context=\\\"cerberusweb.contexts.project.board\\\" data-context-id=\\\"1\\\">edit the project board</button> and <button type=\\\"button\\\" class=\\\"cerb-peek-trigger\\\" data-context=\\\"cerberusweb.contexts.custom_fieldset\\\" data-context-id=\\\"1\\\">custom fieldset</button> to see how it works (or even make changes).</p>\\n\\n<p>Drag this card to <b>Completed!</b> <span class=\\\"glyphicons glyphicons-right-arrow\\\" style=\\\"margin-left:5px;\\\"></span></p>\",\n    \n    \"Configure branding\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Branding</b>.</li>\\n<li>Upload your logo.</li>\\n</ol>\",\n    \n    \"Configure sender addresses\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li><button type=\\\"button\\\" class=\\\"cerb-search-trigger\\\" data-context=\\\"cerberusweb.contexts.address\\\" data-query=\\\"mailTransport.id:>0\\\">List sender addresses</button></li>\\n<li>Click the <span class=\\\"glyphicons glyphicons-circle-plus\\\" style=\\\"font-size:12px;color:rgb(50,50,50);\\\"></span> icon to add new email addresses.</li>\\n<li>Add a <button type=\\\"button\\\" class=\\\"cerb-search-trigger\\\" data-context=\\\"cerberusweb.contexts.mail.transport\\\" data-query=\\\"\\\">mail transport</button> to an address to enable it as a outgoing sender.</li>\\n</ol>\",\n    \n    \"Configure email signatures\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li><button type=\\\"button\\\" class=\\\"cerb-search-trigger\\\" data-context=\\\"cerberusweb.contexts.email.signature\\\" data-query=\\\"\\\">List email signatures</button></li>\\n<li>Click the <span class=\\\"glyphicons glyphicons-circle-plus\\\" style=\\\"font-size:12px;color:rgb(50,50,50);\\\"></span> icon to add new signatures.</li>\\n<li>Modify signatures to meet your needs.</li>\\n</ol>\",\n    \n    \"Configure mailboxes\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li><button type=\\\"button\\\" class=\\\"cerb-search-trigger\\\" data-context=\\\"cerberusweb.contexts.mailbox\\\" data-query=\\\"\\\">List mailboxes</button></li>\\n<li>Click the <span class=\\\"glyphicons glyphicons-circle-plus\\\" style=\\\"font-size:12px;color:rgb(50,50,50);\\\"></span> icon to add new mailboxes.</li>\\n</ol>\",\n    \n    \"Review groups\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li><button type=\\\"button\\\" class=\\\"cerb-search-trigger\\\" data-context=\\\"cerberusweb.contexts.group\\\" data-query=\\\"\\\">List groups</button></li>\\n<li>Click the <span class=\\\"glyphicons glyphicons-circle-plus\\\" style=\\\"font-size:12px;color:rgb(50,50,50);\\\"></span> icon to add new groups.</li>\\n<li>Review the mail settings for each group.</li>\\n</ol>\",\n    \n    \"Invite other team members\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li><button type=\\\"button\\\" class=\\\"cerb-search-trigger\\\" data-context=\\\"cerberusweb.contexts.worker\\\" data-query=\\\"\\\">List workers</button></li>\\n<li>Click the <span class=\\\"glyphicons glyphicons-circle-plus\\\" style=\\\"font-size:12px;color:rgb(50,50,50);\\\"></span> icon to create new workers.</li>\\n</ol>\",\n    \n    \"Configure roles\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li><button type=\\\"button\\\" class=\\\"cerb-search-trigger\\\" data-context=\\\"cerberusweb.contexts.role\\\" data-query=\\\"\\\">List roles</button></li>\\n<li>Determine the permissions for each role.</li>\\n<li>Assign the roles to workers and groups.</li>\\n</ol>\",\n    \n    \"Create a home workspace\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li>Click on the <span class=\\\"glyphicons glyphicons-chevron-down\\\" style=\\\"font-size:12px;color:rgb(50,50,50);\\\"></span> icon in the top navigation bar.</li>\\n<li>Click <b>(+)</b> above the worklist.</li>\\n<li>Click <b>Home</b>.</li>\\n<li>Click <b>Create</b>.</li>\\n</ol>\",\n    \n    \"Create a mail workspace\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li>Click on the <span class=\\\"glyphicons glyphicons-chevron-down\\\" style=\\\"font-size:12px;color:rgb(50,50,50);\\\"></span> icon in the top navigation bar.</li>\\n<li>Click <b>(+)</b> above the worklist.</li>\\n<li>Click <b>Mail</b>.</li>\\n<li>Click <b>Create</b>.</li>\\n</ol>\",\n    \n    \"Add your license\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li><a href=\\\"https://cerb.ai/pricing/#bot/license.free\\\" target=\\\"_blank\\\" rel=\\\"noopener\\\"><b>Request a free 3-seat license</b></a> if you haven't already.</li>\\n<li>Install your license in <b>Setup &raquo; Configure &raquo; License</b>.</li>\\n</ol>\",\n    \n    \"Enable the scheduler\": \"<ol style=\\\"padding:0;margin:0 0 0 20px;\\\">\\n<li>Navigate to <b>Setup &raquo; Configure &raquo; Scheduler</b>.</li>\\n<li>Configure the scheduler to run automatically.</li>\\n</ol>\",\n  }%}\n  {{card_templates[card__label]}}\n"
 		},
 		{
 			"uid": "project_board_checklist_completed",
 			"_context": "cerberusweb.contexts.project.board.column",
 			"name": "Completed!",
 			"board_id": "{{{uid.project_board_checklist}}}",
-			"params": {
-				"behaviors": {
-					"{{{uid.behavior_mark_task_completed}}}": [
-
-					]
-				}
-			},
 			"cards": [
 
-			]
+			],
+			"cards_kata": "automation/done:\n  uri: uri:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      layout:\n        headings@bool: no\n      columns:\n        text/notes:\n          label: Notes\n          params:\n            value_template@text:\n              <h2 style=\"margin:0 0 5px 0;\">\n              <span class=\"glyphicons glyphicons-circle-ok\"></span>\n              {{card__label}}\n              </h2>\n",
+			"functions_kata": "automation/close:\n  uri: uri:automation:cerb.projectBoard.action.task.close\n  inputs:\n    status: closed\n"
 		},
 		{
 			"uid": "workspace_getting_started",
