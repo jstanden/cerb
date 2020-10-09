@@ -545,6 +545,22 @@ switch($step) {
 		$tables = $db->metaTables();
 		
 		if(empty($tables)) { // install
+			// Import tables
+			
+			$sql_tables = file_get_contents(APP_PATH . '/install/sql/cerb_base_tables.sql');
+			
+			foreach(DevblocksPlatform::parseCrlfString($sql_tables) as $line) {
+				$db->ExecuteMaster($line);
+			}
+			
+			// Import rows
+			
+			$sql_rows = file_get_contents(APP_PATH . '/install/sql/cerb_base_rows.sql');
+			
+			foreach(DevblocksPlatform::parseCrlfString($sql_rows) as $line) {
+				$db->ExecuteMaster($line);
+			}
+			
 			try {
 				DevblocksPlatform::update();
 				
@@ -632,6 +648,22 @@ switch($step) {
 				$path = APP_STORAGE_PATH . '/version.php';
 				$contents = sprintf('<?php define(\'APP_BUILD_CACHED\', %s);', APP_BUILD);
 				file_put_contents($path, $contents);
+				
+				// Load packages
+				
+				$dir = new RecursiveDirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/packages/library/'));
+				$iter = new RecursiveIteratorIterator($dir);
+				$regex = new RegexIterator($iter, '/^.+\.json/i', RecursiveRegexIterator::GET_MATCH);
+				
+				foreach($regex as $class_file => $o) {
+					if(is_null($o))
+						continue;
+					
+					if(false == ($package_json = file_get_contents($class_file)))
+						continue;
+					
+					CerberusApplication::packages()->importToLibraryFromString($package_json);
+				}
 				
 				// [TODO] Verify the database
 				
