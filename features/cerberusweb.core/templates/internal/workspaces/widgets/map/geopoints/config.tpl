@@ -15,14 +15,12 @@
 			])}
 
 			{$toolbar_kata =
-"menu/add:
+"interaction/automation:
   icon: circle-plus
-  items:
-    interaction/automation:
-      label: Automation
-      name: cerb.eventHandler.automation
-      inputs:
-        trigger: cerb.trigger.widgetMap.getPoints
+  #label: Automation
+  uri: cerb.eventHandler.automation
+  inputs:
+    trigger: cerb.trigger.widgetMap.getPoints
 "}
 
 			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
@@ -41,14 +39,12 @@
 			])}
 
 			{$toolbar_kata =
-"menu/add:
+"interaction/automation:
   icon: circle-plus
-  items:
-    interaction/automation:
-      label: Automation
-      name: cerb.eventHandler.automation
-      inputs:
-        trigger: cerb.trigger.widgetMap.renderPoint
+  #label: Automation
+  uri: cerb.eventHandler.automation
+  inputs:
+    trigger: cerb.trigger.widgetMap.renderPoint
 "}
 
 			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}

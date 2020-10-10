@@ -25,12 +25,12 @@ class FunctionAction extends AbstractAction {
 		$params = $this->node->getParams($dict);
 		
 		$inputs = $params['inputs'] ?? [];
-		$output = $params['output'];
+		$output = $params['output'] ?? null;
 		
 		try {
 			// Params validation
 			
-			$validation->addField('name', 'name:')
+			$validation->addField('uri', 'uri:')
 				->string()
 				->setRequired(true)
 			;
@@ -54,7 +54,7 @@ class FunctionAction extends AbstractAction {
 					'id' => $this->node->getId(),
 					'type' => self::ID,
 				],
-				'name' => $params['name'],
+				'uri' => $params['uri'],
 				'inputs' => $inputs,
 				'output' => $output,
 			]);
@@ -66,7 +66,7 @@ class FunctionAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if (false == ($automation = DAO_Automation::getByUri($params['name'], AutomationTrigger_UiFunction::ID))) {
+			if (false == ($automation = DAO_Automation::getByUri($params['uri'], AutomationTrigger_UiFunction::ID))) {
 				throw new Exception_DevblocksAutomationError(sprintf('Function (%s) must be a ui.function automation', $params['name']));
 			}
 			

@@ -658,17 +658,21 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'menu/inputs' => [
 						'label' => 'Inputs',
 						'items' => [
+							'interaction/array' => [
+								'label' => 'Array',
+								'uri' => 'cerb.automationBuilder.input.array',
+							],
 							'interaction/record' => [
 								'label' => 'Record',
-								'name' => 'cerb.automationBuilder.input.record',
+								'uri' => 'cerb.automationBuilder.input.record',
 							],
 							'interaction/records' => [
 								'label' => 'Records',
-								'name' => 'cerb.automationBuilder.input.records',
+								'uri' => 'cerb.automationBuilder.input.records',
 							],
 							'interaction/text' => [
 								'label' => 'Text',
-								'name' => 'cerb.automationBuilder.input.text',
+								'uri' => 'cerb.automationBuilder.input.text',
 							],
 						],
 					], // menu/inputs
@@ -678,15 +682,15 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'items' => [
 							'interaction/decision' => [
 								'label' => 'Decision',
-								'name' => 'cerb.automationBuilder.command.decision',
+								'uri' => 'cerb.automationBuilder.command.decision',
 							],
 							'interaction/outcome' => [
 								'label' => 'Outcome',
-								'name' => 'cerb.automationBuilder.command.outcome',
+								'uri' => 'cerb.automationBuilder.command.outcome',
 							],
 							'interaction/repeat' => [
 								'label' => 'Repeat',
-								'name' => 'cerb.automationBuilder.command.repeat',
+								'uri' => 'cerb.automationBuilder.command.repeat',
 							],
 						],
 					], // menu/control
@@ -696,43 +700,43 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'items' => [
 							'interaction/data_query' => [
 								'label' => 'Data query',
-								'name' => 'cerb.automationBuilder.action.dataQuery',
+								'uri' => 'cerb.automationBuilder.action.dataQuery',
 							],
 							'menu/actions_email' => [
 								'label' => 'Email',
 								'items' => [
 									'interaction/email_parser' => [
 										'label' => 'Parser',
-										'name' => 'cerb.automationBuilder.action.emailParser',
+										'uri' => 'cerb.automationBuilder.action.emailParser',
 									],
 								],
 							],
 							'interaction/function' => [
 								'label' => 'Function',
-								'name' => 'cerb.automationBuilder.action.function',
+								'uri' => 'cerb.automationBuilder.action.function',
 							],
 							'interaction/http_request' => [
 								'label' => 'HTTP request',
-								'name' => 'cerb.automationBuilder.action.httpRequest',
+								'uri' => 'cerb.automationBuilder.action.httpRequest',
 							],
 							'menu/actions_record' => [
 								'label' => 'Record',
 								'items' => [
 									'interaction/record_create' => [
 										'label' => 'Create',
-										'name' => 'cerb.automationBuilder.action.recordCreate',
+										'uri' => 'cerb.automationBuilder.action.recordCreate',
 									],
 									'interaction/record_delete' => [
 										'label' => 'Delete',
-										'name' => 'cerb.automationBuilder.action.recordDelete',
+										'uri' => 'cerb.automationBuilder.action.recordDelete',
 									],
 									'interaction/record_get' => [
 										'label' => 'Get',
-										'name' => 'cerb.automationBuilder.action.recordGet',
+										'uri' => 'cerb.automationBuilder.action.recordGet',
 									],
 									'interaction/record_update' => [
 										'label' => 'Update',
-										'name' => 'cerb.automationBuilder.action.recordUpdate',
+										'uri' => 'cerb.automationBuilder.action.recordUpdate',
 									],
 								],
 							],
@@ -744,15 +748,15 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 						'items' => [
 							'interaction/return' => [
 								'label' => 'Return',
-								'name' => 'cerb.automationBuilder.exit.return',
+								'uri' => 'cerb.automationBuilder.exit.return',
 							],
 							'interaction/yield' => [
 								'label' => 'Yield',
-								'name' => 'cerb.automationBuilder.exit.yield',
+								'uri' => 'cerb.automationBuilder.exit.yield',
 							],
 							'interaction/error' => [
 								'label' => 'Error',
-								'name' => 'cerb.automationBuilder.exit.error',
+								'uri' => 'cerb.automationBuilder.exit.error',
 							],
 						],
 					], // menu/exit

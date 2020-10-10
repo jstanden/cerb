@@ -28,6 +28,13 @@ color: rgb(127, 0, 85);\
 .ace-cerb .ace_variable {\
 color: rgb(127, 0, 85);\
 }\
+.ace-cerb .ace_cerb-uri {\
+pointer-events: all;\
+}\
+.ace-cerb .ace_cerb-uri:hover {\
+text-decoration: underline;\
+cursor: pointer;\
+}\
 .ace-cerb .ace_operator {\
 color: rgb(50, 50, 50);\
 font-weight: normal;\

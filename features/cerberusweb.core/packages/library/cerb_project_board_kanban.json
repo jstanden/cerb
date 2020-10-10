@@ -44,7 +44,7 @@
         "{{{uid.project_board_kanban_in_progress}}}",
         "{{{uid.project_board_kanban_completed}}}"
       ],
-      "cards_kata": "automation/task_sheet:\n  name: cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes"
+      "cards_kata": "automation/task_sheet:\n  uri: uri:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes"
     },
     {
       "uid": "project_board_kanban_todo",
@@ -55,7 +55,7 @@
       ],
       "cards_kata": "",
       "functions_kata": "",
-      "toolbar_kata": "interaction/add:\n  name: cerb.projectBoard.toolbar.task.add\n  icon: circle-plus\n  inputs:\n    column: {{column_id}}\n\ninteraction/find:\n  name: cerb.projectBoard.toolbar.task.find\n  icon: search\n  inputs:\n    column: {{column_id}}"
+      "toolbar_kata": "interaction/add:\n  uri: uri:automation:cerb.projectBoard.toolbar.task.add\n  icon: circle-plus\n  inputs:\n    column: {{column_id}}\n\ninteraction/find:\n  uri: uri:automation:cerb.projectBoard.toolbar.task.find\n  icon: search\n  inputs:\n    column: {{column_id}}"
     },
     {
       "uid": "project_board_kanban_in_progress",
@@ -75,8 +75,8 @@
       "board_id": "{{{uid.project_board_kanban}}}",
       "cards": [
       ],
-      "cards_kata": "automation/completed:\n  name: cerb.projectBoard.card.done\n",
-      "functions_kata": "automation/close:\n  name: cerb.projectBoard.action.task.close\n  inputs:\n    status: closed\n",
+      "cards_kata": "automation/completed:\n  uri: uri:automation:cerb.projectBoard.card.done\n",
+      "functions_kata": "automation/close:\n  uri: uri:automation:cerb.projectBoard.action.task.close\n  inputs:\n    status: closed\n",
       "toolbar_kata": ""
     }
   ]

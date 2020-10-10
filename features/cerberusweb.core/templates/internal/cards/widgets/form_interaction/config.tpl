@@ -16,13 +16,13 @@
   items:
     interaction/interaction:
       label: Interaction
-      name: cerb.toolbarBuilder.interaction
+      uri: cerb.toolbarBuilder.interaction
     interaction/function:
       label: Function
-      name: cerb.toolbarBuilder.function
+      uri: cerb.toolbarBuilder.function
     interaction/menu:
       label: Menu
-      name: cerb.toolbarBuilder.menu
+      uri: cerb.toolbarBuilder.menu
 "
 				}
 

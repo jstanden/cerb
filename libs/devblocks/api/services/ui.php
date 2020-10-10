@@ -27,6 +27,29 @@ class _DevblocksUiManager {
 	public function toolbar() {
 		return new DevblocksUiToolbar();
 	}
+	
+	/**
+	 * @param string $uri
+	 * @return array|false
+	 */
+	function parseURI(string $uri) {
+		if(!DevblocksPlatform::strStartsWith($uri, 'uri:'))
+			return false;
+		
+		$uri_parts = explode(':', $uri);
+		
+		if(3 !== count($uri_parts))
+			return false;
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($uri_parts[1])))
+			return false;
+		
+		return [
+			'context' => $context_ext->id,
+			'context_id' => $uri_parts[2],
+			'context_ext' => $context_ext,
+		];
+	}
 }
 
 class DevblocksUiEventHandler {
@@ -66,7 +89,17 @@ class DevblocksUiEventHandler {
 		
 		foreach($handlers as $handler) {
 			if('automation' == @$handler['type']) {
-				if(false == ($automation = DAO_Automation::getByNameAndTrigger(@$handler['data']['name'], $trigger)))
+				$automation_uri = @$handler['data']['uri'];
+				
+				// Handle `uri:`
+				if(DevblocksPlatform::strStartsWith($automation_uri, 'uri:')) {
+					if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($automation_uri)))
+						continue;
+					
+					$automation_uri = $uri_parts['context_id'];
+				}
+				
+				if(false == ($automation = DAO_Automation::getByNameAndTrigger($automation_uri, $trigger)))
 					continue;
 				
 				if(array_key_exists('inputs', @$handler['data']))
@@ -143,6 +176,14 @@ class DevblocksUiToolbar {
 			
 			if(!$key)
 				continue;
+			
+			if(in_array($type, ['interaction', 'function'])) {
+				if(DevblocksPlatform::strStartsWith(@$toolbar_item['uri'], 'uri:')) {
+					if(false != ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($toolbar_item['uri']))) {
+						$toolbar_item['uri'] = $uri_parts['context_id'];
+					}
+				}
+			}
 			
 			$result = [
 				'key' => $key,

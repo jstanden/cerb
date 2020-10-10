@@ -2406,8 +2406,14 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_TriggerEvent::get($context_id)))
-				DevblocksPlatform::dieWithHttpError(null, 404);
+			if(is_numeric($context_id)) {
+				if(false == ($model = DAO_TriggerEvent::get($context_id)))
+					DevblocksPlatform::dieWithHttpError(null, 404);
+				
+			} elseif (!is_numeric($context_id)) {
+				if(false == ($model = DAO_TriggerEvent::getByUri($context_id)))
+					DevblocksPlatform::dieWithHttpError(null, 404);
+			}
 			
 			$tpl->assign('model', $model);
 		}

@@ -30,5 +30,6 @@
 
 <script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/ace/ace.js{/devblocks_url}"></script>
 <script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/ace/ext-language_tools.js{/devblocks_url}"></script>
+<script type="text/javascript" src="{devblocks_url}c=resource&p=cerberusweb.core&f=js/ace/ext-linking.js{/devblocks_url}"></script>
 </body>
 </html>

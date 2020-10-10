@@ -16,7 +16,7 @@
                 </li>
             {elseif 'interaction' == $item_key_parts[0]}
                 <li class="cerb-bot-trigger"
-                    data-interaction-uri="{$item.name}"
+                    data-interaction-uri="{$item.uri}"
                     data-interaction-params="{if is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
                     data-interaction-done="{if is_array($item['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($item['event/done'])}{/if}"
                     >
@@ -27,7 +27,7 @@
                 </li>
             {elseif 'function' == $item_key_parts[0]}
                 <li class="cerb-function-trigger"
-                    data-function-uri="{$item.name}"
+                    data-function-uri="{$item.uri}"
                     data-function-params="{if is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
                     data-function-done="{if is_array($item['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($item['event/done'])}{/if}"
                     >
@@ -44,10 +44,10 @@
 {foreach from=$toolbar item=toolbar_item}
     {if !$toolbar_item.schema.hidden}
         {if 'interaction' == $toolbar_item.type}
-            {if $toolbar_item.schema.name}
+            {if $toolbar_item.schema.uri}
                 <button type="button" class="cerb-bot-trigger"
                         data-cerb-toolbar-button
-                        data-interaction-uri="{$toolbar_item.schema.name}"
+                        data-interaction-uri="{$toolbar_item.schema.uri}"
                         data-interaction-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
                         data-interaction-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
                         >
@@ -61,10 +61,10 @@
                 </button>
             {/if}
         {elseif 'function' == $toolbar_item.type}
-            {if $toolbar_item.schema.name}
+            {if $toolbar_item.schema.uri}
                 <button type="button" class="cerb-function-trigger"
                         data-cerb-toolbar-button
-                        data-function-uri="{$toolbar_item.schema.name}"
+                        data-function-uri="{$toolbar_item.schema.uri}"
                         data-function-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
                         data-function-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
                         >

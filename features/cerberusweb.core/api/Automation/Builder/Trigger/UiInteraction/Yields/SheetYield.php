@@ -60,9 +60,9 @@ class SheetYield extends AbstractYield {
 		
 		// If an assoc/object and not indexed
 		if(is_array($sheet_data) && !DevblocksPlatform::arrayIsIndexed($sheet_data) && array_key_exists('function', $sheet_data)) {
-			$function_name = $sheet_data['function']['name'] ?? null;
+			$function_uri = $sheet_data['function']['uri'] ?? null;
 			
-			if(false != ($callback = DAO_Automation::getByUri($function_name))) {
+			if(false != ($callback = DAO_Automation::getByUri($function_uri))) {
 				if($callback->extension_id != AutomationTrigger_UiFunction::ID)
 					return;
 				

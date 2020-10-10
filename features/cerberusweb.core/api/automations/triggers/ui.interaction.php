@@ -35,23 +35,23 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 			'items' => [
 				'interaction/prompt_editor' => [
 					'label' => 'Editor',
-					'name' => 'cerb.automationBuilder.ui.interaction.yield.promptEditor',
+					'uri' => 'cerb.automationBuilder.ui.interaction.yield.promptEditor',
 				],
 				'interaction/respond_map' => [
 					'label' => 'Map',
-					'name' => 'cerb.automationBuilder.ui.interaction.yield.map',
+					'uri' => 'cerb.automationBuilder.ui.interaction.yield.map',
 				],
 				'interaction/respond_say' => [
 					'label' => 'Say',
-					'name' => 'cerb.automationBuilder.ui.interaction.yield.say',
+					'uri' => 'cerb.automationBuilder.ui.interaction.yield.say',
 				],
 				'interaction/prompt_sheet' => [
 					'label' => 'Sheet',
-					'name' => 'cerb.automationBuilder.ui.interaction.yield.promptSheet',
+					'uri' => 'cerb.automationBuilder.ui.interaction.yield.promptSheet',
 				],
 				'interaction/prompt_text' => [
 					'label' => 'Text',
-					'name' => 'cerb.automationBuilder.ui.interaction.yield.promptText',
+					'uri' => 'cerb.automationBuilder.ui.interaction.yield.promptText',
 				]
 			], // items
 		];

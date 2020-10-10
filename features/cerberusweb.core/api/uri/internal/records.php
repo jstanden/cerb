@@ -67,7 +67,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	
 	private function _internalAction_showPeekPopup() {
 		@$context = DevblocksPlatform::importGPC($_REQUEST['context'],'string','');
-		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'integer',0);
+		@$context_id = DevblocksPlatform::importGPC($_REQUEST['context_id'],'string',null);
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string','');
 		@$edit = DevblocksPlatform::importGPC($_REQUEST['edit'], 'string', null);
 		

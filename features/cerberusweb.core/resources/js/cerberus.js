@@ -1352,6 +1352,36 @@ var ajax = new cAjaxCalls();
 
 			} else if(mode === 'ace/mode/cerb_kata') {
 				aceOptions.useSoftTabs = true;
+				aceOptions.enableLinking = true;
+
+				// editor.on('linkHover', function(data) {
+				// });
+
+				editor.on('linkClick', function(data) {
+					if(data.token.type !== 'text.cerb-uri')
+						return false;
+
+					var uri_parts = data.token.value.split(':');
+
+					if(3 !== uri_parts.length)
+						return false;
+
+					if('uri' !== uri_parts[0])
+						return false;
+
+					// Open card popup https://cerb.ai/
+					$('<div/>')
+						.attr('data-context', uri_parts[1])
+						.attr('data-context-id', uri_parts[2])
+						.cerbPeekTrigger()
+						.on('cerb-peek-saved cerb-peek-deleted cerb-peek-closed', function() {
+							$(this).remove();
+						})
+						.click()
+					;
+
+					editor.exitMultiSelectMode();
+				});
 			}
 			
 			editor.setOptions(aceOptions);

@@ -232,6 +232,16 @@ class DAO_Automation extends Cerb_ORMHelper {
 	}
 	
 	public static function getByUri(string $interaction_uri, string $extension_id=null) {
+		if(DevblocksPlatform::strStartsWith($interaction_uri, 'uri:')) {
+			if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($interaction_uri)))
+				return null;
+			
+			if(CerberusContexts::CONTEXT_AUTOMATION != $uri_parts['context'])
+				return null;
+			
+			$interaction_uri = $uri_parts['context_id'];
+		}
+		
 		// [TODO] Cache
 		$objects = self::getWhere(sprintf("%s = %s",
 				self::NAME,
@@ -1253,6 +1263,11 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		$tpl->assign('view_id', $view_id);
 		
 		$model = null;
+		
+		// Load by URI if not given a numeric ID
+		if($context_id && !is_numeric($context_id)) {
+			$context_id = DAO_Automation::getByUri($context_id);
+		}
 		
 		if($context_id instanceof Model_Automation) {
 			$model = $context_id;
