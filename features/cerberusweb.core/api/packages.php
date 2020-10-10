@@ -310,6 +310,13 @@ class Cerb_Packages {
 		}
 	}
 	
+	/**
+	 * @param $json
+	 * @param $uids
+	 * @param $records_created
+	 * @param $placeholders
+	 * @throws Exception_DevblocksValidationError
+	 */
 	private static function _packageValidate(&$json, &$uids, &$records_created, &$placeholders) {
 		@$records = $json['records'];
 		
@@ -349,10 +356,10 @@ class Cerb_Packages {
 			}
 			
 			if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
-				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $record['uid'], $error));
+				throw new Exception_DevblocksValidationError(sprintf("Error validating record (%s): %s", $record['uid'], $error));
 			
 			if(false == ($dao_class = $context_ext->getDaoClass()))
-				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $record['uid'], "Can't load DAO class."));
+				throw new Exception_DevblocksValidationError(sprintf("Error validating record (%s): %s", $record['uid'], "Can't load DAO class."));
 			
 			$excludes = [];
 			
@@ -365,7 +372,7 @@ class Cerb_Packages {
 			}
 			
 			if(!$dao_class::validate($fields, $error, null, $excludes))
-				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $record['uid'], $error));
+				throw new Exception_DevblocksValidationError(sprintf("Error validating record (%s): %s", $record['uid'], $error));
 		}
 		
 		//@$settings = $json['settings'];
@@ -593,6 +600,13 @@ class Cerb_Packages {
 		}
 	}
 	
+	/**
+	 * @param $json
+	 * @param $uids
+	 * @param $records_created
+	 * @param $placeholders
+	 * @throws Exception_DevblocksValidationError
+	 */
 	private static function _packageGenerateIds(&$json, &$uids, &$records_created, &$placeholders) {
 		@$records = $json['records'];
 		
@@ -626,7 +640,7 @@ class Cerb_Packages {
 			}
 			
 			if(false == ($dao_class = $context_ext->getDaoClass()))
-				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $uid_record, "Can't load DAO class."));
+				throw new Exception_DevblocksValidationError(sprintf("Error generating record (%s): %s", $uid_record, "Can't load DAO class."));
 			
 			$record_id = $dao_class::create($dict);
 			
@@ -949,7 +963,13 @@ class Cerb_Packages {
 		
 		$json = $findTemplates($json);
 	}
-
+	
+	/**
+	 * @param $json
+	 * @param $uids
+	 * @param $records_created
+	 * @throws Exception_DevblocksValidationError
+	 */
 	private static function _packageImport(&$json, &$uids, &$records_created) {
 		// Records
 		@$records = $json['records'];
@@ -967,18 +987,18 @@ class Cerb_Packages {
 			$error = null;
 			
 			if(!$context_ext->getDaoFieldsFromKeysAndValues($dict, $fields, $custom_fields, $error))
-				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $uid_record, $error));
+				throw new Exception_DevblocksValidationError(sprintf("Error importing record (%s): %s", $uid_record, $error));
 			
 			if(false == ($dao_class = $context_ext->getDaoClass()))
-				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $uid_record, "Can't load DAO class."));
+				throw new Exception_DevblocksValidationError(sprintf("Error importing record (%s): %s", $uid_record, "Can't load DAO class."));
 			
 			if(!$dao_class::validate($fields, $error, $record_id))
-				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $uid_record, $error));
+				throw new Exception_DevblocksValidationError(sprintf("Error importing record (%s): %s", $uid_record, $error));
 			
 			$actor = new Model_Application();
 				
 			if(!$dao_class::onBeforeUpdateByActor($actor, $fields, $record_id, $error))
-				throw new Exception_DevblocksValidationError(sprintf("Error on record (%s): %s", $uid_record, $error));
+				throw new Exception_DevblocksValidationError(sprintf("Error importing record (%s): %s", $uid_record, $error));
 				
 			$dao_class::update($record_id, $fields);
 			
