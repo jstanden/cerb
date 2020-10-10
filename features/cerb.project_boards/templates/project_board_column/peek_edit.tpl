@@ -73,7 +73,7 @@
 		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 	</div>
 
-	<textarea name="cards_kata" data-editor-mode="ace/mode/yaml">{$model->cards_kata}</textarea>
+	<textarea name="cards_kata" data-editor-mode="ace/mode/cerb_kata">{$model->cards_kata}</textarea>
 </fieldset>
 
 <fieldset class="peek" data-cerb-editor-functions>
@@ -109,7 +109,7 @@
 		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 	</div>
 
-	<textarea name="functions_kata" data-editor-mode="ace/mode/yaml">{$model->functions_kata}</textarea>
+	<textarea name="functions_kata" data-editor-mode="ace/mode/cerb_kata">{$model->functions_kata}</textarea>
 </fieldset>
 
 <fieldset class="peek" data-cerb-editor-toolbar>
@@ -149,7 +149,7 @@
 		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 	</div>
 
-	<textarea name="toolbar_kata" data-editor-mode="ace/mode/yaml">{$model->toolbar_kata}</textarea>
+	<textarea name="toolbar_kata" data-editor-mode="ace/mode/cerb_kata">{$model->toolbar_kata}</textarea>
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}

@@ -36,7 +36,7 @@
 
 			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/bots/interactions/forms/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 		</div>
-		<textarea name="params[interactions_kata]" class="cerb-code-editor placeholders" data-editor-mode="ace/mode/yaml">{$widget->extension_params.interactions_kata}</textarea>
+		<textarea name="params[interactions_kata]" class="cerb-code-editor placeholders" data-editor-mode="ace/mode/cerb_kata">{$widget->extension_params.interactions_kata}</textarea>
 		<div class="cerb-code-editor-preview-output"></div>
 	</fieldset>
 </div>

@@ -31,7 +31,7 @@
 
 			<div class="cerb-code-editor-toolbar-divider"></div>
 		</div>
-		<textarea name="params[automation_getpoints]" data-editor-mode="ace/mode/yaml">{$model->params.automation_getpoints}</textarea>
+		<textarea name="params[automation_getpoints]" data-editor-mode="ace/mode/cerb_kata">{$model->params.automation_getpoints}</textarea>
 	</fieldset>
 
 	<fieldset>
@@ -57,7 +57,7 @@
 
 			<div class="cerb-code-editor-toolbar-divider"></div>
 		</div>
-		<textarea name="params[automation_renderpoint]" data-editor-mode="ace/mode/yaml">{$model->params.automation_renderpoint}</textarea>
+		<textarea name="params[automation_renderpoint]" data-editor-mode="ace/mode/cerb_kata">{$model->params.automation_renderpoint}</textarea>
 	</fieldset>
 </div>
 

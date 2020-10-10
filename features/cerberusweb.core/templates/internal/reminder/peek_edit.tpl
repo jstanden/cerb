@@ -71,7 +71,7 @@
 		<div class="cerb-code-editor-toolbar-divider"></div>
 	</div>
 
-	<textarea name="automations_kata" data-editor-mode="ace/mode/yaml">{$model->automations_kata}</textarea>
+	<textarea name="automations_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automations_kata}</textarea>
 </fieldset>
 
 <div style="margin:5px 0px 10px 0px;">

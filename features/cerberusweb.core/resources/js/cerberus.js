@@ -1344,13 +1344,13 @@ var ajax = new cAjaxCalls();
 				aceOptions.enableBasicAutocompletion.push(autocompleterTwig);
 			}
 			
-			if(mode == 'ace/mode/cerb_query') {
+			if(mode === 'ace/mode/cerb_query') {
 				aceOptions.useSoftTabs = true;
 				
-			} else if(mode == 'ace/mode/yaml') {
+			} else if(mode === 'ace/mode/yaml') {
 				aceOptions.useSoftTabs = true;
 
-			} else if(mode == 'ace/mode/cerb_kata') {
+			} else if(mode === 'ace/mode/cerb_kata') {
 				aceOptions.useSoftTabs = true;
 			}
 			

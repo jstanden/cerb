@@ -75,7 +75,7 @@
 
 				<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 			</div>
-			<textarea name="cards_kata" data-editor-mode="ace/mode/yaml">{$model->cards_kata}</textarea>
+			<textarea name="cards_kata" data-editor-mode="ace/mode/cerb_kata">{$model->cards_kata}</textarea>
 		</fieldset>
 
 		{if !empty($model->id)}

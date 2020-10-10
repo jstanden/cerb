@@ -10,7 +10,7 @@
 
 <b>{'common.schema'|devblocks_translate|capitalize}:</b> (KATA) {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/sheets/"}
 <div style="margin-left:10px;margin-bottom:0.5em;">
-	<textarea name="{$namePrefix}[schema]" data-editor-mode="ace/mode/yaml">{$params.schema}</textarea>
+	<textarea name="{$namePrefix}[schema]" data-editor-mode="ace/mode/cerb_kata">{$params.schema}</textarea>
 </div>
 
 <b>Save the response to a placeholder named:</b> {include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/guides/bots/prompts#saving-placeholders"}

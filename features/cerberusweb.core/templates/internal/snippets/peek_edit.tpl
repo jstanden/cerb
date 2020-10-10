@@ -63,7 +63,7 @@
 		</ul>
 		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/snippets/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 	</div>
-	<textarea name="prompts_kata" class="cerb-editor-kata-placeholders" data-editor-mode="ace/mode/yaml">{$model->prompts_kata}</textarea>
+	<textarea name="prompts_kata" class="cerb-editor-kata-placeholders" data-editor-mode="ace/mode/cerb_kata">{$model->prompts_kata}</textarea>
 	<div class="cerb-code-editor-preview-output"></div>
 </fieldset>
 

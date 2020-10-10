@@ -121,7 +121,7 @@
 			<button type="button" class="cerb-code-editor-toolbar-button" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 		</div>
 
-		<textarea name="automation_policy_kata" data-editor-mode="ace/mode/yaml" data-editor-lines="25">{$model->policy_kata}</textarea>
+		<textarea name="automation_policy_kata" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->policy_kata}</textarea>
 	</div>
 
 	{*

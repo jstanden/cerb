@@ -11,7 +11,7 @@
 	<div style="margin-top:5px;">
 		<fieldset class="peek black">
 			<legend>Simulate placeholders:</b> <small>(KATA)</small></legend>
-			<textarea name="{$namePrefix}[placeholder_simulator_kata]" class="cerb-data-query-editor-placeholders" data-editor-mode="ace/mode/yaml">{$params.placeholder_simulator_kata}</textarea>
+			<textarea name="{$namePrefix}[placeholder_simulator_kata]" class="cerb-data-query-editor-placeholders" data-editor-mode="ace/mode/cerb_kata">{$params.placeholder_simulator_kata}</textarea>
 		</fieldset>
 		
 		<fieldset class="peek black" style="display:none;position:relative;">
@@ -47,7 +47,7 @@
 		<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/sheets/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 	</div>
 
-	<textarea name="{$namePrefix}[sheet_kata]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/yaml" style="width:95%;height:50px;">{$params.sheet_kata}</textarea>
+	<textarea name="{$namePrefix}[sheet_kata]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/cerb_kata" style="width:95%;height:50px;">{$params.sheet_kata}</textarea>
 
 	<fieldset class="peek black" style="display:none;position:relative;margin-top:10px;">
 		<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;" onclick="$(this).closest('fieldset').hide();"></span>
