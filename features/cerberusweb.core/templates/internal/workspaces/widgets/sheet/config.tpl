@@ -96,13 +96,13 @@
   items:
     interaction/interaction:
       label: Interaction
-      uri: cerb.toolbarBuilder.interaction
+      uri: ai.cerb.toolbarBuilder.interaction
     interaction/function:
       label: Function
-      uri: cerb.toolbarBuilder.function
+      uri: ai.cerb.toolbarBuilder.function
     interaction/menu:
       label: Menu
-      uri: cerb.toolbarBuilder.menu
+      uri: ai.cerb.toolbarBuilder.menu
 "
 						}
 

@@ -18,7 +18,7 @@
 "interaction/automation:
   icon: circle-plus
   #label: Automation
-  uri: cerb.eventHandler.automation
+  uri: ai.cerb.eventHandler.automation
   inputs:
     trigger: cerb.trigger.widgetMap.getPoints
 "}
@@ -42,7 +42,7 @@
 "interaction/automation:
   icon: circle-plus
   #label: Automation
-  uri: cerb.eventHandler.automation
+  uri: ai.cerb.eventHandler.automation
   inputs:
     trigger: cerb.trigger.widgetMap.renderPoint
 "}

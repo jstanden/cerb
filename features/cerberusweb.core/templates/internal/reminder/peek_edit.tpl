@@ -59,7 +59,7 @@
   items:
     interaction/automation:
       label: Automation
-      uri: cerb.eventHandler.automation
+      uri: ai.cerb.eventHandler.automation
       inputs:
         trigger: cerb.trigger.reminder.remind
 "}
