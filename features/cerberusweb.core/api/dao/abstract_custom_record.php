@@ -1108,16 +1108,24 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 	function profileGetUrl($context_id) {
 		if(empty($context_id))
 			return '';
+		
+		if(false == ($context_mft = Extension_DevblocksContext::get(self::_getContextName(), false)))
+			return '';
+		
+		$aliases = self::getAliasesForContext($context_mft);
 	
+		if(!is_array($aliases) || !array_key_exists('uri', $aliases) || !$aliases['uri'])
+			return '';
+		
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy(
+		
+		return $url_writer->writeNoProxy(
 			sprintf('c=profiles&type=%s&id=%d',
-				self::_getTableName(),
+				$aliases['uri'],
 				$context_id
 			),
 			true
 		);
-		return $url;
 	}
 	
 	function profileGetFields($model=null) {
