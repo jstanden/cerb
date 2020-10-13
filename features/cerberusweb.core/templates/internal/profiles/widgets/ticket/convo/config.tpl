@@ -12,7 +12,7 @@
 		</label>
 		<label>
 			<input type="radio" name="params[comments_mode]" value="1" {if 1 == $widget->extension_params.comments_mode}checked="checked"{/if}>
-			Hide
+			{'common.hide'|devblocks_translate|capitalize}
 		</label>
 	</fieldset>
 </div>

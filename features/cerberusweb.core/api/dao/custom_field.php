@@ -309,7 +309,7 @@ class DAO_CustomField extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param array $ids
 	 * @return Model_CustomField[]
 	 */
@@ -727,7 +727,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					foreach($values as $v) {
 						$is_unset = ('-'==substr($v,0,1)) ? true : false;
 						$v = ltrim($v,'+-');
-							
+						
 						if($is_unset) {
 						} else {
 							$value[$v] = $v;
@@ -789,7 +789,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 		
 		foreach(array_keys($values) as $field_id) {
 			if(
-				false == (@$custom_field = $custom_fields[$field_id]) 
+				false == (@$custom_field = $custom_fields[$field_id])
 				|| array_key_exists($custom_field->custom_fieldset_id, $remove_fieldset_ids)
 			) {
 				unset($values[$field_id]);
@@ -927,7 +927,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 						foreach($value as $v) {
 							$is_unset = ('-'==substr($v,0,1)) ? true : false;
 							$v = ltrim($v,'+-');
-								
+							
 							if($is_unset) {
 								if($delta)
 									self::unsetFieldValue($context, $context_id, $field_id, $v);
@@ -956,7 +956,6 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 							// Ignore a leading plus
 							$v = ltrim($v, '+');
 							
-							// 
 							if(!in_array($v, $options) && !empty($v)) {
 								$field->params['options'][] = $v;
 								$added = true;
@@ -1599,7 +1598,7 @@ class Model_CustomField {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return Extension_CustomField|NULL
 	 */
 	function getTypeExtension() {
@@ -1935,12 +1934,12 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 		$field_types = Model_CustomField::getTypes();
 		
 		$fields = array(
-			'text' => 
+			'text' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomField::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'context' => 
+			'context' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomField::CONTEXT),
@@ -1964,7 +1963,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'q' => ''],
 					]
 				),
-			'id' => 
+			'id' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_CustomField::ID),
@@ -1972,7 +1971,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELD, 'q' => ''],
 					]
 				),
-			'name' => 
+			'name' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_CustomField::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -2018,7 +2017,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 		ksort($fields);
 		
 		return $fields;
-	}	
+	}
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {

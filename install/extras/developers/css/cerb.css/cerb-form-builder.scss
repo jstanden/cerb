@@ -92,10 +92,12 @@
 	.cerb-form-builder-prompt-text TEXTAREA {
 		border: 1px solid rgb(220,220,220);
 		width: 99%;
+		box-sizing: border-box;
 	}
 
 	.cerb-form-builder-prompt-captcha INPUT[type=text] {
 		border: 1px solid rgb(220,220,220);
+		box-sizing: border-box;
 	}
 
 	.cerb-data-table {

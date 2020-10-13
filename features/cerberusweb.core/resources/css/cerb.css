@@ -2357,9 +2357,11 @@ UL.ui-menu li.ui-state-focus {
 .cerb-form-builder .cerb-form-builder-prompt-text TEXTAREA {
   border: 1px solid gainsboro;
   width: 99%;
+  box-sizing: border-box;
 }
 .cerb-form-builder .cerb-form-builder-prompt-captcha INPUT[type=text] {
   border: 1px solid gainsboro;
+  box-sizing: border-box;
 }
 .cerb-form-builder .cerb-data-table th {
   font-weight: bold;

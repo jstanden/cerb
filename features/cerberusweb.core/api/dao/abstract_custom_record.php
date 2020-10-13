@@ -947,7 +947,6 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			default:
 				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
@@ -958,10 +957,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

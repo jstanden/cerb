@@ -599,15 +599,17 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		
 		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', null);
 		
-		if(!$extension_id)
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(!$extension_id) {
+			echo '[]';
 			return;
+		}
 		
 		if(false == ($trigger_ext = Extension_AutomationTrigger::get($extension_id, true)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		/* @var $trigger_ext Extension_AutomationTrigger */
-		
-		header('Content-Type: application/json; charset=utf-8');
 		
 		echo $trigger_ext->getAutocompleteSuggestionsJson();
 	}

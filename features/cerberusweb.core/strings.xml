@@ -1445,6 +1445,11 @@
 				<seg>one per line</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.hide">
+			<tuv xml:lang="en_US">
+				<seg>hide</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.history">
 			<tuv xml:lang="en_US">
 				<seg>history</seg>
@@ -2931,6 +2936,16 @@
 		<tu tuid="common.tokens">
 			<tuv xml:lang="en_US">
 				<seg>tokens</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.toolbar">
+			<tuv xml:lang="en_US">
+				<seg>toolbar</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.toolbars">
+			<tuv xml:lang="en_US">
+				<seg>toolbars</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.total">

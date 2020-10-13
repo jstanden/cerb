@@ -265,7 +265,7 @@ oop.inherits(Mode, TextMode);
     this.getNextLineIndent = function(state, line, tab) {
         var indent = this.$getIndent(line);
 
-        if (state == "start") {
+        if (state === "start") {
             var match = line.match(/^.*[\{\(\[]\s*$/);
             if (match) {
                 indent += tab;

@@ -3664,7 +3664,7 @@ var ajax = new cAjaxCalls();
 				var q = $trigger.val();
 				var context = $trigger.attr('data-context');
 				
-				if(!(typeof context == "string") || 0 == context.length)
+				if(!(typeof context == "string") || 0 === context.length)
 					return;
 				
 				var $chooser = genericAjaxPopup("chooser" + Devblocks.uniqueId(),'c=internal&a=invoke&module=records&action=chooserOpenParams&context=' + encodeURIComponent(context) + '&q=' + encodeURIComponent(q),null,true,width);
