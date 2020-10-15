@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use AutomationTrigger_UiSheetData;
@@ -11,7 +11,7 @@ use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
-class SheetYield extends AbstractYield {
+class SheetAwait extends AbstractAwait {
 	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
 		switch($action) {
 			case 'refresh':
@@ -156,7 +156,7 @@ class SheetYield extends AbstractYield {
 		
 		$this->_render($prompt_key, $execution);
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/yield/sheet.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/sheet.tpl');
 	}
 	
 	private function _promptAction_refresh(string $prompt_key, Model_AutomationExecution $execution) {

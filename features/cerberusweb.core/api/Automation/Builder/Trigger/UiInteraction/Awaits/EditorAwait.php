@@ -1,11 +1,11 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
-class EditorYield extends AbstractYield {
+class EditorAwait extends AbstractAwait {
 	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
 		return false;
 	}
@@ -36,6 +36,6 @@ class EditorYield extends AbstractYield {
 		$tpl->assign('default', $default);
 		$tpl->assign('editor_mode', $mode);
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/yield/editor.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/editor.tpl');
 	}
 }

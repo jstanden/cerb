@@ -1,11 +1,11 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
-class SubmitYield extends AbstractYield {
+class SubmitAwait extends AbstractAwait {
 	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
 		return false;
 	}
@@ -28,6 +28,6 @@ class SubmitYield extends AbstractYield {
 			'reset' => $show_reset,
 		]);
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/yield/submit.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/submit.tpl');
 	}
 }

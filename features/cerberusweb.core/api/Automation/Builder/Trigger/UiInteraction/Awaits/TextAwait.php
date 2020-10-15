@@ -1,11 +1,11 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
-class TextYield extends AbstractYield {
+class TextAwait extends AbstractAwait {
 	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
 		return false;
 	}
@@ -200,6 +200,6 @@ class TextYield extends AbstractYield {
 		$tpl->assign('value', $this->_value);
 		$tpl->assign('is_required', $is_required);
 		$tpl->assign('max_length', $max_length);
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/yield/text.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/text.tpl');
 	}
 }

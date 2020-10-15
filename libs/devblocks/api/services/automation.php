@@ -355,7 +355,7 @@ class _DevblocksAutomationService {
 	private function runAST(CerbAutomationAstNode $tree, DevblocksDictionaryDelegate &$dict, CerbAutomationPolicy $policy=null) {
 		// [TODO] Time limits by role?
 		
-		// [TODO] Check if we're given an exit/return/error/yield status
+		// [TODO] Check if we're given an exit/return/error/await status
 		$dict->unset('__exit');
 		$dict->unset('__return');
 		
@@ -397,10 +397,10 @@ class _DevblocksAutomationService {
 				$dict->setKeyPath('__state.next', $environment['state']);
 				$environment['state'] = null;
 			
-			// Yield
-			} else if ($environment['debug'] || 'yield' == $exit_code) {
+			// Await
+			} else if ($environment['debug'] || 'await' == $exit_code) {
 				if($environment['debug'])
-					$dict->set('__exit', 'yield');
+					$dict->set('__exit', 'await');
 				
 				$environment['state'] = null;
 				
@@ -449,6 +449,7 @@ class _DevblocksAutomationService {
 		];
 		
 		$actions = [
+			'await',
 			'data.query',
 			'email.parse',
 			'email.send',
@@ -469,7 +470,6 @@ class _DevblocksAutomationService {
 			'var.push',
 			'var.set',
 			'var.unset',
-			'yield',
 		];
 		
 		if(is_null($type)) {

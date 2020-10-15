@@ -750,9 +750,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 								'label' => 'Return',
 								'uri' => 'ai.cerb.automationBuilder.exit.return',
 							],
-							'interaction/yield' => [
-								'label' => 'Yield',
-								'uri' => 'cerb.automationBuilder.exit.yield',
+							'interaction/await' => [
+								'label' => 'Await',
+								'uri' => 'ai.cerb.automationBuilder.exit.await',
 							],
 							'interaction/error' => [
 								'label' => 'Error',
@@ -780,8 +780,8 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			unset($toolbar['menu/insert']['items']['menu/inputs']);
 		}
 		
-		if(!array_key_exists('yield', $features)) {
-			unset($toolbar['menu/insert']['items']['menu/exit']['items']['interaction/yield']);
+		if(!array_key_exists('await', $features)) {
+			unset($toolbar['menu/insert']['items']['menu/exit']['items']['interaction/await']);
 		}
 		
 		// Get toolbar modifications from trigger
@@ -807,9 +807,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			],
 			// [TODO] If the trigger is resumable
 			[
-				'caption' => 'yield:',
-				'snippet' => "yield:\n\t",
-				'docHTML' => "<b>yield:</b><br>Pause and wait for the specified inputs",
+				'caption' => 'await:',
+				'snippet' => "await:\n\t",
+				'docHTML' => "<b>await:</b><br>Pause and wait for the specified inputs",
 			],
 			[
 				'caption' => 'set:',

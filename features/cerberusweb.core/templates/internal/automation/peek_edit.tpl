@@ -371,7 +371,7 @@ $(function() {
 						return;
 					}
 
-					if(json.exit === 'yield') {
+					if(json.exit === 'await') {
 						$button_step.fadeIn();
 					}
 

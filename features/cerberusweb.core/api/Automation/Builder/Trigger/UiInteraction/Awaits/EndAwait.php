@@ -1,11 +1,11 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
-class EndYield extends AbstractYield {
+class EndAwait extends AbstractAwait {
 	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
 		return false;
 	}
@@ -22,6 +22,6 @@ class EndYield extends AbstractYield {
 		
 		$tpl->assign('event_data', $this->_data);
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/yield/end.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/end.tpl');
 	}
 }

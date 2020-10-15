@@ -4,14 +4,14 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 	
 	public static function getFormComponentMeta() {
 		return [
-			'editor' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\EditorYield',
-			'end' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\EndYield',
-			'map' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\MapYield',
-			'say' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\SayYield',
-			'sheet' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\SheetYield',
-			'submit' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\SubmitYield',
-			'text' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\TextYield',
-			'textarea' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\TextareaYield',
+			'editor' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\EditorAwait',
+			'end' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\EndAwait',
+			'map' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\MapAwait',
+			'say' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\SayAwait',
+			'sheet' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\SheetAwait',
+			'submit' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\SubmitAwait',
+			'text' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\TextAwait',
+			'textarea' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\TextareaAwait',
 		];
 	}
 	
@@ -31,28 +31,28 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 	}
 	
 	public function getEditorToolbarItems(array $toolbar): array {
-		$toolbar['menu/insert']['items']['menu/yield'] = [
-			'label' => 'Yield',
+		$toolbar['menu/insert']['items']['menu/await'] = [
+			'label' => 'Await',
 			'items' => [
 				'interaction/prompt_editor' => [
 					'label' => 'Editor',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.yield.promptEditor',
+					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.promptEditor',
 				],
 				'interaction/respond_map' => [
 					'label' => 'Map',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.yield.map',
+					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.map',
 				],
 				'interaction/respond_say' => [
 					'label' => 'Say',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.yield.say',
+					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.say',
 				],
 				'interaction/prompt_sheet' => [
 					'label' => 'Sheet',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.yield.promptSheet',
+					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.promptSheet',
 				],
 				'interaction/prompt_text' => [
 					'label' => 'Text',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.yield.promptText',
+					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.promptText',
 				]
 			], // items
 		];
@@ -63,10 +63,10 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 	public function getAutocompleteSuggestions() : array {
 		return [
 			'*' => [
-				'(.*):yield:' => [
+				'(.*):await:' => [
 					'form:',
 				],
-				'(.*):yield:form:' => [
+				'(.*):await:form:' => [
 					'editor:',
 					'map:',
 					'say:',
@@ -74,11 +74,11 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 					'submit:',
 					'text:',
 				],
-				'(.*):yield:form:map:' => [
+				'(.*):await:form:map:' => [
 					'region:',
 					'geojson@json:',
 				],
-				'(.*):yield:form:map:region:' => [
+				'(.*):await:form:map:region:' => [
 					'usa',
 					'world',
 				],

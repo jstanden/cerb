@@ -21,10 +21,10 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 			->string()
 			->setPossibleValues([
 				'',
+				'await',
 				'error',
 				'exit',
 				'return',
-				'yield',
 			])
 			;
 		$validation

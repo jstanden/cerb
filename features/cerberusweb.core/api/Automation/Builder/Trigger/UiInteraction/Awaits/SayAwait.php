@@ -1,11 +1,11 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
-class SayYield extends AbstractYield {
+class SayAwait extends AbstractAwait {
 	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
 		return false;
 	}

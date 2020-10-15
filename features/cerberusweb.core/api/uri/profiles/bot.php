@@ -1857,7 +1857,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			}
 			
 			if(false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
-				$initial_state['__exit'] = 'yield';
+				$initial_state['__exit'] = 'await';
 				$initial_state['__return'] = [
 					'form' => [
 						'say/__validation' => [
@@ -1874,10 +1874,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$actions = $automation_results->getKeyPath('__return.form', []);
 		
-		// Synthesize a submit button on yields
-		if('yield' == $exit_code) {
+		// Synthesize a submit button on await
+		if('await' == $exit_code) {
 			$actions['submit/' . uniqid()] = [
-				'continue' => 'yield' == $exit_code,
+				'continue' => 'await' == $exit_code,
 				'reset' => true,
 			];
 			

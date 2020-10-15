@@ -4606,7 +4606,7 @@
 				<param key="features">
 					<value>
 						<data key="inputs" />
-						<data key="yield" />
+						<data key="await" />
 					</value>
 				</param>
 			</params>

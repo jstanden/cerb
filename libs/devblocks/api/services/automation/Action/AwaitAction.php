@@ -1,14 +1,14 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
-class YieldAction extends AbstractAction {
-	const ID = 'yield';
+class AwaitAction extends AbstractAction {
+	const ID = 'await';
 	
 	function activate(\DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null) {
-		$yield_values = $this->node->getParams($dict);
+		$await_values = $this->node->getParams($dict);
 		
-		$dict->set('__exit', 'yield');
-		$dict->set('__return', $yield_values);
+		$dict->set('__exit', 'await');
+		$dict->set('__return', $await_values);
 		
 		return $this->node->getParent()->getId();
 	}

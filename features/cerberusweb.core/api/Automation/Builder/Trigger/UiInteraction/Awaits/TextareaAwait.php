@@ -1,11 +1,11 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
-class TextareaYield extends AbstractYield {
+class TextareaAwait extends AbstractAwait {
 	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
 		return false;
 	}
@@ -44,6 +44,6 @@ class TextareaYield extends AbstractYield {
 		$tpl->assign('value', $this->_value);
 		$tpl->assign('is_required', $is_required);
 		$tpl->assign('max_length', $max_length);
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/yield/textarea.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/textarea.tpl');
 	}
 }

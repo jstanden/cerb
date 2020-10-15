@@ -1,11 +1,11 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
-class MapYield extends AbstractYield {
+class MapAwait extends AbstractAwait {
 	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
 		return false;
 	}
@@ -26,9 +26,9 @@ class MapYield extends AbstractYield {
 		$tpl->assign('points', $geojson);
 		
 		if('usa' == $region) {
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/yield/map_usa.tpl');
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/map_usa.tpl');
 		} else {
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/yield/map_world.tpl');
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/map_world.tpl');
 		}
 	}
 }

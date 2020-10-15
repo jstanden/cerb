@@ -108,7 +108,7 @@ Devblocks.loadResources({
         .attr('x2', function(d) { return d.target.y; })
         .attr('y2', function(d) { return d.target.x; })
         //.attr('marker-end', function(d) {
-            //if(-1 !== $.inArray(d.target.data.type, ['return','error','yield'])) {
+            //if(-1 !== $.inArray(d.target.data.type, ['return','error','await'])) {
             //    return 'url(#arrow)';
             //}
         //})
@@ -127,12 +127,12 @@ Devblocks.loadResources({
 
     nodes
         // .filter(function(d) {
-        //     return d.data.type !== 'yield' && d.data.type !== 'decision'
+        //     return d.data.type !== 'await' && d.data.type !== 'decision'
         // })
         .append('circle')
         //.classed('node', true)
         .attr('fill', function(d) {
-            if(d.data.type === 'yield') {
+            if(d.data.type === 'await') {
                 return 'lightblue';
             } else if(d.data.type === 'return') {
                 return 'green';
@@ -155,12 +155,12 @@ Devblocks.loadResources({
     /*
     nodes
         .filter(function(d) {
-            return d.data.type !== 'yield' && d.data.type !== 'decision'
+            return d.data.type !== 'await' && d.data.type !== 'decision'
         })
         .append('circle')
         //.classed('node', true)
         .attr('fill', function(d) {
-            if(d.data.type === 'yield') {
+            if(d.data.type === 'await') {
                 return 'lightblue';
             } else if(d.data.type === 'return') {
                 return 'green';
@@ -182,12 +182,12 @@ Devblocks.loadResources({
 
     nodes
         .filter(function(d) {
-            return d.data.type === 'yield'
+            return d.data.type === 'await'
         })
         .append('rect')
         //.classed('node', true)
         .attr('fill', function(d) {
-            if(d.data.type === 'yield') {
+            if(d.data.type === 'await') {
                 return 'lightblue';
             } else if(d.data.type === 'return') {
                 return 'green';

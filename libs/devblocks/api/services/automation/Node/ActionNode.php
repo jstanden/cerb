@@ -8,6 +8,7 @@ use DevblocksDictionaryDelegate;
 class ActionNode extends AbstractNode {
 	static function getActionClasses() {
 		return [
+			'await' => '\Cerb\AutomationBuilder\Action\AwaitAction',
 			'data.query' => '\Cerb\AutomationBuilder\Action\DataQueryAction',
 			'email.parse' => '\Cerb\AutomationBuilder\Action\EmailParseAction',
 			'email.send' => '\Cerb\AutomationBuilder\Action\EmailSendAction',
@@ -28,7 +29,6 @@ class ActionNode extends AbstractNode {
 			'var.push' => '\Cerb\AutomationBuilder\Action\VarPushAction',
 			'var.set' => '\Cerb\AutomationBuilder\Action\VarSetAction',
 			'var.unset' => '\Cerb\AutomationBuilder\Action\VarUnsetAction',
-			'yield' => '\Cerb\AutomationBuilder\Action\YieldAction',
 		];
 	}
 	

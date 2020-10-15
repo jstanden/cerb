@@ -238,11 +238,11 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					$child_id = end($child_path);
 					@list($child_node_type, $child_node_key) = explode('/', $child_id, 2);
 					
-					if('yield' == $child_node_type) {
+					if('await' == $child_node_type) {
 						$child_node_name = $child_node_key ?: ''; //$child_node_type
 						
 						// Reassign siblings as my children
-						$yield = [
+						$await = [
 							'name' => $child_node_name,
 							'path' => $child->getId(),
 							'line' => $symbol_meta[$child->getId()] ?? false,
@@ -254,12 +254,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 						
 						// Drain remaining siblings
 						while($new_child = current($siblings)) {
-							// [TODO] if multiple yields in a row (add to last child)
-							$yield['children'][] = $ast2json($new_child, $depth + 1);
+							// [TODO] if multiple awaits in a row (add to last child)
+							$await['children'][] = $ast2json($new_child, $depth + 1);
 							next($siblings);
 						}
 						
-						$e['children'][] = $yield;
+						$e['children'][] = $await;
 						
 					} else {
 						$e['children'][] = $ast2json($child, $depth + 1);

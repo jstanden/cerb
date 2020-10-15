@@ -1,10 +1,10 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
+namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
 use Model_AutomationExecution;
 
-abstract class AbstractYield {
+abstract class AbstractAwait {
 	protected $_key;
 	protected $_data;
 	protected $_value;
