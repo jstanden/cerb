@@ -906,12 +906,7 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 						'limit' => 25,
 					]
 				),
-			'owner' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => $search_class::VIRTUAL_OWNER),
-				),
-			'updated' => 
+			'updated' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => $search_class::UPDATED_AT),
@@ -922,6 +917,13 @@ class View_AbstractCustomRecord extends C4_AbstractView implements IAbstractView
 					'options' => array('param_key' => $search_class::VIRTUAL_WATCHERS),
 				),
 		);
+		
+		// Add dynamic owner.* fields
+		
+		$owner_contexts = $custom_record->getRecordOwnerContexts();
+		
+		if($owner_contexts)
+			$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_AbstractCustomRecord::VIRTUAL_OWNER);
 		
 		// Add quick search links
 		
