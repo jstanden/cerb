@@ -2,7 +2,7 @@
 namespace Cerb\Automation\Builder\Trigger\UiInteraction\Yields;
 
 use _DevblocksValidationService;
-use AutomationTrigger_UiFunction;
+use AutomationTrigger_UiSheetData;
 use CerberusApplication;
 use CerberusContexts;
 use DAO_Automation;
@@ -62,8 +62,8 @@ class SheetYield extends AbstractYield {
 		if(is_array($sheet_data) && !DevblocksPlatform::arrayIsIndexed($sheet_data) && array_key_exists('function', $sheet_data)) {
 			$function_uri = $sheet_data['function']['uri'] ?? null;
 			
-			if(false != ($callback = DAO_Automation::getByUri($function_uri))) {
-				if($callback->extension_id != AutomationTrigger_UiFunction::ID)
+			if(!is_null($function_uri) && false != ($callback = DAO_Automation::getByUri($function_uri))) {
+				if($callback->extension_id != AutomationTrigger_UiSheetData::ID)
 					return;
 				
 				$automator = DevblocksPlatform::services()->automation();

@@ -4548,6 +4548,22 @@
 		<!-- Triggers -->
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.ui.sheet.data</id>
+			<name>ui.sheet.data</name>
+			<class>
+				<file>api/automations/triggers/ui.sheet.data.php</file>
+				<name>AutomationTrigger_UiSheetData</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.reminder.remind</id>
 			<name>reminder.remind</name>
 			<class>
