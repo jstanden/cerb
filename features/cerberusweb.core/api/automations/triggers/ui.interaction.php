@@ -11,6 +11,7 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 			'sheet' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\SheetYield',
 			'submit' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\SubmitYield',
 			'text' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\TextYield',
+			'textarea' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Yields\TextareaYield',
 		];
 	}
 	
