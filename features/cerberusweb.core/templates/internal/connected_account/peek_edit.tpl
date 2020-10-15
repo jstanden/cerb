@@ -22,7 +22,17 @@
 				<input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus">
 			</td>
 		</tr>
-		
+
+		<tr>
+			<td width="1%" valign="top" nowrap="nowrap"><b><abbr title="The alias used for this account in automations, etc. Must only contain letters, numbers, and dashes.">{'common.uri'|devblocks_translate}:</b></abbr></td>
+			<td width="99%" valign="top">
+				<input type="text" name="uri" value="{$model->uri}" style="width:98%;">
+				<div>
+					<small>(letters, numbers, and dashes)</small>
+				</div>
+			</td>
+		</tr>
+
 		<tr>
 			<td width="1%" nowrap="nowrap"><b>{'common.service'|devblocks_translate|capitalize}:</b></td>
 			<td width="99%">

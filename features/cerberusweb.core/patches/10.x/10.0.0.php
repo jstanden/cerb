@@ -29,6 +29,16 @@ if(!array_key_exists('uri', $columns)) {
 }
 
 // ===========================================================================
+// Add `connected_account.uri`
+
+list($columns,) = $db->metaTable('connected_account');
+
+if(!array_key_exists('uri', $columns)) {
+	$sql = "ALTER TABLE connected_account ADD COLUMN uri VARCHAR(128) NOT NULL DEFAULT '', ADD INDEX (uri)";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
 // Add `automation` table
 
 if(!isset($tables['automation'])) {

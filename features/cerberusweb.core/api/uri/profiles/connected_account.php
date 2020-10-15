@@ -80,6 +80,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
 				@$owner = DevblocksPlatform::importGPC($_POST['owner'], 'string', null);
+				@$uri = DevblocksPlatform::importGPC($_POST['uri'], 'string', '');
 				
 				$account = new Model_ConnectedAccount();
 				$account->id = 0;
@@ -96,6 +97,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 					
 					$fields = array(
 						DAO_ConnectedAccount::NAME => $name,
+						DAO_ConnectedAccount::URI => $uri,
 						DAO_ConnectedAccount::UPDATED_AT => time(),
 					);
 					
@@ -137,6 +139,7 @@ class PageSection_ProfilesConnectedAccount extends Extension_PageSection {
 						DAO_ConnectedAccount::NAME => $name,
 						DAO_ConnectedAccount::UPDATED_AT => time(),
 						DAO_ConnectedAccount::SERVICE_ID => $service_id,
+						DAO_ConnectedAccount::URI => $uri,
 					);
 					
 					// Owner (only admins)

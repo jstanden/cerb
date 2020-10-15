@@ -8,6 +8,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 	const PARAMS_JSON = 'params_json';
 	const SERVICE_ID = 'service_id';
 	const UPDATED_AT = 'updated_at';
+	const URI = 'uri';
 	
 	private function __construct() {}
 	
@@ -52,6 +53,29 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
+		$validation
+			->addField(self::URI, DevblocksPlatform::translate('common.uri'))
+			->string()
+			->setUnique(get_class())
+			->setNotEmpty(false)
+			->addFormatter(function(&$value, &$error=null) {
+				$value = DevblocksPlatform::strLower($value);
+				return true;
+			})
+			->addValidator(function($string, &$error=null) {
+				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-'))) {
+					$error = "may only contain lowercase letters, numbers, and dashes";
+					return false;
+				}
+				
+				if(strlen($string) > 128) {
+					$error = "must be shorter than 128 characters.";
+					return false;
+				}
+				
+				return true;
+			})
+		;
 		$validation
 			->addField('_fieldsets')
 			->string()
@@ -244,7 +268,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, service_id, owner_context, owner_context_id, params_json, created_at, updated_at ".
+		$sql = "SELECT id, name, uri, service_id, owner_context, owner_context_id, params_json, created_at, updated_at ".
 			"FROM connected_account ".
 			$where_sql.
 			$sort_sql.
@@ -321,6 +345,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			$object = new Model_ConnectedAccount();
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
+			$object->uri = $row['uri'];
 			$object->service_id = intval($row['service_id']);
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = intval($row['owner_context_id']);
@@ -403,6 +428,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"connected_account.id as %s, ".
 			"connected_account.name as %s, ".
+			"connected_account.uri as %s, ".
 			"connected_account.service_id as %s, ".
 			"connected_account.owner_context as %s, ".
 			"connected_account.owner_context_id as %s, ".
@@ -410,6 +436,7 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 			"connected_account.updated_at as %s ",
 				SearchFields_ConnectedAccount::ID,
 				SearchFields_ConnectedAccount::NAME,
+				SearchFields_ConnectedAccount::URI,
 				SearchFields_ConnectedAccount::SERVICE_ID,
 				SearchFields_ConnectedAccount::OWNER_CONTEXT,
 				SearchFields_ConnectedAccount::OWNER_CONTEXT_ID,
@@ -476,6 +503,7 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 	const OWNER_CONTEXT_ID = 'c_owner_context_id';
 	const CREATED_AT = 'c_created_at';
 	const UPDATED_AT = 'c_updated_at';
+	const URI = 'c_uri';
 
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -595,6 +623,7 @@ class SearchFields_ConnectedAccount extends DevblocksSearchFields {
 			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'connected_account', 'owner_context_id', null, null, true),
 			self::SERVICE_ID => new DevblocksSearchField(self::SERVICE_ID, 'connected_account', 'service_id', $translate->_('common.service.provider'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'connected_account', 'updated_at', $translate->_('common.updated'), null, true),
+			self::URI => new DevblocksSearchField(self::URI, 'connected_account', 'uri', $translate->_('common.uri'), null, true),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -624,6 +653,7 @@ class Model_ConnectedAccount {
 	public $params_json_encrypted;
 	public $service_id = 0;
 	public $updated_at;
+	public $uri;
 	
 	public function getService() {
 		return DAO_ConnectedService::get($this->service_id);
@@ -676,6 +706,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 		$this->view_columns = array(
 			SearchFields_ConnectedAccount::NAME,
 			SearchFields_ConnectedAccount::SERVICE_ID,
+			SearchFields_ConnectedAccount::URI,
 			SearchFields_ConnectedAccount::VIRTUAL_OWNER,
 			SearchFields_ConnectedAccount::UPDATED_AT,
 		);
@@ -858,6 +889,11 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_ConnectedAccount::UPDATED_AT),
 				),
+			'uri' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_ConnectedAccount::URI),
+				),
 		);
 		
 		// Add dynamic owner.* fields
@@ -973,6 +1009,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 
 		switch($field) {
 			case SearchFields_ConnectedAccount::NAME:
+			case SearchFields_ConnectedAccount::URI:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1127,6 +1164,12 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			'value' => $model->updated_at,
 		);
 		
+		$properties['uri'] = [
+			'label' => DevblocksPlatform::translate('common.uri'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->uri,
+		];
+		
 		return $properties;
 	}
 	
@@ -1180,6 +1223,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			'name' => $prefix.$translate->_('common.name'),
 			'service' => $prefix.$translate->_('common.service.provider'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'uri' => $prefix.$translate->_('common.uri'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'owner__label' => $prefix.$translate->_('common.owner'),
 		);
@@ -1191,6 +1235,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'service' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'uri' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'owner__label' => 'context_url',
 		);
@@ -1216,6 +1261,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$token_values['name'] = $connected_account->name;
 			$token_values['service_id'] = $connected_account->service_id;
 			$token_values['updated_at'] = $connected_account->updated_at;
+			$token_values['uri'] = $connected_account->uri;
 			
 			$token_values['owner__context'] = $connected_account->owner_context;
 			$token_values['owner_id'] = $connected_account->owner_context_id;
@@ -1252,6 +1298,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			'owner_id' => DAO_ConnectedAccount::OWNER_CONTEXT_ID,
 			'service_id' => DAO_ConnectedAccount::SERVICE_ID,
 			'updated_at' => DAO_ConnectedAccount::UPDATED_AT,
+			'uri' => DAO_ConnectedAccount::URI,
 		];
 	}
 	
