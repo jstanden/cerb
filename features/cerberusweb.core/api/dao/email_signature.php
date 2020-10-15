@@ -700,12 +700,7 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_EmailSignature::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'owner' => 
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_EmailSignature::VIRTUAL_OWNER),
-				),
-			'signature' => 
+			'signature' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_EmailSignature::SIGNATURE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
@@ -716,6 +711,10 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 					'options' => array('param_key' => SearchFields_EmailSignature::UPDATED_AT),
 				),
 		);
+		
+		// Add dynamic owner.* fields
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_EmailSignature::VIRTUAL_OWNER);
 		
 		// Add quick search links
 		
