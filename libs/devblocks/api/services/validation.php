@@ -192,7 +192,7 @@ class _DevblocksFormatters {
 	
 	function stringWithoutEmoji() {
 		return function(&$value, &$error=null) {
-			if(!is_string($value)) {
+			if(!is_null($value) && !is_string($value)) {
 				$error = "is not a string.";
 				return false;
 			}
