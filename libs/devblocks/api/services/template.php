@@ -384,11 +384,25 @@ class _DevblocksTemplateManager {
 		$quote_started = false;
 		$last_line = count($lines) - 1;
 		
-		foreach($lines as $idx => $line) {
+		while(false !== ($line = current($lines))) {
+			$idx = key($lines);
 			$quote_ended = false;
 			
+			// If we're in a quote and on a blank line, check the next line
+			if($quote_started && 0 === strlen(ltrim($line))) {
+				next($lines);
+				
+				if(DevblocksPlatform::strStartsWith(current($lines), ['>','&gt;'])) {
+					$line = current($lines);
+					$idx = key($lines);
+				} else {
+					prev($lines);
+				}
+			}
+			
 			// Check if the line starts with a > before any content
-			if(preg_match('#^\s*(\>|\&gt;)#', $line)) {
+			
+			if(DevblocksPlatform::strStartsWith($line, ['>','&gt;'])) {
 				if(false === $quote_started)
 					$quote_started = $idx;
 				$quote_ended = false;
@@ -408,6 +422,8 @@ class _DevblocksTemplateManager {
 				}
 				$quote_started = false;
 			}
+			
+			next($lines);
 		}
 		
 		return implode("\n", $lines);
