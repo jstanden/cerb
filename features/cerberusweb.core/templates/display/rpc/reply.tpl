@@ -1135,6 +1135,14 @@ $(function() {
 				} catch(ex) { }
 			});
 
+			// Fix line endings
+			$editor.bind('keydown', 'ctrl+shift+l', function(e) {
+				e.preventDefault();
+				try {
+					$editor.val($editor.val().replaceAll("\n\n\n","\n\n"));
+				} catch(e) { }
+			});
+
 			// Reformat quotes
 			$editor.bind('keydown', 'ctrl+shift+q', function(e) {
 				e.preventDefault();
