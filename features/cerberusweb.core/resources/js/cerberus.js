@@ -3547,7 +3547,12 @@ var ajax = new cAjaxCalls();
 					}
 				});
 
-				// Do we start the interaction inline or in a popup?
+				// Give the callback an opportunity to append
+				if(options && options.start && 'function' == typeof options.start) {
+					options.start(formData);
+				}
+
+				// Is the interaction headless, inline, or a popup?
 
 				if(interaction_headless) {
 					formData.set('interaction_style', 'headless');
