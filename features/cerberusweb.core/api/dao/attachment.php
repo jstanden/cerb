@@ -1876,6 +1876,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	function getContext($attachment, &$token_labels, &$token_values, $prefix=null) {
 		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ATTACHMENT);
 
+		$url_writer = DevblocksPlatform::services()->url();
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		if(is_null($prefix))
@@ -1897,6 +1898,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
+			'download_url' => $prefix.$translate->_('common.url'),
 			'id' => $prefix.$translate->_('common.id'),
 			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -1910,6 +1912,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		// Token types
 		$token_types = array(
 			'id' => 'id',
+			'download_url' => Model_CustomField::TYPE_URL,
 			'mime_type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'size' => 'size_bytes',
@@ -1946,6 +1949,14 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			$token_values['storage_sha1hash'] = $attachment->storage_sha1hash;
 			$token_values['updated'] = $attachment->updated;
 			
+			$token_values['url_download'] = $url_writer->write(
+				sprintf('c=files&id=%d&name=%s',
+					$attachment->id,
+					urlencode($attachment->name)
+				),
+				true
+			);
+			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($attachment, $token_values);
 		}
@@ -1976,6 +1987,9 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		$keys['content']['notes'] = 'The content of this file. For binary, base64-encode in [data URI format](https://en.wikipedia.org/wiki/Data_URI_scheme)';
 		$keys['mime_type']['notes'] = 'The MIME type of this file (e.g. `image/png`); defaults to `application/octet-stream`';
 		$keys['name']['notes'] = 'The filename';
+		
+		$keys['url_download']['is_immutable'] = true;
+		$keys['url_download']['notes'] = 'The download URL for the attachment';
 		
 		return $keys;
 	}
