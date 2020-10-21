@@ -6,6 +6,7 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 		return [
 			'editor' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\EditorAwait',
 			'end' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\EndAwait',
+			'fileUpload' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\FileUploadAwait',
 			'map' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\MapAwait',
 			'say' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\SayAwait',
 			'sheet' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\SheetAwait',
