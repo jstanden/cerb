@@ -42,7 +42,7 @@ class SheetAwait extends AbstractAwait {
 		
 		$error = null;
 		
-		@$prompt = $execution->state_data['dict']['__return']['form'][$prompt_key];
+		@$prompt = $execution->state_data['dict']['__return']['form']['elements'][$prompt_key];
 		
 		if(is_null($prompt))
 			return;
@@ -126,7 +126,7 @@ class SheetAwait extends AbstractAwait {
 		
 		$prompt_key = 'sheet/' . $this->_key;
 		
-		$form = $execution->state_data['dict']['__return']['form'] ?? [];
+		$form = $execution->state_data['dict']['__return']['form']['elements'] ?? [];
 		
 		if(!array_key_exists($prompt_key, $form))
 			return;
@@ -169,7 +169,7 @@ class SheetAwait extends AbstractAwait {
 		
 		list(,$prompt_name) = explode('/', $prompt_key, 2);
 		
-		$prompt =& $execution->state_data['dict']['__return']['form'][$prompt_key];
+		$prompt =& $execution->state_data['dict']['__return']['form']['elements'][$prompt_key];
 		
 		if(is_null($prompt))
 			return;
@@ -211,7 +211,7 @@ class SheetAwait extends AbstractAwait {
 		@$selections = DevblocksPlatform::importGPC($_POST['selections'], 'array:int', []);
 		
 		$dict = $execution->state_data['dict'];
-		@$form = $dict['__return']['form'];
+		@$form = $dict['__return']['form']['elements'];
 		
 		if(!array_key_exists($prompt_key, $form))
 			return;

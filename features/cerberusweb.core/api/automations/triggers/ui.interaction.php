@@ -67,12 +67,18 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 					'form:',
 				],
 				'(.*):await:form:' => [
+					'title:',
+					'elements:',
+				],
+				'(.*):await:form:elements:' => [
 					'editor:',
+					'fileUpload:',
 					'map:',
 					'say:',
 					'sheet:',
 					'submit:',
 					'text:',
+					'textarea:',
 				],
 				'(.*):await:form:map:' => [
 					'region:',

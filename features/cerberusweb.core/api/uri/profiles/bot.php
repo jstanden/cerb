@@ -1825,9 +1825,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$error = null;
 		
-		unset($initial_state['__return']['form']['say/__validation']);
+		unset($initial_state['__return']['form']['elements']['say/__validation']);
 		
-		@$last_prompts = $initial_state['__return']['form'] ?: [];
+		@$last_prompts = $initial_state['__return']['form']['elements'] ?: [];
 		$validation_errors = [];
 		$validation_values = [];
 		
@@ -1864,7 +1864,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		}
 		
 		if($validation_errors) {
-			$initial_state['__return']['form'] = [
+			$initial_state['__return']['form']['elements'] = [
 					'say/__validation' => [
 						'content' => sprintf("# Correct the following errors to continue:\n%s",
 							implode("\n", array_map(function($error) {
@@ -1893,11 +1893,13 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				$initial_state['__exit'] = 'await';
 				$initial_state['__return'] = [
 					'form' => [
-						'say/__validation' => [
-							'content' => $error,
-							'style' => 'error',
-						]
-					]
+						'elements' => [
+							'say/__validation' => [
+								'content' => $error,
+								'style' => 'error',
+							],
+						],
+					],
 				];
 				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
 			}
@@ -1905,11 +1907,19 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$exit_code = $automation_results->get('__exit');
 		
-		$actions = $automation_results->getKeyPath('__return.form', []);
+		$form_title = $automation_results->getKeyPath('__return.form.title', null);
+		
+		if($form_title) {
+			$tpl = DevblocksPlatform::services()->template();
+			$tpl->assign('form_title', $form_title);
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/_set_title.tpl');
+		}
+		
+		$elements = $automation_results->getKeyPath('__return.form.elements', []);
 		
 		// Synthesize a submit button on await
 		if('await' == $exit_code) {
-			$actions['submit/' . uniqid()] = [
+			$elements['submit/' . uniqid()] = [
 				'continue' => 'await' == $exit_code,
 				'reset' => true,
 			];
@@ -1919,20 +1929,24 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			
 		// Synthesize an end action on other states
 		} else {
-			$actions['end/' . uniqid()] = $automation_results->get('__return', []);
+			$elements['end/' . uniqid()] = $automation_results->get('__return', []);
 		}
 		
 		$execution->state_data['dict'] = $automation_results->getDictionary();
 		
-		foreach($actions as $action_key => $action_data) {
-			@list($action_key_type, $var) = explode('/', $action_key, 2);
+		foreach($elements as $element_key => $element_data) {
+			@list($action_key_type, $var) = explode('/', $element_key, 2);
 			
-			if(is_array($action_data) && array_key_exists('hidden', $action_data) && $action_data['hidden'])
+			if(is_array($element_data) && array_key_exists('hidden', $element_data) && $element_data['hidden'])
 				continue;
 			
 			if(array_key_exists($action_key_type, $form_components)) {
 				$value = $automation_results->get($var, null);
-				$component = new $form_components[$action_key_type]($var, $value, $action_data);
+				
+				if(!array_key_exists($action_key_type, $form_components))
+					continue;
+				
+				$component = new $form_components[$action_key_type]($var, $value, $element_data);
 				$component->render($execution);
 			}
 		}
