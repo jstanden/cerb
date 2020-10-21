@@ -24,7 +24,7 @@ if(array_key_exists('extension_params_json', $columns)) {
 		if(!is_array($extension_params) || !array_key_exists('behavior_id', $extension_params))
 			continue;
 		
-		$kata = sprintf("# [TODO] Migrate to automations\nbehavior/%s:\n  id: %d\n  #disabled@bool: yes\n",
+		$kata = sprintf("# [TODO] Migrate to automations\nbehavior/%s:\n  uri: uri:behavior:%d\n  #disabled@bool: yes\n",
 			uniqid(),
 			$extension_params['behavior_id']
 		);

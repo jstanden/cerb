@@ -113,7 +113,24 @@ class DevblocksUiEventHandler {
 			// @deprecated
 			} elseif('behavior' == @$handler['type']) {
 				if(is_callable($behavior_callback)) {
-					if(null != ($behavior = DAO_TriggerEvent::get($handler['data']['id'])))
+					@$behavior_uri = $handler['data']['uri'];
+					
+					if(DevblocksPlatform::strStartsWith($behavior_uri, 'uri:')) {
+						if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($behavior_uri)))
+							continue;
+						
+						$behavior_uri = $uri_parts['context_id'];
+					}
+					
+					$behavior = null;
+					
+					if(is_numeric($behavior_uri)) {
+						$behavior = DAO_TriggerEvent::get($behavior_uri);
+					} elseif(is_string($behavior_uri)) {
+						$behavior = DAO_TriggerEvent::getByUri($behavior_uri);
+					}
+					
+					if($behavior instanceof Model_TriggerEvent)
 						return $behavior_callback($behavior, $handler);
 					
 					return false;

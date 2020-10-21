@@ -113,7 +113,7 @@ if(array_key_exists('params_json', $columns)) {
 		// Behaviors
 		if(array_key_exists('behaviors', $params)) {
 			foreach($params['behaviors'] as $behavior_id => $behavior_data) {
-				$functions_kata .= sprintf("# [TODO] Migrate to automations\nbehavior/%s:\n  id@int: %d\n  disabled@bool: no\n",
+				$functions_kata .= sprintf("# [TODO] Migrate to automations\nbehavior/%s:\n  uri: uri:behavior:%d\n  disabled@bool: no\n",
 					uniqid(),
 					$behavior_id
 				);
