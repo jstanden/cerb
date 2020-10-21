@@ -38,16 +38,20 @@
 			<b>{'common.trigger'|devblocks_translate|capitalize}:</b>
 		</td>
 		<td width="99%">
-			<select name="extension_id">
-				<option value=""></option>
-				{foreach from=$extensions item=extension}
-					<option value="{$extension->id}" {if $model->extension_id==$extension->id}selected="selected"{/if}>{$extension->name}</option>
-				{/foreach}
-			</select>
+			<button type="button" data-cerb-trigger-chooser data-interaction-uri="ai.cerb.cardEditor.automation.triggerChooser" data-interaction-params=""><span class="glyphicons glyphicons-search"></span></button>
+			<ul class="chooser-container bubbles">
+				{if $extension}
+				<li>
+					{$extension->manifest->id}
+					<input type="hidden" name="extension_id" value="{$extension->id}">
+					<span class="glyphicons glyphicons-circle-remove"></span>
+				</li>
+				{/if}
+			</ul>
 
 			<div data-cerb-extension-params>
 				{if $extension}
-				{$extension->renderConfig($model)}
+					{$extension->renderConfig($model)}
 				{/if}
 			</div>
 		</td>
@@ -216,73 +220,108 @@ $(function() {
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
 
-		// Extension select
+		// Trigger chooser
 
-		$popup.find('select[name=extension_id]').on('change', function() {
-			var $select = $(this);
-			var extension_id = $select.val();
+		var $trigger_chooser = $popup.find('[data-cerb-trigger-chooser]');
 
-			$extension_params.empty().append(Devblocks.getSpinner());
+		$trigger_chooser.siblings('.chooser-container').on('click', function(e) {
+			e.stopPropagation();
 
-			if(extension_id.length === 0) {
-				$extension_params.empty();
+			var $target = $(e.target);
 
-				$script_toolbar.empty();
-
-				$editor_automation
-					.cerbCodeEditorAutocompleteKata({
-						autocomplete_suggestions: []
-					})
-				;
+			if(!$target.is('.glyphicons-circle-remove'))
 				return;
-			}
 
-			var formData;
+			$target.closest('li').remove();
 
-			// Update config for trigger
+			$extension_params.empty();
+			$script_toolbar.empty();
 
-			formData = new FormData();
-			formData.set('c', 'profiles');
-			formData.set('a', 'invoke');
-			formData.set('module', 'automation');
-			formData.set('action', 'getExtensionConfig');
-			formData.set('extension_id', extension_id);
-
-			genericAjaxPost(formData, $extension_params);
-
-			// Update toolbar for editor
-
-			formData = new FormData();
-			formData.set('c', 'profiles');
-			formData.set('a', 'invoke');
-			formData.set('module', 'automation');
-			formData.set('action', 'renderEditorToolbar');
-			formData.set('trigger', extension_id);
-
-			genericAjaxPost(formData, null, null, function(html) {
-				$script_toolbar
-					.html(html)
-					.triggerHandler('cerb-toolbar--refreshed')
-				;
-			});
-
-			// Update autocompletion for editor
-
-			formData = new FormData();
-			formData.set('c', 'profiles');
-			formData.set('a', 'invoke');
-			formData.set('module', 'automation');
-			formData.set('action', 'getAutocompleteJson');
-			formData.set('extension_id', extension_id);
-
-			genericAjaxPost(formData, null, null, function(json) {
-				$editor_automation
-					.cerbCodeEditorAutocompleteKata({
-						autocomplete_suggestions: json
-					})
-					;
-			});
+			$editor_automation
+				.cerbCodeEditorAutocompleteKata({
+					autocomplete_suggestions: []
+				})
+			;
 		});
+
+		$trigger_chooser.cerbBotTrigger({
+			done: function(e) {
+				if('object' !== typeof e || !e.hasOwnProperty('eventData') || !e.eventData.return.trigger)
+					return;
+
+				var $container = $trigger_chooser.siblings('ul.chooser-container');
+
+				var $hidden = $('<input/>')
+					.attr('type', 'hidden')
+					.attr('name', 'extension_id')
+					.val(e.eventData.return.trigger.id)
+				;
+
+				var $remove = $('<span class="glyphicons glyphicons-circle-remove"></span>');
+
+				var $li = $('<li/>')
+					.text(e.eventData.return.trigger.name)
+					.append($hidden)
+					.append($remove)
+				;
+
+				$container.empty().append($li);
+
+				// Events
+
+				var extension_id = e.eventData.return.trigger.id;
+
+				$extension_params.empty().append(Devblocks.getSpinner());
+
+				var formData;
+
+				// Update config for trigger
+
+				formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'automation');
+				formData.set('action', 'getExtensionConfig');
+				formData.set('extension_id', extension_id);
+
+				genericAjaxPost(formData, $extension_params);
+
+				// Update toolbar for editor
+
+				formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'automation');
+				formData.set('action', 'renderEditorToolbar');
+				formData.set('trigger', extension_id);
+
+				genericAjaxPost(formData, null, null, function(html) {
+					$script_toolbar
+						.html(html)
+						.triggerHandler('cerb-toolbar--refreshed')
+					;
+				});
+
+				// Update autocompletion for editor
+
+				formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'automation');
+				formData.set('action', 'getAutocompleteJson');
+				formData.set('extension_id', extension_id);
+
+				genericAjaxPost(formData, null, null, function(json) {
+					$editor_automation
+						.cerbCodeEditorAutocompleteKata({
+							autocomplete_suggestions: json
+						})
+					;
+				});
+			}
+		});
+
+		// Extension select
 
 		$popup.find('.chooser-abstract').cerbChooserTrigger();
 
