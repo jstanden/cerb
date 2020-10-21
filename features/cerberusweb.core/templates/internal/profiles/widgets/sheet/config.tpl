@@ -98,9 +98,6 @@
     interaction/interaction:
       label: Interaction
       uri: ai.cerb.toolbarBuilder.interaction
-    interaction/function:
-      label: Function
-      uri: ai.cerb.toolbarBuilder.function
     interaction/menu:
       label: Menu
       uri: ai.cerb.toolbarBuilder.menu
@@ -335,11 +332,17 @@ $(function() {
 
 		var $target = e.trigger;
 
-		if(!$target.is('.cerb-bot-trigger') && !$target.is('.cerb-function-trigger'))
+		if(!$target.is('.cerb-bot-trigger'))
 			return;
 
-		if(e.eventData.snippet) {
-			toolbar_editor.insertSnippet(e.eventData.snippet);
+		if(!e.eventData || !e.eventData.exit)
+			return;
+
+		if (e.eventData.exit === 'error') {
+			// [TODO] Show error
+
+		} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
+			toolbar_editor.insertSnippet(e.eventData.return.snippet);
 		}
 	};
 

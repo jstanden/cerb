@@ -286,13 +286,6 @@ $(function() {
 				if (done_params.has('clear_selections')) {
 					$sheet_toolbar.trigger('cerb-sheet--selections-clear');
 				}
-
-			} else if($target.is('.cerb-function-trigger')) {
-				done_params = new URLSearchParams($target.attr('data-function-done'));
-
-				if (done_params.has('clear_selections')) {
-					$sheet_toolbar.trigger('cerb-sheet--selections-clear');
-				}
 			}
 		},
 		reset: function(e) {

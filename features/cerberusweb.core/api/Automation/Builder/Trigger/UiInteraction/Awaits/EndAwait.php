@@ -20,7 +20,14 @@ class EndAwait extends AbstractAwait {
 	function render(Model_AutomationExecution $execution) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		$tpl->assign('event_data', $this->_data);
+		$exit_code = 'return';
+		
+		$event_data = [
+			'exit' => $exit_code,
+			'return' => $this->_data,
+		];
+		
+		$tpl->assign('event_data', $event_data);
 		
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/end.tpl');
 	}

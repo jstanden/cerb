@@ -39,8 +39,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 					return $this->_profileAction_getExtensionConfig();
 				case 'invokePrompt':
 					return $this->_profileAction_invokePrompt();
-				case 'invokeUiFunction':
-					return $this->_profileAction_invokeUiFunction();
 				case 'renderEditorToolbar':
 					return $this->_profileAction_renderEditorToolbar();
 				case 'runAutomationEditor':
@@ -326,50 +324,6 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		$component = new $form_components[$prompt_type]($prompt_name, null, $form[$prompt_key]);
 		
 		$component->invoke($prompt_key, $prompt_action, $execution);
-	}
-	
-	private function _profileAction_invokeUiFunction() {
-		$automator = DevblocksPlatform::services()->automation();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		@$function_uri = DevblocksPlatform::importGPC($_POST['function_uri'], 'string', null);
-		@$function_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
-		
-		$error = null;
-		
-		header('Content-Type: application/json; charset=utf-8');
-		
-		if(false == ($automation = DAO_Automation::getByNameAndTrigger($function_uri, AutomationTrigger_UiFunction::ID)))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		$initial_state = [
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-			'worker_id' => $active_worker->id,
-			'inputs' => $function_params,
-		];
-		
-		if(false === ($automation_result = $automator->executeScript($automation, $initial_state, $error))) {
-			echo json_encode([
-				'exit' => 'error',
-				'exit_state' => null,
-				'dict' => DevblocksPlatform::services()->string()->yamlEmit([
-					'__exit' => 'error',
-					'error' => $error,
-				], false),
-			]);
-			return;
-		}
-		
-		$exit_code = $automation_result->get('__exit');
-		$exit_state = $automation_result->getKeyPath('__state.next', null);
-		
-		$return = $automation_result->get('__return', []);
-		
-		echo json_encode([
-			'exit' => $exit_code,
-			'exit_state' => $exit_state,
-			'return' => $return,
-		]);
 	}
 	
 	private function _profileAction_renderEditorToolbar() {

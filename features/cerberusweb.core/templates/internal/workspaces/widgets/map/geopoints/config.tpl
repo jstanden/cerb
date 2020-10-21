@@ -77,12 +77,18 @@ $(function() {
 				if(!$target.is('.cerb-bot-trigger'))
 					return;
 
-				if(e.eventData.snippet) {
+				if(!e.eventData || !e.eventData.exit)
+					return;
+
+				if (e.eventData.exit === 'error') {
+					// [TODO] Show error
+
+				} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
 					var $toolbar = $target.closest('.cerb-code-editor-toolbar');
 					var $automation_editor = $toolbar.nextAll('pre.ace_editor');
 
 					var automation_editor = ace.edit($automation_editor.attr('id'));
-					automation_editor.insertSnippet(e.eventData.snippet);
+					automation_editor.insertSnippet(e.eventData.return.snippet);
 				}
 			}
 		})

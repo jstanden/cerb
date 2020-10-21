@@ -1,7 +1,7 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
-use AutomationTrigger_UiFunction;
+use AutomationTrigger_AutomationFunction;
 use CerbAutomationPolicy;
 use DAO_Automation;
 use DevblocksDictionaryDelegate;
@@ -66,8 +66,8 @@ class FunctionAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if (false == ($automation = DAO_Automation::getByUri($params['uri'], AutomationTrigger_UiFunction::ID))) {
-				throw new Exception_DevblocksAutomationError(sprintf('Function (%s) must be a ui.function automation', $params['name']));
+			if (false == ($automation = DAO_Automation::getByUri($params['uri'], AutomationTrigger_AutomationFunction::ID))) {
+				throw new Exception_DevblocksAutomationError(sprintf('Function (%s) must be an automation.function', $params['name']));
 			}
 			
 			$initial_state = [

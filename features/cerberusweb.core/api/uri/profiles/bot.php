@@ -1707,18 +1707,51 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
 		
-		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$execution_token = $this->_startInteractionAutomationSession($automation, $interaction_params);
 		
-		$tpl->assign('layer', $layer);
-		$tpl->assign('popup_title', DevblocksPlatform::translateCapitalized('common.interaction'));
-		$tpl->assign('execution_token', $execution_token);
-		
-		if('inline' == $interaction_style) {
+		if('headless' === $interaction_style) {
+			$automator = DevblocksPlatform::services()->automation();
+			
+			header('Content-Type: application/json; charset=utf-8');
+			
+			$initial_state = [
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id,
+				'inputs' => $interaction_params,
+			];
+			
+			if(false === ($automation_result = $automator->executeScript($automation, $initial_state, $error))) {
+				echo json_encode([
+					'exit' => 'error',
+					'exit_state' => null,
+					'dict' => DevblocksPlatform::services()->string()->yamlEmit([
+						'__exit' => 'error',
+						'error' => $error,
+					], false),
+				]);
+				return;
+			}
+			
+			$exit_code = $automation_result->get('__exit');
+			$return = $automation_result->get('__return', []);
+			
+			echo json_encode([
+				'exit' => $exit_code,
+				'return' => $return,
+			]);
+			
+		} else if('inline' == $interaction_style) {
+			$tpl = DevblocksPlatform::services()->template();
+			$tpl->assign('layer', $layer);
+			$tpl->assign('execution_token', $execution_token);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/panel.tpl');
 			
 		} else {
+			$tpl = DevblocksPlatform::services()->template();
+			$tpl->assign('layer', $layer);
+			$tpl->assign('execution_token', $execution_token);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/popup.tpl');
 		}
 	}

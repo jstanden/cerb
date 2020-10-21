@@ -4580,11 +4580,11 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.ui.function</id>
-			<name>ui.function</name>
+			<id>cerb.trigger.automation.function</id>
+			<name>automation.function</name>
 			<class>
-				<file>api/automations/triggers/ui.function.php</file>
-				<name>AutomationTrigger_UiFunction</name>
+				<file>api/automations/triggers/automation.function.php</file>
+				<name>AutomationTrigger_AutomationFunction</name>
 			</class>
 			<params>
 				<param key="features">

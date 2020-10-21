@@ -79,7 +79,7 @@ $(function() {
 	};
 
 	$div.cerbToolbar({
-		container: $widget_content,
+		target: $widget_content,
 		done: doneFunc,
 		reset: resetFunc,
 		error: errorFunc

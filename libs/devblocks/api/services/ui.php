@@ -177,8 +177,11 @@ class DevblocksUiToolbar {
 			if(!$key)
 				continue;
 			
-			if(in_array($type, ['interaction', 'function'])) {
-				if(DevblocksPlatform::strStartsWith(@$toolbar_item['uri'], 'uri:')) {
+			if(in_array($type, ['interaction'])) {
+				if(!array_key_exists('uri', $toolbar_item))
+					continue;
+				
+				if(DevblocksPlatform::strStartsWith($toolbar_item['uri'], 'uri:')) {
 					if(false != ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($toolbar_item['uri']))) {
 						$toolbar_item['uri'] = $uri_parts['context_id'];
 					}

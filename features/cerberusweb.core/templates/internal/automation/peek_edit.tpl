@@ -438,13 +438,19 @@ $(function() {
 
 			var $target = e.trigger;
 
-			if(!$target.is('.cerb-bot-trigger') && !$target.is('.cerb-function-trigger'))
+			if(!$target.is('.cerb-bot-trigger'))
 				return;
 
 			//var done_params = new URLSearchParams($target.attr('data-interaction-done'));
 
-			if(e.eventData.snippet) {
-				editor_automation.insertSnippet(e.eventData.snippet);
+			if(!e.eventData || !e.eventData.exit)
+				return;
+
+			if (e.eventData.exit === 'error') {
+				// [TODO] Show error
+
+			} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
+				editor_automation.insertSnippet(e.eventData.return.snippet);
 			}
 		};
 

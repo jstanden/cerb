@@ -948,6 +948,18 @@ var ajax = new cAjaxCalls();
 		if('object' !== typeof options)
 			options = {};
 
+		if(!options.hasOwnProperty('mode') || 'string' !== typeof options.mode) {
+			options.mode = 'popup';
+		}
+
+		if(!options.hasOwnProperty('target')) {
+			options.target = null;
+		}
+
+		if(!options.hasOwnProperty('start') || 'function' !== typeof options.start) {
+			options.start = function() {};
+		}
+
 		if(!options.hasOwnProperty('done') || 'function' !== typeof options.done) {
 			options.done = function() {};
 		}
@@ -968,21 +980,12 @@ var ajax = new cAjaxCalls();
 				$toolbar
 					.find('.cerb-bot-trigger')
 					.cerbBotTrigger({
-						'container': options.container,
+						'mode': options.mode,
+						'target': options.target,
+						'start': options.start,
 						'reset': options.reset,
 						'done': options.done,
 						'error': options.error
-					})
-					.on('click', function(e) {
-						$(this).closest('.ui-menu').hide();
-					})
-				;
-
-				// Functions
-				$toolbar
-					.find('.cerb-function-trigger')
-					.cerbFunctionTrigger({
-						'done': options.done
 					})
 					.on('click', function(e) {
 						$(this).closest('.ui-menu').hide();
@@ -3501,9 +3504,10 @@ var ajax = new cAjaxCalls();
 			
 			$trigger.on('click', function(e) {
 				e.stopPropagation();
-				
+
 				var interaction_uri = $trigger.attr('data-interaction-uri');
 				var interaction = $trigger.attr('data-interaction');
+				var interaction_headless = $trigger.attr('data-interaction-headless');
 				var interaction_params = $trigger.attr('data-interaction-params');
 				var behavior_id = $trigger.attr('data-behavior-id');
 
@@ -3545,7 +3549,16 @@ var ajax = new cAjaxCalls();
 
 				// Do we start the interaction inline or in a popup?
 
-				if(options && options.container) {
+				if(interaction_headless) {
+					formData.set('interaction_style', 'headless');
+
+					genericAjaxPost(formData, null, null, function(eventData) {
+						if(options && options.done && 'function' == typeof options.done) {
+							options.done($.Event('cerb-interaction-done', { trigger: $trigger, eventData: eventData }));
+						}
+					});
+
+				} else if(options && options.target) {
 					formData.set('interaction_style', 'inline');
 					genericAjaxPost(formData, null, null, function(html) {
 						var $html = $('<div/>')
@@ -3563,7 +3576,10 @@ var ajax = new cAjaxCalls();
 							})
 							.html(html)
 						;
-						options.container.html($html);
+
+						if(options.target) {
+							options.target.html($html);
+						}
 					});
 
 				} else {
@@ -3593,50 +3609,6 @@ var ajax = new cAjaxCalls();
 		});
 	}
 
-	// Abstract function trigger
-
-	$.fn.cerbFunctionTrigger = function(options) {
-		return this.each(function() {
-			var $trigger = $(this);
-
-			// Context
-
-			$trigger.on('click', function(e) {
-				e.stopPropagation();
-
-				var function_uri = $trigger.attr('data-function-uri');
-				var function_params = $trigger.attr('data-function-params');
-
-				var formData = new FormData();
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'automation');
-				formData.set('action', 'invokeUiFunction');
-
-				formData.set('function_uri', function_uri);
-
-				if(function_params && function_params.length > 0) {
-					var parts = new URLSearchParams(function_params);
-
-					for(var pair of parts.entries()) {
-						if('[]' === pair[0].substr(-2)) {
-							formData.append('params[' + pair[0].slice(0,-2) + '][]', pair[1]);
-						} else {
-							formData.set('params[' + pair[0] + ']', pair[1]);
-						}
-					}
-				}
-
-				genericAjaxPost(formData, null, null, function() {
-					// [TODO] Handle errors
-					if(options && options.done && 'function' == typeof options.done) {
-						options.done($.Event('cerb-function-done', {trigger: $trigger}));
-					}
-				});
-			});
-		});
-	}
-	
 	// Abstract query builder
 	
 	$.fn.cerbQueryTrigger = function(options) {

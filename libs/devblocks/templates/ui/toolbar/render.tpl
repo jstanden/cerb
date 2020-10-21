@@ -19,17 +19,7 @@
                     data-interaction-uri="{$item.uri}"
                     data-interaction-params="{if is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
                     data-interaction-done="{if is_array($item['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($item['event/done'])}{/if}"
-                    >
-                    {if $item.icon}
-                        <span class="glyphicons glyphicons-{$item.icon}"></span>
-                    {/if}
-                    <b>{$item.label}</b>
-                </li>
-            {elseif 'function' == $item_key_parts[0]}
-                <li class="cerb-function-trigger"
-                    data-function-uri="{$item.uri}"
-                    data-function-params="{if is_array($item.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($item.inputs)}{/if}"
-                    data-function-done="{if is_array($item['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($item['event/done'])}{/if}"
+                    {if $item.headless}data-interaction-headless="true"{/if}
                     >
                     {if $item.icon}
                         <span class="glyphicons glyphicons-{$item.icon}"></span>
@@ -50,6 +40,7 @@
                         data-interaction-uri="{$toolbar_item.schema.uri}"
                         data-interaction-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
                         data-interaction-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
+                        {if $toolbar_item.schema.headless}data-interaction-headless="true"{/if}
                         >
                     {if !is_null($toolbar_item.schema.badge)}
                         <div class="badge-count">{$toolbar_item.schema.badge}</div>

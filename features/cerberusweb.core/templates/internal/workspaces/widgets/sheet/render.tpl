@@ -69,8 +69,6 @@ $(function() {
 
 		if($target.is('.cerb-bot-trigger')) {
 			done_params = new URLSearchParams($target.attr('data-interaction-done'));
-		} else if($target.is('.cerb-function-trigger')) {
-			done_params = new URLSearchParams($target.attr('data-function-done'));
 		} else {
 			return;
 		}
