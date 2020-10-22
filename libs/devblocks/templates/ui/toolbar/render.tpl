@@ -51,14 +51,31 @@
                     {$toolbar_item.schema.label}
                 </button>
             {/if}
-        {elseif 'function' == $toolbar_item.type}
-            {if $toolbar_item.schema.uri}
-                <button type="button" class="cerb-function-trigger"
+        {elseif 'menu' == $toolbar_item.type}
+            {$item_key_parts = explode('/', $toolbar_item.schema.default)}
+            {$default = $toolbar_item.schema.items[$toolbar_item.schema.default]}
+
+            {* Split menu button *}
+            {if $default}
+                <button type="button" class="split-left cerb-bot-trigger"
                         data-cerb-toolbar-button
-                        data-function-uri="{$toolbar_item.schema.uri}"
-                        data-function-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
-                        data-function-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
+                        data-interaction-uri="{$default.uri}"
+                        data-interaction-params="{if is_array($default.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($default.inputs)}{/if}"
+                        data-interaction-done="{if is_array($default['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($default['event/done'])}{/if}"
+                        {if $default.label}title="{$default.label}"{/if}
                         >
+                    {if !is_null($default.schema.badge)}
+                    <div class="badge-count">{$toolbar_item.schema.badge}</div>
+                    {/if}
+                    {if $toolbar_item.schema.icon}
+                    <span class="glyphicons glyphicons-{$toolbar_item.schema.icon}"></span>
+                    {/if}
+                    {$toolbar_item.schema.label}
+                </button><button type="button" class="split-right" data-cerb-toolbar-menu>
+                    <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span>
+                </button>
+            {else}
+                <button type="button" data-cerb-toolbar-menu>
                     {if !is_null($toolbar_item.schema.badge)}
                         <div class="badge-count">{$toolbar_item.schema.badge}</div>
                     {/if}
@@ -68,16 +85,6 @@
                     {$toolbar_item.schema.label}
                 </button>
             {/if}
-        {elseif 'menu' == $toolbar_item.type}
-            <button type="button" data-cerb-toolbar-menu>
-                {if !is_null($toolbar_item.schema.badge)}
-                    <div class="badge-count">{$toolbar_item.schema.badge}</div>
-                {/if}
-                {if $toolbar_item.schema.icon}
-                    <span class="glyphicons glyphicons-{$toolbar_item.schema.icon}"></span>
-                {/if}
-                {$toolbar_item.schema.label}
-            </button>
             <ul class="cerb-float" style="display:none;text-align:left;">
                 {toolbar_menu items=$toolbar_item.schema.items}
             </ul>
