@@ -37,19 +37,6 @@
 			</params>
 		</extension>
 		
-		<!-- Ticket Message Tabs -->
-			
-		<extension point="cerberusweb.message.toolbaritem">
-			<id>cerb.legacy.print.toolbaritem.print</id>
-			<name>Ticket Message Toolbar Print Item</name>
-			<class>
-				<file>api/App.php</file>
-				<name>MessageToolbarItem_Print</name>
-			</class>
-			<params>
-			</params>
-		</extension>
-		
 		<!-- Profile Script -->
 		
 		<extension point="cerberusweb.ui.context.profile.script">

@@ -177,11 +177,6 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 			$tpl->assign('message_notes', $message_notes);
 		}
 		
-		// Message toolbar items
-		$messageToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.message.toolbaritem', true);
-		if(!empty($messageToolbarItems))
-			$tpl->assign('message_toolbaritems', $messageToolbarItems);
-		
 		// Prefs
 		$mail_reply_button = DAO_WorkerPref::get($active_worker->id, 'mail_reply_button', 0);
 		$tpl->assign('mail_reply_button', $mail_reply_button);

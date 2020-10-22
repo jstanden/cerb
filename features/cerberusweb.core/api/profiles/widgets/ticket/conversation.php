@@ -236,11 +236,6 @@ class ProfileWidget_TicketConvo extends Extension_ProfileWidget {
 		}
 		$tpl->assign('draft_notes', $draft_notes);
 		
-		// Message toolbar items
-		$messageToolbarItems = DevblocksPlatform::getExtensions('cerberusweb.message.toolbaritem', true);
-		if(!empty($messageToolbarItems))
-			$tpl->assign('message_toolbaritems', $messageToolbarItems);
-		
 		// Workers
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);

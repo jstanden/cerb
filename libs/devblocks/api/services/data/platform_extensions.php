@@ -225,11 +225,6 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 				'examples' => [],
 				'extensible' => true,
 			],
-			'cerberusweb.message.toolbaritem' => [
-				'label' => 'Message Toolbar Item',
-				'class' => 'Extension_MessageToolbarItem',
-				'examples' => [],
-			],
 			'cerberusweb.page' => [
 				'label' => 'Page Type',
 				'class' => 'CerberusPageExtension',

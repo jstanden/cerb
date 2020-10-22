@@ -262,12 +262,6 @@ abstract class Extension_PageMenuItem extends DevblocksExtension {
 	abstract function render();
 };
 
-abstract class Extension_MessageToolbarItem extends DevblocksExtension {
-	const POINT = 'cerberusweb.message.toolbaritem';
-	
-	function render(Model_Message $message) { }
-};
-
 abstract class Extension_MailTransport extends DevblocksExtension {
 	const POINT = 'cerberusweb.mail.transport';
 	

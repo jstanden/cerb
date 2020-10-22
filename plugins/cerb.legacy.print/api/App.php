@@ -152,18 +152,6 @@ class Controller_Print extends DevblocksControllerExtension {
 	}
 };
 
-class MessageToolbarItem_Print extends Extension_MessageToolbarItem {
-	const ID = 'cerb.legacy.print.toolbaritem.print';
-	
-	function render(Model_Message $message) {
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$tpl->assign('message', $message); /* @var $message Model_Message */
-		
-		$tpl->display('devblocks:cerb.legacy.print::print/message_toolbar_print.tpl');
-	}
-};
-
 class ProfileScript_TicketPrint extends Extension_ContextProfileScript {
 	const ID = 'cerb.legacy.print.profile.ticket.script';
 	
