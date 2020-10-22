@@ -165,12 +165,15 @@ class DevblocksUiToolbar {
 		$error = null;
 		$kata_tree = null;
 		
+		if(!$kata)
+			return [];
+		
 		if(is_array($kata)) {
 			$kata_tree = $kata;
 			unset($kata);
 			
 		} elseif (is_string($kata)) {
-			if(false == ($kata_tree = DevblocksPlatform::services()->kata()->parse($kata, $error))) {
+			if(false === ($kata_tree = DevblocksPlatform::services()->kata()->parse($kata, $error))) {
 				return false;
 			}
 		}
@@ -217,7 +220,10 @@ class DevblocksUiToolbar {
 		return $results;
 	}
 	
-	function render(array $toolbar) {
+	function render($toolbar) {
+		if(!is_array($toolbar))
+			return;
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('toolbar', $toolbar);
 		$tpl->display('devblocks:devblocks.core::ui/toolbar/render.tpl');
