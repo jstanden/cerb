@@ -170,6 +170,40 @@ EOD;
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testKataParseBlankAfterKey() {
+		$kata = <<< EOD
+object1:
+  params:
+    key:
+
+object2:
+  params:
+    context: group
+    single@bool: no
+EOD;
+		
+		$error = null;
+		
+		$tree = DevblocksPlatform::services()->kata()->parse($kata, $error);
+		$actual = DevblocksPlatform::services()->kata()->formatTree($tree);
+		
+		$expected = [
+			'object1' => [
+				'params' => [
+					'key' => [],
+				],
+			],
+			'object2' => [
+				'params' => [
+					'context' => 'group',
+					'single' => false,
+				],
+			],
+		];
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testKataParseBlankSiblings() {
 		$kata = <<< EOD
 records:
