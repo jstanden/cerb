@@ -71,11 +71,11 @@
                     <span class="glyphicons glyphicons-{$toolbar_item.schema.icon}"></span>
                     {/if}
                     {$toolbar_item.schema.label}
-                </button><button type="button" class="split-right" data-cerb-toolbar-menu>
+                </button><button type="button" class="split-right" data-cerb-toolbar-menu {if $toolbar_item.schema.hover}data-cerb-toolbar-menu-hover{/if}>
                     <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span>
                 </button>
             {else}
-                <button type="button" data-cerb-toolbar-menu>
+                <button type="button" data-cerb-toolbar-menu {if $toolbar_item.schema.hover}data-cerb-toolbar-menu-hover{/if}>
                     {if !is_null($toolbar_item.schema.badge)}
                         <div class="badge-count">{$toolbar_item.schema.badge}</div>
                     {/if}

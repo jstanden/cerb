@@ -995,18 +995,44 @@ var ajax = new cAjaxCalls();
 				// Menus
 				$toolbar
 					.find('button[data-cerb-toolbar-menu]')
-					.on('click', function() {
-						var $this = $(this);
-						var $ul = $(this).next('ul').toggle();
-
-						$ul.position({
-							my: 'left top',
-							at: 'left bottom',
-							of: $this,
-							collision: 'fit'
-						});
+					.each(function() {
+						var $button = $(this);
+						var $ul = $button.next('ul');
+						
+						if($button.attr('data-cerb-toolbar-menu-hover') !== undefined) {
+							$button.hoverIntent({
+								interval: 200,
+								over: function () {
+									$ul.show().position({
+										my: 'left top',
+										at: 'left bottom',
+										of: $button,
+										collision: 'fit'
+									});
+								},
+								out: function () {
+								}
+							});
+							
+						} else {
+							$button.on('click', function() {
+								$ul.toggle().position({
+									my: 'left top',
+									at: 'left bottom',
+									of: $button,
+									collision: 'fit'
+								});
+							});
+						}
 					})
 					.next('ul.cerb-float')
+					.hoverIntent({
+						timeout: 300,
+						over: function() {},
+						out: function() {
+							$(this).hide();
+						}
+					})
 					.menu()
 				;
 			});
