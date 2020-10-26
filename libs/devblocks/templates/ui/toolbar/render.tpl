@@ -40,6 +40,7 @@
                         data-interaction-uri="{$toolbar_item.schema.uri}"
                         data-interaction-params="{if is_array($toolbar_item.schema.inputs)}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema.inputs)}{/if}"
                         data-interaction-done="{if is_array($toolbar_item.schema['event/done'])}{DevblocksPlatform::services()->url()->arrayToQueryString($toolbar_item.schema['event/done'])}{/if}"
+                        {if $toolbar_item.schema.tooltip}title="{$toolbar_item.schema.tooltip}"{/if}
                         {if $toolbar_item.schema.headless}data-interaction-headless="true"{/if}
                         >
                     {if !is_null($toolbar_item.schema.badge)}
@@ -75,7 +76,11 @@
                     <span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span>
                 </button>
             {else}
-                <button type="button" data-cerb-toolbar-menu {if $toolbar_item.schema.hover}data-cerb-toolbar-menu-hover{/if}>
+                <button type="button" 
+                        data-cerb-toolbar-menu 
+                        {if $toolbar_item.schema.tooltip}title="{$toolbar_item.schema.tooltip}"{/if} 
+                        {if $toolbar_item.schema.hover}data-cerb-toolbar-menu-hover{/if}
+                        >
                     {if !is_null($toolbar_item.schema.badge)}
                         <div class="badge-count">{$toolbar_item.schema.badge}</div>
                     {/if}
