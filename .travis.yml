@@ -11,6 +11,7 @@ php:
   - 7.4
   
 before_install:
+  - composer self-update --rollback
   - sudo apt-get -y install libyaml-dev
 
 before_script:
@@ -21,5 +22,5 @@ before_script:
 script:
   - composer install --no-dev
   - cd tests/
-  - composer install
+  - composer update
   - vendor/bin/phpunit -c phpunit.cerb.platform.xml
