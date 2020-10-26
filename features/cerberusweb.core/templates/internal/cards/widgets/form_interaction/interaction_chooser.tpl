@@ -36,11 +36,13 @@ $(function() {
 
 		var done_params = new URLSearchParams($target.attr('data-interaction-done'));
 
-		if(!done_params.has('refresh_widgets[]'))
-			return;
+		// Refresh this widget by default
+		if(!done_params.has('refresh_widgets[]')) {
+			done_params.set('refresh_widgets[]', '{$widget->name}');
+		}
 
 		var refresh = done_params.getAll('refresh_widgets[]');
-
+		
 		var widget_ids = [];
 
 		if(-1 !== $.inArray('all', refresh)) {
