@@ -4107,7 +4107,9 @@ var ajax = new cAjaxCalls();
 				
 				// When the record is saved, retrieve the id+label and make a chooser bubble
 				$button.on('cerb-peek-saved', function(e) {
-					var evt = jQuery.Event('bubble-create');
+					e.stopPropagation();
+
+					var evt = $.Event('bubble-create');
 					evt.label = e.label;
 					evt.value = e.id;
 					$ul.trigger(evt);
