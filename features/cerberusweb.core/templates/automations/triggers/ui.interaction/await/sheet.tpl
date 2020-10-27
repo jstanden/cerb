@@ -271,6 +271,13 @@ $(function() {
 	{/if}
 
 	$sheet_toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.automation.uiInteraction.await.sheet',
+			params: {
+			}
+		},
+		start: function(formData) {
+		},
 		done: function(e) {
 			e.stopPropagation();
 

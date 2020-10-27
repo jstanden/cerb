@@ -351,6 +351,16 @@ $(function() {
 	};
 
 	$script_custom_toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.editor',
+			params: {
+				toolbar: 'cerb.toolbar.profileWidget.sheet',
+				selected_text: ''
+			}
+		},
+		start: function(formData) {
+			formData.set('caller[params][selected_text]', toolbar_editor.getSelectedText())
+		},
 		done: doneFunc,
 		reset: resetFunc,
 	});

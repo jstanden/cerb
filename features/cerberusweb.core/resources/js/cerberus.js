@@ -948,6 +948,13 @@ var ajax = new cAjaxCalls();
 		if('object' !== typeof options)
 			options = {};
 
+		if(!options.hasOwnProperty('caller') || 'object' !== typeof options.caller) {
+			options.caller = {
+				id: '',
+				params: { }
+			};
+		}
+
 		if(!options.hasOwnProperty('mode') || 'string' !== typeof options.mode) {
 			options.mode = 'popup';
 		}
@@ -980,6 +987,7 @@ var ajax = new cAjaxCalls();
 				$toolbar
 					.find('.cerb-bot-trigger')
 					.cerbBotTrigger({
+						'caller': options.caller,
 						'mode': options.mode,
 						'target': options.target,
 						'start': options.start,
@@ -3572,6 +3580,18 @@ var ajax = new cAjaxCalls();
 						formData.append('params[' + this.name.substring(23) + ']', this.value);
 					}
 				});
+				
+				// Caller
+				if(options && options.caller && 'object' == typeof options.caller) {
+					if(options.caller.name)
+						formData.set('caller[name]', options.caller.name);
+					
+					if(options.caller.params && 'object' == typeof options.caller.params) {
+						for(var k in options.caller.params) {
+							formData.set('caller[params][' + k + ']', options.caller.params[k]);
+						}
+					}
+				}
 
 				// Give the callback an opportunity to append
 				if(options && options.start && 'function' == typeof options.start) {

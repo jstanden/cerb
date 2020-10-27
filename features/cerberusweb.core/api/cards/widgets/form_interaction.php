@@ -91,6 +91,9 @@ class CardWidget_FormInteraction extends Extension_CardWidget {
 	function renderInteractionChooser(Model_CardWidget $widget, DevblocksDictionaryDelegate $dict) {
 		$tpl = DevblocksPlatform::services()->template();
 		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('dict', $dict);
+		
 		$interactions = $this->getInteractions($widget, $dict);
 		$tpl->assign('interactions', $interactions);
 		

@@ -17,6 +17,10 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 	}
 	
 	function renderConfig(Model_Automation $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('inputs', $this->getInputsMeta());
+		$tpl->assign('outputs', $this->getOutputsMeta());
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/config_inputs_outputs.tpl');
 	}
 	
 	function validateConfig(array &$params, &$error=null) {
@@ -24,7 +28,20 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 	}
 	
 	function getInputsMeta() {
-		return [];
+		return [
+			[
+				'key' => 'caller_name',
+				'notes' => '',
+			],
+			[
+				'key' => 'caller_params',
+				'notes' => '',
+			],
+			[
+				'key' => 'worker_*',
+				'notes' => 'The active worker record. Supports key expansion.',
+			],
+		];
 	}
 	
 	function getOutputsMeta() {

@@ -8,7 +8,7 @@
 		</select>
 	</fieldset>
 
-	<fieldset>
+	<fieldset data-cerb-event-map-get-points>
 		<legend>Event: Get map points (KATA)</legend>
 		<div class="cerb-code-editor-toolbar">
 			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
@@ -32,7 +32,7 @@
 		<textarea name="params[automation_getpoints]" data-editor-mode="ace/mode/cerb_kata">{$model->params.automation_getpoints}</textarea>
 	</fieldset>
 
-	<fieldset>
+	<fieldset data-cerb-event-map-render-point>
 		<legend>Event: Render map point (KATA)</legend>
 		<div class="cerb-code-editor-toolbar">
 			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
@@ -60,37 +60,66 @@
 <script type="text/javascript">
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
-
+	var $fieldset_get_points = $config.find('[data-cerb-event-map-get-points]');
+	var $fieldset_render_point = $config.find('[data-cerb-event-map-render-point]');
+	
 	// Editors
 	$config.find('textarea[data-editor-mode]')
 		.cerbCodeEditor()
 	;
+	
+	var doneFunc = function(e) {
+		e.stopPropagation();
+
+		var $target = e.trigger;
+
+		if(!$target.is('.cerb-bot-trigger'))
+			return;
+
+		if(!e.eventData || !e.eventData.exit)
+			return;
+
+		if (e.eventData.exit === 'error') {
+			// [TODO] Show error
+
+		} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
+			var $toolbar = $target.closest('.cerb-code-editor-toolbar');
+			var $automation_editor = $toolbar.nextAll('pre.ace_editor');
+
+			var automation_editor = ace.edit($automation_editor.attr('id'));
+			automation_editor.insertSnippet(e.eventData.return.snippet);
+		}
+	};
 
 	// Toolbars
-	$config.find('fieldset .cerb-code-editor-toolbar')
+
+	$fieldset_get_points.find('.cerb-code-editor-toolbar')
 		.cerbToolbar({
-			done: function(e) {
-				e.stopPropagation();
-
-				var $target = e.trigger;
-
-				if(!$target.is('.cerb-bot-trigger'))
-					return;
-
-				if(!e.eventData || !e.eventData.exit)
-					return;
-
-				if (e.eventData.exit === 'error') {
-					// [TODO] Show error
-
-				} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-					var $toolbar = $target.closest('.cerb-code-editor-toolbar');
-					var $automation_editor = $toolbar.nextAll('pre.ace_editor');
-
-					var automation_editor = ace.edit($automation_editor.attr('id'));
-					automation_editor.insertSnippet(e.eventData.return.snippet);
+			caller: {
+				name: 'cerb.toolbar.eventHandlers.editor',
+				params: {
+					trigger: 'cerb.trigger.widgetMap.getPoints',
+					selected_text: ''
 				}
-			}
+			},
+			start: function(formData) {
+			},
+			done: doneFunc
+		})
+	;
+	
+	$fieldset_render_point.find('.cerb-code-editor-toolbar')
+		.cerbToolbar({
+			caller: {
+				name: 'cerb.toolbar.eventHandlers.editor',
+				params: {
+					trigger: 'cerb.trigger.widgetMap.renderPoint',
+					selected_text: ''
+				}
+			},
+			start: function(formData) {
+			},
+			done: doneFunc
 		})
 	;
 });

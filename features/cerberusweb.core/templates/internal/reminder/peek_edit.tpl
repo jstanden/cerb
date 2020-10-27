@@ -125,6 +125,16 @@ $(function() {
 
 		// Toolbars
 		$popup.find('.cerb-code-editor-toolbar').cerbToolbar({
+			caller: {
+				name: 'cerb.toolbar.eventHandlers.editor',
+				params: {
+					trigger: 'cerb.trigger.reminder.remind',
+					selected_text: ''
+				}
+			},
+			start: function(formData) {
+				formData.set('caller[params][selected_text]', automation_editor.getSelectedText())
+			},
 			done: function(e) {
 				e.stopPropagation();
 

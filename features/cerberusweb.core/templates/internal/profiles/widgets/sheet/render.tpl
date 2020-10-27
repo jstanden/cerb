@@ -115,6 +115,16 @@ $(function() {
 	};
 
 	$sheet_toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.profileWidget.sheet',
+			params: {
+				record_type: '{$profile_context}',
+				record_id: '{$profile_context_id}',
+				widget_id: '{$widget->id}'
+			}
+		},
+		start: function(formData) {
+		},
 		done: doneFunc
 	});
 });

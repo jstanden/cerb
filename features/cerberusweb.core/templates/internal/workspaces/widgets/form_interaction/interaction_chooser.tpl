@@ -81,6 +81,15 @@ $(function() {
 	};
 
 	$div.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.workspaceWidget.interactions',
+			params: {
+				widget_id: '{$widget->id}',
+				page_id: '{$dict->widget_tab_page_id}'
+			}
+		},
+		start: function(formData) {
+		},
 		target: $widget_content,
 		done: doneFunc,
 		reset: resetFunc,

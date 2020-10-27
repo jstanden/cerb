@@ -1706,10 +1706,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'], 'string', null);
 		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
+		@$caller = DevblocksPlatform::importGPC($_POST['caller'], 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$execution_token = $this->_startInteractionAutomationSession($automation, $interaction_params);
 		
 		if('headless' === $interaction_style) {
 			$automator = DevblocksPlatform::services()->automation();
@@ -1721,6 +1720,11 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				'worker_id' => $active_worker->id,
 				'inputs' => $interaction_params,
 			];
+			
+			if($caller) {
+				$initial_state['caller_name'] = DevblocksPlatform::importGPC(@$caller['name'], 'string', '');
+				$initial_state['caller_params'] = DevblocksPlatform::importGPC(@$caller['params'], 'array', []);
+			}
 			
 			if(false === ($automation_result = $automator->executeScript($automation, $initial_state, $error))) {
 				echo json_encode([
@@ -1743,12 +1747,16 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			]);
 			
 		} else if('inline' == $interaction_style) {
+			$execution_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
+			
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('layer', $layer);
 			$tpl->assign('execution_token', $execution_token);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/panel.tpl');
 			
 		} else {
+			$execution_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
+			
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('layer', $layer);
 			$tpl->assign('execution_token', $execution_token);
@@ -1756,7 +1764,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		}
 	}
 	
-	private function _startInteractionAutomationSession(Model_Automation $automation, array $interaction_params=[], $execution_token=null, &$error=null) {
+	private function _startInteractionAutomationSession(Model_Automation $automation, array $caller=[], array $interaction_params=[], $execution_token=null, &$error=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$initial_state = [
@@ -1765,10 +1773,16 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			'inputs' => $interaction_params,
 		];
 		
+		if($caller) {
+			$initial_state['caller_name'] = DevblocksPlatform::importGPC($caller['name'] ?? '', 'string', '');
+			$initial_state['caller_params'] = DevblocksPlatform::importGPC($caller['params'] ?? [], 'array', []);
+		}
+		
 		$dict = DevblocksDictionaryDelegate::instance($initial_state);
 		
 		$state_data = [
 			'actor' => ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id],
+			'caller' => $caller,
 			'interaction_params' => $interaction_params,
 			'dict' => $dict->getDictionary(),
 		];
@@ -1815,7 +1829,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		// Restart the session
 		if($reset) {
-			$this->_startInteractionAutomationSession($automation, $execution->state_data['interaction_params'], $execution->token);
+			$this->_startInteractionAutomationSession($automation, $execution->state_data['caller'], $execution->state_data['interaction_params'], $execution->token);
 			$execution = DAO_AutomationExecution::getByToken($execution->token);
 		}
 		

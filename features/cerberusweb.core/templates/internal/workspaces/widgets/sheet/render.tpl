@@ -112,6 +112,14 @@ $(function() {
 	};
 
 	$sheet_toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.workspaceWidget.sheet',
+			params: {
+				widget_id: '{$widget->id}'
+			}
+		},
+		start: function(formData) {
+		},
 		done: doneFunc
 	});
 });

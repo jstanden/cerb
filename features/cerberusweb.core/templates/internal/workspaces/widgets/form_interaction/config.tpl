@@ -115,6 +115,16 @@ $(function() {
 	};
 
 	$config.find('[data-cerb-toolbar]').cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.editor',
+			params: {
+				toolbar: 'cerb.toolbar.workspaceWidget.interactions',
+				selected_text: ''
+			}
+		},
+		start: function(formData) {
+			formData.set('caller[params][selected_text]', editor.getSelectedText())
+		},
 		done: doneFunc,
 		reset: resetFunc,
 		error: errorFunc

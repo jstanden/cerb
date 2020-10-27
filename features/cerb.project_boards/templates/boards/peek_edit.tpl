@@ -139,6 +139,16 @@ $(function() {
 		// Toolbar
 
 		$fieldset_cards.find('.cerb-code-editor-toolbar').cerbToolbar({
+			caller: {
+				name: 'cerb.toolbar.eventHandlers.editor',
+				params: {
+					trigger: 'cerb.trigger.projectBoard.renderCard',
+					selected_text: ''
+				}
+			},
+			start: function(formData) {
+				formData.set('caller[params][selected_text]', cards_editor.getSelectedText())
+			},
 			done: function(e) {
 				e.stopPropagation();
 

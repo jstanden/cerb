@@ -213,6 +213,16 @@ $(function() {
 		var editor_cards = ace.edit($editor_cards.attr('id'));
 
 		$cards.find('.cerb-code-editor-toolbar').cerbToolbar({
+			caller: {
+				name: 'cerb.toolbar.eventHandlers.editor',
+				params: {
+					trigger: 'cerb.trigger.projectBoard.renderCard',
+					selected_text: ''
+				}
+			},
+			start: function(formData) {
+				formData.set('caller[params][selected_text]', editor_cards.getSelectedText())
+			},
 			done: function(e) {
 				e.stopPropagation();
 
@@ -245,6 +255,16 @@ $(function() {
 		var editor_functions = ace.edit($editor_functions.attr('id'));
 
 		$functions.find('.cerb-code-editor-toolbar').cerbToolbar({
+			caller: {
+				name: 'cerb.toolbar.eventHandlers.editor',
+				params: {
+					trigger: 'cerb.trigger.projectBoard.cardAction',
+					selected_text: ''
+				}
+			},
+			start: function(formData) {
+				formData.set('caller[params][selected_text]', editor_functions.getSelectedText())
+			},
 			done: function(e) {
 				e.stopPropagation();
 
@@ -277,6 +297,16 @@ $(function() {
 		var editor_toolbar = ace.edit($editor_toolbar.attr('id'));
 
 		$toolbar.find('.cerb-code-editor-toolbar').cerbToolbar({
+			caller: {
+				name: 'cerb.toolbar.editor',
+				params: {
+					toolbar: 'cerb.toolbar.projectBoardColumn',
+					selected_text: ''
+				}
+			},
+			start: function(formData) {
+				formData.set('caller[params][selected_text]', editor_toolbar.getSelectedText())
+			},
 			done: function(e) {
 				e.stopPropagation();
 

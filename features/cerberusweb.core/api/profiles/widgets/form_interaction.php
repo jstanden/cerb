@@ -142,6 +142,9 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 	function renderInteractionChooser(Model_ProfileWidget $widget, DevblocksDictionaryDelegate $dict) {
 		$tpl = DevblocksPlatform::services()->template();
 		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('dict', $dict);
+		
 		$interactions = $this->getInteractions($widget, $dict);
 		$tpl->assign('interactions', $interactions);
 		

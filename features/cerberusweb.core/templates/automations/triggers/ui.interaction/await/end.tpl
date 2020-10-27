@@ -4,8 +4,10 @@
         var $script = $('#{$script_uid}');
         var $form = $script.closest('form');
 
-        var event_data = { };
-
+        var event_data = {
+            eventData: { }
+        };
+        
         {if $event_data && is_array($event_data)}
         event_data.eventData = {$event_data|json_encode|escape:'js' nofilter};
         {/if}

@@ -31,6 +31,15 @@ $(function() {
 	var $toolbar = $script.closest('.cerb-board-column').find('[data-cerb-toolbar]');
 
 	$toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.projectBoardColumn',
+			params: {
+				column_id: '{$column->id}',
+				board_id: '{$column->board_id}'
+			}
+		},
+		start: function(formData) {
+		},
 		done: function(e) {
 			e.stopPropagation();
 

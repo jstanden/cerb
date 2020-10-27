@@ -245,6 +245,13 @@ $(function() {
 		});
 
 		$trigger_chooser.cerbBotTrigger({
+			caller: {
+				name: 'cerb.toolbar.editor.automation.trigger',
+				params: {
+				}
+			},
+			start: function(formData) {
+			},
 			done: function(e) {
 				if('object' !== typeof e || !e.hasOwnProperty('eventData') || !e.eventData.return.trigger)
 					return;
@@ -500,9 +507,27 @@ $(function() {
 		};
 
 		$script_toolbar.cerbToolbar({
-			'done': doneFunc,
-			'reset': resetFunc,
-			'error': errorFunc,
+			caller: {
+				name: 'cerb.toolbar.editor.automation.script',
+				params: {
+					selected_text: ''
+				}
+			},
+			start: function(formData) {
+				var pos = editor_automation.getCursorPosition();
+				var token_path = Devblocks.cerbCodeEditor.getKataTokenPath(pos, editor_automation).join('');
+				var trigger = $frm.find('input:hidden[name=extension_id]').val();
+				
+				formData.set('caller[params][selected_text]', editor_automation.getSelectedText());
+				formData.set('caller[params][token_path]', token_path);
+				formData.set('caller[params][cursor_row]', pos.row);
+				formData.set('caller[params][cursor_column]', pos.column);
+				formData.set('caller[params][trigger]', trigger);
+				formData.set('caller[params][value]', editor_automation.getValue());
+			},
+			done: doneFunc,
+			reset: resetFunc,
+			error: errorFunc,
 		});
 	});
 });

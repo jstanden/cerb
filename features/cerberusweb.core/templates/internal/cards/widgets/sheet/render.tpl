@@ -116,6 +116,16 @@ $(function() {
 	}
 
 	$sheet_toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.cardWidget.sheet',
+			params: {
+				record_type: '{$card_context}',
+				record_id: '{$card_context_id}',
+				widget_id: '{$widget->id}'
+			}
+		},
+		start: function(formData) {
+		},
 		done: doneFunc
 	});
 });

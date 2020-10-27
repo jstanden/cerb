@@ -81,6 +81,16 @@ $(function() {
 	};
 
 	$div.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.profileWidget.interactions',
+			params: {
+				record_type: '{$dict->record__context}',
+				record_id: '{$dict->record_id}',
+				widget_id: '{$widget->id}'
+			}
+		},
+		start: function(formData) {
+		},
 		target: $widget_content,
 		done: doneFunc,
 		reset: resetFunc,

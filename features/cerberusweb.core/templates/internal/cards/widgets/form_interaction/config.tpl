@@ -1,7 +1,7 @@
 {$config_uniqid = uniqid('widgetConfig_')}
 <div style="margin-top:10px;">
 	<fieldset class="peek">
-		<legend>Enable these form interactions: <small>(Kata)</small></legend>
+		<legend>{'common.toolbar'|devblocks_translate|capitalize}: <small>(KATA)</small></legend>
 
 		<div class="cerb-code-editor-toolbar">
 			<div data-cerb-toolbar style="display:inline-block;">
@@ -112,6 +112,16 @@ $(function() {
 	};
 
 	$config.find('[data-cerb-toolbar]').cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.editor',
+			params: {
+				toolbar: 'cerb.toolbar.cardWidget.interactions',
+				selected_text: ''
+			}
+		},
+		start: function(formData) {
+			formData.set('caller[params][selected_text]', editor.getSelectedText())
+		},
 		done: doneFunc,
 		reset: resetFunc,
 	});

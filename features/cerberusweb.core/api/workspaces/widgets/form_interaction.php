@@ -65,7 +65,16 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	}
 	
 	function render(Model_WorkspaceWidget $widget) {
-		$dict = DevblocksDictionaryDelegate::instance([]);
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
+			'widget_id' => $widget->id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+		]);
+		
 		$this->renderInteractionChooser($widget, $dict);
 	}
 	
@@ -113,6 +122,9 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	
 	function renderInteractionChooser(Model_WorkspaceWidget $widget, DevblocksDictionaryDelegate $dict) {
 		$tpl = DevblocksPlatform::services()->template();
+		
+		$tpl->assign('widget', $widget);
+		$tpl->assign('dict', $dict);
 		
 		$interactions = $this->getInteractions($widget, $dict);
 		$tpl->assign('interactions', $interactions);
