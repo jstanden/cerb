@@ -116,6 +116,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id']); // message id
+		@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget_id'], 'integer', 0);
 		@$hide = DevblocksPlatform::importGPC($_REQUEST['hide'],'integer',0);
 		@$format = DevblocksPlatform::importGPC($_REQUEST['format'],'string',null);
 		@$images = DevblocksPlatform::importGPC($_REQUEST['images'],'integer',0);
@@ -125,6 +126,13 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		
 		if(!Context_Message::isReadableByActor($message, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if($widget_id
+				&& false != ($profile_widget = DAO_ProfileWidget::get($widget_id))
+				&& $profile_widget->extension_id == ProfileWidget_TicketConvo::ID
+			) {
+			$tpl->assign('widget', $profile_widget);
+		}
 		
 		if($images)
 			$format = 'html';

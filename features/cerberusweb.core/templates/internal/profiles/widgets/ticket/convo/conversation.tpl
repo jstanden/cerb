@@ -110,9 +110,9 @@ $(function() {
 			e.preventDefault();
 			e.stopPropagation();
 			{if $expand_all}
-			$('#conversation').find('div[id^="message"]').last().find('button.split-right').click();
+			$('#conversation').find('div[id^="message"]').last().find('button.reply').next('button').click();
 			{else}
-			$('#conversation').find('div[id^="message"]').first().find('button.split-right').click();
+			$('#conversation').find('div[id^="message"]').first().find('button.reply').next('button').click();
 			{/if}
 		})
 		;

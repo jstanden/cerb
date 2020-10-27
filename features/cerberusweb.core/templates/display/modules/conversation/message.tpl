@@ -35,9 +35,9 @@
 			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 
 			{if !$expanded}
-				<button id="btnMsgMax{$message->id}" type="button" onclick="genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}');" title="{'common.maximize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-full"></span></button>
+				<button id="btnMsgMax{$message->id}" type="button" onclick="genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&widget_id={$widget->id}');" title="{'common.maximize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-full"></span></button>
 			{else}
-				<button id="btnMsgMin{$message->id}" type="button" onclick="genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&hide=1');" title="{'common.minimize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-small"></span></button>
+				<button id="btnMsgMin{$message->id}" type="button" onclick="genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&hide=1&widget_id={$widget->id}');" title="{'common.minimize'|devblocks_translate|lower}"><span class="glyphicons glyphicons-resize-small"></span></button>
 			{/if}
 		</div>
 		{/if}
@@ -235,30 +235,176 @@
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="cerb-no-print">
 			<tr>
 				<td align="left" id="{$message->id}act">
-					{* If not requester *}
-					{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
-						<button type="button" data-cerb-button="requester-add"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
+					{if $widget}
+						<div data-cerb-toolbar style="display:inline-block;">
+						{$message_dict = DevblocksDictionaryDelegate::instance([
+							'message__context' => CerberusContexts::CONTEXT_MESSAGE,
+							'message_id' => $message->id,
+
+							'worker__context' => CerberusContexts::CONTEXT_WORKER,
+							'worker_id' => $active_worker->id,
+
+							'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+							'widget_id' => $widget->id
+						])}
+
+						{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($widget->extension_params.message_toolbar_kata, $message_dict)}
+							
+						{if !array_key_exists('reply', $toolbar) && Context_Ticket::isWriteableByActor($ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
+							<button type="button" class="reply split-left" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
+						--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();if($ul.is(':hidden')) { $ul.blur(); } else { $ul.find('a:first').focus(); }"><span class="glyphicons glyphicons-chevron-down" style="color:white;font-size:12px;"></span></button>
+							<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
+								<li><a href="javascript:;" class="cerb-button-reply-quote">{'display.reply.quote'|devblocks_translate}</a></li>
+								<li><a href="javascript:;" class="cerb-button-reply-only-these">{'display.reply.only_these_recipients'|devblocks_translate}</a></li>
+								<li><a href="javascript:;" class="cerb-button-reply-noquote">{'display.reply.no_quote'|devblocks_translate}</a></li>
+								{if $active_worker->hasPriv('core.display.actions.forward')}<li><a href="javascript:;" class="cerb-button-reply-forward">{'display.ui.forward'|devblocks_translate|capitalize}</a></li>{/if}
+								<li><a href="javascript:;" class="cerb-button-reply-relay" data-message-id="{$message->id}">Relay to worker email</a></li>
+							</ul>
+						{/if}
+
+						{if !array_key_exists('comment', $toolbar) && $active_worker->hasPriv('contexts.cerberusweb.contexts.message.comment')}
+							<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_MESSAGE} context.id:{$message->id}" title="{'common.comment'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+						{/if}
+
+						{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+						</div>
+
+						<script type="text/javascript">
+							$(function() {
+								var $toolbar = $('#{$message->id}act').find('[data-cerb-toolbar]');
+								var $profile_tab = $toolbar.closest('.cerb-profile-layout');
+
+								var doneFunc = function(e) {
+									e.stopPropagation();
+
+									var $target = e.trigger;
+
+									if(!$target.is('.cerb-bot-trigger'))
+										return;
+
+									var done_params = new URLSearchParams($target.attr('data-interaction-done'));
+
+									if(e.eventData.hasOwnProperty('return') 
+										&& e.eventData.return.hasOwnProperty('reply') 
+										&& e.eventData.return.reply.hasOwnProperty('draft_id')) {
+										
+										var msg_id = '{$message->id}';
+										var is_forward = '0';
+										var draft_id = e.eventData.return.reply.draft_id;
+										var reply_mode = '0';
+										var is_confirmed = '0';
+
+										var formData = new FormData();
+										formData.set('c', 'profiles');
+										formData.set('a', 'invoke');
+										formData.set('module', 'ticket');
+										formData.set('action', 'reply');
+										formData.set('forward', is_forward);
+										formData.set('draft_id', draft_id);
+										formData.set('reply_mode', reply_mode);
+										formData.set('is_confirmed', is_confirmed);
+										formData.set('timestamp', '{time()}');
+										formData.set('id', msg_id);
+
+										var $popup_reply = genericAjaxPopup('reply' + msg_id, formData, null, false, '80%');
+
+										$popup_reply.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(json) {
+											var evt = $.Event('cerb-widgets-refresh', {
+												widget_ids: [{$widget->id}],
+												refresh_options: { }
+											});
+
+											$profile_tab.triggerHandler(evt);
+										});
+									}
+
+									if(!done_params.has('refresh_widgets[]'))
+										return;
+
+									var refresh = done_params.getAll('refresh_widgets[]');
+
+									var widget_ids = [];
+
+									if(-1 !== $.inArray('all', refresh)) {
+										// Everything
+									} else {
+										$profile_tab.find('.cerb-profile-widget')
+											.filter(function() {
+												var $this = $(this);
+												var name = $this.attr('data-widget-name');
+
+												if(undefined === name)
+													return false;
+
+												return -1 !== $.inArray(name, refresh);
+											})
+											.each(function() {
+												var $this = $(this);
+												var widget_id = parseInt($this.attr('data-widget-id'));
+
+												if(widget_id)
+													widget_ids.push(widget_id);
+											})
+										;
+									}
+
+									var evt = $.Event('cerb-widgets-refresh', {
+										widget_ids: widget_ids,
+										refresh_options: { }
+									});
+
+									$profile_tab.triggerHandler(evt);
+								};
+
+								$toolbar.cerbToolbar({
+									caller: {
+										name: 'cerb.toolbar.profiles.ticket.message',
+										params: {
+											message_id: '{$message->id}',
+											selected_text: '' 
+										}
+									},
+									start: function(formData) {
+										formData.set('caller[params][selected_text]', document.getSelection());
+									},
+									done: doneFunc
+								});
+							});
+						</script>
 					{/if}
 
-					{if Context_Ticket::isWriteableByActor($ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
-						<button type="button" class="reply split-left cerb-button-reply" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-share" style="color:rgb(0,180,0);"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
-						--><button type="button" class="split-right" onclick="$ul=$(this).next('ul');$ul.toggle();if($ul.is(':hidden')) { $ul.blur(); } else { $ul.find('a:first').focus(); }"><span class="glyphicons glyphicons-chevron-down" style="font-size:12px;color:white;"></span></button>
-						<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-							<li><a href="javascript:;" class="cerb-button-reply-quote">{'display.reply.quote'|devblocks_translate}</a></li>
-							<li><a href="javascript:;" class="cerb-button-reply-only-these">{'display.reply.only_these_recipients'|devblocks_translate}</a></li>
-							<li><a href="javascript:;" class="cerb-button-reply-noquote">{'display.reply.no_quote'|devblocks_translate}</a></li>
-							{if $active_worker->hasPriv('core.display.actions.forward')}<li><a href="javascript:;" class="cerb-button-reply-forward">{'display.ui.forward'|devblocks_translate|capitalize}</a></li>{/if}
-							<li><a href="javascript:;" class="cerb-button-reply-relay" data-message-id="{$message->id}">Relay to worker email</a></li>
-						</ul>
-					{/if}
+					<button type="button" onclick="$('#{$message->id}options').toggle();" title="{'common.more'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-more"></span></button>
 
-					{if $active_worker->hasPriv('contexts.cerberusweb.contexts.message.comment')}
-						<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_MESSAGE} context.id:{$message->id}"><span class="glyphicons glyphicons-edit"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>
-					{/if}
+					<form id="{$message->id}options" style="padding-top:10px;display:none;" method="post" action="{devblocks_url}{/devblocks_url}">
+						<input type="hidden" name="c" value="profiles">
+						<input type="hidden" name="a" value="invoke">
+						<input type="hidden" name="module" value="ticket">
+						<input type="hidden" name="action" value="">
+						<input type="hidden" name="id" value="{$message->id}">
+						<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-					<button type="button" onclick="genericAjaxPopup('message_headers','c=profiles&a=invoke&module=ticket&action=showMessageFullHeadersPopup&id={$message->id}');"><span class="glyphicons glyphicons-envelope"></span> {'message.headers'|devblocks_translate|capitalize}</button>
+						{* If not requester *}
+						{if !$message->is_outgoing && !isset($requesters.{$sender_id})}
+							<button data-cerb-button="requester-add"><span class="glyphicons glyphicons-circle-plus"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
+						{/if}
 
-					<button type="button" onclick="$('#{$message->id}options').toggle();"><span class="glyphicons glyphicons-more"></span></button>
+						<button type="button" onclick="genericAjaxPopup('message_headers','c=profiles&a=invoke&module=ticket&action=showMessageFullHeadersPopup&id={$message->id}');"><span class="glyphicons glyphicons-envelope"></span> {'message.headers'|devblocks_translate|capitalize}</button>
+
+						{if $ticket->first_message_id != $message->id && $active_worker->hasPriv('core.display.actions.split')} {* Don't allow splitting of a single message *}
+							<button type="button" onclick="$frm=$(this).closest('form');$frm.find('input:hidden[name=action]').val('splitMessage');$frm.submit();" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
+						{/if}
+
+						{if $message->is_outgoing}
+							<button type="button" onclick="genericAjaxPopup('message_resend','c=profiles&a=invoke&module=ticket&action=showResendMessagePopup&id={$message->id}');"><span class="glyphicons glyphicons-share"></span> Send Again</button>
+						{/if}
+
+						{* Plugin Toolbar *}
+						{if !empty($message_toolbaritems)}
+							{foreach from=$message_toolbaritems item=renderer}
+								{if !empty($renderer)}{$renderer->render($message)}{/if}
+							{/foreach}
+						{/if}
+					</form>
 				</td>
 			</tr>
 		</table>
@@ -364,7 +510,7 @@ $(function() {
 		})
 		.on('cerb-peek-saved', function(e) {
 			e.stopPropagation();
-			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&hide=0');
+			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&hide=0&widget_id={$widget->id}');
 		})
 		.on('cerb-peek-deleted', function(e) {
 			e.stopPropagation();
@@ -377,17 +523,17 @@ $(function() {
 
 	$msg.find('[data-cerb-button=email-plaintext]').on('click', function(e) {
 		e.stopPropagation();
-		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&format=text');
+		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&format=text&widget_id={$widget->id}');
 	});
 
 	$msg.find('[data-cerb-button=email-html]').on('click', function(e) {
 		e.stopPropagation();
-		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&format=html');
+		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&format=html&widget_id={$widget->id}');
 	});
 
 	$msg.find('[data-cerb-button=display-images]').on('click', function(e) {
 		e.stopPropagation();
-		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&images=1');
+		genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&images=1&widget_id={$widget->id}');
 	});
 
 	$msg.find('[data-cerb-button=email-images]').on('click', function(e) {
@@ -408,12 +554,12 @@ $(function() {
 
 		$popup_filtering.on('cerb-message--show-images', function(e) {
 			e.stopPropagation();
-			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&images=1');
+			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&images=1&widget_id={$widget->id}');
 		});
 
 		$popup_filtering.on('popup_saved', function(e) {
 			e.stopPropagation();
-			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}');
+			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&widget_id={$widget->id}');
 		});
 	});
 
@@ -434,7 +580,7 @@ $(function() {
 
 		$popup_filtering.on('popup_saved', function(e) {
 			e.stopPropagation();
-			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}');
+			genericAjaxGet('message{$message->id}','c=profiles&a=invoke&module=message&action=get&id={$message->id}&widget_id={$widget->id}');
 		});
 	});
 
@@ -470,12 +616,12 @@ $(function() {
 		})
 		;
 	
-	$actions.find('button.cerb-button-reply')
+	$actions.find('button.reply')
 		.on('click', function(e) {
 			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 				return;
 			
-			var evt = jQuery.Event('cerb_reply');
+			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
 			evt.draft_id = 0;
@@ -491,7 +637,7 @@ $(function() {
 			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 				return;
 			
-			var evt = jQuery.Event('cerb_reply');
+			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
 			evt.draft_id = 0;
@@ -507,7 +653,7 @@ $(function() {
 			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 				return;
 			
-			var evt = jQuery.Event('cerb_reply');
+			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
 			evt.draft_id = 0;
@@ -523,7 +669,7 @@ $(function() {
 			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 				return;
 			
-			var evt = jQuery.Event('cerb_reply');
+			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 0;
 			evt.draft_id = 0;
@@ -539,7 +685,7 @@ $(function() {
 			if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 				return;
 			
-			var evt = jQuery.Event('cerb_reply');
+			var evt = $.Event('cerb_reply');
 			evt.message_id = '{$message->id}';
 			evt.is_forward = 1;
 			evt.draft_id = 0;
