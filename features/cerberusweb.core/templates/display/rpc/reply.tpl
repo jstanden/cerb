@@ -135,28 +135,23 @@
 		{$message_content = $message->getContent()}
 
 		<div class="cerb-code-editor-toolbar">
-			{if $interactions_menu}
-				<div id="replyInteractions{$message->id}" style="display:inline-block;">
-					{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl" button_classes="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--interactions"}
+			{if $toolbar_formatting}
+				<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
+	
+				<div data-cerb-toolbar class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
+					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_formatting)}
 				</div>
+					
 				<div class="cerb-code-editor-toolbar-divider"></div>
 			{/if}
-
-			<button type="button" title="Toggle formatting" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--formatting" data-format="{if $is_html}html{else}plaintext{/if}">{if $is_html}Formatting on{else}Formatting off{/if}</button>
-
-			<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
+			
+			{if $toolbar_custom}
+				<div data-cerb-toolbar class="cerb-code-editor-subtoolbar-custom" style="display:inline-block;">
+					{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_custom)}
+				</div>
+				
 				<div class="cerb-code-editor-toolbar-divider"></div>
-				<button type="button" title="Bold (Ctrl+B)" data-cerb-key-binding="ctrl+b" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--bold"><span class="glyphicons glyphicons-bold"></span></button>
-				<button type="button" title="Italics (Ctrl+I)" data-cerb-key-binding="ctrl+i" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--italic"><span class="glyphicons glyphicons-italic"></span></button>
-				<button type="button" title="Link (Ctrl+K)" data-cerb-key-binding="ctrl+k" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--link"><span class="glyphicons glyphicons-link"></span></button>
-				<button type="button" title="Image (Ctrl+M)" data-cerb-key-binding="ctrl+m" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--image"><span class="glyphicons glyphicons-picture"></span></button>
-				<button type="button" title="List" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--list"><span class="glyphicons glyphicons-list"></span></button>
-				<button type="button" title="Quote (Ctrl+Q)" data-cerb-key-binding="ctrl+q" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--quote"><span class="glyphicons glyphicons-quote"></span></button>
-				<button type="button" title="Code (Ctrl+O)" data-cerb-key-binding="ctrl+o" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--code"><span class="glyphicons glyphicons-embed"></span></button>
-				<button type="button" title="Table" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--table"><span class="glyphicons glyphicons-table"></span></button>
-			</div>
-
-			<div class="cerb-code-editor-toolbar-divider"></div>
+			{/if}
 
 			<button type="button" title="Insert #command" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--commands"><span class="glyphicons glyphicons-sampler"></span></button>
 			<button type="button" title="Insert snippet (Ctrl+Shift+Period)" class="cerb-code-editor-toolbar-button cerb-markdown-editor-toolbar-button--snippets"><span class="glyphicons glyphicons-notes-2"></span></button>
@@ -166,19 +161,6 @@
 			<button type="button" title="{'common.encrypt'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--encrypt {if $draft->params.options_gpg_encrypt}cerb-code-editor-toolbar-button--enabled{/if}"><span class="glyphicons {if $draft->params.options_gpg_encrypt}glyphicons-lock{else}glyphicons-unlock{/if}"></span></button>
 			<button type="button" title="{'common.encrypt.sign'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--sign {if $draft->params.options_gpg_sign}cerb-code-editor-toolbar-button--enabled{/if}"><span class="glyphicons {if $draft->params.options_gpg_encrypt}glyphicons-user-lock{else}glyphicons-user{/if}"></span></button>
 
-			{if $html_templates}
-			<div class="cerb-code-editor-subtoolbar-format-html" style="display:inline-block;{if !$is_html}display:none;{/if}">
-				<div class="cerb-code-editor-toolbar-divider"></div>
-				<select name="html_template_id" style="max-width:150px;" title="{'common.template'|devblocks_translate|capitalize}">
-					<optgroup label="{'common.template'|devblocks_translate|capitalize}">
-						<option value="">({'common.default'|devblocks_translate|capitalize})</option>
-						{foreach from=$html_templates item=html_template}
-							<option value="{$html_template->id}" {if $draft->params.html_template_id==$html_template->id}selected="selected"{/if}>{$html_template->name}</option>
-						{/foreach}
-					</optgroup>
-				</select>
-			</div>
-			{/if}
 		</div>
 
 		{if $is_forward}
@@ -243,6 +225,21 @@
 		{/foreach}
 	{/if}
 	</ul>
+</fieldset>
+
+<fieldset class="peek" data-cerb-reply-html-template style="margin-top:10px;{if !$is_html}display:none;{/if}">
+	<legend>{'common.html_mail_template'|devblocks_translate|capitalize}</legend>
+
+	{if $html_templates}
+		<select name="html_template_id" style="max-width:150px;" title="{'common.template'|devblocks_translate|capitalize}">
+			<optgroup label="{'common.template'|devblocks_translate|capitalize}">
+				<option value="">({'common.default'|devblocks_translate|capitalize})</option>
+				{foreach from=$html_templates item=html_template}
+					<option value="{$html_template->id}" {if $draft->params.html_template_id==$html_template->id}selected="selected"{/if}>{$html_template->name}</option>
+				{/foreach}
+			</optgroup>
+		</select>
+	{/if}
 </fieldset>
 
 <fieldset class="peek">
@@ -654,6 +651,37 @@ $(function() {
 			})
 			;
 
+		// Toolbar
+
+		$reply.find('[data-cerb-toolbar]')
+			.cerbToolbar({
+				caller: {
+					name: 'cerb.toolbar.mail.reply',
+					params: {
+						selected_text: ''
+					}
+				},
+				start: function(formData) {
+					formData.set('caller[params][selected_text]', $editor.cerbTextEditor('getSelection'));
+				},
+				done: function(e) {
+					if(e.type !== 'cerb-interaction-done')
+						return;
+
+					if(!e.eventData || !e.eventData.exit)
+						return;
+
+					if (e.eventData.exit === 'error') {
+						// [TODO] Show error
+
+					} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
+						$editor.cerbTextEditor('replaceSelection', e.eventData.return.snippet);
+						setTimeout(function() { $editor.focus(); }, 25);
+					}
+				}
+			})
+		;
+
 		// Formatting
 
 		$editor_toolbar.find('.cerb-editor-toolbar-button--formatting').on('click', function() {
@@ -674,11 +702,13 @@ $(function() {
 				$button.attr('data-format', 'html');
 				$button.text('Formatting on');
 				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','inline-block');
+				$frm.find('[data-cerb-reply-html-template]').show();
 			} else {
 				$frm.find('input:hidden[name=format]').val('');
 				$button.attr('data-format', 'plaintext');
 				$button.text('Formatting off');
 				$editor_toolbar.find('.cerb-code-editor-subtoolbar-format-html').css('display','none');
+				$frm.find('[data-cerb-reply-html-template]').hide();
 			}
 		});
 
@@ -1005,12 +1035,6 @@ $(function() {
 			});
 		});
 		
-		// Interactions
-		{if $interactions_menu}
-		var $interaction_container = $('#replyInteractions{$message->id}');
-		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
-		{/if}
-
 		// Focus 
 		{if $recent_activity}
 			$collisions.find('button:first').focus();
@@ -1124,14 +1148,6 @@ $(function() {
 				e.preventDefault();
 				try {
                     $editor_toolbar_button_snippets.click();
-				} catch(ex) { }
-			});
-
-			// Bot interactions
-			$editor.bind('keydown', 'ctrl+shift+b', function(e) {
-				e.preventDefault();
-				try {
-					$editor_toolbar.find('.cerb-reply-editor-toolbar-button--interactions').click();
 				} catch(ex) { }
 			});
 

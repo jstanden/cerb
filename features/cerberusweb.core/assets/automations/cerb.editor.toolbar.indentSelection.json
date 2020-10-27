@@ -1,0 +1,9 @@
+{
+    "name": "cerb.editor.toolbar.indentSelection",
+    "description": "Indent selected lines with a given `prefix`",
+    "extension_id": "cerb.trigger.ui.interaction",
+    "script": "inputs:\r\n  text/prefix:\r\n    required@bool: true\r\n\r\nstart:\r\n  return:\r\n    snippet@text:\r\n      {{caller_params.selected_text|indent(inputs.prefix)}}",
+    "policy_kata": "",
+    "created_at": 1603312846,
+    "updated_at": 1605562828
+}

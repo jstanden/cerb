@@ -587,16 +587,95 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			}
 		}
 		
-		// Dictionary
-		$dict = DevblocksDictionaryDelegate::instance([
-			'_context' => CerberusContexts::CONTEXT_MESSAGE,
-			'id' => $message->id,
+		// Reply toolbars
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
 		]);
 		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('mail.reply', $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
+		$toolbar_formatting_kata = "
+interaction/link:
+  icon: link
+  tooltip: Insert Link
+  uri: cerb.editor.toolbar.markdownLink
+  keyboard: ctrl+k
+interaction/image:
+  icon: picture
+  tooltip: Insert Image
+  uri: cerb.editor.toolbar.markdownImage
+  keyboard: ctrl+m
+
+menu/formatting:
+  icon: more
+  hover@bool: yes
+  items:
+    interaction/bold:
+      label: Bold
+      icon: bold
+      uri: cerb.editor.toolbar.wrapSelection
+      headless@bool: yes
+      keyboard: ctrl+b
+      inputs:
+        start_with: **
+    interaction/italics:
+      label: Italics
+      icon: italic
+      uri: cerb.editor.toolbar.wrapSelection
+      headless@bool: yes
+      keyboard: ctrl+i
+      inputs:
+        start_with: _
+    interaction/list:
+      label: Unordered List
+      icon: list
+      uri: cerb.editor.toolbar.indentSelection
+      headless@bool: yes
+      inputs:
+        prefix: * 
+    interaction/quote:
+      label: Quote
+      icon: quote
+      uri: cerb.editor.toolbar.indentSelection
+      headless@bool: yes
+      keyboard: ctrl+q
+      inputs:
+        prefix: > 
+    interaction/variable:
+      label: Variable
+      icon: edit
+      uri: cerb.editor.toolbar.wrapSelection
+      headless@bool: yes
+      inputs:
+        start_with: `
+    interaction/codeBlock:
+      label: Code Block
+      icon: embed
+      uri: cerb.editor.toolbar.wrapSelection
+      headless@bool: yes
+      keyboard: ctrl+o
+      inputs:
+        start_with@text:
+          ~~~
+          
+        end_with@text:
+          ~~~
+          
+    interaction/table:
+      label: Table
+      icon: table
+      uri: cerb.editor.toolbar.markdownTable
+      headless@bool: yes
+";
+		
+		// Custom reply toolbar
+		$toolbar_custom_kata = "";		
+		
+		$toolbar_formatting = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_formatting_kata, $toolbar_dict);
+		$tpl->assign('toolbar_formatting', $toolbar_formatting);
+		
+		$toolbar_custom = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_custom_kata, $toolbar_dict);
+		$tpl->assign('toolbar_custom', $toolbar_custom);
 		
 		// Display template
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');
