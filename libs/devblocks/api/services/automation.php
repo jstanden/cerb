@@ -189,6 +189,12 @@ class _DevblocksAutomationService {
 					if($is_required)
 						$input_field->setRequired(true);
 					
+					// Defaults
+					if(is_null($input_value) && array_key_exists('default', $input_data)) {
+						$input_value = $input_data['default'];
+						$dict->setKeyPath('inputs.' . $input_key, $input_value);
+					}
+					
 					if($is_required || !is_null($input_value))
 						$input_values[$input_key] = $input_value;
 					
@@ -207,6 +213,12 @@ class _DevblocksAutomationService {
 					
 					if($is_required)
 						$input_field->setRequired(true);
+					
+					// Defaults
+					if(is_null($input_value) && array_key_exists('default', $input_data)) {
+						$input_value = $input_data['default'];
+						$dict->setKeyPath('inputs.' . $input_key, $input_value);
+					}
 					
 					if($is_required || !is_null($input_value))
 						$input_values[$input_key] = $input_value;
