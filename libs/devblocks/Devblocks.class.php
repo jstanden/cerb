@@ -1306,7 +1306,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function strAlphaNum($arg, $also=null, $replace="") {
-		return preg_replace("/[^A-Z0-9" . $also . "]/i", $replace, $arg);
+		return preg_replace("/[^A-Z0-9" . preg_quote($also, '/') . "]/i", $replace, $arg);
 	}
 	
 	/**
@@ -1319,7 +1319,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function strNum($arg, $also=null, $replace="") {
-		return preg_replace("/[^0-9" . $also . "]/i", $replace, $arg);
+		return preg_replace("/[^0-9" . preg_quote($also, '/') . "]/i", $replace, $arg);
 	}
 	
 	/**
