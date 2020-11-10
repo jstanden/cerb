@@ -6,6 +6,7 @@ context_avatar
 keys
 logo
 message_content
+resources
 tmp/cache
 tmp/mime*
 tmp/templates_c

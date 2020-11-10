@@ -934,10 +934,16 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 		return true;
 	}
 	
-	public static function getDictionaryFromModel($model, $context, array $keys=[]) {
+	/**
+	 * @param mixed $model
+	 * @param string $context
+	 * @param array $keys
+	 * @return DevblocksDictionaryDelegate|null
+	 */
+	public static function getDictionaryFromModel($model, string $context, array $keys=[]) {
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(
 			[$model->id => $model],
-			CerberusContexts::CONTEXT_ATTACHMENT,
+			$context,
 			$keys
 		);
 		

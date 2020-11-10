@@ -1330,6 +1330,16 @@
 				<seg>Fieldsets</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.file">
+			<tuv xml:lang="en_US">
+				<seg>file</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.files">
+			<tuv xml:lang="en_US">
+				<seg>files</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.file_bundle">
 			<tuv xml:lang="en_US">
 				<seg>File Bundle</seg>
@@ -3910,6 +3920,14 @@
 		</tu>
 		<tu tuid='dao.context_bulk_update.num_records'>
 			<tuv xml:lang="en_US"><seg>Num Records</seg></tuv>
+		</tu>
+
+		<!-- Resource -->
+		
+		<tu tuid="dao.resource.is_dynamic">
+			<tuv xml:lang="en_US">
+				<seg>Is Dynamic</seg>
+			</tuv>
 		</tu>
 
 		<!-- ContextScheduledBehavior -->

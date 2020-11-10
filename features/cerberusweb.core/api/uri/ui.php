@@ -27,7 +27,7 @@ class Controller_UI extends DevblocksControllerExtension {
 			DevblocksPlatform::dieWithHttpError(DevblocksPlatform::translate('common.access_denied'), 403);
 
 		$stack = $request->path;
-		array_shift($stack); // internal
+		array_shift($stack); // ui
 		@$action = array_shift($stack);
 		
 		if(!$action)
@@ -65,6 +65,8 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_querySuggestionMeta();
 			case 'querySuggestions':
 				return $this->_uiAction_querySuggestions();
+			case 'resource':
+				return $this->_uiAction_resource();
 			case 'sheet':
 				return $this->_uiAction_sheet();
 			case 'yamlSuggestionsFormInteractions':
@@ -462,6 +464,43 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 		
 		echo DevblocksPlatform::strFormatJson(json_encode($results));
+	}
+	
+	private function _uiAction_resource() {
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		array_shift($stack); // ui
+		@$action = array_shift($stack); // resource
+		
+		$resource_key = implode('/', $stack);
+	
+		if(false == ($resource = DAO_Resource::getByName($resource_key)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$error = null;
+		$expires_at = null;
+		
+		$contents = $resource->getFileContents($expires_at, $error);
+		
+		$mime_type = DevblocksPlatform::strLower($resource->mime_type);
+		
+		if('application/json' == $mime_type) {
+			header('Content-Type: application/json; charset=utf-8');
+		} else if('image/png' == $mime_type) {
+			header('Content-Type: image/png');
+		} else {
+			header('Content-Type: application/octet-stream');
+		}
+		
+		// Cache headers for browser
+		if($expires_at) {
+			header('Pragma: cache');
+			header(sprintf('Cache-control: max-age=%d', $expires_at - time()), true);
+			header('Expires: ' . gmdate('D, d M Y H:i:s', $expires_at) . ' GMT');
+			header('Accept-Ranges: bytes');
+		}
+		
+		echo $contents;
 	}
 	
 	private function _uiAction_sheet() {

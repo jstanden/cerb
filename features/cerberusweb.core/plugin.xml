@@ -586,6 +586,14 @@
 			<class name="SearchFields_Reminder" />
 			<class name="View_Reminder" />
 		</file>
+
+		<file path="api/dao/resource.php">
+			<class name="Context_Resource" />
+			<class name="DAO_Resource" />
+			<class name="Model_Resource" />
+			<class name="SearchFields_Resource" />
+			<class name="View_Resource" />
+		</file>
 		
 		<file path="api/dao/snippet.php">
 			<class name="Context_Snippet" />
@@ -3389,6 +3397,48 @@
 				</param>
 			</params>
 		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.resource</id>
+			<name>Resource</name>
+			<class>
+				<file>api/dao/resource.php</file>
+				<name>Context_Resource</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="resource" value="singular" />
+						<data key="resources" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="resource" />
+				<param key="dao_class" value="DAO_Resource" />
+				<param key="view_class" value="View_Resource" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
 		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.role</id>
@@ -4596,6 +4646,22 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.resource.get</id>
+			<name>resource.get</name>
+			<class>
+				<file>api/automations/triggers/resource.get.php</file>
+				<name>AutomationTrigger_ResourceGet</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.ui.interaction</id>
 			<name>ui.interaction</name>
 			<class>
@@ -5557,6 +5623,20 @@
 				<param key="archive_after_days" value="7" />
 			</params>
 		</extension>
+
+		<extension point="devblocks.storage.schema">
+			<id>cerb.storage.schema.resources</id>
+			<name>Resources</name>
+			<class>
+				<file>api/dao/resource.php</file>
+				<name>Storage_Resource</name>
+			</class>
+			<params>
+				<param key="active_storage_profile" value="devblocks.storage.engine.database" />
+				<param key="archive_storage_profile" value="devblocks.storage.engine.database" />
+				<param key="archive_after_days" value="0" />
+			</params>
+		</extension>		
 		
 		<!-- Search Schemas -->
 		
@@ -6604,7 +6684,20 @@
 					<param key="uri" value="reminder" />
 				</params>
 			</extension>
-			
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.resource</id>
+				<name>Resource Section</name>
+				<class>
+					<file>api/uri/profiles/resource.php</file>
+					<name>PageSection_ProfilesResource</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="resource" />
+				</params>
+			</extension>
+		
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.role</id>
 				<name>Role Section</name>
