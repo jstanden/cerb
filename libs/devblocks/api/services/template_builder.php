@@ -173,6 +173,7 @@ class _DevblocksTemplateBuilder {
 				'csv',
 				'date_pretty',
 				'hash_hmac',
+				'image_info',
 				'indent',
 				'json_pretty',
 				'markdown_to_html',
@@ -1504,6 +1505,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('csv', [$this, 'filter_csv']),
 			new \Twig\TwigFilter('date_pretty', [$this, 'filter_date_pretty']),
 			new \Twig\TwigFilter('hash_hmac', [$this, 'filter_hash_hmac']),
+			new \Twig\TwigFilter('image_info', [$this, 'filter_image_info']),
 			new \Twig\TwigFilter('indent', [$this, 'filter_indent']),
 			new \Twig\TwigFilter('json_pretty', [$this, 'filter_json_pretty']),
 			new \Twig\TwigFilter('markdown_to_html', [$this, 'filter_markdown_to_html']),
@@ -1684,6 +1686,44 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return $hash;
+	}
+	
+	function filter_image_info($image_bytes) {
+		$image_info = [];
+		
+		try {
+			if(DevblocksPlatform::strStartsWith($image_bytes, 'data:')) {
+				if(false === ($pos = stripos($image_bytes, ';base64,')))
+					throw new Exception_DevblocksValidationError("No base64 encoded image data.");
+				
+				$image_bytes = substr($image_bytes, $pos + 8);
+				
+				if(false == ($image_bytes = base64_decode($image_bytes)))
+					throw new Exception_DevblocksValidationError("Failed to base64 decode image bytes.");
+			}
+				
+			if(false == (@$size_data = getimagesizefromstring($image_bytes)))
+				throw new Exception_DevblocksValidationError("Failed to determine image dimensions.");
+			
+			$image_info['width'] = $size_data[0];
+			$image_info['height'] = $size_data[1];
+			
+			if(array_key_exists('2', $size_data))
+				$image_info['channels'] = $size_data[2];
+			
+			if(array_key_exists('bits', $size_data))
+				$image_info['bits'] = $size_data['bits'];
+			
+			if(array_key_exists('mime', $size_data))
+				$image_info['type'] = $size_data['mime'];
+			
+		} catch (Exception_DevblocksValidationError $e) {
+			return [
+				'_error' => $e->getMessage()
+			];
+		}
+		
+		return $image_info;
 	}
 	
 	function filter_indent($string, $marker='', $from_line=0) {
