@@ -426,7 +426,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function intClamp($n, $min, $max) {
-		return min(max((integer)$n, $min), $max);
+		return min(max(intval($n), $min), $max);
 	}
 	
 	/**
@@ -438,7 +438,7 @@ class DevblocksPlatform extends DevblocksEngine {
 	 * @test DevblocksPlatformTest
 	 */
 	static function floatClamp($n, $min, $max) {
-		return min(max((float)$n, $min), $max);
+		return min(max(floatval($n), $min), $max);
 	}
 	
 	/**

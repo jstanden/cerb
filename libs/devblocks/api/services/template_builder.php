@@ -245,6 +245,8 @@ class _DevblocksTemplateBuilder {
 				'cerb_record_readable',
 				'cerb_record_writeable',
 				'cerb_url',
+				'clamp_float',
+				'clamp_int',
 				'dict_set',
 				'dict_unset',
 				'json_decode',
@@ -1070,6 +1072,8 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('cerb_record_readable', [$this, 'function_cerb_record_readable']),
 			new \Twig\TwigFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
 			new \Twig\TwigFunction('cerb_url', [$this, 'function_cerb_url']),
+			new \Twig\TwigFunction('clamp_float', [$this, 'function_clamp_float']),
+			new \Twig\TwigFunction('clamp_int', [$this, 'function_clamp_int']),
 			new \Twig\TwigFunction('dict_set', [$this, 'function_dict_set']),
 			new \Twig\TwigFunction('dict_unset', [$this, 'function_dict_unset']),
 			new \Twig\TwigFunction('json_decode', [$this, 'function_json_decode']),
@@ -1357,6 +1361,26 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	function function_random_string($length=8) {
 		$length = DevblocksPlatform::intClamp($length, 1, 255);
 		return CerberusApplication::generatePassword($length);
+	}
+	
+	function function_clamp_float($string, $min=PHP_FLOAT_MIN, $max=PHP_FLOAT_MAX) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_numeric($string))
+			return false;
+		
+		return DevblocksPlatform::floatClamp($string, $min, $max);
+	}
+	
+	function function_clamp_int($string, $min=PHP_INT_MIN, $max=PHP_INT_MAX) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_numeric($string))
+			return false;
+		
+		return DevblocksPlatform::intClamp($string, $min, $max);
 	}
 	
 	function function_dict_set($var, $path, $val) {
