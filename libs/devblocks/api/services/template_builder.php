@@ -233,6 +233,7 @@ class _DevblocksTemplateBuilder {
 				'array_intersect',
 				'array_matches',
 				'array_sort_keys',
+				'array_sum',
 				'array_unique',
 				'array_values',
 				'cerb_avatar_image',
@@ -1057,6 +1058,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('array_intersect', [$this, 'function_array_intersect']),
 			new \Twig\TwigFunction('array_matches', [$this, 'function_array_matches']),
 			new \Twig\TwigFunction('array_sort_keys', [$this, 'function_array_sort_keys']),
+			new \Twig\TwigFunction('array_sum', [$this, 'function_array_sum']),
 			new \Twig\TwigFunction('array_unique', [$this, 'function_array_unique']),
 			new \Twig\TwigFunction('array_values', [$this, 'function_array_values']),
 			new \Twig\TwigFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
@@ -1190,6 +1192,13 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		ksort($arr);
 		
 		return $arr;
+	}
+	
+	function function_array_sum($arr) {
+		if(!is_array($arr))
+			return false;
+		
+		return array_sum($arr);
 	}
 	
 	function function_array_unique($arr) {
