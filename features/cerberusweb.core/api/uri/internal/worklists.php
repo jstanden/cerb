@@ -350,7 +350,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		header('Content-Type: application/json; charset=utf-8');
 		
 		if(empty($cursor))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		$update = DAO_ContextBulkUpdate::getNextByCursor($cursor);
 		
@@ -370,6 +370,14 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 				}
 				
 				$update->context_ids = array_keys($acl_results);
+			}
+			
+			// If no IDs are left, we're done
+			if(!$update->context_ids) {
+				echo json_encode(array(
+					'completed' => true,
+				));
+				return;
 			}
 			
 			$dao_class = $context_ext->getDaoClass();
