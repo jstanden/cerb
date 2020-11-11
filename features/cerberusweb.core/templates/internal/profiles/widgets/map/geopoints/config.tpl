@@ -1,15 +1,29 @@
 <div id="widget{$widget->id}Config" style="margin-top:10px;">
-	<fieldset id="widget{$widget->id}Country" class="peek">
-		<legend>{'common.map'|devblocks_translate|capitalize}</legend>
-		
-		<select name="params[projection]">
-			<option value="world" {if $widget->extension_params.projection != 'usa'}selected="selected"{/if}>World (Countries)</option>
-			<option value="usa" {if $widget->extension_params.projection == 'usa'}selected="selected"{/if}>U.S. (States)</option>
-		</select>
+	<fieldset data-cerb-event-map-get-data>
+		<legend>Map configuration (KATA)</legend>
+		<div class="cerb-code-editor-toolbar">
+			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			])}
+
+			{$toolbar_kata =
+"interaction/automation:
+  icon: circle-plus
+  tooltip: Map
+  uri: ai.cerb.editor.mapBuilder
+  inputs:
+"}
+
+			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+			<div class="cerb-code-editor-toolbar-divider"></div>
+		</div>
+		<textarea name="params[map_kata]" data-editor-mode="ace/mode/cerb_kata">{$model->extension_params.map_kata}</textarea>
 	</fieldset>
 
-	<fieldset data-cerb-events-map-get-points>
-		<legend>Event: Get map points (KATA)</legend>
+	<fieldset data-cerb-event-map-clicked>
+		<legend>Event: Map clicked (KATA)</legend>
 		<div class="cerb-code-editor-toolbar">
 			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
 			])}
@@ -20,7 +34,7 @@
   #label: Automation
   uri: ai.cerb.eventHandler.automation
   inputs:
-    trigger: cerb.trigger.widgetMap.getPoints
+    trigger: cerb.trigger.map.clicked
 "}
 
 			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
@@ -29,45 +43,24 @@
 
 			<div class="cerb-code-editor-toolbar-divider"></div>
 		</div>
-		<textarea name="params[automation_getpoints]" data-editor-mode="ace/mode/cerb_kata">{$model->extension_params.automation_getpoints}</textarea>
-	</fieldset>
-
-	<fieldset data-cerb-events-map-render-point>
-		<legend>Event: Render map point (KATA)</legend>
-		<div class="cerb-code-editor-toolbar">
-			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			])}
-
-			{$toolbar_kata =
-"interaction/automation:
-  icon: circle-plus
-  #label: Automation
-  uri: ai.cerb.eventHandler.automation
-  inputs:
-    trigger: cerb.trigger.widgetMap.renderPoint
-"}
-
-			{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
-
-			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
-
-			<div class="cerb-code-editor-toolbar-divider"></div>
-		</div>
-		<textarea name="params[automation_renderpoint]" data-editor-mode="ace/mode/cerb_kata">{$model->extension_params.automation_renderpoint}</textarea>
+		<textarea name="params[automation][map_clicked]" data-editor-mode="ace/mode/cerb_kata">{$model->extension_params.automation.map_clicked}</textarea>
 	</fieldset>
 </div>
 
 <script type="text/javascript">
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
+	var $fieldset_map_get_data = $config.find('[data-cerb-event-map-get-data]');
+	var $fieldset_map_clicked = $config.find('[data-cerb-event-map-clicked]');
 
-	$config.find('textarea[data-editor-mode]')
+	$config.find('textarea[name="params[map_kata]"]')
 		.cerbCodeEditor()
-		;
+	;
 
-	var $fieldset_get_points = $config.find('[data-cerb-events-map-get-points]');
-	var $fieldset_render_point = $config.find('[data-cerb-events-map-render-point]');
-	
+	$config.find('textarea[name="params[automation][map_clicked]"]')
+		.cerbCodeEditor()
+	;
+
 	var doneFunc = function(e) {
 		e.stopPropagation();
 
@@ -92,13 +85,12 @@ $(function() {
 	};
 	
 	// Toolbars
-	
-	$fieldset_get_points.find('.cerb-code-editor-toolbar')
+
+	$fieldset_map_get_data.find('.cerb-code-editor-toolbar')
 		.cerbToolbar({
 			caller: {
-				name: 'cerb.toolbar.eventHandlers.editor',
+				name: 'cerb.toolbar.editor.map',
 				params: {
-					trigger: 'cerb.trigger.widgetMap.getPoints',
 					selected_text: ''
 				}
 			},
@@ -107,13 +99,13 @@ $(function() {
 			done: doneFunc
 		})
 	;
-	
-	$fieldset_render_point.find('.cerb-code-editor-toolbar')
+
+	$fieldset_map_clicked.find('.cerb-code-editor-toolbar')
 		.cerbToolbar({
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
 				params: {
-					trigger: 'cerb.trigger.widgetMap.renderPoint',
+					trigger: 'cerb.trigger.map.clicked',
 					selected_text: ''
 				}
 			},
