@@ -249,7 +249,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 	}
 	
 	private function _getSearchButtons(Model_ProfileWidget $model, DevblocksDictionaryDelegate $dict=null) {
-		@$search = $model->extension_params['workspace'] ?: [];
+		@$search = $model->extension_params['search'] ?: [];
 		
 		$search_buttons = [];
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

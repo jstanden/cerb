@@ -240,7 +240,7 @@ class CardWidget_Fields extends Extension_CardWidget {
 	}
 	
 	private function _getSearchButtons(Model_CardWidget $model, DevblocksDictionaryDelegate $dict=null) {
-		@$search = $model->extension_params['workspace'] ?: [];
+		@$search = $model->extension_params['search'] ?: [];
 		
 		$search_buttons = [];
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
