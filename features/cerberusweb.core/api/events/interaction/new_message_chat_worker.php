@@ -554,7 +554,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				break;
 
 			case 'prompt_chooser':
-				$contexts = Extension_DevblocksContext::getAll(false, ['search']);
+				$contexts = Extension_DevblocksContext::getAll(false, ['workspace']);
 				$tpl->assign('contexts', $contexts);
 
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_prompt_chooser.tpl');
@@ -596,7 +596,7 @@ class Event_NewMessageChatWorker extends Extension_DevblocksEvent {
 				break;
 
 			case 'worklist_open':
-				$context_mfts = Extension_DevblocksContext::getAll(false, ['search']);
+				$context_mfts = Extension_DevblocksContext::getAll(false, ['workspace']);
 				$tpl->assign('context_mfts', $context_mfts);
 
 				$tpl->display('devblocks:cerberusweb.core::events/pm/action_worklist_open.tpl');

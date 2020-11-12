@@ -234,7 +234,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 			// =================================================================
 			// Search buttons
 			
-			$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
+			$search_contexts = Extension_DevblocksContext::getAll(false, ['workspace']);
 			$tpl->assign('search_contexts', $search_contexts);
 			
 			$search_buttons = $this->_getSearchButtons($model, null);
@@ -249,7 +249,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 	}
 	
 	private function _getSearchButtons(Model_ProfileWidget $model, DevblocksDictionaryDelegate $dict=null) {
-		@$search = $model->extension_params['search'] ?: [];
+		@$search = $model->extension_params['workspace'] ?: [];
 		
 		$search_buttons = [];
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

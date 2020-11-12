@@ -808,7 +808,7 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		// Contexts
-		$contexts = Extension_DevblocksContext::getAll(false, ['search']);
+		$contexts = Extension_DevblocksContext::getAll(false, ['workspace']);
 		$tpl->assign('contexts', $contexts);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/contexts/saved_search/view.tpl');
@@ -1215,7 +1215,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 			$tpl->assign('owners_menu', $owners_menu);
 			
 			// Contexts
-			$contexts = Extension_DevblocksContext::getAll(false, ['search']);
+			$contexts = Extension_DevblocksContext::getAll(false, ['workspace']);
 			$tpl->assign('contexts', $contexts);
 			
 			// Custom fields

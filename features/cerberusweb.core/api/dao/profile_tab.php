@@ -1183,7 +1183,7 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			$tpl->assign('types', $types);
 			
 			// Contexts
-			$context_mfts = Extension_DevblocksContext::getAll(false, ['search']);
+			$context_mfts = Extension_DevblocksContext::getAll(false, ['workspace']);
 			$tpl->assign('context_mfts', $context_mfts);
 			
 			// Tab extensions

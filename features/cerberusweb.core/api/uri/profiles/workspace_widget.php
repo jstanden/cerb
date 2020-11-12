@@ -469,7 +469,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		// =================================================================
 		// Search buttons
 		
-		$search_contexts = Extension_DevblocksContext::getAll(false, ['search']);
+		$search_contexts = Extension_DevblocksContext::getAll(false, ['workspace']);
 		$tpl->assign('search_contexts', $search_contexts);
 		
 		// =================================================================
