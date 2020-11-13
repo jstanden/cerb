@@ -70,7 +70,7 @@ class DevblocksUiEventHandler {
 			if(array_key_exists('disabled', $handler_data) && $handler_data['disabled'])
 				continue;
 			
-			list($handler_type, $handler_name) = explode('/', $handler_key, 2);
+			@list($handler_type, $handler_name) = explode('/', $handler_key, 2);
 			
 			$result = [
 				'type' => $handler_type,

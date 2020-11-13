@@ -188,7 +188,7 @@ $(function() {
 			.cerbChooserTrigger()
 			.on('cerb-chooser-saved', function(e) {
 				// When the org changes, default the contact chooser filter
-				if($(e.target).attr('data-field-name') == 'org_id') {
+				if($(e.target).attr('data-field-name') === 'org_id') {
 					var $bubble = $chooser_org.siblings('ul.chooser-container').find('> li:first input:hidden');
 					var $button_create_contact = $chooser_contact.siblings('button.chooser-create');
 					

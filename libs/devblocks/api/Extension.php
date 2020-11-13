@@ -1579,6 +1579,9 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	}
 	
 	protected function _lazyLoadDefaults($token, $context, $context_id) {
+		if(!$token)
+			return [];
+		
 		$context_ext = Extension_DevblocksContext::get($context, true);
 		
 		if('customfields' == $token && $context_ext->hasOption('custom_fields')) {

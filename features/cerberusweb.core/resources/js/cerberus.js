@@ -3847,7 +3847,7 @@ var ajax = new cAjaxCalls();
 
 					e.stopPropagation();
 				});
-				
+
 				$peek.on('dialogclose', function(e) {
 					$trigger.trigger('cerb-peek-closed');
 				});
@@ -4324,7 +4324,7 @@ var ajax = new cAjaxCalls();
 				var $value = e.value;
 				var icon_url = e.icon;
 				
-				if(undefined != $label && undefined != $value) {
+				if(undefined !== $label && undefined !== $value) {
 					if(0 === $ul.find('input:hidden[value="'+$value+'"]').length) {
 						var $li = $('<li/>');
 						
@@ -4403,7 +4403,7 @@ var ajax = new cAjaxCalls();
 			}
 
 			// Autocomplete
-			if(undefined != $trigger.attr('data-autocomplete')) {
+			if(undefined !== $trigger.attr('data-autocomplete')) {
 				var is_single = $trigger.attr('data-single');
 				var placeholder = $trigger.attr('data-placeholder');
 				var is_autocomplete_ifnull = $trigger.attr('data-autocomplete-if-empty');

@@ -1270,7 +1270,7 @@ $(function() {
 			
 			$popup.on('dialogbeforeclose', function(e, ui) {
 				var keycode = e.keyCode || e.which;
-				if(keycode == 27)
+				if(keycode === 27)
 					return confirm('{'warning.core.editor.close'|devblocks_translate}');
 			});
 		});

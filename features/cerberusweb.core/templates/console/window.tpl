@@ -120,7 +120,7 @@ $(function() {
 			genericAjaxPost($chat_window_input_form, '', null, function(html) {
 				var $response = $(html);
 				
-				if(0 == $response.length) {
+				if(0 === $response.length) {
 					$spinner.hide();
 					return;
 				}
