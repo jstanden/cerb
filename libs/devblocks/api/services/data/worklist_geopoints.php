@@ -224,11 +224,12 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 		switch($format) {
 			case 'geojson':
 				return $this->_formatDataAsGeoJson($chart_model);
-				break;
 				
 			case 'table':
 				return $this->_formatDataAsTable($chart_model);
-				break;
+			
+			case 'topojson':
+				return $this->_formatDataAsTopoJson($chart_model);
 				
 			default:
 				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: geojson, table",
@@ -240,6 +241,45 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 	}
 	
 	function _formatDataAsGeoJson($chart_model) {
+		$points = [
+			'type' => 'FeatureCollection',
+			'features' => [],
+		];
+		
+		if(array_key_exists('series', $chart_model))
+		foreach($chart_model['series'] as $series) {
+			$series_label = $series['label'];
+			
+			foreach($series['data'] as $row) {
+				$point = @DevblocksPlatform::parseGeoPointString($row[$series['point']['key_query']]);
+				
+				$properties = $row;
+				$properties['cerb_series'] = $series_label;
+				
+				$points['features'][] = [
+					'type' => 'Feature',
+					'geometry' => [
+						'type' => 'Point',
+						'coordinates' => [
+							$point['longitude'], // long
+							$point['latitude'], // lat
+						],
+					],
+					'properties' => $properties,
+				];
+			}
+		}
+		
+		return [
+			'data' => $points,
+			'_' => [
+				'type' => 'worklist.geo.points',
+				'format' => 'geojson',
+			]
+		];
+	}
+	
+	function _formatDataAsTopoJson($chart_model) {
 		$points = [
 			'type' => 'Topology',
 			'objects' => [],
@@ -274,7 +314,7 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 			'data' => $points,
 			'_' => [
 				'type' => 'worklist.geo.points',
-				'format' => 'geojson',
+				'format' => 'topojson',
 			]
 		];
 	}
