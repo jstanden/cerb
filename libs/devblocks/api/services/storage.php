@@ -321,8 +321,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				id INT UNSIGNED NOT NULL DEFAULT 0,
 				data BLOB,
 				chunk SMALLINT UNSIGNED DEFAULT 1,
-				INDEX id (id),
-				INDEX chunk (chunk)
+				INDEX id_and_chunk (id, chunk)
 			) ENGINE=%s;",
 			$this->escapeNamespace($namespace),
 			APP_DB_ENGINE
