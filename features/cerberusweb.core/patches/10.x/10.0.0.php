@@ -61,41 +61,60 @@ if(!isset($tables['automation'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['automation'] = 'automation';
-}
 
-// ===========================================================================
-// Update automations
-
-$automations_current = $db->GetArrayMaster("SELECT name FROM automation WHERE name like 'cerb.%' OR name like 'ai.cerb.%'");
-$automations_current = array_column($automations_current, 'name', 'name');
-
-$automations_json = file_get_contents(APP_PATH . '/features/cerberusweb.core/kata/cerb.json');
-
-$automations = json_decode($automations_json, true);
-
-foreach($automations as $automation) {
-	if(array_key_exists($automation['name'], $automations_current)) {
-		$db->ExecuteMaster(sprintf('UPDATE automation SET extension_id = %s, script = %s, description = %s, policy_kata = %s, created_at = %d, updated_at = %d WHERE name = %s',
-			$db->qstr($automation['extension_id']),
-			$db->qstr($automation['script']),
-			$db->qstr($automation['description']),
-			$db->qstr($automation['policy_kata']),
-			$automation['created_at'],
-			$automation['updated_at'],
-			$db->qstr($automation['name'])
-		));
-	} else {
-		$db->ExecuteMaster(sprintf('INSERT INTO automation (name, extension_id, script, description, policy_kata, created_at, updated_at)'.
-			"VALUES (%s, %s, %s, %s, %s, %d, %d)",
-			$db->qstr($automation['name']),
-			$db->qstr($automation['extension_id']),
-			$db->qstr($automation['script']),
-			$db->qstr($automation['description']),
-			$db->qstr($automation['policy_kata']),
-			$automation['created_at'],
-			$automation['updated_at']
-		));
-	}
+	// ===========================================================================
+	// Update automations
+	
+	$automation_files = [
+		'ai.cerb.automationBuilder.action.dataQuery.json',
+		'ai.cerb.automationBuilder.action.emailParser.json',
+		'ai.cerb.automationBuilder.action.function.json',
+		'ai.cerb.automationBuilder.action.httpRequest.json',
+		'ai.cerb.automationBuilder.action.recordCreate.json',
+		'ai.cerb.automationBuilder.input.array.json',
+		'ai.cerb.automationBuilder.input.record.json',
+		'ai.cerb.automationBuilder.input.records.json',
+		'ai.cerb.automationBuilder.input.text.json',
+		'ai.cerb.automationBuilder.ui.interaction.await.map.json',
+		'ai.cerb.automationBuilder.ui.interaction.await.promptEditor.json',
+		'ai.cerb.automationBuilder.ui.interaction.await.promptSheet.json',
+		'ai.cerb.automationBuilder.ui.interaction.await.promptText.json',
+		'ai.cerb.automationBuilder.ui.interaction.await.say.json',
+		'ai.cerb.cardEditor.automation.triggerChooser.json',
+		'ai.cerb.editor.mapBuilder.json',
+		'ai.cerb.eventHandler.automation.json',
+		'ai.cerb.toolbarBuilder.interaction.json',
+		'ai.cerb.toolbarBuilder.menu.json',
+		'cerb.data.geojson.json',
+		'cerb.data.platform.extensions.json',
+		'cerb.data.record.fields.json',
+		'cerb.data.record.types.json',
+		'cerb.data.records.json',
+		'cerb.data.ui.icons.json',
+		'cerb.editor.toolbar.indentSelection.json',
+		'cerb.editor.toolbar.markdownImage.json',
+		'cerb.editor.toolbar.markdownLink.json',
+		'cerb.editor.toolbar.markdownTable.json',
+		'cerb.editor.toolbar.wrapSelection.json',
+		'cerb.map.clicked.sheet.json',
+		'cerb.projectBoard.action.task.close.json',
+		'cerb.projectBoard.card.done.json',
+		'cerb.projectBoard.card.sheet.json',
+		'cerb.projectBoard.toolbar.task.add.json',
+		'cerb.projectBoard.toolbar.task.find.json',
+		'cerb.reminder.remind.notification.json',
+	];
+	
+	foreach($automation_files as $automation_file) {
+		$path = realpath(APP_PATH . '/features/cerberusweb.core/assets/resources/') . '/' . $automation_file;
+		
+		if(!file_exists($path) || false === ($automation_data = json_decode(file_get_contents($path), true)))
+			continue;
+		
+		DAO_Automation::importFromJson($automation_data);
+		
+		unset($automation_data);
+	}	
 }
 
 // ===========================================================================

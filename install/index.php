@@ -665,7 +665,20 @@ switch($step) {
 					CerberusApplication::packages()->importToLibraryFromString($package_json);
 				}
 				
-				// [TODO] Verify the database
+				// Load automations
+				
+				$dir = new DirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/'));
+				$iter = new IteratorIterator($dir);
+				$regex = new RegexIterator($iter, '/^.+\.json/i', RegexIterator::MATCH);
+				
+				foreach($regex as $o) {
+					if(is_null($o) || false === ($automation_data = json_decode(file_get_contents($o->getPathname()), true)))
+						continue;
+					
+					DAO_Automation::importFromJson($automation_data);
+					
+					unset($automation_data);
+				}
 				
 				// Load resources
 				

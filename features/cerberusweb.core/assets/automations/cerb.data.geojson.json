@@ -1,0 +1,9 @@
+{
+    "name": "cerb.data.geojson",
+    "description": "Generate GeoJSON output from a given list of coordinates",
+    "extension_id": "cerb.trigger.widgetMap.getPoints",
+    "script": "inputs:\r\n  array/points:\r\n    required@bool: yes\r\n    \r\nstart:\r\n  data.query:\r\n    output: results\r\n    inputs:\r\n      query@text:\r\n        type:sample.geo.points\r\n        series.points:(\r\n          {% for point_key, point in inputs.points %}\r\n          {{point_key}}:(\r\n            name:\"{{point.name}}\"\r\n            coordinates:\"POINT({{point.longitude}} {{point.latitude}})\"\r\n          )\r\n          {% endfor %}\r\n        )\r\n        format:geojson\r\n  return:\r\n    points@key: results:data",
+    "policy_kata": "data.query:\r\n  rule:\r\n    allow@bool: yes",
+    "created_at": 1602208889,
+    "updated_at": 1602291849
+}

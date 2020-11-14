@@ -456,6 +456,39 @@ class DAO_Automation extends Cerb_ORMHelper {
 			$withCounts
 		);
 	}
+	
+	static function importFromJson($automation_data) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!is_array($automation_data) || !array_key_exists('name', $automation_data))
+			return false;
+		
+		$automation_data = array_merge(
+			[
+				'description' => '',
+				'extension_id' => '',
+				'script' => '',
+				'policy_kata' => 0,
+				'created_at' => time(),
+				'updated_at' => time(),
+			],
+			$automation_data
+		);
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO automation (name, description, extension_id, script, policy_kata, created_at, updated_at) ".
+			"VALUES (%s, %s, %s, %s, %s, %d, %d) ".
+			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), extension_id=VALUES(extension_id), script=VALUES(script), policy_kata=VALUES(policy_kata), created_at=VALUES(created_at), updated_at=VALUES(updated_at)",
+			$db->qstr($automation_data['name']),
+			$db->qstr($automation_data['description']),
+			$db->qstr($automation_data['extension_id']),
+			$db->qstr($automation_data['script']),
+			$db->qstr($automation_data['policy_kata']),
+			$automation_data['created_at'],
+			$automation_data['updated_at']
+		));
+		
+		return $db->LastInsertId();
+	}
 };
 
 class SearchFields_Automation extends DevblocksSearchFields {

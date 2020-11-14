@@ -1,0 +1,9 @@
+{
+    "name": "ai.cerb.automationBuilder.ui.interaction.await.map",
+    "description": "",
+    "extension_id": "cerb.trigger.ui.interaction",
+    "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n      # [TODO] region: world, us, europe, asia, africa\r\n\r\n  return:\r\n    snippet@text:\r\n      map/respond_{{random_string(6)|lower}}:\r\n        region: world\r\n        geojson@json:\r\n          {\r\n            \"type\": \"FeatureCollection\",\r\n            \"features\": [\r\n              {\r\n                \"type\": \"Feature\",\r\n                \"geometry\": {\r\n                  \"type\": \"Point\",\r\n                  \"coordinates\": [44.226737, 20.7953]\r\n                },\r\n                \"properties\": {\r\n                  \"name\": \"Label\"\r\n                }\r\n              }\r\n            ]\r\n          }",
+    "policy_kata": "",
+    "created_at": 1600722810,
+    "updated_at": 1603141048
+}
