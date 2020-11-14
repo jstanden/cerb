@@ -1,0 +1,7 @@
+{
+  "name": "map/country/usa/states",
+  "mime_type": "application/json",
+  "description": "States of the United States as GeoJSON",
+  "data": "map__country__usa__states.topojson.json",
+  "updated_at": 1605317313
+}

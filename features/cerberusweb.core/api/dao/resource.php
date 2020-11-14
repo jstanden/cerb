@@ -367,6 +367,67 @@ class DAO_Resource extends Cerb_ORMHelper {
 			$withCounts
 		);
 	}
+	
+	static function importFromJson($resource_data) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$storage = new DevblocksStorageEngineDatabase();
+		$storage->setOptions([]);
+		
+		if(!array_key_exists('name', $resource_data))
+			return false;
+		
+		$resource_data = array_merge(
+			[
+				'data' => '',
+				'description' => '',
+				'mime_type' => 'application/octet-stream',
+				'automation_kata' => '',
+				'is_dynamic' => 0,
+				'expires_at' => 0,
+				'updated_at' => time(),
+			],
+			$resource_data
+		);
+		
+		$db->ExecuteMaster(sprintf("INSERT INTO resource (name, description, mime_type, automation_kata, is_dynamic, expires_at, updated_at) ".
+			"VALUES (%s, %s, %s, %s, %d, %d, %d) ".
+			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), mime_type=VALUES(mime_type), description=VALUES(description), automation_kata=VALUES(automation_kata), is_dynamic=VALUES(is_dynamic), expires_at=VALUES(expires_at), updated_at=VALUES(updated_at)",
+			$db->qstr($resource_data['name']),
+			$db->qstr($resource_data['description']),
+			$db->qstr($resource_data['mime_type']),
+			$db->qstr($resource_data['automation_kata']),
+			$resource_data['is_dynamic'],
+			$resource_data['expires_at'],
+			$resource_data['updated_at']
+		));
+		
+		$resource_id = $db->LastInsertId();
+		
+		if($resource_id) {
+			if($resource_data['data']) {
+				$data_path = realpath(APP_PATH . '/features/cerberusweb.core/assets/resources/data/' . $resource_data['data']);
+				
+				if(false !== ($fp = fopen($data_path, 'r'))) {
+					$fp_stat = fstat($fp);
+					
+					$storage_key = $storage->put('resources', $resource_id, $fp);
+					
+					$sql = sprintf("UPDATE resource SET storage_extension = %s, storage_key = %s, storage_size = %d WHERE id = %d",
+						$db->qstr('devblocks.storage.engine.database'),
+						$db->qstr($storage_key),
+						$fp_stat['size'],
+						$resource_id
+					);
+					$db->ExecuteMaster($sql);
+					
+					fclose($fp);
+				}
+			}
+		}
+		
+		return $resource_id;
+	}
 };
 
 class SearchFields_Resource extends DevblocksSearchFields {
@@ -1157,65 +1218,6 @@ class Storage_Resource extends Extension_DevblocksStorageSchema {
 		));
 		
 		$logger->info(''); // blank
-	}
-	
-	static function importFromJson($resource_data) {
-		$db = DevblocksPlatform::services()->database();
-		
-		$storage = new DevblocksStorageEngineDatabase();
-		$storage->setOptions([]);
-		
-		if(!array_key_exists('name', $resource_data))
-			return false;
-		
-		$resource_data = array_merge(
-			[
-				'data' => '',
-				'description' => '',
-				'mime_type' => 'application/octet-stream',
-				'automation_kata' => '',
-				'is_dynamic' => 0,
-				'expires_at' => 0,
-				'updated_at' => time(),
-			],
-			$resource_data
-		);
-		
-		$db->ExecuteMaster(sprintf("INSERT INTO resource (name, description, mime_type, automation_kata, is_dynamic, expires_at, updated_at) ".
-			"VALUES (%s, %s, %s, %s, %d, %d, %d) ".
-			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), mime_type=VALUES(mime_type), description=VALUES(description), automation_kata=VALUES(automation_kata), is_dynamic=VALUES(is_dynamic), expires_at=VALUES(expires_at), updated_at=VALUES(updated_at)",
-			$db->qstr($resource_data['name']),
-			$db->qstr($resource_data['description']),
-			$db->qstr($resource_data['mime_type']),
-			$db->qstr($resource_data['automation_kata']),
-			$resource_data['is_dynamic'],
-			$resource_data['expires_at'],
-			$resource_data['updated_at']
-		));
-		
-		$resource_id = $db->LastInsertId();
-		
-		if($resource_id) {
-			if($resource_data['data']) {
-				$data_path = realpath(APP_PATH . '/features/cerberusweb.core/assets/resources/data/' . $resource_data['data']);
-				
-				if(false !== ($fp = fopen($data_path, 'r'))) {
-					$fp_stat = fstat($fp);
-					
-					$storage_key = $storage->put('resources', $resource_id, $fp);
-					
-					$sql = sprintf("UPDATE resource SET storage_extension = %s, storage_key = %s, storage_size = %d WHERE id = %d",
-						$db->qstr('devblocks.storage.engine.database'),
-						$db->qstr($storage_key),
-						$fp_stat['size'],
-						$resource_id
-					);
-					$db->ExecuteMaster($sql);
-					
-					fclose($fp);
-				}
-			}
-		}
 	}
 };
 

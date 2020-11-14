@@ -667,6 +667,21 @@ switch($step) {
 				
 				// [TODO] Verify the database
 				
+				// Load resources
+				
+				$dir = new DirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/assets/resources/'));
+				$iter = new IteratorIterator($dir);
+				$regex = new RegexIterator($iter, '/^.+\.json/i', RegexIterator::MATCH);
+				
+				foreach($regex as $o) {
+					if(is_null($o) || false === ($resource_data = json_decode(file_get_contents($o->getPathname()), true)))
+						continue;
+					
+					DAO_Resource::importFromJson($resource_data);
+					
+					unset($resource_data);
+				}
+				
 				// Success
 				$tpl->assign('step', STEP_OUTGOING_MAIL);
 				$tpl->display('steps/redirect.tpl');
