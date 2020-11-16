@@ -334,6 +334,7 @@ if(!isset($tables['resource'])) {
 // Update package library
 
 $packages = [
+	'cerb_profile_widget_ticket_participants.json',
 	'cerb_project_board_kanban.json',
 ];
 
