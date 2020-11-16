@@ -336,6 +336,8 @@ if(!isset($tables['resource'])) {
 $packages = [
 	'cerb_profile_widget_ticket_participants.json',
 	'cerb_project_board_kanban.json',
+	'cerb_workspace_widget_map_usa.json',
+	'cerb_workspace_widget_map_world.json',
 ];
 
 CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');

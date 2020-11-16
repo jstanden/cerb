@@ -44,8 +44,10 @@
       "pos": 0,
       "width_units": 2,
       "params": {
-        "projection": "world",
-        "data_query": "{# See: https://cerb.ai/docs/data-queries/worklist/geopoints/ #}\r\ntype:sample.geo.points\r\nseries.cities:(\r\n  lihue:(name:\"Lihue\" coordinates:\"POINT(-159.342222 21.978611)\")\r\n  new_york:(name:\"New York\" coordinates:\"POINT(-73.935242 40.73061)\")\r\n  seattle:(name:\"Seattle\" coordinates:\"POINT(-122.350876 47.620499)\")\r\n  berlin:(name:\"Berlin\" coordinates:\"POINT(13.393236 52.504043)\")\r\n  sydney:(name: \"Sydney\" coordinates:\"POINT(151.21 -33.868)\")\r\n)\r\nformat:geojson"
+        "map_kata": "map:\r\n  resource:\r\n    uri: uri:resource:map/world/countries\r\n  projection:\r\n    type: mercator\r\n    scale: 90\r\n    center:\r\n      longitude: 0\r\n      latitude: 7.0\r\n  regions:\r\n    label:\r\n      property: name\r\n    # filter:\r\n    #   mode: is\r\n    #   params:\r\n    #     property: continent\r\n    #     value@csv: Europe\r\n    fill:\r\n      mode: choropleth\r\n      params:\r\n        property: pop_est\r\n        classes: 8\r\n  points:\r\n    label:\r\n      property: name",
+        "automation": {
+          "map_clicked": "automation/clickCounty:\r\n  uri: uri:automation:cerb.map.clicked.sheet\r\n  disabled@bool: {{feature_type != 'region' ? 'yes'}\r\n  inputs:\r\n    sheet:\r\n      layout:\r\n        title_column: name\r\n      columns:\r\n        text/name:\r\n        text/pop_est:\r\n          label: Population ({{feature_properties.lastcensus}})\r\n          params:\r\n            value_template@raw:\r\n              {{pop_est|number_format}}"
+        }
       }
     }
   ]

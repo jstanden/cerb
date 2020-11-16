@@ -45,8 +45,10 @@
       "width_units": 2,
       "zone": "left",
       "params": {
-        "projection": "usa",
-        "data_query": "{# See: https://cerb.ai/docs/data-queries/worklist/geopoints/ #}\r\ntype:sample.geo.points\r\nseries.cities:(\r\n  new_york:(name:\"New York\" coordinates:\"POINT(-73.935242 40.73061)\")\r\n  seattle:(name:\"Seattle\" coordinates:\"POINT(-122.350876 47.620499)\")\r\n  san_francisco:(name:\"San Francisco\" coordinates:\"POINT(-122.446747 37.733795)\")\r\n  los_angeles:(name:\"Los Angeles\" coordinates:\"POINT(-118.2436800 34.0522300)\")\r\n  miami:(name:\"Miami\" coordinates:\"POINT(-80.1936600 25.7742700)\")\r\n  denver:(name:\"Denver\" coordinates:\"POINT(-104.9847000 39.7391500)\")\r\n  houston:(name:\"Houston\" coordinates:\"POINT(-95.3632700 29.7632800)\")\r\n)\r\nformat:geojson"
+        "map_kata": "map:\r\n  resource:\r\n    uri: uri:resource:map/country/usa/states\r\n  projection:\r\n    type: albersUsa\r\n    scale: 650\r\n  regions:\r\n    label:\r\n      property: name\r\n    # filter:\r\n    #   params:\r\n    #     property: name\r\n    #     value@csv: California\r\n    # fill:\r\n    #   mode: color_map\r\n    #   params:\r\n    #     property: name\r\n    #     colors:\r\n    #       California: #4F7AE3\r\n    #       Texas: #DA504A\r\n    fill:\r\n      mode: choropleth\r\n      params:\r\n        property: censusarea\r\n        classes: 8\r\n  points:\r\n    label:\r\n      property: name",
+        "automation": {
+          "map_clicked": "automation/jj6e92:\r\n  uri: uri:automation:cerb.map.clicked.sheet\r\n  disabled@bool: {{feature_type != 'region' ? 'yes'}}\r\n  inputs:\r\n    sheet:\r\n      layout:\r\n        title_column: name\r\n      columns:\r\n        text/name:\r\n        text/censusarea:\r\n          label: Area\r\n          params:\r\n            value_template@raw:\r\n              {{censusarea|number_format}} sq mi"
+        }
       }
     }
   ]
