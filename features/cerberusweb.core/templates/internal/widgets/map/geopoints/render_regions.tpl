@@ -395,7 +395,29 @@ $(function() {
                                 return points.features;
                             }
                         })
-                        .enter().append('circle')
+                        .enter()
+                        {if $map.points.filter}
+                        .filter(function(d) {
+                            var k = {$map.points.filter.params.property|json_encode nofilter};
+                            var v = {$map.points.filter.params.value|json_encode nofilter};
+                            var not = {if 'not' == $map.points.filter.mode}true{else}false{/if};
+
+                            if(typeof k != 'string')
+                                return false;
+
+                            if(!d.properties.hasOwnProperty(k))
+                                return true === not;
+
+                            if(typeof v == 'object') {
+                                return ($.inArray(d.properties[k], v) === -1) === not;
+                            } else if(typeof v == 'string') {
+                                return (d.properties[k] !== v) === not;
+                            }
+
+                            return false;
+                        })
+                        {/if}
+                        .append('circle')
                         .attr('r', '2')
                         .attr('fill', 'rgb(100,100,100)')
                         .attr('stroke-width', '0.5')
