@@ -1533,6 +1533,8 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			
 			if(false == $model)
 				DevblocksPlatform::dieWithHttpError(null, 404);
+			
+			$context_id = $model->id;
 		}
 		
 		if(empty($context_id) || $edit) {

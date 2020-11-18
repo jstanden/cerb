@@ -1403,7 +1403,7 @@ var ajax = new cAjaxCalls();
 					if(3 !== uri_parts.length)
 						return false;
 
-					if('uri' !== uri_parts[0])
+					if('cerb' !== uri_parts[0])
 						return false;
 
 					// Open card popup https://cerb.ai/

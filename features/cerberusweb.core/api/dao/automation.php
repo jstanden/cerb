@@ -232,7 +232,7 @@ class DAO_Automation extends Cerb_ORMHelper {
 	}
 	
 	public static function getByUri(string $interaction_uri, string $extension_id=null) {
-		if(DevblocksPlatform::strStartsWith($interaction_uri, 'uri:')) {
+		if(DevblocksPlatform::strStartsWith($interaction_uri, 'cerb:')) {
 			if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($interaction_uri)))
 				return null;
 			

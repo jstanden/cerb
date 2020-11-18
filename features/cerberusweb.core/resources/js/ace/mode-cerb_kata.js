@@ -18,7 +18,7 @@ define("ace/mode/cerb_kata_highlight_rules",["require","exports","module","ace/l
                     regex: /^(\w+?\s*:(?=\s|$))/
                 },{
                     token : "text.cerb-uri",
-                    regex : /uri:[^\s]+/
+                    regex : /cerb:[^\s]+/
                 },{
                     token : "text",
                     regex : /[^\s]+/

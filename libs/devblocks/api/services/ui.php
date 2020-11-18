@@ -33,7 +33,7 @@ class _DevblocksUiManager {
 	 * @return array|false
 	 */
 	function parseURI(string $uri) {
-		if(!DevblocksPlatform::strStartsWith($uri, 'uri:'))
+		if(!DevblocksPlatform::strStartsWith($uri, 'cerb:'))
 			return false;
 		
 		$uri_parts = explode(':', $uri);
@@ -92,7 +92,7 @@ class DevblocksUiEventHandler {
 				$automation_uri = @$handler['data']['uri'];
 				
 				// Handle `uri:`
-				if(DevblocksPlatform::strStartsWith($automation_uri, 'uri:')) {
+				if(DevblocksPlatform::strStartsWith($automation_uri, 'cerb:')) {
 					if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($automation_uri)))
 						continue;
 					
@@ -115,7 +115,7 @@ class DevblocksUiEventHandler {
 				if(is_callable($behavior_callback)) {
 					@$behavior_uri = $handler['data']['uri'];
 					
-					if(DevblocksPlatform::strStartsWith($behavior_uri, 'uri:')) {
+					if(DevblocksPlatform::strStartsWith($behavior_uri, 'cerb:')) {
 						if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($behavior_uri)))
 							continue;
 						
@@ -201,7 +201,7 @@ class DevblocksUiToolbar {
 				if(!array_key_exists('uri', $toolbar_item))
 					continue;
 				
-				if(DevblocksPlatform::strStartsWith($toolbar_item['uri'], 'uri:')) {
+				if(DevblocksPlatform::strStartsWith($toolbar_item['uri'], 'cerb:')) {
 					if(false != ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($toolbar_item['uri']))) {
 						$toolbar_item['uri'] = $uri_parts['context_id'];
 					}

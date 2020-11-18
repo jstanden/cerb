@@ -45,7 +45,7 @@
       "width_units": 2,
       "zone": "left",
       "params": {
-        "map_kata": "map:\r\n  resource:\r\n    uri: uri:resource:map/country/usa/states\r\n  projection:\r\n    type: albersUsa\r\n    scale: 650\r\n  regions:\r\n    label:\r\n      properties:\r\n        name:\r\n          label: State\r\n        censusarea:\r\n          label: Area (sq mi)\r\n          format: number\r\n    # filter:\r\n    #   params:\r\n    #     property: name\r\n    #     value@csv: California\r\n    # fill:\r\n    #   mode: color_map\r\n    #   params:\r\n    #     property: name\r\n    #     colors:\r\n    #       California: #4F7AE3\r\n    #       Texas: #DA504A\r\n    fill:\r\n      mode: choropleth\r\n      params:\r\n        property: censusarea\r\n        classes: 8\r\n  points:\r\n    label:\r\n      property: name",
+        "map_kata": "map:\r\n  resource:\r\n    uri: cerb:resource:map/country/usa/states\r\n  projection:\r\n    type: albersUsa\r\n    scale: 650\r\n  regions:\r\n    label:\r\n      properties:\r\n        name:\r\n          label: State\r\n        censusarea:\r\n          label: Area (sq mi)\r\n          format: number\r\n    # filter:\r\n    #   params:\r\n    #     property: name\r\n    #     value@csv: California\r\n    # fill:\r\n    #   mode: color_map\r\n    #   params:\r\n    #     property: name\r\n    #     colors:\r\n    #       California: #4F7AE3\r\n    #       Texas: #DA504A\r\n    fill:\r\n      mode: choropleth\r\n      params:\r\n        property: censusarea\r\n        classes: 8\r\n  points:\r\n    label:\r\n      property: name",
         "automation": {
           "map_clicked": ""
         }

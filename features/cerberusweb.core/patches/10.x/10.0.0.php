@@ -196,7 +196,7 @@ if(array_key_exists('params_json', $columns)) {
 		// Behaviors
 		if(array_key_exists('behaviors', $params)) {
 			foreach($params['behaviors'] as $behavior_id => $behavior_data) {
-				$automations_kata .= sprintf("# %s\nbehavior/%s:\n  uri: uri:behavior:%d\n  disabled@bool: no\n",
+				$automations_kata .= sprintf("# %s\nbehavior/%s:\n  uri: cerb:behavior:%d\n  disabled@bool: no\n",
 					$behaviors[$behavior_id] ?: 'Behavior',
 					uniqid(),
 					$behavior_id

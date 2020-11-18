@@ -11,7 +11,7 @@ if(!array_key_exists('cards_kata', $columns)) {
 	$sql = "ALTER TABLE project_board ADD COLUMN cards_kata mediumtext";
 	$db->ExecuteMaster($sql);
 	
-	$cards_kata = "automation/task_sheet:\n  uri: uri:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes";
+	$cards_kata = "automation/task_sheet:\n  uri: cerb:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes";
 	
 	$db->ExecuteMaster(sprintf("UPDATE project_board SET cards_kata = %s WHERE cards_kata = ''",
 		$db->qstr($cards_kata)
@@ -62,7 +62,7 @@ if(!isset($columns['functions_kata'])) {
 	$db->ExecuteMaster($sql);
 
 	$boards = $db->GetArrayMaster("SELECT id, columns_json FROM project_board");
-	$toolbar_kata = "interaction/add:\n  uri: uri:automation:cerb.projectBoard.toolbar.task.add\n  icon: circle-plus\n  inputs:\n    column: {{column_id}}\n\ninteraction/find:\n  uri: uri:automation:cerb.projectBoard.toolbar.task.find\n  icon: search\n  inputs:\n    column: {{column_id}}";
+	$toolbar_kata = "interaction/add:\n  uri: cerb:automation:cerb.projectBoard.toolbar.task.add\n  icon: circle-plus\n  inputs:\n    column: {{column_id}}\n\ninteraction/find:\n  uri: cerb:automation:cerb.projectBoard.toolbar.task.find\n  icon: search\n  inputs:\n    column: {{column_id}}";
 	
 	foreach($boards as $board) {
 		$column_ids = json_decode($board['columns_json'] ?? '[]', true);
@@ -101,7 +101,7 @@ if(array_key_exists('params_json', $columns)) {
 					@$status = $status_map[$action_params['status_id']];
 					
 					if(null !== $status) {
-						$functions_kata .= sprintf("automation/%s:\n  uri: uri:automation:cerb.projectBoard.action.task.close\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    status: %s\n\n",
+						$functions_kata .= sprintf("automation/%s:\n  uri: cerb:automation:cerb.projectBoard.action.task.close\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    status: %s\n\n",
 							uniqid(),
 							$status
 						);
@@ -113,7 +113,7 @@ if(array_key_exists('params_json', $columns)) {
 		// Behaviors
 		if(array_key_exists('behaviors', $params)) {
 			foreach($params['behaviors'] as $behavior_id => $behavior_data) {
-				$functions_kata .= sprintf("# [TODO] Migrate to automations\nbehavior/%s:\n  uri: uri:behavior:%d\n  disabled@bool: no\n",
+				$functions_kata .= sprintf("# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%d\n  disabled@bool: no\n",
 					uniqid(),
 					$behavior_id
 				);

@@ -107,7 +107,7 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 					'schema' => [
 						'label' => $interaction['label'] ?? '',
 						'icon' => $interaction['icon'] ?? '',
-						'uri' => 'uri:behavior:' . $interaction['id'],
+						'uri' => 'cerb:behavior:' . $interaction['id'],
 						'inputs' => $interaction['inputs'] ?? [],
 					]
 				];

@@ -126,7 +126,7 @@ class ProfileWidget_FormInteraction extends Extension_ProfileWidget {
 					'schema' => [
 						'label' => $interaction['label'] ?? '',
 						'icon' => $interaction['icon'] ?? '',
-						'uri' => 'uri:behavior:' . $interaction['id'],
+						'uri' => 'cerb:behavior:' . $interaction['id'],
 						'inputs' => $interaction['inputs'] ?? [],
 					]
 				];
