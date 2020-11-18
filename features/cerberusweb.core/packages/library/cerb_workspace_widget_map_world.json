@@ -3,7 +3,7 @@
     "name": "Map: World Countries",
     "revision": 1,
     "requires": {
-      "cerb_version": "9.2.0",
+      "cerb_version": "10.0.0",
       "plugins": [
 
       ]
@@ -44,9 +44,9 @@
       "pos": 0,
       "width_units": 2,
       "params": {
-        "map_kata": "map:\r\n  resource:\r\n    uri: uri:resource:map/world/countries\r\n  projection:\r\n    type: mercator\r\n    scale: 90\r\n    center:\r\n      longitude: 0\r\n      latitude: 7.0\r\n  regions:\r\n    label:\r\n      property: name\r\n    # filter:\r\n    #   mode: is\r\n    #   params:\r\n    #     property: continent\r\n    #     value@csv: Europe\r\n    fill:\r\n      mode: choropleth\r\n      params:\r\n        property: pop_est\r\n        classes: 8\r\n  points:\r\n    label:\r\n      property: name",
+        "map_kata": "map:\r\n  resource:\r\n    uri: uri:resource:map/world/countries\r\n  projection:\r\n    type: mercator\r\n    scale: 90\r\n    center:\r\n      longitude: 0\r\n      latitude: 7.0\r\n  regions:\r\n    label:\r\n      properties:\r\n        name:\r\n          label: Country\r\n        pop_est:\r\n          label: Population\r\n          format: number\r\n        lastcensus:\r\n          label: Last Census\r\n    # filter:\r\n    #   mode: is\r\n    #   params:\r\n    #     property: continent\r\n    #     value@csv: Europe\r\n    fill:\r\n      mode: choropleth\r\n      params:\r\n        property: pop_est\r\n        classes: 8\r\n  points:\r\n    label:\r\n      property: name",
         "automation": {
-          "map_clicked": "automation/clickCounty:\r\n  uri: uri:automation:cerb.map.clicked.sheet\r\n  disabled@bool: {{feature_type != 'region' ? 'yes'}\r\n  inputs:\r\n    sheet:\r\n      layout:\r\n        title_column: name\r\n      columns:\r\n        text/name:\r\n        text/pop_est:\r\n          label: Population ({{feature_properties.lastcensus}})\r\n          params:\r\n            value_template@raw:\r\n              {{pop_est|number_format}}"
+          "map_clicked": ""
         }
       }
     }

@@ -34,7 +34,6 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 				]
 			],
 			'regions' => [
-				'label_key' => 'NAME',
 			]
 		];
 		

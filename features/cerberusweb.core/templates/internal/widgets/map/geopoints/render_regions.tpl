@@ -50,9 +50,7 @@ $(function() {
                 svg,
                 g,
                 label,
-                zoom,
-                region_label_property,
-                point_label_property
+                zoom
             ;
             
             var points = {if $points_json}{$points_json nofilter}{else}{ 'type': 'FeatureCollection', 'features': [] }{/if};
@@ -141,14 +139,6 @@ $(function() {
                     })
                 ;
                 
-                {if $map.regions.label.property}
-                region_label_property = "{$map.regions.label.property|escape:'javascript'}";
-                {/if}
-                
-                {if $map.points.label.property}
-                point_label_property = "{$map.points.label.property|escape:'javascript'}";
-                {/if}
-                
                 var fill_color_key = null;
                 var fill_color_map = { };
                 
@@ -171,8 +161,11 @@ $(function() {
                     .style('position', 'absolute')
                     .style('top', '0')
                     .style('left', '0')
-                    .style('background-color', 'rgba(220,220,220,0.8)')
+                    .style('background-color', 'rgba(220,220,220,0.7)')
                     .style('display', 'none')
+                    .style('max-height', '25.5em')
+                    .style('max-width', '25.5em')
+                    .style('overflow', 'scroll')
                     ;
                 
                 var map_regions = g.append('g')
@@ -557,17 +550,13 @@ $(function() {
                                 $(label.node()).html(json.sheet).show();
     
                             } else {
-                                if(point_label_property && d.properties.hasOwnProperty(point_label_property)) {
-                                    var label_text = d.properties[point_label_property];
-                                    $(label.node()).text(label_text).show();
-                                }
+                                var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
+                                setLabelToProperties(d, keys);
                             }
                         });
                         {else}
-                            if(point_label_property && d.properties.hasOwnProperty(point_label_property)) {
-                                label.text(d.properties[point_label_property]);
-                                label.style('display', 'inline-block');
-                            }
+                            var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
+                            setLabelToProperties(d, keys);
                         {/if}
 
                     {elseif is_a($widget, 'Model_WorkspaceWidget')}
@@ -598,20 +587,13 @@ $(function() {
                                 $(label.node()).html(json.sheet).show();
     
                             } else {
-                                if(point_label_property && d.properties.hasOwnProperty(point_label_property)) {
-                                    var label_text = d.properties[point_label_property];
-                                    $(label.node()).text(label_text).show();
-                                }
+                                var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
+                                setLabelToProperties(d, keys);
                             }
                         });
                         {else}
-                            if(point_label_property && d.properties.hasOwnProperty(point_label_property)) {
-                                label.text(d.properties[point_label_property]);
-                                label.style('display', 'inline-block');
-                            } else if(d.properties.hasOwnProperty('name')) {
-                                label.text(d.properties.name);
-                                label.style('display', 'inline-block');
-                            }
+                            var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
+                            setLabelToProperties(d, keys);
                         {/if}
                     {/if}
                     
@@ -665,6 +647,57 @@ $(function() {
                 ;
             }
             
+            function setLabelToProperties(d, property_meta) {
+                if(!property_meta) {
+                    property_meta = { };
+                    Object.keys(d.properties).forEach(function(k) {
+                        property_meta[k] = { };
+                    });
+                }
+                
+                label.html('');
+                
+                // [TODO]
+                //label.append('h1').style('color', 'inherit').text(d.properties['name_en']);
+                
+                label
+                    .append('table')
+                    .selectAll('tbody')
+                    .data(Object.keys(property_meta))
+                    .enter()
+                    .append('tbody')
+                    .append('tr')
+                    .append('td')
+                    .style('text-align', 'right')
+                    .style('font-weight', 'normal')
+                    .text(function(k) {
+                        if(property_meta[k].hasOwnProperty('label')) {
+                            return property_meta[k].label + ': ';
+                        }
+                        
+                        return k + ': ';
+                    })
+                    .select(function() {
+                        return this.parentNode;
+                    })
+                    .append('td')
+                    .text(function(k) {
+                        if(d.properties.hasOwnProperty(k)) {
+                            if(property_meta[k].hasOwnProperty('format')) {
+                                switch(property_meta[k].format) {
+                                    case 'number':
+                                        return d3.format(",")(d.properties[k]);
+                                }
+                            }
+                            return d.properties[k];
+                        }
+                        return '';
+                    })
+                ;
+
+                label.style('display', 'inline-block');
+            }
+            
             function clickedRegion(d) {
                 if(d && selectedRegion !== d) {
                     selectedRegion = d;
@@ -697,17 +730,13 @@ $(function() {
                                 $(label.node()).html(json.sheet).show();
     
                             } else {
-                                if(region_label_property && d.properties.hasOwnProperty(region_label_property)) {
-                                    var label_text = d.properties[region_label_property];
-                                    $(label.node()).text(label_text).show();
-                                }
+                                var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
+                                setLabelToProperties(d, keys);
                             }
                         });
                         {else}
-                            if(region_label_property && d.properties.hasOwnProperty(region_label_property)) {
-                                label.text(d.properties[region_label_property]);
-                                label.style('display', 'inline-block');
-                            }
+                            var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
+                            setLabelToProperties(d, keys);
                         {/if}
 
                     {elseif is_a($widget, 'Model_WorkspaceWidget')}
@@ -738,20 +767,13 @@ $(function() {
                                 $(label.node()).html(json.sheet).show();
     
                             } else {
-                                if(region_label_property && d.properties.hasOwnProperty(region_label_property)) {
-                                    var label_text = d.properties[region_label_property];
-                                    $(label.node()).text(label_text).show();
-                                }
+                                var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
+                                setLabelToProperties(d, keys);
                             }
                         });
                         {else}
-                            if(region_label_property && d.properties.hasOwnProperty(region_label_property)) {
-                                label.text(d.properties[region_label_property]);
-                                label.style('display', 'inline-block');
-                            } else if(d.properties.hasOwnProperty('name')) {
-                                label.text(d.properties.name);
-                                label.style('display', 'inline-block');
-                            }
+                            var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
+                            setLabelToProperties(d, keys);
                         {/if}
                     {/if}
                     

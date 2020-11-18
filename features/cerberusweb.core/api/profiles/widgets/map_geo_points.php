@@ -40,7 +40,6 @@ class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
 				]
 			],
 			'regions' => [
-				'label_key' => 'NAME',
 			]
 		];
 		
