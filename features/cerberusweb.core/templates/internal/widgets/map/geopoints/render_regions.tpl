@@ -18,19 +18,24 @@ $(function() {
             var jobs = [];
             var emptyPromise = function(resolve) { resolve(undefined); };
             var $widget = $('#widget{$widget->id}');
+            var $map_toolbar = $widget.find('> [data-cerb-toolbar]');
             var $coords = $widget.find('[data-cerb-coordinates]');
             var $loading = $('<div/>').append(Devblocks.getSpinner());
             $widget.prepend($loading);
             
+            {if $map.resource.name}
             jobs.push(d3.json('{devblocks_url}c=ui&a=resource&key={$map.resource.name}{/devblocks_url}?v={$map.resource.updated_at}'));
+            {else}
+            jobs.push(new Promise(emptyPromise));
+            {/if}
             
-            {if $map.regions.properties.resource}
+            {if $map.regions.properties.resource.name}
             jobs.push(d3.json('{devblocks_url}c=ui&a=resource&key={$map.regions.properties.resource.name}{/devblocks_url}?v={$map.regions.properties.resource.updated_at}'));
             {else}
             jobs.push(new Promise(emptyPromise));
             {/if}
 
-            {if $map.points.resource}
+            {if $map.points.resource.name}
             jobs.push(d3.json('{devblocks_url}c=ui&a=resource&key={$map.points.resource.name}{/devblocks_url}?v={$map.points.resource.updated_at}'));
             {else}
             jobs.push(new Promise(emptyPromise));
@@ -174,6 +179,13 @@ $(function() {
                 .selectAll('.region')
                     .data(
                         function() {
+                            if('object' !== typeof results[0]) {
+                                svg.remove();
+                                widget.append('div').text('Failed to load map resource.');
+                                $map_toolbar.remove();
+                                return [];
+                            }
+                            
                             var regions = results[0];
                             var json_type = regions.type;
                             
@@ -246,7 +258,7 @@ $(function() {
                 ;
 
                 // Draw the scale legend
-                {if 'choropleth' == $map.regions.fill.mode}
+                {if 'choropleth' == $map.regions.fill.mode && $map.resource.name}
                 var fill_color_from = '{if $map.regions.fill.params.colors.0}{$map.regions.fill.params.colors.0}{else}#f4e153{/if}';
                 var fill_color_to = '{if $map.regions.fill.params.colors.1}{$map.regions.fill.params.colors.1}{else}#362142{/if}';
                 var fill_classes = '{if $map.regions.fill.params.classes}{$map.regions.fill.params.classes}{else}5{/if}';
@@ -405,7 +417,7 @@ $(function() {
             });
     
             // Button reset
-            $widget.find('> [data-cerb-toolbar] [data-cerb-button=reset]')
+            $map_toolbar.find('[data-cerb-button=reset]')
                 .on('click', function() {
                     svg.transition().duration(1000).call(
                         zoom.transform,
@@ -422,7 +434,7 @@ $(function() {
                 });
 
             // Button zoom in
-            $widget.find('> [data-cerb-toolbar] [data-cerb-button="zoom-in"]')
+            $map_toolbar.find('[data-cerb-button="zoom-in"]')
                 .on('click', function() {
                     var screen_x = (width/2 + -currentTransform.x) / currentTransform.k;
                     var screen_y = (height/2 + -currentTransform.y) / currentTransform.k;
@@ -456,7 +468,7 @@ $(function() {
                 });
 
             // Button zoom out
-            $widget.find('> [data-cerb-toolbar] [data-cerb-button="zoom-out"]')
+            $map_toolbar.find('[data-cerb-button="zoom-out"]')
                 .on('click', function() {
                     var screen_x = (width/2 + -currentTransform.x) / currentTransform.k;
                     var screen_y = (height/2 + -currentTransform.y) /currentTransform.k;

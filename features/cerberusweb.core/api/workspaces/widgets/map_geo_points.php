@@ -77,7 +77,7 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 		$resources = array_combine(array_column($resources, 'name'), $resources);
 		
 		if(@$map['resource']['uri']) {
-			if (false != ($resource = $resources[$map['resource']['uri']])) {
+			if (false != ($resource = @$resources[$map['resource']['uri']])) {
 				$map['resource']['name'] = $resource->name;
 				$map['resource']['size'] = $resource->storage_size;
 				$map['resource']['updated_at'] = $resource->updated_at;
@@ -85,7 +85,7 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 		}
 		
 		if(@$map['regions']['properties']['resource']['uri']) {
-			if(false != ($regions_resource = $resources[$map['regions']['properties']['resource']['uri']])) {
+			if(false != ($regions_resource = @$resources[$map['regions']['properties']['resource']['uri']])) {
 				$map['regions']['properties']['resource']['name'] = $regions_resource->name;
 				$map['regions']['properties']['resource']['size'] = $regions_resource->storage_size;
 				$map['regions']['properties']['resource']['updated_at'] = $regions_resource->updated_at;
@@ -93,7 +93,7 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 		}
 		
 		if(@$map['points']['resource']['uri']) {
-			if(false != ($points_resource = $resources[$map['points']['resource']['uri']])) {
+			if(false != ($points_resource = @$resources[$map['points']['resource']['uri']])) {
 				$map['points']['resource']['name'] = $points_resource->name;
 				$map['points']['resource']['size'] = $points_resource->storage_size;
 				$map['points']['resource']['updated_at'] = $points_resource->updated_at;
