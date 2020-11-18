@@ -1,7 +1,0 @@
-{
-  "name": "map/world/countries",
-  "mime_type": "application/json",
-  "description": "Countries of the world as GeoJSON",
-  "data": "map__world__countries.topojson.json",
-  "updated_at": 1605317313
-}

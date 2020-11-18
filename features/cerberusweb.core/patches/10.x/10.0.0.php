@@ -313,9 +313,9 @@ if(!isset($tables['resource'])) {
 	// Update resources
 	
 	$resource_files = [
-		'map__world__countries.json',
-		'map__country__usa__states.json',
-		'map__country__usa__counties.json',
+		'map.world.countries.json',
+		'map.country.usa.states.json',
+		'map.country.usa.counties.json',
 	];
 	
 	foreach($resource_files as $resource_file) {

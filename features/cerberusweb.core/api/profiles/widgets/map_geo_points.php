@@ -29,7 +29,7 @@ class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
 		
 		$map = [
 			'resource' => [
-				'uri' => 'cerb:resource:map/world/countries',
+				'uri' => 'cerb:resource:map.world.countries',
 			],
 			'projection' => [
 				'type' => 'mercator',

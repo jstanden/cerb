@@ -4872,7 +4872,7 @@
 			"width_units": 2,
 			"zone": "content",
 			"params": {
-				"map_kata": "map:\r\n  resource:\r\n    uri: cerb:resource:map/world/countries\r\n  projection:\r\n    type: mercator\r\n    scale: 90\r\n    center:\r\n      longitude: 0\r\n      latitude: 7.0\r\n  regions:\r\n    label:\r\n      properties:\r\n        name:\r\n          label: Country\r\n        pop_est:\r\n          label: Population\r\n          format: number\r\n        lastcensus:\r\n          label: Last Census\r\n    # filter:\r\n    #   mode: is\r\n    #   params:\r\n    #     property: continent\r\n    #     value@csv: Europe\r\n    fill:\r\n      mode: choropleth\r\n      params:\r\n        property: pop_est\r\n        classes: 8\r\n  points:\r\n    label:\r\n      property: name",
+				"map_kata": "map:\r\n  resource:\r\n    uri: cerb:resource:map.world.countries\r\n  projection:\r\n    type: mercator\r\n    scale: 90\r\n    center:\r\n      longitude: 0\r\n      latitude: 7.0\r\n  regions:\r\n    label:\r\n      properties:\r\n        name:\r\n          label: Country\r\n        pop_est:\r\n          label: Population\r\n          format: number\r\n        lastcensus:\r\n          label: Last Census\r\n    # filter:\r\n    #   mode: is\r\n    #   params:\r\n    #     property: continent\r\n    #     value@csv: Europe\r\n    fill:\r\n      mode: choropleth\r\n      params:\r\n        property: pop_est\r\n        classes: 8\r\n  points:\r\n    label:\r\n      property: name",
 				"automation": {
 					"map_clicked": ""
 				}

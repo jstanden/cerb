@@ -23,7 +23,7 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 		
 		$map = [
 			'resource' => [
-				'uri' => 'cerb:resource:map/world/countries',
+				'uri' => 'cerb:resource:map.world.countries',
 			],
 			'projection' => [
 				'type' => 'mercator',
