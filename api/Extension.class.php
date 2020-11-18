@@ -629,6 +629,21 @@ abstract class Extension_CardWidget extends DevblocksExtension {
 	}
 };
 
+abstract class Extension_ResourceType extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.resource.type';
+	
+	static $_registry = [];
+	
+//	abstract function renderConfig(Model_Automation $model);
+//	abstract function validateConfig(array &$params, &$error);
+//	abstract function getInputsMeta();
+//	abstract function getOutputsMeta();
+//	abstract function getAutocompleteSuggestions() : array;
+//	abstract function getEditorToolbarItems(array $toolbar) : array;
+}
+
 abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	use DevblocksExtensionGetterTrait;
 	

@@ -80,9 +80,22 @@
                         <td data-column="{$column}">
                             {if !empty($result.$column)}{'common.yes'|devblocks_translate|lower}{else}{'common.no'|devblocks_translate|lower}{/if}
                         </td>
+                    {elseif $column == "r_extension_id"}
+                        <td>
+                            {if array_key_exists($result.$column, $resource_extensions)}
+                                {$resource_ext = $resource_extensions.{$result.$column}}
+                                {$resource_ext->name}
+                            {else}
+                                {$result.$column}
+                            {/if}
+                        </td>
                     {elseif $column == "r_storage_size"}
                         <td>
-                            {$result.$column|devblocks_prettybytes}
+                            {if $result.r_is_dynamic}
+                                --
+                            {else}
+                                {$result.$column|devblocks_prettybytes}
+                            {/if}
                         </td>
                     {elseif in_array($column, ["r_updated_at"])}
                         <td>

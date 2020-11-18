@@ -4594,6 +4594,18 @@
 				<param key="menu_key" value="Records:Record commented on" />
 			</params>
 		</extension>
+		
+		<!-- Resource Types -->
+
+		<extension point="cerb.resource.type">
+			<id>cerb.resource.ui.map.geojson</id>
+			<name>Map (GeoJSON)</name>
+			<class>
+				<file>api/resources/types/cerb.resource.ui.map.geojson.php</file>
+				<name>ResourceType_MapGeoJson</name>
+			</class>
+			<params/>
+		</extension>
 
 		<!-- Triggers -->
 

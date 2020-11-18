@@ -151,6 +151,13 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 				'examples' => [],
 				'extensible' => true,
 			],
+			'cerb.resource.type' => [
+				'id' => 'cerb.resource.type',
+				'label' => 'Resource Type',
+				'class' => 'Extension_ResourceType',
+				'examples' => [],
+				'extensible' => true,
+			],
 			'cerberusweb.plugin.setup' => [
 				'label' => 'Plugin Setup',
 				'class' => 'Extension_PluginSetup',

@@ -1,6 +1,6 @@
 {
   "name": "map.country.usa.counties",
-  "mime_type": "application.json",
+  "extension_id": "cerb.resource.ui.map.geojson",
   "description": "Counties of the United States as GeoJSON",
   "data": "map.country.usa.counties.topojson.json",
   "updated_at": 1605317313

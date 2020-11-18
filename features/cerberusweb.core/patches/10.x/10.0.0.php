@@ -289,7 +289,7 @@ if(!isset($tables['resource'])) {
 		id int(10) unsigned NOT NULL AUTO_INCREMENT,
 		name varchar(255) NOT NULL DEFAULT '',
 		description varchar(255) NOT NULL DEFAULT '',
-		mime_type varchar(255) NOT NULL DEFAULT '',
+		extension_id varchar(255) NOT NULL DEFAULT '',
 		expires_at int(10) unsigned NOT NULL DEFAULT 0,
 		is_dynamic tinyint(1) NOT NULL DEFAULT 0,
 		automation_kata text,
@@ -300,6 +300,7 @@ if(!isset($tables['resource'])) {
 		updated_at int(10) unsigned NOT NULL DEFAULT '0',
 		PRIMARY KEY (id),
 		UNIQUE KEY `name` (`name`),
+		KEY `extension_id` (`extension_id`),
 		KEY `storage_extension` (`storage_extension`),
 		KEY `expires_at` (`expires_at`),
 		KEY `updated_at` (`updated_at`)

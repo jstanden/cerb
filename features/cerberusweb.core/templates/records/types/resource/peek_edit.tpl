@@ -30,49 +30,57 @@
 
         <tr>
             <td width="1%" nowrap="nowrap">
-                <b>{'attachment.mime_type'|devblocks_translate|capitalize}:</b>
+                <b>{'common.type'|devblocks_translate|capitalize}:</b>
             </td>
             <td width="99%">
-                <input type="text" name="mime_type" value="{$model->mime_type}" style="width:100%;">
+                <select name="extension_id">
+                    <option value=""></option>
+                    {foreach from=$resource_extensions item=resource_extension}
+                        <option value="{$resource_extension->id}" {if $model->extension_id==$resource_extension->id}selected="selected"{/if}>{$resource_extension->name}</option>
+                    {/foreach}
+                </select>
             </td>
         </tr>
         
-        <tr>
-            <td width="1%" valign="top" nowrap="nowrap"><b>{'common.content'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <div>
-                    <label>
-                        <input type="radio" name="is_dynamic" value="0" {if !$model->is_dynamic}checked="checked"{/if}>
-                        {'common.file'|devblocks_translate|capitalize}
-                    </label>
-                    <label>
-                        <input type="radio" name="is_dynamic" value="1" {if $model->is_dynamic}checked="checked"{/if}>
-                        {'common.automation'|devblocks_translate|capitalize}
-                    </label>
-                </div>
+        {if !empty($custom_fields)}
+            {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+        {/if}
+    </table>
+    
+    <fieldset data-cerb-resource-config style="margin-top:10px;">
+        <div>
+            <label>
+                <input type="radio" name="is_dynamic" value="0" {if !$model->is_dynamic}checked="checked"{/if}>
+                {'common.file'|devblocks_translate|capitalize}
+            </label>
+            <label>
+                <input type="radio" name="is_dynamic" value="1" {if $model->is_dynamic}checked="checked"{/if}>
+                {'common.automation'|devblocks_translate|capitalize}
+            </label>
+        </div>
 
-                <div style="margin:5px 10px 0 0;">
-                    <div data-cerb-file-static style="display:{if !$model->is_dynamic}block{else}none{/if};">
-                        <table cellpadding="2" cellspacing="0" width="100%">
-                            <tr>
-                                <td width="1%" nowrap="nowrap">
-                                    <b>{'common.upload'|devblocks_translate|capitalize}:</b>
-                                </td>
-                                <td>
-                                    <input type="file" name="file" value="">
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+        <div style="margin:5px 10px 0 0;">
+            <div data-cerb-file-static style="display:{if !$model->is_dynamic}block{else}none{/if};">
+                <table cellpadding="2" cellspacing="0" width="100%">
+                    <tr>
+                        <td width="1%" nowrap="nowrap">
+                            <b>{'common.upload'|devblocks_translate|capitalize}:</b>
+                        </td>
+                        <td>
+                            <input type="file" name="file" value="">
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
-                    <div data-cerb-file-dynamic style="display:{if $model->is_dynamic}block{else}none{/if};">
-                        <fieldset data-cerb-event-resource-get class="peek">
-                            <legend>Event: Get resource (KATA)</legend>
-                            <div class="cerb-code-editor-toolbar">
-                                {$toolbar_dict = DevblocksDictionaryDelegate::instance([
-                                ])}
+            <div data-cerb-file-dynamic style="display:{if $model->is_dynamic}block{else}none{/if};">
+                <fieldset data-cerb-event-resource-get class="peek black">
+                    <legend>Event: Get resource (KATA)</legend>
+                    <div class="cerb-code-editor-toolbar">
+                        {$toolbar_dict = DevblocksDictionaryDelegate::instance([
+                        ])}
 
-                                {$toolbar_kata =
+                        {$toolbar_kata =
 "interaction/automation:
   icon: circle-plus
   #label: Automation
@@ -81,23 +89,17 @@
     trigger: cerb.trigger.resource.get
 "}
 
-                                {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+                        {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
 
-                                {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+                        {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 
-                                <div class="cerb-code-editor-toolbar-divider"></div>
-                            </div>
-                            <textarea name="automation_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automation_kata}</textarea>
-                        </fieldset>
+                        <div class="cerb-code-editor-toolbar-divider"></div>
                     </div>
-                </div>                
-            </td>
-        </tr>
-
-        {if !empty($custom_fields)}
-            {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-        {/if}
-    </table>
+                    <textarea name="automation_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automation_kata}</textarea>
+                </fieldset>
+            </div>
+        </div>
+    </fieldset>
 
     {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 

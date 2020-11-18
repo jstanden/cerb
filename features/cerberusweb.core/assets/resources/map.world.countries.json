@@ -1,6 +1,6 @@
 {
   "name": "map.world.countries",
-  "mime_type": "application.json",
+  "extension_id": "cerb.resource.ui.map.geojson",
   "description": "Countries of the world as GeoJSON",
   "data": "map.world.countries.topojson.json",
   "updated_at": 1605317313

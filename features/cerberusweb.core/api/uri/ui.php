@@ -481,16 +481,15 @@ class Controller_UI extends DevblocksControllerExtension {
 		$expires_at = null;
 		$contents = null;
 		
+		if(false == ($resource_ext = $resource->getExtension()))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		
 		if($resource->is_dynamic) {
 			$contents = $resource->getFileContents($expires_at, $error);
 		}
 		
-		$mime_type = DevblocksPlatform::strLower($resource->mime_type);
-		
-		if('application/json' == $mime_type) {
+		if(ResourceType_MapGeoJson::ID == $resource_ext->id) {
 			header('Content-Type: application/json; charset=utf-8');
-		} else if('image/png' == $mime_type) {
-			header('Content-Type: image/png');
 		} else {
 			header('Content-Type: application/octet-stream');
 		}

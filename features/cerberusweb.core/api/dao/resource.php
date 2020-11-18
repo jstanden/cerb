@@ -2,9 +2,9 @@
 class DAO_Resource extends Cerb_ORMHelper {
 	const AUTOMATION_KATA = 'automation_kata';
 	const DESCRIPTION = 'description';
+	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const IS_DYNAMIC = 'is_dynamic';
-	const MIME_TYPE = 'mime_type';
 	const NAME = 'name';
 	const STORAGE_EXTENSION = 'storage_extension';
 	const STORAGE_KEY = 'storage_key';
@@ -32,12 +32,14 @@ class DAO_Resource extends Cerb_ORMHelper {
 			->string()
 		;
 		$validation
-			->addField(self::IS_DYNAMIC)
-			->bit()
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setRequired(true)
+			->addValidator($validation->validators()->extension('Extension_ResourceType'))
 		;
 		$validation
-			->addField(self::MIME_TYPE)
-			->string()
+			->addField(self::IS_DYNAMIC)
+			->bit()
 		;
 		$validation
 			->addField(self::NAME)
@@ -159,7 +161,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, automation_kata, description, is_dynamic, mime_type, storage_size, storage_key, storage_extension, storage_profile_id, updated_at ".
+		$sql = "SELECT id, name, automation_kata, description, is_dynamic, extension_id, storage_size, storage_key, storage_extension, storage_profile_id, updated_at ".
 			"FROM resource ".
 			$where_sql.
 			$sort_sql.
@@ -243,9 +245,9 @@ class DAO_Resource extends Cerb_ORMHelper {
 			$object = new Model_Resource();
 			$object->automation_kata = $row['automation_kata'];
 			$object->description = $row['description'];
+			$object->extension_id = $row['extension_id'];
 			$object->id = intval($row['id']);
 			$object->is_dynamic = $row['is_dynamic'] ? 1 : 0;
-			$object->mime_type = $row['mime_type'];
 			$object->name = $row['name'];
 			$object->storage_extension = $row['storage_extension'];
 			$object->storage_key = $row['storage_key'];
@@ -300,7 +302,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 			"resource.id as %s, ".
 			"resource.name as %s, ".
 			"resource.is_dynamic as %s, ".
-			"resource.mime_type as %s, ".
+			"resource.extension_id as %s, ".
 			"resource.description as %s, ".
 			"resource.storage_size as %s, ".
 			"resource.storage_key as %s, ".
@@ -310,7 +312,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 			SearchFields_Resource::ID,
 			SearchFields_Resource::NAME,
 			SearchFields_Resource::IS_DYNAMIC,
-			SearchFields_Resource::MIME_TYPE,
+			SearchFields_Resource::EXTENSION_ID,
 			SearchFields_Resource::DESCRIPTION,
 			SearchFields_Resource::STORAGE_SIZE,
 			SearchFields_Resource::STORAGE_KEY,
@@ -381,7 +383,7 @@ class DAO_Resource extends Cerb_ORMHelper {
 			[
 				'data' => '',
 				'description' => '',
-				'mime_type' => 'application/octet-stream',
+				'extension_id' => '',
 				'automation_kata' => '',
 				'is_dynamic' => 0,
 				'expires_at' => 0,
@@ -390,12 +392,12 @@ class DAO_Resource extends Cerb_ORMHelper {
 			$resource_data
 		);
 		
-		$db->ExecuteMaster(sprintf("INSERT INTO resource (name, description, mime_type, automation_kata, is_dynamic, expires_at, updated_at) ".
+		$db->ExecuteMaster(sprintf("INSERT INTO resource (name, description, extension_id, automation_kata, is_dynamic, expires_at, updated_at) ".
 			"VALUES (%s, %s, %s, %s, %d, %d, %d) ".
-			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), mime_type=VALUES(mime_type), description=VALUES(description), automation_kata=VALUES(automation_kata), is_dynamic=VALUES(is_dynamic), expires_at=VALUES(expires_at), updated_at=VALUES(updated_at)",
+			"ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), name=VALUES(name), extension_id=VALUES(extension_id), description=VALUES(description), automation_kata=VALUES(automation_kata), is_dynamic=VALUES(is_dynamic), expires_at=VALUES(expires_at), updated_at=VALUES(updated_at)",
 			$db->qstr($resource_data['name']),
 			$db->qstr($resource_data['description']),
-			$db->qstr($resource_data['mime_type']),
+			$db->qstr($resource_data['extension_id']),
 			$db->qstr($resource_data['automation_kata']),
 			$resource_data['is_dynamic'],
 			$resource_data['expires_at'],
@@ -435,7 +437,7 @@ class SearchFields_Resource extends DevblocksSearchFields {
 	const NAME = 'r_name';
 	const DESCRIPTION = 'r_description';
 	const IS_DYNAMIC = 'r_is_dynamic';
-	const MIME_TYPE = 'r_mime_type';
+	const EXTENSION_ID = 'r_extension_id';
 	const STORAGE_SIZE = 'r_storage_size';
 	const STORAGE_KEY = 'r_storage_key';
 	const STORAGE_EXTENSION = 'r_storage_extension';
@@ -512,7 +514,7 @@ class SearchFields_Resource extends DevblocksSearchFields {
 			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'resource', 'description', $translate->_('common.description'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'resource', 'id', $translate->_('common.id'), null, true),
 			self::IS_DYNAMIC => new DevblocksSearchField(self::IS_DYNAMIC, 'resource', 'is_dynamic', $translate->_('dao.resource.is_dynamic'), null, true),
-			self::MIME_TYPE => new DevblocksSearchField(self::MIME_TYPE, 'resource', 'name', $translate->_('attachment.mime_type'), null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'resource', 'extension_id', $translate->_('common.type'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'resource', 'name', $translate->_('common.name'), null, true),
 			self::STORAGE_EXTENSION => new DevblocksSearchField(self::STORAGE_EXTENSION, 'resource', 'storage_extension', $translate->_('common.storage_extension'), null, true),
 			self::STORAGE_KEY => new DevblocksSearchField(self::STORAGE_KEY, 'resource', 'storage_key', $translate->_('common.storage_key'), null, true),
@@ -542,7 +544,7 @@ class Model_Resource {
 	public $description;
 	public $id;
 	public $is_dynamic;
-	public $mime_type;
+	public $extension_id;
 	public $name;
 	public $storage_extension;
 	public $storage_key;
@@ -550,12 +552,20 @@ class Model_Resource {
 	public $storage_size;
 	public $updated_at;
 	
+	/**
+	 * @param bool $as_instance
+	 * @return Extension_ResourceType|DevblocksExtensionManifest
+	 */
+	public function getExtension($as_instance=true) {
+		return Extension_ResourceType::get($this->extension_id, $as_instance);
+	}
+	
 	public function getFileContents(&$expires_at=null, &$error=null) {
 		if($this->is_dynamic) {
 			$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 			$active_worker = CerberusApplication::getActiveWorker();
 			
-			if(!$this->mime_type)
+			if(false == ($resource_ext = $this->getExtension()))
 				DevblocksPlatform::dieWithHttpError(null, 500);
 			
 			$error = null;
@@ -583,7 +593,7 @@ class Model_Resource {
 			if(!array_key_exists('content', $file))
 				return false;
 			
-			$expires_at = $file['expires_at'] ?? time() + 86400; // 1 day
+			$expires_at = $file['expires_at'] ?? 0;
 			
 			return $file['content'];
 		}
@@ -607,7 +617,7 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$this->view_columns = [
 			SearchFields_Resource::NAME,
 			SearchFields_Resource::DESCRIPTION,
-			SearchFields_Resource::MIME_TYPE,
+			SearchFields_Resource::EXTENSION_ID,
 			SearchFields_Resource::STORAGE_SIZE,
 			SearchFields_Resource::UPDATED_AT,
 		];
@@ -663,8 +673,8 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 				
 				switch($field_key) {
 					// Fields
+				case SearchFields_Resource::EXTENSION_ID:
 				case SearchFields_Resource::IS_DYNAMIC:
-				case SearchFields_Resource::MIME_TYPE:
 					$pass = true;
 					break;
 					
@@ -697,14 +707,14 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 			return [];
 		
 		switch($column) {
+			case SearchFields_Resource::EXTENSION_ID:
+				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
+				break;
+			
 			case SearchFields_Resource::IS_DYNAMIC:
 				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
 				break;
 
-			case SearchFields_Resource::MIME_TYPE:
-				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-				break;
-			
 			case SearchFields_Resource::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
@@ -760,11 +770,6 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 					'type' => DevblocksSearchCriteria::TYPE_BOOL,
 					'options' => array('param_key' => SearchFields_Resource::IS_DYNAMIC),
 				),
-			'mimeType' =>
-				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Resource::MIME_TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-				),
 			'name' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -774,6 +779,11 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Resource::STORAGE_SIZE),
+				),
+			'type' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Resource::EXTENSION_ID, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'updated' =>
 				array(
@@ -826,6 +836,10 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_RESOURCE);
 		$tpl->assign('custom_fields', $custom_fields);
+
+		// Resource type extensions
+		$resource_extensions = Extension_ResourceType::getAll(false);
+		$tpl->assign('resource_extensions', $resource_extensions);
 		
 		$tpl->assign('view_template', 'devblocks:cerberusweb.core::records/types/resource/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
@@ -863,9 +877,8 @@ class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$criteria = null;
 		
 		switch($field) {
-			case SearchFields_Resource::AUTOMATION_KATA:
 			case SearchFields_Resource::DESCRIPTION:
-			case SearchFields_Resource::MIME_TYPE:
+			case SearchFields_Resource::EXTENSION_ID:
 			case SearchFields_Resource::NAME:
 			case SearchFields_Resource::STORAGE_EXTENSION:
 			case SearchFields_Resource::STORAGE_KEY:
@@ -1280,16 +1293,16 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			'value' => $model->description,
 		);
 		
+		$properties['extension_id'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.type'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->extension_id,
+		);
+		
 		$properties['is_dynamic'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('dao.resource.is_dynamic'),
 			'type' => Model_CustomField::TYPE_CHECKBOX,
 			'value' => $model->is_dynamic,
-		);
-		
-		$properties['mime_type'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('attachment.mime_type'),
-			'type' => Model_CustomField::TYPE_SINGLE_LINE,
-			'value' => $model->mime_type,
 		);
 		
 		$properties['storage_size'] = array(
@@ -1333,7 +1346,7 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 	function getDefaultProperties() {
 		return array(
 			'description',
-			'mime_type',
+			'extension_id',
 			'storage_size',
 			'is_dynamic',
 			'updated_at',
@@ -1363,9 +1376,9 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			'_label' => $prefix,
 			'automation_kata' => $prefix.$translate->_('common.automation'),
 			'description' => $prefix.$translate->_('common.description'),
+			'extension_id' => $prefix.$translate->_('common.type'),
 			'id' => $prefix.$translate->_('common.id'),
 			'is_dynamic' => $prefix.$translate->_('dao.resource.is_dynamic'),
-			'mime_type' => $prefix.$translate->_('attachment.mime_type'),
 			'name' => $prefix.$translate->_('common.name'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
@@ -1376,9 +1389,9 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			'_label' => 'context_url',
 			'automation_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'description' => Model_CustomField::TYPE_SINGLE_LINE,
+			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'is_dynamic' => Model_CustomField::TYPE_CHECKBOX,
-			'mime_type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -1403,9 +1416,9 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['_label'] = $resource->name;
 			$token_values['automation_kata'] = $resource->automation_kata;
 			$token_values['description'] = $resource->description;
+			$token_values['extension_id'] = $resource->extension_id;
 			$token_values['id'] = $resource->id;
 			$token_values['is_dynamic'] = $resource->is_dynamic;
-			$token_values['mime_type'] = $resource->mime_type;
 			$token_values['name'] = $resource->name;
 			$token_values['updated_at'] = $resource->updated_at;
 			
@@ -1424,10 +1437,10 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		return [
 			'automation_kata' => DAO_Resource::AUTOMATION_KATA,
 			'description' => DAO_Resource::DESCRIPTION,
+			'extension_id' => DAO_Resource::EXTENSION_ID,
 			'id' => DAO_Resource::ID,
 			'is_dynamic' => DAO_Resource::IS_DYNAMIC,
 			'links' => '_links',
-			'mime_type' => DAO_Resource::MIME_TYPE,
 			'name' => DAO_Resource::NAME,
 			'updated_at' => DAO_Resource::UPDATED_AT,
 		];
@@ -1555,6 +1568,9 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
+			
+			$resource_extensions = Extension_ResourceType::getAll(false);
+			$tpl->assign('resource_extensions', $resource_extensions);
 			
 			// View
 			$tpl->assign('id', $context_id);

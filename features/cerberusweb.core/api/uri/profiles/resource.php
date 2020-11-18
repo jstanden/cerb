@@ -78,7 +78,7 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 			} else {
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
 				@$description = DevblocksPlatform::importGPC($_POST['description'], 'string', '');
-				@$mime_type = DevblocksPlatform::importGPC($_POST['mime_type'], 'string', '');
+				@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', '');
 				@$is_dynamic = DevblocksPlatform::importGPC($_POST['is_dynamic'], 'integer', 0);
 				@$automation_kata = DevblocksPlatform::importGPC($_POST['automation_kata'], 'string', '');
 				@$file = DevblocksPlatform::importGPC($_FILES['file'], 'array', []);
@@ -88,24 +88,11 @@ class PageSection_ProfilesResource extends Extension_PageSection {
 				$fields = [
 					DAO_Resource::AUTOMATION_KATA => $automation_kata,
 					DAO_Resource::DESCRIPTION => $description,
+					DAO_Resource::EXTENSION_ID => $extension_id,
 					DAO_Resource::IS_DYNAMIC => $is_dynamic ? 1 : 0,
 					DAO_Resource::NAME => $name,
 					DAO_Resource::UPDATED_AT => time(),
 				];
-				
-				if($is_dynamic) {
-					if(!$id) {
-						$fields[DAO_Resource::MIME_TYPE] = '';
-					}
-					
-				} else {
-					if(is_array($file) && array_key_exists('type', $file) && $file['type']) {
-						$fields[DAO_Resource::MIME_TYPE] = $file['type'] ?? '';
-					}
-					
-					if($mime_type)
-						$fields[DAO_Resource::MIME_TYPE] = $mime_type;
-				}
 				
 				if(empty($id)) { // New
 					if(!DAO_Resource::validate($fields, $error))
