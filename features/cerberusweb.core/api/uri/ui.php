@@ -479,8 +479,11 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$error = null;
 		$expires_at = null;
+		$contents = null;
 		
-		$contents = $resource->getFileContents($expires_at, $error);
+		if($resource->is_dynamic) {
+			$contents = $resource->getFileContents($expires_at, $error);
+		}
 		
 		$mime_type = DevblocksPlatform::strLower($resource->mime_type);
 		
@@ -500,7 +503,19 @@ class Controller_UI extends DevblocksControllerExtension {
 			header('Accept-Ranges: bytes');
 		}
 		
-		echo $contents;
+		if($resource->is_dynamic) {
+			echo $contents;
+			
+		} else {
+			if($resource->storage_size > 1024000) {
+				$fp = DevblocksPlatform::getTempFile();
+				Storage_Resource::get($resource, $fp);
+				fpassthru($fp);
+				fclose($fp);
+			} else {
+				echo $resource->getFileContents($expires_at, $error);
+			}
+		}
 	}
 	
 	private function _uiAction_sheet() {
