@@ -142,16 +142,16 @@ $(function() {
                 var fill_color_key = null;
                 var fill_color_map = { };
                 
-                {if 'color_map' == $map.regions.fill.mode && $map.regions.fill.params.property}
-                    fill_color_key = "{$map.regions.fill.params.property|escape:'javascript'}";
-                    {if $map.regions.fill.params.colors}
-                    fill_color_map = {$map.regions.fill.params.colors|json_encode nofilter};
-                    {/if}
-                {elseif 'color' == $map.regions.fill.mode && $map.regions.fill.params.property}
-                    fill_color_key = "{$map.regions.fill.params.property|escape:'javascript'}";
-                {elseif 'choropleth' == $map.regions.fill.mode && $map.regions.fill.params.property}
+                {if $map.regions.fill.choropleth && $map.regions.fill.choropleth.property}
                     var domain = [];
-                    fill_color_key = "{$map.regions.fill.params.property|escape:'javascript'}";;
+                    fill_color_key = "{$map.regions.fill.choropleth.property|escape:'javascript'}";;
+                {elseif $map.regions.fill.color_map && $map.regions.fill.color_map.property}
+                    fill_color_key = "{$map.regions.fill.color_map.property|escape:'javascript'}";
+                    {if $map.regions.fill.color_map.colors}
+                    fill_color_map = {$map.regions.fill.color_map.colors|json_encode nofilter};
+                    {/if}
+                {elseif $map.regions.fill.color_key && $map.regions.fill.color_key.property}
+                    fill_color_key = "{$map.regions.fill.color_key.property|escape:'javascript'}";
                 {/if}
                 
                 label = widget.append('div')
@@ -249,7 +249,7 @@ $(function() {
                             return false;
                         })
                     {/if}
-                    {if 'choropleth' == $map.regions.fill.mode}
+                    {if $map.regions.fill.choropleth}
                         .filter(function(d) {
                             if(fill_color_key && d.properties.hasOwnProperty(fill_color_key)) {
                                 domain.push(parseFloat(d.properties[fill_color_key]));
@@ -261,10 +261,10 @@ $(function() {
                 ;
 
                 // Draw the scale legend
-                {if 'choropleth' == $map.regions.fill.mode && $map.resource.name}
-                var fill_color_from = '{if $map.regions.fill.params.colors.0}{$map.regions.fill.params.colors.0}{else}#f4e153{/if}';
-                var fill_color_to = '{if $map.regions.fill.params.colors.1}{$map.regions.fill.params.colors.1}{else}#362142{/if}';
-                var fill_classes = '{if $map.regions.fill.params.classes}{$map.regions.fill.params.classes}{else}5{/if}';
+                {if $map.regions.fill.choropleth && $map.resource.name}
+                var fill_color_from = '{if $map.regions.fill.choropleth.colors.0}{$map.regions.fill.choropleth.colors.0}{else}#f4e153{/if}';
+                var fill_color_to = '{if $map.regions.fill.choropleth.colors.1}{$map.regions.fill.choropleth.colors.1}{else}#362142{/if}';
+                var fill_classes = '{if $map.regions.fill.choropleth.classes}{$map.regions.fill.choropleth.classes}{else}5{/if}';
 
                 var fill_extents = d3.extent(domain);
                 var fill_range = d3.interpolateRound(fill_extents[0],fill_extents[1]);
@@ -338,7 +338,16 @@ $(function() {
                     .attr('stroke-width', '0.2px')
                     .attr('stroke-linejoin', 'round')
                     .attr('stroke-linecap', 'round')
-                    {if 'color' == $map.regions.fill.mode}
+                    {if $map.regions.fill.choropleth}
+                    .attr('fill', function(d) {
+                        if(fill_color_key && d.properties.hasOwnProperty(fill_color_key)) {
+                            var v = parseFloat(d.properties[fill_color_key]);
+                            return colors(v);
+                        }
+                        
+                        return '#aaa';
+                    })
+                    {elseif $map.regions.fill.color_key}
                     .attr('fill', function(d) {
                         if(fill_color_key && d.properties.hasOwnProperty(fill_color_key)) {
                             return d.properties[fill_color_key];
@@ -346,22 +355,13 @@ $(function() {
                         
                         return '#aaa';
                     })
-                    {elseif 'color_map' == $map.regions.fill.mode}
+                    {elseif $map.regions.fill.color_map}
                     .attr('fill', function(d) {
                         if(fill_color_key && fill_color_map && d.properties.hasOwnProperty(fill_color_key)) {
                             var v = d.properties[fill_color_key];
                             
                             if(fill_color_map.hasOwnProperty(v))
                                 return fill_color_map[v];
-                        }
-                        
-                        return '#aaa';
-                    })
-                    {elseif 'choropleth' == $map.regions.fill.mode}
-                    .attr('fill', function(d) {
-                        if(fill_color_key && d.properties.hasOwnProperty(fill_color_key)) {
-                            var v = parseFloat(d.properties[fill_color_key]);
-                            return colors(v);
                         }
                         
                         return '#aaa';
