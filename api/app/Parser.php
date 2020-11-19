@@ -365,10 +365,10 @@ class CerberusParserModel {
 		
 		$addresses = [];
 		foreach($destinations as $destination) {
-			if(empty($destination->mailbox) || empty($destination->host))
+			if(empty($destination['mailbox']) || empty($destination['host']))
 				continue;
 			
-			$addresses[] = $destination->mailbox.'@'.$destination->host;
+			$addresses[] = $destination['mailbox'].'@'.$destination['host'];
 		}
 		
 		return $addresses;
