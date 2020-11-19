@@ -218,11 +218,21 @@ $(function() {
                         }
                     )
                     .enter()
-                    {if $map.regions.filter}
+                    {if $map.regions.filter && $map.regions.filter.property}
                         .filter(function(d) {
-                            var k = {$map.regions.filter.params.property|json_encode nofilter};
-                            var v = {$map.regions.filter.params.value|json_encode nofilter};
-                            var not = {if 'not' == $map.regions.filter.mode}true{else}false{/if};
+                            var k = {$map.regions.filter.property|json_encode nofilter},
+                                v,
+                                not = false
+                            ;
+                            
+                            {if $map.regions.filter.not}
+                                v = {$map.regions.filter.not|json_encode nofilter};
+                                not = true;
+                            {elseif $map.regions.filter.is}
+                                v = {$map.regions.filter.is|json_encode nofilter};
+                            {else}
+                                return false;
+                            {/if}
 
                             if(typeof k != 'string')
                                 return false;
@@ -391,9 +401,17 @@ $(function() {
                         .enter()
                         {if $map.points.filter}
                         .filter(function(d) {
-                            var k = {$map.points.filter.params.property|json_encode nofilter};
-                            var v = {$map.points.filter.params.value|json_encode nofilter};
-                            var not = {if 'not' == $map.points.filter.mode}true{else}false{/if};
+                            var k = {$map.points.filter.property|json_encode nofilter},
+                                v,
+                                not = false
+                            ;
+
+                            {if $map.points.filter.not}
+                            v = {$map.points.filter.not|json_encode nofilter};
+                            not = true;
+                            {else}
+                            v = {$map.points.filter.is|json_encode nofilter};
+                            {/if}
 
                             if(typeof k != 'string')
                                 return false;
