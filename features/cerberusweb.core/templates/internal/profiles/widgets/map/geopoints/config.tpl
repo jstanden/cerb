@@ -55,6 +55,9 @@ $(function() {
 
 	$config.find('textarea[name="params[map_kata]"]')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaMap
+		})
 	;
 
 	$config.find('textarea[name="params[automation][map_clicked]"]')

@@ -1,4 +1,141 @@
 var cerbAutocompleteSuggestions = {
+	kataSchemaMap: {
+		'': [
+			'map:'
+		],
+		'map:': [
+			{
+				'caption': 'resource:',
+				'snippet': 'resource:\n  uri: cerb:resource:map.world.countries'
+			},
+			{
+				'caption': 'projection:',
+				'snippet': 'projection:\n  type: mercator\n  scale: 90\n  center:\n    latitude: 0\n    longitude: 0\n'
+			},
+			'regions:',
+			'points:'
+		],
+
+		'map:resource:': [
+			'uri:'
+		],
+
+		'map:projection:': [
+			'type:',
+			'scale:',
+			'center:'
+		],
+		'map:projection:type:': [
+			'mercator',
+			'naturalEarth',
+			'albersUsa'
+		],
+		'map:projection:scale:': [
+			'90'
+		],
+		'map:projection:center:': [
+			'latitude:',
+			'longitude:'
+		],
+
+		'map:regions:': [
+			'label:',
+			'properties:',
+			'filter:',
+			'fill:'
+		],
+		'map:regions:label:': [
+			'properties:'
+		],
+		'map:regions:properties:': [
+			{
+				'caption': 'join:',
+				'snippet': 'join:\n  property: ${1:key_name}\n  #case: upper\n'
+			},
+			'resource:'
+		],
+		'map:regions:properties:join': [
+			'property:',
+			'case:'
+		],
+		'map:regions:properties:join:case:': [
+			'upper',
+			'lower'
+		],
+		'map:regions:properties:resource:': [
+			'uri:'
+		],
+		'map:regions:filter:': [
+			{
+				'caption': 'is:',
+				'snippet': 'property: ${1:key_name}\nis: ${2:value}\n'
+			},
+			{
+				'caption': 'is@list:',
+				'snippet': 'property: ${1:key_name}\nis@list:\n    ${2:value1}\n    ${3:value2}\n'
+			},
+			{
+				'caption': 'not:',
+				'snippet': 'property: ${1:key_name}\nnot: ${2:value}\n'
+			},
+			{
+				'caption': 'not@list:',
+				'snippet': 'property: ${1:key_name}\nnot@list:\n    ${2:value1}\n    ${3:value2}\n'
+			}
+		],
+		'map:regions:fill:': [
+			'color_key:',
+			'color_map:',
+			{
+				'caption': 'choropleth:',
+				'snippet': 'choropleth:\n  property: key_name\n  classes: 8\n'
+			}
+		],
+		'map:regions:fill:choropleth:': [
+			'property:',
+			{
+				'caption': 'classes:',
+				'snippet': 'classes: 8\n'
+			}
+		],
+
+		'map:points:': [
+			'resource:',
+			'label:',
+			'filter:',
+			'data:'
+		],
+		'map:points:resource:': [
+			'uri:'
+		],
+		'map:points:label:': [
+			'properties:'
+		],
+		'map:points:filter:': [
+			{
+				'caption': 'is:',
+				'snippet': 'property: ${1:key_name}\nis: ${2:value}\n'
+			},
+			{
+				'caption': 'is@list:',
+				'snippet': 'property: ${1:key_name}\nis@list:\n    ${2:value1}\n    ${3:value2}\n'
+			},
+			{
+				'caption': 'not:',
+				'snippet': 'property: ${1:key_name}\nnot: ${2:value}\n'
+			},
+			{
+				'caption': 'not@list:',
+				'snippet': 'property: ${1:key_name}\nnot@list:\n    ${2:value1}\n    ${3:value2}\n'
+			}
+		],
+		'map:points:data:': [
+			{
+				'caption': 'point:',
+				'snippet': 'point/name:\n  latitude: 0\n  longitude: 0\n  properties:\n    name: Place name\n'
+			}
+		]
+	},
 	yamlSheetSchema: {
 		'': [
 			{
