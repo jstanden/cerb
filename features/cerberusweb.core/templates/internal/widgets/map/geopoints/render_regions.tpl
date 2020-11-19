@@ -1,4 +1,6 @@
-<div id="widget{$widget->id}">
+{$map_divid = uniqid('map_')}
+
+<div id="{$map_divid}">
     <div data-cerb-toolbar style="position:absolute;top:5px;right:5px;">
         <button type="button" data-cerb-button="reset"><span class="glyphicons glyphicons-restart"></span></button>
         <button type="button" data-cerb-button="zoom-in"><span class="glyphicons glyphicons-zoom-in"></span></button>
@@ -17,7 +19,7 @@ $(function() {
 		try {
             var jobs = [];
             var emptyPromise = function(resolve) { resolve(undefined); };
-            var $widget = $('#widget{$widget->id}');
+            var $widget = $('#{$map_divid}');
             var $map_toolbar = $widget.find('> [data-cerb-toolbar]');
             var $coords = $widget.find('[data-cerb-coordinates]');
             var $loading = $('<div/>').append(Devblocks.getSpinner());
@@ -58,7 +60,7 @@ $(function() {
             Promise.all(jobs).then(function(results) {
                 $loading.remove();
 
-                var widget = d3.select('#widget{$widget->id}')
+                var widget = d3.select('#{$map_divid}')
                     .style('position', 'relative')
                     ;
                 
@@ -540,7 +542,7 @@ $(function() {
                 if(d && selectedPoint !== d) {
                     selectedPoint = d;
                     
-                    {if is_a($widget, 'Model_ProfileWidget')}
+                    {if $widget && is_a($widget, 'Model_ProfileWidget')}
                         {if $widget->extension_params.automation.map_clicked}
                         var formData = new FormData();
                         formData.set('c', 'profiles');
@@ -613,6 +615,9 @@ $(function() {
                             var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
                             setLabelToProperties(d, keys);
                         {/if}
+                    {else}
+                        var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
+                        setLabelToProperties(d, keys);
                     {/if}
                     
                 } else {
@@ -720,7 +725,7 @@ $(function() {
                 if(d && selectedRegion !== d) {
                     selectedRegion = d;
 
-                    {if is_a($widget, 'Model_ProfileWidget')}
+                    {if $widget && is_a($widget, 'Model_ProfileWidget')}
                         {if $widget->extension_params.automation.map_clicked}
                         var formData = new FormData();
                         formData.set('c', 'profiles');
@@ -757,7 +762,7 @@ $(function() {
                             setLabelToProperties(d, keys);
                         {/if}
 
-                    {elseif is_a($widget, 'Model_WorkspaceWidget')}
+                    {elseif $widget && is_a($widget, 'Model_WorkspaceWidget')}
                         {if $widget->params.automation.map_clicked}
                         var formData = new FormData();
                         formData.set('c', 'pages');
@@ -793,6 +798,9 @@ $(function() {
                             var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
                             setLabelToProperties(d, keys);
                         {/if}
+                    {else}
+                        var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
+                        setLabelToProperties(d, keys);
                     {/if}
                     
                 } else {
