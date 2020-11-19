@@ -2,6 +2,9 @@
 namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
 
 use _DevblocksValidationService;
+use CerberusApplication;
+use CerberusContexts;
+use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Model_AutomationExecution;
 
@@ -19,16 +22,21 @@ class MapAwait extends AbstractAwait {
 	
 	function render(Model_AutomationExecution $execution) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		@$region = $this->_data['region'] ?? 'world';
+		$error = null;
 		
-		@$geojson = $this->_data['geojson'];
-		$tpl->assign('points', $geojson);
+		$dict = new DevblocksDictionaryDelegate([
+			'current_worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'current_worker_id' => $active_worker->id,
+		]);
 		
-		if('usa' == $region) {
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/map_usa.tpl');
-		} else {
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/map_world.tpl');
-		}
+		$map_data = ['map' => $this->_data];
+		
+		if(false == ($map = DevblocksPlatform::services()->ui()->map()->parse($map_data, $dict, $error)))
+			return;
+		
+		$tpl->assign('map', $map);
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/map.tpl');
 	}
 }
