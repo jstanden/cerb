@@ -449,6 +449,13 @@ $(function() {
                 }
                 
                 currentTransform = d3.zoomIdentity;
+                
+                {if $map.projection.zoom}
+                    var zoom_long_lat = {if $map.projection.zoom.latitude && $map.projection.zoom.longitude}[{$map.projection.zoom.longitude|floatval}, {$map.projection.zoom.latitude|floatval}]{else}null{/if};
+                    var zoom_scale = {if $map.projection.zoom.scale}{$map.projection.zoom.scale|floatval}{else}null{/if};
+                    
+                    zoomToLongLat(zoom_long_lat, zoom_scale);                
+                {/if}
             });
     
             // Button reset
@@ -466,7 +473,8 @@ $(function() {
                     focusPoint(selectedPoint);
                     
                     $(label.node()).empty().hide();
-                });
+                })
+            ;
 
             // Button zoom in
             $map_toolbar.find('[data-cerb-button="zoom-in"]')
@@ -474,33 +482,12 @@ $(function() {
                     var screen_x = (width/2 + -currentTransform.x) / currentTransform.k;
                     var screen_y = (height/2 + -currentTransform.y) / currentTransform.k;
                     var long_lat = projection.invert([screen_x, screen_y]);
+
+                    var new_scale = currentTransform.k * 1.5;
                     
-                    var new_scale = Math.min(40, currentTransform.k * 1.5);
-                    
-                    var new_point = 
-                        {if 'albersUsa' == $map.projection.type}
-                            d3.geoAlbersUsa()
-                                .scale(projection.scale() * new_scale)
-                                .translate([width/2 * new_scale, height/2 * new_scale])
-                                (long_lat)
-                        {elseif 'naturalEarth' == $map.projection.type}
-                            d3.geoNaturalEarth1()
-                                .scale(projection.scale() * new_scale)
-                                .translate([width/2 * new_scale, height/2 * new_scale])
-                                .center(projection.center())
-                                (long_lat)
-                        {else}
-                            d3.geoMercator()
-                                .scale(projection.scale() * new_scale)
-                                .translate([width/2 * new_scale, height/2 * new_scale])
-                                .center(projection.center())
-                                (long_lat)
-                        {/if}
-                        ;
-                    
-                    var t = d3.zoomIdentity.translate(width/2 -new_point[0], height/2 -new_point[1]).scale(new_scale);
-                    svg.call(zoom.transform, t);
-                });
+                    zoomToLongLat(long_lat, new_scale);
+                })
+            ;
 
             // Button zoom out
             $map_toolbar.find('[data-cerb-button="zoom-out"]')
@@ -509,32 +496,49 @@ $(function() {
                     var screen_y = (height/2 + -currentTransform.y) /currentTransform.k;
                     var long_lat = projection.invert([screen_x, screen_y]);
 
-                    var new_scale = Math.max(1, currentTransform.k * 1/1.5);
+                    var new_scale = currentTransform.k * 1/1.5;
+                    
+                    zoomToLongLat(long_lat, new_scale);
+                })
+            ;
+            
+            function zoomToLongLat(long_lat, new_scale) {
+                if(null == long_lat) {
+                    var screen_x = (width/2 + -currentTransform.x) / currentTransform.k;
+                    var screen_y = (height/2 + -currentTransform.y) /currentTransform.k;
+                    long_lat = projection.invert([screen_x, screen_y]);
+                }
+                
+                if(null == new_scale) {
+                    new_scale = currentTransform.k;
+                }
+                
+                new_scale = Math.max(Math.min(40, new_scale), 1);
+                
+                var new_point =
+                {if 'albersUsa' == $map.projection.type}
+                    d3.geoAlbersUsa()
+                        .scale(projection.scale() * new_scale)
+                        .translate([width/2 * new_scale, height/2 * new_scale])
+                        (long_lat)
+                {elseif 'naturalEarth' == $map.projection.type}
+                d3.geoNaturalEarth1()
+                    .scale(projection.scale() * new_scale)
+                    .translate([width/2 * new_scale, height/2 * new_scale])
+                    .center(projection.center())
+                    (long_lat)
+                {else}
+                d3.geoMercator()
+                    .scale(projection.scale() * new_scale)
+                    .translate([width/2 * new_scale, height/2 * new_scale])
+                    .center(projection.center())
+                    (long_lat)
+                {/if}
+                ;
 
-                    var new_point =
-                        {if 'albersUsa' == $map.projection.type}
-                            d3.geoAlbersUsa()
-                                .scale(projection.scale() * new_scale)
-                                .translate([width/2 * new_scale, height/2 * new_scale])
-                                (long_lat)
-                        {elseif 'naturalEarth' == $map.projection.type}
-                            d3.geoNaturalEarth1()
-                                .scale(projection.scale() * new_scale)
-                                .translate([width/2 * new_scale, height/2 * new_scale])
-                                .center(projection.center())
-                                (long_lat)
-                        {else}
-                            d3.geoMercator()
-                                .scale(projection.scale() * new_scale)
-                                .translate([width/2 * new_scale, height/2 * new_scale])
-                                .center(projection.center())
-                                (long_lat)
-                        {/if}
-                        ;
-
-                    var t = d3.zoomIdentity.translate(width/2 -new_point[0], height/2 -new_point[1]).scale(new_scale);
-                    svg.call(zoom.transform, t);
-                });
+                var t = d3.zoomIdentity.translate(width/2 -new_point[0], height/2 -new_point[1]).scale(new_scale);
+                svg.call(zoom.transform, t);
+            }
 
             // [TODO] Button current coordinates (target, riflescope)
 
@@ -579,7 +583,7 @@ $(function() {
                             setLabelToProperties(d, keys);
                         {/if}
 
-                    {elseif is_a($widget, 'Model_WorkspaceWidget')}
+                    {elseif $widget && is_a($widget, 'Model_WorkspaceWidget')}
                         {if $widget->params.automation.map_clicked}
                         var formData = new FormData();
                         formData.set('c', 'pages');

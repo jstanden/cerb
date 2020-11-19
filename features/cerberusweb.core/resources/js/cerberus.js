@@ -23,7 +23,8 @@ var cerbAutocompleteSuggestions = {
 		'map:projection:': [
 			'type:',
 			'scale:',
-			'center:'
+			'center:',
+			'zoom:'
 		],
 		'map:projection:type:': [
 			'mercator',
@@ -36,6 +37,11 @@ var cerbAutocompleteSuggestions = {
 		'map:projection:center:': [
 			'latitude:',
 			'longitude:'
+		],
+		'map:projection:zoom:': [
+			'latitude:',
+			'longitude:',
+			'scale:'
 		],
 
 		'map:regions:': [
