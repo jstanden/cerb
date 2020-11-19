@@ -1,6 +1,6 @@
 {$div_id = uniqid('preview')}
 
-<div id="{$div_id}" class="{$css_class|default:'emailBodyHtml'}">
+<div id="{$div_id}" class="{$css_class|default:'emailBodyHtml'}" dir="auto">
 {$content nofilter}
 </div>
 

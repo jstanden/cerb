@@ -4,7 +4,7 @@
 			<strong>Error!</strong>
 			<span style="float:right;"><a href="javascript:;" onclick="$(this).closest('DIV.ui-widget').remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></span>
 			<br>
-<pre class="emailbody">
+<pre class="emailbody" dir="auto">
 {$output|escape nofilter}
 </pre>
 		</div>
@@ -15,7 +15,7 @@
 			<strong>Success!</strong>
 			<span style="float:right;"><a href="javascript:;" onclick="$(this).closest('DIV.ui-widget').remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></span>
 			<br>
-<pre class="emailbody">
+<pre class="emailbody" dir="auto">
 {$output|escape nofilter}
 </pre>
 		</div>

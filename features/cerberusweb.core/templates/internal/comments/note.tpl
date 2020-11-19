@@ -36,9 +36,9 @@
 
 	<div style="display:block;overflow:hidden;">
 		{if $note->is_markdown}
-			<div class="commentBodyHtml">{$note->getContent() nofilter}</div>
+			<div class="commentBodyHtml" dir="auto">{$note->getContent() nofilter}</div>
 		{else}
-			<pre class="emailbody" style="padding-top:10px;">{$note->getContent()|trim|escape|devblocks_hyperlinks nofilter}</pre>
+			<pre class="emailbody" dir="auto" style="padding-top:10px;">{$note->getContent()|trim|escape|devblocks_hyperlinks nofilter}</pre>
 		{/if}
 
 		<div style="clear:both;"></div>

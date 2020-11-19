@@ -1,1 +1,1 @@
-<div class="emailbody" style="margin:5px;padding:10px;border:dashed 1px rgb(200,200,200);">{$text}</div>
+<div class="emailbody" dir="auto" style="margin:5px;padding:10px;border:dashed 1px rgb(200,200,200);">{$text}</div>

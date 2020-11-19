@@ -104,7 +104,7 @@
 					</div>
 				
 					<div>
-						<pre class="emailbody">{$result.c_comment|trim|truncate:1000|escape|devblocks_hyperlinks nofilter}</pre>
+						<pre class="emailbody" dir="auto">{$result.c_comment|trim|truncate:1000|escape|devblocks_hyperlinks nofilter}</pre>
 					</div>
 				</div>
 			</td>

@@ -26,7 +26,7 @@
 	{/if}
 	<fieldset class="block"><!--
 		-->{if $output.title}<legend><a href="javascript:;" onclick="$(this).parent().next('pre').toggle();" style="text-decoration:none;cursor:pointer;">{$output.title}</a></legend>{/if}<!--
-		--><pre class="emailbody" style="margin:0;">{$output.content}</pre><!--
+		--><pre class="emailbody" dir="auto" style="margin:0;">{$output.content}</pre><!--
 	--></fieldset>
 	{/if}
 {/foreach}
@@ -36,6 +36,6 @@
 
 {if !empty($conditions_output)}
 <fieldset class="block black">
-<pre class="emailbody">{$conditions_output}</pre>
+<pre class="emailbody" dir="auto">{$conditions_output}</pre>
 </fieldset>
 {/if}

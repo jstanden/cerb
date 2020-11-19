@@ -46,9 +46,9 @@
 	
 	<div class="cerb-comment--content">
 		{if $comment->is_markdown}
-			<div class="commentBodyHtml">{$comment->getContent() nofilter}</div>
+			<div class="commentBodyHtml" dir="auto">{$comment->getContent() nofilter}</div>
 		{else}
-			<pre class="emailbody" style="padding-top:10px;">{$comment->getContent()|trim|escape|devblocks_hyperlinks nofilter}</pre>
+			<pre class="emailbody" dir="auto" style="padding-top:10px;">{$comment->getContent()|trim|escape|devblocks_hyperlinks nofilter}</pre>
 		{/if}
 
 		<div style="margin-bottom:10px;"></div>

@@ -89,7 +89,7 @@
 {* Description *}
 <fieldset class="peek">
 	<legend>{'common.description'|devblocks_translate|capitalize}</legend>
-	<pre class="emailbody">{$model->description|escape:'html'|devblocks_hyperlinks nofilter}</pre>
+	<pre class="emailbody" dir="auto">{$model->description|escape:'html'|devblocks_hyperlinks nofilter}</pre>
 </fieldset>
 
 {if !empty($model->id)}

@@ -62,9 +62,9 @@
 
 	<div class="cerb-draft--content">
 		{if 'parsedown' == $draft->params.format}
-		<div class="emailBodyHtml">{$draft->getContent() nofilter}</div>
+		<div class="emailBodyHtml" dir="auto">{$draft->getContent() nofilter}</div>
 		{else}
-		<pre class="emailbody" style="padding-top:10px;">{$draft->getContent()|trim|escape|devblocks_hyperlinks nofilter}</pre>
+		<pre class="emailbody" dir="auto" style="padding-top:10px;">{$draft->getContent()|trim|escape|devblocks_hyperlinks nofilter}</pre>
 		{/if}
 
 		{if isset($draft->params.file_ids) && is_array($draft->params.file_ids)}

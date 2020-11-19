@@ -188,7 +188,7 @@
 				</button>
 			</div>
 			{/if}
-			<div class="emailBodyHtml">
+			<div class="emailBodyHtml" dir="auto">
 				{$html_body nofilter}
 			</div>
 		{else}
@@ -200,7 +200,7 @@
 					</button>
 				</div>
 			{/if}
-			<pre class="emailbody">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
+			<pre class="emailbody" dir="auto">{$message->getContent()|trim|escape|devblocks_hyperlinks|devblocks_hideemailquotes nofilter}</pre>
 		{/if}
 		<br>
 
