@@ -1,6 +1,6 @@
 {
   "name": "map.country.usa.states",
-  "extension_id": "cerb.resource.ui.map.geojson",
+  "extension_id": "cerb.resource.map",
   "description": "States of the United States as GeoJSON",
   "data": "map.country.usa.states.topojson.json",
   "updated_at": 1605317313

@@ -4599,11 +4599,11 @@
 		<!-- Resource Types -->
 
 		<extension point="cerb.resource.type">
-			<id>cerb.resource.ui.map.geojson</id>
-			<name>Map (GeoJSON)</name>
+			<id>cerb.resource.map</id>
+			<name>Map</name>
 			<class>
-				<file>api/resources/types/cerb.resource.ui.map.geojson.php</file>
-				<name>ResourceType_MapGeoJson</name>
+				<file>api/resources/types/cerb.resource.map.php</file>
+				<name>ResourceType_Map</name>
 			</class>
 			<params/>
 		</extension>
