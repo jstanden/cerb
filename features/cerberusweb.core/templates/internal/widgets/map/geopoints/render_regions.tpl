@@ -456,6 +456,10 @@ $(function() {
                     
                     zoomToLongLat(zoom_long_lat, zoom_scale);                
                 {/if}
+            }, function(e) {
+                $loading.remove();
+                if(console && console.error)
+                    console.error(e.message);
             });
     
             // Button reset
