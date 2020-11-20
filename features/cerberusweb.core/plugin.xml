@@ -4608,6 +4608,16 @@
 			<params/>
 		</extension>
 
+		<extension point="cerb.resource.type">
+			<id>cerb.resource.map.points</id>
+			<name>Map Points</name>
+			<class>
+				<file>api/resources/types/cerb.resource.map.points.php</file>
+				<name>ResourceType_MapPoints</name>
+			</class>
+			<params/>
+		</extension>
+
 		<!-- Triggers -->
 
 		<extension point="cerb.automation.trigger">
