@@ -211,8 +211,8 @@ $(function() {
                                 join_property = join_property.toLowerCase();
                                 {/if}
                                 
-                                if(regions_data.hasOwnProperty(join_property) && regions_data[join_property].hasOwnProperty('properties')) {
-                                    d.properties = Object.assign(d.properties, regions_data[join_property].properties);
+                                if(regions_data.hasOwnProperty(join_property)) {
+                                    d.properties = Object.assign(d.properties, regions_data[join_property]);
                                 }
                             {/if}
                             

@@ -4618,6 +4618,16 @@
 			<params/>
 		</extension>
 
+		<extension point="cerb.resource.type">
+			<id>cerb.resource.map.properties</id>
+			<name>Map Properties</name>
+			<class>
+				<file>api/resources/types/cerb.resource.map.properties.php</file>
+				<name>ResourceType_MapProperties</name>
+			</class>
+			<params/>
+		</extension>
+
 		<!-- Triggers -->
 
 		<extension point="cerb.automation.trigger">
