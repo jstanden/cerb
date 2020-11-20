@@ -471,50 +471,42 @@ class Controller_UI extends DevblocksControllerExtension {
 		$stack = $request->path;
 		array_shift($stack); // ui
 		@$action = array_shift($stack); // resource
-		
-		$resource_key = implode('/', $stack);
-	
+		@$resource_key = array_shift($stack); // e.g. map.world
+
 		if(false == ($resource = DAO_Resource::getByName($resource_key)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		$error = null;
-		$expires_at = null;
-		$contents = null;
 		
 		if(false == ($resource_ext = $resource->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 500);
 		
-		if($resource->is_dynamic) {
-			$contents = $resource->getFileContents($expires_at, $error);
+		// Verify allowed resource types on this endpoint
+		if(
+			!in_array($resource_ext->id, [
+				ResourceType_Map::ID,
+				ResourceType_MapPoints::ID,
+				ResourceType_MapProperties::ID,
+			])) {
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		}
 		
-		if(ResourceType_MapGeoJson::ID == $resource_ext->id) {
-			header('Content-Type: application/json; charset=utf-8');
-		} else {
-			header('Content-Type: application/octet-stream');
+		if(false == ($resource_content = $resource_ext->getContentData($resource)))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		
+		if($resource_content->error) {
+			DevblocksPlatform::dieWithHttpError($resource_content->error, 500);
 		}
 		
-		// Cache headers for browser
-		if($expires_at) {
-			header('Pragma: cache');
-			header(sprintf('Cache-control: max-age=%d', $expires_at - time()), true);
-			header('Expires: ' . gmdate('D, d M Y H:i:s', $expires_at) . ' GMT');
-			header('Accept-Ranges: bytes');
+		if($resource_content->expires_at) {
+			$resource_content->headers = array_merge($resource_content->headers, [
+				'Pragma: cache',
+				sprintf('Cache-control: max-age=%d', $resource_content->expires_at - time()),
+				'Expires: ' . gmdate('D, d M Y H:i:s', $resource_content->expires_at) . ' GMT',
+				'Accept-Ranges: bytes',
+			]);
 		}
 		
-		if($resource->is_dynamic) {
-			echo $contents;
-			
-		} else {
-			if($resource->storage_size > 1024000) {
-				$fp = DevblocksPlatform::getTempFile();
-				Storage_Resource::get($resource, $fp);
-				fpassthru($fp);
-				fclose($fp);
-			} else {
-				echo $resource->getFileContents($expires_at, $error);
-			}
-		}
+		$resource_content->writeHeaders();
+		$resource_content->writeBody();
 	}
 	
 	private function _uiAction_sheet() {

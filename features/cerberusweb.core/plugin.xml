@@ -591,6 +591,7 @@
 			<class name="Context_Resource" />
 			<class name="DAO_Resource" />
 			<class name="Model_Resource" />
+			<class name="Model_Resource_ContentData" />
 			<class name="SearchFields_Resource" />
 			<class name="View_Resource" />
 		</file>

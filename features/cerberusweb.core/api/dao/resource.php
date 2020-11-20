@@ -559,49 +559,30 @@ class Model_Resource {
 	public function getExtension($as_instance=true) {
 		return Extension_ResourceType::get($this->extension_id, $as_instance);
 	}
-	
-	public function getFileContents(&$expires_at=null, &$error=null) {
-		if($this->is_dynamic) {
-			$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
-			$active_worker = CerberusApplication::getActiveWorker();
-			
-			if(false == ($resource_ext = $this->getExtension()))
-				DevblocksPlatform::dieWithHttpError(null, 500);
-			
-			$error = null;
-			
-			$dict = DevblocksDictionaryDelegate::getDictionaryFromModel($this, CerberusContexts::CONTEXT_RESOURCE);
-			$dict->set('worker__context', CerberusContexts::CONTEXT_WORKER);
-			$dict->set('worker_id', $active_worker->id);
-			
-			$handlers = $event_handler->parse($this->automation_kata, $dict, $error);
-			
-			$initial_state = $dict->getDictionary();
-			
-			$automation_results = $event_handler->handleOnce(
-				AutomationTrigger_ResourceGet::ID,
-				$handlers,
-				$initial_state,
-				$error
-			);
-			
-			$file = $automation_results->getKeyPath('__return.file', null);
-			
-			if(is_null($file))
-				return false;
-			
-			if(!array_key_exists('content', $file))
-				return false;
-			
-			$expires_at = $file['expires_at'] ?? 0;
-			
-			return $file['content'];
-		}
-		
-		$expires_at = time() + 86400;
-		return Storage_Resource::get($this);
-	}
 };
+
+class Model_Resource_ContentData {
+	public $headers = [];
+	public $data = null;
+	public $expires_at = null;
+	public $error = null;
+	
+	public function writeHeaders() {
+		foreach($this->headers as $header)
+			header($header);
+		
+		return true;
+	}
+	
+	public function writeBody() {
+		if(!is_resource($this->data))
+			return false;
+		
+		fpassthru($this->data);
+		fclose($this->data);
+		return true;
+	}
+}
 
 class View_Resource extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
 	const DEFAULT_ID = 'resources';

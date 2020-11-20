@@ -636,12 +636,79 @@ abstract class Extension_ResourceType extends DevblocksExtension {
 	
 	static $_registry = [];
 	
-//	abstract function renderConfig(Model_Automation $model);
-//	abstract function validateConfig(array &$params, &$error);
-//	abstract function getInputsMeta();
-//	abstract function getOutputsMeta();
-//	abstract function getAutocompleteSuggestions() : array;
-//	abstract function getEditorToolbarItems(array $toolbar) : array;
+	/**
+	 * @param Model_Resource $resource
+	 * @return Model_Resource_ContentData
+	 */
+	abstract function getContentData(Model_Resource $resource);
+	
+	/**
+	 * @param Model_Resource $resource
+	 * @param Model_Resource_ContentData $content_data
+	 * @return bool
+	 */
+	function getContentResource(Model_Resource $resource, Model_Resource_ContentData &$content_data) {
+		if($resource->is_dynamic) {
+			$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+			$active_worker = CerberusApplication::getActiveWorker();
+			
+			$content_data->data = fopen('php://memory', 'w');
+			
+			$dict = DevblocksDictionaryDelegate::getDictionaryFromModel($resource, CerberusContexts::CONTEXT_RESOURCE);
+			$dict->set('actor__context', CerberusContexts::CONTEXT_WORKER);
+			$dict->set('actor_id', $active_worker->id ?? 0);
+			
+			$handlers = $event_handler->parse($resource->automation_kata, $dict, $error);
+			
+			$initial_state = $dict->getDictionary();
+			
+			$automation_results = $event_handler->handleOnce(
+				AutomationTrigger_ResourceGet::ID,
+				$handlers,
+				$initial_state,
+				$error
+			);
+			
+			$exit_code = $automation_results->get('__exit');
+			
+			if($exit_code != 'return') {
+				$content_data->error = sprintf('Automation exited in `%s` state.', $exit_code);
+				return false;
+			}
+			
+			if(null === ($file = $automation_results->getKeyPath('__return.file', null))) {
+				$content_data->error = '';
+				return false;
+			}
+			
+			if(!is_array($file) || !array_key_exists('content', $file)) {
+				$content_data->expires_at = 0;
+				return false;
+			}
+			
+			fwrite($content_data->data, $file['content']);
+			fseek($content_data->data, 0);
+			
+			$content_data->expires_at = $file['expires_at'] ?? null;
+			
+		} else {
+			$content_data->data =
+				($resource->storage_size > 1024000)
+					? DevblocksPlatform::getTempFile()
+					: fopen('php://memory', 'w')
+			;
+			
+			$content_data->expires_at = time() + 604800;
+			
+			if(!is_resource($content_data->data))
+				return false;
+			
+			if(false == (Storage_Resource::get($resource->id, $content_data->data)))
+				return false;
+		}
+		
+		return true;
+	}
 }
 
 abstract class Extension_AutomationTrigger extends DevblocksExtension {
