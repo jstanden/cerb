@@ -90,18 +90,24 @@ var cerbAutocompleteSuggestions = {
 			}
 		],
 		'map:regions:fill:': [
-			'color_key:',
-			'color_map:',
+			{
+				'caption': 'color_key:',
+				'snippet': 'color_key:\n  property: ${1:key_name}'
+			},
+			{
+				'caption': 'color_map:',
+				'snippet': 'color_map:\n  property: ${1:key_name}\n  colors@list:\n    ${2:key_value}: red'
+			},
 			{
 				'caption': 'choropleth:',
-				'snippet': 'choropleth:\n  property: key_name\n  classes: 8\n'
+				'snippet': 'choropleth:\n  property: ${1:key_name}\n  classes: 8\n'
 			}
 		],
 		'map:regions:fill:choropleth:': [
 			'property:',
 			{
 				'caption': 'classes:',
-				'snippet': 'classes: 8\n'
+				'snippet': 'classes: ${1:8}\n'
 			}
 		],
 
