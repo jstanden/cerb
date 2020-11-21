@@ -108,13 +108,13 @@ $(function() {
     
                         // Scale down the POIs as we zoom in
                         g.selectAll('circle.point')
-                            .attr('r', function() {
-                                var point_radius = 2;
-                                return point_radius / d3.event.transform.k;
+                            .style('r', function() {
+                                var point_radius = d3.select(this).attr('r');
+                                return point_radius / d3.event.transform.k + 'px';
                             })
-                            .attr('stroke-width', function(d) {
-                                var border_width = 0.5;
-                                return border_width / d3.event.transform.k;
+                            .attr('stroke-width', function() {
+                                var stroke_width = d3.select(this).attr('r') * 0.2;
+                                return stroke_width / d3.event.transform.k + 'px';
                             })
                         ;
                     })
@@ -431,15 +431,59 @@ $(function() {
                         })
                         {/if}
                         .append('circle')
+                        {if $map.points.size.value_map}
+                        .attr('r', function(d) {
+                            var k = {$map.points.size.value_map.property|json_encode nofilter};
+                            var v_default = {$map.points.size.default|floatval} || 2.0;
+                            var v_map = {$map.points.size.value_map.values|json_encode nofilter} || [];
+                            
+                            if(!k || !d.properties.hasOwnProperty(k))
+                                return v_default;
+                            
+                            var v = d.properties[k];
+
+                            if('object' != typeof v_map || !v_map.hasOwnProperty(v) || isNaN(parseFloat(v_map[v])))
+                                return v_default;
+                            
+                            return parseFloat(v_map[v]);
+                        })
+                        .attr('stroke-width', function(d) {
+                            var k = {$map.points.size.value_map.property|json_encode nofilter};
+                            var v_default = {$map.points.size.default|floatval} || 2.0;
+                            var v_map = {$map.points.size.value_map.values|json_encode nofilter} || [];
+                            
+                            if(!k || !d.properties.hasOwnProperty(k))
+                                return v_default * 0.2;
+                            
+                            var v = d.properties[k];
+                            
+                            if('object' != typeof v_map || !v_map.hasOwnProperty(v) || isNaN(parseFloat(v_map[v])))
+                                return v_default * 0.2;
+                            
+                            return parseFloat(v_map[v]) * 0.2;
+                        })
+                        {elseif $map.points.size.default}
+                        .attr('r', function(d) {
+                            var v_default = {$map.points.size.default|floatval} || 1.5;
+                            return v_default;
+                        })
+                        .attr('stroke-width', function(d) {
+                            var v_default = {$map.points.size.default|floatval} || 1.5;
+                            return v_default * 0.2;
+                        })
+                        {else}
                         .attr('r', '2')
                         .attr('fill', 'rgb(100,100,100)')
                         .attr('stroke-width', '0.5')
                         .attr('stroke', 'white')
                         .attr('transform', function (d) {
-                            return 'translate(' + projection([
-                                d.geometry.coordinates[0],
-                                d.geometry.coordinates[1]
-                            ]) + ')';
+                            if(d.hasOwnProperty('geometry') && d.geometry.hasOwnProperty('coordinates')) {
+                                return 'translate(' + projection([
+                                    d.geometry.coordinates[0],
+                                    d.geometry.coordinates[1]
+                                ]) + ')';
+                            }
+                            return null;
                         })
                         .attr('class', 'point')
                         .style('cursor', 'pointer')
