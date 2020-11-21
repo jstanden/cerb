@@ -1,0 +1,7 @@
+{
+  "name": "mapPoints.worldCapitalCities",
+  "extension_id": "cerb.resource.map.points",
+  "description": "Capital cities of the world as GeoJSON points",
+  "data": "mapPoints.worldCapitalCities.geojson.json",
+  "updated_at": 1605905922
+}

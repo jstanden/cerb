@@ -317,6 +317,7 @@ if(!isset($tables['resource'])) {
 		'map.world.countries.json',
 		'map.country.usa.states.json',
 		'map.country.usa.counties.json',
+		'mapPoints.worldCapitalCities.json',
 	];
 	
 	foreach($resource_files as $resource_file) {
