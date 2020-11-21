@@ -1,0 +1,7 @@
+{
+  "name": "mapPoints.usaStateCapitals",
+  "extension_id": "cerb.resource.map.points",
+  "description": "State capitals of the USA as GeoJSON points",
+  "data": "mapPoints.usaStateCapitals.geojson.json",
+  "updated_at": 1605905923
+}
