@@ -110,6 +110,7 @@ var cerbAutocompleteSuggestions = {
 			'label:',
 			'filter:',
 			'size:',
+			'fill:',
 			'data:'
 		],
 		'map:points:resource:': [
@@ -141,6 +142,13 @@ var cerbAutocompleteSuggestions = {
 			{
 				'caption': 'value_map:',
 				'snippet': 'value_map:\n  property: ${1:key_name}\n  values:\n    ${2:property_value}: 5.0'
+			}
+		],
+		'map:points:fill:': [
+			'default:',
+			{
+				'caption': 'color_map:',
+				'snippet': 'color_map:\n  property: ${1:key_name}\n  colors:\n    ${2:property_value}: #FF0000'
 			}
 		],
 		'map:points:data:': [

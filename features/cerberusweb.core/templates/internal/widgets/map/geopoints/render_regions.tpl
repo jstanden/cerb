@@ -473,8 +473,32 @@ $(function() {
                         })
                         {else}
                         .attr('r', '2')
-                        .attr('fill', 'rgb(100,100,100)')
-                        .attr('stroke-width', '0.5')
+                        .attr('stroke-width', '0.4')
+                        {/if}
+                        {if $map.points.fill.color_map}
+                        .attr('fill', function(d) {
+                            var k = {$map.points.fill.color_map.property|json_encode nofilter};
+                            var v_default = {$map.points.fill.default|json_encode nofilter} || '#333';
+                            var v_map = {$map.points.fill.color_map.colors|json_encode nofilter} || [];
+
+                            if(!k || !d.properties.hasOwnProperty(k))
+                                return v_default;
+
+                            var v = d.properties[k];
+                            
+                            if('object' != typeof v_map || !v_map.hasOwnProperty(v))
+                                return v_default;
+                            
+                            return v_map[v];
+                        })
+                        {elseif $map.points.fill.default}
+                        .attr('fill', function(d) {
+                            var v_default = {$map.points.fill.default|json_encode nofilter} || '#646464';
+                            return v_default;
+                        })
+                        {else}
+                        .attr('fill', '#646464')
+                        {/if}
                         .attr('stroke', 'white')
                         .attr('transform', function (d) {
                             if(d.hasOwnProperty('geometry') && d.geometry.hasOwnProperty('coordinates')) {
@@ -708,13 +732,13 @@ $(function() {
                     .each(function(d) {
                         var selected = d === selectedPoint;
 
-                        if(selected) {
+                        if(null == selectedPoint || selected) {
                             d3.select(this)
-                                .style('fill', 'red')
+                                .style('fill', null)
                             ;
                         } else {
                             d3.select(this)
-                                .style('fill', null)
+                                .style('fill', 'rgba(0,0,0,0.2)')
                             ;
                         }
                         return selected;
@@ -864,7 +888,7 @@ $(function() {
                 selectedPoint = null;
                 
                 focusRegion(selectedRegion);
-                focusPoint(selectedPoint);
+                focusPoint(selectedRegion); // intentional
             }
             
 		} catch(e) {
