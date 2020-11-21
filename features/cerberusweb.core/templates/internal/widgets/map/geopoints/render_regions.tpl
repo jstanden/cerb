@@ -647,12 +647,14 @@ $(function() {
     
                             } else {
                                 var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
-                                setLabelToProperties(d, keys);
+                                var title = {$map.points.label.title|json_encode nofilter};
+                                setLabelToProperties(d, keys, title);
                             }
                         });
                         {else}
                             var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
-                            setLabelToProperties(d, keys);
+                            var title = {$map.points.label.title|json_encode nofilter};
+                            setLabelToProperties(d, keys, title);
                         {/if}
 
                     {elseif $widget && is_a($widget, 'Model_WorkspaceWidget')}
@@ -684,16 +686,19 @@ $(function() {
     
                             } else {
                                 var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
-                                setLabelToProperties(d, keys);
+                                var title = {$map.points.label.title|json_encode nofilter};
+                                setLabelToProperties(d, keys, title);
                             }
                         });
                         {else}
                             var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
-                            setLabelToProperties(d, keys);
+                            var title = {$map.points.label.title|json_encode nofilter};
+                            setLabelToProperties(d, keys, title);
                         {/if}
                     {else}
                         var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
-                        setLabelToProperties(d, keys);
+                        var title = {$map.points.label.title|json_encode nofilter};
+                        setLabelToProperties(d, keys, title);
                     {/if}
                     
                 } else {
@@ -746,7 +751,7 @@ $(function() {
                 ;
             }
             
-            function setLabelToProperties(d, property_meta) {
+            function setLabelToProperties(d, property_meta, title) {
                 if(!property_meta) {
                     property_meta = { };
                     Object.keys(d.properties).forEach(function(k) {
@@ -756,8 +761,11 @@ $(function() {
                 
                 label.html('');
                 
-                // [TODO]
-                //label.append('h1').style('color', 'inherit').text(d.properties['name_en']);
+                if(!title)
+                    title = 'name';
+                
+                if(d.properties.hasOwnProperty(title))
+                    label.append('h1').style('color', 'inherit').style('margin','0').text(d.properties[title]);
                 
                 label
                     .append('table')
@@ -830,12 +838,14 @@ $(function() {
     
                             } else {
                                 var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
-                                setLabelToProperties(d, keys);
+                                var title = {$map.regions.label.title|json_encode nofilter};
+                                setLabelToProperties(d, keys, title);
                             }
                         });
                         {else}
                             var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
-                            setLabelToProperties(d, keys);
+                            var title = {$map.regions.label.title|json_encode nofilter};
+                            setLabelToProperties(d, keys, title);
                         {/if}
 
                     {elseif $widget && is_a($widget, 'Model_WorkspaceWidget')}
@@ -867,16 +877,19 @@ $(function() {
     
                             } else {
                                 var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
-                                setLabelToProperties(d, keys);
+                                var title = {$map.regions.label.title|json_encode nofilter};
+                                setLabelToProperties(d, keys, title);
                             }
                         });
                         {else}
                             var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
-                            setLabelToProperties(d, keys);
+                            var title = {$map.regions.label.title|json_encode nofilter};
+                            setLabelToProperties(d, keys, title);
                         {/if}
                     {else}
                         var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
-                        setLabelToProperties(d, keys);
+                        var title = {$map.regions.label.title|json_encode nofilter};
+                        setLabelToProperties(d, keys, title);
                     {/if}
                     
                 } else {

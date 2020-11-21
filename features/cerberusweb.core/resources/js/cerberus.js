@@ -51,6 +51,7 @@ var cerbAutocompleteSuggestions = {
 			'fill:'
 		],
 		'map:regions:label:': [
+			'title:',
 			'properties:'
 		],
 		'map:regions:properties:': [
@@ -123,6 +124,7 @@ var cerbAutocompleteSuggestions = {
 			'uri:'
 		],
 		'map:points:label:': [
+			'title:',
 			'properties:'
 		],
 		'map:points:filter:': [
