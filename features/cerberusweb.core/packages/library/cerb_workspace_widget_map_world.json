@@ -44,7 +44,7 @@
       "pos": 0,
       "width_units": 2,
       "params": {
-        "map_kata": "map:\r\n  resource:\r\n    uri: cerb:resource:map.world.countries\r\n  projection:\r\n    type: mercator\r\n    scale: 90\r\n    center:\r\n      longitude: 0\r\n      latitude: 7.0\r\n  regions:\r\n    label:\r\n      properties:\r\n        name:\r\n          label: Country\r\n        pop_est:\r\n          label: Population\r\n          format: number\r\n        lastcensus:\r\n          label: Last Census\r\n    fill:\r\n      choropleth:\r\n        property: pop_est\r\n        classes: 8\r\n  points:\r\n",
+        "map_kata": "map:\r\n  resource:\r\n    uri: cerb:resource:map.world.countries\r\n  projection:\r\n    type: mercator\r\n    scale: 90\r\n    center:\r\n      longitude: 0\r\n      latitude: 7.0\r\n  regions:\r\n    label:\r\n      title: name\r\n      properties:\r\n        name:\r\n          label: Country\r\n        pop_est:\r\n          label: Population\r\n          format: number\r\n        lastcensus:\r\n          label: Last Census\r\n    fill:\r\n      choropleth:\r\n        property: pop_est\r\n        classes: 8\r\n  points:\r\n    resource:\r\n      uri: cerb:resource:mapPoints.worldCapitalCities\r\n    label:\r\n      title: name\r\n      properties:\r\n        adm0name:\r\n          label: Country\r\n    size:\r\n      default: 2\r\n    fill:\r\n      default: #646464",
         "automation": {
           "map_clicked": ""
         }

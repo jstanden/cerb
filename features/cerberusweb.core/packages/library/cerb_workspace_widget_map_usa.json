@@ -45,7 +45,7 @@
       "width_units": 2,
       "zone": "left",
       "params": {
-        "map_kata": "map:\r\n  resource:\r\n    uri: cerb:resource:map.country.usa.states\r\n  projection:\r\n    type: albersUsa\r\n    scale: 650\r\n  regions:\r\n    label:\r\n      properties:\r\n        name:\r\n          label: State\r\n        censusarea:\r\n          label: Area (sq mi)\r\n          format: number\r\n    fill:\r\n      choropleth:\r\n        property: censusarea\r\n        classes: 8\r\n  points:\r\n",
+        "map_kata": "map:\r\n  resource:\r\n    uri: cerb:resource:map.country.usa.states\r\n  projection:\r\n    type: albersUsa\r\n    scale: 650\r\n  regions:\r\n    label:\r\n      title: name_en\r\n      properties:\r\n        region_sub:\r\n          label: Region\r\n        postal:\r\n        iso_3166_2:\r\n    fill:\r\n      color_map:\r\n        property: name\r\n        colors:\r\n          California: cornflowerblue\r\n          Texas: orangered\r\n  points:\r\n    resource:\r\n      uri: cerb:resource:mapPoints.usaStateCapitals\r\n    size:\r\n      default: 2\r\n    fill:\r\n      default: #646464",
         "automation": {
           "map_clicked": ""
         }
