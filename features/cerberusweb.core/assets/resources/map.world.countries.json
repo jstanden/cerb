@@ -3,5 +3,5 @@
   "extension_id": "cerb.resource.map",
   "description": "Countries of the world as GeoJSON",
   "data": "map.world.countries.topojson.json",
-  "updated_at": 1605317313
+  "updated_at": 1606164523
 }
