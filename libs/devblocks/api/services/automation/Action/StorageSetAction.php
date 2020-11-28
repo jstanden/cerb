@@ -77,7 +77,6 @@ class StorageSetAction extends AbstractAction {
 			if($output)
 				$dict->set($output, [
 					'key' => $inputs['key'],
-					'value' => $inputs['value'],
 					'expires' => $expires_at,
 				]);
 			
@@ -93,6 +92,8 @@ class StorageSetAction extends AbstractAction {
 				
 				return $event_error->getId();
 			}
+			
+			return false;
 		}
 		
 		if(null != ($event_success = $this->node->getChildBySuffix(':on_success'))) {

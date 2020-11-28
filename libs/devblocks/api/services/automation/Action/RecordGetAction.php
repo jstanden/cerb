@@ -44,7 +44,7 @@ class RecordGetAction extends AbstractAction {
 				->setRequired(true)
 			;
 			
-			$validation->addField('id', 'inputs:id:')
+			$validation->addField('record_id', 'inputs:record_id:')
 				->id()
 				->setRequired(true)
 			;
@@ -70,7 +70,7 @@ class RecordGetAction extends AbstractAction {
 			}
 			
 			$record_type = $inputs['record_type'];
-			$id = $inputs['id'];
+			$id = $inputs['record_id'];
 			
 			if ($record_type && $id) {
 				if (false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))

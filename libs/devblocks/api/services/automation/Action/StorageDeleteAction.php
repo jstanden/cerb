@@ -75,6 +75,8 @@ class StorageDeleteAction extends AbstractAction {
 				
 				return $event_error->getId();
 			}
+			
+			return false;
 		}
 		
 		if(null != ($event_success = $this->node->getChildBySuffix(':on_success'))) {

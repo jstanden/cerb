@@ -16,8 +16,12 @@ class AutomationTrigger_ResourceGet extends Extension_AutomationTrigger {
 	function getInputsMeta() {
 		return [
 			[
-				'key' => 'worker_*',
-				'notes' => 'The active worker record. Supports key expansion.',
+				'key' => 'resource_*',
+				'notes' => 'The resource record. Supports key expansion.',
+			],
+			[
+				'key' => 'actor_*',
+				'notes' => 'The current actor record. Supports key expansion.',
 			],
 		];
 	}

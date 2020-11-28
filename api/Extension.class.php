@@ -998,7 +998,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):email.parse:' => $action_base,
 				'(.*):email.send:' => $action_base,
 				
-				'(.*):function:' => $action_base,
+				'(.*):function:' => array_merge(['uri:'], $action_base),
 				
 				'(.*):http.request:' => $action_base,
 				'(.*):http.request:inputs:' => [

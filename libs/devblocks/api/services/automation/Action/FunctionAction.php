@@ -67,7 +67,7 @@ class FunctionAction extends AbstractAction {
 			}
 			
 			if (false == ($automation = DAO_Automation::getByUri($params['uri'], AutomationTrigger_AutomationFunction::ID))) {
-				throw new Exception_DevblocksAutomationError(sprintf('Function (%s) must be an automation.function', $params['name']));
+				throw new Exception_DevblocksAutomationError(sprintf('Function (%s) must be an automation.function', $params['uri']));
 			}
 			
 			$initial_state = [

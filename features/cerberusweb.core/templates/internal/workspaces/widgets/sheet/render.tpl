@@ -115,6 +115,7 @@ $(function() {
 		caller: {
 			name: 'cerb.toolbar.workspaceWidget.sheet',
 			params: {
+				page_id: '{$widget->getWorkspacePage()->id}',
 				widget_id: '{$widget->id}'
 			}
 		},

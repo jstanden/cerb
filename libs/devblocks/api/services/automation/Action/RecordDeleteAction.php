@@ -21,11 +21,6 @@ class RecordDeleteAction extends AbstractAction {
 		try {
 			// Validate params
 			
-			$validation->addField('action', 'action:')
-				->string()
-				->setRequired(true)
-			;
-			
 			$validation->addField('inputs', 'inputs:')
 				->array()
 			;
@@ -47,7 +42,7 @@ class RecordDeleteAction extends AbstractAction {
 				->setRequired(true)
 			;
 			
-			$validation->addField('id', 'inputs:id:')
+			$validation->addField('record_id', 'inputs:record_id:')
 				->id()
 				->setRequired(true)
 			;
@@ -73,7 +68,7 @@ class RecordDeleteAction extends AbstractAction {
 			}
 			
 			$record_type = $inputs['record_type'];
-			$record_id = $inputs['id'];
+			$record_id = $inputs['record_id'];
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true))) {
 				throw new Exception_DevblocksAutomationError(sprintf(
@@ -97,7 +92,7 @@ class RecordDeleteAction extends AbstractAction {
 			if(false == ($model = $dao_class::get($record_id)))
 				throw new Exception_DevblocksAutomationError(sprintf("Record #%d not found", $record_id));
 			
-			$record_dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$model], $context_ext->id);
+			$record_dicts = DevblocksDictionaryDelegate::getDictionariesFromModels([$model->id => $model], $context_ext->id);
 			
 			$dao_class::delete($record_id);
 			

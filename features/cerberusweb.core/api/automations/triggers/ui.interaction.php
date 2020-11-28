@@ -31,11 +31,15 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'caller_name',
-				'notes' => '',
+				'notes' => 'The caller which started the interaction.',
 			],
 			[
 				'key' => 'caller_params',
-				'notes' => '',
+				'notes' => 'Built-in parameters based on the caller type.',
+			],
+			[
+				'key' => 'inputs',
+				'notes' => 'Custom inputs from the caller.',
 			],
 			[
 				'key' => 'worker_*',
@@ -98,14 +102,38 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 					'text:',
 					'textarea:',
 				],
-				'(.*):await:form:map:' => [
-					'region:',
-					'geojson@json:',
+				
+				'(.*):await:form:elements:editor:' => [
+					'label:',
+					'syntax:',
+					'default:',
 				],
-				'(.*):await:form:map:region:' => [
-					'usa',
-					'world',
+				'(.*):await:form:elements:editor:syntax:' => [
+					'cerb_query',
+					'html',
+					'json',
+					'markdown',
+					'text',
+					'yaml',
 				],
+				
+				'(.*):await:form:elements:fileUpload:' => [
+					'label:',
+				],
+			
+				// [TODO] Maps KATA	
+				'(.*):await:form:elements:map:' => [
+					'resource:',
+					'projection:',
+					'regions:',
+					'points:',
+				],
+				
+				'(.*):await:form:elements:say:' => [
+					'content@text:',
+					'message@text:',
+				],
+				
 			]
 		];
 	}

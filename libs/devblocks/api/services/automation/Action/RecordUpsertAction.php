@@ -1,9 +1,6 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
-use CerberusContexts;
-use DAO_CustomField;
-use DAO_CustomFieldValue;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
@@ -44,7 +41,7 @@ class RecordUpsertAction extends AbstractAction {
 				->setRequired(true)
 			;
 			
-			$validation->addField('query', 'inputs:query:')
+			$validation->addField('record_query', 'inputs:record_query:')
 				->string()
 				->setRequired(true)
 			;
@@ -75,7 +72,7 @@ class RecordUpsertAction extends AbstractAction {
 			}
 			
 			@$record_type = $inputs['record_type'];
-			@$query = $inputs['query'];
+			@$query = $inputs['record_query'];
 			@$fields = $inputs['fields'] ?? [];
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true))) {
@@ -97,15 +94,23 @@ class RecordUpsertAction extends AbstractAction {
 			list($results, $total) = $view->getData();
 			
 			if(0 == $total) {
-				$params['action'] = 'create';
-				unset($params['inputs']['query']);
-				return $this->_activateCreate($params, $dict, $node_memory, $policy, $error);
+				unset($params['inputs']['record_query']);
+				
+				$action_node = clone $this->node;
+				$action_node->setType('record.create');
+				$action_node->setParams($params);
+				$action = new RecordCreateAction($action_node);
+				return $action->activate($dict, $node_memory, $policy, $error);
 				
 			} elseif (1 == $total) {
-				$params['action'] = 'update';
-				$params['inputs']['id'] = key($results);
-				unset($params['inputs']['query']);
-				return $this->_activateUpdate($params, $dict, $node_memory, $policy, $error);
+				$params['inputs']['record_id'] = key($results);
+				unset($params['inputs']['record_query']);
+				
+				$action_node = clone $this->node;
+				$action_node->setType('record.update');
+				$action_node->setParams($params);
+				$action = new RecordUpdateAction($action_node);
+				return $action->activate($dict, $node_memory, $policy, $error);
 				
 			} else {
 				throw new Exception_DevblocksAutomationError("An upsert query must match exactly one or zero records.");

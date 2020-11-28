@@ -54,16 +54,16 @@ class HttpRequestAction extends AbstractAction {
 			$validation->addField('method', 'inputs:method:')
 				->string()
 				->addFormatter($validation->formatters()->stringUpper())
-				->setPossibleValues(['GET', 'PUT', 'POST', 'PATCH', 'DELETE'])
+				->setPossibleValues(['GET', 'PUT', 'POST', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'])
 			;
 			
 			$validation->addField('headers', 'inputs:headers:')
 				->stringOrArray()
 			;
 			
-			$validation->addField('query', 'inputs:query:')
-				->stringOrArray()
-			;
+//			$validation->addField('query', 'inputs:query:')
+//				->stringOrArray()
+//			;
 			
 			$validation->addField('body', 'inputs:body:')
 				->string()
@@ -116,8 +116,8 @@ class HttpRequestAction extends AbstractAction {
 				$request_options['verify'] = false;
 			}
 			
-			if(isset($options['connected_account_id']) && $options['connected_account_id']) {
-				if(false == ($connected_account = DAO_ConnectedAccount::get($options['connected_account_id'])))
+			if(isset($options['connected_account']) && $options['connected_account']) {
+				if(false == ($connected_account = DAO_ConnectedAccount::get($options['connected_account'])))
 					return false;
 				
 				if(false == $connected_account->authenticateHttpRequest($request, $request_options, CerberusContexts::getCurrentActor()))

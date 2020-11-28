@@ -52,11 +52,13 @@ class _DevblocksAutomationService {
 									'yes' => true,
 									'y' => true,
 									'true' => true,
+									'on' => true,
 									false => false,
 									0 => false,
-									'no' => true,
-									'n' => true,
-									'false' => true,
+									'no' => false,
+									'n' => false,
+									'false' => false,
+									'off' => false,
 									null => false,
 								];
 								
@@ -1001,7 +1003,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 						if(0 == strlen($value)) {
 							$value = 0;
 						} else {
-							$value = in_array($value, ['0','false','n','no']) ? 0 : 1;
+							$value = in_array($value, ['0','false','n','no','off']) ? 0 : 1;
 						}
 						break;
 						
@@ -1013,7 +1015,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 						if(0 == strlen($value)) {
 							$value = false;
 						} else {
-							$value = in_array($value, ['0','false','n','no']) ? false : true;
+							$value = in_array($value, ['0','false','n','no','off']) ? false : true;
 						}
 						break;
 						
@@ -1078,5 +1080,14 @@ class CerbAutomationAstNode implements JsonSerializable {
 		}
 		
 		return true;
+	}
+	
+	public function getName() {
+		if(false == ($id = $this->getId()))
+			return null;
+		
+		$parts = explode(':', $id);
+		
+		return array_pop($parts);
 	}
 }
