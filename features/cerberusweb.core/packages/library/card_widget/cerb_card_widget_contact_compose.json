@@ -325,7 +325,7 @@
       "width_units": "4",
       "zone": "content",
       "extension_params": {
-        "interactions_kata": "interaction/compose:\r\n  label: Compose\r\n  name: wgmComposeFromRecord\r\n  inputs:\r\n    var_record_type: {{record__context}}\r\n    var_record_id: {{record_id}}\r\n  icon: send\r\n  event/done:\r\n    refresh_widgets@list:\r\n      Tickets\r\n      Actions\r\n"
+        "interactions_kata": "interaction/compose:\r\n  label: Compose\r\n  name: wgmComposeFromRecord\r\n  inputs:\r\n    var_record_type: {{record__context}}\r\n    var_record_id: {{record_id}}\r\n  icon: send\r\n  after:\r\n    refresh_widgets@list:\r\n      Tickets\r\n      Actions\r\n"
       }
     }
   ]

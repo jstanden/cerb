@@ -337,7 +337,10 @@ if(!isset($tables['resource'])) {
 // Update package library
 
 $packages = [
-	'cerb_profile_widget_ticket_participants.json',
+	'card_widget/cerb_card_widget_address_compose.json',
+	'card_widget/cerb_card_widget_contact_compose.json',
+	'card_widget/cerb_card_widget_org_compose.json',
+	'cerb_profile_widget_ticket_participants.json ',
 	'cerb_project_board_kanban.json',
 	'cerb_workspace_widget_map_usa.json',
 	'cerb_workspace_widget_map_world.json',

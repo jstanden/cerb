@@ -668,7 +668,6 @@ class _DevblocksAutomationService {
 		foreach($params as $key => $value) {
 			$states[] = $key;
 			
-			// [TODO] Change to `onSuccess` etc
 			if(in_array(strval($key), ['on_success','on_error','on_simulate'])) {
 				$event_id = implode(':', $states);
 				
