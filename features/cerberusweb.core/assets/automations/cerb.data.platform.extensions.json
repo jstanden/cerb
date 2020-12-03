@@ -3,7 +3,7 @@
     "description": "A filterable, pageable list of platform extensions",
     "extension_id": "cerb.trigger.ui.sheet.data",
     "script": "inputs:\r\n  text/point:\r\n    required@bool: yes\r\n  text/page:\r\n    type: number\r\n    default: 0\r\n  text/limit:\r\n    type: number\r\n    default: 30\r\n  text/filter:\r\n    type: freeform\r\n\r\nstart:\r\n  data.query:\r\n    output: results\r\n    inputs:\r\n      query@text:\r\n        type:platform.extensions\r\n        point:{{inputs.point}}\r\n        {% if inputs.filter -%}\r\n        filter: {{inputs.filter}}\r\n        {% endif -%}\r\n        {% if inputs.limit -%}\r\n        limit: {{inputs.limit}}\r\n        {% endif -%}\r\n        {% if inputs.page -%}\r\n        page: {{inputs.page}}\r\n        {% endif -%}\r\n        format: dictionaries\r\n    on_success:\r\n      return:\r\n        data@key: results:data\r\n        paging@key: results:_:paging\r\n    on_error:\r\n      error:\r\n        message@key: results:errorstart:\r\n  ",
-    "policy_kata": "data.query:\r\n  rule:\r\n    allow@bool: yes",
+    "policy_kata": "commands:\r\n  data.query:\r\n    allow: yes",
     "created_at": 1602893730,
-    "updated_at": 1602893730
+    "updated_at": 1607031855
 }

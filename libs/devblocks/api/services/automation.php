@@ -696,6 +696,8 @@ class _DevblocksAutomationService {
 class CerbAutomationPolicy {
 	private $_rules;
 	
+	private $_commands = [];
+	
 	public function __construct($policy_data) {
 		$this->_rules = [];
 		
@@ -709,35 +711,58 @@ class CerbAutomationPolicy {
 		if(!is_array($policy_data))
 			return false;
 		
-		foreach($policy_data as $node_name => $rules) {
-			foreach($rules as $rule_key => $rule_data) {
-				@list($rule_name, $rule_id) = explode('/', $rule_key, 2);
+		if(array_key_exists('commands', $policy_data)) {
+			foreach($policy_data['commands'] as $command => $rules) {
+				$this->_commands[$command] = [];
 				
-				if('rule' != $rule_name)
+				if(!is_array($rules))
 					continue;
 				
-				if(!$rule_id)
-					$rule_id = $rule_name;
-				
-				if(!$rule_id)
-					$rule_id = uniqid();
-				
-				$this->_rules[$node_name][$rule_id] = $rule_data;
+				foreach($rules as $rule_key => $rule_data) {
+					@list($rule_type, $rule_annotations) = explode('@', $rule_key, 2);
+					@list($rule_type, $rule_id) = explode('/', $rule_type, 2);
+					
+					$rule_type = DevblocksPlatform::strLower($rule_type);
+					
+					if(!in_array($rule_type, ['allow', 'deny']))
+						continue;
+					
+					if(!$rule_id)
+						$rule_id = uniqid();
+					
+					$this->_commands[$command][$rule_id] = [
+						'key' => $rule_key . (!$rule_annotations ? '@bool' : ''),
+						'type' => $rule_type,
+						'id' => $rule_id,
+						'value' => $rule_data,
+					];
+				}
 			}
 		}
 		
 		return $this;
 	}
 	
-	public function isAllowed($node_name, DevblocksDictionaryDelegate $dict)  {
-		if(!array_key_exists($node_name, $this->_rules))
-			return false;
+	public function isCommandAllowed($node_name, DevblocksDictionaryDelegate $dict)  {
+		$rules = [];
 		
-		foreach($this->_rules[$node_name] as $rule_data) {
-			$rule = DevblocksPlatform::services()->kata()->formatTree($rule_data, $dict);
+		if(array_key_exists($node_name, $this->_commands))
+			$rules = $this->_commands[$node_name];
+		
+		if(array_key_exists('all', $this->_commands))
+			$rules = array_merge($rules, $this->_commands['all']);
+		
+		foreach($rules as $rule_data) {
+			$rule = [
+				$rule_data['key'] => $rule_data['value'],
+			];
+			$rule = DevblocksPlatform::services()->kata()->formatTree($rule, $dict);
 			
 			if(array_key_exists('allow', $rule) && $rule['allow'])
 				return true;
+			
+			if(array_key_exists('deny', $rule) && $rule['deny'])
+				return false;
 		}
 		
 		return false;

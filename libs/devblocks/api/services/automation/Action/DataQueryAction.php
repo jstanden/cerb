@@ -61,7 +61,7 @@ class DataQueryAction extends AbstractAction {
 				'output' => $output,
 			]);
 			
-			if(!$policy->isAllowed(self::ID, $policy_dict)) {
+			if(!$policy->isCommandAllowed(self::ID, $policy_dict)) {
 				$error = sprintf(
 					"The automation policy does not permit this action (%s).",
 					self::ID

@@ -85,7 +85,6 @@ if(!isset($tables['automation'])) {
 		'ai.cerb.eventHandler.automation.json',
 		'ai.cerb.toolbarBuilder.interaction.json',
 		'ai.cerb.toolbarBuilder.menu.json',
-		'cerb.data.geojson.json',
 		'cerb.data.platform.extensions.json',
 		'cerb.data.record.fields.json',
 		'cerb.data.record.types.json',

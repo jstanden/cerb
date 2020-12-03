@@ -56,7 +56,7 @@ class EmailParseAction extends AbstractAction {
 				'output' => $output,
 			]);
 			
-			if(!$policy->isAllowed(self::ID, $action_dict)) {
+			if(!$policy->isCommandAllowed(self::ID, $action_dict)) {
 				$error = sprintf(
 					"The automation policy does not permit this action (%s).",
 					self::ID
