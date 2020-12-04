@@ -3279,6 +3279,14 @@
 			</tuv>
 		</tu>
 
+		<!-- Automation -->
+		
+		<tu tuid="dao.automation.is_unlisted">
+			<tuv xml:lang="en_US">
+				<seg>Unlisted</seg>
+			</tuv>
+		</tu>
+		
 		<!-- CalendarEvent -->
 		
 		<tu tuid="dao.calendar_event.is_available">

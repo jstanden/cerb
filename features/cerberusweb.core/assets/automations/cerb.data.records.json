@@ -2,6 +2,7 @@
     "name": "cerb.data.records",
     "description": "A filterable, pageable list of a given record type",
     "extension_id": "cerb.trigger.ui.sheet.data",
+    "is_unlisted": 0,
     "script": "inputs:\r\n  text/record_type:\r\n    type: record_type\r\n    required@bool: yes\r\n  text/filter:\r\n    type: freeform\r\n  text/query_required:\r\n    type: freeform\r\n  text/page:\r\n    type: number\r\n    default@int: 0\r\n  text/limit:\r\n    type: number\r\n    default@int: 0\r\n\r\nstart:\r\n  data.query:\r\n    output: results\r\n    inputs:\r\n      query@text:\r\n        type: worklist.records\r\n        of: {{inputs.record_type}}\r\n        query.required: (\r\n          {{inputs.query_required}}\r\n          {% if inputs.limit %}limit: {{inputs.limit}}{% endif %}\r\n        )\r\n        {% if inputs.filter -%}\r\n        query: (\r\n          {{inputs.filter}}\r\n        )\r\n        {% endif -%}\r\n        {% if inputs.limit and inputs.page -%}\r\n        page: {{inputs.page}}\r\n        {% endif -%}\r\n        format: dictionaries\r\n    on_success:\r\n      return:\r\n        data@key: results:data\r\n        paging@key: results:_:paging\r\n    on_error:\r\n      error:\r\n        message@key: results:error",
     "policy_kata": "commands:\r\n  data.query:\r\n    allow: yes",
     "created_at": 1600722810,

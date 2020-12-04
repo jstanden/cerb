@@ -49,13 +49,16 @@ if(!isset($tables['automation'])) {
 		`description` varchar(255) NOT NULL DEFAULT '',
 		`extension_id` varchar(255) NOT NULL DEFAULT '',
 		`extension_params_json` mediumtext,
+		`is_unlisted` tinyint(1) unsigned NOT NULL DEFAULT 0,
 		`created_at` int(10) unsigned NOT NULL DEFAULT 0,
 		`updated_at` int(10) unsigned NOT NULL DEFAULT 0,
 		`script` mediumtext,
 		`policy_kata` text,
 		PRIMARY KEY (id),
 		UNIQUE (name),
-		INDEX (extension_id)
+		INDEX (extension_id),
+		INDEX (is_unlisted),
+		INDEX (updated_at)
 		) ENGINE=%s
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
