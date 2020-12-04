@@ -1,5 +1,5 @@
 <div id="{$layer}">
-	{include file="devblocks:cerberusweb.core::automations/triggers/ui.interaction/panel.tpl"}
+	{include file="devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/panel.tpl"}
 </div>
 
 <script type="text/javascript">

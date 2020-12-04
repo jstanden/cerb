@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
+namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
 
 use _DevblocksValidationService;
 use CerberusApplication;
@@ -37,6 +37,6 @@ class MapAwait extends AbstractAwait {
 			return;
 		
 		$tpl->assign('map', $map);
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/map.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/await/map.tpl');
 	}
 }

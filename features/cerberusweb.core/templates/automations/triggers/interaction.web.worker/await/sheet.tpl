@@ -272,7 +272,7 @@ $(function() {
 
 	$sheet_toolbar.cerbToolbar({
 		caller: {
-			name: 'cerb.toolbar.automation.uiInteraction.await.sheet',
+			name: 'cerb.toolbar.interaction.web.worker.await.sheet',
 			params: {
 			}
 		},

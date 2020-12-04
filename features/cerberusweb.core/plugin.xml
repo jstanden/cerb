@@ -4696,11 +4696,11 @@
 		</extension>
 		
 		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.ui.interaction</id>
-			<name>ui.interaction</name>
+			<id>cerb.trigger.interaction.web.worker</id>
+			<name>interaction.web.worker</name>
 			<class>
-				<file>api/automations/triggers/ui.interaction.php</file>
-				<name>AutomationTrigger_UiInteraction</name>
+				<file>api/automations/triggers/interaction.web.worker.php</file>
+				<name>AutomationTrigger_InteractionWebWorker</name>
 			</class>
 			<params>
 				<param key="features">

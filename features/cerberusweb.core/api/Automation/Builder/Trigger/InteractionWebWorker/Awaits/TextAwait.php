@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
+namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
@@ -200,6 +200,6 @@ class TextAwait extends AbstractAwait {
 		$tpl->assign('value', $this->_value);
 		$tpl->assign('is_required', $is_required);
 		$tpl->assign('max_length', $max_length);
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/text.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/await/text.tpl');
 	}
 }

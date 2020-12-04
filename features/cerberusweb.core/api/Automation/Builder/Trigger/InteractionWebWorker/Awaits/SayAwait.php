@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
+namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;

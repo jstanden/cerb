@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\UiInteraction\Awaits;
+namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
@@ -28,6 +28,6 @@ class SubmitAwait extends AbstractAwait {
 			'reset' => $show_reset,
 		]);
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/await/submit.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/await/submit.tpl');
 	}
 }

@@ -1,18 +1,18 @@
 <?php
-class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
-	const ID = 'cerb.trigger.ui.interaction';
+class AutomationTrigger_InteractionWebWorker extends Extension_AutomationTrigger {
+	const ID = 'cerb.trigger.interaction.web.worker';
 	
 	public static function getFormComponentMeta() {
 		return [
-			'editor' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\EditorAwait',
-			'end' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\EndAwait',
-			'fileUpload' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\FileUploadAwait',
-			'map' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\MapAwait',
-			'say' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\SayAwait',
-			'sheet' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\SheetAwait',
-			'submit' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\SubmitAwait',
-			'text' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\TextAwait',
-			'textarea' => 'Cerb\Automation\Builder\Trigger\UiInteraction\Awaits\TextareaAwait',
+			'editor' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\EditorAwait',
+			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\EndAwait',
+			'fileUpload' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\FileUploadAwait',
+			'map' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\MapAwait',
+			'say' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\SayAwait',
+			'sheet' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\SheetAwait',
+			'submit' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\SubmitAwait',
+			'text' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\TextAwait',
+			'textarea' => 'Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits\TextareaAwait',
 		];
 	}
 	
@@ -58,23 +58,23 @@ class AutomationTrigger_UiInteraction extends Extension_AutomationTrigger {
 			'items' => [
 				'interaction/prompt_editor' => [
 					'label' => 'Editor',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.promptEditor',
+					'uri' => 'ai.cerb.automationBuilder.interaction.web.worker.await.promptEditor',
 				],
 				'interaction/respond_map' => [
 					'label' => 'Map',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.map',
+					'uri' => 'ai.cerb.automationBuilder.interaction.web.worker.await.map',
 				],
 				'interaction/respond_say' => [
 					'label' => 'Say',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.say',
+					'uri' => 'ai.cerb.automationBuilder.interaction.web.worker.await.say',
 				],
 				'interaction/prompt_sheet' => [
 					'label' => 'Sheet',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.promptSheet',
+					'uri' => 'ai.cerb.automationBuilder.interaction.web.worker.await.promptSheet',
 				],
 				'interaction/prompt_text' => [
 					'label' => 'Text',
-					'uri' => 'ai.cerb.automationBuilder.ui.interaction.await.promptText',
+					'uri' => 'ai.cerb.automationBuilder.interaction.web.worker.await.promptText',
 				]
 			], // items
 		];

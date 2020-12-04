@@ -398,7 +398,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			}
 		}
 		
-		if($interaction_uri && false != ($automation = DAO_Automation::getByUri($interaction_uri, AutomationTrigger_UiInteraction::ID))) {
+		if($interaction_uri && false != ($automation = DAO_Automation::getByUri($interaction_uri, AutomationTrigger_InteractionWebWorker::ID))) {
 			return $this->_startBotInteractionAsAutomation($automation);
 
 		} else if($interaction_uri && is_numeric($interaction_uri) && false != ($behavior = DAO_TriggerEvent::get($interaction_uri))) {
@@ -1774,7 +1774,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('layer', $layer);
 			$tpl->assign('execution_token', $execution_token);
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/panel.tpl');
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/panel.tpl');
 			
 		} else {
 			$execution_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
@@ -1782,7 +1782,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('layer', $layer);
 			$tpl->assign('execution_token', $execution_token);
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/popup.tpl');
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/popup.tpl');
 		}
 	}
 	
@@ -1845,7 +1845,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == ($automation = DAO_Automation::getByUri($interaction_uri)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if($automation->extension_id != AutomationTrigger_UiInteraction::ID)
+		if($automation->extension_id != AutomationTrigger_InteractionWebWorker::ID)
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
 		if(!Context_Automation::isReadableByActor($automation, $active_worker))
@@ -1857,7 +1857,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$execution = DAO_AutomationExecution::getByToken($execution->token);
 		}
 		
-		$form_components = AutomationTrigger_UiInteraction::getFormComponentMeta();
+		$form_components = AutomationTrigger_InteractionWebWorker::getFormComponentMeta();
 		
 		$initial_state = $execution->state_data['dict'];
 		
@@ -1976,7 +1976,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if($form_title) {
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('form_title', $form_title);
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/ui.interaction/_set_title.tpl');
+			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/_set_title.tpl');
 		}
 		
 		$elements = $automation_results->getKeyPath('__return.form.elements', []);
