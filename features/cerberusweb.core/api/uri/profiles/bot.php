@@ -1983,10 +1983,19 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		// Synthesize a submit button on await
 		if('await' == $exit_code) {
-			$elements['submit/' . uniqid()] = [
-				'continue' => 'await' == $exit_code,
-				'reset' => true,
-			];
+			if(!array_key_exists('submit', $elements)) {
+				$submits = array_filter(array_keys($elements), function($element_key) {
+					if($element_key == 'submit' || DevblocksPlatform::strStartsWith($element_key, 'submit/'))
+						return true;
+				});
+				
+				if(!$submits) {
+					$elements['submit/' . uniqid()] = [
+						'continue' => true,
+						'reset' => true,
+					];
+				}
+			}
 			
 			// Wait up to a day
 			$execution->expires_at = time() + 86400;
