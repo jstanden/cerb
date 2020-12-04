@@ -1557,6 +1557,7 @@ var ajax = new cAjaxCalls();
 			} else if(mode === 'ace/mode/cerb_kata') {
 				aceOptions.useSoftTabs = true;
 				aceOptions.enableLinking = true;
+				aceOptions.wrap = false;
 
 				// editor.on('linkHover', function(data) {
 				// });
