@@ -50,8 +50,11 @@
 
 			<div class="cerb-code-editor-toolbar">
 				{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.eventHandlers.editor',
+				
 				'board__context' => $peek_context,
 				'board_id' => $peek_context_id,
+				
 				'worker__context' => CerberusContexts::CONTEXT_WORKER,
 				'worker_id' => $active_worker->id
 				])}

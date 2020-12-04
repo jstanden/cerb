@@ -238,6 +238,8 @@
 					{if $widget}
 						<div data-cerb-toolbar style="display:inline-block;">
 						{$message_dict = DevblocksDictionaryDelegate::instance([
+							'caller_name' => 'cerb.toolbar.profiles.ticket.message',
+							
 							'message__context' => CerberusContexts::CONTEXT_MESSAGE,
 							'message_id' => $message->id,
 

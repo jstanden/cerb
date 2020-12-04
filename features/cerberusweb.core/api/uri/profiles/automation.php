@@ -332,6 +332,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		@$trigger = DevblocksPlatform::importGPC($_POST['trigger'], 'string', null);
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.editor.automation.script',
+			
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id
 		]);

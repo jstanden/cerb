@@ -45,10 +45,14 @@
 
 	<div class="cerb-code-editor-toolbar">
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'caller_name' => 'cerb.toolbar.eventHandlers.editor',
+		
 		'board__context' => Context_ProjectBoard::ID,
 		'board_id' => $board->id,
+		
 		'board_column__context' => Context_ProjectBoardColumn::ID,
 		'board_column_id' => $peek_context_id,
+		
 		'worker__context' => CerberusContexts::CONTEXT_WORKER,
 		'worker_id' => $active_worker->id
 		])}
@@ -81,10 +85,14 @@
 
 	<div class="cerb-code-editor-toolbar">
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'caller_name' => 'cerb.toolbar.eventHandlers.editor',
+		
 		'board__context' => Context_ProjectBoard::ID,
 		'board_id' => $board->id,
+		
 		'board_column__context' => Context_ProjectBoardColumn::ID,
 		'board_column_id' => $peek_context_id,
+		
 		'worker__context' => CerberusContexts::CONTEXT_WORKER,
 		'worker_id' => $active_worker->id
 		])}
@@ -117,10 +125,14 @@
 
 	<div class="cerb-code-editor-toolbar">
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'caller_name' => 'cerb.toolbar.editor',
+			
 		'board__context' => Context_ProjectBoard::ID,
 		'board_id' => $board->id,
+			
 		'board_column__context' => Context_ProjectBoardColumn::ID,
 		'board_column_id' => $peek_context_id,
+		
 		'worker__context' => CerberusContexts::CONTEXT_WORKER,
 		'worker_id' => $active_worker->id
 		])}

@@ -68,6 +68,8 @@
 	<div data-cerb-toolbar class="cerb-code-editor-toolbar">
 		{if is_a($extension, 'Extension_AutomationTrigger')}
 			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.editor.automation.script',
+				
 				'worker__context' => CerberusContexts::CONTEXT_WORKER,
 				'worker_id' => $active_worker->id
 			])}

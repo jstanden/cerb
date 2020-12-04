@@ -339,16 +339,70 @@ class DevblocksUiToolbar {
 				}
 			}
 			
-			$result = [
-				'key' => $key,
-				'type' => $type,
-				'schema' => $toolbar_item,
-			];
+			$toolbar_item['key'] = $key;
+			$toolbar_item['type'] = $type;
 			
-			$results[$key] = $result;
+			$results[$key] = $toolbar_item;
 		}
 		
+		$automations = $this->extractUris($results);
+		$this->enforceCallerPolicy($results, $automations, $dict);
+		
 		return $results;
+	}
+	
+	private function extractUris($results) {
+		$uris = [];
+		
+		array_walk_recursive($results, function($v, $k) use (&$uris) {
+			if('uri' == $k)
+				$uris[$v] = true;
+		});
+		
+		$automations = DAO_Automation::getByUris(array_keys($uris));
+		
+		if(!is_array($automations))
+			return [];
+		
+		return array_combine(array_column($automations, 'name'), $automations);
+	}
+	
+	private function enforceCallerPolicy(&$node, $automations, DevblocksDictionaryDelegate $dict) {
+		if(is_array($node) && array_key_exists('type', $node)) {
+			if('interaction' === $node['type']) {
+				// If no URI
+				if(!array_key_exists('uri', $node)) {
+					$node['hidden'] = true;
+					return;
+				}
+				
+				// If no automation
+				if(false == ($automation = @$automations[$node['uri']])) {
+					$node['hidden'] = true;
+					return;
+				}
+				
+				/* @var $automation Model_Automation */
+				$policy = $automation->getPolicy();
+				
+				$toolbar_caller = $dict->get('caller_name');
+				
+				if(!$policy->isCallerAllowed($toolbar_caller, $dict)) {
+					$node['hidden'] = true;
+					return;
+				}
+				
+			} else if('menu' === $node['type']) {
+				foreach(@$node['items'] as &$n) {
+					$this->enforceCallerPolicy($n, $automations, $dict);
+				}
+			}
+			
+		} elseif(is_array($node)) {
+			foreach($node as &$n) {
+				$this->enforceCallerPolicy($n, $automations, $dict);
+			}
+		}
 	}
 	
 	function render($toolbar) {

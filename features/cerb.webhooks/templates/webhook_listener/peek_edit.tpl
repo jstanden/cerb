@@ -30,6 +30,8 @@
 	<legend>Event: Respond to webhook (KATA)</legend>
 	<div class="cerb-code-editor-toolbar">
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+		'caller_name' => 'cerb.toolbar.eventHandlers.editor',
+		
 		'webhook__context' => $peek_context,
 		'webhook_id' => $peek_context_id
 		])}

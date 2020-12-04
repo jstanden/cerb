@@ -1,4 +1,6 @@
 {$column_dict = DevblocksDictionaryDelegate::instance([
+	'caller_name' => 'cerb.toolbar.projectBoardColumn',
+	
 	'column__context' => Context_ProjectBoardColumn::ID,
 	'column_id' => $column->id,
 

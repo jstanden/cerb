@@ -3,6 +3,7 @@
 		<legend>Map configuration (KATA)</legend>
 		<div class="cerb-code-editor-toolbar">
 			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.editor.map'
 			])}
 
 			{$toolbar_kata =
@@ -26,6 +27,7 @@
 		<legend>Event: Map clicked (KATA)</legend>
 		<div class="cerb-code-editor-toolbar">
 			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.eventHandlers.editor'
 			])}
 
 			{$toolbar_kata =

@@ -46,14 +46,20 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 	
 	private function _workspaceWidgetConfig_previewInteractions(Model_WorkspaceWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$interactions_kata = DevblocksPlatform::importGPC($_POST['interactions_kata'], 'string', '');
 		
 		$model->params['interactions_kata'] = $interactions_kata;
 		
 		$values = [
+			'caller_name' => 'cerb.toolbar.workspaceWidget.interactions',
+			
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 			'widget_id' => $model->id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
 		];
 		
 		$dict = DevblocksDictionaryDelegate::instance($values);
@@ -68,6 +74,8 @@ class WorkspaceWidget_FormInteraction extends Extension_WorkspaceWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.workspaceWidget.interactions',
+			
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 			'widget_id' => $widget->id,
 			

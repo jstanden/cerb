@@ -590,6 +590,8 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Reply toolbars
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.mail.reply',
+			
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id
 		]);

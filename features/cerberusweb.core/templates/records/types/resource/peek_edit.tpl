@@ -78,6 +78,7 @@
                     <legend>Event: Get resource (KATA)</legend>
                     <div class="cerb-code-editor-toolbar">
                         {$toolbar_dict = DevblocksDictionaryDelegate::instance([
+                            'caller_name' => 'cerb.toolbar.eventHandlers.editor'
                         ])}
 
                         {$toolbar_kata =

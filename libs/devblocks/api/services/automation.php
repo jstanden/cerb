@@ -696,6 +696,7 @@ class _DevblocksAutomationService {
 class CerbAutomationPolicy {
 	private $_rules;
 	
+	private $_callers = [];
 	private $_commands = [];
 	
 	public function __construct($policy_data) {
@@ -710,6 +711,35 @@ class CerbAutomationPolicy {
 		
 		if(!is_array($policy_data))
 			return false;
+		
+		if(array_key_exists('callers', $policy_data)) {
+			foreach($policy_data['callers'] as $caller => $rules) {
+				$this->_callers[$caller] = [];
+				
+				if(!is_array($rules))
+					continue;
+				
+				foreach($rules as $rule_key => $rule_data) {
+					@list($rule_type, $rule_annotations) = explode('@', $rule_key, 2);
+					@list($rule_type, $rule_id) = explode('/', $rule_type, 2);
+					
+					$rule_type = DevblocksPlatform::strLower($rule_type);
+					
+					if(!in_array($rule_type, ['allow', 'deny']))
+						continue;
+					
+					if(!$rule_id)
+						$rule_id = uniqid();
+					
+					$this->_callers[$caller][$rule_id] = [
+						'key' => $rule_key . (!$rule_annotations ? '@bool' : ''),
+						'type' => $rule_type,
+						'id' => $rule_id,
+						'value' => $rule_data,
+					];
+				}
+			}
+		}
 		
 		if(array_key_exists('commands', $policy_data)) {
 			foreach($policy_data['commands'] as $command => $rules) {
@@ -741,6 +771,35 @@ class CerbAutomationPolicy {
 		}
 		
 		return $this;
+	}
+	
+	public function isCallerAllowed($caller_name, DevblocksDictionaryDelegate $dict) {
+		$rules = [];
+		
+		// We're not restricting the caller at all
+		if(!$this->_callers)
+			return true;
+		
+		if(array_key_exists($caller_name, $this->_callers))
+			$rules = $this->_callers[$caller_name];
+		
+		if(array_key_exists('all', $this->_callers))
+			$rules = array_merge($rules, $this->_callers['all']);
+		
+		foreach($rules as $rule_data) {
+			$rule = [
+				$rule_data['key'] => $rule_data['value'],
+			];
+			$rule = DevblocksPlatform::services()->kata()->formatTree($rule, $dict);
+			
+			if(array_key_exists('allow', $rule) && $rule['allow'])
+				return true;
+			
+			if(array_key_exists('deny', $rule) && $rule['deny'])
+				return false;
+		}
+		
+		return false;
 	}
 	
 	public function isCommandAllowed($node_name, DevblocksDictionaryDelegate $dict)  {

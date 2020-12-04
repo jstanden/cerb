@@ -49,8 +49,10 @@
 	<legend>Event: Remind (KATA)</legend>
 	<div class="cerb-code-editor-toolbar">
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-		'webhook__context' => $peek_context,
-		'webhook_id' => $peek_context_id
+		'caller_name' => 'cerb.toolbar.eventHandlers.editor',
+		
+		'worker__context' => CerberusContexts::CONTEXT_WORKER,
+		'worker_id' => $active_worker->id,
 		])}
 
 		{$toolbar_kata =

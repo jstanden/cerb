@@ -6,6 +6,8 @@
 		<div class="cerb-code-editor-toolbar">
 			<div data-cerb-toolbar style="display:inline-block;">
 				{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.editor',
+				
 				'worker__context' => CerberusContexts::CONTEXT_WORKER,
 				'worker_id' => $active_worker->id
 				])}

@@ -21,6 +21,8 @@
 
 		<div class="cerb-code-editor-toolbar">
 			{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.editor',
+			
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id
 			])}

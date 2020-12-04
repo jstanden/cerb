@@ -168,6 +168,8 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'], 'string', '');
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_id' => 'cerb.toolbar.profileWidget.sheet',
+			
 			'record__context' => null,
 			'record_id' => null,
 			
@@ -192,6 +194,8 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_id' => 'cerb.toolbar.profileWidget.sheet',
+			
 			'record__context' => $record_context,
 			'record_id' => $record_context_id,
 			

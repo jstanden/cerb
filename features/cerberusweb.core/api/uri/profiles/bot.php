@@ -1709,6 +1709,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$caller = DevblocksPlatform::importGPC($_POST['caller'], 'array', []);
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		$error = null;
 		
 		if('headless' === $interaction_style) {
 			$automator = DevblocksPlatform::services()->automation();
@@ -1716,14 +1717,35 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			header('Content-Type: application/json; charset=utf-8');
 			
 			$initial_state = [
+				'caller_name' => '',
+				'caller_params' => [],
+				'inputs' => $interaction_params,
 				'worker__context' => CerberusContexts::CONTEXT_WORKER,
 				'worker_id' => $active_worker->id,
-				'inputs' => $interaction_params,
 			];
 			
 			if($caller) {
 				$initial_state['caller_name'] = DevblocksPlatform::importGPC(@$caller['name'], 'string', '');
 				$initial_state['caller_params'] = DevblocksPlatform::importGPC(@$caller['params'], 'array', []);
+			}
+			
+			$policy = $automation->getPolicy();
+			
+			if(!$policy->isCallerAllowed($initial_state['caller_name'], DevblocksDictionaryDelegate::instance($initial_state))) {
+				$error = sprintf(
+					"The automation policy does not permit this action (%s).",
+					$initial_state['caller_name']
+				);
+				
+				echo json_encode([
+					'exit' => 'error',
+					'exit_state' => null,
+					'dict' => DevblocksPlatform::services()->string()->yamlEmit([
+						'__exit' => 'error',
+						'error' => $error,
+					], false),
+				]);
+				return;
 			}
 			
 			if(false === ($automation_result = $automator->executeScript($automation, $initial_state, $error))) {
@@ -1768,9 +1790,11 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$initial_state = [
+			'caller_name' => '',
+			'caller_params' => [],
+			'inputs' => $interaction_params,
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id,
-			'inputs' => $interaction_params,
 		];
 		
 		if($caller) {
@@ -1877,7 +1901,33 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				$validation_errors[] = $error;
 		}
 		
-		if($validation_errors) {
+		// Verify permissions
+		$policy = $automation->getPolicy();
+		
+		if (!$policy->isCallerAllowed($execution->state_data['caller']['name'], DevblocksDictionaryDelegate::instance($execution->state_data['dict']))) {
+			$error = sprintf(
+				"The automation policy does not permit this caller (%s).",
+				$execution->state_data['caller']['name']
+			);
+			
+			$initial_state['__exit'] = 'await';
+			
+			$initial_state['__return']['form']['elements'] = [
+					'say/__accessDenied' => [
+						'content' => sprintf("# Access denied\n%s",
+							$error
+						),
+						'style' => 'error',
+					],
+					'submit/'. uniqid() => [
+						'continue' => false,
+						'reset' => true,
+					]
+				];
+			
+			$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+		
+		} else if($validation_errors) {
 			$initial_state['__return']['form']['elements'] = [
 					'say/__validation' => [
 						'content' => sprintf("# Correct the following errors to continue:\n%s",

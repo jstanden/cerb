@@ -158,6 +158,8 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['params']['toolbar_kata'], 'string', '');
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.workspaceWidget.sheet',
+			
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 			'widget_id' => $widget->id,
 			
@@ -179,6 +181,8 @@ class WorkspaceWidget_Sheet extends Extension_WorkspaceWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.workspaceWidget.sheet',
+			
 			'widget__context' => CerberusContexts::CONTEXT_WORKSPACE_WIDGET,
 			'widget_id' => $widget->id,
 			

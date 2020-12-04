@@ -35,6 +35,7 @@ class CardWidget_FormInteraction extends Extension_CardWidget {
 	
 	private function _cardWidgetConfig_previewInteractions(Model_CardWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		@$interactions_kata = DevblocksPlatform::importGPC($_POST['interactions_kata'], 'string', '');
 		
@@ -47,11 +48,16 @@ class CardWidget_FormInteraction extends Extension_CardWidget {
 		
 		if($dao_class && method_exists($dao_class, 'random')) {
 			$values = [
+				'caller_name' => 'cerb.toolbar.cardWidget.interactions',
+				
 				'widget__context' => CerberusContexts::CONTEXT_CARD_WIDGET,
 				'widget_id' => $model->id,
 				
 				'record__context' => $record_context_ext->id,
 				'record_id' => $dao_class::random(),
+				
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id,
 			];
 			
 		} else {
@@ -70,6 +76,8 @@ class CardWidget_FormInteraction extends Extension_CardWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.cardWidget.interactions',
+			
 			'widget__context' => CerberusContexts::CONTEXT_CARD_WIDGET,
 			'widget_id' => $widget->id,
 			
