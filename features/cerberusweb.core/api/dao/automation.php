@@ -776,11 +776,23 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Automation::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:automation by:name~25 query:(name:*{{term}}*) format:dictionaries',
+						'key' => 'name',
+						'limit' => 25,
+					]
 				),
 			'trigger' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Automation::EXTENSION_ID),
+					'suggester' => [
+						'type' => 'autocomplete',
+						'query' => 'type:worklist.subtotals of:automation by:trigger~25 query:(trigger:*{{term}}*) format:dictionaries',
+						'key' => 'trigger',
+						'limit' => 25,
+					]
 				),
 			'fieldset' =>
 				array(
