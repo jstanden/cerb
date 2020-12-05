@@ -6,7 +6,7 @@
         <button type="button" data-cerb-button="zoom-in"><span class="glyphicons glyphicons-zoom-in"></span></button>
         <button type="button" data-cerb-button="zoom-out"><span class="glyphicons glyphicons-zoom-out"></span></button>
     </div>
-    <div data-cerb-legend style="position:absolute;bottom:5px;left:5px;padding:2px;background-color:rgba(235,235,235,0.5);text-shadow:0 0 1.5px white;"></div>
+    <div data-cerb-legend style="display:none;position:absolute;bottom:5px;left:5px;padding:2px;background-color:rgba(235,235,235,0.5);text-shadow:0 0 1.5px white;"></div>
     <div data-cerb-coordinates style="position:absolute;bottom:5px;right:5px;text-shadow:0 0 1.5px white;"></div>
 </div>
 
@@ -295,6 +295,7 @@ $(function() {
                 var legend = widget.select('[data-cerb-legend]');
                 
                 legend
+                    .style('display', 'block')
                     .append('div')
                         .style('display', 'inline-block')
                         .style('margin-right', '5px')
