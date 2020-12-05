@@ -52,7 +52,7 @@ class StorageDeleteAction extends AbstractAction {
 			
 			if (!$policy->isCommandAllowed(self::ID, $action_dict)) {
 				$error = sprintf(
-					"The automation policy does not permit this action (%s).",
+					"The automation policy does not allow this command (%s).",
 					self::ID
 				);
 				throw new Exception_DevblocksAutomationError($error);

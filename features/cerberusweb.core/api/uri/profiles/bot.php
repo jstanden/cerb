@@ -1733,7 +1733,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			
 			if(!$policy->isCallerAllowed($initial_state['caller_name'], DevblocksDictionaryDelegate::instance($initial_state))) {
 				$error = sprintf(
-					"The automation policy does not permit this action (%s).",
+					"The automation policy does not allow this command (%s).",
 					$initial_state['caller_name']
 				);
 				
@@ -1906,7 +1906,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		if (!$policy->isCallerAllowed($execution->state_data['caller']['name'], DevblocksDictionaryDelegate::instance($execution->state_data['dict']))) {
 			$error = sprintf(
-				"The automation policy does not permit this caller (%s).",
+				"The automation policy does not allow this caller (%s).",
 				$execution->state_data['caller']['name']
 			);
 			

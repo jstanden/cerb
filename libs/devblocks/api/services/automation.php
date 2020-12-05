@@ -478,6 +478,8 @@ class _DevblocksAutomationService {
 			'record.upsert',
 			'return',
 			'set',
+			'simulate.error',
+			'simulate.success',
 			'storage.delete',
 			'storage.get',
 			'storage.set',
@@ -529,7 +531,7 @@ class _DevblocksAutomationService {
 			
 		} else {
 			$path = implode(':', array_merge($states));
-			$error = sprintf("Unexpected node `%s:`", $path);
+			$error = sprintf("Unexpected command `%s:`", $path);
 			return false;
 		}
 		
@@ -550,7 +552,7 @@ class _DevblocksAutomationService {
 					
 				} else {
 					$path = implode(':', array_merge($states, [$node_name]));
-					$error = sprintf("Unexpected node `%s:`. Expected `start:`", $path);
+					$error = sprintf("Unexpected command `%s:`. Expected `start:`", $path);
 					return false;
 				}
 			}
@@ -568,7 +570,7 @@ class _DevblocksAutomationService {
 					
 				} else {
 					$path = implode(':', array_merge($states, [$node_name]));
-					$error = sprintf("Unexpected node `%s:`. Expected `outcome:`", $path);
+					$error = sprintf("Unexpected command `%s:`. Expected `outcome:`", $path);
 					return false;
 				}
 			}
@@ -598,7 +600,7 @@ class _DevblocksAutomationService {
 					
 				} else {
 					$path = implode(':', array_merge($states, [$node_name]));
-					$error = sprintf("Unexpected node `%s:`. Expected `if:` or `then:`", $path);
+					$error = sprintf("Unexpected command `%s:`. Expected `if:` or `then:`", $path);
 					return false;
 				}
 			}
@@ -624,7 +626,7 @@ class _DevblocksAutomationService {
 							
 						} else {
 							$path = implode(':', array_merge($states, [$do_type]));
-							$error = sprintf("Unexpected node `%s:`", $path);
+							$error = sprintf("Unexpected command `%s:`", $path);
 							return false;
 						}
 					}
@@ -633,7 +635,7 @@ class _DevblocksAutomationService {
 					
 				} else {
 					$path = implode(':', array_merge($states, [$node_name]));
-					$error = sprintf("Unexpected node `%s:`. Expected `each:`, `as:`, or `do:`", $path);
+					$error = sprintf("Unexpected command `%s:`. Expected `each:`, `as:`, or `do:`", $path);
 					return false;
 				}
 			}
@@ -649,14 +651,14 @@ class _DevblocksAutomationService {
 					
 				} else {
 					$path = implode(':', array_merge($states, [$type]));
-					$error = sprintf("Unexpected node `%s:`", $path);
+					$error = sprintf("Unexpected command `%s:`", $path);
 					return false;
 				}
 			}
 			
 		} else {
 			$path = implode(':', array_merge($states, [$node_type]));
-			$error = sprintf("Unexpected node `%s:`.", $path);
+			$error = sprintf("Unexpected command `%s:`.", $path);
 			return false;
 		}
 	}
@@ -948,6 +950,23 @@ class CerbAutomationAstNode implements JsonSerializable {
 		return $this->_parent;
 	}
 	
+	/**
+	 * @param string $type
+	 * @return CerbAutomationAstNode|null
+	 */
+	public function getAncestorByType(string $type) {
+		$p = $this->_parent;
+		
+		while($p) {
+			if($p->getNameType() == $type)
+				return $p;
+			
+			$p = $p->_parent;
+		}
+		
+		return null;
+	}
+	
 	public function hasChildren() {
 		return !empty($this->_children);
 	}
@@ -1172,5 +1191,13 @@ class CerbAutomationAstNode implements JsonSerializable {
 		$parts = explode(':', $id);
 		
 		return array_pop($parts);
+	}
+	
+	public function getNameType() {
+		return DevblocksPlatform::services()->string()->strBefore($this->getName(), '/');		
+	}
+	
+	public function getNameId() {
+		return DevblocksPlatform::services()->string()->strAfter($this->getName(), '/');		
 	}
 }

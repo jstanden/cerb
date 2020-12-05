@@ -937,6 +937,14 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "record.upsert:\n\t",
 			],
 			[
+				'caption' => 'simulate.error:',
+				'snippet' => "simulate.error:\n\t",
+			],
+			[
+				'caption' => 'simulate.success:',
+				'snippet' => "simulate.success:\n\t",
+			],
+			[
 				'caption' => 'storage.delete:',
 				'snippet' => "storage.delete:\n\t",
 			],

@@ -61,7 +61,7 @@ class FunctionAction extends AbstractAction {
 			
 			if (!$policy->isCommandAllowed(self::ID, $action_dict)) {
 				$error = sprintf(
-					"The automation policy does not permit the `function:` action."
+					"The automation policy does not allow the `function:` command."
 				);
 				throw new Exception_DevblocksAutomationError($error);
 			}

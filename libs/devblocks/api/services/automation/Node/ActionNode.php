@@ -23,6 +23,8 @@ class ActionNode extends AbstractNode {
 			'record.upsert' => '\Cerb\AutomationBuilder\Action\RecordUpsertAction',
 			'return' => '\Cerb\AutomationBuilder\Action\ReturnAction',
 			'set' => '\Cerb\AutomationBuilder\Action\SetAction',
+			'simulate.error' => '\Cerb\AutomationBuilder\Action\SimulateErrorAction',
+			'simulate.success' => '\Cerb\AutomationBuilder\Action\SimulateSuccessAction',
 			'storage.delete' => '\Cerb\AutomationBuilder\Action\StorageDeleteAction',
 			'storage.get' => '\Cerb\AutomationBuilder\Action\StorageGetAction',
 			'storage.set' => '\Cerb\AutomationBuilder\Action\StorageSetAction',
