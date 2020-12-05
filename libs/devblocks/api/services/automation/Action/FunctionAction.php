@@ -82,7 +82,7 @@ class FunctionAction extends AbstractAction {
 			$exit_code = $automation_results->get('__exit');
 			
 			if ('error' == $exit_code) {
-				$error = $automation_results->getKeyPath('__return.error', '');
+				$error = $automation_results->getKeyPath('__error.message', '');
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			

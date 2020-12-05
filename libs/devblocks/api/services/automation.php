@@ -1020,14 +1020,13 @@ class CerbAutomationAstNode implements JsonSerializable {
 	private function _triggerError($error, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		$return_values = [
+		$error_values = [
 			'at' => $this->getId(),
+			'message' => $tpl_builder->build($error, $dict),
 		];
 		
-		$return_values['error'] = $tpl_builder->build($error, $dict);
-		
 		$dict->set('__exit', 'error');
-		$dict->set('__return', $return_values);
+		$dict->set('__error', $error_values);
 	}
 	
 	public function activate(DevblocksDictionaryDelegate $dict, array $environment, &$error=null) {

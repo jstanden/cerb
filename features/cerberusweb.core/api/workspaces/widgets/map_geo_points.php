@@ -88,7 +88,7 @@ class WorkspaceWidget_MapGeoPoints extends Extension_WorkspaceWidget {
 		];
 		
 		if('error' == $exit_code) {
-			$result['error'] = $automation_results->getKeyPath('__return.error') ?? 'Error in map click automation.';
+			$result['error'] = $automation_results->getKeyPath('__error.message') ?? 'Error in map click automation.';
 			echo json_encode($result);
 			return;
 		}

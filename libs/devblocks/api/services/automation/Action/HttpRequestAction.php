@@ -131,16 +131,18 @@ class HttpRequestAction extends AbstractAction {
 			$response = $http->sendRequest($request, $request_options, $error, $status_code);
 			
 			if(false === $response) {
-				if($output) {
-					$dict->set($output, [
-						'status_code' => $status_code,
-						'url' => $url,
-						'error' => $error,
-					]);
-				}
-				
 				if(null != ($event_error = $this->node->getChildBySuffix(':on_error'))) {
+					if($output) {
+						$dict->set($output, [
+							'status_code' => $status_code,
+							'url' => $url,
+							'error' => $error,
+						]);
+					}
 					return $event_error->getId();
+					
+				} else {
+					return false;
 				}
 				
 			} else {
