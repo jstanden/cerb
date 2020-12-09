@@ -1,7 +1,14 @@
 {$map_divid = uniqid('map_')}
 
 <div id="{$map_divid}">
-    <div data-cerb-toolbar style="position:absolute;top:5px;right:5px;">
+    <div data-cerb-label style="font-weight:bold;margin:5px;padding:5px;position:absolute;top:0;left:0;background-color:rgba(220,220,220,0.7);display:none;">
+        <div data-cerb-label--close style="position:absolute;top:5px;right:2px;cursor:pointer;">
+            <span class="glyphicons glyphicons-circle-remove" style="font-size:16px;"></span>
+        </div>
+        <div data-cerb-label--contents style="max-height:25.5em;max-width:25.5em;overflow:scroll;"></div>
+    </div>
+
+    <div data-cerb-toolbar style="position:absolute;top:0;right:0;">
         <button type="button" data-cerb-button="reset"><span class="glyphicons glyphicons-restart"></span></button>
         <button type="button" data-cerb-button="zoom-in"><span class="glyphicons glyphicons-zoom-in"></span></button>
         <button type="button" data-cerb-button="zoom-out"><span class="glyphicons glyphicons-zoom-out"></span></button>
@@ -52,6 +59,7 @@ $(function() {
                 svg,
                 g,
                 label,
+                label_contents,
                 zoom
             ;
             
@@ -63,7 +71,23 @@ $(function() {
                 var widget = d3.select('#{$map_divid}')
                     .style('position', 'relative')
                     ;
+
+                label = widget.select('[data-cerb-label]');
+                label_contents = widget.select('[data-cerb-label--contents]');
                 
+                widget.select('[data-cerb-label--close]')
+                    .on('click', function() {
+                        label.style('display', 'none');
+                        label_contents.text('');
+
+                        selectedPoint = null;
+                        selectedRegion = null;
+
+                        focusRegion(selectedRegion);
+                        focusPoint(selectedPoint);
+                    })
+                ;
+
                 svg = widget.append('svg:svg')
                     .attr('viewBox', '0 0 ' + width + ' ' + height)
                 ;
@@ -155,20 +179,6 @@ $(function() {
                 {elseif $map.regions.fill.color_key && $map.regions.fill.color_key.property}
                     fill_color_key = "{$map.regions.fill.color_key.property|escape:'javascript'}";
                 {/if}
-                
-                label = widget.append('div')
-                    .style('font-weight', 'bold')
-                    .style('margin', '5px')
-                    .style('padding', '5px')
-                    .style('position', 'absolute')
-                    .style('top', '0')
-                    .style('left', '0')
-                    .style('background-color', 'rgba(220,220,220,0.7)')
-                    .style('display', 'none')
-                    .style('max-height', '25.5em')
-                    .style('max-width', '25.5em')
-                    .style('overflow', 'scroll')
-                    ;
                 
                 var map_regions = g.append('g')
                 .selectAll('.region')
@@ -544,8 +554,9 @@ $(function() {
 
                     focusRegion(selectedRegion);
                     focusPoint(selectedPoint);
-                    
-                    $(label.node()).empty().hide();
+
+                    label.style('display', 'none');
+                    label_contents.text('');
                 })
             ;
 
@@ -644,7 +655,8 @@ $(function() {
                                 Devblocks.createAlertError(json.error);
                                 
                             } else if(json.hasOwnProperty('sheet')) {
-                                $(label.node()).html(json.sheet).show();
+                                label.style('display', 'inline-block');
+                                label_contents.html(json.sheet);
     
                             } else {
                                 var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
@@ -683,7 +695,8 @@ $(function() {
                                 Devblocks.createAlertError(json.error);
                                 
                             } else if(json.hasOwnProperty('sheet')) {
-                                $(label.node()).html(json.sheet).show();
+                                label.style('display', 'inline-block');
+                                label_contents.html(json.sheet);
     
                             } else {
                                 var keys = {if $map.points.label.properties}{$map.points.label.properties|json_encode nofilter}{else}undefined{/if};
@@ -704,8 +717,8 @@ $(function() {
                     
                 } else {
                     selectedPoint = null;
-                    label.text('');
                     label.style('display', 'none');
+                    label_contents.text('');
                 }
                 
                 selectedRegion = null;
@@ -760,15 +773,15 @@ $(function() {
                     });
                 }
                 
-                label.html('');
+                label_contents.text('');
                 
                 if(!title)
                     title = 'name';
                 
                 if(d.properties.hasOwnProperty(title))
-                    label.append('h1').style('color', 'inherit').style('margin','0').text(d.properties[title]);
+                    label_contents.append('h1').style('color', 'inherit').style('margin','0').text(d.properties[title]);
                 
-                label
+                label_contents
                     .append('table')
                     .selectAll('tbody')
                     .data(Object.keys(property_meta))
@@ -835,7 +848,8 @@ $(function() {
                                 Devblocks.createAlertError(json.error);
 
                             } else if(json.hasOwnProperty('sheet')) {
-                                $(label.node()).html(json.sheet).show();
+                                label.style('display', 'inline-block');
+                                label_contents.html(json.sheet);
     
                             } else {
                                 var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
@@ -874,7 +888,8 @@ $(function() {
                                 Devblocks.createAlertError(json.error);
 
                             } else if(json.hasOwnProperty('sheet')) {
-                                $(label.node()).html(json.sheet).show();
+                                label.style('display', 'inline-block');
+                                label_contents.html(json.sheet);
     
                             } else {
                                 var keys = {if $map.regions.label.properties}{$map.regions.label.properties|json_encode nofilter}{else}undefined{/if};
@@ -895,8 +910,8 @@ $(function() {
                     
                 } else {
                     selectedRegion = null;
-                    label.text('');
                     label.style('display', 'none');
+                    label_contents.text('');
                 }
                 
                 selectedPoint = null;
