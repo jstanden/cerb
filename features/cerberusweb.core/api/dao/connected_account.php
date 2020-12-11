@@ -63,8 +63,8 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 				return true;
 			})
 			->addValidator(function($string, &$error=null) {
-				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '-'))) {
-					$error = "may only contain lowercase letters, numbers, and dashes";
+				if(0 != strcasecmp($string, DevblocksPlatform::strAlphaNum($string, '.-_'))) {
+					$error = "may only contain lowercase letters, numbers, dots, and dashes";
 					return false;
 				}
 				
@@ -329,6 +329,28 @@ class DAO_ConnectedAccount extends Cerb_ORMHelper {
 	 */
 	static function getIds($ids) {
 		return parent::getIds($ids);
+	}
+	
+	/**
+	 *
+	 * @param string $uri
+	 * @return Model_ConnectedAccount|NULL
+	 */
+	static function getByUri($uri) {
+		if(empty($uri))
+			return null;
+		
+		$results = self::getWhere(
+			sprintf("%s = %s",
+				self::URI,
+				Cerb_ORMHelper::qstr($uri)
+			)
+		);
+		
+		if(empty($results))
+			return null;
+		
+		return array_shift($results);
 	}
 	
 	/**
@@ -1456,8 +1478,18 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!empty($context_id)) {
-			if(false == ($model = DAO_ConnectedAccount::get($context_id)))
+			$model = null;
+			
+			if(!is_numeric($context_id))
+				if(false != ($model = DAO_ConnectedAccount::getByUri($context_id)))
+					$context_id = $model->id;
+			
+			if(!$model)
+				$model = DAO_ConnectedAccount::get($context_id);
+			
+			if(!$model)
 				DevblocksPlatform::dieWithHttpError(null, 404);
+			
 		} else {
 			$model = new Model_ConnectedAccount();
 			$model->owner_context = CerberusContexts::CONTEXT_WORKER;
