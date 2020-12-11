@@ -93,4 +93,19 @@ class DevblocksStringTest extends PHPUnit_Framework_TestCase {
 		$actual = $strings->htmlToText($html);
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testToBool() {
+		$this->assertTrue(DevblocksPlatform::services()->string()->toBool('yes'));
+		$this->assertTrue(DevblocksPlatform::services()->string()->toBool('y'));
+		$this->assertTrue(DevblocksPlatform::services()->string()->toBool(true));
+		$this->assertTrue(DevblocksPlatform::services()->string()->toBool(1));
+		$this->assertTrue(DevblocksPlatform::services()->string()->toBool('1'));
+		$this->assertTrue(DevblocksPlatform::services()->string()->toBool('arbitrary text'));
+		
+		$this->assertFalse(DevblocksPlatform::services()->string()->toBool('no'));
+		$this->assertFalse(DevblocksPlatform::services()->string()->toBool('n'));
+		$this->assertFalse(DevblocksPlatform::services()->string()->toBool(false));
+		$this->assertFalse(DevblocksPlatform::services()->string()->toBool(0));
+		$this->assertFalse(DevblocksPlatform::services()->string()->toBool('0'));
+	}
 }

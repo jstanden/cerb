@@ -412,9 +412,9 @@ class _DevblocksKataService {
 				if($annotation == 'base64') {
 					$v = base64_decode($v);
 				} else if(in_array($annotation, ['bit'])) {
-					$v = in_array(DevblocksPlatform::strLower(trim($v)), ['','0','false','n','no','off','null']) ? 0 : 1;
+					$v = DevblocksPlatform::services()->string()->toBool($v) ? 1 : 0;
 				} else if(in_array($annotation, ['bool'])) {
-					$v = in_array(DevblocksPlatform::strLower(trim($v)), ['','0','false','n','no','off','null']) ? false : true;
+					$v = DevblocksPlatform::services()->string()->toBool($v);
 				} else if($annotation == 'csv') {
 					$v = DevblocksPlatform::parseCsvString($v);
 				} else if($annotation == 'int') {

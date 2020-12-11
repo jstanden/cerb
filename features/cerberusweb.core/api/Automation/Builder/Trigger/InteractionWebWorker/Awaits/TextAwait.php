@@ -115,20 +115,7 @@ class TextAwait extends AbstractAwait {
 		
 		switch ($prompt_type) {
 			case 'bool':
-				$bools = [
-					true => 'true',
-					1 => 'true',
-					'yes' => 'true',
-					'y' => 'true',
-					'true' => 'true',
-					false => 'false',
-					0 => 'false',
-					'no' => 'false',
-					'n' => 'false',
-					'false' => 'false',
-				];
-				
-				return @$bools[$this->_value] ?? $this->_value;
+				return DevblocksPlatform::services()->string()->toBool($this->_value);
 			
 			case 'decimal':
 				return floatval($this->_value);

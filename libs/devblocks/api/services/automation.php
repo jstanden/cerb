@@ -46,23 +46,7 @@ class _DevblocksAutomationService {
 						
 						switch(@$input_data['type']) {
 							case 'bool':
-								$bools = [
-									true => true,
-									1 => true,
-									'yes' => true,
-									'y' => true,
-									'true' => true,
-									'on' => true,
-									false => false,
-									0 => false,
-									'no' => false,
-									'n' => false,
-									'false' => false,
-									'off' => false,
-									null => false,
-								];
-								
-								$bool = $bools[$input_value] ?? false;
+								$bool = DevblocksPlatform::services()->string()->toBool($input_value);
 								$input_values[$input_key] = $bool;
 								
 								$dict->setKeyPath('inputs.' . $input_key, $bool);
@@ -1104,19 +1088,17 @@ class CerbAutomationAstNode implements JsonSerializable {
 						if(0 == strlen($value)) {
 							$value = 0;
 						} else {
-							$value = in_array($value, ['0','false','n','no','off']) ? 0 : 1;
+							$value = DevblocksPlatform::services()->string()->toBool($value) ? 1 : 0;
 						}
 						break;
 						
 					case 'bool':
-					case 'boolean':
-					case 'yesno':
 						$value = trim(DevblocksPlatform::strLower($value));
 						
 						if(0 == strlen($value)) {
 							$value = false;
 						} else {
-							$value = in_array($value, ['0','false','n','no','off']) ? false : true;
+							$value = DevblocksPlatform::services()->string()->toBool($value);
 						}
 						break;
 						

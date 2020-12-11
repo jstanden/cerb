@@ -275,4 +275,26 @@ class _DevblocksStringService {
 		
 		return $text;
 	}
+	
+	/**
+	 * @param $string
+	 * @return bool
+	 */
+	public function toBool($string) : bool {
+		$false_list = [
+			false,
+			'false',
+			'0',
+			'',
+			'no',
+			'n',
+			'off',
+			null
+		];
+		
+		if(in_array(DevblocksPlatform::strLower(trim($string)), $false_list))
+			return false;
+		
+		return true;
+	}
 }
