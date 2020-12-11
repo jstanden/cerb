@@ -184,7 +184,7 @@ if(!isset($tables['automation_timer'])) {
 	$tables['automation_timer'] = 'automation_timer';
 	
 	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'enabled', '1')");
-	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'duration', '5')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'duration', '2')");
 	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'term', 'm')");
 	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'lastrun', '0')");
 	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'locked', '0')");
