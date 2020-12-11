@@ -237,10 +237,10 @@ $(function() {
                                 not = false
                             ;
                             
-                            {if $map.regions.filter.not}
+                            {if !is_null($map.regions.filter.not)}
                                 v = {$map.regions.filter.not|json_encode nofilter};
                                 not = true;
-                            {elseif $map.regions.filter.is}
+                            {elseif !is_null($map.regions.filter.is)}
                                 v = {$map.regions.filter.is|json_encode nofilter};
                             {else}
                                 return false;
@@ -251,11 +251,15 @@ $(function() {
 
                             if(!d.properties.hasOwnProperty(k))
                                 return true === not;
+                            
+                            if(typeof v == 'number')
+                                v = v.toString();
 
-                            if(typeof v == 'object') {
-                                return ($.inArray(d.properties[k], v) === -1) === not;
+                            if(typeof v == 'object' && typeof v.filter == 'function') {
+                                var hits = v.filter(function(vv) { if (vv == d.properties[k] ) return true; }).length;
+                                return (0 === hits) === not;
                             } else if(typeof v == 'string') {
-                                return (d.properties[k] !== v) === not;
+                                return (d.properties[k] != v) === not;
                             }
 
                             return false;
@@ -419,11 +423,13 @@ $(function() {
                                 not = false
                             ;
 
-                            {if $map.points.filter.not}
+                            {if !is_null($map.points.filter.not)}
                             v = {$map.points.filter.not|json_encode nofilter};
                             not = true;
-                            {else}
+                            {elseif !is_null($map.points.filter.is)}
                             v = {$map.points.filter.is|json_encode nofilter};
+                            {else}
+                            return false;
                             {/if}
 
                             if(typeof k != 'string')
@@ -432,10 +438,14 @@ $(function() {
                             if(!d.properties.hasOwnProperty(k))
                                 return true === not;
 
-                            if(typeof v == 'object') {
-                                return ($.inArray(d.properties[k], v) === -1) === not;
+                            if(typeof v == 'number')
+                                v = v.toString();
+                            
+                            if(typeof v == 'object' && typeof v.filter == 'function') {
+                                var hits = v.filter(function(vv) { if (vv == d.properties[k] ) return true; }).length;
+                                return (0 === hits) === not;
                             } else if(typeof v == 'string') {
-                                return (d.properties[k] !== v) === not;
+                                return (d.properties[k] != v) === not;
                             }
 
                             return false;
