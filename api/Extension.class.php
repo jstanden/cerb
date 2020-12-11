@@ -876,6 +876,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'docHTML' => "<b>error:</b><br>Finish and return an error response",
 			],
 			'repeat:',
+			'while:',
 			[
 				'caption' => 'return:',
 				'snippet' => "return:\n\t",
@@ -1072,6 +1073,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'do:',
 				],
 				'(.*):repeat:do:' => $common_actions,
+				
+				'(.*):while:' => [
+					'if@bool:',
+					'do:',
+				],
+				'(.*):while:do:' => $common_actions,
 				
 				'(.*):storage.delete:' => $action_base,
 				'(.*):storage.get:' => $action_base,

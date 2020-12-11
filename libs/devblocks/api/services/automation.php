@@ -444,6 +444,7 @@ class _DevblocksAutomationService {
 			'decision',
 			'outcome',
 			'repeat',
+			'while',
 		];
 		
 		$actions = [
@@ -620,6 +621,39 @@ class _DevblocksAutomationService {
 				} else {
 					$path = implode(':', array_merge($states, [$node_name]));
 					$error = sprintf("Unexpected command `%s:`. Expected `each:`, `as:`, or `do:`", $path);
+					return false;
+				}
+			}
+			
+		} elseif ($node_type == 'while') {
+			$node->removeParam('do');
+			
+			foreach($yaml as $type => $child) {
+				$node_name = $this->_getNodeFromType($type);
+				
+				if('if' == $node_name) {
+					true;
+				} else if('do' == $node_name) {
+					$states[] = 'do';
+					
+					if(is_array($yaml['do']))
+					foreach($yaml['do'] as $do_type => $do_child) {
+						if ($this->_isNodeName($do_type)) {
+							if(false === ($this->_buildNode($node, $do_type, $do_child, $environment, $states, $error)))
+								return false;
+							
+						} else {
+							$path = implode(':', array_merge($states, [$do_type]));
+							$error = sprintf("Unexpected command `%s:`", $path);
+							return false;
+						}
+					}
+					
+					array_pop($states);
+					
+				} else {
+					$path = implode(':', array_merge($states, [$node_name]));
+					$error = sprintf("Unexpected command `%s:`. Expected `if:` or `do:`", $path);
 					return false;
 				}
 			}
@@ -1030,6 +1064,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 			'repeat' => '\Cerb\AutomationBuilder\Node\RepeatNode',
 			'root' => '\Cerb\AutomationBuilder\Node\RootNode',
 			'start' => '\Cerb\AutomationBuilder\Node\EventNode',
+			'while' => '\Cerb\AutomationBuilder\Node\WhileNode',
 		];
 		
 		$node_type = $this->getType();
