@@ -2,7 +2,7 @@
 /**
  * Devblocks DAO
  * @author Jeff Standen, Webgroup Media LLC <jeff@webgroupmedia.com>
- * @version 2018-09-18
+ * @version 2020-12-10
  */
 
 $plugin_id = 'example.plugin';
@@ -53,7 +53,7 @@ foreach($tables as $table_name => $field_strs) {
 
 <h2>DAO</h2>
 
-<b>api/dao/<?php echo $table_name; ?>.php</b>
+<b>src/dao/<?php echo $table_name; ?>.php</b>
 <br>
 <textarea style="width: 98%; height: 200px;">
 class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
@@ -100,7 +100,10 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
-		//	$fields[DAO_Automation::CREATED_AT] = time();
+		// [TODO]
+		//if(!array_key_exists(DAO_<?php echo $class_name; ?>::CREATED_AT, $fields))
+		//	$fields[DAO_<?php echo $class_name; ?>::CREATED_AT] = time();
+		
 		$sql = "INSERT INTO <?php echo $table_name; ?> () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
@@ -400,16 +403,13 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, '<?php echo $ctx_ext_id; ?>', self::getPrimaryKey());
-				break;
 			
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr('<?php echo $ctx_ext_id; ?>')), self::getPrimaryKey());
-				break;
 			
 			/*
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, '', self::getPrimaryKey());
-				break;
 			*/
 			
 			default:
@@ -434,7 +434,6 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 			case SearchFields_<?php echo $class_name; ?>::ID:
 				$models = DAO_<?php echo $class_name; ?>::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -492,6 +491,7 @@ class Model_<?php echo $class_name; ?> {
 	;
 	?>
 };
+
 </textarea>
 
 <textarea style="width: 98%; height: 200px;">
@@ -703,7 +703,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
@@ -711,7 +710,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
 		
 		return false;
@@ -728,7 +726,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		$custom_fields = DAO_CustomField::getByContext('<?php echo $ctx_ext_id; ?>');
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_template', 'devblocks:<?php echo $plugin_id; ?>::<?php echo $table_name; ?>/view.tpl');
+		$tpl->assign('view_template', 'devblocks:<?php echo $plugin_id; ?>::records/types/<?php echo $table_name; ?>/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
@@ -820,6 +818,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		}
 	}
 };
+
 </textarea>
 
 <textarea style="width:98%;height:200px;">
@@ -1083,6 +1082,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
   
 		$tpl->assign('view_id', $view_id);
 		
+        $model = null;
+    
 		if($context_id) {
 			if(false == ($model = DAO_<?php echo $class_name; ?>::get($context_id)))
                 DevblocksPlatform::dieWithHttpError(null, 403);
@@ -1110,7 +1111,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
-			$tpl->display('devblocks:<?php echo $plugin_id; ?>::<?php echo $table_name; ?>/peek_edit.tpl');
+			$tpl->display('devblocks:<?php echo $plugin_id; ?>::records/types/<?php echo $table_name; ?>/peek_edit.tpl');
 			
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
@@ -1123,7 +1124,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <b>plugin.xml</b>
 <br>
 <textarea style="width: 98%; height: 200px;">
-<file path="api/dao/<?php echo $table_name; ?>.php">
+<file path="src/dao/<?php echo $table_name; ?>.php">
 	<class name="Context_<?php echo $class_name; ?>" />
 	<class name="DAO_<?php echo $class_name; ?>" />
 	<class name="Model_<?php echo $class_name; ?>" />
@@ -1137,7 +1138,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			<id><?php echo $ctx_ext_id; ?></id>
 			<name><?php echo $object_name; ?></name>
 			<class>
-				<file>api/dao/<?php echo $table_name; ?>.php</file>
+				<file>src/dao/<?php echo $table_name; ?>.php</file>
 				<name>Context_<?php echo $class_name; ?></name>
 			</class>
 			<params>
@@ -1191,7 +1192,8 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 <?php foreach(array_keys($fields) as $field_name) { ?>
 <tu tuid='dao.<?php echo $table_name; ?>.<?php echo $field_name; ?>'>
 	<tuv xml:lang="en_US">
-	<seg><?php echo ucwords(str_replace('_',' ',$field_name)); ?></seg></tuv>
+	    <seg><?php echo ucwords(str_replace('_',' ',$field_name)); ?></seg>
+    </tuv>
 </tu>
 <?php } ?>
 </textarea>
@@ -1247,7 +1249,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 	{else}
 		<button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
-		<button type="button" class="create-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>
+		{*<button type="button" class="create-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>*}
 	{/if}
 </div>
 
@@ -1266,7 +1268,7 @@ $(function() {
 		
 		$popup.find('button.save').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
-		$popup.find('button.create-continue').click({ mode: 'create_continue' }, Devblocks.callbackPeekEditSave);
+		//$popup.find('button.create-continue').click({ mode: 'create_continue' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		
 		// Close confirmation
@@ -1435,13 +1437,12 @@ $(function() {
 	
 	{if $pref_keyboard_shortcuts}
 	$frm.bind('keyboard_shortcut',function(event) {
-		$view_actions = $('#{$view->id}_actions');
-		
-		hotkey_activated = true;
+		var $view_actions = $('#{$view->id}_actions');
+		var hotkey_activated = true;
 	
 		switch(event.keypress_event.which) {
 			case 101: // (e) explore
-				$btn = $view_actions.find('button.action-explore');
+				var $btn = $view_actions.find('button.action-explore');
 			
 				if(event.indirect) {
 					$btn.select().focus();
@@ -1472,7 +1473,7 @@ $(function() {
 			<id><?php echo $plugin_namespace; ?>.page.profiles.<?php echo $table_name; ?></id>
 			<name><?php echo $object_name; ?> Section</name>
 			<class>
-				<file>api/profile/<?php echo $table_name; ?>.php</file>
+				<file>src/profiles/<?php echo $table_name; ?>.php</file>
 				<name>PageSection_Profiles<?php echo $class_name; ?></name>
 			</class>
 			<params>
@@ -1483,7 +1484,7 @@ $(function() {
 
 </textarea>
 
-<b>api/profile/<?php echo $table_name; ?>.php</b><br>
+<b>src/profiles/<?php echo $table_name; ?>.php</b><br>
 <textarea style="width:98%;height:200px;">
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
