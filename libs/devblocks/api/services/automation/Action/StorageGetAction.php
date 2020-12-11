@@ -39,7 +39,12 @@ class StorageGetAction extends AbstractAction {
 			
 			$validation->addField('key', 'inputs:key:')
 				->string()
-				->setRequired(true);
+				->setRequired(true)
+			;
+			
+			$validation->addField('default', 'inputs:default:')
+				->stringOrArray()
+			;
 			
 			if (false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
@@ -61,12 +66,13 @@ class StorageGetAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			$results = DAO_AutomationDatastore::get($inputs['key']);
-			
 			if (false === ($results = DAO_AutomationDatastore::get($inputs['key']))) {
-				// [TODO] Return a 404 error code
-				$error = sprintf("Failed to load the key (`%s`)", $inputs['key']);
-				throw new Exception_DevblocksAutomationError($error);
+				if(array_key_exists('default', $inputs)) {
+					$results = $inputs['default'];
+				} else {
+					$error = sprintf("Failed to load the key (`%s`)", $inputs['key']);
+					throw new Exception_DevblocksAutomationError($error);
+				}
 			}
 			
 			if ($output)
