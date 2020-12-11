@@ -405,26 +405,6 @@
 				<seg>automation</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.automation.event">
-			<tuv xml:lang="en_US">
-				<seg>automation event</seg>
-			</tuv>
-		</tu>
-		<tu tuid="common.automation.events">
-			<tuv xml:lang="en_US">
-				<seg>automation events</seg>
-			</tuv>
-		</tu>
-		<tu tuid="common.automation.function">
-			<tuv xml:lang="en_US">
-				<seg>automation function</seg>
-			</tuv>
-		</tu>
-		<tu tuid="common.automation.functions">
-			<tuv xml:lang="en_US">
-				<seg>automation functions</seg>
-			</tuv>
-		</tu>
 		<tu tuid="common.automation.policy">
 			<tuv xml:lang="en_US">
 				<seg>automation policy</seg>
@@ -433,6 +413,16 @@
 		<tu tuid="common.automation.policies">
 			<tuv xml:lang="en_US">
 				<seg>automation policies</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.timer">
+			<tuv xml:lang="en_US">
+				<seg>automation timer</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.automation.timers">
+			<tuv xml:lang="en_US">
+				<seg>automation timers</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.automation.trigger">

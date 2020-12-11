@@ -930,6 +930,7 @@ class CerberusContexts {
 	const CONTEXT_ADDRESS = 'cerberusweb.contexts.address';
 	const CONTEXT_ATTACHMENT = 'cerberusweb.contexts.attachment';
 	const CONTEXT_AUTOMATION = 'cerb.contexts.automation';
+	const CONTEXT_AUTOMATION_TIMER = 'cerb.contexts.automation.timer';
 	const CONTEXT_BEHAVIOR = 'cerberusweb.contexts.behavior';
 	const CONTEXT_BEHAVIOR_NODE = 'cerberusweb.contexts.behavior.node';
 	const CONTEXT_BEHAVIOR_SCHEDULED = 'cerberusweb.contexts.behavior.scheduled';

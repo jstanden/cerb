@@ -177,6 +177,14 @@
 			<class name="SearchFields_AutomationExecution" />
 		</file>
 
+		<file path="api/dao/automation_timer.php">
+			<class name="Context_AutomationTimer" />
+			<class name="DAO_AutomationTimer" />
+			<class name="Model_AutomationTimer" />
+			<class name="SearchFields_AutomationTimer" />
+			<class name="View_AutomationTimer" />
+		</file>
+		
 		<file path="api/dao/bayes.php">
 			<class name="CerberusBayes" />
 			<class name="DAO_Bayes" />
@@ -1388,6 +1396,50 @@
 			</params>
 		</extension>
 
+		<extension point="devblocks.context">
+			<id>cerb.contexts.automation.timer</id>
+			<name>Automation Timer</name>
+			<class>
+				<file>api/dao/automation_timer.php</file>
+				<name>Context_AutomationTimer</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="automation timer" value="singular" />
+						<data key="automation timers" value="plural" />
+						<data key="timer" value="singular short" />
+						<data key="timers" value="plural short" />
+					</value>
+				</param>
+				<param key="alias" value="automation_timer" />
+				<param key="dao_class" value="DAO_AutomationTimer" />
+				<param key="view_class" value="View_AutomationTimer" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.profile.tab</id>
 			<name>Profile Tab</name>
@@ -4677,6 +4729,23 @@
 				</param>
 			</params>
 		</extension>
+		
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.automation.timer</id>
+			<name>automation.timer</name>
+			<class>
+				<file>api/automations/triggers/automation.timer.php</file>
+				<name>AutomationTrigger_AutomationTimer</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
 
 		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.resource.get</id>
@@ -6252,6 +6321,19 @@
 			</extension>
 
 			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.automation_timer</id>
+				<name>Automation Timer Section</name>
+				<class>
+					<file>api/uri/profiles/automation_timer.php</file>
+					<name>PageSection_ProfilesAutomationTimer</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="automation_timer" />
+				</params>
+			</extension>
+	
+			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.bucket</id>
 				<name>Bucket Section</name>
 				<class>
@@ -7589,6 +7671,16 @@
 		</extension>
 		
 		<!-- Cron Extensions -->
+
+		<extension point="cerberusweb.cron">
+			<id>cron.automations</id>
+			<name>Automations</name>
+			<class>
+				<file>api/crons/automations.php</file>
+				<name>Cron_Automations</name>
+			</class>
+			<params />
+		</extension>
 		
 		<extension point="cerberusweb.cron">
 			<id>cron.mailbox</id>

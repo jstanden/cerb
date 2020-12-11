@@ -161,6 +161,36 @@ if(!isset($tables['automation_execution'])) {
 }
 
 // ===========================================================================
+// Add `automation_timer` table
+
+if(!isset($tables['automation_timer'])) {
+	$sql = sprintf("
+		CREATE TABLE `automation_timer` (
+		id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		name varchar(255) NOT NULL DEFAULT '',
+		automation_kata text,
+		resume_at int(10) unsigned NOT NULL DEFAULT '0',
+		created_at int(10) unsigned NOT NULL DEFAULT '0',
+		updated_at int(10) unsigned NOT NULL DEFAULT '0',
+		continuation_id varchar(255) NOT NULL DEFAULT '',
+		PRIMARY KEY (id),
+		INDEX (resume_at),
+		INDEX continuation_id (continuation_id(4)),
+		INDEX (updated_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['automation_timer'] = 'automation_timer';
+	
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'enabled', '1')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'duration', '5')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'term', 'm')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'lastrun', '0')");
+	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'locked', '0')");
+}
+
+// ===========================================================================
 // Drop `email_signature.is_default`
 
 list($columns,) = $db->metaTable('email_signature');
