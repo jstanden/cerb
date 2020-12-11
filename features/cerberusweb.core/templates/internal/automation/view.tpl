@@ -90,7 +90,12 @@
 				<td data-column="{$column}">{if $result.$column}{'common.yes'|devblocks_translate|capitalize}{else}{'common.no'|devblocks_translate|capitalize}{/if}</td>
 			{elseif $column == "a_extension_id"}
 			<td data-column="{$column}">
-				{$result.$column}
+				{if isset($trigger_extensions.{$result.a_extension_id})}
+					{$trigger_ext = $events.{$result.a_extension_id}}
+					{$trigger_ext->name}
+				{else}
+					{$result.$column}
+				{/if}
 			</td>
 			{elseif $column=="*_on"}
 			<td data-column="{$column}">
