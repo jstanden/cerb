@@ -101,7 +101,7 @@ $(function() {
 		formData.set('action', 'invokePrompt');
 		formData.set('prompt_key', 'sheet/{$var}');
 		formData.set('prompt_action', 'updateToolbar');
-		formData.set('execution_token', '{$execution_token}');
+		formData.set('continuation_token', '{$continuation_token}');
 
 		$sheet_selections.find('input[type=hidden]').each(function() {
 			formData.append('selections[]', $(this).val());
@@ -134,7 +134,7 @@ $(function() {
 		formData.set('action', 'invokePrompt');
 		formData.set('prompt_key', 'sheet/{$var}');
 		formData.set('prompt_action', 'refresh');
-		formData.set('execution_token', '{$execution_token}');
+		formData.set('continuation_token', '{$continuation_token}');
 
 		$sheet.prepend(Devblocks.getSpinner(true));
 
@@ -154,7 +154,7 @@ $(function() {
 		formData.set('action', 'invokePrompt');
 		formData.set('prompt_key', 'sheet/{$var}');
 		formData.set('prompt_action', 'refresh');
-		formData.set('execution_token', '{$execution_token}');
+		formData.set('continuation_token', '{$continuation_token}');
 
 		formData.set('page', e.page);
 
@@ -234,7 +234,7 @@ $(function() {
 			formData.set('action', 'invokePrompt');
 			formData.set('prompt_key', 'sheet/{$var}');
 			formData.set('prompt_action', 'refresh');
-			formData.set('execution_token', '{$execution_token}');
+			formData.set('continuation_token', '{$continuation_token}');
 
 			formData.set('page', 0);
 			formData.set('filter', editor.getValue());

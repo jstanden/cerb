@@ -285,7 +285,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$execution_token = DevblocksPlatform::importGPC($_POST['execution_token'], 'string', '');
+		@$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'], 'string', '');
 		@$prompt_key = DevblocksPlatform::importGPC($_POST['prompt_key'], 'string', '');
 		@$prompt_action = DevblocksPlatform::importGPC($_POST['prompt_action'], 'string', '');
 		@$invoke = DevblocksPlatform::importGPC($_POST['invoke'], 'string', '');
@@ -294,21 +294,21 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			return;
 		
 		// Load the execution
-		if(false == ($execution = DAO_AutomationExecution::getByToken($execution_token)))
+		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		// Check actor
 		
 		// [TODO] Do this better
 		$session_actor = [
-			'context' => @$execution->state_data['actor']['context'],
-			'context_id' => @$execution->state_data['actor']['id'],
+			'context' => @$continuation->state_data['actor']['context'],
+			'context_id' => @$continuation->state_data['actor']['id'],
 		];
 		
 		if(!CerberusContexts::isSameActor(CerberusApplication::getActiveWorker(), $session_actor))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$dict = $execution->state_data['dict'];
+		$dict = $continuation->state_data['dict'];
 		@$form = $dict['__return']['form']['elements'];
 		
 		if(!array_key_exists($prompt_key, $form))
@@ -323,7 +323,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		
 		$component = new $form_components[$prompt_type]($prompt_name, null, $form[$prompt_key]);
 		
-		$component->invoke($prompt_key, $prompt_action, $execution);
+		$component->invoke($prompt_key, $prompt_action, $continuation);
 	}
 	
 	private function _profileAction_renderEditorToolbar() {

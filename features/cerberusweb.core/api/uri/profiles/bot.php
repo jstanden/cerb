@@ -654,14 +654,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$execution_token = DevblocksPlatform::importGPC($_POST['execution_token'], 'string', '');
+		@$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'], 'string', '');
 		
-		if($execution_token) {
+		if($continuation_token) {
 			// Load the session
-			if(false == ($automation_execution = DAO_AutomationExecution::getByToken($execution_token)))
+			if(false == ($automation_continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 			
-			return $this->_consoleSendMessageAsAutomation($automation_execution);
+			return $this->_consoleSendMessageAsAutomation($automation_continuation);
 			
 		} else {
 			@$session_id = DevblocksPlatform::importGPC($_POST['session_id'], 'string', '');
@@ -1769,24 +1769,24 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			]);
 			
 		} else if('inline' == $interaction_style) {
-			$execution_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
+			$continuation_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
 			
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('layer', $layer);
-			$tpl->assign('execution_token', $execution_token);
+			$tpl->assign('continuation_token', $continuation_token);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/panel.tpl');
 			
 		} else {
-			$execution_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
+			$continuation_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
 			
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('layer', $layer);
-			$tpl->assign('execution_token', $execution_token);
+			$tpl->assign('continuation_token', $continuation_token);
 			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/popup.tpl');
 		}
 	}
 	
-	private function _startInteractionAutomationSession(Model_Automation $automation, array $caller=[], array $interaction_params=[], $execution_token=null, &$error=null) {
+	private function _startInteractionAutomationSession(Model_Automation $automation, array $caller=[], array $interaction_params=[], $continuation_token=null, &$error=null) {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$initial_state = [
@@ -1811,25 +1811,25 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			'dict' => $dict->getDictionary(),
 		];
 		
-		if(!$execution_token) {
-			$execution_token = DAO_AutomationExecution::create([
-				DAO_AutomationExecution::URI => $automation->name,
-				DAO_AutomationExecution::STATE_DATA => json_encode($state_data),
-				DAO_AutomationExecution::EXPIRES_AT => time()+3600, // 1hr
-				DAO_AutomationExecution::UPDATED_AT => time(),
+		if(!$continuation_token) {
+			$continuation_token = DAO_AutomationContinuation::create([
+				DAO_AutomationContinuation::URI => $automation->name,
+				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
+				DAO_AutomationContinuation::EXPIRES_AT => time()+3600, // 1hr
+				DAO_AutomationContinuation::UPDATED_AT => time(),
 			]);
 			
 		} else {
-			DAO_AutomationExecution::update($execution_token, [
-				DAO_AutomationExecution::STATE_DATA => json_encode($state_data),
-				DAO_AutomationExecution::UPDATED_AT => time(),
+			DAO_AutomationContinuation::update($continuation_token, [
+				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
+				DAO_AutomationContinuation::UPDATED_AT => time(),
 			]);
 		}
 		
-		return $execution_token;
+		return $continuation_token;
 	}
 	
-	private function _consoleSendMessageAsAutomation(Model_AutomationExecution $execution) {
+	private function _consoleSendMessageAsAutomation(Model_AutomationContinuation $continuation) {
 		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 		@$reset = DevblocksPlatform::importGPC($_POST['reset'], 'integer', 0);
 		
@@ -1837,7 +1837,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$automator = DevblocksPlatform::services()->automation();
 		$validation = DevblocksPlatform::services()->validation();
 		
-		@$interaction_uri = $execution->uri;
+		@$interaction_uri = $continuation->uri;
 		
 		if(!$interaction_uri)
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1853,13 +1853,13 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		// Restart the session
 		if($reset) {
-			$this->_startInteractionAutomationSession($automation, $execution->state_data['caller'], $execution->state_data['interaction_params'], $execution->token);
-			$execution = DAO_AutomationExecution::getByToken($execution->token);
+			$this->_startInteractionAutomationSession($automation, $continuation->state_data['caller'], $continuation->state_data['interaction_params'], $continuation->token);
+			$continuation = DAO_AutomationContinuation::getByToken($continuation->token);
 		}
 		
 		$form_components = AutomationTrigger_InteractionWebWorker::getFormComponentMeta();
 		
-		$initial_state = $execution->state_data['dict'];
+		$initial_state = $continuation->state_data['dict'];
 		
 		$error = null;
 		
@@ -1904,10 +1904,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		// Verify permissions
 		$policy = $automation->getPolicy();
 		
-		if (!$policy->isCallerAllowed($execution->state_data['caller']['name'], DevblocksDictionaryDelegate::instance($execution->state_data['dict']))) {
+		if (!$policy->isCallerAllowed($continuation->state_data['caller']['name'], DevblocksDictionaryDelegate::instance($continuation->state_data['dict']))) {
 			$error = sprintf(
 				"The automation policy does not allow this caller (%s).",
-				$execution->state_data['caller']['name']
+				$continuation->state_data['caller']['name']
 			);
 			
 			$initial_state['__exit'] = 'await';
@@ -1998,14 +1998,14 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			}
 			
 			// Wait up to a day
-			$execution->expires_at = time() + 86400;
+			$continuation->expires_at = time() + 86400;
 			
 		// Synthesize an end action on other states
 		} else {
 			$elements['end/' . uniqid()] = $automation_results->get('__return', []);
 		}
 		
-		$execution->state_data['dict'] = $automation_results->getDictionary();
+		$continuation->state_data['dict'] = $automation_results->getDictionary();
 		
 		foreach($elements as $element_key => $element_data) {
 			@list($action_key_type, $var) = explode('/', $element_key, 2);
@@ -2020,16 +2020,16 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					continue;
 				
 				$component = new $form_components[$action_key_type]($var, $value, $element_data);
-				$component->render($execution);
+				$component->render($continuation);
 			}
 		}
 		
 		// Save session scope
-		DAO_AutomationExecution::update($execution->token, [
-			DAO_AutomationExecution::STATE => $exit_code,
-			DAO_AutomationExecution::STATE_DATA => json_encode($execution->state_data),
-			DAO_AutomationExecution::EXPIRES_AT => $execution->expires_at,
-			DAO_AutomationExecution::UPDATED_AT => time(),
+		DAO_AutomationContinuation::update($continuation->token, [
+			DAO_AutomationContinuation::STATE => $exit_code,
+			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+			DAO_AutomationContinuation::UPDATED_AT => time(),
 		]);
 	}
 };

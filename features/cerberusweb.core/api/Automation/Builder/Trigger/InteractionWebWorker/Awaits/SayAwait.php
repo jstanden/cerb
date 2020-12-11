@@ -3,10 +3,10 @@ namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
-use Model_AutomationExecution;
+use Model_AutomationContinuation;
 
 class SayAwait extends AbstractAwait {
-	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
+	function invoke(string $prompt_key, string $action, Model_AutomationContinuation $continuation) {
 		return false;
 	}
 
@@ -17,7 +17,7 @@ class SayAwait extends AbstractAwait {
 	function validate(_DevblocksValidationService $validation) {
 	}
 	
-	function render(Model_AutomationExecution $execution) {
+	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$msg = '';

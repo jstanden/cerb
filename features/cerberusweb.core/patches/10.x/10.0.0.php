@@ -137,11 +137,11 @@ if(!isset($tables['automation_datastore'])) {
 }
 
 // ===========================================================================
-// Add `automation_execution` table
+// Add `automation_continuation` table
 
-if(!isset($tables['automation_execution'])) {
+if(!isset($tables['automation_continuation'])) {
 	$sql = sprintf("
-	CREATE TABLE `automation_execution` (
+	CREATE TABLE `automation_continuation` (
 		token varchar(64) NOT NULL DEFAULT '',
 		uri varchar(255) NOT NULL DEFAULT '',
 		state varchar(8) NOT NULL DEFAULT '',
@@ -157,7 +157,7 @@ if(!isset($tables['automation_execution'])) {
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
-	$tables['automation_execution'] = 'automation_execution';
+	$tables['automation_continuation'] = 'automation_continuation';
 }
 
 // ===========================================================================

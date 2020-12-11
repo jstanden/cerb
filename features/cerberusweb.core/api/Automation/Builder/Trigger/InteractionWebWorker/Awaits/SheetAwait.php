@@ -6,18 +6,18 @@ use AutomationTrigger_UiSheetData;
 use CerberusApplication;
 use CerberusContexts;
 use DAO_Automation;
-use DAO_AutomationExecution;
+use DAO_AutomationContinuation;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
-use Model_AutomationExecution;
+use Model_AutomationContinuation;
 
 class SheetAwait extends AbstractAwait {
-	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
+	function invoke(string $prompt_key, string $action, Model_AutomationContinuation $continuation) {
 		switch($action) {
 			case 'refresh':
-				return $this->_promptAction_refresh($prompt_key, $execution);
+				return $this->_promptAction_refresh($prompt_key, $continuation);
 			case 'updateToolbar':
-				return $this->_promptAction_updateToolbar($prompt_key, $execution);
+				return $this->_promptAction_updateToolbar($prompt_key, $continuation);
 		}
 		return false;
 	}
@@ -36,13 +36,13 @@ class SheetAwait extends AbstractAwait {
 		return $this->_value;
 	}
 	
-	private function _render(string $prompt_key, Model_AutomationExecution $execution) {
+	private function _render(string $prompt_key, Model_AutomationContinuation $continuation) {
 		$sheets = DevblocksPlatform::services()->sheet();
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$error = null;
 		
-		@$prompt = $execution->state_data['dict']['__return']['form']['elements'][$prompt_key];
+		@$prompt = $continuation->state_data['dict']['__return']['form']['elements'][$prompt_key];
 		
 		if(is_null($prompt))
 			return;
@@ -54,7 +54,7 @@ class SheetAwait extends AbstractAwait {
 		$sheet_filter = $prompt['filter'] ?? null;
 		$sheet_limit = $prompt['limit'] ?? 10;
 		
-		@$default = $execution->state_data['dict'][$this->_key] ?? $prompt['default'];
+		@$default = $continuation->state_data['dict'][$this->_key] ?? $prompt['default'];
 		
 		$sheet_paging = [];
 		
@@ -121,12 +121,12 @@ class SheetAwait extends AbstractAwait {
 		$tpl->assign('paging', $sheet_paging);
 	}
 	
-	function render(Model_AutomationExecution $execution) {
+	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$prompt_key = 'sheet/' . $this->_key;
 		
-		$form = $execution->state_data['dict']['__return']['form']['elements'] ?? [];
+		$form = $continuation->state_data['dict']['__return']['form']['elements'] ?? [];
 		
 		if(!array_key_exists($prompt_key, $form))
 			return;
@@ -155,14 +155,14 @@ class SheetAwait extends AbstractAwait {
 			$tpl->assign('toolbar', $toolbar);
 		}
 		
-		$tpl->assign('execution_token', $execution->token);
+		$tpl->assign('continuation_token', $continuation->token);
 		
-		$this->_render($prompt_key, $execution);
+		$this->_render($prompt_key, $continuation);
 		
 		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/await/sheet.tpl');
 	}
 	
-	private function _promptAction_refresh(string $prompt_key, Model_AutomationExecution $execution) {
+	private function _promptAction_refresh(string $prompt_key, Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		@$page = DevblocksPlatform::importGPC($_POST['page']);
@@ -172,7 +172,7 @@ class SheetAwait extends AbstractAwait {
 		
 		list(,$prompt_name) = explode('/', $prompt_key, 2);
 		
-		$prompt =& $execution->state_data['dict']['__return']['form']['elements'][$prompt_key];
+		$prompt =& $continuation->state_data['dict']['__return']['form']['elements'][$prompt_key];
 		
 		if(is_null($prompt))
 			return;
@@ -189,7 +189,7 @@ class SheetAwait extends AbstractAwait {
 			$is_dirty = true;
 		}
 		
-		$this->_render($prompt_key, $execution);
+		$this->_render($prompt_key, $continuation);
 		
 		$tpl->assign('layout_style', $layout_style);
 		
@@ -204,16 +204,16 @@ class SheetAwait extends AbstractAwait {
 		}
 		
 		if($is_dirty) {
-			DAO_AutomationExecution::update($execution->token, [
-				DAO_AutomationExecution::STATE_DATA => json_encode($execution->state_data)
+			DAO_AutomationContinuation::update($continuation->token, [
+				DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data)
 			]);
 		}
 	}
 	
-	private function _promptAction_updateToolbar(string $prompt_key, Model_AutomationExecution $execution) {
+	private function _promptAction_updateToolbar(string $prompt_key, Model_AutomationContinuation $continuation) {
 		@$selections = DevblocksPlatform::importGPC($_POST['selections'], 'array:int', []);
 		
-		$dict = $execution->state_data['dict'];
+		$dict = $continuation->state_data['dict'];
 		@$form = $dict['__return']['form']['elements'];
 		
 		if(!array_key_exists($prompt_key, $form))

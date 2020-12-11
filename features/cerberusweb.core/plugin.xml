@@ -171,10 +171,10 @@
 			<class name="DAO_AutomationDatastore" />
 		</file>
 
-		<file path="api/dao/automation_execution.php">
-			<class name="DAO_AutomationExecution" />
-			<class name="Model_AutomationExecution" />
-			<class name="SearchFields_AutomationExecution" />
+		<file path="api/dao/automation_continuation.php">
+			<class name="DAO_AutomationContinuation" />
+			<class name="Model_AutomationContinuation" />
+			<class name="SearchFields_AutomationContinuation" />
 		</file>
 
 		<file path="api/dao/automation_timer.php">

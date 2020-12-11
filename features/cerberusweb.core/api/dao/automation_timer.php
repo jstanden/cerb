@@ -500,12 +500,12 @@ class Model_AutomationTimer {
 				];
 				
 				// Create a continuation?
-				$continuation_id = DAO_AutomationExecution::create([
-					DAO_AutomationExecution::UPDATED_AT => time(),
-					DAO_AutomationExecution::EXPIRES_AT => $resume_at + 86400,
-					DAO_AutomationExecution::STATE => $exit_code,
-					DAO_AutomationExecution::STATE_DATA => json_encode($state_data),
-					DAO_AutomationExecution::URI => $handler->name,
+				$continuation_id = DAO_AutomationContinuation::create([
+					DAO_AutomationContinuation::UPDATED_AT => time(),
+					DAO_AutomationContinuation::EXPIRES_AT => $resume_at + 604800,
+					DAO_AutomationContinuation::STATE => $exit_code,
+					DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
+					DAO_AutomationContinuation::URI => $handler->name,
 				]);
 				
 				// Update record
@@ -538,7 +538,7 @@ class Model_AutomationTimer {
 		$error = null;
 		
 		try {
-			if(false == ($continuation = DAO_AutomationExecution::getByToken($this->continuation_id)))
+			if(false == ($continuation = DAO_AutomationContinuation::getByToken($this->continuation_id)))
 				throw new Exception_DevblocksAutomationError();
 			
 			if($continuation->state != 'await')
@@ -590,11 +590,11 @@ class Model_AutomationTimer {
 			) {
 				$continuation->state_data['dict'] = $automation_results->getDictionary();
 				
-				DAO_AutomationExecution::update($continuation->token, [
-					DAO_AutomationExecution::STATE => $exit_code,
-					DAO_AutomationExecution::STATE_DATA => json_encode($continuation->state_data),
-					DAO_AutomationExecution::UPDATED_AT => time(),
-					DAO_AutomationExecution::EXPIRES_AT => $resume_at + 86400,
+				DAO_AutomationContinuation::update($continuation->token, [
+					DAO_AutomationContinuation::STATE => $exit_code,
+					DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+					DAO_AutomationContinuation::UPDATED_AT => time(),
+					DAO_AutomationContinuation::EXPIRES_AT => $resume_at + 604800,
 				]);
 				
 				DAO_AutomationTimer::update($this->id, [
@@ -606,7 +606,7 @@ class Model_AutomationTimer {
 			}
 			
 			// Cleanup
-			DAO_AutomationExecution::delete($continuation->id);
+			DAO_AutomationContinuation::delete($continuation->id);
 			DAO_AutomationTimer::delete($this->id);
 			
 			return $automation_results;

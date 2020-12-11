@@ -3,10 +3,10 @@ namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
-use Model_AutomationExecution;
+use Model_AutomationContinuation;
 
 class FileUploadAwait extends AbstractAwait {
-	function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution) {
+	function invoke(string $prompt_key, string $action, Model_AutomationContinuation $continuation) {
 		return false;
 	}
 
@@ -32,7 +32,7 @@ class FileUploadAwait extends AbstractAwait {
 		return $this->_value;
 	}
 	
-	function render(Model_AutomationExecution $execution) {
+	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		@$label = $this->_data['label'];

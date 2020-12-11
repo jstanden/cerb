@@ -1,5 +1,5 @@
 <?php
-class DAO_AutomationExecution extends Cerb_ORMHelper {
+class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	const EXPIRES_AT = 'expires_at';
 	const STATE = 'state';
 	const STATE_DATA = 'state_data';
@@ -55,7 +55,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 		
 		$token = DevblocksPlatform::services()->string()->base64UrlEncode(random_bytes(48));
 		
-		$sql = sprintf("INSERT INTO automation_execution (token) VALUES (%s)",
+		$sql = sprintf("INSERT INTO automation_continuation (token) VALUES (%s)",
 			$db->qstr($token)
 		);
 		$db->ExecuteMaster($sql);
@@ -71,7 +71,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 		if(is_null($token))
 			$token = DevblocksPlatform::services()->string()->base64UrlEncode(random_bytes(48));
 		
-		$sql = sprintf("REPLACE INTO automation_execution (token) VALUES (%s)",
+		$sql = sprintf("REPLACE INTO automation_continuation (token) VALUES (%s)",
 			$db->qstr($token)
 		);
 		$db->ExecuteMaster($sql);
@@ -93,7 +93,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	}
 	
 	static function updateWhere($fields, $where) {
-		parent::_updateWhere('automation_execution', $fields, $where);
+		parent::_updateWhere('automation_continuation', $fields, $where);
 	}
 	
 	/**
@@ -101,7 +101,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
 	 * @param integer $limit
-	 * @return Model_AutomationExecution[]
+	 * @return Model_AutomationContinuation[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
@@ -110,7 +110,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 		
 		// SQL
 		$sql = "SELECT token, uri, state, state_data, expires_at, updated_at ".
-			"FROM automation_execution ".
+			"FROM automation_continuation ".
 			$where_sql.
 			$sort_sql.
 			$limit_sql
@@ -127,7 +127,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	
 	/**
 	 * @param string $token
-	 * @return Model_AutomationExecution
+	 * @return Model_AutomationContinuation
 	 */
 	static function getByToken(string $token) {
 		if(empty($token))
@@ -147,7 +147,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	/**
 	 * 
 	 * @param array $ids
-	 * @return Model_AutomationExecution[]
+	 * @return Model_AutomationContinuation[]
 	 */
 	static function getIds($ids) {
 		if(!is_array($ids))
@@ -180,7 +180,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	
 	/**
 	 * @param resource $rs
-	 * @return Model_AutomationExecution[]|false
+	 * @return Model_AutomationContinuation[]|false
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = [];
@@ -189,7 +189,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$object = new Model_AutomationExecution();
+			$object = new Model_AutomationContinuation();
 			$object->token = $row['token'];
 			$object->uri = $row['uri'];
 			$object->state = $row['state'];
@@ -208,7 +208,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	}
 	
 	static function random() {
-		return self::_getRandom('automation_execution');
+		return self::_getRandom('automation_continuation');
 	}
 	
 	static function delete($ids) {
@@ -222,7 +222,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $db->qstrArray($ids));
 		
-		$db->ExecuteMaster(sprintf("DELETE FROM automation_execution WHERE token IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM automation_continuation WHERE token IN (%s)", $ids_list));
 		
 		return true;
 	}
@@ -230,7 +230,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	public static function maint() {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = sprintf("DELETE FROM automation_execution WHERE expires_at BETWEEN 1 AND %d",
+		$sql = sprintf("DELETE FROM automation_continuation WHERE expires_at BETWEEN 1 AND %d",
 			time()
 		);
 		$db->ExecuteMaster($sql);
@@ -239,31 +239,31 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
-		$fields = SearchFields_AutomationExecution::getFields();
+		$fields = SearchFields_AutomationContinuation::getFields();
 		
-		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_AutomationExecution', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_AutomationContinuation', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"automation_execution.token as %s, ".
-			"automation_execution.uri as %s, ".
-			"automation_execution.state as %s, ".
-			"automation_execution.expires_at as %s, ".
-			"automation_execution.updated_at as %s ",
-			SearchFields_AutomationExecution::TOKEN,
-			SearchFields_AutomationExecution::URI,
-			SearchFields_AutomationExecution::EXPIRES_AT,
-			SearchFields_AutomationExecution::UPDATED_AT
+			"automation_continuation.token as %s, ".
+			"automation_continuation.uri as %s, ".
+			"automation_continuation.state as %s, ".
+			"automation_continuation.expires_at as %s, ".
+			"automation_continuation.updated_at as %s ",
+			SearchFields_AutomationContinuation::TOKEN,
+			SearchFields_AutomationContinuation::URI,
+			SearchFields_AutomationContinuation::EXPIRES_AT,
+			SearchFields_AutomationContinuation::UPDATED_AT
 			);
 			
-		$join_sql = "FROM automation_execution ";
+		$join_sql = "FROM automation_continuation ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_AutomationExecution');
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_AutomationContinuation');
 	
 		return array(
-			'primary_table' => 'automation_execution',
+			'primary_table' => 'automation_continuation',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -292,7 +292,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 		$sort_sql = $query_parts['sort'];
 		
 		return self::_searchWithTimeout(
-			SearchFields_AutomationExecution::TOKEN,
+			SearchFields_AutomationContinuation::TOKEN,
 			$select_sql,
 			$join_sql,
 			$where_sql,
@@ -304,7 +304,7 @@ class DAO_AutomationExecution extends Cerb_ORMHelper {
 	}
 };
 
-class SearchFields_AutomationExecution extends DevblocksSearchFields {
+class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 	const TOKEN = 'a_token';
 	const STATE = 'a_state';
 	const EXPIRES_AT = 'a_expires_at';
@@ -314,13 +314,13 @@ class SearchFields_AutomationExecution extends DevblocksSearchFields {
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
-		return 'automation_execution.token';
+		return 'automation_continuation.token';
 	}
 	
 	static function getCustomFieldContextKeys() {
 		// [TODO] Context
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('automation_execution.token', self::TOKEN),
+			'' => new DevblocksSearchFieldContextKeys('automation_continuation.token', self::TOKEN),
 		);
 	}
 	
@@ -356,11 +356,11 @@ class SearchFields_AutomationExecution extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'automation_execution', 'expires_at', $translate->_('common.expires'), null, true),
-			self::STATE => new DevblocksSearchField(self::STATE, 'automation_execution', 'state', DevblocksPlatform::translateCapitalized('common.state'), null, true),
-			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'automation_execution', 'token', null, null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_execution', 'updated_at', $translate->_('common.updated'), null, true),
-			self::URI => new DevblocksSearchField(self::STATE, 'automation_execution', 'uri', DevblocksPlatform::translate('common.uri'), null, true),
+			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'automation_continuation', 'expires_at', $translate->_('common.expires'), null, true),
+			self::STATE => new DevblocksSearchField(self::STATE, 'automation_continuation', 'state', DevblocksPlatform::translateCapitalized('common.state'), null, true),
+			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'automation_continuation', 'token', null, null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_continuation', 'updated_at', $translate->_('common.updated'), null, true),
+			self::URI => new DevblocksSearchField(self::STATE, 'automation_continuation', 'uri', DevblocksPlatform::translate('common.uri'), null, true),
 		);
 		
 		// Custom Fields
@@ -376,7 +376,7 @@ class SearchFields_AutomationExecution extends DevblocksSearchFields {
 	}
 };
 
-class Model_AutomationExecution {
+class Model_AutomationContinuation {
 	public $expires_at = 0;
 	public $state = null;
 	public $state_data = [];

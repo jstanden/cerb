@@ -2,7 +2,7 @@
 namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
 
 use _DevblocksValidationService;
-use Model_AutomationExecution;
+use Model_AutomationContinuation;
 
 abstract class AbstractAwait {
 	protected $_key;
@@ -17,6 +17,6 @@ abstract class AbstractAwait {
 	
 	abstract function validate(_DevblocksValidationService $validation);
 	abstract function formatValue();
-	abstract function render(Model_AutomationExecution $execution);
-	abstract function invoke(string $prompt_key, string $action, Model_AutomationExecution $execution);
+	abstract function render(Model_AutomationContinuation $continuation);
+	abstract function invoke(string $prompt_key, string $action, Model_AutomationContinuation $continuation);
 }
