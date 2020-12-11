@@ -51,13 +51,13 @@ class DAO_Automation extends Cerb_ORMHelper {
 			->setUnique(get_class())
 			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
-				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '.'))) {
-					$error = "may only contain letters, numbers, and dots";
+				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '.-_'))) {
+					$error = "may only contain letters, numbers, dashes, and dots";
 					return false;
 				}
 				
-				if(strlen($string) > 128) {
-					$error = "must be shorter than 128 characters.";
+				if(strlen($string) > 255) {
+					$error = "must be shorter than 255 characters.";
 					return false;
 				}
 				
