@@ -1,6 +1,8 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
+use CerberusContexts;
+use DAO_ConnectedAccount;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
@@ -16,10 +18,12 @@ class HttpRequestAction extends AbstractAction {
 		
 		// [TODO] Timeout
 		// [TODO] SSL certs
-		// [TODO] Sign request with connected accounts
 		// [TODO] User-level option to follow redirects
 		
 		$params = $this->node->getParams($dict);
+		
+		$inputs = $params['inputs'] ?? [];
+		$output = @$params['output'];
 		
 		try {
 			// Params validation
@@ -40,8 +44,9 @@ class HttpRequestAction extends AbstractAction {
 			
 			// Inputs validation
 			
-			@$inputs = $params['inputs'] ?? [];
-			@$output = $params['output'];
+			$validation->addField('authentication', 'inputs:authentication:')
+				->string()
+			;
 			
 			if(!array_key_exists('method', $inputs))
 				$inputs['method'] = 'GET';
@@ -60,10 +65,6 @@ class HttpRequestAction extends AbstractAction {
 			$validation->addField('headers', 'inputs:headers:')
 				->stringOrArray()
 			;
-			
-//			$validation->addField('query', 'inputs:query:')
-//				->stringOrArray()
-//			;
 			
 			$validation->addField('body', 'inputs:body:')
 				->string()
@@ -100,7 +101,6 @@ class HttpRequestAction extends AbstractAction {
 			
 			$request = new Request($method, $url, $headers, $body);
 			$request_options = [];
-			//$connected_account = null;
 			
 			switch($method) {
 				case 'POST':
@@ -115,15 +115,33 @@ class HttpRequestAction extends AbstractAction {
 			if(isset($options['ignore_ssl_validation']) && $options['ignore_ssl_validation']) {
 				$request_options['verify'] = false;
 			}
-			
-			if(isset($options['connected_account']) && $options['connected_account']) {
-				if(false == ($connected_account = DAO_ConnectedAccount::get($options['connected_account'])))
-					return false;
-				
-				if(false == $connected_account->authenticateHttpRequest($request, $request_options, CerberusContexts::getCurrentActor()))
-					return false;
-			}
 			*/
+			
+			if(array_key_exists('authentication', $inputs) && $inputs['authentication']) {
+				$uri_parts = DevblocksPlatform::services()->ui()->parseURI($inputs['authentication']);
+				
+				$connected_account = null;
+				
+				if(is_numeric($uri_parts['context_id'])) {
+					$connected_account = DAO_ConnectedAccount::get($uri_parts['context_id']);
+				} else {
+					$connected_account = DAO_ConnectedAccount::getByUri($uri_parts['context_id']);
+				}
+				
+				if(!$connected_account) {
+					$error = sprintf('Unknown account for authentication (%s)',
+						$inputs['authentication']
+					);
+					return false;
+				}
+				
+				if(false == $connected_account->authenticateHttpRequest($request, $request_options, [CerberusContexts::CONTEXT_APPLICATION, 0])) {
+					$error = sprintf('Failed to authenticate with account (%s)',
+						$inputs['authentication']
+					);
+					return false;
+				}
+			}
 			
 			$error = null;
 			$status_code = null;
