@@ -91,7 +91,7 @@ class DevblocksUiEventHandler {
 		return $results;
 	}
 	
-	function handleOnce(string $trigger, array $handlers, array $initial_state, &$error=null, callable $behavior_callback=null) {
+	function handleOnce(string $trigger, array $handlers, array $initial_state, &$error=null, callable $behavior_callback=null, &$handler=null) {
 		$automator = DevblocksPlatform::services()->automation();
 		
 		foreach($handlers as $handler) {
@@ -115,6 +115,8 @@ class DevblocksUiEventHandler {
 				if(false == ($automation_results = $automator->executeScript($automation, $initial_state, $error)))
 					return null;
 				
+				$handler = $automation;
+				
 				return $automation_results;
 				
 			// @deprecated
@@ -137,8 +139,10 @@ class DevblocksUiEventHandler {
 						$behavior = DAO_TriggerEvent::getByUri($behavior_uri);
 					}
 					
-					if($behavior instanceof Model_TriggerEvent)
+					if($behavior instanceof Model_TriggerEvent) {
+						$handler = $behavior;
 						return $behavior_callback($behavior, $handler);
+					}
 					
 					return false;
 				}

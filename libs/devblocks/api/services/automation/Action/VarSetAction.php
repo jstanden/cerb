@@ -42,6 +42,7 @@ class VarSetAction extends AbstractAction {
 			$validation->addField('value', 'inputs:value:')
 				->stringOrArray()
 				->setRequired(true)
+				->setNotEmpty(false)
 			;
 			
 			if(false === ($validation->validateAll($inputs, $error)))

@@ -8,8 +8,8 @@ class RepeatNode extends AbstractNode {
 	public function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, array $environment, string &$error = null) {
 		$params = $this->node->getParams($dict);
 		
-		@$each = $params['each'];
-		@$as = $params['as'];
+		$each = @$params['each'];
+		$as = @$params['as'];
 		
 		if(is_null($as)) {
 			$error = '`as:` is required.';
@@ -41,6 +41,9 @@ class RepeatNode extends AbstractNode {
 			if(!array_key_exists('each', $node_memory)) {
 				if(!is_array($each))
 					$each = [];
+				
+				if(empty($each))
+					return $this->node->getParent()->getId();
 				
 				$node_memory['each_keys'] = array_keys($each);
 				$node_memory['each'] = $each;

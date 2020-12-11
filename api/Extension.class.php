@@ -1004,6 +1004,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				
 				'(.*):email.parse:' => $action_base,
+				
 				'(.*):email.send:' => $action_base,
 				
 				'(.*):function:' => array_merge(['uri:'], $action_base),
@@ -1012,6 +1013,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):http.request:inputs:' => [
 					'url:',
 					'method:',
+					'headers:',
+					'body:',
+					'authentication:',
 				],
 				'(.*):http.request:inputs:method:' => [
 					'GET',
@@ -1031,6 +1035,35 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):record.update:' => $action_base,
 				'(.*):record.upsert:' => $action_base,
 				
+				'(.*):record.create:inputs:' => [
+					'record_type:',
+					'fields:',
+					'expand:',
+				],
+				
+				'(.*):record.delete:inputs:' => [
+					'record_type:',
+					'record_id:',
+				],
+				
+				'(.*):record.get:inputs:' => [
+					'record_type:',
+					'record_id:',
+				],
+				
+				'(.*):record.update:inputs:' => [
+					'record_id:',
+					'record_type:',
+					'fields:',
+					'expand:',
+				],
+				
+				'(.*):record.upsert:inputs:' => [
+					'record_query:',
+					'record_type:',
+					'fields:',
+				],
+				
 				'(.*):repeat:' => [
 					'each@list:',
 					'each@key:',
@@ -1044,9 +1077,33 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):storage.get:' => $action_base,
 				'(.*):storage.set:' => $action_base,
 				
+				'(.*):storage.delete:inputs:' => [
+					'key:',
+				],
+				'(.*):storage.get:inputs:' => [
+					'key:',
+				],
+				'(.*):storage.set:inputs:' => [
+					'key:',
+					'value:',
+					'expires:',
+				],
+				
 				'(.*):var.push:' => $action_base,
 				'(.*):var.set:' => $action_base,
 				'(.*):var.unset:' => $action_base,
+				
+				'(.*):var.push:inputs:' => [
+					'key:',
+					'value:',
+				],
+				'(.*):var.set:inputs:' => [
+					'key:',
+					'value:',
+				],
+				'(.*):var.unset:inputs:' => [
+					'key:',
+				],
 				
 				'start:' => $common_actions,
 			],

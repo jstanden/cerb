@@ -45,7 +45,7 @@ class RecordCreateAction extends AbstractAction {
 				;
 			
 			$validation->addField('fields', 'inputs:fields:')
-				->stringOrArray()
+				->array()
 				->setRequired(true)
 				;
 			
