@@ -64,6 +64,7 @@ $(function() {
             ;
             
             var points = {if $points_json}{$points_json nofilter}{else}{ 'type': 'FeatureCollection', 'features': [] }{/if};
+            var region_properties = {if $region_properties_json}{$region_properties_json nofilter}{else}{ }{/if}
 
             Promise.all(jobs).then(function(results) {
                 $loading.remove();
@@ -206,8 +207,7 @@ $(function() {
                             }
                         },
                         function(d) {
-                            {if $map.regions.properties.join}
-                                var regions_data = results[1];
+                            {if $map.regions.properties.join.property}
                                 var k = {$map.regions.properties.join.property|json_encode nofilter};
                                 
                                 if(typeof k !== 'string' || !d.properties.hasOwnProperty(k))
@@ -220,9 +220,15 @@ $(function() {
                                 {elseif 'lower' == $map.regions.properties.join.case}
                                 join_property = join_property.toLowerCase();
                                 {/if}
-                                
-                                if(regions_data.hasOwnProperty(join_property)) {
-                                    d.properties = Object.assign(d.properties, regions_data[join_property]);
+                            
+                                if(results[1]) {
+                                    if (results[1].hasOwnProperty(join_property)) {
+                                        d.properties = Object.assign(d.properties, results[1][join_property]);
+                                    }
+                                }
+                            
+                                if(region_properties.hasOwnProperty(join_property)) {
+                                    d.properties = Object.assign(d.properties, region_properties[join_property]);
                                 }
                             {/if}
                             

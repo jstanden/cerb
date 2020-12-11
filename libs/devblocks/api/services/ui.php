@@ -256,6 +256,14 @@ class DevblocksUiMap {
 	function render($map, $widget=null) {
 		$tpl = DevblocksPlatform::services()->template();
 		
+		// Manual region properties
+		if(@$map['regions']['properties']['data']) {
+			if(is_array($map['regions']['properties']['data'])) {
+				$region_properties = $map['regions']['properties']['data'];
+				$tpl->assign('region_properties_json', json_encode($region_properties));
+			}
+		}
+		
 		// Manual points
 		if(@$map['points']['data']) {
 			$points = [
