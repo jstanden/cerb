@@ -247,14 +247,9 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 				'class' => 'Extension_RestController',
 				'examples' => [],
 			],
-			'cerberusweb.ui.context.profile.script' => [
-				'label' => 'Profile Script',
-				'class' => 'Extension_ContextProfileScript',
-				'examples' => [],
-			],
 			'cerberusweb.ui.page.menu.item' => [
 				'label' => 'Page Menu Item',
-				'class' => 'Extension_ContextProfileScript',
+				'class' => 'Extension_PageMenuItem',
 				'examples' => [],
 			],
 			'cerberusweb.ui.page.section' => [

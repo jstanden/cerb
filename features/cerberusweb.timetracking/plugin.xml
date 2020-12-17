@@ -228,24 +228,6 @@
 			</params>
 		</extension>
 	
-		<!-- Profile Script -->
-		
-		<extension point="cerberusweb.ui.context.profile.script">
-			<id>timetracking.profile_script.timer</id>
-			<name>Time Tracking Profile Script</name>
-			<class>
-				<file>api/App.php</file>
-				<name>ChTimeTrackingProfileScript</name>
-			</class>
-			<params>
-				<param key="contexts">
-					<value>
-						<data key="*" />
-					</value>
-				</param>
-			</params>
-		</extension>
-	
 		<!-- Profile Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">

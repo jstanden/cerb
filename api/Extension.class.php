@@ -458,44 +458,6 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 	}
 };
 
-abstract class Extension_ContextProfileScript extends DevblocksExtension {
-	const POINT = 'cerberusweb.ui.context.profile.script';
-	
-	/**
-	 * @internal
-	 * 
-	 * @return DevblocksExtensionManifest[]|Extension_ContextProfileScript[]
-	 */
-	static function getExtensions($as_instances=true, $context=null) {
-		if(empty($context))
-			return DevblocksPlatform::getExtensions(self::POINT, $as_instances);
-	
-		$results = [];
-	
-		$exts = DevblocksPlatform::getExtensions(self::POINT, false);
-
-		foreach($exts as $ext_id => $ext) {
-			if(isset($ext->params['contexts'][0]))
-			foreach(array_keys($ext->params['contexts'][0]) as $ctx_pattern) {
-				$ctx_pattern = DevblocksPlatform::strToRegExp($ctx_pattern);
-				
-				if(preg_match($ctx_pattern, $context))
-					$results[$ext_id] = $as_instances ? $ext->createInstance() : $ext;
-			}
-		}
-
-		// Sorting
-		if($as_instances)
-			DevblocksPlatform::sortObjects($results, 'manifest->name');
-		else
-			DevblocksPlatform::sortObjects($results, 'name');
-	
-		return $results;
-	}
-	
-	function renderScript($context, $context_id) {}
-};
-
 abstract class Extension_CalendarDatasource extends DevblocksExtension {
 	const POINT = 'cerberusweb.calendar.datasource';
 	
