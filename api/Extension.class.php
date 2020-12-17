@@ -860,6 +860,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "data.query:\n\t",
 			],
 			[
+				'caption' => 'decrypt.pgp:',
+				'snippet' => "decrypt.pgp:\n\t",
+			],
+			[
 				'caption' => 'email.parse:',
 				'snippet' => "email.parse:\n\t",
 			],
@@ -968,6 +972,11 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):data.query:' => $action_base,
 				'(.*):data.query:inputs:' => [
 					'query@text:',
+				],
+				
+				'(.*):decrypt.pgp:' => $action_base,
+				'(.*):decrypt.pgp:inputs:' => [
+					'message:',
 				],
 				
 				'(.*):email.parse:' => $action_base,

@@ -417,6 +417,7 @@ class _DevblocksAutomationService {
 		$actions = [
 			'await',
 			'data.query',
+			'decrypt.pgp',
 			'email.parse',
 			'email.send',
 			'encrypt.pgp',

@@ -11,6 +11,7 @@ class ActionNode extends AbstractNode {
 		return [
 			'await' => '\Cerb\AutomationBuilder\Action\AwaitAction',
 			'data.query' => '\Cerb\AutomationBuilder\Action\DataQueryAction',
+			'decrypt.pgp' => '\Cerb\AutomationBuilder\Action\DecryptPgpAction',
 			'email.parse' => '\Cerb\AutomationBuilder\Action\EmailParseAction',
 			'email.send' => '\Cerb\AutomationBuilder\Action\EmailSendAction',
 			'encrypt.pgp' => '\Cerb\AutomationBuilder\Action\EncryptPgpAction',
