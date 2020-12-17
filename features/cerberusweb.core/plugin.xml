@@ -177,6 +177,12 @@
 			<class name="SearchFields_AutomationContinuation" />
 		</file>
 
+		<file path="api/dao/automation_log.php">
+			<class name="DAO_AutomationLog" />
+			<class name="Model_AutomationLog" />
+			<class name="SearchFields_AutomationLog" />
+		</file>
+
 		<file path="api/dao/automation_timer.php">
 			<class name="Context_AutomationTimer" />
 			<class name="DAO_AutomationTimer" />

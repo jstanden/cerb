@@ -191,6 +191,29 @@ if(!isset($tables['automation_timer'])) {
 }
 
 // ===========================================================================
+// Add `automation_log` table
+
+if(!isset($tables['automation_log'])) {
+	$sql = sprintf("
+		CREATE TABLE `automation_log` (
+		id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		automation_name varchar(255) NOT NULL DEFAULT '',
+		automation_node varchar(1024) NOT NULL DEFAULT '',
+		created_at int(10) unsigned NOT NULL DEFAULT '0',
+		log_level tinyint(1) unsigned NOT NULL DEFAULT '7',
+		log_message varchar(1024) NOT NULL DEFAULT '',
+		PRIMARY KEY (id),
+		INDEX (automation_name),
+		INDEX (created_at),
+		INDEX (log_level)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['automation_log'] = 'automation_log';
+}
+
+// ===========================================================================
 // Drop `email_signature.is_default`
 
 list($columns,) = $db->metaTable('email_signature');
