@@ -1183,7 +1183,15 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_GpgPublicKey::get($context_id)))
+			if(is_numeric($context_id) && strlen($context_id) < 16) {
+				$model = DAO_GpgPublicKey::get($context_id);
+				
+			} elseif (is_string($context_id)) {
+				if(false != ($model = DAO_GpgPublicKey::getByFingerprint($context_id)))
+					$context_id = $model->id;
+			}
+			
+			if(!$model)
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		

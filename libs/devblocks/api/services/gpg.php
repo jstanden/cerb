@@ -343,8 +343,14 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		
 		// [TODO] Get all fingerprints at once
 		foreach($key_fingerprints as $key_fingerprint) {
-			if(false == ($public_key = DAO_GpgPublicKey::getByFingerprint($key_fingerprint)))
-				continue;
+			if(is_numeric($key_fingerprint) && strlen($key_fingerprint) < 16) {
+				if(false == ($public_key = DAO_GpgPublicKey::get($key_fingerprint)))
+					continue;
+				
+			} else {
+				if(false == ($public_key = DAO_GpgPublicKey::getByFingerprint($key_fingerprint)))
+					continue;
+			}
 			
 			if(false == ($pub_key = OpenPGP_Message::parse(OpenPGP::unarmor($public_key->key_text, 'PGP PUBLIC KEY BLOCK'))))
 				continue;
@@ -365,6 +371,7 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		$msg_encrypted = OpenPGP::unarmor($encrypted_content, 'PGP MESSAGE');
 		$msg = OpenPGP_Message::parse($msg_encrypted);
 		
+		if(is_object($msg))
 		foreach($msg->packets as $p) {
 			if($p instanceof OpenPGP_AsymmetricSessionKeyPacket) { /* @var $p OpenPGP_AsymmetricSessionKeyPacket */
 				if(false == ($private_key = DAO_GpgPrivateKey::getByFingerprint($p->keyid)))
