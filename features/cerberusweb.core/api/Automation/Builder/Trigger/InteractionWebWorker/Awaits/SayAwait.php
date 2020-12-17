@@ -2,6 +2,7 @@
 namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
 
 use _DevblocksValidationService;
+use Cerb_HTMLPurifier_URIFilter_Email;
 use DevblocksPlatform;
 use Model_AutomationContinuation;
 
@@ -25,9 +26,14 @@ class SayAwait extends AbstractAwait {
 		
 		if(is_string($this->_data)) {
 			$msg = $this->_data;
+			
 		} else if(array_key_exists('content', $this->_data)) {
-			$msg = DevblocksPlatform::parseMarkdown($this->_data['content']);
+			$msg = DevblocksPlatform::parseMarkdown($this->_data['content'], true);
 			$format = 'markdown';
+			
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			$msg = DevblocksPlatform::purifyHTML($msg, true, true, [$filter]);
+			
 		} else if(array_key_exists('message', $this->_data)) {
 			$msg = @$this->_data['message'];
 		}
