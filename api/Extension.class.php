@@ -1013,6 +1013,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				
 				'(.*):log:' => $action_base,
+				'(.*):log.alert:' => $action_base,
+				'(.*):log.error:' => $action_base,
+				'(.*):log.warn:' => $action_base,
 				
 				'(.*):record.create:' => $action_base,
 				'(.*):record.delete:' => $action_base,
