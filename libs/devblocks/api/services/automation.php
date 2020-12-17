@@ -419,6 +419,7 @@ class _DevblocksAutomationService {
 			'data.query',
 			'email.parse',
 			'email.send',
+			'encrypt.pgp',
 			'error',
 			'function',
 			'http.request',

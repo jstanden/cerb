@@ -868,6 +868,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "email.send:\n\t",
 			],
 			[
+				'caption' => 'encrypt.pgp:',
+				'snippet' => "encrypt.pgp:\n\t",
+			],
+			[
 				'caption' => 'function:',
 				'snippet' => "function:\n\t",
 			],
@@ -969,6 +973,15 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):email.parse:' => $action_base,
 				
 				'(.*):email.send:' => $action_base,
+				
+				'(.*):encrypt.pgp:' => $action_base,
+				'(.*):encrypt.pgp:inputs:' => [
+					'message:',
+					'public_keys:',
+				],
+				'(.*):encrypt.pgp:inputs:public_keys:' => [
+					'uri:',
+				],
 				
 				'(.*):function:' => array_merge(['uri:'], $action_base),
 				
