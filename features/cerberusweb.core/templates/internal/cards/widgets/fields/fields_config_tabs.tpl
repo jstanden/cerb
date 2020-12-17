@@ -3,7 +3,8 @@
 	<ul>
 		<li><a href="#{$widget_uniqid}TabFields">{'common.fields'|devblocks_translate|capitalize}</a>
 		<li><a href="#{$widget_uniqid}TabOptions">{'common.options'|devblocks_translate|capitalize}</a>
-		<li><a href="#{$widget_uniqid}TabSearchButtons">{'common.search'|devblocks_translate|capitalize}</a>
+		<li><a href="#{$widget_uniqid}TabToolbar">{'common.toolbar'|devblocks_translate|capitalize}</a>
+		<li><a href="#{$widget_uniqid}TabSearchButtons">{'common.search'|devblocks_translate|capitalize} (Deprecated)</a>
 	</ul>
 	
 	<div id="{$widget_uniqid}TabFields">
@@ -45,6 +46,46 @@
 				<input type="checkbox" name="params[options][show_empty_properties]" value="1" {if $widget->extension_params.options.show_empty_properties}checked="checked"{/if}> Show empty fields
 			</label>
 		</div>
+	</div>
+	
+	<div id="{$widget_uniqid}TabToolbar">
+		<fieldset>
+			<legend>Toolbar: (KATA)</legend>
+			<div class="cerb-code-editor-toolbar">
+				{$toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.editor',
+
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id
+				])}
+
+				{$toolbar_kata =
+"menu/insert:
+  icon: circle-plus
+  items:
+    interaction/interaction:
+      label: Interaction
+      uri: ai.cerb.toolbarBuilder.interaction
+    interaction/menu:
+      label: Menu
+      uri: ai.cerb.toolbarBuilder.menu
+"}
+
+				{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				{*
+				<button type="button" data-cerb-button="interactions-preview" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-play"></span></button>
+				*}
+
+				<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+			</div>
+
+			<textarea name="params[toolbar_kata]" data-editor-mode="ace/mode/cerb_kata">{$widget->extension_params.toolbar_kata}</textarea>
+		</fieldset>
 	</div>
 	
 	<div id="{$widget_uniqid}TabSearchButtons">
@@ -150,6 +191,51 @@ $(function() {
 		items: 'tbody',
 		helper: 'clone',
 		opacity: 0.7
+	});
+	
+	// Toolbar
+
+	var $tab_toolbar = $('#{$widget_uniqid}TabToolbar');
+	
+	var $editor = $tab_toolbar.find('[name="params[toolbar_kata]"]')
+		.cerbCodeEditor()
+		.next('pre.ace_editor')
+	;
+
+	var editor = ace.edit($editor.attr('id'));
+
+	$tab_toolbar.find('.cerb-code-editor-toolbar').cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.editor',
+			params: {
+				toolbar: 'cerb.toolbar.cardWidget.recordFields',
+				selected_text: ''
+			}
+		},
+		start: function(formData) {
+			formData.set('caller[params][selected_text]', editor.getSelectedText());
+		},
+		done: function(e) {
+			e.stopPropagation();
+
+			var $target = e.trigger;
+
+			if(!$target.is('.cerb-bot-trigger'))
+				return;
+
+			if(!e.eventData || !e.eventData.exit)
+				return;
+
+			if (e.eventData.exit === 'error') {
+				// [TODO] Show error
+
+			} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
+				editor.insertSnippet(e.eventData.return.snippet);
+			}
+		},
+		reset: function(e) {
+			e.stopPropagation();
+		}
 	});
 });
 </script>

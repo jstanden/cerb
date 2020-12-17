@@ -172,6 +172,13 @@ class CardWidget_Fields extends Extension_CardWidget {
 		$search_buttons = $this->_getSearchButtons($model, $record_dict);
 		$tpl->assign('search_buttons', $search_buttons);
 		
+		// Toolbar
+		
+		if(($toolbar_kata = $model->extension_params['toolbar_kata'] ?? false)) {
+			$toolbar_fields = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $record_dict);
+			$tpl->assign('toolbar_fields', $toolbar_fields);
+		}
+		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/fields/fields.tpl');
