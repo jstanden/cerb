@@ -615,6 +615,12 @@ class Model_Automation {
 	public $script = null;
 	public $updated_at;
 	
+	private $_environment = [];
+	private $_policy = null;
+	
+	private $_ast = null;
+	private $_ast_symbols = null;
+	
 	/**
 	 * @return Extension_AutomationTrigger
 	 */
@@ -625,11 +631,22 @@ class Model_Automation {
 		return $ext;
 	}
 	
+	public function setEnvironment(array $environment) {
+		$this->_environment = $environment;
+	}
+	
+	public function getEnvironment() {
+		return $this->_environment;
+	}
+	
 	/**
-	 * 
 	 * @return CerbAutomationPolicy|null
 	 */
 	public function getPolicy() {
+		if(!is_null($this->_policy)) {
+			return $this->_policy;
+		}
+		
 		$kata = DevblocksPlatform::services()->kata();
 		
 		$error = null;
@@ -637,7 +654,76 @@ class Model_Automation {
 		if(false === ($policy_kata = $kata->parse($this->policy_kata, $error)))
 			return null;
 		
-		return new CerbAutomationPolicy($policy_kata);
+		$this->_policy = new CerbAutomationPolicy($policy_kata);
+		
+		return $this->_policy;
+	}
+	
+	public function getSyntaxTree(&$error=null, &$symbol_meta=[]) {
+		// If cached
+		if(!is_null($this->_ast)) {
+			$symbol_meta = $this->_ast_symbols;
+			return $this->_ast;
+		}
+		
+		$automator = DevblocksPlatform::services()->automation();
+		
+		$error = null;
+		
+		$tree = DevblocksPlatform::services()->kata()->parse($this->script, $error, true, $this->_ast_symbols);
+		
+		unset($tree['inputs']);
+		
+		$this->_ast = $automator->buildAstFromKata($tree, $error);
+		
+		return $this->_ast;
+	}
+	
+	/**
+	 * @param DevblocksDictionaryDelegate $dict
+	 * @param string $error
+	 * @return DevblocksDictionaryDelegate|false
+	 */
+	public function execute(DevblocksDictionaryDelegate $dict, &$error=null) {
+		$automator = DevblocksPlatform::services()->automation();
+		
+		if(false == $automator->runAST($this, $dict, $error))
+			return false;
+		
+		// Convert any nested dictionaries to arrays
+		$nested_keys = [];
+		
+		$findNested = function($node, $path=[]) use (&$findNested, &$nested_keys) {
+			if($node instanceof DevblocksDictionaryDelegate) {
+				if($path) {
+					$nested_keys[] = implode('.', $path);
+				}
+				
+				foreach($node as $k => $v) {
+					$path[] = $k;
+					$findNested($v, $path);
+					array_pop($path);
+				}
+				
+			} else if(is_array($node)) {
+				foreach ($node as $k => $v) {
+					$path[] = $k;
+					$findNested($v, $path);
+					array_pop($path);
+				}
+			}
+		};
+		
+		foreach($dict as $k => $v) {
+			$findNested($v, [$k]);
+		}
+		
+		// Sort the deepest paths first
+		rsort($nested_keys);
+		
+		$dict->set('__expandable', $nested_keys);
+		
+		return $dict;
 	}
 };
 

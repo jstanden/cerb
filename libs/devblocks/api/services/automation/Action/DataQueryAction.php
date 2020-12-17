@@ -4,15 +4,17 @@ namespace Cerb\AutomationBuilder\Action;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Model_Automation;
 
 class DataQueryAction extends AbstractAction {
 	const ID = 'data.query';
 	
-	function activate(\DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$validation = DevblocksPlatform::services()->validation();
 		$data = DevblocksPlatform::services()->data();
 		
 		$params = $this->node->getParams($dict);
+		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;

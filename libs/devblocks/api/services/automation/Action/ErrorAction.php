@@ -1,10 +1,13 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
+use DevblocksDictionaryDelegate;
+use Model_Automation;
+
 class ErrorAction extends AbstractAction {
 	const ID = 'error';
 	
-	function activate(\DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$return_values = $this->node->getParams($dict);
 		
 		if(array_key_exists('', $return_values)) {

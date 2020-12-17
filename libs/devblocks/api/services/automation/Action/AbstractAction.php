@@ -3,6 +3,7 @@ namespace Cerb\AutomationBuilder\Action;
 
 use CerbAutomationAstNode;
 use DevblocksDictionaryDelegate;
+use Model_Automation;
 
 abstract class AbstractAction {
 	/**
@@ -15,11 +16,11 @@ abstract class AbstractAction {
 	}
 	
 	/**
+	 * @param Model_Automation $automation
 	 * @param DevblocksDictionaryDelegate $dict
 	 * @param array $node_memory
-	 * @param \CerbAutomationPolicy $policy
 	 * @param string|null $error
 	 * @return string|false
 	 */
-	abstract function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null);
+	abstract function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null);
 }

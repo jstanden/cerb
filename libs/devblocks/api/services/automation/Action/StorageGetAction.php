@@ -1,19 +1,20 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
-use CerbAutomationPolicy;
 use DAO_AutomationDatastore;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Model_Automation;
 
 class StorageGetAction extends AbstractAction {
 	const ID = 'storage.get';
 	
-	function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$params = $this->node->getParams($dict);
+		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;

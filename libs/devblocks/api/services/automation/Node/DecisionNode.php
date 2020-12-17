@@ -2,9 +2,10 @@
 namespace Cerb\AutomationBuilder\Node;
 
 use DevblocksDictionaryDelegate;
+use Model_Automation;
 
 class DecisionNode extends AbstractNode {
-	public function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, array $environment, string &$error = null) {
+	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
 		if (!array_key_exists('stack', $node_memory)) {
 			$node_memory['stack'] = [];
 			

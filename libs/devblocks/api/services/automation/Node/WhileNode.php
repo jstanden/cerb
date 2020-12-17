@@ -3,9 +3,10 @@ namespace Cerb\AutomationBuilder\Node;
 
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
+use Model_Automation;
 
 class WhileNode extends AbstractNode {
-	public function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, array $environment, string &$error = null) {
+	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
 		$params = $this->node->getParams($dict);
 		
 		$if = @$params['if'];

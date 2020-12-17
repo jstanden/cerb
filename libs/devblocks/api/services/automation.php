@@ -264,12 +264,10 @@ class _DevblocksAutomationService {
 	 * @param Model_Automation $automation
 	 * @param array $initial_state
 	 * @param string $error
-	 * @return DevblocksDictionaryDelegate|FALSE
+	 * @return DevblocksDictionaryDelegate|false
 	 */
 	public function executeScript(Model_Automation $automation, array $initial_state=[], &$error=null) {
 		$error = null;
-		
-		$policy = $automation->getPolicy();
 		
 		if(false == ($automation_script = DevblocksPlatform::services()->kata()->parse($automation->script, $error))) {
 			if(!$automation_script) {
@@ -291,45 +289,8 @@ class _DevblocksAutomationService {
 		// Remove inputs before running
 		unset($automation_script['inputs']);
 		
-		// [TODO] Cache?
-		if(false === ($ast_tree = $this->buildAstFromKata($automation_script, $error))) {
+		if(false == $automation->execute($dict, $error))
 			return false;
-		}
-		
-		$this->runAST($ast_tree, $dict, $policy);
-		
-		// Convert any nested dictionaries to arrays
-		$nested_keys = [];
-		
-		$findNested = function($node, $path=[]) use (&$findNested, &$nested_keys) {
-			if($node instanceof DevblocksDictionaryDelegate) {
-				if($path) {
-					$nested_keys[] = implode('.', $path);
-				}
-				
-				foreach($node as $k => $v) {
-					$path[] = $k;
-					$findNested($v, $path);
-					array_pop($path);
-				}
-				
-			} else if(is_array($node)) {
-				foreach ($node as $k => $v) {
-					$path[] = $k;
-					$findNested($v, $path);
-					array_pop($path);
-				}
-			}
-		};
-		
-		foreach($dict as $k => $v) {
-			$findNested($v, [$k]);
-		}
-		
-		// Sort the deepest paths first
-		rsort($nested_keys);
-		
-		$dict->set('__expandable', $nested_keys);
 		
 		return $dict;
 	}
@@ -350,7 +311,10 @@ class _DevblocksAutomationService {
 		return $root;
 	}
 	
-	private function runAST(CerbAutomationAstNode $tree, DevblocksDictionaryDelegate &$dict, CerbAutomationPolicy $policy=null) {
+	public function runAST(Model_Automation $automation, DevblocksDictionaryDelegate &$dict, &$error=null) {
+		if(false == ($tree = $automation->getSyntaxTree($error)))
+			return false;
+		
 		// [TODO] Time limits by role?
 		
 		// [TODO] Check if we're given an exit/return/error/await status
@@ -363,10 +327,11 @@ class _DevblocksAutomationService {
 		
 		$environment = [
 			'debug' => false,
-			'policy' => $policy,
 			'state' => $dict->getKeyPath('__state.next', $tree->getId()),
 			'state_last' => $dict->getKeyPath('__state.last', null),
 		];
+		
+		$automation->setEnvironment($environment);
 		
 		// Loop while not terminated
 		while($environment['state'] && $iterations++ < $max_iterations) {
@@ -374,7 +339,7 @@ class _DevblocksAutomationService {
 			if(null == ($node = $this->_recurseFindNodeId($tree, $environment['state'])))
 				return false;
 			
-			if(false === ($node->activate($dict, $environment, $error))) {
+			if(false === $node->activate($automation, $dict, $error)) {
 				return false;
 			}
 			
@@ -408,6 +373,8 @@ class _DevblocksAutomationService {
 				$environment['state'] = $dict->getKeyPath('__state.next', null);
 			}
 		}
+		
+		return true;
 	}
 	
 	private function _recurseFindNodeId(CerbAutomationAstNode $node, $id) {
@@ -1047,7 +1014,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 		$dict->set('__error', $error_values);
 	}
 	
-	public function activate(DevblocksDictionaryDelegate $dict, array $environment, &$error=null) {
+	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, &$error=null) {
 		$node_memory_key = '__state.memory.' . $this->getId();
 		
 		if(null === ($node_memory = $dict->getKeyPath($node_memory_key, [])))
@@ -1070,12 +1037,13 @@ class CerbAutomationAstNode implements JsonSerializable {
 		$node_type = $this->getType();
 		
 		if(!array_key_exists($node_type, $node_classes)) {
-			return $this->_triggerError(sprintf("Unknown node `%s`", $node_type), $dict);
+			$this->_triggerError(sprintf("Unknown node `%s`", $node_type), $dict);
+			return false;
 		}
 		
 		$node = new $node_classes[$node_type]($this);
 		
-		if(false === ($next_state = $node->activate($dict, $node_memory, $environment, $error))) {
+		if(false === ($next_state = $node->activate($automation, $dict, $node_memory, $error))) {
 			return $this->_triggerError($error, $dict);
 		}
 		

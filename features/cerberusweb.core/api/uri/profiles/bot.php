@@ -1837,7 +1837,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$automator = DevblocksPlatform::services()->automation();
 		$validation = DevblocksPlatform::services()->validation();
 		
-		@$interaction_uri = $continuation->uri;
+		$interaction_uri = $continuation->uri ?? null;
 		
 		if(!$interaction_uri)
 			DevblocksPlatform::dieWithHttpError(null, 404);

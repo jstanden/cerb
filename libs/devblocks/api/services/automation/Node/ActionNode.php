@@ -4,6 +4,7 @@ namespace Cerb\AutomationBuilder\Node;
 use Cerb\AutomationBuilder\Action\AbstractAction;
 use CerbAutomationPolicy;
 use DevblocksDictionaryDelegate;
+use Model_Automation;
 
 class ActionNode extends AbstractNode {
 	static function getActionClasses() {
@@ -34,15 +35,10 @@ class ActionNode extends AbstractNode {
 		];
 	}
 	
-	public function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, array $environment, string &$error = null) {
-		@$policy = $environment['policy']; /* @var $policy CerbAutomationPolicy */
-		
-		$id_parts = explode(':', $this->node->getId());
-		$action = end($id_parts);
-		
+	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
 		$error = null;
 		
-		@list($action_type,) = explode('/', $action);
+		$action_type = $this->node->getNameType();
 		
 		// Deactivating node
 		if(array_key_exists('activated', $node_memory)) {
@@ -63,7 +59,7 @@ class ActionNode extends AbstractNode {
 		if(array_key_exists($action_type, $action_classes)) {
 			$action_class = new $action_classes[$action_type]($this->node); /* @var $action_class AbstractAction */
 			
-			if(false !== ($return_state = $action_class->activate($dict, $node_memory, $policy, $error))) {
+			if(false !== ($return_state = $action_class->activate($automation, $dict, $node_memory, $error))) {
 				// Otherwise parent
 				if($return_state) {
 					return $return_state;

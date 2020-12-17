@@ -1,20 +1,20 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
-use CerbAutomationPolicy;
 use DevblocksDictionaryDelegate;
+use Model_Automation;
 
 class SimulateErrorAction extends AbstractAction {
 	const ID = 'simulate.error';
 	
 	/**
+	 * @param Model_Automation $automation
 	 * @param DevblocksDictionaryDelegate $dict
 	 * @param array $node_memory
-	 * @param CerbAutomationPolicy $policy
 	 * @param string|null $error
 	 * @return string|false
 	 */
-	function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$return_values = $this->node->getParams($dict);
 		
 		$simulate_node = $this->node->getAncestorByType('on_simulate');

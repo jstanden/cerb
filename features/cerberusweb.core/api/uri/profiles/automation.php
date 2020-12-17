@@ -192,28 +192,23 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	}
 	
 	private function _profileAction_editorVisualize() {
-		$automator = DevblocksPlatform::services()->automation();
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$script = DevblocksPlatform::importGPC($_POST['script'], 'string', null);
+		@$script = DevblocksPlatform::importGPC($_POST['script'], 'string');
 		
 		$automation = new Model_Automation();
 		$automation->script = $script;
 		
 		$error = null;
-		$symbol_meta = [];
 		
-		$tree = DevblocksPlatform::services()->kata()->parse($automation->script, $error, true, $symbol_meta);
-		
-		unset($tree['inputs']);
-
-		$ast = $automator->buildAstFromKata($tree, $error);
+		if(false == ($ast = $automation->getSyntaxTree($error, $symbol_meta))) {
+			echo $error;
+			return;
+		}
 
 		$ast2json = function(CerbAutomationAstNode $node, $depth=0) use (&$ast2json, $symbol_meta) {
-			$path = explode(':', $node->getId());
-			$id = end($path);
-			
-			@list($node_type, $node_key) = explode('/', $id, 2);
+			$node_type = $node->getNameType();
+			$node_key = $node->getNameId();
 			
 			$node_name = $node_key ?: $node_type;
 			
@@ -232,9 +227,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				$siblings = $node->getChildren();
 				
 				while($child = current($siblings)) {
-					$child_path = explode(':', $child->getId());
-					$child_id = end($child_path);
-					@list($child_node_type, $child_node_key) = explode('/', $child_id, 2);
+					$child_node_type = $child->getNameType();
+					$child_node_key = $child->getNameId();
 					
 					if('await' == $child_node_type) {
 						$child_node_name = $child_node_key ?: ''; //$child_node_type
@@ -356,9 +350,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		
 		@$automation_id = DevblocksPlatform::importGPC($_POST['id'], 'integer', 0);
 		@$is_simulator = DevblocksPlatform::importGPC($_POST['is_simulator'], 'integer', 0);
-		@$automation_script = DevblocksPlatform::importGPC($_POST['automation_script'], 'string', null);
-		@$start_state = DevblocksPlatform::importGPC($_POST['start_state_yaml'], 'string', null);
-		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string', null);
+		@$automation_name = DevblocksPlatform::importGPC($_POST['name'], 'string');
+		@$automation_script = DevblocksPlatform::importGPC($_POST['automation_script'], 'string');
+		@$start_state = DevblocksPlatform::importGPC($_POST['start_state_yaml'], 'string');
+		@$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'], 'string');
 		
 		$error = null;
 		
@@ -384,6 +379,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		if($extension_id)
 			$automation->extension_id = $extension_id;
 		
+		$automation->name = $automation_name;
 		$automation->script = $automation_script;
 		
 		// Override policies on testing

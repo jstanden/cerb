@@ -1,13 +1,15 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
+use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Model_Automation;
 
 class VarPushAction extends AbstractAction {
 	const ID = 'var.push';
 	
-	function activate(\DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$params = $this->node->getParams($dict);
@@ -54,7 +56,7 @@ class VarPushAction extends AbstractAction {
 				$dict->set($output, $new_value);
 			}
 		
-		} catch (\Exception_DevblocksAutomationError $e) {
+		} catch (Exception_DevblocksAutomationError $e) {
 			$error = $e->getMessage();
 			
 			if(null != ($event_error = $this->node->getChildBySuffix(':on_error'))) {

@@ -2,27 +2,28 @@
 namespace Cerb\AutomationBuilder\Action;
 
 use AutomationTrigger_AutomationFunction;
-use CerbAutomationPolicy;
 use DAO_Automation;
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
+use Model_Automation;
 
 class FunctionAction extends AbstractAction {
 	const ID = 'function';
 	
 	/**
+	 * @param Model_Automation $automation
 	 * @param DevblocksDictionaryDelegate $dict
 	 * @param array $node_memory
-	 * @param CerbAutomationPolicy $policy
 	 * @param string|null $error
 	 * @return string|false
 	 */
-	function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, CerbAutomationPolicy $policy, string &$error=null) {
-		$validation = \DevblocksPlatform::services()->validation();
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
+		$validation = DevblocksPlatform::services()->validation();
 		$automator = DevblocksPlatform::services()->automation();
 		
 		$params = $this->node->getParams($dict);
+		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;

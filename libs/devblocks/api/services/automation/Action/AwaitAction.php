@@ -1,10 +1,13 @@
 <?php
 namespace Cerb\AutomationBuilder\Action;
 
+use DevblocksDictionaryDelegate;
+use Model_Automation;
+
 class AwaitAction extends AbstractAction {
 	const ID = 'await';
 	
-	function activate(\DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$await_values = $this->node->getParams($dict);
 		
 		$dict->set('__exit', 'await');

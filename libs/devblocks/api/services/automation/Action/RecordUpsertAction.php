@@ -5,14 +5,16 @@ use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
 use Extension_DevblocksContext;
+use Model_Automation;
 
 class RecordUpsertAction extends AbstractAction {
 	const ID = 'record.upsert';
 	
-	function activate(\DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$params = $this->node->getParams($dict);
+		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;
@@ -100,7 +102,7 @@ class RecordUpsertAction extends AbstractAction {
 				$action_node->setType('record.create');
 				$action_node->setParams($params);
 				$action = new RecordCreateAction($action_node);
-				return $action->activate($dict, $node_memory, $policy, $error);
+				return $action->activate($automation, $dict, $node_memory, $error);
 				
 			} elseif (1 == $total) {
 				$params['inputs']['record_id'] = key($results);
@@ -110,7 +112,7 @@ class RecordUpsertAction extends AbstractAction {
 				$action_node->setType('record.update');
 				$action_node->setParams($params);
 				$action = new RecordUpdateAction($action_node);
-				return $action->activate($dict, $node_memory, $policy, $error);
+				return $action->activate($automation, $dict, $node_memory, $error);
 				
 			} else {
 				throw new Exception_DevblocksAutomationError("An upsert query must match exactly one or zero records.");

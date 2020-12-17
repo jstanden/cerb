@@ -3,10 +3,13 @@ namespace Cerb\AutomationBuilder\Node;
 
 use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
+use Model_Automation;
 
 class EventNode extends AbstractNode {
-	public function activate(DevblocksDictionaryDelegate $dict, array &$node_memory, array $environment, string &$error = null) {
-		@$state_from = $environment['state_last'];
+	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error = null) {
+		$environment = $automation->getEnvironment();
+		
+		$state_from = $environment['state_last'] ?? null;
 		
 		if(!array_key_exists('stack', $node_memory)) {
 			$node_memory['stack'] = array_map(function($child) { return $child->getId(); }, $this->node->getChildren());

@@ -6,14 +6,16 @@ use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
 use Extension_DevblocksContext;
+use Model_Automation;
 
 class RecordDeleteAction extends AbstractAction {
 	const ID = 'record.delete';
 	
-	function activate(\DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$params = $this->node->getParams($dict);
+		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];
 		$output = $params['output'] ?? null;

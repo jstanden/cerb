@@ -7,12 +7,13 @@ use DevblocksDictionaryDelegate;
 use DevblocksPlatform;
 use Exception_DevblocksAutomationError;
 use GuzzleHttp\Psr7\Request;
+use Model_Automation;
 use function GuzzleHttp\headers_from_lines;
 
 class HttpRequestAction extends AbstractAction {
 	const ID = 'http.request';
 	
-	function activate(\DevblocksDictionaryDelegate $dict, array &$node_memory, \CerbAutomationPolicy $policy, string &$error=null) {
+	function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, array &$node_memory, string &$error=null) {
 		$http = DevblocksPlatform::services()->http();
 		$validation = DevblocksPlatform::services()->validation();
 		
@@ -21,6 +22,7 @@ class HttpRequestAction extends AbstractAction {
 		// [TODO] User-level option to follow redirects
 		
 		$params = $this->node->getParams($dict);
+		$policy = $automation->getPolicy();
 		
 		$inputs = $params['inputs'] ?? [];
 		$output = @$params['output'];
@@ -167,7 +169,7 @@ class HttpRequestAction extends AbstractAction {
 				$response_body = $response->getBody()->getContents();
 				
 				$content_type = $response->getHeaderLine('Content-Type');
-				@list($content_type, $content_attributes) = explode(';', $content_type, 2);
+				list($content_type, $content_attributes) = array_pad(explode(';', $content_type, 2), 2, '');
 				
 				$content_type = trim(DevblocksPlatform::strLower($content_type));
 				$content_attributes = DevblocksPlatform::parseHttpHeaderAttributes($content_attributes);
