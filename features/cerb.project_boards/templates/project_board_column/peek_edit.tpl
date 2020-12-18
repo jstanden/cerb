@@ -341,8 +341,6 @@ $(function() {
 
 		$popup.find('input[name=name]').focus();
 
-		// [UI] Editor behaviors
-		{include file="devblocks:cerberusweb.core::internal/peek/peek_editor_common.js.tpl" peek_context=$peek_context peek_context_id=$peek_context_id}
 	});
 });
 </script>

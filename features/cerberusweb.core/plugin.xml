@@ -950,10 +950,6 @@
 			<class name="Event_MailBeforeUiReplyByWorker" />
 		</file>
 		
-		<file path="api/events/ui/ui_card_editor_opened_by_worker.php">
-			<class name="Event_UiCardEditorOpenedByWorker" />
-		</file>
-		
 		<file path="api/events/ui/ui_during_reply_by_worker.php">
 			<class name="Event_MailDuringUiReplyByWorker" />
 		</file>
@@ -4646,23 +4642,6 @@
 				</param>
 				<param key="menu_key" value="Mail:Sending:While drafting a message reply" />
 				<param key="deprecated" value="true" />
-			</params>
-		</extension>
-		
-		<extension point="devblocks.event">
-			<id>event.ui.card.editor.opened.worker</id>
-			<name>Record editor opened</name>
-			<class>
-				<file>api/events/ui/ui_card_editor_opened_by_worker.php</file>
-				<name>Event_UiCardEditorOpenedByWorker</name>
-			</class>
-			<params>
-				<param key="contexts">
-					<value>
-						<data key="cerberusweb.contexts.app" />
-					</value>
-				</param>
-				<param key="menu_key" value="Records:Record editor opened" />
 			</params>
 		</extension>
 		
