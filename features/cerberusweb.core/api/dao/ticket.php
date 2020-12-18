@@ -5652,36 +5652,104 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$random = uniqid();
 		$tpl->assign('popup_uniqid', $random);
 		
-		// UI bot behaviors
+		// Compose toolbar
 		
-		if(null != $active_worker && class_exists('Event_MailBeforeUiComposeByWorker')) {
-			$actions = [];
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.mail.compose.formatting',
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
+		]);
+		
+		$toolbar_compose_formatting_kata = <<< EOD
+interaction/link:
+  icon: link
+  tooltip: Insert Link
+  uri: cerb.editor.toolbar.markdownLink
+  keyboard: ctrl+k
 
-			$macros = DAO_TriggerEvent::getReadableByActor(
-				$active_worker,
-				Event_MailBeforeUiComposeByWorker::ID,
-				false
-			);
-			
-			$scope = $defaults;
-			$scope['form_id'] = 'frmComposePeek' . $random;
-			
-			if(is_array($macros))
-			foreach($macros as $macro)
-				Event_MailBeforeUiComposeByWorker::trigger($macro->id, $scope, $active_worker->id, $actions);
-			
-			if(isset($actions['jquery_scripts']) && is_array($actions['jquery_scripts'])) {
-				$tpl->assign('jquery_scripts', $actions['jquery_scripts']);
-			}
+interaction/image:
+  icon: picture
+  tooltip: Insert Image
+  uri: cerb.editor.toolbar.markdownImage
+  keyboard: ctrl+m
+
+menu/formatting:
+  icon: more
+  hover@bool: yes
+  items:
+    interaction/bold:
+      label: Bold
+      icon: bold
+      uri: cerb.editor.toolbar.wrapSelection
+      headless@bool: yes
+      keyboard: ctrl+b
+      inputs:
+        start_with: **
+    interaction/italics:
+      label: Italics
+      icon: italic
+      uri: cerb.editor.toolbar.wrapSelection
+      headless@bool: yes
+      keyboard: ctrl+i
+      inputs:
+        start_with: _
+    interaction/list:
+      label: Unordered List
+      icon: list
+      uri: cerb.editor.toolbar.indentSelection
+      headless@bool: yes
+      inputs:
+        prefix: * 
+    interaction/quote:
+      label: Quote
+      icon: quote
+      uri: cerb.editor.toolbar.indentSelection
+      headless@bool: yes
+      keyboard: ctrl+q
+      inputs:
+        prefix: > 
+    interaction/variable:
+      label: Variable
+      icon: edit
+      uri: cerb.editor.toolbar.wrapSelection
+      headless@bool: yes
+      inputs:
+        start_with: `
+    interaction/codeBlock:
+      label: Code Block
+      icon: embed
+      uri: cerb.editor.toolbar.wrapSelection
+      headless@bool: yes
+      keyboard: ctrl+o
+      inputs:
+        start_with@text:
+          ~~~
+          
+        end_with@text:
+          ~~~
+          
+    interaction/table:
+      label: Table
+      icon: table
+      uri: cerb.editor.toolbar.markdownTable
+      headless@bool: yes
+EOD;
+		
+		if(false != ($toolbar_compose_formatting_kata = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_compose_formatting_kata, $toolbar_dict))) {
+			$tpl->assign('toolbar_formatting', $toolbar_compose_formatting_kata);
 		}
 		
-		// Interactions
-		$point_params = [
-			'uniqid' => $random,
-		];
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('mail.compose', $point_params, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.mail.compose',
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
+		]);
+		
+		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('cerb.toolbar.mail.compose', $toolbar_dict))) {
+			$tpl->assign('toolbar_custom', $toolbar_reply_custom);
+		}
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::mail/section/compose/peek.tpl');
