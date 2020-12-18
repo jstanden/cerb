@@ -569,18 +569,19 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		// Reply toolbars
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'caller_name' => 'cerb.toolbar.mail.reply',
+			'caller_name' => 'cerb.toolbar.mail.reply.formatting',
 			
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => $active_worker->id
 		]);
 		
-		$toolbar_formatting_kata = "
+		$toolbar_reply_formatting_kata = <<< EOD
 interaction/link:
   icon: link
   tooltip: Insert Link
   uri: cerb.editor.toolbar.markdownLink
   keyboard: ctrl+k
+
 interaction/image:
   icon: picture
   tooltip: Insert Image
@@ -647,16 +648,22 @@ menu/formatting:
       icon: table
       uri: cerb.editor.toolbar.markdownTable
       headless@bool: yes
-";
+EOD;
 		
-		// Custom reply toolbar
-		$toolbar_custom_kata = "";		
+		if(false != ($toolbar_reply_formatting = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_reply_formatting_kata, $toolbar_dict))) {
+			$tpl->assign('toolbar_formatting', $toolbar_reply_formatting);
+		}
 		
-		$toolbar_formatting = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_formatting_kata, $toolbar_dict);
-		$tpl->assign('toolbar_formatting', $toolbar_formatting);
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'caller_name' => 'cerb.toolbar.mail.reply',
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
+		]);
 		
-		$toolbar_custom = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_custom_kata, $toolbar_dict);
-		$tpl->assign('toolbar_custom', $toolbar_custom);
+		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('cerb.toolbar.mail.reply', $toolbar_dict))) {
+			$tpl->assign('toolbar_custom', $toolbar_reply_custom);
+		}
 		
 		// Display template
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');
