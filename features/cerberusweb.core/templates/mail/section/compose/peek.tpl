@@ -772,12 +772,6 @@ $(function() {
 			$editor_toolbar_button_save_draft.click();
 		}, 30000); // and every 30 sec
 		
-		// Interactions
-		{if $interactions_menu}
-		var $interaction_container = $('#divComposeInteractions{$popup_uniqid}');
-		{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
-		{/if}
-		
 		// Shortcuts
 
 		{if $pref_keyboard_shortcuts}
@@ -847,14 +841,6 @@ $(function() {
 				e.preventDefault();
 				try {
 					$editor_toolbar_button_snippets.click();
-				} catch(ex) { }
-			});
-
-			// Bot interaction
-			$editor.bind('keydown', 'ctrl+shift+b', function(e) {
-				e.preventDefault();
-				try {
-					$editor_toolbar.find('.cerb-reply-editor-toolbar-button--interactions').click();
 				} catch(ex) { }
 			});
 
@@ -1063,16 +1049,6 @@ $(function() {
 
 		{if $org || $draft->params.org_name}
 		$frm.find('input:text[name=org_name]').trigger('autocompletechange');
-		{/if}
-
-		{* Run custom jQuery scripts from VA behavior *}
-		
-		{if !empty($jquery_scripts)}
-		{foreach from=$jquery_scripts item=jquery_script}
-		try {
-			{$jquery_script nofilter}
-		} catch(e) { }
-		{/foreach}
 		{/if}
 	});
 });
