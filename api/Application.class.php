@@ -991,6 +991,7 @@ class CerberusContexts {
 	const CONTEXT_TICKET = 'cerberusweb.contexts.ticket';
 	const CONTEXT_TIMETRACKING = 'cerberusweb.contexts.timetracking';
 	const CONTEXT_TIMETRACKING_ACTIVITY = 'cerberusweb.contexts.timetracking.activity';
+	const CONTEXT_TOOLBAR = 'cerb.contexts.toolbar';
 	const CONTEXT_WEBAPI_CREDENTIAL = 'cerberusweb.contexts.webapi.credential';
 	const CONTEXT_WEBHOOK_LISTENER = 'cerberusweb.contexts.webhook_listener';
 	const CONTEXT_WORKER = 'cerberusweb.contexts.worker';

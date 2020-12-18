@@ -336,6 +336,60 @@ foreach($nodes as $node) {
 }
 
 // ===========================================================================
+// Add `toolbar` table
+
+if(!isset($tables['toolbar'])) {
+	$sql = sprintf("
+		CREATE TABLE `toolbar` (
+		id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		name varchar(255) NOT NULL DEFAULT '',
+		description varchar(255) NOT NULL DEFAULT '',
+		toolbar_kata mediumtext,
+		created_at int(10) unsigned NOT NULL DEFAULT '0',
+		updated_at int(10) unsigned NOT NULL DEFAULT '0',
+		PRIMARY KEY (id),
+		UNIQUE (name),
+		INDEX (updated_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['toolbar'] = 'toolbar';
+
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %d, %d)",
+		$db->qstr('cerb.toolbar.global.menu'),
+		$db->qstr('Global interactions from the floating icon in the lower right'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %d, %d)",
+		$db->qstr('cerb.toolbar.mail.compose'),
+		$db->qstr('Composing new email messages'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %d, %d)",
+		$db->qstr('cerb.toolbar.mail.read'),
+		$db->qstr('Reading email messages'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %d, %d)",
+		$db->qstr('cerb.toolbar.mail.reply'),
+		$db->qstr('Replying to email messages'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+}
+
+// ===========================================================================
 // Add `resource`
 
 if(!isset($tables['resource'])) {

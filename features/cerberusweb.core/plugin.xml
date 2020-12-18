@@ -636,6 +636,14 @@
 			<class name="CerberusTicketSpamTraining" />
 			<class name="Model_TicketViewLastAction" />
 		</file>
+
+		<file path="api/dao/toolbar.php">
+			<class name="Context_Toolbar" />
+			<class name="DAO_Toolbar" />
+			<class name="Model_Toolbar" />
+			<class name="SearchFields_Toolbar" />
+			<class name="View_Toolbar" />
+		</file>
 		
 		<file path="api/dao/trigger_event.php">
 			<class name="Context_TriggerEvent" />
@@ -3176,6 +3184,47 @@
 						<data key="merge" />
 						<data key="update" />
 						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.toolbar</id>
+			<name>Toolbar</name>
+			<class>
+				<file>api/dao/toolbar.php</file>
+				<name>Context_Toolbar</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="toolbar" value="singular" />
+						<data key="toolbars" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="toolbar" />
+				<param key="dao_class" value="DAO_Toolbar" />
+				<param key="view_class" value="View_Toolbar" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="watchers" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -6871,7 +6920,20 @@
 					<param key="uri" value="ticket" />
 				</params>
 			</extension>
-			
+		
+			<extension point="cerberusweb.ui.page.section">
+				<id>core.page.profiles.toolbar</id>
+				<name>Toolbar Section</name>
+				<class>
+					<file>api/uri/profiles/toolbar.php</file>
+					<name>PageSection_ProfilesToolbar</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="toolbar" />
+				</params>
+			</extension>
+		
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.behavior</id>
 				<name>Behavior Section</name>
