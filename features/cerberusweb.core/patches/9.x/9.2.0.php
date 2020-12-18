@@ -38,18 +38,14 @@ if(!isset($tables['package_library'])) {
 		'cerb_bot_behavior_action_interaction_close_chat.json',
 		'cerb_bot_behavior_action_interaction_prompt.json',
 		'cerb_bot_behavior_action_interaction_respond.json',
-		'cerb_bot_behavior_action_interaction_start_convo.json',
-		'cerb_bot_behavior_action_ui_execute_jquery_script.json',
 		'cerb_bot_behavior_action_webhook_set_http_body.json',
 		'cerb_bot_behavior_action_webhook_set_http_header.json',
 		'cerb_bot_behavior_action_webhook_set_http_status.json',
 		'cerb_bot_behavior_auto_reply.json',
-		'cerb_bot_behavior_interaction_worker.json',
 		'cerb_bot_behavior_loop__break.json',
 		'cerb_bot_behavior_loop__records.json',
 		'cerb_bot_behavior_switch__cases.json',
 		'cerb_bot_behavior_switch__yes_no.json',
-		'cerb_bot_reminder.json',
 		'cerb_bot_twilio.json',
 		'cerb_calendar_us_holidays.json',
 		'cerb_calendar_work_schedule.json',
@@ -105,8 +101,6 @@ if($revision >= 1330 && $revision < 1332) { // 9.2.0 -> 9.2.x
 		'cerb_bot_behavior_action_webhook_set_http_body.json',
 		'cerb_bot_behavior_action_webhook_set_http_header.json',
 		'cerb_bot_behavior_action_webhook_set_http_status.json',
-		'cerb_bot_behavior_interaction_worker.json',
-		'cerb_bot_reminder.json',
 		'cerb_bot_twilio.json',
 		'cerb_connected_service_smartsheet.json',
 		'cerb_connected_service_twilio.json',
@@ -121,8 +115,6 @@ if($revision >= 1330 && $revision < 1332) { // 9.2.0 -> 9.2.x
 
 if($revision >= 1332 && $revision < 1333) { // 9.2.1 -> 9.2.x
 	$packages = [
-		'cerb_bot_behavior_interaction_worker.json',
-		'cerb_bot_reminder.json',
 		'cerb_bot_twilio.json',
 		'cerb_connected_service_twilio.json',
 	];

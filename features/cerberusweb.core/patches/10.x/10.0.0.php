@@ -445,6 +445,14 @@ if(!isset($tables['resource'])) {
 // ===========================================================================
 // Update package library
 
+// Delete retired packages
+$db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_bot_reminder'");
+$db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_bot_behavior_interaction_worker'");
+$db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_bot_behavior_form_interaction_worker'");
+$db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_bot_behavior_action_interaction_start_convo'");
+$db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_profile_widget_ticket_draft_interaction'");
+$db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_bot_behavior_action_ui_execute_jquery_script'");
+
 $packages = [
 	'card_widget/cerb_card_widget_address_compose.json',
 	'card_widget/cerb_card_widget_contact_compose.json',

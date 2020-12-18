@@ -7,7 +7,6 @@ $tables = $db->metaTables();
 
 $packages = [
 	'cerb_bot_behavior_auto_reply.json',
-	'cerb_bot_behavior_form_interaction_worker.json',
 	'cerb_profile_widget_ticket_participants.json',
 	'cerb_project_board_kanban.json',
 	'cerb_workspace_page_reports.json',
@@ -20,7 +19,6 @@ $packages = [
 	'card_widget/cerb_card_widget_gpg_public_key_subkeys.json',
 	'card_widget/cerb_card_widget_gpg_public_key_uids.json',
 	'card_widget/cerb_card_widget_snippet_content.json',
-	'profile_widget/cerb_profile_widget_ticket_draft_interaction.json',
 ];
 
 CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
