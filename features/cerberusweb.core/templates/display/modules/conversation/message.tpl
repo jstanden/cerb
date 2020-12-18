@@ -238,7 +238,7 @@
 					{if $widget}
 						<div data-cerb-toolbar style="display:inline-block;">
 						{$message_dict = DevblocksDictionaryDelegate::instance([
-							'caller_name' => 'cerb.toolbar.profiles.ticket.message',
+							'caller_name' => 'cerb.toolbar.mail.read',
 							
 							'message__context' => CerberusContexts::CONTEXT_MESSAGE,
 							'message_id' => $message->id,
@@ -250,7 +250,11 @@
 							'widget_id' => $widget->id
 						])}
 
-						{$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($widget->extension_params.message_toolbar_kata, $message_dict)}
+						{$toolbar = []}
+						{$toolbar_mail_read = DAO_Toolbar::getByName('cerb.toolbar.mail.read')}
+						{if $toolbar_mail_read}
+							{$toolbar = $toolbar_mail_read->getKata($message_dict)}
+						{/if}
 							
 						{if !array_key_exists('reply', $toolbar) && Context_Ticket::isWriteableByActor($ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
 							<button type="button" class="reply split-left" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
@@ -360,7 +364,7 @@
 
 								$toolbar.cerbToolbar({
 									caller: {
-										name: 'cerb.toolbar.profiles.ticket.message',
+										name: 'cerb.toolbar.mail.read',
 										params: {
 											message_id: '{$message->id}',
 											selected_text: '' 
