@@ -1661,11 +1661,6 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 		$comments = array_reverse($comments, true);
 		$tpl->assign('comments', $comments);
 		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-		
 		$tpl->display('devblocks:wgm.jira::jira_issue/peek.tpl');
 	}
 };

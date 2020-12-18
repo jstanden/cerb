@@ -106,11 +106,6 @@ class Page_Profiles extends CerberusPageExtension {
 		}
 		$tpl->assign('dict', $dict);
 		
-		// Interactions
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
-		
 		// Widgets
 		$widgets = DAO_CardWidget::getByContext($context);
 		
@@ -170,12 +165,6 @@ class Page_Profiles extends CerberusPageExtension {
 		CerberusContexts::getContext($context, $record, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
-		
-		// Interactions
-		
-		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
-		$tpl->assign('interactions_menu', $interactions_menu);
 		
 		// Active tab
 		
