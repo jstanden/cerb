@@ -157,8 +157,8 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		
 		@$owner_contexts = $custom_record->params['owners']['contexts'] ?: [];
 		
-		@$owner_context = $fields[self::OWNER_CONTEXT];
-		@$owner_context_id = $fields[self::OWNER_CONTEXT_ID];
+		$owner_context = $fields[self::OWNER_CONTEXT] ?? null;
+		$owner_context_id = $fields[self::OWNER_CONTEXT_ID] ?? null;
 		
 		// If this custom record doesn't have ownership
 		if(empty($owner_contexts)) {

@@ -15,7 +15,7 @@
 
 <table cellpadding="0" cellspacing="2" border="0" width="98%">
 	<tr>
-		<td width="0%" nowrap="nowrap" align="right"><b>From:</b>&nbsp;</td>
+		<td width="0%" nowrap="nowrap" align="right"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 		<td width="100%">
 			<select name="group_id">
 				{foreach from=$groups item=group key=group_id}

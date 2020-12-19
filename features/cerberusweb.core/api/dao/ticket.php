@@ -2301,7 +2301,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					$oper,
 					$level
 				);
-				break;
 				
 			case self::FULLTEXT_MESSAGE_CONTENT:
 				if(false == ($search = Extension_DevblocksSearchSchema::get(Search_MessageContent::ID)))
@@ -2341,7 +2340,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				}
 				
 				return 0;
-				break;
 				
 			case self::FULLTEXT_NOTE_CONTENT:
 				$search = Extension_DevblocksSearchSchema::get(Search_CommentContent::ID);
@@ -2370,55 +2368,42 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_BUCKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BUCKET, 't.bucket_id');
-				break;
 				
 			case self::VIRTUAL_COMMENTS_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET)), 't.id');
-				break;
 				
 			case self::VIRTUAL_GROUP_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_GROUP, 't.group_id');
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET)), 't.id');
-				break;
 				
 			case self::VIRTUAL_ORG_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 't.org_id');
-				break;
 				
 			case self::VIRTUAL_OWNER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 't.owner_id');
-				break;
 				
 			case self::VIRTUAL_MESSAGE_FIRST_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT id FROM message WHERE id IN (%s)', 't.first_message_id');
-				break;
 				
 			case self::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT id FROM message WHERE id IN (%s)', 't.first_outgoing_message_id');
-				break;
 				
 			case self::VIRTUAL_MESSAGE_LAST_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT id FROM message WHERE id IN (%s)', 't.last_message_id');
-				break;
 				
 			case self::VIRTUAL_MESSAGES_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_MESSAGE, 'SELECT ticket_id FROM message WHERE id IN (%s)', 't.id');
-				break;
 				
 			case self::VIRTUAL_PARTICIPANT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_ADDRESS, 'SELECT ticket_id FROM requester WHERE address_id IN (%s)', 't.id');
-				break;
 				
 			// [TODO]
 			// [TODO] IN, NOT
@@ -2434,7 +2419,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				return sprintf("t.id IN (SELECT r.ticket_id FROM requester r WHERE r.address_id IN (%s))",
 					$participant_ids_string
 				);
-				break;
 			
 			// [TODO] Array
 			case self::VIRTUAL_GROUPS_OF_WORKER:
@@ -2456,7 +2440,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				// [TODO] If the worker is in most of the groups, possibly try a NOT IN instead
 				
 				return sprintf("t.group_id IN (%s)", implode(',', array_keys($roster)));
-				break;
 			
 			case self::VIRTUAL_STATUS:
 				$values = $param->value;
@@ -2498,7 +2481,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					break;
 				
 				return sprintf('t.status_id %sIN (%s) ', $oper, implode(', ', $statuses));
-				break;
 				
 			case self::REQUESTER_ID:
 				$where_sql = $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
@@ -2507,7 +2489,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					self::getPrimaryKey(),
 					$where_sql
 				);
-				break;
 			
 			case self::REQUESTER_ADDRESS:
 				$where_sql = $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
@@ -2516,7 +2497,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					self::getPrimaryKey(),
 					$where_sql
 				);
-				break;
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_TICKET, self::getPrimaryKey());
@@ -2535,7 +2515,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER),
 					implode(',', $ids)
 				);
-				break;
 				
 			case self::VIRTUAL_WORKER_REPLIED:
 				$ids = is_array($param->value) ? $param->value : array($param->value);
@@ -2546,7 +2525,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 					self::getPrimaryKey(),
 					implode(',', $ids)
 				);
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -2554,7 +2532,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 		
 		return '0';
@@ -5589,7 +5566,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$tokens = explode(' ', trim($edit));
 			
 			foreach($tokens as $token) {
-				@list($k,$v) = explode(':', $token);
+				list($k, $v) = array_pad(explode(':', $token), 2, null);
 				
 				if($v)
 				switch($k) {

@@ -1911,7 +1911,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		// Verify permissions
 		$policy = $automation->getPolicy();
 		
-		if (!$policy->isCallerAllowed($continuation->state_data['caller']['name'], DevblocksDictionaryDelegate::instance($continuation->state_data['dict']))) {
+		if (!$policy->isCallerAllowed($continuation->state_data['caller']['name'] ?? null, DevblocksDictionaryDelegate::instance($continuation->state_data['dict']))) {
 			$error = sprintf(
 				"The automation policy does not allow this caller (%s).",
 				$continuation->state_data['caller']['name']

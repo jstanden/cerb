@@ -726,14 +726,14 @@ class DevblocksPlatform extends DevblocksEngine {
 	/**
 	 * Parse HTTP header attribute strings, like: charset=utf-8
 	 * 
-	 * @param string $header_value
+	 * @param ?string $header_value
 	 * @return boolean|array
 	 */
-	static function parseHttpHeaderAttributes($header_value) {
+	static function parseHttpHeaderAttributes(?string $header_value) {
 		$results = [];
 		
 		if(
-			empty($header_value)
+			!$header_value
 			|| false == ($attributes = explode(';', $header_value)) 
 			|| !is_array($attributes)
 			)

@@ -12,8 +12,8 @@ class CardWidget_Fields extends Extension_CardWidget {
 	}
 
 	function render(Model_CardWidget $model, $context, $context_id) {
-		@$target_context = $model->extension_params['context'];
-		@$target_context_id = $model->extension_params['context_id'];
+		$target_context = $model->extension_params['context'] ?? '';
+		$target_context_id = $model->extension_params['context_id'] ?? 0;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -79,7 +79,8 @@ class CardWidget_Fields extends Extension_CardWidget {
 		
 		$properties_available = $context_ext->profileGetFields($record);
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $record->id)) or [];
+		$field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $record->id);
+		$values = $field_values[$record->id] ?? [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);
@@ -118,12 +119,10 @@ class CardWidget_Fields extends Extension_CardWidget {
 						// Checkboxes can be empty
 						case Model_CustomField::TYPE_CHECKBOX:
 							continue 2;
-							break;
 							
 						// Sliders can have empty values
 						case 'slider':
 							continue 2;
-							break;
 						
 						case Model_CustomField::TYPE_LINK:
 							// App-owned context links can be blank
@@ -191,7 +190,7 @@ class CardWidget_Fields extends Extension_CardWidget {
 		$context_mfts = Extension_DevblocksContext::getAll(false);
 		$tpl->assign('context_mfts', $context_mfts);
 		
-		@$context = $model->extension_params['context'];
+		$context = $model->extension_params['context'] ?? null;
 		
 		if($context) {
 			if(false == ($context_ext = Extension_DevblocksContext::get($context))) {

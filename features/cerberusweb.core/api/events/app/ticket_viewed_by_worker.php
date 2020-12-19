@@ -31,9 +31,6 @@ class Event_TicketViewedByWorker extends AbstractEvent_Ticket {
 				array(
 					'context_id' => $context_id,
 					'worker_id' => $worker_id,
-//				 	'_whisper' => array(
-//				 		CerberusContexts::CONTEXT_GROUP => array($group_id),
-//				 	),
 				)
 			)
 		);

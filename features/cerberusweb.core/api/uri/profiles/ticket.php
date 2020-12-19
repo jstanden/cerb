@@ -724,8 +724,8 @@ EOD;
 			
 			// Validate GPG for signature
 			if($properties['gpg_sign']) {
-				@$group_id = $properties['group_id'];
-				@$bucket_id = $properties['bucket_id'];
+				$group_id = $properties['group_id'] ?? 0;
+				$bucket_id = $properties['bucket_id'] ?? 0;
 				$signing_key = null;
 				
 				if (false != ($group = DAO_Group::get($group_id))) {
