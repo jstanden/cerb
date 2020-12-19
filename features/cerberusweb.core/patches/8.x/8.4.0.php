@@ -131,7 +131,7 @@ $db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, set
 $db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES (%s, %s, %s)",
 	$db->qstr('cerberusweb.core'),
 	$db->qstr('card:search:cerberusweb.contexts.ticket'),
-	$db->qstr('[{"context":"cerberusweb.contexts.address","label_singular":"Participant","label_plural":"Participants","query":"ticket.id:{{id}}"},{"context":"cerberusweb.contexts.message","label_singular":"","label_plural":"","query":"ticket.id:{{id}}"},{"context":"cerberusweb.contexts.comment","label_singular":"","label_plural":"","query":"on.ticket:(id:{{id}})"}]')
+	$db->qstr('[{"context":"cerberusweb.contexts.message","label_singular":"","label_plural":"","query":"ticket.id:{{id}}"},{"context":"cerberusweb.contexts.comment","label_singular":"","label_plural":"","query":"on.ticket:(id:{{id}})"}]')
 ));
 
 $db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES (%s, %s, %s)",
