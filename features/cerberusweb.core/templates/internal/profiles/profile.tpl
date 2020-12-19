@@ -1,55 +1,70 @@
 {$page_context = $dict->_context}
 {$page_context_id = $dict->id}
+{$page_record_uri = $context_ext->manifest->params.alias}
 {$is_writeable = CerberusContexts::isWriteableByActor($page_context, $record, $active_worker)}
 {$tabset_id = "profile-tabs-{DevblocksPlatform::strAlphaNum($page_context,'','_')}"}
 
 {if $smarty.const.APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH}
 <div style="margin-bottom:5px;">
 	{$ctx = Extension_DevblocksContext::get($page_context)}
-	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$ctx->manifest->params.alias}{/devblocks_url}"}
+	{include file="devblocks:cerberusweb.core::search/quick_search.tpl" view=$ctx->getSearchView() return_url="{devblocks_url}c=search&context={$page_record_uri}{/devblocks_url}"}
 </div>
 {/if}
 
 {if $context_ext->hasOption('avatars')}
 <div style="float:left;margin-right:10px;">
-	<img src="{devblocks_url}c=avatars&context={$context_ext->manifest->params.alias}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}" style="height:75px;width:75px;border-radius:5px;">
+	<img src="{devblocks_url}c=avatars&context={$page_record_uri}&context_id={$page_context_id}{/devblocks_url}?v={$dict->updated_at|default:$dict->updated|default:$dict->updated_date}" style="height:75px;width:75px;border-radius:5px;">
 </div>
 {/if}
 
-<div style="float:left;">
+<div id="profileToolbar" style="float:left;">
 	<h1 style="font-size:2em;">{$dict->_label}</h1>
 	
 	<div class="cerb-profile-toolbar cerb-no-print">
 		<form class="toolbar" action="{devblocks_url}{/devblocks_url}" method="post" style="margin-bottom:5px;">
 			<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 			
-			<span id="spanInteractions">
-			{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
-			</span>
+			{if !is_array($toolbar_profile) || !array_key_exists('card', $toolbar_profile)}
+				<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (V){/if}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span> {'common.card'|devblocks_translate|capitalize}</button>
+			{/if}
 			
-			<!-- Card -->
-			<button type="button" id="btnProfileCard" title="{'common.card'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (V){/if}" data-context="{$page_context}" data-context-id="{$page_context_id}"><span class="glyphicons glyphicons-nameplate"></span> {'common.card'|devblocks_translate|capitalize}</button>
-			
-			<!-- Edit -->
-			{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
-			<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+			{if !is_array($toolbar_profile) || !array_key_exists('edit', $toolbar_profile)}
+				{if $is_writeable && $active_worker->hasPriv("contexts.{$page_context}.update")}
+				<button type="button" id="btnProfileCardEdit" title="{'common.edit'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (E){/if}" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+				{/if}
 			{/if}
 
-			{if $context_ext->hasOption('comments') && array_key_exists('comment', $context_ext->manifest->params.acl.0)}
-			<button type="button" id="btnProfileComment" title="(O)" data-context="cerberusweb.contexts.comment" data-context-id="0" data-edit="context:{$page_context} context.id:{$page_context_id}">
-				<span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}
-			</button>
+			{if !is_array($toolbar_profile) || !array_key_exists('comments', $toolbar_profile)}
+				{if $context_ext->hasOption('comments') && array_key_exists('comment', $context_ext->manifest->params.acl.0)}
+				<button type="button" id="btnProfileComment" title="(O)" data-context="cerberusweb.contexts.comment" data-context-id="0" data-edit="context:{$page_context} context.id:{$page_context_id}">
+					<span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}
+				</button>
+				{/if}
 			{/if}
 			
-			{if $context_ext->hasOption('watchers')}
-				<span id="spanProfileWatchers" title="{'common.watchers'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (W){/if}">
-				{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
-				{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full_label=true}
-				</span>
+			{if !is_array($toolbar_profile) || !array_key_exists('watchers', $toolbar_profile)}
+				{if $context_ext->hasOption('watchers')}
+					<span id="spanProfileWatchers" title="{'common.watchers'|devblocks_translate|capitalize}{if $pref_keyboard_shortcuts} (W){/if}">
+					{$object_watchers = DAO_ContextLink::getContextLinks($page_context, array($page_context_id), CerberusContexts::CONTEXT_WORKER)}
+					{include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$page_context context_id=$page_context_id full_label=true}
+					</span>
+				{/if}
 			{/if}
 			
-			<!-- Refresh -->
-			<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location.reload();"><span class="glyphicons glyphicons-refresh"></span></button>
+			{if !is_array($toolbar_profile) || !array_key_exists('refresh', $toolbar_profile)}
+				<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location.reload();"><span class="glyphicons glyphicons-refresh"></span></button>
+			{/if}
+			
+			<div data-cerb-toolbar style="display:inline-block;">
+				{if $toolbar_profile}
+				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_profile)}
+				{/if}
+			</div>
+			{if $active_worker->is_superuser}
+				<div data-cerb-toolbar-setup style="display:inline-block;vertical-align:middle;">
+					<a href="javascript:" data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="cerb.toolbar.record.{$page_record_uri}.profile" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
+				</div>
+			{/if}
 		</form>
 	</div>
 </div>
@@ -95,7 +110,7 @@ $(function() {
 	{/if}
 	
 	// Tabs
-	var tabs = $("#{$tabset_id}").tabs(tabOptions);
+	var $tabs = $("#{$tabset_id}").tabs(tabOptions);
 	
 	// Set the browser tab label to the record label
 	document.title = "{$dict->_label|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
@@ -128,6 +143,8 @@ $(function() {
 		})
 	;
 	
+	var $profile_toolbar = $('#profileToolbar');
+	
 	// Comments
 	$('#btnProfileComment')
 		.cerbPeekTrigger()
@@ -152,10 +169,39 @@ $(function() {
 			}
 		})
 		;
+
+	// Toolbar
 	
-	// Interactions
-	var $interaction_container = $('#spanInteractions');
-	{include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
+	var $toolbar = $profile_toolbar.find('[data-cerb-toolbar]');
+
+	$toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.record.{$page_record_uri}.profile',
+			params: {
+				'record__context': '{$dict->_context}',
+				'record_id': '{$dict->id}'
+			}
+		},
+		start: function(formData) {
+		},
+		done: function(e) {
+			e.stopPropagation();
+		}
+	});
+	
+	var $toolbar_setup = $profile_toolbar.find('[data-cerb-toolbar-setup]');
+	
+	$toolbar_setup.find('a')
+		.cerbPeekTrigger()
+		.on('cerb-peek-saved', function() {
+			genericAjaxGet('', 'c=profiles&a=renderToolbar&record_type={$dict->_context}&record_id={$dict->id}&toolbar=cerb.toolbar.record.{$page_record_uri}.profile', function(html) {
+				$toolbar
+					.html(html)
+					.trigger('cerb-toolbar--refreshed')
+				;
+			});
+		})
+	;
 });
 </script>
 
@@ -169,12 +215,6 @@ $(function() {
 		e.preventDefault();
 		e.stopPropagation();
 		$('#btnProfileCardEdit').click();
-	});
-	
-	$body.bind('keypress', 'I', function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		$('#spanInteractions').find('> button').click();
 	});
 	
 	$body.bind('keypress', 'O', function(e) {

@@ -58,6 +58,8 @@ class Page_Profiles extends CerberusPageExtension {
 				return $this->_profileAction_invokeWidget();
 			case 'renderTab':
 				return $this->_profileAction_renderTab();
+			case 'renderToolbar':
+				return $this->_profileAction_renderToolbar();
 			case 'renderWidgetConfig':
 				return $this->_profileAction_renderWidgetConfig();
 		}
@@ -132,7 +134,21 @@ class Page_Profiles extends CerberusPageExtension {
 		$is_writeable = CerberusContexts::isWriteableByActor($context, $dict, $active_worker);
 		$tpl->assign('is_writeable', $is_writeable);
 		
+		// Toolbar
+		
+		$toolbar_name = sprintf('cerb.toolbar.record.%s.card', $context_ext->manifest->params['alias'] ?? '');
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $context,
+			'record_id' => $context_id,
+		]);
+		
+		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName($toolbar_name, $toolbar_dict))) {
+			$tpl->assign('toolbar_card', $toolbar_kata);
+		}
+		
 		// Template
+		
 		$tpl->assign('peek_context', $context);
 		$tpl->assign('peek_context_id', $context_id);
 		$tpl->assign('context_ext', $context_ext);
@@ -165,6 +181,15 @@ class Page_Profiles extends CerberusPageExtension {
 		CerberusContexts::getContext($context, $record, $labels, $values, '', true, false);
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		$tpl->assign('dict', $dict);
+
+		// Toolbar
+		$toolbar_name = sprintf('cerb.toolbar.record.%s.profile', $context_ext->manifest->params['alias'] ?? '');
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance($dict->getDictionary('record_'));
+		
+		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName($toolbar_name, $toolbar_dict))) {
+			$tpl->assign('toolbar_profile', $toolbar_kata);
+		}
 		
 		// Active tab
 		
@@ -267,6 +292,27 @@ class Page_Profiles extends CerberusPageExtension {
 		$model->extension_id = $extension_id;
 		
 		$extension->renderConfig($model);
+	}
+	
+	private function _profileAction_renderToolbar() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$toolbar_id = DevblocksPlatform::importGPC($_REQUEST['toolbar'],'string','');
+		@$record_type = DevblocksPlatform::importGPC($_REQUEST['record_type'],'string','');
+		@$record_id = DevblocksPlatform::importGPC($_REQUEST['record_id'],'integer',0);
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $record_type,
+			'record_id' => $record_id,
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+		]);
+		
+		if(false == ($toolbar = DAO_Toolbar::getKataByName($toolbar_id, $toolbar_dict)))
+			return;
+		
+		DevblocksPlatform::services()->ui()->toolbar()->render($toolbar);
 	}
 	
 	private function _profileAction_renderTab() {
