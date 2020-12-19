@@ -47,9 +47,7 @@ $(function() {
 		
 		// Responsive scaling
 		
-		$window
-			.css('position', 'fixed')
-			;
+		$window.css('position', 'fixed');
 		
 		if($(window).height() <= 500) {
 			$chat_window_convo.css('height', ($(window).height() - 100) + 'px');
@@ -58,9 +56,6 @@ $(function() {
 		if($(window).width() <= 600) {
 			$window.css('width', ($(window).width()) + 'px');
 			$window.position({ my: "middle bottom", at: "middle bottom", of: $(window) });
-			
-		} else {
-			$window.position({ my: "right bottom", at: "right-25 bottom-25", of: $(window) });
 		}
 		
 		// Message queue

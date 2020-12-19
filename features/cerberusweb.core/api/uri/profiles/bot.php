@@ -346,39 +346,46 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	private function _profileAction_getInteractionsMenu() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
-		//$url_writer = DevblocksPlatform::services()->url();
+		$url_writer = DevblocksPlatform::services()->url();
 		
-		// [TODO] Phase these out by 10.0
 		$legacy_interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('global', [], $active_worker);
-		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($legacy_interactions);
 		
-		/*
-		$interactions = DAO_BotInteraction::getByPoint('worker.global');
+		$toolbar_kata = '';
 		
-		// [TODO] Handle this in a more reusable way
-		foreach($interactions as $interaction) {
-			if(!array_key_exists($interaction->bot_id, $interactions_menu)) {
-				if(false == ($bot = DAO_Bot::get($interaction->bot_id)))
-					continue;
+		if(null != ($toolbar = DAO_Toolbar::getByName('cerb.toolbar.global.menu')))
+			$toolbar_kata = $toolbar->toolbar_kata;
+		
+		if($legacy_interactions) {
+			$legacy_kata = "\nmenu/legacy:\n  label: (Legacy Chat Bots)\n  items:\n";
+			
+			foreach ($legacy_interactions as $interaction) {
+				$legacy_kata .= sprintf("    behavior/%s:\n      label: %s\n      id: %d\n      interaction: %s\n      image: %s\n      params:\n",
+					uniqid(),
+					$interaction['label'],
+					$interaction['behavior_id'],
+					$interaction['interaction'],
+					$url_writer->write(sprintf('c=avatars&context=bot&context_id=%d', $interaction['bot_id'])) . '?v=0',
+				);
 				
-				$bot_menu = new DevblocksMenuItemPlaceholder();
-				$bot_menu->label = $bot->name;
-				$bot_menu->image = $url_writer->write(sprintf('c=avatars&context=bot&context_id=%d', $bot->id)) . '?v=' . $bot->updated_at;
-				$bot_menu->children = [];
-				
-				$interactions_menu[$interaction->bot_id] = $bot_menu;
+				if ($interaction['params']) {
+					foreach ($interaction['params'] as $k => $v) {
+						$legacy_kata .= sprintf("        %s: %s\n",
+							$k,
+							$v
+						);
+					}
+				}
 			}
 			
-			$item_behavior = new DevblocksMenuItemPlaceholder();
-			$item_behavior->key = $interaction->id;
-			$item_behavior->label = $interaction->name;
-			$item_behavior->interaction_id = $interaction->id;
-			$item_behavior->interaction = 'worker.global';
-			$item_behavior->params = [];
-			
-			$interactions_menu[$interaction->bot_id]->children[] = $item_behavior;
+			$toolbar_kata .= $legacy_kata;
 		}
-		*/
+		
+		$toolbar_dict = DevblocksDictionaryDelegate::instance([
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+		]);
+		
+		$interactions_menu = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict);
 		
 		$tpl->assign('interactions_menu', $interactions_menu);
 		$tpl->display('devblocks:cerberusweb.core::console/bot_interactions_menu.tpl');

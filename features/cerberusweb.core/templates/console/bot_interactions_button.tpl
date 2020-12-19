@@ -61,11 +61,7 @@ $(function() {
 				
 				$menu
 					.menu({
-						position: { my: "right middle", at: "left middle", collision: "fit" },
-						select: function(event, ui) {
-							event.stopPropagation();
-							$(ui.item).click();
-						}
+						position: { my: "right middle", at: "left middle", collision: "fit" }
 					})
 					.css('position', 'absolute')
 					.css('right', '0')
@@ -73,7 +69,12 @@ $(function() {
 				;
 				
 				$menu.find('li.cerb-bot-trigger')
-					.cerbBotTrigger()
+					.cerbBotTrigger({
+						'caller': {
+							'name': 'cerb.toolbar.global.menu',
+							'params': { }
+						}
+					})
 					.on('click', function(e) {
 						e.stopPropagation();
 						$menu.menu("collapse");

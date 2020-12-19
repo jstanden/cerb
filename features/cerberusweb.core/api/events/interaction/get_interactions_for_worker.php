@@ -15,6 +15,10 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/**
+ * Class Event_GetInteractionsForWorker
+ * @deprecated 
+ */
 class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 	const ID = 'event.interactions.get.worker';
 	
@@ -139,45 +143,6 @@ class Event_GetInteractionsForWorker extends Extension_DevblocksEvent {
 		);
 		
 		return $behaviors;
-	}
-	
-	static function getInteractionMenu(array $interactions) {
-		$legacy_menu = new DevblocksMenuItemPlaceholder();
-		$legacy_menu->label = '(Deprecated Behaviors)';
-		$legacy_menu->children = [];
-	
-		$menu = ['_legacy' => $legacy_menu];
-		
-		$url_writer = DevblocksPlatform::services()->url();
-		
-		if(false == ($bot_ids = array_column($interactions, 'bot_id')))
-			return [];
-		
-		if(false == ($bots = DAO_Bot::getIds($bot_ids)))
-			return [];
-		
-		foreach($bots as $bot) { /* @var $bot Model_Bot */
-			$bot_menu = new DevblocksMenuItemPlaceholder();
-			$bot_menu->label = $bot->name;
-			$bot_menu->image = $url_writer->write(sprintf('c=avatars&context=bot&context_id=%d', $bot->id)) . '?v=' . $bot->updated_at;
-			$bot_menu->children = [];
-			
-			$legacy_menu->children[$bot->id] = $bot_menu;
-		}
-		
-		DevblocksPlatform::sortObjects($interactions, '[label]');
-
-		foreach($interactions as $interaction) {
-			$item_behavior = new DevblocksMenuItemPlaceholder();
-			$item_behavior->key = $interaction['behavior_id'];
-			$item_behavior->label = $interaction['label'];
-			$item_behavior->interaction = $interaction['interaction'];
-			$item_behavior->params = $interaction['params'];
-			
-			$legacy_menu->children[$interaction['bot_id']]->children[] = $item_behavior;
-		}
-		
-		return $menu;
 	}
 	
 	/**
