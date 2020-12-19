@@ -130,6 +130,23 @@ if(!isset($tables['identity'])) {
 }
 
 // ===========================================================================
+// Add `identity_auth_hash`
+
+if(!isset($tables['identity_auth_hash'])) {
+	$sql = sprintf("
+		CREATE TABLE `identity_auth_hash` (
+		identity_id int(10) unsigned NOT NULL,
+		pass_hash varchar(255) NOT NULL DEFAULT '',
+		method tinyint unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (identity_id)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['identity_auth_hash'] = 'identity_auth_hash';
+}
+
+// ===========================================================================
 // Add `identity_pool`
 
 if(!isset($tables['identity_pool'])) {

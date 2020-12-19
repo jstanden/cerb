@@ -1,6 +1,5 @@
 <?php
 // [TODO] Last login at
-// [TODO] Password
 // [TODO] MFA
 class DAO_Identity extends Cerb_ORMHelper {
 	const ADDRESS = 'address';
@@ -548,6 +547,54 @@ class DAO_Identity extends Cerb_ORMHelper {
 		);
 	}
 	
+	static function setAuth($identity_id, $password) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(is_null($password)) {
+			return $db->ExecuteMaster(sprintf("DELETE FROM identity_auth_hash WHERE identity_id = %d",
+				$identity_id
+			));
+			
+		} else {
+			return $db->ExecuteMaster(sprintf("REPLACE INTO identity_auth_hash (identity_id, pass_hash, method) ".
+				"VALUES (%d, %s, %d)",
+				$identity_id,
+				$db->qstr(password_hash($password, PASSWORD_DEFAULT)),
+				0
+			));
+		}
+	}
+	
+	static function login($email, $password, $pool_id) {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(null == ($identity = DAO_Identity::getByEmailAndPool($email, $pool_id)))
+			return null;
+		
+		$identity_auth = $db->GetRowReader(sprintf("SELECT pass_hash, method FROM identity_auth_hash WHERE identity_id = %d", $identity->id));
+		
+		if(!isset($identity_auth['pass_hash']) || empty($identity_auth['pass_hash']))
+			return null;
+		
+		switch(@$identity_auth['method']) {
+			// password_hash()
+			case 0:
+				if(password_verify($password, $identity_auth['pass_hash'])) {
+					if(password_needs_rehash($identity_auth['pass_hash'], PASSWORD_DEFAULT)) {
+						$db->ExecuteMaster(sprintf("UPDATE identity_auth_hash SET pass_hash = %s WHERE identity_id = %d",
+							$db->qstr(password_hash($password, PASSWORD_DEFAULT)),
+							$identity->id
+						));
+					}
+					
+					return $identity;
+				}
+				break;
+		}
+		
+		return null;
+	}
+	
 	/**
 	 *
 	 * @param array $columns
@@ -580,7 +627,6 @@ class DAO_Identity extends Cerb_ORMHelper {
 			$withCounts
 		);
 	}
-
 };
 
 class SearchFields_Identity extends DevblocksSearchFields {
@@ -788,10 +834,10 @@ class Model_Identity extends DevblocksRecordModel {
 		
 		return DAO_IdentityPool::get($this->pool_id);
 	}
-	
+
 	function login($password) {
-		return false;
-	}
+		return DAO_Identity::login($this->email_id, $password, $this->pool_id);
+ 	}
 };
 
 class View_Identity extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

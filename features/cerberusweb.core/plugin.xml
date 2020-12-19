@@ -98,6 +98,10 @@
 			<class name="EventListener_Triggers" />
 		</file>
 		
+		<file path="api/portals/idp.php">
+			<class name="PortalIdp_IdentityAuthState" />
+		</file>
+		
 		<file path="api/service_providers/cerb.php">
 			<class name="WgmCerb_API" />
 		</file>
@@ -8646,7 +8650,18 @@
 		</extension>
 		
 		<!-- Portals -->
-		
+
+		<extension point="cerb.portal">
+			<id>cerb.portal.idp</id>
+			<name>Identity Provider (IdP) Portal</name>
+			<class>
+				<file>api/portals/idp.php</file>
+				<name>Portal_IdentityProvider</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<extension point="cerb.portal">
 			<id>cerb.portal.builder</id>
 			<name>Builder</name>
@@ -8658,6 +8673,17 @@
 			</params>
 		</extension>
 		
+		<extension point="cerb.portal">
+			<id>cerb.portal.idp</id>
+			<name>Identity Provider (IdP) Portal</name>
+			<class>
+				<file>api/portals/idp.php</file>
+				<name>Portal_IdentityProvider</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<!-- Portal Pages -->
 		
 		<extension point="cerb.portal.page">

@@ -1,0 +1,132 @@
+/* [TODO] Download locally */
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 400;
+	src: url(https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Mu4mxP.ttf) format('truetype');
+}
+@font-face {
+	font-family: 'Roboto';
+	font-style: normal;
+	font-weight: 700;
+	src: url(https://fonts.gstatic.com/s/roboto/v29/KFOlCnqEu92Fr1MmWUlfBBc9.ttf) format('truetype');
+}
+/*@import url('https://fonts.googleapis.com/css?family=Roboto:400,700');*/
+
+HTML {
+	background-color: white;
+	height: 100%;
+	font-size: 14px;
+}
+
+BODY {
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+	position: relative;
+}
+
+BODY, FORM, TD {
+	font-family: "Roboto", sans-serif;
+	font-size: 1rem;
+}
+
+A {
+	color: #222222;
+}
+
+H1 {
+	font-size: 2rem;
+	margin: 0 0 1rem 0;
+	padding: 0;
+}
+
+/* [TODO] Logo */
+
+.cerb-portal-wrapper {
+	max-width: -webkit-calc(900px - (30px * 2));
+	max-width: calc(900px - (30px * 2));
+	margin-right: auto;
+	margin-left: auto;
+	padding-right: 30px;
+	padding-left: 30px;
+}
+
+.cerb-portal-wrapper-narrow {
+	max-width: -webkit-calc(650px - (30px * 2));
+	max-width: calc(650px - (30px * 2));
+	margin-right: auto;
+	margin-left: auto;
+	padding-right: 30px;
+	padding-left: 30px;
+}
+
+.cerb-button {
+	padding: 10px 20px;
+	border-radius: 20px;
+	font-weight: bold;
+	font-size: 1rem;
+	color: rgb(255,255,255);
+	border: 0;
+	cursor: pointer;
+	background-color: rgb(18,131,225);
+	margin: 0.5rem 0;
+}
+
+.cerb-portal-form {
+	font-size: 1.2rem;
+}
+
+.cerb-portal-form > P {
+	margin: 1rem 0;
+}
+
+.cerb-portal-form > P > LABEL {
+	font-weight: bold;
+	display: block;
+}
+
+.cerb-portal-form INPUT[type=text] {
+	width: 100%;
+	font-size: 1rem;
+	box-sizing: border-box;
+}
+
+.cerb-portal-form INPUT[type=password] {
+	width: 100%;
+	font-size: 1rem;
+	box-sizing: border-box;
+}
+
+.cerb-portal-form TEXTAREA {
+	height: 150px;
+	width: 100%;
+	font-size: 1rem;
+	box-sizing: border-box;
+}
+
+.cerb-portal-page--shadow {
+	box-shadow: darkgray 0px 0px 5px;
+	border-radius: 5px;
+	padding: 20px;
+	margin-top: 25px;
+}
+
+.cerb-portal-page-login-mfa input[type=text] {
+	font-size: 2rem;
+}
+
+.cerb-portal-form-error {
+	background-color: rgb(255, 240, 240);
+	color: rgb(200,0,0);
+	padding: 15px;
+}
+
+.cerb-portal-form-error > H1 {
+	margin: 0;
+}
+
+.cerb-portal-form-error > P {
+	margin: 0;
+	padding: 0;
+}
