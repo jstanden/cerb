@@ -133,6 +133,9 @@ if(!defined('DEVELOPMENT_MODE_QUERIES'))
 if(!defined('DEVELOPMENT_MODE_ALLOW_CSRF'))
 	define('DEVELOPMENT_MODE_ALLOW_CSRF', false);
 
+if(!defined('APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH'))
+    define('APP_OPT_DEPRECATED_PROFILE_QUICK_SEARCH', false);
+
 // ----
 
 @date_default_timezone_set(date_default_timezone_get());

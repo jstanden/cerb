@@ -355,8 +355,6 @@ abstract class DevblocksORMHelper {
 					} else if($rs instanceof mysqli_result) {
 						$total = $db->GetOneFromResultset($rs);
 					}
-					
-					$db->Free($rs);
 				}
 			}
 			
@@ -570,12 +568,15 @@ abstract class DevblocksORMHelper {
 		
 		return $db->LastInsertId();
 	}
-	
-	/**
-	 * @param integer $id
-	 * @param array $fields
-	 */
-	static protected function _update($ids=[], $table, $fields, $idcol='id', $option_bits = 0) {
+
+    /**
+     * @param array|integer $ids
+     * @param string $table
+     * @param array $fields
+     * @param string $idcol
+     * @param int $option_bits
+     */
+	static protected function _update($ids, string $table, array $fields, $idcol='id', $option_bits = 0) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -883,7 +884,7 @@ abstract class DevblocksORMHelper {
 		return true;
 	}
 	
-	static protected function _parseSearchParams($params, $columns=[], $search_class, $sortBy='') {
+	static protected function _parseSearchParams($params, array $columns=[], $search_class=null, $sortBy='') {
 		if(!class_exists($search_class) || !class_implements($search_class, 'DevblocksSearchFields'))
 			return false;
 		

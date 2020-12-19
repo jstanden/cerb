@@ -1089,11 +1089,11 @@ class Model_TriggerEvent {
 		return $this->_runDecisionTree($dict, $dry_run, $event);
 	}
 	
-	public function resumeDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event, array $replay) {
+	public function resumeDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event=null, array $replay=[]) {
 		return $this->_runDecisionTree($dict, $dry_run, $event, $replay);
 	}
 	
-	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event, array $replay=[]) {
+	private function _runDecisionTree(DevblocksDictionaryDelegate $dict, $dry_run=false, Extension_DevblocksEvent $event=null, array $replay=[]) {
 		$nodes = $this->_getNodes();
 		$tree = $this->_getTree();
 		$path = [];

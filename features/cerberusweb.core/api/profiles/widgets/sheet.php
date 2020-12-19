@@ -20,7 +20,7 @@ class ProfileWidget_Sheet extends Extension_ProfileWidget {
 		return false;
 	}
 	
-	function getData(Model_ProfileWidget $widget, $page=null, $context, $context_id, &$error=null) {
+	function getData(Model_ProfileWidget $widget, $page, $context, $context_id, &$error=null) {
 		$data = DevblocksPlatform::services()->data();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$active_worker= CerberusApplication::getActiveWorker();

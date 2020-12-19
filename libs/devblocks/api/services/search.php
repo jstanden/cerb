@@ -305,7 +305,7 @@ class DevblocksSearchEngineElasticSearch extends Extension_DevblocksSearchEngine
 	
 	private $_config = [];
 	
-	private function _execute($verb='GET', $url, $payload=[], $timeout=20000) {
+	private function _execute($verb='GET', $url=null, $payload=[], $timeout=20000) {
 		$headers = [];
 		
 		$ch = DevblocksPlatform::curlInit($url);

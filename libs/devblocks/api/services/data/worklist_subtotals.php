@@ -548,9 +548,9 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				}
 			}
 		}
-		
+
 		$response = ['children' => []];
-		@$last_k = array_slice(array_keys($rows[0]), -1, 1)[0] ?: [];
+		@$last_k = array_slice(array_keys($rows[0] ?? []), -1, 1)[0] ?: [];
 		
 		foreach($rows as $row) {
 			$ptr =& $response['children'];

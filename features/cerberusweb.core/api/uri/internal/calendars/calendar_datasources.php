@@ -34,7 +34,7 @@ class CalendarDatasource_Calendar extends Extension_CalendarDatasource {
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/calendar/config.tpl');
 	}
 	
-	function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from, $date_range_to) {
+	function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from=null, $date_range_to=null) {
 		$calendar_events = array();
 
 		//@$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);
@@ -109,7 +109,7 @@ class CalendarDatasource_Worklist extends Extension_CalendarDatasource {
 		$tpl->display('devblocks:cerberusweb.core::internal/calendar/datasources/worklist/config.tpl');
 	}
 	
-	function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from, $date_range_to) {
+	function getData(Model_Calendar $calendar, array $params=array(), $params_prefix=null, $date_range_from=null, $date_range_to=null) {
 		$calendar_events = array();
 
 		@$series_idx = $this->_getSeriesIdxFromPrefix($params_prefix);

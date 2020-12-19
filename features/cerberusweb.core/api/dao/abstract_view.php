@@ -2832,7 +2832,7 @@ abstract class C4_AbstractView {
 		return $results;
 	}
 	
-	protected function _getSubtotalCountForVirtualColumn($context, $field_key, $label_map=[], $virtual_key, $virtual_query, $virtual_query_null) {
+	protected function _getSubtotalCountForVirtualColumn($context, $field_key, $label_map, $virtual_key, $virtual_query, $virtual_query_null) {
 		$counts = [];
 		$results = $this->_getSubtotalDataForVirtualColumn($context, $field_key);
 		

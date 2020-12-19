@@ -55,7 +55,7 @@ class DAO_BotInteractionProactive extends Cerb_ORMHelper {
 		return $validation->getFields();
 	}
 	
-	static function create($worker_id, $behavior_id, $interaction, array $interaction_params=[], $actor_bot_id, $expires_at=0, $run_at=null) {
+	static function create($worker_id, $behavior_id, $interaction, array $interaction_params=[], $actor_bot_id=0, $expires_at=0, $run_at=null) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($run_at))
