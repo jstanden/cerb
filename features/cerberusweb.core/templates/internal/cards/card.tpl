@@ -1,4 +1,5 @@
 {$div_id = uniqid('peek_')}
+{$record_uri = $context_ext->manifest->params.alias}
 {$record_aliases = Extension_DevblocksContext::getAliasesForContext($context_ext->manifest)}
 
 <div id="{$div_id}">
@@ -13,22 +14,39 @@
             {$dict->_label}
         </h1>
 
-        <div style="margin-top:5px;">
-            {include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.tpl"}
-
-            {if $dict->id && $dict->record_url}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
-
-            {if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
-                <button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+        <div data-cerb-card-toolbar style="margin-top:5px;">
+            {if !is_array($toolbar_card) || !array_key_exists('profile', $toolbar_card)}
+                {if $dict->id && $dict->record_url}<button type="button" class="cerb-peek-profile"><span class="glyphicons glyphicons-nameplate"></span> {'common.profile'|devblocks_translate|capitalize}</button>{/if}
             {/if}
 
-            {if !empty($dict->id) && $context_ext->hasOption('watchers')}
-                {$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
-                {include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full_label=true}
+            {if !is_array($toolbar_card) || !array_key_exists('edit', $toolbar_card)}
+                {if $is_writeable && $active_worker->hasPriv("contexts.{$peek_context}.update")}
+                    <button type="button" class="cerb-peek-edit" data-context="{$peek_context}" data-context-id="{$dict->id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span> {'common.edit'|devblocks_translate|capitalize}</button>
+                {/if}
             {/if}
 
-            {if $context_ext->hasOption('comments')}
-                {if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
+            {if !is_array($toolbar_card) || !array_key_exists('watchers', $toolbar_card)}
+                {if !empty($dict->id) && $context_ext->hasOption('watchers')}
+                    {$object_watchers = DAO_ContextLink::getContextLinks($peek_context, array($dict->id), CerberusContexts::CONTEXT_WORKER)}
+                    {include file="devblocks:cerberusweb.core::internal/watchers/context_follow_button.tpl" context=$peek_context context_id=$dict->id full_label=true}
+                {/if}
+            {/if}
+
+            {if !is_array($toolbar_card) || !array_key_exists('comments', $toolbar_card)}
+                {if $context_ext->hasOption('comments')}
+                    {if $active_worker->hasPriv("contexts.{$peek_context}.comment")}<button type="button" class="cerb-peek-comments-add" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{$peek_context} context.id:{$dict->id}"><span class="glyphicons glyphicons-conversation"></span> {'common.comment'|devblocks_translate|capitalize}</button>{/if}
+                {/if}
+            {/if}
+
+            <div data-cerb-toolbar style="display:inline-block;">
+                {if $toolbar_card}
+                {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_card)}
+                {/if}
+            </div>
+            {if $active_worker->is_superuser}
+                <div data-cerb-toolbar-setup style="display:inline-block;vertical-align:middle;">
+                    <a href="javascript:" data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="cerb.toolbar.record.{$record_uri}.card" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
+                </div>
             {/if}
         </div>
     </div>
@@ -118,10 +136,85 @@ $(function() {
                 document.location='{$dict->record_url}';
             }
         });
+        
+        // Toolbar
+        
+        var $card_toolbar = $popup.find('[data-cerb-card-toolbar]');
+        var $toolbar = $card_toolbar.find('[data-cerb-toolbar]');
 
-        // Interactions
-        var $interaction_container = $popup;
-        {include file="devblocks:cerberusweb.core::events/interaction/interactions_menu.js.tpl"}
+        $toolbar.cerbToolbar({
+            caller: {
+                name: 'cerb.toolbar.record.{$record_uri}.card',
+                params: {
+                    'record__context': '{$dict->_context}',
+                    'record_id': '{$dict->id}'
+                }
+            },
+            start: function(formData) {
+            },
+            done: function(e) {
+                e.stopPropagation();
+
+                var $target = e.trigger;
+
+                if(!$target.is('.cerb-bot-trigger'))
+                    return;
+
+                var done_params = new URLSearchParams($target.attr('data-interaction-done'));
+
+                // Refresh all widgets by default
+                if(!done_params.has('refresh_widgets[]')) {
+                    done_params.set('refresh_widgets[]', 'all');
+                }
+
+                var refresh = done_params.getAll('refresh_widgets[]');
+                var widget_ids = [];
+
+                if(-1 !== $.inArray('all', refresh)) {
+                    // Everything
+                } else {
+                    $popup.find('.cerb-card-widget')
+                        .filter(function() {
+                            var $this = $(this);
+                            var name = $this.attr('data-widget-name');
+
+                            if(undefined === name)
+                                return false;
+
+                            return -1 !== $.inArray(name, refresh);
+                        })
+                        .each(function() {
+                            var $this = $(this);
+                            var widget_id = parseInt($this.attr('data-widget-id'));
+
+                            if(widget_id)
+                                widget_ids.push(widget_id);
+                        })
+                    ;
+                }
+
+                var evt = $.Event('cerb-widgets-refresh', {
+                    widget_ids: widget_ids,
+                    refresh_options: { }
+                });
+
+                $popup.triggerHandler(evt);
+            }
+        });
+
+        var $toolbar_setup = $card_toolbar.find('[data-cerb-toolbar-setup]');
+
+        $toolbar_setup.find('a')
+            .cerbPeekTrigger()
+            .on('cerb-peek-saved', function() {
+                genericAjaxGet('', 'c=profiles&a=renderToolbar&record_type={$dict->_context}&record_id={$dict->id}&toolbar=cerb.toolbar.record.{$record_uri}.card', function(html) {
+                    $toolbar
+                        .html(html)
+                        .trigger('cerb-toolbar--refreshed')
+                    ;
+                });
+            })
+        ;
 
         var $add_button = $popup.find('.cerb-button-add-widget');
 
