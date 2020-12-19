@@ -22,10 +22,24 @@ class PortalPage_Dashboard extends Extension_PortalPage {
 		return true;
 	}
 	
-	function render(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
-		$identity = ChPortalHelper::getIdentity();
+	function invoke(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		$path = $response->path;
+		@$invoke = DevblocksPlatform::importGPC($_POST['invoke'], 'string', null);
+		
+		switch($invoke) {
+			case 'widgetRefresh':
+				return $this->_portalAction_widgetRefresh($page, $portal);
+		}
+		
+		return false;
+	}
+	
+	private function _portalAction_widgetRefresh(Model_PortalPage $page, Model_CommunityTool $portal) {
+		$identity = ChPortalHelper::getIdentity();
+
+		@$widget_uri = DevblocksPlatform::importGPC($_POST['widget'], 'string', null);
 		
 		// Dictionary
 		
@@ -42,83 +56,71 @@ class PortalPage_Dashboard extends Extension_PortalPage {
 		
 		$dict = DevblocksDictionaryDelegate::instance($values);
 		
-		if('POST' == DevblocksPlatform::getHttpMethod()) {
-			$action = array_shift($path);
+		header('Content-Type: text/html; charset=utf-8');
+		
+		if(false == ($widget = DAO_PortalWidget::getByPortalAndUri($portal->id, $widget_uri)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$widget->render($dict);
+	}
+	
+	function render(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
+		$identity = ChPortalHelper::getIdentity();
+		
+		// Dictionary
+		
+		$values = [
+			'identity__context' => CerberusContexts::CONTEXT_IDENTITY,
+			'identity_id' => $identity ? $identity->id : 0,
 			
-			if($action) {
-				switch($action) {
-					case 'updateWidget':
-						header('Content-Type: text/html; charset=utf-8');
-						
-						@$widget_id = DevblocksPlatform::importGPC($_REQUEST['widget'], 'integer', 0);
-						
-						if(false == ($widget = DAO_PortalWidget::get($widget_id)))
-							exit;
-						
-						if($widget->portal_page_id != $page->id)
-							exit;
-						
-						$widget->render($dict);
-						break;
-				}
-				
-				exit;
-			}
-		}
+			'portal__context' => CerberusContexts::CONTEXT_PORTAL,
+			'portal_id' => intval($portal->id),
+			
+			'page__context' => CerberusContexts::CONTEXT_PORTAL_PAGE,
+			'page_id' => intval($page->id),
+		];
+		
+		$dict = DevblocksDictionaryDelegate::instance($values);
 		
 		$renderer = new Extension_PortalPageRenderer(function() use ($page, $portal, $response, $dict) {
 			$tpl = DevblocksPlatform::services()->template();
+			$kata = DevblocksPlatform::services()->kata();
 			
 			$tpl->assign('dict', $dict);
+			$error = null;
 			
 			// Widgets
 			
-			$widgets = DAO_PortalWidget::getByPortalPageId($page->id);
+			$layout_kata = $page->params['layout_kata'];
 			
-			// Layouts
+			if(false == ($layout = $kata->parse($layout_kata, $error)))
+				return;
 			
-			@$layout = $page->params['layout'] ?: '';
+			$layout = $kata->formatTree($layout, $dict);
 			
-			$zones = [
-				'content' => [],
-			];
+			if(!array_key_exists('zones', $layout))
+				return;
 			
-			switch($layout) {
-				case 'sidebar_left':
-					$zones = [
-						'sidebar' => [],
-						'content' => [],
-					];
-					break;
+			$zones = $layout['zones'];
+			
+			if(!is_array($zones))
+				$zones = [];
+			
+			foreach($zones as $zone_key => $zone_widgets) {
+				foreach($zone_widgets as $widget_key => $widget_meta) {
+					list($widget_uri,) = explode('/', $widget_key);
 					
-				case 'sidebar_right':
-					$zones = [
-						'content' => [],
-						'sidebar' => [],
-					];
-					break;
+					@$width = intval($zones[$zone_key]['widgets'][$widget_key]['width']);
 					
-				case 'thirds':
-					$zones = [
-						'left' => [],
-						'center' => [],
-						'right' => [],
-					];
-					break;
-			}
-	
-			// Sanitize zones
-			foreach($widgets as $widget_id => $widget) {
-				if(array_key_exists($widget->zone, $zones)) {
-					$zones[$widget->zone][$widget_id] = $widget;
-					continue;
+					if(!in_array($width, [25,50,75,100]))
+						$width = 100;
+					
+					$zones[$zone_key][$widget_key]['width'] = $width;
+					$zones[$zone_key][$widget_key]['uri'] = $widget_uri;
 				}
-				
-				// If the zone doesn't exist, drop the widget into the first zone
-				$zones[key($zones)][$widget_id] = $widget;
 			}
 			
-			$tpl->assign('layout', $layout);
+			$tpl->assign('layout', array_keys($zones));
 			$tpl->assign('zones', $zones);
 			$tpl->assign('model', $page);
 			

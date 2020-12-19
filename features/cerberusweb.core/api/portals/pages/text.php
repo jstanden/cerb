@@ -22,6 +22,15 @@ class PortalPage_Text extends Extension_PortalPage {
 		return true;
 	}
 	
+	function invoke(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		//@$invoke = DevblocksPlatform::importGPC($_POST['invoke'], 'string', null);
+		
+		return false;
+	}
+	
 	function render(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response) {
 		$renderer = new Extension_PortalPageRenderer(function() use ($page, $portal, $response) {
 			$tpl = DevblocksPlatform::services()->template();

@@ -2374,6 +2374,8 @@ abstract class Extension_PortalPage extends DevblocksExtension {
 	abstract function renderConfig(Model_PortalPage $model);
 	function saveConfig(array $fields, $id, &$error=null) { return true; }
 	
+	abstract function invoke(Model_PortalPage $page, Model_CommunityTool $portal, DevblocksHttpResponse $response);
+	
 	static function renderBareLayout($page, $portal, $renderer) {
 		$portal->getExtension()->renderBareLayout($page, $portal, $renderer);
 	}

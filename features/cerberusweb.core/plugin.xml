@@ -8352,6 +8352,22 @@
 		</extension>
 		
 		<extension point="cerb.profile.tab">
+			<id>cerb.profile.tab.portal.page.config</id>
+			<name>Portal Page Configure</name>
+			<class>
+				<file>api/uri/profiles.php</file>
+				<name>ProfileTab_PortalPageConfigure</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerb.contexts.portal.page" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.profile.tab">
 			<id>cerb.profile.tab.worker.settings</id>
 			<name>Worker Settings</name>
 			<class>
@@ -8655,6 +8671,28 @@
 			</params>
 		</extension>
 		
+		<extension point="cerb.portal.page">
+			<id>cerb.portal.page.interaction</id>
+			<name>Interaction</name>
+			<class>
+				<file>api/portals/pages/interaction.php</file>
+				<name>PortalPage_Interaction</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerb.portal.page">
+			<id>cerb.portal.page.login</id>
+			<name>Login</name>
+			<class>
+				<file>api/portals/pages/login.php</file>
+				<name>PortalPage_Login</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<extension point="cerb.portal.page">
 			<id>cerb.portal.page.text</id>
 			<name>Text</name>

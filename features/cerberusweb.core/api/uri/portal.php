@@ -155,6 +155,10 @@ class ChPortalHelper {
 			$cookie_name = 'CerbPortal' . $portal->code;
 			$session_id = DevblocksPlatform::importGPC($_COOKIE[$cookie_name] ?? null,'string','');
 			
+			// [TODO] Verify if the given session ID is valid, otherwise regenerate
+			// [TODO] (don't let people specify their own ID)
+			// [TODO] This cookie should expire at some point, but use refresh/regen
+			
 			if(empty($session_id)) {
 				$session_id = sha1(DevblocksPlatform::getClientIp() . $portal->code . random_bytes(32));
 				setcookie(
