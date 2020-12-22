@@ -109,7 +109,7 @@ class _DevblocksClassLoadManager {
 		}
 	}
 	
-	public function registerAutoloadPath($path, $ns_prefix) {
+	public function registerPsr4Path($path, $ns_prefix='') {
 		if(!file_exists($path))
 			return;
 		
@@ -126,6 +126,23 @@ class _DevblocksClassLoadManager {
 		}
 	}
 	
+	public function registerClassPath($path) {
+		if(!file_exists($path))
+			return;
+		
+		$dir = new RecursiveDirectoryIterator($path);
+		$iter = new RecursiveIteratorIterator($dir);
+		$regex = new RegexIterator($iter, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
+		
+		foreach($regex as $class_file => $o) {
+			if(is_null($o))
+				continue;
+			$class_name = substr($class_file, strlen($path), strlen($class_file)-strlen($path)-4);
+			$class_name = str_replace(DIRECTORY_SEPARATOR, '_', $class_name);
+			$this->classMap[$class_name] = $class_file;
+		}
+	}
+	
 	public function registerClasses($file, $classes=[]) {
 		if(is_array($classes))
 		foreach($classes as $class) {
@@ -137,7 +154,8 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'libs/s3/S3.php', array(
 			'S3'
 		));
-		$this->registerAutoloadPath(DEVBLOCKS_PATH . 'libs/Twig/', 'Twig\\');
+		
+		$this->registerPsr4Path(DEVBLOCKS_PATH . 'libs/Twig/', 'Twig\\');
 		
 		return true;
 	}
