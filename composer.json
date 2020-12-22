@@ -16,12 +16,6 @@
 			"role" : "Software Architect"
 		}
 	],
-	"repositories": [
-		{
-			"type": "pear",
-			"url": "https://pear.horde.org"
-		}
-	],
 	"require" : {
 		"ext-curl": "*",
 		"ext-dom": "*",
@@ -46,7 +40,6 @@
 		"erusev/parsedown": "^1.7",
 		"erusev/parsedown-extra": "^0.7.1",
 		"donatj/phpuseragentparser": "^0.14.0",
-		"pear-pear.horde.org/horde_imap_client": "*",
 		"singpolyma/openpgp-php": "^0.4.0"
 	},
 	"require-dev" : {
