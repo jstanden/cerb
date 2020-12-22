@@ -1,5 +1,7 @@
 <?php
-class CerberusApplicationUtilsTest extends PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class CerberusApplicationUtilsTest extends TestCase {
 	final function __construct($name = null, array $data = array(), $dataName = '') {
 		parent::__construct($name, $data, $dataName);
 	}

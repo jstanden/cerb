@@ -1,5 +1,7 @@
 <?php
-class DevblocksCacheTest extends PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class DevblocksCacheTest extends TestCase {
 	final function __construct($name = null, array $data = array(), $dataName = '') {
 		parent::__construct($name, $data, $dataName);
 	}

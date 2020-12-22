@@ -1,5 +1,7 @@
 <?php
-class DevblocksAutomationTest extends PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+
+class DevblocksAutomationTest extends TestCase {
 	final function __construct($name = null, array $data = array(), $dataName = '') {
 		parent::__construct($name, $data, $dataName);
 	}
@@ -28,12 +30,12 @@ EOD;
 		];
 		
 		$automation = new Model_Automation();
-		$automation->extension_id = 'mail.route';
+		$automation->extension_id = 'cerb.trigger.mail.route';
 		$automation->script = $automation_script;
 		
 		$automation_result = $automator->executeScript($automation, $initial_state, $error);
 		
-		$this->assertInstanceOf('DevblocksDictionaryDelegate', $automation_result, $error);
+		$this->assertInstanceOf('DevblocksDictionaryDelegate', $automation_result);
 		$this->assertEquals('return', $automation_result->get('__exit'));
 		$this->assertEquals(['group' => 'Support'], $automation_result->getKeyPath('__return', []));
 	}
@@ -59,12 +61,12 @@ EOD;
 		];
 		
 		$automation = new Model_Automation();
-		$automation->extension_id = 'mail.route';
+		$automation->extension_id = 'cerb.trigger.mail.route';
 		$automation->script = $automation_script;
 		
 		$automation_result = $automator->executeScript($automation, $initial_state, $error);
 		
-		$this->assertInstanceOf('DevblocksDictionaryDelegate', $automation_result, $error);
+		$this->assertInstanceOf('DevblocksDictionaryDelegate', $automation_result);
 		$this->assertEquals('return', $automation_result->get('__exit'));
 		$this->assertEquals(['group' => 'Dispatch'], $automation_result->getKeyPath('__return', []));
 	}
@@ -93,12 +95,12 @@ EOD;
 		];
 		
 		$automation = new Model_Automation();
-		$automation->extension_id = 'mail.route';
+		$automation->extension_id = 'cerb.trigger.mail.route';
 		$automation->script = $automation_script;
 		
 		$automation_result = $automator->executeScript($automation, $initial_state, $error);
 		
-		$this->assertInstanceOf('DevblocksDictionaryDelegate', $automation_result, $error);
+		$this->assertInstanceOf('DevblocksDictionaryDelegate', $automation_result);
 		$this->assertEquals('return', $automation_result->get('__exit'));
 		$this->assertEquals(['group' => 'Support'], $automation_result->getKeyPath('__return', []));
 	}

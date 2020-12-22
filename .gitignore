@@ -3,3 +3,4 @@
 .htaccess
 /phpunit.phar
 /vendor/
+/tests/.phpunit.result.cache

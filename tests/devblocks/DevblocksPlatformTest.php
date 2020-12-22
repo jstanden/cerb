@@ -1,4 +1,6 @@
 <?php
+use PHPUnit\Framework\TestCase;
+
 class MockObject {
 	public $id = 0;
 	public $name = '';
@@ -13,7 +15,7 @@ class MockObject {
 	}
 }
 
-class DevblocksPlatformTest extends PHPUnit_Framework_TestCase {
+class DevblocksPlatformTest extends TestCase {
 	final function __construct($name = null, array $data = array(), $dataName = '') {
 		parent::__construct($name, $data, $dataName);
 	}

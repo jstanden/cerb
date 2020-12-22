@@ -50,12 +50,20 @@
 		"singpolyma/openpgp-php": "^0.4.0"
 	},
 	"require-dev" : {
-		"giggsey/libphonenumber-for-php" : "^8.8",
-		"sebastian/diff": "^3.0"
+		"phpunit/phpunit": "^9"
 	},
 	"support" : {
 		"email" : "team@cerb.ai",
 		"issues" : "https://github.com/jstanden/cerb/issues/",
 		"source" : "https://github.com/cerb/cerb-release/"
+	},
+	"scripts": {
+		"cache-clear": [
+			"rm -f storage/tmp/templates_c/*.php",
+			"rm -f storage/tmp/cache--*"
+		],
+		"test": [
+			"vendor/bin/phpunit --bootstrap tests/bootstrap.platform.php -c tests/phpunit.cerb.platform.xml"
+		]
 	}
 }
