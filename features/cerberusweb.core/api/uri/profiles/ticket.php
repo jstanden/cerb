@@ -681,7 +681,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				));
 				
 				$email_models = DAO_Address::lookupAddresses($email_addresses, true);
-				$emails_to_check = array_flip(array_column(DevblocksPlatform::objectsToArrays($email_models), 'email'));
+				$emails_to_check = array_fill_keys(array_column(DevblocksPlatform::objectsToArrays($email_models), 'email'), true);
 				
 				foreach($email_models as $email_model) {
 					if(false == ($info = $gpg->keyinfoPublic(sprintf("<%s>", $email_model->email))) || !is_array($info))
@@ -689,7 +689,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 					
 					foreach($info as $key) {
 						foreach($key['uids'] as $uid) {
-							unset($emails_to_check[$uid['email']]);
+							unset($emails_to_check[DevblocksPlatform::strLower($uid['email'])]);
 						}
 					}
 				}
