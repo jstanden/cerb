@@ -31,10 +31,13 @@ class DevblocksPlatformTest extends TestCase {
 		$this->assertEquals(true, $actual, 'In php.ini, file_uploads is not enabled.');
 		
 		// Memory Limit
-		$expected = 16777216;
 		$ini_memory_limit = ini_get("memory_limit");
-		$actual = DevblocksPlatform::parseBytesString($ini_memory_limit ?: PHP_INT_MAX);
-		$this->assertGreaterThanOrEqual($expected, $actual, 'Cerb requires a memory_limit in php.ini of at least 16MB');
+		
+		if('-1' !== $ini_memory_limit) {
+			$expected = 16777216;
+			$actual = DevblocksPlatform::parseBytesString($ini_memory_limit ?: PHP_INT_MAX);
+			$this->assertGreaterThanOrEqual($expected, $actual, 'Cerb requires a memory_limit in php.ini of at least 16MB');
+		}
 		
 		// Required extensions
 		$required_extensions = array(
