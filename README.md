@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/jstanden/cerb.svg)](https://travis-ci.org/jstanden/cerb)
-
 # What is Cerb?
 
 [Cerb](https://cerb.ai/) enhances the productivity of online teams with web-based collaboration and automation tools:
