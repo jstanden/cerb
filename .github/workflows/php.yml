@@ -1,7 +1,6 @@
-name: PHP Composer
+name: Cerb Platform Tests
 
 on:
-  workflow_dispatch:
   push:
     branches:
     - "10.0-dev"
@@ -23,7 +22,7 @@ jobs:
         with:
           php-version: "7.4"
           extensions: mbstring, mailparse, yaml
-          tools: composer:v1
+          tools: composer
 
       - name: Validate composer.json and composer.lock
         run: composer validate
