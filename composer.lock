@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7d88c3146d79963b70f6db264ce4ef19",
+    "content-hash": "5364c4471b8a74d38f1119fab19d7a34",
     "packages": [
         {
             "name": "defuse/php-encryption",
@@ -1182,24 +1182,24 @@
         },
         {
             "name": "singpolyma/openpgp-php",
-            "version": "0.4.0",
+            "version": "dev-cerb",
             "source": {
                 "type": "git",
-                "url": "https://github.com/singpolyma/openpgp-php.git",
-                "reference": "67aba786991e3cb3e555025b6d357779ab32a0ab"
+                "url": "https://github.com/jstanden/openpgp-php.git",
+                "reference": "93b8db8a63d987c4b06f0414ec63d6a0c08da07d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/singpolyma/openpgp-php/zipball/67aba786991e3cb3e555025b6d357779ab32a0ab",
-                "reference": "67aba786991e3cb3e555025b6d357779ab32a0ab",
+                "url": "https://api.github.com/repos/jstanden/openpgp-php/zipball/93b8db8a63d987c4b06f0414ec63d6a0c08da07d",
+                "reference": "93b8db8a63d987c4b06f0414ec63d6a0c08da07d",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.6 || ^7.0",
+                "php": "^5.6 || ^7.0 || ^8.0",
                 "phpseclib/phpseclib": "^2.0 !=2.0.8"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.0"
+                "phpunit/phpunit": "^9.0"
             },
             "suggest": {
                 "ext-mcrypt": "required if you use encryption cast5"
@@ -1210,7 +1210,6 @@
                     "lib/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Unlicense"
             ],
@@ -1226,10 +1225,23 @@
             ],
             "description": "Pure-PHP implementation of the OpenPGP Message Format (RFC 4880)",
             "support": {
-                "issues": "https://github.com/singpolyma/openpgp-php/issues",
-                "source": "https://github.com/singpolyma/openpgp-php/tree/0.4.0"
+                "source": "https://github.com/jstanden/openpgp-php/tree/cerb"
             },
-            "time": "2019-08-01T18:11:09+00:00"
+            "funding": [
+                {
+                    "type": "github",
+                    "url": "https://github.com/singpolyma"
+                },
+                {
+                    "type": "liberapay",
+                    "url": "https://liberapay.com/singpolyma"
+                },
+                {
+                    "type": "patreon",
+                    "url": "https://www.patreon.com/singpolyma"
+                }
+            ],
+            "time": "2020-12-22T20:44:03+00:00"
         },
         {
             "name": "smarty/smarty",
@@ -3808,7 +3820,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "singpolyma/openpgp-php": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

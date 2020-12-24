@@ -16,6 +16,12 @@
 			"role" : "Software Architect"
 		}
 	],
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/jstanden/openpgp-php"
+		}
+	],
 	"require" : {
 		"ext-curl": "*",
 		"ext-dom": "*",
@@ -40,7 +46,7 @@
 		"erusev/parsedown": "^1.7",
 		"erusev/parsedown-extra": "^0.7.1",
 		"donatj/phpuseragentparser": "^0.14.0",
-		"singpolyma/openpgp-php": "^0.4.0"
+		"singpolyma/openpgp-php": "dev-cerb"
 	},
 	"require-dev" : {
 		"phpunit/phpunit": "^9"
