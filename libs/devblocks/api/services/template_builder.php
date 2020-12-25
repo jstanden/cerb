@@ -176,6 +176,7 @@ class _DevblocksTemplateBuilder {
 				'image_info',
 				'indent',
 				'json_pretty',
+				'kata_encode',
 				'markdown_to_html',
 				'md5',
 				'parse_emails',
@@ -1592,6 +1593,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('image_info', [$this, 'filter_image_info']),
 			new \Twig\TwigFilter('indent', [$this, 'filter_indent']),
 			new \Twig\TwigFilter('json_pretty', [$this, 'filter_json_pretty']),
+			new \Twig\TwigFilter('kata_encode', [$this, 'filter_kata_encode']),
 			new \Twig\TwigFilter('markdown_to_html', [$this, 'filter_markdown_to_html']),
 			new \Twig\TwigFilter('md5', [$this, 'filter_md5']),
 			new \Twig\TwigFilter('parse_emails', [$this, 'filter_parse_emails']),
@@ -1832,6 +1834,13 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return '';
 		
 		return DevblocksPlatform::strFormatJson($string);
+	}
+	
+	function filter_kata_encode($array) {
+		if (!is_array($array))
+			return null;
+		
+		return DevblocksPlatform::services()->kata()->emit($array);
 	}
 	
 	function filter_markdown_to_html($string) {
