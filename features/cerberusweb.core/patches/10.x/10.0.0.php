@@ -164,6 +164,27 @@ if(!isset($tables['automation_continuation'])) {
 }
 
 // ===========================================================================
+// Add `automation_event` table
+
+if(!isset($tables['automation_event'])) {
+	$sql = sprintf("
+		CREATE TABLE `automation_event` (
+		id int(10) unsigned NOT NULL AUTO_INCREMENT,
+		name varchar(255) NOT NULL DEFAULT '',
+		description varchar(255) NOT NULL DEFAULT '',
+		automations_kata text,
+		updated_at int(10) unsigned NOT NULL DEFAULT '0',
+		PRIMARY KEY (id),
+		UNIQUE (name),
+		INDEX (updated_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['automation_event'] = 'automation_event';
+}
+
+// ===========================================================================
 // Add `automation_timer` table
 
 if(!isset($tables['automation_timer'])) {

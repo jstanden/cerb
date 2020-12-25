@@ -76,7 +76,7 @@
 		<patch version="9.6.0" revision="1378" file="patches/9.x/9.6.0.php" />
 		<patch version="9.7.0" revision="1380" file="patches/9.x/9.7.0.php" />
 
-		<patch version="10.0.0" revision="1383" file="patches/10.x/10.0.0.php" />
+		<patch version="10.0.0" revision="1384" file="patches/10.x/10.0.0.php" />
 	</patches>
 
 	<!-- Exported Classes -->
@@ -175,6 +175,14 @@
 			<class name="DAO_AutomationContinuation" />
 			<class name="Model_AutomationContinuation" />
 			<class name="SearchFields_AutomationContinuation" />
+		</file>
+
+		<file path="api/dao/automation_event.php">
+			<class name="Context_AutomationEvent" />
+			<class name="DAO_AutomationEvent" />
+			<class name="Model_AutomationEvent" />
+			<class name="SearchFields_AutomationEvent" />
+			<class name="View_AutomationEvent" />
 		</file>
 
 		<file path="api/dao/automation_log.php">
@@ -1389,6 +1397,47 @@
 						<data key="delete" />
 						<data key="update" />
 						<data key="update.bulk" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.automation.event</id>
+			<name>Automation Event</name>
+			<class>
+				<file>api/dao/automation_event.php</file>
+				<name>Context_AutomationEvent</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="automation event" value="singular" />
+						<data key="automation events" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="automation_event" />
+				<param key="dao_class" value="DAO_AutomationEvent" />
+				<param key="view_class" value="View_AutomationEvent" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
 					</value>
 				</param>
 			</params>
@@ -6280,6 +6329,19 @@
 				</params>
 			</extension>
 
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.automation_event</id>
+				<name>Automation Event Section</name>
+				<class>
+					<file>api/uri/profiles/automation_event.php</file>
+					<name>PageSection_ProfilesAutomationEvent</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="automation_event" />
+				</params>
+			</extension>
+	
 			<extension point="cerberusweb.ui.page.section">
 				<id>cerb.page.profiles.automation_timer</id>
 				<name>Automation Timer Section</name>

@@ -405,14 +405,14 @@
 				<seg>automation</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.automation.policy">
+		<tu tuid="common.automation.event">
 			<tuv xml:lang="en_US">
-				<seg>automation policy</seg>
+				<seg>automation event</seg>
 			</tuv>
 		</tu>
-		<tu tuid="common.automation.policies">
+		<tu tuid="common.automation.events">
 			<tuv xml:lang="en_US">
-				<seg>automation policies</seg>
+				<seg>automation events</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.automation.timer">
