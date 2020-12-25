@@ -2,7 +2,7 @@
 	"name" : "wgm/cerb",
 	"description" : "Cerb boosts team productivity with bot-powered email and workflow automation.",
 	"type" : "project",
-	"license" : "Devblocks Public License <https://cerb.ai/license/>",
+	"license" : "proprietary",
 	"authors" : [
 		{
 			"name" : "Webgroup Media LLC",
