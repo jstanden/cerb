@@ -86,6 +86,12 @@ class PageSection_ProfilesToolbar extends Extension_PageSection {
 				$error = null;
 				
 				if(empty($id)) { // New
+					if(!DEVELOPMENT_MODE)
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
+					if(!$active_worker->is_superuser || !$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_TOOLBAR)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
 					$fields = array(
 						DAO_Toolbar::NAME => $name,
 						DAO_Toolbar::DESCRIPTION => $description,
