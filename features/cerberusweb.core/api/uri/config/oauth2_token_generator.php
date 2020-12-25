@@ -45,7 +45,7 @@ class PageSection_SetupDevelopersOAuth2TokenGenerator extends Extension_PageSect
 		return false;
 	}
 	
-	private function _configAction_generateToken() {
+	private function _configAction_generateToken() : void {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		

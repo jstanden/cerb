@@ -1,4 +1,6 @@
 <?php
+
+use Defuse\Crypto\Key;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericResourceOwner;
@@ -353,15 +355,16 @@ class Cerb_OAuth2ClientEntity implements ClientEntityInterface {
 		
 		$this->redirectUri = $uris;
 	}
+	
+	public function isConfidential() : bool {
+		return true;
+	}
 };
 
 class Cerb_OAuth2ClientRespository implements ClientRepositoryInterface {
-	public function getClientEntity($clientIdentifier, $grantType = null, $clientSecret = null, $mustValidateSecret = true) {
+	public function getClientEntity($clientIdentifier) {
 		if(false == ($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
-			throw OAuthServerException::invalidClient();
-		
-		if($mustValidateSecret && $oauth_client->client_secret != $clientSecret)
-			throw OAuthServerException::invalidCredentials();
+			return null;
 		
 		$client = new Cerb_OAuth2ClientEntity($clientIdentifier);
 		
@@ -369,6 +372,19 @@ class Cerb_OAuth2ClientRespository implements ClientRepositoryInterface {
 		$client->setRedirectUris($oauth_client->callback_url);
 		
 		return $client;
+	}
+	
+	public function validateClient($clientIdentifier, $clientSecret, $grantType) {
+		if('authorization_code' != $grantType)
+			return false;
+		
+		if(false == ($oauth_client = DAO_OAuthApp::getByClientId($clientIdentifier)))
+			return false;
+		
+		if($oauth_client->client_secret != $clientSecret)
+			return false;
+		
+		return true;
 	}
 };
 
@@ -392,32 +408,41 @@ class Cerb_OAuth2GrantManual extends AbstractGrant {
 		
 		$this->setRefreshTokenTTL($refreshTokenTTL);
 		
-		$client = $this->clientRepository->getClientEntity($oauth2_app->client_id, null, $oauth2_app->client_secret, true);
-
-		$accessToken = $this->issueAccessToken($accessTokenTTL, $client, $actor_identifier);
+		$client = $this->clientRepository->getClientEntity($oauth2_app->client_id);
 		
-		foreach($scopes as $scope_identifier) {
-			$scope = $this->scopeRepository->getScopeEntityByIdentifier($scope_identifier);
-			$accessToken->addScope($scope);
+		try {
+			$this->setPrivateKey(DevblocksPlatform::services()->oauth()->getServerPrivateKey());
+			
+			$accessToken = $this->issueAccessToken($accessTokenTTL, $client, $actor_identifier);
+			
+			foreach($scopes as $scope_identifier) {
+				$scope = $this->scopeRepository->getScopeEntityByIdentifier($scope_identifier);
+				$accessToken->addScope($scope);
+			}
+			
+			$refreshToken = $this->issueRefreshToken($accessToken);
+			
+			$encryptionKey = $encrypt->getSystemKey();
+			$encryptionKey = Key::loadFromAsciiSafeString($encryptionKey);
+			
+			$response_type = new BearerTokenResponse();
+			$response_type->setAccessToken($accessToken);
+			$response_type->setRefreshToken($refreshToken);
+			$response_type->setPrivateKey(DevblocksPlatform::services()->oauth()->getServerPrivateKey());
+			$response_type->setEncryptionKey($encryptionKey);
+			
+			$response = new Response();
+			$response = $response_type->generateHttpResponse($response);
+			
+			$response->getBody()->rewind();
+			$json = $response->getBody()->getContents();
+			
+			return json_decode($json, true);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
 		}
 		
-		$refreshToken = $this->issueRefreshToken($accessToken);
-		
-		$encryptionKey = $encrypt->getSystemKey();
-		$encryptionKey = \Defuse\Crypto\Key::loadFromAsciiSafeString($encryptionKey);
-		
-		$response_type = new BearerTokenResponse();
-		$response_type->setAccessToken($accessToken);
-		$response_type->setRefreshToken($refreshToken);
-		$response_type->setPrivateKey(DevblocksPlatform::services()->oauth()->getServerPrivateKey());
-		$response_type->setEncryptionKey($encryptionKey);
-		
-		$response = new Response();
-		$response = $response_type->generateHttpResponse($response);
-		
-		$response->getBody()->rewind();
-		$json = $response->getBody()->getContents();
-		
-		return json_decode($json, true);
+		return null;
 	}
 };
