@@ -505,13 +505,13 @@ abstract class DevblocksEngine {
 		return false;
 	}
 	
-	static private $_user_agent = null;
+	static private ?array $_user_agent = null;
 	
-	static function getClientUserAgent() {
+	static function getClientUserAgent() : array {
 		if(is_null(self::$_user_agent)) {
 			
 			try {
-				if(false != ($user_agent = parse_user_agent()))
+				if(false != ($user_agent = \donatj\UserAgent\parse_user_agent()))
 					self::$_user_agent = $user_agent;
 				
 			} catch(Exception $e) {}
