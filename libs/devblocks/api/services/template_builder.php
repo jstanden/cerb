@@ -251,6 +251,7 @@ class _DevblocksTemplateBuilder {
 				'dict_unset',
 				'json_decode',
 				'jsonpath_set',
+				'kata_parse',
 				'placeholders_list',
 				'random_string',
 				'regexp_match_all',
@@ -1117,6 +1118,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('dict_unset', [$this, 'function_dict_unset']),
 			new \Twig\TwigFunction('json_decode', [$this, 'function_json_decode']),
 			new \Twig\TwigFunction('jsonpath_set', [$this, 'function_jsonpath_set']),
+			new \Twig\TwigFunction('kata_parse', [$this, 'function_kata_parse']),
 			new \Twig\TwigFunction('placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
 			new \Twig\TwigFunction('random_string', [$this, 'function_random_string']),
 			new \Twig\TwigFunction('regexp_match_all', [$this, 'function_regexp_match_all']),
@@ -1385,6 +1387,16 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		$ptr = $val;
 		
 		return $var;
+	}
+	
+	function function_kata_parse($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return [];
+		
+		return DevblocksPlatform::services()->kata()->parse($string);
 	}
 	
 	function function_cerb_placeholders_list(\Twig\Environment $env) {
