@@ -407,7 +407,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_Task[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -662,7 +662,7 @@ class SearchFields_Task extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TASK)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TASK), '%s'), self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_OWNER_SEARCH:

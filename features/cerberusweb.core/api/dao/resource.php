@@ -227,12 +227,12 @@ class DAO_Resource extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_Resource[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_Resource[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -465,7 +465,7 @@ class SearchFields_Resource extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_RESOURCE, self::getPrimaryKey());
 			
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_RESOURCE)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_RESOURCE), '%s'), self::getPrimaryKey());
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {

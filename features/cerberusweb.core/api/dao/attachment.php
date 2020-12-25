@@ -729,23 +729,20 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_BUNDLE_SEARCH:
-				$sql = sprintf("SELECT attachment_id FROM attachment_link WHERE context = %s AND context_id IN (%%s)",
-					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_FILE_BUNDLE)
+				$sql = sprintf("SELECT attachment_id FROM attachment_link WHERE context = %s AND context_id IN (%s)",
+					Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_FILE_BUNDLE),
+					'%s'
 				);
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_FILE_BUNDLE, $sql, 'a.id');
-				break;
 			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ATTACHMENT, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ATTACHMENT)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ATTACHMENT), '%s'), self::getPrimaryKey());
 				
 			case self::VIRTUAL_ON:
 				return self::_getWhereSQLFromAttachmentLinks($param, self::getPrimaryKey());
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -753,7 +750,6 @@ class SearchFields_Attachment extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

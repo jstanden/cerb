@@ -304,7 +304,7 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_ContextActivityLog[]
 	 */
 	static private function _getObjectsFromResult($rs) {

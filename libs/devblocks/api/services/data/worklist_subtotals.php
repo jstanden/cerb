@@ -1,30 +1,27 @@
 <?php
 class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 	function getSuggestions($type, array $params=[]) {
-		@$of = $params['of'];
+		$of = $params['of'] ?? null;
 		$of_schema = null;
 		
 		// Sanitize `of:`
 		if($of) {
 			if(
-				false == ($context_ext = Extension_DevblocksContext::getByAlias($of, true))
-				|| false == ($view = $context_ext->getTempView()))
+				false != ($context_ext = Extension_DevblocksContext::getByAlias($of, true))
+				&& false != ($view = $context_ext->getTempView()))
 			{
-				$of_schema = null;
-			} else {
 				$of_schema = $view->getQueryAutocompleteSuggestions();
 			}
 		}
 		
 		if(!$of_schema) {
-			$suggestions = [
+			return [
 				'' => [
 					'of:',
 				],
 				'type:' => DevblocksPlatform::services()->data()->getTypes(),
 				'of:' => array_values(Extension_DevblocksContext::getUris()),
 			];
-			return $suggestions;
 		}
 		
 		$suggestions = [
@@ -1101,7 +1098,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 							
 							if(!array_key_exists('type_options', $column)) {
 								if(false !== (strpos($value, ':'))) {
-									@list($context, $context_id) = explode(':', $value, 2);
+									list($context, $context_id) = array_pad(explode(':', $value, 2), 2, null);
 									$row[$column['key_query'] . '__context'] = $context;
 									$row[$column['key_query']] = $context_id;
 									$row[$column['key_query'] . '_label'] = $parents[$column_index]['name'];

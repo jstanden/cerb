@@ -2,7 +2,7 @@
 class CerbMailTransport_Null extends Extension_MailTransport {
 	const ID = 'core.mail.transport.null';
 	
-	private $_lastErrorMessage = null;
+	private ?string $_lastErrorMessage = null;
 	private $_logger = null;
 	
 	function renderConfig(Model_MailTransport $model) {
@@ -12,12 +12,13 @@ class CerbMailTransport_Null extends Extension_MailTransport {
 		$tpl->display('devblocks:cerberusweb.core::internal/mail_transport/null/config.tpl');
 	}
 	
-	function testConfig(array $params, &$error=null) {
+	function testConfig(array $params, &$error=null) : bool {
 		return true;
 	}
 	
 	/**
 	 * @param Swift_Message $message
+	 * @param Model_MailTransport $model
 	 * @return boolean
 	 */
 	function send(Swift_Message $message, Model_MailTransport $model) {

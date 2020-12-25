@@ -237,12 +237,12 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_Classifier[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_Classifier[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -427,15 +427,12 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CLASSIFIER, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CLASSIFIER)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CLASSIFIER), '%s'), self::getPrimaryKey());
 				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'classifier.owner_context', 'classifier.owner_context_id');
-				break;
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -443,7 +440,6 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -478,11 +474,9 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 			case SearchFields_Classifier::ID:
 				$models = DAO_Classifier::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case 'owner':
 				return self::_getLabelsForKeyContextAndIdValues($values);
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);

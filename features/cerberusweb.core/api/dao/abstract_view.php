@@ -1207,7 +1207,8 @@ abstract class C4_AbstractView {
 						return [];
 					
 					// Find the first and last date
-					@$xaxis_param = array_shift(C4_AbstractView::findParam($xaxis_field->token, $view->getParams()));
+					$find_params = C4_AbstractView::findParam($xaxis_field->token, $view->getParams());
+					@$xaxis_param = array_shift($find_params);
 
 					$current_tick = null;
 					$last_tick = null;
@@ -3528,10 +3529,12 @@ abstract class C4_AbstractView {
 		
 		if($cfield_key) {
 			if($is_multiple_value_cfield) {
-				$cfield_select_sql .= sprintf("SELECT COUNT(field_value) AS hits, field_value AS %s FROM %s WHERE context=%s AND context_id IN (%%s) AND field_id=%d GROUP BY %s ORDER BY hits DESC",
+				/** @noinspection SqlResolve */
+				$cfield_select_sql .= sprintf("SELECT COUNT(field_value) AS hits, field_value AS %s FROM %s WHERE context=%s AND context_id IN (%s) AND field_id=%d GROUP BY %s ORDER BY hits DESC",
 					$field_key,
 					DAO_CustomFieldValue::getValueTableName($field_id),
 					Cerb_ORMHelper::qstr($cfield->context),
+					'%s',
 					$field_id,
 					$field_key
 				);

@@ -198,7 +198,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	 * @param array $ids
 	 * @return Model_DevblocksTemplate
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		if(!is_array($ids))
 			return false;
 		
@@ -215,7 +215,7 @@ class DAO_DevblocksTemplate extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_DevblocksTemplate[]
 	 */
 	static private function _getObjectsFromResult($rs) {

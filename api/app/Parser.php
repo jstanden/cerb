@@ -95,7 +95,7 @@ class CerberusParserMessage {
 			}
 		}
 	}
-};
+}
 
 class CerberusParserModel {
 	private $_message = null;
@@ -148,9 +148,9 @@ class CerberusParserModel {
 		try {
 			$this->_sender_address_model = null;
 			
-			@$sReturnPath = $this->_message->headers['return-path'];
-			@$sReplyTo = $this->_message->headers['reply-to'];
-			@$sFrom = $this->_message->headers['from'];
+			$sReturnPath = $this->_message->headers['return-path'] ?? null;
+			$sReplyTo = $this->_message->headers['reply-to'] ?? null;
+			$sFrom = $this->_message->headers['from'] ?? null;
 			
 			$from = [];
 			
@@ -243,13 +243,13 @@ class CerberusParserModel {
 	 * options match we return null.
 	 */
 	private function _parseHeadersIsNew() {
-		@$aSubject = $this->_message->headers['subject'];
-		@$sMessageId = trim($this->_message->headers['message-id']);
-		@$sInReplyTo = trim($this->_message->headers['in-reply-to']);
-		@$sReferences = trim($this->_message->headers['references']);
-		//@$sThreadTopic = trim($this->_message->headers['thread-topic']);
+		$aSubject = $this->_message->headers['subject'] ?? '';
+		$sMessageId = trim($this->_message->headers['message-id'] ?? '');
+		$sInReplyTo = trim($this->_message->headers['in-reply-to'] ?? '');
+		$sReferences = trim($this->_message->headers['references'] ?? '');
+		//$sThreadTopic = trim($this->_message->headers['thread-topic'] ?? '');
 
-		@$senderWorker = $this->getSenderWorkerModel();
+		$senderWorker = $this->getSenderWorkerModel();
 		
 		$aReferences = [];
 		
@@ -338,7 +338,7 @@ class CerberusParserModel {
 		$this->_message_id = 0;
 	}
 	
-	public function getRecipients() {
+	public function getRecipients() : array {
 		$headers =& $this->_message->headers;
 		$sources = [];
 		
@@ -375,9 +375,9 @@ class CerberusParserModel {
 	}
 	
 	public function isWorkerRelayReply() {
-		@$message_id = trim($this->_message->headers['message-id']);
-		@$in_reply_to = trim($this->_message->headers['in-reply-to']);
-		@$references = trim($this->_message->headers['references']);
+		$message_id = trim($this->_message->headers['message-id'] ?? '');
+		$in_reply_to = trim($this->_message->headers['in-reply-to'] ?? '');
+		$references = trim($this->_message->headers['references'] ?? '');
 		
 		$target_message_ids = [];
 		

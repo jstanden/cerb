@@ -385,7 +385,7 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_CrmOpportunity[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -593,7 +593,7 @@ class SearchFields_CrmOpportunity extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_OPPORTUNITY)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_OPPORTUNITY), '%s'), self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:

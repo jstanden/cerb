@@ -2,8 +2,8 @@
 use PHPUnit\Framework\TestCase;
 
 class MockObject {
-	public $id = 0;
-	public $name = '';
+	public int $id = 0;
+	public string $name = '';
 	
 	public function __construct($id, $name) {
 		$this->id = $id;

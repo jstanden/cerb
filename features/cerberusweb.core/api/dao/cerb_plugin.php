@@ -119,7 +119,7 @@ class DAO_CerbPlugin extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_CerbPlugin[]
 	 */
 	static private function _getObjectsFromResult($rs) {

@@ -297,12 +297,12 @@ class DAO_Automation extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_Automation[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}	
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_Automation[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -1361,7 +1361,7 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 					$inputs = $kata->formatTree($automation_kata['inputs'], DevblocksDictionaryDelegate::instance([]));
 					
 					foreach ($inputs as $k => &$input) {
-						@list($input_type, $input_key) = explode('/', $k, 2);
+						list($input_type, $input_key) = array_pad(explode('/', $k, 2), 2, '');
 						$input['key'] = $input_key;
 						$input['type'] = $input_type;
 					}

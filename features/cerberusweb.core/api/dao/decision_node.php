@@ -216,7 +216,7 @@ class DAO_DecisionNode extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_DecisionNode[]
 	 */
 	static private function _getObjectsFromResult($rs) {

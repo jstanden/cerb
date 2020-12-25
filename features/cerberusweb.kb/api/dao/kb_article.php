@@ -135,7 +135,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_KbArticle[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
@@ -146,7 +146,7 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 	
 	/**
 	 *
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 */
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = [];
@@ -642,7 +642,7 @@ class SearchFields_KbArticle extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_KB_ARTICLE)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_KB_ARTICLE), '%s'), self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:

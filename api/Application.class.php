@@ -967,9 +967,6 @@ class CerberusContexts {
 	const CONTEXT_MAIL_TRANSPORT = 'cerberusweb.contexts.mail.transport';
 	const CONTEXT_MAILBOX = 'cerberusweb.contexts.mailbox';
 	const CONTEXT_MAIL_HTML_TEMPLATE = 'cerberusweb.contexts.mail.html_template';
-	const CONTEXT_MAILING_LIST = 'cerberusweb.contexts.mailing_list';
-	const CONTEXT_MAILING_LIST_BROADCAST = 'cerberusweb.contexts.mailing_list.broadcast';
-	const CONTEXT_MAILING_LIST_MEMBER = 'cerberusweb.contexts.mailing_list.member';
 	const CONTEXT_MESSAGE = 'cerberusweb.contexts.message';
 	const CONTEXT_NOTIFICATION= 'cerberusweb.contexts.notification';
 	const CONTEXT_OPPORTUNITY = 'cerberusweb.contexts.opportunity';
@@ -978,13 +975,10 @@ class CerberusContexts {
 	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_PROFILE_TAB = 'cerberusweb.contexts.profile.tab';
 	const CONTEXT_PROFILE_WIDGET = 'cerberusweb.contexts.profile.widget';
-	const CONTEXT_PROJECT = 'cerberusweb.contexts.project';
-	const CONTEXT_PROJECT_ISSUE = 'cerberusweb.contexts.project.issue';
 	const CONTEXT_REMINDER = 'cerberusweb.contexts.reminder';
 	const CONTEXT_RESOURCE = 'cerb.contexts.resource';
 	const CONTEXT_ROLE = 'cerberusweb.contexts.role';
 	const CONTEXT_SAVED_SEARCH = 'cerberusweb.contexts.context.saved.search';
-	const CONTEXT_SENSOR = 'cerberusweb.contexts.datacenter.sensor';
 	const CONTEXT_SERVER = 'cerberusweb.contexts.datacenter.server';
 	const CONTEXT_SNIPPET = 'cerberusweb.contexts.snippet';
 	const CONTEXT_TASK = 'cerberusweb.contexts.task';
@@ -3401,12 +3395,12 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	 * @param mixed $model
 	 * @return array
 	 */
-	static function uniqueFields($fields, $model) {
+	static function uniqueFields(array $fields, $model) : array {
 		if(is_object($model))
 			$model = (array) $model;
 
 		if(!is_array($model))
-			return false;
+			return [];
 
 		foreach($fields as $k => $v) {
 			if(isset($model[$k]) && $model[$k] == $v)
@@ -3421,12 +3415,12 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	 * @param array $ids
 	 * @return Model_Address[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		if(!is_array($ids)) {
 			if(is_null($ids) || !is_numeric($ids))
 				return [];
 			
-			$ids = array($ids);
+			$ids = [$ids];
 		}
 
 		if(empty($ids))

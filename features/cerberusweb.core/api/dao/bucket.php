@@ -211,7 +211,7 @@ class DAO_Bucket extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_Bucket[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
@@ -640,19 +640,15 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_BUCKET, self::getPrimaryKey());
-				break;
 			
 			case self::VIRTUAL_GROUP_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_GROUP, 'bucket.group_id');
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_BUCKET)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_BUCKET), '%s'), self::getPrimaryKey());
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_BUCKET, self::getPrimaryKey());
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -660,7 +656,6 @@ class SearchFields_Bucket extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

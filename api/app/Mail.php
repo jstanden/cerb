@@ -2796,7 +2796,7 @@ class CerberusMail {
 					sprintf('|(\"%s(.*?)\")|', preg_quote($base_url)),
 					function($matches) use ($base_url, $mail, &$embedded_files, $exclude_files) {
 						if(3 == count($matches)) {
-							@list($file_id, $file_name) = explode('/', $matches[2], 2);
+							list($file_id, $file_name) = array_pad(explode('/', $matches[2], 2), 2, null);
 							if($file_id && $file_name) {
 								if($file = DAO_Attachment::get($file_id)) {
 									

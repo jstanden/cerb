@@ -642,9 +642,11 @@ class CustomField_RecordLinks extends Extension_CustomField {
 				if(false == ($cfield_key = $search_class::getCustomFieldContextWhereKey($field->context)))
 					return null;
 				
-				$subquery_sql = sprintf("SELECT context_id FROM %s WHERE field_id = %d AND field_value IN (%%s)",
+				/** @noinspection SqlResolve */
+				$subquery_sql = sprintf("SELECT context_id FROM %s WHERE field_id = %d AND field_value IN (%s)",
 					$this->getValueTableName(),
-					$field->id
+					$field->id,
+					'%s'
 				);
 				
 				$where_sql = $search_class::_getWhereSQLFromVirtualSearchSqlField(

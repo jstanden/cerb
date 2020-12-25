@@ -281,12 +281,12 @@ class DAO_ContextAvatar extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_ContextAvatar[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_ContextAvatar[]
 	 */
 	static private function _getObjectsFromResult($rs) {

@@ -1196,22 +1196,21 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			case Model_CustomField::TYPE_LINK:
 				switch($param->operator) {
 					case DevblocksSearchCriteria::OPER_CUSTOM:
-						@$link_context = $field->params['context'];
+						$link_context = $field->params['context'] ?? null;
 						
-						$subquery_sql = sprintf("SELECT context_id FROM %s WHERE field_id = %d AND field_value IN (%%s)",
+						/** @noinspection SqlResolve */
+						$subquery_sql = sprintf("SELECT context_id FROM %s WHERE field_id = %d AND field_value IN (%s)",
 							$value_table,
-							$field_id
+							$field_id,
+							'%s'
 						);
 						
-						$where_sql = self::_getWhereSQLFromVirtualSearchSqlField(
+						return self::_getWhereSQLFromVirtualSearchSqlField(
 							$param,
 							$link_context,
 							$subquery_sql,
 							$cfield_key
 						);
-						
-						return $where_sql;
-						break;
 				}
 				break;
 				

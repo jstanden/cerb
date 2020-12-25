@@ -142,7 +142,7 @@ class DAO_ConfirmationCode extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_ConfirmationCode[]
 	 */
 	static private function _getObjectsFromResult($rs) {

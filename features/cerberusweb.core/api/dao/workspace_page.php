@@ -325,12 +325,12 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_WorkspacePage[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_WorkspacePage[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -508,7 +508,7 @@ class SearchFields_WorkspacePage extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKSPACE_PAGE)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKSPACE_PAGE), '%s'), self::getPrimaryKey());
 				break;
 			
 			case self::VIRTUAL_OWNER:

@@ -263,7 +263,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_ContextScheduledBehavior[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
@@ -290,7 +290,7 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_ContextScheduledBehavior[]
 	 */
 	static private function _getObjectsFromResult($rs) {

@@ -77,7 +77,7 @@ if(!defined('APP_DEFAULT_CONTROLLER'))
 	define('APP_DEFAULT_CONTROLLER',''); // 404?
 
 if(!defined('APP_PATH'))
-	define('APP_PATH',dirname(__FILE__));
+	define('APP_PATH',realpath(dirname(__FILE__) . '/../../'));
 
 if(!defined('APP_STORAGE_PATH'))
 	define('APP_STORAGE_PATH',APP_PATH . '/storage');

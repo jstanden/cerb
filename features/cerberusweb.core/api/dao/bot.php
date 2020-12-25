@@ -323,7 +323,7 @@ class DAO_Bot extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_Bot[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -524,19 +524,15 @@ class SearchFields_Bot extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_BOT, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_BOT)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_BOT), '%s'), self::getPrimaryKey());
 				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, 'bot.owner_context', 'bot.owner_context_id');
-				break;
 			
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_BOT, self::getPrimaryKey());
-				break;
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -544,7 +540,6 @@ class SearchFields_Bot extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	

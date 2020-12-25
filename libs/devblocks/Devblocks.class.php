@@ -3323,7 +3323,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		}
 
 		// Security
-		@$app_security_frameoptions = strtolower(APP_SECURITY_FRAMEOPTIONS);
+		$app_security_frameoptions = @strtolower(APP_SECURITY_FRAMEOPTIONS);
 		
 		if(php_sapi_name() != 'cli')
 		switch($app_security_frameoptions) {
@@ -3349,7 +3349,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		// [JAS] [MDF]: Automatically determine the relative webpath to Devblocks files
 		//@$proxyhost = $_SERVER['HTTP_DEVBLOCKSPROXYHOST'];
-		@$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'];
+		$proxybase = $_SERVER['HTTP_DEVBLOCKSPROXYBASE'] ?? null;
 	
 		// App path (always backend)
 	

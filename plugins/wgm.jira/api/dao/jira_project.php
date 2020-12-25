@@ -229,7 +229,7 @@ class DAO_JiraProject extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_JiraProject[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
@@ -286,7 +286,7 @@ class DAO_JiraProject extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_JiraProject[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -460,7 +460,7 @@ class SearchFields_JiraProject extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(Context_JiraProject::ID)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(Context_JiraProject::ID), '%s'), self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:

@@ -384,7 +384,7 @@ class DAO_Notification extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_Notification[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -503,11 +503,12 @@ class DAO_Notification extends Cerb_ORMHelper {
 		
 		// Delete notifications
 		
-		$sql = sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) %s",
-			$db->qstr($context),
-			implode(',', $context_ids),
-			implode(' ', $wheres)
-		);
+		$sql = sprintf("DELETE FROM notification WHERE context = %s AND context_id IN (%s) ",
+				$db->qstr($context),
+				implode(',', $context_ids),
+			)
+			. implode(' ', $wheres)
+		;
 		
 		$db->ExecuteMaster($sql);
 		

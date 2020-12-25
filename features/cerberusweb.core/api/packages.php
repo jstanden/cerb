@@ -378,7 +378,7 @@ class Cerb_Packages {
 		//@$settings = $json['settings'];
 		//@$worker_prefs = $json['worker_prefs'];
 		
-		@$custom_fieldsets = $json['custom_fieldsets'];
+		$custom_fieldsets = $json['custom_fieldsets'] ?? null;
 		
 		if(is_array($custom_fieldsets))
 		foreach($custom_fieldsets as $custom_fieldset) {
@@ -399,7 +399,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$bots = $json['bots'];
+		$bots = $json['bots'] ?? null;
 		
 		if(is_array($bots))
 		foreach($bots as $bot) {

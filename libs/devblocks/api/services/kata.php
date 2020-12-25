@@ -1,8 +1,8 @@
 <?php
 class _DevblocksKataService {
-	private static $_instance = null;
+	private static ?_DevblocksKataService $_instance = null;
 	
-	static function getInstance() {
+	static function getInstance() : _DevblocksKataService {
 		if(is_null(self::$_instance))
 			self::$_instance = new _DevblocksKataService();
 		
@@ -74,9 +74,8 @@ class _DevblocksKataService {
 			switch($state) {
 				case '':
 					if(preg_match('#' . $field_pattern . '\s*$#i', $trimmed_line, $matches)) {
-						@$field_id = $matches[1];
-						@$field_attributes = DevblocksPlatform::parseCsvString(ltrim($matches[2], '@'));
-						@$field_key = rtrim($matches[0], ':');
+						$field_id = $matches[1] ?? null;
+						$field_attributes = DevblocksPlatform::parseCsvString(ltrim($matches[2] ?? null, '@'));
 						
 						$new_attributes = array_diff($field_attributes, ['text']);
 						$field_key = $field_id . ($new_attributes ? ('@' . implode(',', $new_attributes)) : '');
@@ -169,7 +168,7 @@ class _DevblocksKataService {
 	private function _processTree($v, $k, &$node_path=[], &$out_meta=[]) {
 		$response = null;
 		
-		@list($key_type,) = explode('@', $k, 2);
+		list($key_type,) = explode('@', $k, 2);
 		
 		$node_path[] = $key_type;
 		
@@ -202,8 +201,8 @@ class _DevblocksKataService {
 		return $response;
 	}
 	
-	function emit(array $input) {
-		$output = null;
+	function emit(array $input) : string {
+		$output = '';
 		
 		$recurse = function($parent, $indent=0) use (&$output, &$recurse) {
 			if(is_array($parent))
@@ -286,7 +285,7 @@ class _DevblocksKataService {
 		return $ptr;
 	}
 	
-	private function dereference($tree) {
+	private function dereference(array $tree) : array {
 		$parsed_tree = [];
 		$references = [];
 		
@@ -314,7 +313,7 @@ class _DevblocksKataService {
 		return $parsed_tree;
 	}
 	
-	private function _dereference($v, $k, array $references=[]) {
+	private function _dereference($v, $k, array $references=[]) : array {
 		if (array_key_exists('_line', $v) && array_key_exists('_data', $v) && is_array($v['_data'])) {
 			$values = [
 				'_line' => $v['_line'],
@@ -330,7 +329,7 @@ class _DevblocksKataService {
 			return [$k => $values];
 			
 		} else if (array_key_exists('_line', $v) && array_key_exists('_data', $v) && is_string($v['_data'])) {
-			@list($key, $annotations) = explode('@', $k, 2);
+			list($key, $annotations) = array_pad(explode('@', $k, 2), 2, null);
 			
 			$annotations = DevblocksPlatform::parseCsvString($annotations);
 			
@@ -391,7 +390,7 @@ class _DevblocksKataService {
 			$annotations = [];
 			
 			if(false !== strpos($k,'@')) {
-				@list($k, $ann) = explode('@', $k, 2);
+				list($k, $ann) = array_pad(explode('@', $k, 2), 2, null);
 				$annotations = DevblocksPlatform::parseCsvString($ann);
 			}
 			
@@ -447,7 +446,7 @@ class _DevblocksKataService {
 			$annotations = [];
 			
 			if(false !== strpos($k,'@')) {
-				@list($k, $ann) = explode('@', $k, 2);
+				list($k, $ann) = array_pad(explode('@', $k, 2), 2, null);
 				$annotations = DevblocksPlatform::parseCsvString($ann);
 			}
 			

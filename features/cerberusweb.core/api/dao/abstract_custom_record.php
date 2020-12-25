@@ -249,13 +249,13 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_AbstractCustomRecord[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
 	/**
-	 * @param resource $rs
-	 * @return Model_AbstractCustomRecord[]
+	 * @param mysqli_result|false $rs
+	 * @return Model_AbstractCustomRecord[]|false
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
@@ -357,6 +357,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 	static function count() {
 		$db = DevblocksPlatform::services()->database();
 		
+		/** @noinspection SqlResolve */
 		$sql = sprintf("SELECT COUNT(id) FROM custom_record_%d",
 			static::_ID
 		);
@@ -389,6 +390,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			$default_owner_id = 0;
 		}
 		
+		/** @noinspection SqlResolve */
 		$sql = sprintf("UPDATE custom_record_%d SET owner_context = %s, owner_context_id = %d WHERE owner_context IN (%s)",
 			static::_ID,
 			$db->qstr($default_owner),
@@ -427,6 +429,7 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		
 		$ids_list = implode(',', $ids);
 		
+		/** @noinspection SqlResolve */
 		$db->ExecuteMaster(sprintf("DELETE FROM %s WHERE id IN (%s)",
 			$db->escape($table_name),
 			$ids_list
@@ -603,19 +606,15 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, $context_name, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr($context_name)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr($context_name), '%s'), self::getPrimaryKey());
 				
 			case self::VIRTUAL_OWNER:
 				return self::_getWhereSQLFromContextAndID($param, sprintf('%s.owner_context', Cerb_ORMHelper::escape($table_name)), sprintf('%s.owner_context_id', Cerb_ORMHelper::escape($table_name)));
-				break;
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, '', self::getPrimaryKey());
-				break;
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -623,7 +622,6 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -659,11 +657,9 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 				$dao_class = sprintf("DAO_AbstractCustomRecord_%d", static::_ID);
 				$models = $dao_class::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case 'owner':
 				return self::_getLabelsForKeyContextAndIdValues($values);
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -1240,6 +1236,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 			$abstract_custom_record = $dao_class::get($abstract_custom_record);
 		} elseif($abstract_custom_record instanceof Model_AbstractCustomRecord) {
 			// It's what we want already.
+			true;
 		} elseif(is_array($abstract_custom_record)) {
 			$abstract_custom_record = Cerb_ORMHelper::recastArrayToModel($abstract_custom_record, $model_class);
 		} else {

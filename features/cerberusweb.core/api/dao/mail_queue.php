@@ -321,7 +321,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_MailQueue[]
 	 */
 	static private function _getObjectsFromResult($rs) {

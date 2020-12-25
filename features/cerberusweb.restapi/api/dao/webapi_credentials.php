@@ -242,12 +242,12 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_WebApiCredentials[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}	
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_WebApiCredentials[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -397,7 +397,7 @@ class SearchFields_WebApiCredentials extends DevblocksSearchFields {
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL), '%s'), self::getPrimaryKey());
 				break;
 			
 			case self::VIRTUAL_WORKER_SEARCH:

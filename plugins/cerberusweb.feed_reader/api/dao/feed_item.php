@@ -232,7 +232,7 @@ class DAO_FeedItem extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_FeedItem[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -422,7 +422,7 @@ class SearchFields_FeedItem extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_FEED_ITEM)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_FEED_ITEM), '%s'), self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -1186,8 +1186,7 @@ class Context_FeedItem extends Extension_DevblocksContext implements IDevblocksC
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=feed_item&id=%d-%s",$item->id, DevblocksPlatform::strToPermalink($item->title)), true);
 			
 			// Feed
-			@$feed_id = $item->feed_id;
-			$token_values['feed_id'] = $feed_id;
+			$token_values['feed_id'] = $item->feed_id ?? 0;
 		}
 		
 		// Feed

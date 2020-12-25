@@ -556,7 +556,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 	
 	/**
 	 *
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 */
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = [];
@@ -711,8 +711,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$sql = "SELECT 'cerberusweb.contexts.ticket' AS context, owner_id AS worker_id, COUNT(id) AS hits FROM ticket WHERE status_id = 0 GROUP BY owner_id ".
 			"UNION ALL ".
-			"SELECT 'cerberusweb.contexts.notification' AS context, worker_id, COUNT(id) AS hits FROM notification WHERE is_read = 0 GROUP BY worker_id ".
-			""
+			"SELECT 'cerberusweb.contexts.notification' AS context, worker_id, COUNT(id) AS hits FROM notification WHERE is_read = 0 GROUP BY worker_id "
 			;
 		$results = $db->GetArrayReader($sql);
 		
@@ -1480,7 +1479,7 @@ class SearchFields_Worker extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_WORKER), '%s'), self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_CALENDAR_AVAILABILITY:

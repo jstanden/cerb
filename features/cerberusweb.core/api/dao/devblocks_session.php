@@ -185,7 +185,7 @@ class DAO_DevblocksSession extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_DevblocksSession[]|false
 	 */
 	static private function _getObjectsFromResult($rs) {

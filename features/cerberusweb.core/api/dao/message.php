@@ -293,7 +293,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_Message[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -468,7 +468,8 @@ class DAO_Message extends Cerb_ORMHelper {
 			)
 		);
 	}
-
+	
+	/** @noinspection SqlResolve */
 	static function maint() {
 		$db = DevblocksPlatform::services()->database();
 		$logger = DevblocksPlatform::services()->log();
@@ -652,10 +653,10 @@ class DAO_Message extends Cerb_ORMHelper {
 				}
 				
 				// We need this extra JOIN to be able to do the LIMIT (can't in subqueries)
+				/** @noinspection SqlResolve */
 				$prefetch_sql = 
-					sprintf('SELECT message.id FROM message INNER JOIN (SELECT m.id %s%s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.id)',
-						$join_sql,
-						$where_sql,
+					sprintf('SELECT message.id FROM message INNER JOIN (SELECT m.id %s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.id)',
+						$join_sql . $where_sql,
 						$sort_by
 					);
 			}
@@ -754,27 +755,21 @@ class SearchFields_Message extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_ATTACHMENTS_SEARCH:
 				return self::_getWhereSQLFromAttachmentsField($param, CerberusContexts::CONTEXT_MESSAGE, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_NOTES_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_MESSAGE)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_MESSAGE), '%s'), self::getPrimaryKey());
 				
 			case self::MESSAGE_CONTENT:
 				return self::_getWhereSQLFromFulltextField($param, Search_MessageContent::ID, self::getPrimaryKey(), $options);
-				break;
 				
 			case self::FULLTEXT_NOTE_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_MESSAGE, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_MESSAGE, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_MESSAGE)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_MESSAGE), '%s'), self::getPrimaryKey());
 				
 			case self::VIRTUAL_HEADER_MESSAGE_ID:
 				$value = $param->value;
@@ -792,19 +787,14 @@ class SearchFields_Message extends DevblocksSearchFields {
 					);
 				}
 				
-				break;
-				
 			case self::VIRTUAL_SENDER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ADDRESS, 'm.address_id');
-				break;
 				
 			case self::VIRTUAL_TICKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_TICKET, 'm.ticket_id');
-				break;
 				
 			case self::VIRTUAL_WORKER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'm.worker_id');
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -812,10 +802,7 @@ class SearchFields_Message extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
-		
-		return false;
 	}
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {

@@ -519,7 +519,7 @@ abstract class DevblocksEngine {
 		return self::$_user_agent;
 	}
 	
-	static function getHostname() {
+	static function getHostname() : string {
 		$app_hostname = APP_HOSTNAME;
 		
 		if(!empty($app_hostname))

@@ -108,7 +108,7 @@ class DAO_AutomationLog extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_AutomationLog[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		if(!is_array($ids))
 			$ids = [$ids];
 
@@ -138,7 +138,7 @@ class DAO_AutomationLog extends Cerb_ORMHelper {
 	}	
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_AutomationLog[]|false
 	 */
 	static private function _getObjectsFromResult($rs) {

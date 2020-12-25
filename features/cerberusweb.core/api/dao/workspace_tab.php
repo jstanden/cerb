@@ -275,12 +275,12 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_WorkspaceTab[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_WorkspaceTab[]
 	 */
 	static private function _getObjectsFromResult($rs) {

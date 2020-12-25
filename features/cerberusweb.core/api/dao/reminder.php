@@ -92,7 +92,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				//CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_, $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_REMINDER, $batch_ids);
 			}
 			
 			// Make changes
@@ -112,7 +112,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_REMINDER, $batch_ids);
 			}
 		}
 	}
@@ -133,7 +133,7 @@ class DAO_Reminder extends Cerb_ORMHelper {
 		}
 		
 		if(isset($fields[self::WORKER_ID])) {
-			@$worker_id = $fields[self::WORKER_ID];
+			$worker_id = $fields[self::WORKER_ID] ?? null;
 			
 			if(!$worker_id) {
 				$error = "Invalid 'worker_id' value.";
@@ -220,13 +220,13 @@ class DAO_Reminder extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_Reminder[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}	
 	
 	/**
-	 * @param resource $rs
-	 * @return Model_Reminder[]
+	 * @param mysqli_result|false $rs
+	 * @return Model_Reminder[]|false
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = [];
@@ -381,15 +381,21 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_REMINDER, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_REMINDER)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField(
+					$param, 
+					CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 
+					sprintf(
+						'SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)',
+						Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_REMINDER),
+						'%s'
+					),
+					self::getPrimaryKey()
+				);
 				
 			case self::VIRTUAL_WORKER_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_WORKER, 'reminder.worker_id');
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -397,7 +403,6 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -416,11 +421,9 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 			case SearchFields_Reminder::ID:
 				$models = DAO_Reminder::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_Reminder::IS_CLOSED:
 				return parent::_getLabelsForKeyBooleanValues();
-				break;
 				
 			case SearchFields_Reminder::WORKER_ID:
 				$models = DAO_Worker::getIds($values);
@@ -429,7 +432,6 @@ class SearchFields_Reminder extends DevblocksSearchFields {
 				if(in_array(0, $label_map))
 					$label_map[0] = DevblocksPlatform::translate('common.nobody');
 				return $label_map;
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);

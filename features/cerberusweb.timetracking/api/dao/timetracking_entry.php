@@ -365,7 +365,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_TimeTrackingEntry[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -596,7 +596,7 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TIMETRACKING)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TIMETRACKING), '%s'), self::getPrimaryKey());
 				break;
 				
 			case self::VIRTUAL_WATCHERS:
@@ -1405,8 +1405,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=time_tracking&id=%d-%s",$timeentry->id, DevblocksPlatform::strToPermalink($timeentry->getSummary())), true);
 			
 			// Worker
-			@$worker_id = $timeentry->worker_id;
-			$token_values['worker_id'] = $worker_id;
+			$token_values['worker_id'] = $timeentry->worker_id ?? 0;
 		}
 		
 		// Worker

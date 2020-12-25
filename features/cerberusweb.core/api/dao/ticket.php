@@ -820,7 +820,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	
 	/**
 	 *
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 */
 	static private function _createObjectsFromResultSet($rs=null) {
 		$objects = [];
@@ -2173,10 +2173,10 @@ class DAO_Ticket extends Cerb_ORMHelper {
 					$sort_by = 't.created_date';
 				}
 				
+				/** @noinspection SqlResolve */
 				$prefetch_sql =
-					sprintf('SELECT message.id FROM message INNER JOIN (SELECT t.id %s%s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.ticket_id)',
-						$join_sql,
-						$where_sql,
+					sprintf('SELECT message.id FROM message INNER JOIN (SELECT t.id %s ORDER BY %s DESC LIMIT 20000) AS search ON (search.id=message.ticket_id)',
+						$join_sql . $where_sql,
 						$sort_by
 					);
 			}
@@ -2376,13 +2376,13 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BUCKET, 't.bucket_id');
 				
 			case self::VIRTUAL_COMMENTS_SEARCH:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET)), 't.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET), '%s'), 't.id');
 				
 			case self::VIRTUAL_GROUP_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_GROUP, 't.group_id');
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET)), 't.id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET)), 't.id');
 				
 			case self::VIRTUAL_ORG_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 't.org_id');

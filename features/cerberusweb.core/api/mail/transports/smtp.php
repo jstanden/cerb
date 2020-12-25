@@ -13,13 +13,13 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 	}
 	
 	function testConfig(array $params, &$error=null) {
-		@$host = $params['host'];
-		@$port = $params['port'];
-		@$encryption = $params['encryption'];
-		@$auth_enabled = $params['auth_enabled'];
-		@$auth_user = $params['auth_user'];
-		@$auth_pass = $params['auth_pass'];
-		@$connected_account_id = $params['connected_account_id'] ?? 0;
+		$host = $params['host'] ?? null;
+		$port = $params['port'] ?? null;
+		$encryption = $params['encryption'] ?? null;
+		$auth_enabled = $params['auth_enabled'] ?? null;
+		$auth_user = $params['auth_user'] ?? null;
+		$auth_pass = $params['auth_pass'] ?? null;
+		$connected_account_id = $params['connected_account_id'] ?? 0;
 		
 		if(empty($host)) {
 			$error = 'The SMTP "host" parameter is required.';
@@ -50,11 +50,14 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		}
 		
 		try {
-			$mailer = $this->_getMailer($options);
+			if(null == ($mailer = $this->_getMailer($options)))
+				throw new Exception("Failed to start mailer");
 			
-			@$transport = $mailer->getTransport();
-			@$transport->start();
-			@$transport->stop();
+			if(null == ($transport = $mailer->getTransport()))
+				throw new Exception("Failed to start mailer transport");
+			
+			$transport->start();
+			$transport->stop();
 			return true;
 			
 		} catch(Exception $e) {

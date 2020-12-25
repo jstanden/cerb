@@ -497,8 +497,8 @@ class DAO_Address extends Cerb_ORMHelper {
 	}
 
 	/**
-	 * @param resource $rs
-	 * @return Model_Address[]
+	 * @param mysqli_result|false $rs
+	 * @return Model_Address[]|false
 	 */
 	static private function _getObjectsFromResult($rs) {
 		$objects = array();
@@ -1018,39 +1018,30 @@ class SearchFields_Address extends DevblocksSearchFields {
 					self::getPrimaryKey(),
 					implode(',', $ids)
 				);
-				break;
 				
 			case self::FULLTEXT_ADDRESS:
 				return self::_getWhereSQLFromFulltextField($param, Search_Address::ID, self::getPrimaryKey());
-				break;
 				
 			case self::FULLTEXT_COMMENT_CONTENT:
 				return self::_getWhereSQLFromCommentFulltextField($param, Search_CommentContent::ID, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_CONTACT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CONTACT, 'a.contact_id');
-				break;
 				
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ADDRESS)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ADDRESS), '%s'), self::getPrimaryKey());
 				
 			case self::VIRTUAL_ORG_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_ORG, 'a.contact_org_id');
-				break;
 				
 			case self::VIRTUAL_TICKET_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_TICKET, "SELECT address_id FROM requester r WHERE r.ticket_id IN (%s)", 'a.id');
-				break;
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_ADDRESS, self::getPrimaryKey());
-				break;
 				
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -1058,7 +1049,6 @@ class SearchFields_Address extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 		
 		return null;
@@ -2308,6 +2298,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 			
 		} elseif($address instanceof Model_Address) {
 			// It's what we want already.
+			true;
 			
 		} elseif(is_string($address)) {
 			$address = DAO_Address::getByEmail($address);

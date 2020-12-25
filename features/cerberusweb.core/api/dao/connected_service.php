@@ -225,7 +225,7 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_ConnectedService[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
@@ -283,7 +283,7 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_ConnectedService[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -447,7 +447,7 @@ class SearchFields_ConnectedService extends DevblocksSearchFields {
 				break;
 			
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CONNECTED_SERVICE)), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CONNECTED_SERVICE), '%s'), self::getPrimaryKey());
 				break;
 			
 			default:

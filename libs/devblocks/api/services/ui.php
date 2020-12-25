@@ -60,7 +60,7 @@ class _DevblocksUiManager {
 }
 
 class DevblocksUiEventHandler {
-	function parse(?string $handlers_kata, DevblocksDictionaryDelegate $dict, &$error=null) {
+	function parse(?string $handlers_kata, DevblocksDictionaryDelegate $dict, &$error=null) : array {
 		if(is_null($handlers_kata))
 			return [];
 		
@@ -77,7 +77,7 @@ class DevblocksUiEventHandler {
 			if(array_key_exists('disabled', $handler_data) && $handler_data['disabled'])
 				continue;
 			
-			@list($handler_type, $handler_name) = explode('/', $handler_key, 2);
+			list($handler_type, $handler_name) = array_pad(explode('/', $handler_key, 2), 2, null);
 			
 			$result = [
 				'type' => $handler_type,

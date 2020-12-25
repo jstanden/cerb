@@ -246,12 +246,12 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_ProjectBoardColumn[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_ProjectBoardColumn[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -433,11 +433,9 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, Context_ProjectBoardColumn::ID, self::getPrimaryKey());
-				break;
 			
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr(Context_ProjectBoardColumn::ID)), self::getPrimaryKey());
-				break;
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(Context_ProjectBoardColumn::ID), '%s'), self::getPrimaryKey());
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {

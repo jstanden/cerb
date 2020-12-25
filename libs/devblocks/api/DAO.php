@@ -1622,7 +1622,7 @@ class DAO_Translation extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_Translation[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -2007,7 +2007,7 @@ class DAO_DevblocksStorageProfile extends DevblocksORMHelper {
 	}
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_DevblocksStorageProfile[]
 	 */
 	static private function _getObjectsFromResult($rs) {
