@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dcb4019b764eaee03f5ed9a8e935f4c6",
+    "content-hash": "5191b6295e59d4863fa27effcdb7312e",
     "packages": [
         {
             "name": "defuse/php-encryption",
@@ -705,6 +705,60 @@
                 "source": "https://github.com/guzzle/psr7/tree/1.7.0"
             },
             "time": "2020-09-30T07:37:11+00:00"
+        },
+        {
+            "name": "horde/imap-client",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jstanden/horde-imap.git",
+                "reference": "b2cc6543a69d6fc8c3628d0a3d9a1f18f2f7aa8e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jstanden/horde-imap/zipball/b2cc6543a69d6fc8c3628d0a3d9a1f18f2f7aa8e",
+                "reference": "b2cc6543a69d6fc8c3628d0a3d9a1f18f2f7aa8e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-hash": "*",
+                "ext-json": "*",
+                "php": "^5.3 || ^7 || ^8"
+            },
+            "suggest": {
+                "ext-intl": "*",
+                "ext-mbstring": "*"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/pear-pear.horde.org/"
+                ],
+                "exclude-from-classmap": [
+                    "lib/pear-pear.horde.org/Horde_Socket_Client/"
+                ],
+                "psr-4": {
+                    "Horde\\Socket\\": "lib/pear-pear.horde.org/Horde_Socket_Client/Horde/Socket/"
+                }
+            },
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Michael Slusarz",
+                    "email": "slusarz@horde.org",
+                    "role": "lead"
+                }
+            ],
+            "description": "IMAP client library",
+            "homepage": "https://www.horde.org/libraries/Horde_Imap_Client",
+            "support": {
+                "source": "https://github.com/jstanden/horde-imap/tree/main",
+                "issues": "https://github.com/jstanden/horde-imap/issues"
+            },
+            "time": "2019-09-29T00:00:00+00:00"
         },
         {
             "name": "lcobucci/clock",
@@ -4225,7 +4279,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "singpolyma/openpgp-php": 20
+        "singpolyma/openpgp-php": 20,
+        "horde/imap-client": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
