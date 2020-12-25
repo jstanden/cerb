@@ -579,6 +579,7 @@ class View_Feed extends C4_AbstractView implements IAbstractView_QuickSearch {
 
 class Context_Feed extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	const ID = CerberusContexts::CONTEXT_FEED;
+	const URI = 'feed';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
@@ -730,8 +731,10 @@ class Context_Feed extends Extension_DevblocksContext implements IDevblocksConte
 		
 		// Token values
 		$token_values = [];
-
-		$token_values['_context'] = CerberusContexts::CONTEXT_FEED;
+		
+		$token_values['_context'] = Context_Feed::ID;
+		$token_values['_type'] = Context_Feed::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Feed item token values

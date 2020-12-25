@@ -1075,6 +1075,7 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 
 class Context_Automation extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_AUTOMATION;
+	const URI = 'automation';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1266,7 +1267,8 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_AUTOMATION;
+		$token_values['_context'] = Context_Automation::ID;
+		$token_values['_type'] = Context_Automation::URI;
 		$token_values['_types'] = $token_types;
 		
 		if($automation) {

@@ -818,6 +818,7 @@ class View_MailTransport extends C4_AbstractView implements IAbstractView_Subtot
 
 class Context_MailTransport extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
+	const URI = 'mail_transport';
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
@@ -999,7 +1000,9 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
+		$token_values['_context'] = Context_MailTransport::ID;
+		$token_values['_type'] = Context_MailTransport::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($mail_transport) {

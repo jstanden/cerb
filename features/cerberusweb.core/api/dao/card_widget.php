@@ -896,6 +896,7 @@ class View_CardWidget extends C4_AbstractView implements IAbstractView_Subtotals
 
 class Context_CardWidget extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_CARD_WIDGET;
+	const URI = 'card_widget';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1069,7 +1070,9 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CARD_WIDGET;
+		$token_values['_context'] = Context_CardWidget::ID;
+		$token_values['_type'] = Context_CardWidget::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($card_widget) {

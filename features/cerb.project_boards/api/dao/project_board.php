@@ -892,6 +892,7 @@ class View_ProjectBoard extends C4_AbstractView implements IAbstractView_Subtota
 
 class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.project.board';
+	const URI = 'project_board';
 	
 	function autocomplete($term, $query=null) {
 		$list = [];
@@ -1052,6 +1053,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		$token_values = [];
 		
 		$token_values['_context'] = Context_ProjectBoard::ID;
+		$token_values['_type'] = Context_ProjectBoard::URI;
 		$token_values['_types'] = $token_types;
 		
 		if($project_board) {

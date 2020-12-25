@@ -1029,6 +1029,7 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 
 class Context_ContextActivityLog extends Extension_DevblocksContext implements IDevblocksContextProfile {
 	const ID = 'cerberusweb.contexts.activity_log';
+	const URI = 'activity_log';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1201,7 +1202,9 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_ACTIVITY_LOG;
+		$token_values['_context'] = Context_ContextActivityLog::ID;
+		$token_values['_type'] = Context_ContextActivityLog::URI;
+		
 		$token_values['_types'] = $token_types;
 
 		// Address token values

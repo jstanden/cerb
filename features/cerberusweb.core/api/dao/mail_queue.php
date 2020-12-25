@@ -1277,6 +1277,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 
 class Context_Draft extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = 'cerberusweb.contexts.mail.draft';
+	const URI = 'draft';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1512,7 +1513,9 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_DRAFT;
+		$token_values['_context'] = Context_Draft::ID;
+		$token_values['_type'] = Context_Draft::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($object) {

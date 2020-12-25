@@ -2468,6 +2468,7 @@ class Model_Application {
 
 class Context_Application extends Extension_DevblocksContext implements IDevblocksContextProfile {
 	const ID = 'cerberusweb.contexts.app';
+	const URI = 'app';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -2583,7 +2584,8 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 		// Token values
 		$token_values = [];
 
-		$token_values['_context'] = CerberusContexts::CONTEXT_APPLICATION;
+		$token_values['_context'] = Context_Application::ID;
+		$token_values['_type'] = Context_Application::URI;
 		$token_values['_types'] = $token_types;
 
 		// Worker token values

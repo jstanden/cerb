@@ -936,6 +936,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 
 class Context_CustomFieldset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.custom_fieldset';
+	const URI = 'custom_fieldset';
 	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $models, 'owner_', $ignore_admins);
@@ -1084,7 +1085,9 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELDSET;
+		$token_values['_context'] = Context_CustomFieldset::ID;
+		$token_values['_type'] = Context_CustomFieldset::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($cfieldset) {

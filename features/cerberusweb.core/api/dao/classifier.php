@@ -897,6 +897,7 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 
 class Context_Classifier extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_CLASSIFIER;
+	const URI = 'classifier';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER, $models);
@@ -1072,7 +1073,9 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CLASSIFIER;
+		$token_values['_context'] = Context_Classifier::ID;
+		$token_values['_type'] = Context_Classifier::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($classifier) {

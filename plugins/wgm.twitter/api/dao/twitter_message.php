@@ -909,6 +909,7 @@ class View_TwitterMessage extends C4_AbstractView implements IAbstractView_Subto
 
 class Context_TwitterMessage extends Extension_DevblocksContext {
 	const ID = 'cerberusweb.contexts.twitter.message';
+	const URI = 'twitter_message';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
@@ -1036,6 +1037,8 @@ class Context_TwitterMessage extends Extension_DevblocksContext {
 		$token_values = [];
 		
 		$token_values['_context'] = Context_TwitterMessage::ID;
+		$token_values['_type'] = Context_TwitterMessage::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($tweet) {

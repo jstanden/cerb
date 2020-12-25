@@ -1,6 +1,7 @@
 <?php
 class Context_Domain extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextBroadcast, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_DOMAIN;
+	const URI = 'domain';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
@@ -210,7 +211,9 @@ class Context_Domain extends Extension_DevblocksContext implements IDevblocksCon
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_DOMAIN;
+		$token_values['_context'] = Context_Domain::ID;
+		$token_values['_type'] = Context_Domain::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Domain token values

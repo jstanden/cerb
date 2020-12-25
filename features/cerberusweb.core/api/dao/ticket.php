@@ -4444,6 +4444,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 class Context_Ticket extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete, IDevblocksContextBroadcast {
 	const ID = 'cerberusweb.contexts.ticket';
+	const URI = 'ticket';
 	
 	static function isReadableByActor($models, $actor) {
 		$group_rosters = DAO_Group::getRosters();
@@ -4882,7 +4883,9 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_TICKET;
+		$token_values['_context'] = Context_Ticket::ID;
+		$token_values['_type'] = Context_Ticket::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Ticket token values

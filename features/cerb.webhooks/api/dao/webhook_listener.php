@@ -755,6 +755,7 @@ class View_WebhookListener extends C4_AbstractView implements IAbstractView_Subt
 
 class Context_WebhookListener extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
+	const URI = 'webhook_listener';
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admin workers can read
@@ -902,7 +903,8 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_WEBHOOK_LISTENER;
+		$token_values['_context'] = Context_WebhookListener::ID;
+		$token_values['_type'] = Context_WebhookListener::URI;
 		$token_values['_types'] = $token_types;
 		
 		if($webhook_listener) {

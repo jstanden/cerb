@@ -1217,6 +1217,7 @@ class Storage_Resource extends Extension_DevblocksStorageSchema {
 
 class Context_Resource extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_RESOURCE;
+	const URI = 'resource';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1389,7 +1390,9 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_RESOURCE;
+		$token_values['_context'] = Context_Resource::ID;
+		$token_values['_type'] = Context_Resource::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($resource) {

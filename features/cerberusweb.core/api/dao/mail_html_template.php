@@ -860,6 +860,7 @@ class View_MailHtmlTemplate extends C4_AbstractView implements IAbstractView_Sub
 
 class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.mail.html_template';
+	const URI = 'html_template';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE, $models);
@@ -1024,7 +1025,9 @@ class Context_MailHtmlTemplate extends Extension_DevblocksContext implements IDe
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE;
+		$token_values['_context'] = Context_MailHtmlTemplate::ID;
+		$token_values['_type'] = Context_MailHtmlTemplate::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($mail_html_template) {

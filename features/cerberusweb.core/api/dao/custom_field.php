@@ -2143,6 +2143,7 @@ class View_CustomField extends C4_AbstractView implements IAbstractView_Subtotal
 
 class Context_CustomField extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+	const URI = 'custom_field';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -2324,7 +2325,9 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_FIELD;
+		$token_values['_context'] = Context_CustomField::ID;
+		$token_values['_type'] = Context_CustomField::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Worker token values

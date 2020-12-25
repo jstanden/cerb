@@ -822,6 +822,7 @@ class View_EmailSignature extends C4_AbstractView implements IAbstractView_Subto
 
 class Context_EmailSignature extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
+	const URI = 'email_signature';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models);
@@ -993,7 +994,9 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
+		$token_values['_context'] = Context_EmailSignature::ID;
+		$token_values['_type'] = Context_EmailSignature::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($email_signature) {

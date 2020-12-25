@@ -707,6 +707,7 @@ class View_WebApiCredentials extends C4_AbstractView implements IAbstractView_Qu
 
 class Context_WebApiCredentials extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+	const URI = 'webapi_credentials';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models, 'worker_');
@@ -855,7 +856,9 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
+		$token_values['_context'] = Context_WebApiCredentials::ID;
+		$token_values['_type'] = Context_WebApiCredentials::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($webapi_credentials) {

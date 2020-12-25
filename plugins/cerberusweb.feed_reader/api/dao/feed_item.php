@@ -974,6 +974,7 @@ class View_FeedItem extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 class Context_FeedItem extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_FEED_ITEM;
+	const URI = 'feed_item';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
@@ -1161,7 +1162,9 @@ class Context_FeedItem extends Extension_DevblocksContext implements IDevblocksC
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_FEED_ITEM;
+		$token_values['_context'] = Context_FeedItem::ID;
+		$token_values['_type'] = Context_FeedItem::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Feed item token values

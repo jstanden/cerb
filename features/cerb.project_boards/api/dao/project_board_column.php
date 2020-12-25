@@ -1023,6 +1023,7 @@ class View_ProjectBoardColumn extends C4_AbstractView implements IAbstractView_S
 
 class Context_ProjectBoardColumn extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.project.board.column';
+	const URI = 'project_board_column';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1175,8 +1176,10 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		$token_values = [];
 		
 		$token_values['_context'] = Context_ProjectBoardColumn::ID;
+		$token_values['_type'] = Context_ProjectBoardColumn::URI;
 		$token_values['_types'] = $token_types;
-		$token_values['board__context'] = 'cerberusweb.contexts.project.board';
+		
+		$token_values['board__context'] = Context_ProjectBoard::ID;
 		
 		if($project_board_column) {
 			$token_values['_loaded'] = true;

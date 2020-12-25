@@ -1088,6 +1088,7 @@ class View_WorkerRole extends C4_AbstractView implements IAbstractView_Subtotals
 
 class Context_WorkerRole extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.role';
+	const URI = 'role';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1231,7 +1232,9 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_ROLE;
+		$token_values['_context'] = Context_WorkerRole::ID;
+		$token_values['_type'] = Context_WorkerRole::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Worker token values

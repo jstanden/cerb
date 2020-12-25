@@ -1186,6 +1186,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 
 class Context_TimeTracking extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.timetracking';
+	const URI = 'time_entry';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
@@ -1381,7 +1382,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$token_values = [];
 		$blank = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_TIMETRACKING;
+		$token_values['_context'] = Context_TimeTracking::ID;
+		$token_values['_type'] = Context_TimeTracking::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if(null != $timeentry) {

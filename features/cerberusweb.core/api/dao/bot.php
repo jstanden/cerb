@@ -1114,6 +1114,7 @@ class View_Bot extends C4_AbstractView implements IAbstractView_Subtotals, IAbst
 
 class Context_Bot extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_BOT;
+	const URI = 'bot';
 	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_BOT, $models, 'owner_', $ignore_admins);
@@ -1341,7 +1342,9 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_BOT;
+		$token_values['_context'] = Context_Bot::ID;
+		$token_values['_type'] = Context_Bot::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($model) {

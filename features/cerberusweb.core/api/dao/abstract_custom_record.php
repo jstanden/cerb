@@ -1233,6 +1233,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		$dao_class = $custom_record->getDaoClass();
 		$model_class = $custom_record->getModelClass();
 		$context_name = self::_getContextName();
+		$context_mft = Extension_DevblocksContext::get($context_name, false);
 		
 		// Polymorph
 		if(is_numeric($abstract_custom_record)) {
@@ -1279,6 +1280,7 @@ class Context_AbstractCustomRecord extends Extension_DevblocksContext implements
 		$token_values = [];
 		
 		$token_values['_context'] = $context_name;
+		$token_values['_type'] = $context_mft->params['alias'];
 		$token_values['_types'] = $token_types;
 		
 		if($abstract_custom_record) {

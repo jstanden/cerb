@@ -884,6 +884,7 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 
 class Context_CustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_CUSTOM_RECORD;
+	const URI = 'custom_record';
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
@@ -1065,7 +1066,9 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CUSTOM_RECORD;
+		$token_values['_context'] = Context_CustomRecord::ID;
+		$token_values['_type'] = Context_CustomRecord::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($custom_record) {

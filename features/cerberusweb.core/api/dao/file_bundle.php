@@ -1030,6 +1030,7 @@ class View_FileBundle extends C4_AbstractView implements IAbstractView_Subtotals
 
 class Context_FileBundle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.file_bundle';
+	const URI = 'file_bundle';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_FILE_BUNDLE, $models);
@@ -1186,7 +1187,9 @@ class Context_FileBundle extends Extension_DevblocksContext implements IDevblock
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_FILE_BUNDLE;
+		$token_values['_context'] = Context_FileBundle::ID;
+		$token_values['_type'] = Context_FileBundle::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($file_bundle) {

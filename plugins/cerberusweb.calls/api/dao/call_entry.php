@@ -915,6 +915,7 @@ class View_CallEntry extends C4_AbstractView implements IAbstractView_Subtotals,
 
 class Context_CallEntry extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge {
 	const ID = 'cerberusweb.contexts.call';
+	const URI = 'call';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
@@ -1102,7 +1103,9 @@ class Context_CallEntry extends Extension_DevblocksContext implements IDevblocks
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CALL;
+		$token_values['_context'] = Context_CallEntry::ID;
+		$token_values['_type'] = Context_CallEntry::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Call token values

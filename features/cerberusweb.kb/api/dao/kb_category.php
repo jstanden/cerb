@@ -622,6 +622,7 @@ class SearchFields_KbCategory extends DevblocksSearchFields {
 
 class Context_KbCategory extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.kb_category';
+	const URI = 'kb_category';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -771,7 +772,9 @@ class Context_KbCategory extends Extension_DevblocksContext implements IDevblock
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_KB_CATEGORY;
+		$token_values['_context'] = Context_KbCategory::ID;
+		$token_values['_type'] = Context_KbCategory::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Token values

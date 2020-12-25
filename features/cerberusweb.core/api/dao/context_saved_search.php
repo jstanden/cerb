@@ -886,6 +886,7 @@ class View_ContextSavedSearch extends C4_AbstractView implements IAbstractView_S
 
 class Context_ContextSavedSearch extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.context.saved.search';
+	const URI = 'saved_search';
 	
 	static function isReadableByActor($models, $actor, $ignore_admins=false) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, self::ID, $models, 'owner_', $ignore_admins);
@@ -1056,7 +1057,9 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = 'cerberusweb.contexts.context.saved.search';
+		$token_values['_context'] = Context_ContextSavedSearch::ID;
+		$token_values['_type'] = Context_ContextSavedSearch::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($context_saved_search) {

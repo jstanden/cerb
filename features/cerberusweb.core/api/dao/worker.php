@@ -3180,6 +3180,7 @@ class DAO_WorkerPref extends Cerb_ORMHelper {
 
 class Context_Worker extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextBroadcast, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.worker';
+	const URI = 'worker';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -3490,7 +3491,9 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		$token_values = [];
 		
 		// Context for lazy-loading
-		$token_values['_context'] = CerberusContexts::CONTEXT_WORKER;
+		$token_values['_context'] = Context_Worker::ID;
+		$token_values['_type'] = Context_Worker::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Worker token values

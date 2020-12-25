@@ -992,6 +992,7 @@ class View_CommunityPortal extends C4_AbstractView implements IAbstractView_Quic
 
 class Context_CommunityTool extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.portal';
+	const URI = 'community_portal';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1154,7 +1155,9 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_PORTAL;
+		$token_values['_context'] = Context_CommunityTool::ID;
+		$token_values['_type'] = Context_CommunityTool::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($community_tool) {

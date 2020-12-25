@@ -901,6 +901,7 @@ class View_GpgPublicKey extends C4_AbstractView implements IAbstractView_Subtota
 
 class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
+	const URI = 'gpg_public_key';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1044,7 +1045,9 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
+		$token_values['_context'] = Context_GpgPublicKey::ID;
+		$token_values['_type'] = Context_GpgPublicKey::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($gpg_public_key) {

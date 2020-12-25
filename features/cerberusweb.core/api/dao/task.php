@@ -1292,6 +1292,7 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 
 class Context_Task extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.task';
+	const URI = 'task';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1528,7 +1529,9 @@ class Context_Task extends Extension_DevblocksContext implements IDevblocksConte
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_TASK;
+		$token_values['_context'] = Context_Task::ID;
+		$token_values['_type'] = Context_Task::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($task) {

@@ -931,6 +931,7 @@ class Model_Bucket {
 
 class Context_Bucket extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_BUCKET;
+	const URI = 'bucket';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1155,9 +1156,11 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
-
-		$token_values['_context'] = CerberusContexts::CONTEXT_BUCKET;
+		$token_values = [];
+		
+		$token_values['_context'] = Context_Bucket::ID;
+		$token_values['_type'] = Context_Bucket::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Token values

@@ -2067,6 +2067,7 @@ class View_Address extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 class Context_Address extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextBroadcast, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.address';
+	const URI = 'address';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -2362,7 +2363,8 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_ADDRESS;
+		$token_values['_context'] = Context_Address::ID;
+		$token_values['_type'] = Context_Address::URI;
 		$token_values['_types'] = $token_types;
 
 		// Address token values

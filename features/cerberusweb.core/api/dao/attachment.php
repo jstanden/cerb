@@ -1651,6 +1651,7 @@ class View_Attachment extends C4_AbstractView implements IAbstractView_Subtotals
 
 class Context_Attachment extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
 	const ID = CerberusContexts::CONTEXT_ATTACHMENT;
+	const URI = 'attachment';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view attachment meta
@@ -1933,7 +1934,9 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_ATTACHMENT;
+		$token_values['_context'] = Context_Attachment::ID;
+		$token_values['_type'] = Context_Attachment::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if(null != $attachment) {

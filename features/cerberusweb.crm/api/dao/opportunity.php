@@ -1164,6 +1164,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 
 class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextBroadcast {
 	const ID = 'cerberusweb.contexts.opportunity';
+	const URI = 'opportunity';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1368,7 +1369,9 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_OPPORTUNITY;
+		$token_values['_context'] = Context_Opportunity::ID;
+		$token_values['_type'] = Context_Opportunity::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Opp token values

@@ -934,6 +934,7 @@ class View_JiraProject extends C4_AbstractView implements IAbstractView_Subtotal
 
 class Context_JiraProject extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.jira.project';
+	const URI = 'jira_project';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
@@ -1110,6 +1111,8 @@ class Context_JiraProject extends Extension_DevblocksContext implements IDevbloc
 		$token_values = [];
 		
 		$token_values['_context'] = Context_JiraProject::ID;
+		$token_values['_type'] = Context_JiraProject::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($jira_project) {

@@ -1077,6 +1077,7 @@ class View_ConnectedAccount extends C4_AbstractView implements IAbstractView_Sub
 
 class Context_ConnectedAccount extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
+	const URI = 'connected_account';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $models);
@@ -1273,7 +1274,9 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
+		$token_values['_context'] = Context_ConnectedAccount::ID;
+		$token_values['_type'] = Context_ConnectedAccount::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($connected_account) {

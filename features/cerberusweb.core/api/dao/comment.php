@@ -1326,6 +1326,7 @@ class View_Comment extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 class Context_Comment extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.comment';
+	const URI = 'comment';
 	
 	// Anyone can read a comment
 	public static function isReadableByActor($models, $actor) {
@@ -1493,7 +1494,9 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_COMMENT;
+		$token_values['_context'] = Context_Comment::ID;
+		$token_values['_type'] = Context_Comment::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($comment) {

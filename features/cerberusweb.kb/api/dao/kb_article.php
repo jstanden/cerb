@@ -1029,6 +1029,7 @@ class Model_KbArticle {
 
 class Context_KbArticle extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.kb_article';
+	const URI = 'kb_article';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read kb articles
@@ -1194,7 +1195,9 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_KB_ARTICLE;
+		$token_values['_context'] = Context_KbArticle::ID;
+		$token_values['_type'] = Context_KbArticle::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Token values

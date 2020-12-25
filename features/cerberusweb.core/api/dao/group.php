@@ -1786,6 +1786,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 
 class Context_Group extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.group';
+	const URI = 'group';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -2081,8 +2082,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		
 		// Token values
 		$token_values = [];
-
-		$token_values['_context'] = CerberusContexts::CONTEXT_GROUP;
+		
+		$token_values['_context'] = Context_Group::ID;
+		$token_values['_type'] = Context_Group::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Group token values

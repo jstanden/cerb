@@ -872,6 +872,7 @@ class View_PackageLibrary extends C4_AbstractView implements IAbstractView_Subto
 
 class Context_PackageLibrary extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_PACKAGE;
+	const URI = 'package';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1036,7 +1037,9 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_PACKAGE;
+		$token_values['_context'] = Context_PackageLibrary::ID;
+		$token_values['_type'] = Context_PackageLibrary::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($package_library) {

@@ -968,6 +968,7 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 
 class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.workspace.widget';
+	const URI = 'workspace_widget';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $models, 'tab_page_owner_');
@@ -1123,7 +1124,9 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
+		$token_values['_context'] = Context_WorkspaceWidget::ID;
+		$token_values['_type'] = Context_WorkspaceWidget::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Token values

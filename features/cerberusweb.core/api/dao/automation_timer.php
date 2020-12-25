@@ -940,6 +940,7 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 
 class Context_AutomationTimer extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_AUTOMATION_TIMER;
+	const URI = 'automation_timer';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1092,7 +1093,9 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_AUTOMATION_TIMER;
+		$token_values['_context'] = Context_AutomationTimer::ID;
+		$token_values['_type'] = Context_AutomationTimer::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($automation_timer) {

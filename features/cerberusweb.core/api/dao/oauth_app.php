@@ -812,6 +812,7 @@ class View_OAuthApp extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.oauth.app';
+	const URI = 'oauth_app';
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
@@ -981,6 +982,8 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 		$token_values = [];
 		
 		$token_values['_context'] = Context_OAuthApp::ID;
+		$token_values['_type'] = Context_OAuthApp::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($oauth_app) {

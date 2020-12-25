@@ -1714,6 +1714,7 @@ class View_Contact extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 class Context_Contact extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextBroadcast, IDevblocksContextMerge, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_CONTACT;
+	const URI = 'contact';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1983,7 +1984,9 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CONTACT;
+		$token_values['_context'] = Context_Contact::ID;
+		$token_values['_type'] = Context_Contact::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($contact) {

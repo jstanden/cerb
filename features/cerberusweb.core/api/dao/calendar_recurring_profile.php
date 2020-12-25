@@ -1110,6 +1110,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 
 class Context_CalendarRecurringProfile extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.calendar_event.recurring';
+	const URI = 'calendar_event_recurring';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $models, 'calendar_owner_');
@@ -1320,7 +1321,9 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
+		$token_values['_context'] = Context_CalendarRecurringProfile::ID;
+		$token_values['_type'] = Context_CalendarRecurringProfile::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($calendar_recurring_profile) {

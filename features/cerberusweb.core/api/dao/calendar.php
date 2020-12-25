@@ -1260,6 +1260,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 
 class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.calendar';
+	const URI = 'calendar';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CALENDAR, $models);
@@ -1449,7 +1450,9 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CALENDAR;
+		$token_values['_context'] = Context_Calendar::ID;
+		$token_values['_type'] = Context_Calendar::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($calendar) {

@@ -1376,6 +1376,7 @@ class View_Snippet extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 class Context_Snippet extends Extension_DevblocksContext implements IDevblocksContextAutocomplete, IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.snippet';
+	const URI = 'snippet';
 	
 	static function isReadableByActor($models, $actor) {
 		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_SNIPPET, $models);
@@ -1599,7 +1600,9 @@ class Context_Snippet extends Extension_DevblocksContext implements IDevblocksCo
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_SNIPPET;
+		$token_values['_context'] = Context_Snippet::ID;
+		$token_values['_type'] = Context_Snippet::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($snippet) {

@@ -818,6 +818,7 @@ class View_Toolbar extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_TOOLBAR;
+	const URI = 'toolbar';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -976,7 +977,9 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_TOOLBAR;
+		$token_values['_context'] = Context_Toolbar::ID;
+		$token_values['_type'] = Context_Toolbar::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($toolbar) {

@@ -971,6 +971,7 @@ class View_ProfileWidget extends C4_AbstractView implements IAbstractView_Subtot
 
 class Context_ProfileWidget extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_PROFILE_WIDGET;
+	const URI = 'profile_widget';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1125,7 +1126,9 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_PROFILE_WIDGET;
+		$token_values['_context'] = Context_ProfileWidget::ID;
+		$token_values['_type'] = Context_ProfileWidget::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($profile_widget) {

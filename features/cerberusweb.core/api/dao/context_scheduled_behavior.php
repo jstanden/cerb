@@ -1155,6 +1155,7 @@ class View_ContextScheduledBehavior extends C4_AbstractView implements IAbstract
 
 class Context_ContextScheduledBehavior extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerberusweb.contexts.behavior.scheduled';
+	const URI = 'scheduled_behavior';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -1297,7 +1298,9 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
+		$token_values['_context'] = Context_ContextScheduledBehavior::ID;
+		$token_values['_type'] = Context_ContextScheduledBehavior::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($context_scheduled_behavior) {

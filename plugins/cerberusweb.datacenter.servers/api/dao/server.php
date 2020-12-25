@@ -1,6 +1,7 @@
 <?php
 class Context_Server extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextAutocomplete {
 	const ID = CerberusContexts::CONTEXT_SERVER;
+	const URI = 'server';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
@@ -187,7 +188,9 @@ class Context_Server extends Extension_DevblocksContext implements IDevblocksCon
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_SERVER;
+		$token_values['_context'] = Context_Server::ID;
+		$token_values['_type'] = Context_Server::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		// Custom token values

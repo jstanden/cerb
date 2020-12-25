@@ -862,6 +862,7 @@ class View_ConnectedService extends C4_AbstractView implements IAbstractView_Sub
 
 class Context_ConnectedService extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = CerberusContexts::CONTEXT_CONNECTED_SERVICE;
+	const URI = 'connected_service';
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
@@ -1023,7 +1024,9 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = CerberusContexts::CONTEXT_CONNECTED_SERVICE;
+		$token_values['_context'] = Context_ConnectedService::ID;
+		$token_values['_type'] = Context_ConnectedService::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($connected_service) {

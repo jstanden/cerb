@@ -1033,6 +1033,7 @@ class View_Mailbox extends C4_AbstractView implements IAbstractView_Subtotals, I
 
 class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.mailbox';
+	const URI = 'mailbox';
 	
 	static function isReadableByActor($models, $actor) {
 		// Only admins can read
@@ -1261,8 +1262,10 @@ class Context_Mailbox extends Extension_DevblocksContext implements IDevblocksCo
 
 		// Token values
 		$token_values = [];
-
-		$token_values['_context'] = CerberusContexts::CONTEXT_MAILBOX;
+		
+		$token_values['_context'] = Context_Mailbox::ID;
+		$token_values['_type'] = Context_Mailbox::URI;
+		
 		$token_values['_types'] = $token_types;
 
 		if($mailbox) {

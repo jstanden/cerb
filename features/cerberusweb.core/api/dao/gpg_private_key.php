@@ -793,6 +793,7 @@ class View_GpgPrivateKey extends C4_AbstractView implements IAbstractView_Subtot
 
 class Context_GpgPrivateKey extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = 'cerb.contexts.gpg.private.key';
+	const URI = 'gpg_private_key';
 	
 	static function isReadableByActor($models, $actor) {
 		return self::isWriteableByActor($models, $actor);
@@ -942,6 +943,8 @@ class Context_GpgPrivateKey extends Extension_DevblocksContext implements IDevbl
 		$token_values = [];
 		
 		$token_values['_context'] = Context_GpgPrivateKey::ID;
+		$token_values['_type'] = Context_GpgPrivateKey::URI;
+		
 		$token_values['_types'] = $token_types;
 		
 		if($gpg_private_key) {
