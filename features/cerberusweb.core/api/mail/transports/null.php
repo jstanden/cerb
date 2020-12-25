@@ -45,8 +45,8 @@ class CerbMailTransport_Null extends Extension_MailTransport {
 		static $mailer = null;
 		
 		if(is_null($mailer)) {
-			$null = Swift_NullTransport::newInstance();
-			$mailer = Swift_Mailer::newInstance($null);
+			$null = new Swift_NullTransport();
+			$mailer = new Swift_Mailer($null);
 			
 			$this->_logger = new Cerb_SwiftPlugin_TransportExceptionLogger();
 			$mailer->registerPlugin($this->_logger);

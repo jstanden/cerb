@@ -150,7 +150,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 					break;
 			}
 			
-			$smtp = Swift_SmtpTransport::newInstance($smtp_host, $smtp_port, $smtp_enc);
+			$smtp = new Swift_SmtpTransport($smtp_host, $smtp_port, $smtp_enc);
 			$smtp->setTimeout($smtp_timeout);
 			
 			// Is XOAUTH2 enabled?
@@ -182,7 +182,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 				$smtp->setPassword($smtp_pass);
 			}
 			
-			$mailer = Swift_Mailer::newInstance($smtp);
+			$mailer = new Swift_Mailer($smtp);
 			$mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($smtp_max_sends, 1));
 			
 			$this->_logger = new Cerb_SwiftPlugin_TransportExceptionLogger();

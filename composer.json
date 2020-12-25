@@ -33,7 +33,7 @@
 		"ext-simplexml": "*",
 		"ext-yaml": "*",
 		"smarty/smarty" : "^3.1",
-		"swiftmailer/swiftmailer" : "^5.4",
+		"swiftmailer/swiftmailer" : "^6.0",
 		"dragonmantank/cron-expression": "^2.3",
 		"onelogin/php-saml" : "^3.0",
 		"defuse/php-encryption" : "^2.1",

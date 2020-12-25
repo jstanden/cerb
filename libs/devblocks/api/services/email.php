@@ -31,8 +31,8 @@ class _DevblocksEmailManager {
 	 *
 	 * @return Swift_Message
 	 */
-	function createMessage() {
-		return Swift_Message::newInstance();
+	function createMessage() : Swift_Message {
+		return new Swift_Message();
 	}
 	
 	function send(Swift_Message $message) {

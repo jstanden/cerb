@@ -40,6 +40,9 @@
  *	 Founders at Webgroup Media LLC; Developers of Cerb
  */
 
+use Egulias\EmailValidator\EmailValidator;
+use Egulias\EmailValidator\Validation\RFCValidation;
+
 /**
  * Based on: https://raw.githubusercontent.com/Mailgarant/switfmailer-openpgp/master/OpenPGPSigner.php
  *
@@ -434,7 +437,8 @@ class CerberusMail {
 								
 								if($mailbox && $host) {
 									// Validate
-									if(Swift_Validate::email($email)) {
+									$validator = new EmailValidator();
+									if($validator->isValid($email, new RFCValidation())) {
 										$addresses[$email] = [
 											'full_email' => self::writeRfcAddress($email, $personal),
 											'email' => $email,
@@ -2799,7 +2803,7 @@ class CerberusMail {
 									if(!in_array($file_id, $exclude_files))
 										$embedded_files[] = $file_id;
 									
-									$cid = $mail->embed(Swift_Image::newInstance($file->getFileContents(), $file->name, $file->mime_type));
+									$cid = $mail->embed(new Swift_Image($file->getFileContents(), $file->name, $file->mime_type));
 									return sprintf('"%s"', $cid);
 								}
 							}
