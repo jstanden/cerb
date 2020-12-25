@@ -91,7 +91,7 @@ class DevblocksUiEventHandler {
 		return $results;
 	}
 	
-	function handleOnce(string $trigger, array $handlers, array $initial_state, &$error=null, callable $behavior_callback=null, &$handler=null) {
+	function handleOnce(string $trigger, array $handlers, array $initial_state, &$error=null, ?callable $behavior_callback=null, &$handler=null) {
 		$automator = DevblocksPlatform::services()->automation();
 		
 		foreach($handlers as $handler) {
@@ -152,19 +152,61 @@ class DevblocksUiEventHandler {
 		return null;
 	}
 	
-	function handleEach(string $trigger, array $handlers, $initial_state, &$error=null, callable $behavior_callback=null) {
+	/**
+	 * @param string $trigger
+	 * @param array $handlers
+	 * @param array $initial_state
+	 * @param null $error
+	 * @param null $behavior_callback
+	 * @return DevblocksDictionaryDelegate|null
+	 */
+	function handleUntilReturn(string $trigger, array $handlers, array $initial_state, &$error=null, $behavior_callback=null) : ?DevblocksDictionaryDelegate {
+		// Loop handlers until one exits as return
+		$results = $this->handleEach(
+			$trigger,
+			$handlers,
+			$initial_state,
+			$error,
+			function(DevblocksDictionaryDelegate $result) {
+				return 'return' !== $result->getKeyPath('__exit');
+			},
+			$behavior_callback
+		);
+		
+		// If no results, abort
+		if(null == ($result = array_pop($results)))
+			return null;
+		
+		// If the final automation exited as `return`, return it
+		if('return' === $result->getKeyPath('__exit'))
+			return $result;
+		
+		// Otherwise null
+		return null;
+	}
+	
+	function handleEach(string $trigger, array $handlers, array $initial_state, &$error=null, ?callable $continue_callback=null, ?callable $behavior_callback=null) : array {
 		$results = [];
 		
+		// By default, always continue through all handlers
+		if(is_null($continue_callback))
+			$continue_callback = fn(DevblocksDictionaryDelegate $result, array $handler) => true;
+		
 		// [TODO] Preload automations?
-		// [TODO] Can these forward propagate to communicate with each other? (e.g. mail rules)
 		
 		foreach($handlers as $handler_key => $handler) {
 			$result = $this->handleOnce($trigger, [$handler], $initial_state, $error, $behavior_callback);
 			
-			if(is_null($result))
+			if(!($result instanceof DevblocksDictionaryDelegate))
 				continue;
 			
 			$results[$handler_key] = $result;
+			
+			if(is_callable($continue_callback)) {
+				// Does the callback say to exit?
+				if(!$continue_callback($result, $handler))
+					return $results;
+			}
 		}
 		
 		return $results;

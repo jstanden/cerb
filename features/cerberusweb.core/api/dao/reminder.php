@@ -514,6 +514,7 @@ class Model_Reminder {
 			$handlers,
 			$event_state,
 			$error,
+			null,
 			function(Model_TriggerEvent $behavior, array $handler) use ($model) {
 				if($behavior->event_point != Event_ReminderMacro::ID)
 					return false;

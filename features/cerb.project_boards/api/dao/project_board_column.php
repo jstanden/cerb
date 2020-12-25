@@ -661,6 +661,7 @@ class Model_ProjectBoardColumn {
 			$handlers,
 			$initial_state,
 			$error,
+			null,
 			function(Model_TriggerEvent $behavior, array $handler) use ($context, $context_id) {
 				$event_ext = $behavior->getEvent();
 				
