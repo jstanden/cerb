@@ -24,6 +24,10 @@
 		{
 			"type": "vcs",
 			"url": "https://github.com/jstanden/horde-imap"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/jstanden/Twig"
 		}
 	],
 	"require" : {
@@ -50,6 +54,7 @@
 		"erusev/parsedown": "^1.7",
 		"erusev/parsedown-extra": "^0.7.1",
 		"donatj/phpuseragentparser": "^1.0",
+		"twig/twig" : "dev-3.x-cerb",
 		"singpolyma/openpgp-php": "dev-cerb",
 		"horde/imap-client": "dev-main"
 	},
