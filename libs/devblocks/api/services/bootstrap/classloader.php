@@ -155,8 +155,6 @@ class _DevblocksClassLoadManager {
 			'S3'
 		));
 		
-		$this->registerPsr4Path(DEVBLOCKS_PATH . 'libs/Twig/', 'Twig\\');
-		
 		return true;
 	}
 	
