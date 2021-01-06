@@ -943,14 +943,24 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 	 * @return DevblocksDictionaryDelegate|null
 	 */
 	public static function getDictionaryFromModel($model, string $context, array $keys=[]) {
+		$model_id = null;
+		
+		if(is_array($model) && array_key_exists('id', $model)) {
+			$model_id = $model['id'];
+		} elseif(is_object($model)) {
+			$model_id = $model->id;
+		} else {
+			return null;
+		}
+		
 		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(
-			[$model->id => $model],
+			[$model_id => $model],
 			$context,
 			$keys
 		);
 		
-		if(array_key_exists($model->id, $dicts))
-			return $dicts[$model->id];
+		if(array_key_exists($model_id, $dicts))
+			return $dicts[$model_id];
 	
 		return null;
 	}
