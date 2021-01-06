@@ -3795,7 +3795,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.behavior.recurrent</id>
-			<name>Recurrent behavior</name>
+			<name>Recurrent behavior (Legacy)</name>
 			<class>
 				<file>api/events/recurrent/recurrent_behavior.php</file>
 				<name>Event_RecurrentBehavior</name>
@@ -3816,7 +3816,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.interactions.get.worker</id>
-			<name>Get chat interactions for worker</name>
+			<name>Get chat interactions for worker (Legacy)</name>
 			<class>
 				<file>api/events/interaction/get_interactions_for_worker.php</file>
 				<name>Event_GetInteractionsForWorker</name>
@@ -3837,7 +3837,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.interaction.chat.worker</id>
-			<name>Handle chat interaction with worker</name>
+			<name>Handle chat interaction with worker (Legacy)</name>
 			<class>
 				<file>api/events/interaction/new_interaction_chat_worker.php</file>
 				<name>Event_NewInteractionChatWorker</name>
@@ -3862,7 +3862,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.message.chat.worker</id>
-			<name>Chat with worker</name>
+			<name>Chat with worker (Legacy)</name>
 			<class>
 				<file>api/events/interaction/new_message_chat_worker.php</file>
 				<name>Event_NewMessageChatWorker</name>
@@ -3887,7 +3887,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.dashboard.widget.render</id>
-			<name>Dashboard render widget</name>
+			<name>Dashboard render widget (Legacy)</name>
 			<class>
 				<file>api/events/dashboards/dashboard_widget_render.php</file>
 				<name>Event_DashboardWidgetRender</name>
@@ -3907,7 +3907,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.dashboard.widget.get_metric</id>
-			<name>Dashboard get metric for widget</name>
+			<name>Dashboard get metric for widget (Legacy)</name>
 			<class>
 				<file>api/events/dashboards/dashboard_widget_get_metric.php</file>
 				<name>Event_DashboardWidgetGetMetric</name>
@@ -3927,7 +3927,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.data.query.datasource</id>
-			<name>Data query datasource</name>
+			<name>Data query datasource (Legacy)</name>
 			<class>
 				<file>api/events/datasource/data_query_datasource.php</file>
 				<name>Event_DataQueryDatasource</name>
@@ -3939,7 +3939,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.app</id>
-			<name>Filter new incoming message</name>
+			<name>Filter new incoming message (Legacy)</name>
 			<class>
 				<file>api/events/app/mail_received_by_app.php</file>
 				<name>Event_MailReceivedByApp</name>
@@ -3957,7 +3957,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.comment.ticket.group</id>
-			<name>New comment on ticket in group</name>
+			<name>New comment on ticket in group (Legacy)</name>
 			<class>
 				<file>api/events/group/comment_on_ticket_in_group.php</file>
 				<name>Event_CommentOnTicketInGroup</name>
@@ -3974,7 +3974,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.assigned.group</id>
-			<name>Ticket assigned in group</name>
+			<name>Ticket assigned in group (Legacy)</name>
 			<class>
 				<file>api/events/group/mail_assigned_in_group.php</file>
 				<name>Event_MailAssignedInGroup</name>
@@ -3991,7 +3991,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.closed.group</id>
-			<name>Ticket closed in group</name>
+			<name>Ticket closed in group (Legacy)</name>
 			<class>
 				<file>api/events/group/mail_closed_in_group.php</file>
 				<name>Event_MailClosedInGroup</name>
@@ -4008,7 +4008,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.moved.group</id>
-			<name>Ticket moved in group</name>
+			<name>Ticket moved in group (Legacy)</name>
 			<class>
 				<file>api/events/group/mail_moved_to_group.php</file>
 				<name>Event_MailMovedToGroup</name>
@@ -4025,7 +4025,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received</id>
-			<name>New message added to ticket</name>
+			<name>New message added to ticket (Legacy)</name>
 			<class>
 				<file>api/events/group/mail_received.php</file>
 				<name>Event_MailReceived</name>
@@ -4043,7 +4043,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.group</id>
-			<name>New message added to ticket in group</name>
+			<name>New message added to ticket in group (Legacy)</name>
 			<class>
 				<file>api/events/group/mail_received_by_group.php</file>
 				<name>Event_MailReceivedByGroup</name>
@@ -4060,7 +4060,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.after.sent</id>
-			<name>After message sent from worker</name>
+			<name>After message sent from worker (Legacy)</name>
 			<class>
 				<file>api/events/app/mail_after_sent.php</file>
 				<name>Event_MailAfterSent</name>
@@ -4078,7 +4078,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.after.sent.group</id>
-			<name>After message sent from group member</name>
+			<name>After message sent from group member (Legacy)</name>
 			<class>
 				<file>api/events/group/mail_after_sent_by_group.php</file>
 				<name>Event_MailAfterSentByGroup</name>
@@ -4095,7 +4095,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.before.sent</id>
-			<name>Before message sent by worker</name>
+			<name>Before message sent by worker (Legacy)</name>
 			<class>
 				<file>api/events/app/mail_before_sent.php</file>
 				<name>Event_MailBeforeSent</name>
@@ -4113,7 +4113,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.sent.group</id>
-			<name>Before message sent by group member</name>
+			<name>Before message sent by group member (Legacy)</name>
 			<class>
 				<file>api/events/group/mail_before_sent_by_group.php</file>
 				<name>Event_MailBeforeSentByGroup</name>
@@ -4130,7 +4130,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.form.interaction.worker</id>
-			<name>Form interaction</name>
+			<name>Form interaction (Legacy)</name>
 			<class>
 				<file>api/events/form_interaction/form_interaction_worker.php</file>
 				<name>Event_FormInteractionWorker</name>
@@ -4151,7 +4151,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.ticket.viewed.worker</id>
-			<name>Ticket profile viewed by a worker</name>
+			<name>Ticket profile viewed by a worker (Legacy)</name>
 			<class>
 				<file>api/events/app/ticket_viewed_by_worker.php</file>
 				<name>Event_TicketViewedByWorker</name>
@@ -4170,7 +4170,7 @@
 		<!-- Deprecated -->
 		<extension point="devblocks.event">
 			<id>event.task.created.worker</id>
-			<name>New task created</name>
+			<name>New task created (Legacy)</name>
 			<class>
 				<file>api/events/app/task_created_by_worker.php</file>
 				<name>Event_TaskCreatedByWorker</name>
@@ -4189,7 +4189,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.record.changed</id>
-			<name>Record changed</name>
+			<name>Record changed (Legacy)</name>
 			<class>
 				<file>api/events/app/record_changed.php</file>
 				<name>Event_RecordChanged</name>
@@ -4208,7 +4208,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.address</id>
-			<name>Record custom behavior on email address</name>
+			<name>Record custom behavior on email address (Legacy)</name>
 			<class>
 				<file>api/events/macro/address_macro.php</file>
 				<name>Event_AddressMacro</name>
@@ -4234,7 +4234,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.api.custom_request</id>
-			<name>Custom API request</name>
+			<name>Custom API request (Legacy)</name>
 			<class>
 				<file>api/events/api/api_request.php</file>
 				<name>Event_ApiRequest</name>
@@ -4253,7 +4253,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.calendar</id>
-			<name>Record custom behavior on calendar</name>
+			<name>Record custom behavior on calendar (Legacy)</name>
 			<class>
 				<file>api/events/macro/calendar_macro.php</file>
 				<name>Event_CalendarMacro</name>
@@ -4279,7 +4279,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.calendar_event</id>
-			<name>Record custom behavior on calendar event</name>
+			<name>Record custom behavior on calendar event (Legacy)</name>
 			<class>
 				<file>api/events/macro/calendar_event_macro.php</file>
 				<name>Event_CalendarEventMacro</name>
@@ -4305,7 +4305,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.contact</id>
-			<name>Record custom behavior on contact</name>
+			<name>Record custom behavior on contact (Legacy)</name>
 			<class>
 				<file>api/events/macro/contact_macro.php</file>
 				<name>Event_ContactMacro</name>
@@ -4331,7 +4331,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.group</id>
-			<name>Record custom behavior on group</name>
+			<name>Record custom behavior on group (Legacy)</name>
 			<class>
 				<file>api/events/macro/group_macro.php</file>
 				<name>Event_GroupMacro</name>
@@ -4357,7 +4357,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.message</id>
-			<name>Record custom behavior on message</name>
+			<name>Record custom behavior on message (Legacy)</name>
 			<class>
 				<file>api/events/macro/message_macro.php</file>
 				<name>Event_MessageMacro</name>
@@ -4383,7 +4383,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.notification</id>
-			<name>Record custom behavior on notification</name>
+			<name>Record custom behavior on notification (Legacy)</name>
 			<class>
 				<file>api/events/macro/notification_macro.php</file>
 				<name>Event_NotificationMacro</name>
@@ -4409,7 +4409,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.org</id>
-			<name>Record custom behavior on organization</name>
+			<name>Record custom behavior on organization (Legacy)</name>
 			<class>
 				<file>api/events/macro/org_macro.php</file>
 				<name>Event_OrgMacro</name>
@@ -4435,7 +4435,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.reminder</id>
-			<name>Record custom behavior on reminder</name>
+			<name>Record custom behavior on reminder (Legacy)</name>
 			<class>
 				<file>api/events/macro/reminder_macro.php</file>
 				<name>Event_ReminderMacro</name>
@@ -4461,7 +4461,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.task</id>
-			<name>Record custom behavior on task</name>
+			<name>Record custom behavior on task (Legacy)</name>
 			<class>
 				<file>api/events/macro/task_macro.php</file>
 				<name>Event_TaskMacro</name>
@@ -4487,7 +4487,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.ticket</id>
-			<name>Record custom behavior on ticket</name>
+			<name>Record custom behavior on ticket (Legacy)</name>
 			<class>
 				<file>api/events/macro/ticket_macro.php</file>
 				<name>Event_TicketMacro</name>
@@ -4513,7 +4513,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.bot</id>
-			<name>Record custom behavior on bot</name>
+			<name>Record custom behavior on bot (Legacy)</name>
 			<class>
 				<file>api/events/macro/bot_macro.php</file>
 				<name>Event_BotMacro</name>
@@ -4539,7 +4539,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.worker</id>
-			<name>Record custom behavior on worker</name>
+			<name>Record custom behavior on worker (Legacy)</name>
 			<class>
 				<file>api/events/macro/worker_macro.php</file>
 				<name>Event_WorkerMacro</name>
@@ -4565,7 +4565,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.mail.received.watcher</id>
-			<name>New message on a watched ticket</name>
+			<name>New message on a watched ticket (Legacy)</name>
 			<class>
 				<file>api/events/worker/mail_received_by_watcher.php</file>
 				<name>Event_MailReceivedByWatcher</name>
@@ -4582,7 +4582,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.notification.received.worker</id>
-			<name>New notification for me</name>
+			<name>New notification for me (Legacy)</name>
 			<class>
 				<file>api/events/worker/notification_received_by_worker.php</file>
 				<name>Event_NotificationReceivedByWorker</name>
@@ -4599,7 +4599,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.ui.worklist.render.worker</id>
-			<name>Record worklist rendered</name>
+			<name>Record worklist rendered (Legacy)</name>
 			<class>
 				<file>api/events/ui/ui_worklist_render_by_worker.php</file>
 				<name>Event_UiWorklistRenderByWorker</name>
@@ -4618,7 +4618,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.comment.created.worker</id>
-			<name>Record commented on</name>
+			<name>Record commented on (Legacy)</name>
 			<class>
 				<file>api/events/app/comment_created_by_worker.php</file>
 				<name>Event_CommentCreatedByWorker</name>
@@ -7659,7 +7659,7 @@
 		
 		<extension point="cerberusweb.ui.workspace.widget.datasource">
 			<id>core.workspace.widget.datasource.bot</id>
-			<name>Bot Behavior</name>
+			<name>Bot Behavior (Legacy)</name>
 			<class>
 				<file>api/uri/internal/dashboards/widget_datasources.php</file>
 				<name>WorkspaceWidgetDatasource_BotBehavior</name>

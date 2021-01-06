@@ -108,8 +108,10 @@ Click on the <span class="glyphicons glyphicons-circle-plus"></span> icon below 
 			{elseif $column == "t_event_point"}
 				<td>
 					{if isset($events.{$result.t_event_point})}
-					{$event = $events.{$result.t_event_point}}
-					{$event->name}
+						{$event = $events.{$result.t_event_point}}
+						{$event->name}
+					{else}
+						{$result.t_event_point}
 					{/if}
 				</td>
 			{elseif in_array($column, ["t_is_disabled"])}

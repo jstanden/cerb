@@ -84,7 +84,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.webhook.received</id>
-			<name>Webhook received (DEPRECATED)</name>
+			<name>Webhook received (Legacy)</name>
 			<class>
 				<file>api/events/webhook_received.php</file>
 				<name>Event_WebhookReceived</name>

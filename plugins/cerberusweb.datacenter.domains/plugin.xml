@@ -123,7 +123,7 @@
 
 		<extension point="devblocks.event">
 			<id>event.macro.domain</id>
-			<name>Record custom behavior on domain</name>
+			<name>Record custom behavior on domain (Legacy)</name>
 			<class>
 				<file>api/events/domain_macro.php</file>
 				<name>Event_DomainMacro</name>

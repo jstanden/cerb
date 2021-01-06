@@ -127,7 +127,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.call</id>
-			<name>Record custom behavior on call</name>
+			<name>Record custom behavior on call (Legacy)</name>
 			<class>
 				<file>api/events/macro/call_macro.php</file>
 				<name>Event_CallMacro</name>

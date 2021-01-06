@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
 	<id>cerberusweb.support_center</id>
-	<name>Support Center (Deprecated)</name>
+	<name>Support Center (Legacy)</name>
 	<description>Adds a Support Center community portal for public-facing support.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>10.0.0</version>
@@ -282,7 +282,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.contact.registered.sc</id>
-			<name>New contact registered in Support Center</name>
+			<name>New contact registered in Support Center (Legacy)</name>
 			<class>
 				<file>api/events/contact_registered_in_sc.php</file>
 				<name>Event_ContactRegisteredInSupportCenter</name>

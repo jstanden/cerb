@@ -52,7 +52,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.interaction.chat.portal</id>
-			<name>Handle chat interaction with portal visitor</name>
+			<name>Handle chat interaction with portal visitor (Legacy)</name>
 			<class>
 				<file>api/events/new_interaction_chat_portal.php</file>
 				<name>Event_NewInteractionChatPortal</name>
@@ -73,7 +73,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.message.chat.portal</id>
-			<name>Chat with portal visitor</name>
+			<name>Chat with portal visitor (Legacy)</name>
 			<class>
 				<file>api/events/new_message_chat_portal.php</file>
 				<name>Event_NewMessageChatPortal</name>

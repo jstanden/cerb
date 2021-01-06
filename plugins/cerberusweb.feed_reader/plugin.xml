@@ -174,7 +174,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.feeditem</id>
-			<name>Record custom behavior on feed item</name>
+			<name>Record custom behavior on feed item (Legacy)</name>
 			<class>
 				<file>api/events/feeditem_macro.php</file>
 				<name>Event_FeedItemMacro</name>
