@@ -182,6 +182,86 @@ if(!isset($tables['automation_event'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['automation_event'] = 'automation_event';
+	
+	// =====================
+	// Insert default events
+	
+	// cerb.trigger.mail.filter
+	
+	$automations_kata = '';
+	
+	$sql = "SELECT id, title, uri, is_disabled FROM trigger_event WHERE event_point = 'event.mail.received.app' ORDER BY priority, id";
+	$behaviors = $db->GetArrayMaster($sql);
+	
+	if(is_iterable($behaviors)) {
+		foreach($behaviors as $behavior) {
+			$automations_kata .= sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%d\n%s\n",
+				$behavior['title'],
+				$behavior['uri'] ?? uniqid(),
+				$behavior['id'],
+				$behavior['is_disabled'] ? "  disabled@bool: yes\n" : "  # disabled@bool: yes\n",
+			);
+		}
+	}
+	
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, description, automations_kata, updated_at) VALUES (%s,%s,%s,%d)',
+		$db->qstr('cerb.trigger.mail.filter'),
+		$db->qstr('Modify or reject inbound mail before it\'s accepted'),
+		$db->qstr($automations_kata),
+		time()
+	));
+	
+	// cerb.trigger.mail.route
+	
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, description, updated_at) VALUES (%s,%s,%d)',
+		$db->qstr('cerb.trigger.mail.route'),
+		$db->qstr('Route accepted inbound mail to a group inbox'),
+		time()
+	));
+	
+	// cerb.trigger.record.changed
+	
+	$automations_kata = '';
+	
+	$behaviors = $db->GetArrayMaster("SELECT id, title, is_disabled, event_params_json, uri FROM trigger_event WHERE event_point = 'event.record.changed' ORDER BY priority, id");
+	
+	if(is_iterable($behaviors)) {
+		foreach($behaviors as $behavior) {
+			$behavior_params = json_decode($behavior['event_params_json'], true);
+			
+			$automations_kata .= sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%s\n  disabled@bool: %s%s\n\n",
+				$behavior['title'],
+				uniqid(),
+				$behavior['uri'] ?: $behavior['id'],
+				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
+				sprintf("{{record__context != '%s' ? 'yes'}}", $behavior_params['context'])
+			);
+		}
+	}
+	
+	$behaviors = $db->GetArrayMaster("SELECT id, title, is_disabled, event_params_json, uri FROM trigger_event WHERE event_point = 'event.task.created.worker' ORDER BY priority, id");
+	
+	if(is_iterable($behaviors)) {
+		foreach($behaviors as $behavior) {
+			$behavior_params = json_decode($behavior['event_params_json'], true);
+			
+			$automations_kata .= sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%s\n  disabled@bool: %s%s\n\n",
+				$behavior['title'],
+				uniqid(),
+				$behavior['uri'] ?: $behavior['id'],
+				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
+				"{{record__type == 'task' and not was_record_title and not was_record_created ? 'no' : 'yes'}}"
+			);
+		}
+	}
+	
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, description, automations_kata, updated_at) VALUES (%s,%s,%s,%d)',
+		$db->qstr('cerb.trigger.record.changed'),
+		$db->qstr('React to changes in record field values'),
+		$db->qstr($automations_kata),
+		time()
+	));
+	
 }
 
 // ===========================================================================
