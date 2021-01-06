@@ -481,10 +481,11 @@ class Model_AutomationEvent {
 	
 	/**
 	 * @param DevblocksDictionaryDelegate $dict
+	 * @param string $error
 	 * @return array|false
 	 */
-	function getKata(DevblocksDictionaryDelegate $dict) {
-		return DevblocksPlatform::services()->ui()->toolbar()->parse($this->automations_kata, $dict);
+	function getKata(DevblocksDictionaryDelegate $dict, &$error=null) {
+		return DevblocksPlatform::services()->ui()->eventHandler()->parse($this->automations_kata, $dict, $error);
 	}
 };
 

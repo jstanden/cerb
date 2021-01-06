@@ -140,7 +140,6 @@ class DevblocksUiEventHandler {
 					}
 					
 					if($behavior instanceof Model_TriggerEvent) {
-						$handler = $behavior;
 						return $behavior_callback($behavior, $handler);
 					}
 					
