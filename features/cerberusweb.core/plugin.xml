@@ -4734,6 +4734,22 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.record.changed</id>
+			<name>record.changed</name>
+			<class>
+				<file>api/automations/triggers/record.changed.php</file>
+				<name>AutomationTrigger_RecordChanged</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.resource.get</id>
 			<name>resource.get</name>
 			<class>

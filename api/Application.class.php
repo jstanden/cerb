@@ -2352,6 +2352,9 @@ class CerberusContexts {
 		if(empty(self::$_context_checkpoints))
 			return;
 
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		$record_changed_events = DAO_AutomationEvent::getByName('cerb.trigger.record.changed');
+		
 		foreach(self::$_context_checkpoints as $context => &$old_models) {
 
 			// Do this in batches of 100 in order to save memory
@@ -2371,14 +2374,80 @@ class CerberusContexts {
 						$actor = $old_model['_actor'];
 						unset($old_model['_actor']);
 					}
-
-					Event_RecordChanged::trigger($context, $new_model, $old_model, $actor);
 					
-					// Trigger specific context events
-					if($context == CerberusContexts::CONTEXT_TASK) {
-						if(!$old_model['title'] && !$old_model['created_at']) {
-							Event_TaskCreatedByWorker::trigger($new_model->id, null);
-						}
+					// Trigger automations
+					if($record_changed_events) {
+						$dict_new = DevblocksDictionaryDelegate::getDictionaryFromModel($new_model, $context);
+						$dict_old = DevblocksDictionaryDelegate::getDictionaryFromModel($old_model, $context, ['custom_']);
+						
+						$initial_state = array_merge(
+							$dict_new->getDictionary(null, false, 'record_'),
+							$dict_old->getDictionary(null, false, 'was_record_')
+						);
+						
+						$initial_state['actor__context'] = $actor['context'];
+						$initial_state['actor_id'] = $actor['context_id'];
+						
+						$dict = DevblocksDictionaryDelegate::instance($initial_state);
+						
+						$error = null;
+						
+						$handlers = $record_changed_events->getKata($dict);
+						
+						$event_handler->handleEach(
+							AutomationTrigger_RecordChanged::ID,
+							$handlers,
+							$initial_state,
+							$error,
+							null,
+							function(Model_TriggerEvent $behavior, array $handler) use ($context, $new_model, $old_model, $actor) {
+								if($behavior->event_point == Event_RecordChanged::ID) {
+									$event_model = new Model_DevblocksEvent(
+										Event_RecordChanged::ID,
+										[
+											'context' => $context,
+											'new_model' => $new_model,
+											'old_model' => $old_model,
+											'actor' => $actor,
+										]
+									);
+									
+								} else if($behavior->event_point == Event_TaskCreatedByWorker::ID) {
+									$event_model = new Model_DevblocksEvent(
+										Event_TaskCreatedByWorker::ID,
+										[
+											'context_id' => $new_model->id,
+											'worker_id' => null,
+										]
+									);
+									
+								} else {
+									return false;
+								}
+								
+								if($behavior->is_disabled || false == ($event = $behavior->getEvent()))
+									return false;
+								
+								$event->setEvent($event_model, $behavior);
+								
+								$values = $event->getValues();
+								
+								// Inputs
+								
+								if(array_key_exists('inputs', $handler['data'])) {
+									foreach($handler['data']['inputs'] as $k => $v) {
+										if(DevblocksPlatform::strStartsWith($k, 'var_'))
+											$values[$k] = $v;
+									}
+								}
+								
+								// Run behavior
+								
+								$dict = DevblocksDictionaryDelegate::instance($values);
+								
+								return $behavior->runDecisionTree($dict, false, $event);
+							}
+						);
 					}
 				}
 			}

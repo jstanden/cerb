@@ -15,33 +15,12 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/** @deprecated */
 class Event_RecordChanged extends AbstractEvent_Record {
 	const ID = 'event.record.changed';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
 		$this->_event_id = self::ID;
-	}
-	
-	static function trigger($context, $new_model, $old_model, $actor=null, $variables=[]) {
-		$events = DevblocksPlatform::services()->event();
-		
-		$event_model = new Model_DevblocksEvent(
-			self::ID,
-			[
-				'context' => $context,
-				'new_model' => $new_model,
-				'old_model' => $old_model,
-				'actor' => $actor,
-				'_variables' => $variables,
-				'_whisper' => [
-					'event_params' => [
-						'context' => $context,
-					],
-				],
-			]
-		);
-		
-		return $events->trigger($event_model);
 	}
 };

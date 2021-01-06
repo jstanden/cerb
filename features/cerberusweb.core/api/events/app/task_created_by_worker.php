@@ -15,24 +15,12 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/** @deprecated */
 class Event_TaskCreatedByWorker extends AbstractEvent_Task {
 	const ID = 'event.task.created.worker';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
 		$this->_event_id = self::ID;
-	}
-	
-	static function trigger($context_id, $worker_id) {
-		$events = DevblocksPlatform::services()->event();
-		return $events->trigger(
-			new Model_DevblocksEvent(
-				self::ID,
-				array(
-					'context_id' => $context_id,
-					'worker_id' => $worker_id,
-				)
-			)
-		);
 	}
 };
