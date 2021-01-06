@@ -261,9 +261,9 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 			$object = new Model_AutomationEvent();
 			$object->automations_kata = $row['automations_kata'];
 			$object->description = $row['description'];
-			$object->id = $row['id'];
+			$object->id = intval($row['id']);
 			$object->name = $row['name'];
-			$object->updated_at = $row['updated_at'];
+			$object->updated_at = intval($row['updated_at']);
 			$objects[$object->id] = $object;
 		}
 		
@@ -473,11 +473,11 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 };
 
 class Model_AutomationEvent {
-	public string $automations_kata;
-	public string $description;
-	public int $id;
-	public string $name;
-	public int $updated_at;
+	public ?string $automations_kata;
+	public ?string $description;
+	public ?int $id;
+	public ?string $name;
+	public ?int $updated_at;
 	
 	/**
 	 * @param DevblocksDictionaryDelegate $dict

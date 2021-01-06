@@ -61,7 +61,6 @@ abstract class DevblocksORMHelper {
 				}
 				
 				return true;
-				break;
 		}
 		
 		return false;

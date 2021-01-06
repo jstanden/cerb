@@ -330,6 +330,7 @@ if(!isset($tables['automation_log'])) {
 list($columns,) = $db->metaTable('email_signature');
 
 if(array_key_exists('is_default', $columns)) {
+	/** @noinspection SqlResolve */
 	$sql = "ALTER TABLE email_signature DROP COLUMN is_default";
 	$db->ExecuteMaster($sql);
 }
@@ -351,6 +352,7 @@ if(array_key_exists('params_json', $columns)) {
 	
 	$behaviors = array_column($behaviors, 'title', 'id');
 	
+	/** @noinspection SqlResolve */
 	$sql = "select id, params_json from reminder where is_closed = 0 and params_json not in ('','[]','{\"behaviors\":[]}')";
 	$rs = $db->ExecuteMaster($sql);
 	
@@ -401,6 +403,7 @@ if(array_key_exists('params_json', $columns)) {
 		}
 	}
 	
+	/** @noinspection SqlResolve */
 	$db->ExecuteMaster('alter table reminder drop column params_json');
 }
 
@@ -568,7 +571,7 @@ $packages = [
 	'card_widget/cerb_card_widget_address_compose.json',
 	'card_widget/cerb_card_widget_contact_compose.json',
 	'card_widget/cerb_card_widget_org_compose.json',
-	'cerb_profile_widget_ticket_participants.json ',
+	'cerb_profile_widget_ticket_participants.json',
 	'cerb_project_board_kanban.json',
 	'cerb_workspace_widget_map_usa.json',
 	'cerb_workspace_widget_map_world.json',
