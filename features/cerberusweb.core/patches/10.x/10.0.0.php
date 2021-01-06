@@ -39,6 +39,13 @@ if(!array_key_exists('uri', $columns)) {
 }
 
 // ===========================================================================
+// Disable behaviors on retired events
+
+$db->ExecuteMaster("UPDATE trigger_event SET is_disabled = 1 WHERE event_point = 'event.api.mobile_behavior'");
+$db->ExecuteMaster("UPDATE trigger_event SET is_disabled = 1 WHERE event_point = 'event.ajax.request'");
+$db->ExecuteMaster("UPDATE trigger_event SET is_disabled = 1 WHERE event_point = 'event.message.chat.mobile.worker'");
+
+// ===========================================================================
 // Add `automation` table
 
 if(!isset($tables['automation'])) {
