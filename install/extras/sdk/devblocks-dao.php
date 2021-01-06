@@ -242,12 +242,12 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	 * @param array $ids
 	 * @return Model_<?php echo $class_name; ?>[]
 	 */
-	static function getIds($ids) {
+	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}	
 	
 	/**
-	 * @param resource $rs
+	 * @param mysqli_result|false $rs
 	 * @return Model_<?php echo $class_name; ?>[]
 	 */
 	static private function _getObjectsFromResult($rs) {
@@ -405,7 +405,7 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextLinksField($param, '<?php echo $ctx_ext_id; ?>', self::getPrimaryKey());
 			
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%%s)', Cerb_ORMHelper::qstr('<?php echo $ctx_ext_id; ?>')), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr('<?php echo $ctx_ext_id; ?>'), '%s'), self::getPrimaryKey());
 			
 			/*
 			case self::VIRTUAL_WATCHERS:
@@ -455,7 +455,7 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 	static function _getFields() {
 		$translate = DevblocksPlatform::getTranslationService();
 		
-		$columns = array(
+		$columns = [
 <?php
 	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\t\t\tself::%s => new DevblocksSearchField(self::%s, '%s', '%s', \$translate->_('dao.%s.%s'), null, true),\n", strtoupper ( $field_name ), strtoupper ( $field_name ), $table_name, $field_name, $table_name, $field_name );
@@ -465,7 +465,7 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
-		);
+		];
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array_keys(self::getCustomFieldContextKeys()));
@@ -506,19 +506,19 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		$this->renderSortBy = SearchFields_<?php echo $class_name; ?>::ID;
 		$this->renderSortAsc = true;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 <?php
 	foreach ( array_keys($fields) as $field_name ) {
 		printf ( "\t\t\tSearchFields_%s::%s,\n", $class_name, strtoupper ( $field_name ) );
 	}
 	?>
-		);
+		];
 		// [TODO] Filter fields
-		$this->addColumnsHidden(array(
+		$this->addColumnsHidden([
 			SearchFields_<?php echo $class_name; ?>::VIRTUAL_CONTEXT_LINK,
 			SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET,
 			SearchFields_<?php echo $class_name; ?>::VIRTUAL_WATCHERS,
-		));
+		]);
 		
 		$this->doResetCriteria();
 	}
@@ -711,8 +711,6 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -824,6 +822,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 <textarea style="width:98%;height:200px;">
 class Context_<?php echo $class_name;?> extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
 	const ID = '<?php echo $ctx_ext_id; ?>';
+	const URI = '<?php echo $table_name; ?>';
 	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can read
@@ -848,8 +847,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=<?php echo $table_name; ?>&id='.$context_id, true);
-		return $url;
+		return $url_writer->writeNoProxy('c=profiles&type=<?php echo $table_name; ?>&id='.$context_id, true);
 	}
 	
 	// [TODO] Profile fields
@@ -897,7 +895,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			'id' => $<?php echo $ctx_var_model; ?>->id,
 			'name' => $<?php echo $ctx_var_model; ?>->name,
 			'permalink' => $url,
-			//'updated' => $<?php echo $ctx_var_model; ?>->updated_at, // [TODO]
+			'updated' => $<?php echo $ctx_var_model; ?>->updated_at,
 		);
 	}
 	
@@ -919,6 +917,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			$<?php echo $ctx_var_model; ?> = DAO_<?php echo $class_name; ?>::get($<?php echo $ctx_var_model; ?>);
 		} elseif($<?php echo $ctx_var_model; ?> instanceof Model_<?php echo $class_name; ?>) {
 			// It's what we want already.
+            true;
 		} elseif(is_array($<?php echo $ctx_var_model; ?>)) {
 			$<?php echo $ctx_var_model; ?> = Cerb_ORMHelper::recastArrayToModel($<?php echo $ctx_var_model; ?>, 'Model_<?php echo $class_name; ?>');
 		} else {
@@ -955,6 +954,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$token_values = [];
 		
 		$token_values['_context'] = '<?php echo $ctx_ext_id; ?>';
+		$token_values['_type'] = '<?php echo $table_name; ?>';
 		$token_values['_types'] = $token_types;
 		
 		if($<?php echo $ctx_var_model; ?>) {
@@ -1275,7 +1275,7 @@ $(function() {
 		
 		$popup.on('dialogbeforeclose', function(e, ui) {
 			var keycode = e.keyCode || e.which;
-			if(keycode == 27)
+			if(27 === keycode)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
 		
