@@ -15,28 +15,12 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/** @deprecated */
 class Event_CommentOnTicketInGroup extends AbstractEvent_Ticket {
 	const ID = 'event.comment.ticket.group';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
 		$this->_event_id = self::ID;
-	}
-	
-	static function trigger($comment_id, $context_id, $group_id) {
-		$events = DevblocksPlatform::services()->event();
-		return $events->trigger(
-			new Model_DevblocksEvent(
-				self::ID,
-				array(
-					'context_id' => $context_id,
-					'comment_id' => $comment_id,
-					'group_id' => $group_id,
-					'_whisper' => array(
-						CerberusContexts::CONTEXT_GROUP => array($group_id),
-					),
-				)
-			)
-		);
 	}
 };

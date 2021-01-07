@@ -95,8 +95,6 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		// [TODO] This takes ~50ms
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_TICKET, $model, $merge_token_labels, $merge_token_values, null, true);
 		
-			@$group_id = $merge_token_values['group_id'];
-
 			// Clear dupe labels
 			CerberusContexts::scrubTokensWithRegexp(
 				$merge_token_labels,
@@ -122,6 +120,8 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 		/**
 		 * Group
 		 */
+		
+		$group_id = $merge_token_values['group_id'] ?? 0;
 		
 		$merge_token_labels = [];
 		$merge_token_values = [];
@@ -169,7 +169,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 	
 	function renderSimulatorTarget($trigger, $event_model) {
 		$context = CerberusContexts::CONTEXT_TICKET;
-		$context_id = $event_model->params['context_id'];
+		$context_id = $event_model->params['context_id'] ?? 0;
 		DevblocksEventHelper::renderSimulatorTarget($context, $context_id, $trigger, $event_model);
 	}
 	

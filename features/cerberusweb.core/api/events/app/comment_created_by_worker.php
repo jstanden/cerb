@@ -15,26 +15,12 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/* @deprecated */
 class Event_CommentCreatedByWorker extends AbstractEvent_Comment {
 	const ID = 'event.comment.created.worker';
 	
 	function __construct($manifest) {
 		parent::__construct($manifest);
 		$this->_event_id = self::ID;
-	}
-	
-	static function trigger($context_id) {
-		$events = DevblocksPlatform::services()->event();
-		return $events->trigger(
-			new Model_DevblocksEvent(
-				self::ID,
-				array(
-					'context_id' => $context_id,
-//				 	'_whisper' => array(
-//				 		CerberusContexts::CONTEXT_GROUP => array($group_id),
-//				 	),
-				)
-			)
-		);
 	}
 };

@@ -2421,6 +2421,23 @@ class CerberusContexts {
 										]
 									);
 									
+								} else if($behavior->event_point == Event_CommentCreatedByWorker::ID) {
+									$event_model = new Model_DevblocksEvent(
+										Event_CommentCreatedByWorker::ID,
+										[
+											'context_id' => $new_model->id,
+										]
+									);
+									
+								} else if($behavior->event_point == Event_CommentOnTicketInGroup::ID) {
+									$event_model = new Model_DevblocksEvent(
+										Event_CommentOnTicketInGroup::ID,
+										[
+											'context_id' => $new_model->context_id,
+											'comment_id' => $new_model->id,
+										]
+									);
+									
 								} else {
 									return false;
 								}

@@ -139,38 +139,22 @@ class DAO_Comment extends Cerb_ORMHelper {
 					]
 				)
 			);
-			
-			/*
-			 * Trigger global VA behavior
-			 */
-			
-			Event_CommentCreatedByWorker::trigger($id);
-			
-			/*
-			 * Trigger group-level VA behavior
-			 */
-			
-			switch($context->id) {
-				case CerberusContexts::CONTEXT_TICKET:
-					@$ticket_id = $fields[self::CONTEXT_ID];
-	
-					// [TODO] This is inefficient
-					if(!empty($ticket_id)) {
-						@$ticket = DAO_Ticket::get($ticket_id);
-						Event_CommentOnTicketInGroup::trigger($id, $ticket_id, $ticket->group_id);
-					}
-					break;
-			}
 		}
 		
 		return $id;
 	}
 	
 	static function update($ids, $fields) {
+		// Send events
+		CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_COMMENT, $ids);
+		
 		$context = CerberusContexts::CONTEXT_COMMENT;
 		self::_updateAbstract($context, $ids, $fields);
 		
 		parent::_update($ids, 'comment', $fields);
+		
+		// Log the context update
+		DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_COMMENT, $ids);
 	}
 	
 	static function updateWhere($fields, $where) {
@@ -183,8 +167,8 @@ class DAO_Comment extends Cerb_ORMHelper {
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
 		
-		@$owner_context = $fields[self::OWNER_CONTEXT];
-		@$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID]);
+		$owner_context = $fields[self::OWNER_CONTEXT] ?? null;
+		$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID] ?? null);
 		
 		// Verify that the actor can use this new owner
 		if($owner_context) {
@@ -1461,6 +1445,7 @@ class Context_Comment extends Extension_DevblocksContext implements IDevblocksCo
 			$comment = DAO_Comment::get($comment);
 		} elseif($comment instanceof Model_Comment) {
 			// It's what we want already.
+			true;
 		} elseif(is_array($comment)) {
 			$comment = Cerb_ORMHelper::recastArrayToModel($comment, 'Model_Comment');
 		} else {

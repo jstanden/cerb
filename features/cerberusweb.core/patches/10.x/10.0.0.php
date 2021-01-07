@@ -262,6 +262,38 @@ if(!isset($tables['automation_event'])) {
 		}
 	}
 	
+	$behaviors = $db->GetArrayMaster("SELECT id, title, is_disabled, event_params_json, uri FROM trigger_event WHERE event_point = 'event.comment.created.worker' ORDER BY priority, id");
+	
+	if(is_iterable($behaviors)) {
+		foreach($behaviors as $behavior) {
+			$behavior_params = json_decode($behavior['event_params_json'], true);
+			
+			$automations_kata .= sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%s\n  disabled@bool: %s%s\n\n",
+				$behavior['title'],
+				uniqid(),
+				$behavior['uri'] ?: $behavior['id'],
+				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
+				"{{record__type == 'comment' and not was_record_comment and not was_record_created ? 'no' : 'yes'}}"
+			);
+		}
+	}
+	
+	$behaviors = $db->GetArrayMaster("SELECT id, title, is_disabled, event_params_json, uri FROM trigger_event WHERE event_point = 'event.comment.ticket.group' ORDER BY priority, id");
+	
+	if(is_iterable($behaviors)) {
+		foreach($behaviors as $behavior) {
+			$behavior_params = json_decode($behavior['event_params_json'], true);
+			
+			$automations_kata .= sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%s\n  disabled@bool: %s%s\n\n",
+				$behavior['title'],
+				uniqid(),
+				$behavior['uri'] ?: $behavior['id'],
+				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
+				"{{record__type == 'comment' and record_target__type == 'ticket' and not was_record_comment and not was_record_created ? 'no' : 'yes'}}"
+			);
+		}
+	}
+	
 	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, description, automations_kata, updated_at) VALUES (%s,%s,%s,%d)',
 		$db->qstr('cerb.trigger.record.changed'),
 		$db->qstr('React to changes in record field values'),
