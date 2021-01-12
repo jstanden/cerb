@@ -1053,7 +1053,7 @@ class Context_OAuthApp extends Extension_DevblocksContext implements IDevblocksC
 		$context = Context_OAuthApp::ID;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

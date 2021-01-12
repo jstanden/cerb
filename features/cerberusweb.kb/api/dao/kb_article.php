@@ -1298,7 +1298,7 @@ class Context_KbArticle extends Extension_DevblocksContext implements IDevblocks
 		$context = CerberusContexts::CONTEXT_KB_ARTICLE;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

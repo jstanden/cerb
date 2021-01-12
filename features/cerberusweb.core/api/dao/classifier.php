@@ -1129,7 +1129,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		$context = CerberusContexts::CONTEXT_CLASSIFIER;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

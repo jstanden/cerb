@@ -933,7 +933,7 @@ class Context_WebApiCredentials extends Extension_DevblocksContext implements ID
 		$context = CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

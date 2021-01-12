@@ -2569,7 +2569,6 @@ class DevblocksSearchCriteria {
 				if(!is_numeric($from_date) || !is_numeric($to_date)) {
 					if(false == ($dates = DevblocksPlatform::services()->date()->parseDateRange($this->value))) {
 						return 0;
-						break;
 					}
 					
 					$from_date = $dates['from_ts'];

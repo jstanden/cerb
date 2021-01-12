@@ -1293,7 +1293,7 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		$context = Context_ProjectBoardColumn::ID;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

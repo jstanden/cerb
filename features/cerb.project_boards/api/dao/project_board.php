@@ -1145,7 +1145,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		$context = Context_ProjectBoard::ID;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

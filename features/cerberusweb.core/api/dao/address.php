@@ -2535,7 +2535,7 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		$context = CerberusContexts::CONTEXT_ADDRESS;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

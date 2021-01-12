@@ -1316,7 +1316,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		$context = CerberusContexts::CONTEXT_BUCKET;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

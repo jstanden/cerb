@@ -2704,7 +2704,7 @@ class Context_Application extends Extension_DevblocksContext implements IDevbloc
 		$context = CerberusContexts::CONTEXT_APPLICATION;
 		$context_id = $dictionary['id'];
 
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 
 		if(!$is_loaded) {

@@ -1111,7 +1111,7 @@ class Context_ConnectedService extends Extension_DevblocksContext implements IDe
 		$context = CerberusContexts::CONTEXT_CONNECTED_SERVICE;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

@@ -99,7 +99,7 @@
         var $frm = $('#{$form_id}');
         var $popup = genericAjaxPopupFind($frm);
 
-        $popup.one('popup_open', function(event,ui) {
+        $popup.one('popup_open', function() {
             $popup.dialog('option','title',"{'Toolbar'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
             $popup.css('overflow', 'inherit');
 

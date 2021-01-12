@@ -1299,7 +1299,7 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		$context = CerberusContexts::CONTEXT_ACTIVITY_LOG;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

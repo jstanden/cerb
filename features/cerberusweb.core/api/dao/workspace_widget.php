@@ -1240,7 +1240,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$context = CerberusContexts::CONTEXT_WORKSPACE_WIDGET;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

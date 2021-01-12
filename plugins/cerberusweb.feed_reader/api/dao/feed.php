@@ -789,7 +789,7 @@ class Context_Feed extends Extension_DevblocksContext implements IDevblocksConte
 		$context = CerberusContexts::CONTEXT_FEED;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

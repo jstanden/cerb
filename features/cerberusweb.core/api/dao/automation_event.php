@@ -193,7 +193,8 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 	
 	/**
 	 * @param integer $id
-	 * @return Model_AutomationEvent	 */
+	 * @return Model_AutomationEvent
+	 */
 	static function get($id) {
 		if(empty($id))
 			return null;

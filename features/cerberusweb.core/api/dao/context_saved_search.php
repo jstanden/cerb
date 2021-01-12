@@ -1128,7 +1128,7 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		$context = Context_ContextSavedSearch::ID;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

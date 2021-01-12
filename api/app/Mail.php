@@ -711,7 +711,7 @@ class CerberusMail {
 		// Changing the outgoing message through a VA (group)
 		Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
 		
-		@$send_at = strtotime($properties['send_at'] ?? 0);
+		$send_at = @strtotime($properties['send_at'] ?? 0);
 		
 		if($send_at && $send_at >= time()) {
 			// If we're not resuming a draft from the UI, generate a draft
@@ -1714,7 +1714,7 @@ class CerberusMail {
 						continue;
 
 					// Dupe detection
-					@$sha1_hash = sha1_file($file, false);
+					$sha1_hash = @sha1_file($file, false);
 					
 					if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['name'][$idx]))) {
 						// Create record

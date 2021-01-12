@@ -1340,7 +1340,7 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		$context = CerberusContexts::CONTEXT_AUTOMATION;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

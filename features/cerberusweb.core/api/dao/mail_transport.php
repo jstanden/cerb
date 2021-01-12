@@ -1064,7 +1064,7 @@ class Context_MailTransport extends Extension_DevblocksContext implements IDevbl
 		$context = CerberusContexts::CONTEXT_MAIL_TRANSPORT;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

@@ -1479,7 +1479,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$context = CerberusContexts::CONTEXT_TIMETRACKING;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

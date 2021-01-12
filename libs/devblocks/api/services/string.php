@@ -281,6 +281,9 @@ class _DevblocksStringService {
 	 * @return bool
 	 */
 	public function toBool($string) : bool {
+		if(is_array($string))
+			return !empty($string);
+		
 		$false_list = [
 			false,
 			'false',

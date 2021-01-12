@@ -1095,7 +1095,7 @@ class Context_Currency extends Extension_DevblocksContext implements IDevblocksC
 		$context = CerberusContexts::CONTEXT_CURRENCY;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

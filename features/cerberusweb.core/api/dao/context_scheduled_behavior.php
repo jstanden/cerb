@@ -1400,7 +1400,7 @@ class Context_ContextScheduledBehavior extends Extension_DevblocksContext implem
 		$context = CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

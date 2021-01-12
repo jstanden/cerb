@@ -1174,7 +1174,7 @@ class Context_CalendarEvent extends Extension_DevblocksContext implements IDevbl
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

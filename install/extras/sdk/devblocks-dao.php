@@ -1010,7 +1010,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		$context = '<?php echo $ctx_ext_id; ?>';
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

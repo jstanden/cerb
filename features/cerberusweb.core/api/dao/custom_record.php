@@ -1150,7 +1150,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		$context = CerberusContexts::CONTEXT_CUSTOM_RECORD;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

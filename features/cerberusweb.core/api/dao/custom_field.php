@@ -2435,7 +2435,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		$context = CerberusContexts::CONTEXT_CUSTOM_FIELD;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

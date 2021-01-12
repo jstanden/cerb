@@ -1062,7 +1062,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		$context = CerberusContexts::CONTEXT_EMAIL_SIGNATURE;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

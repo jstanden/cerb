@@ -1555,7 +1555,7 @@ class Context_JiraIssue extends Extension_DevblocksContext implements IDevblocks
 		$context = Context_JiraIssue::ID;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

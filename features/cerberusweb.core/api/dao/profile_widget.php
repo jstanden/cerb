@@ -1234,7 +1234,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 		$context = CerberusContexts::CONTEXT_PROFILE_WIDGET;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

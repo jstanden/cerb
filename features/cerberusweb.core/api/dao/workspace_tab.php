@@ -1314,7 +1314,7 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		$context = CerberusContexts::CONTEXT_WORKSPACE_TAB;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

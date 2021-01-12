@@ -1306,7 +1306,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 		$context = CerberusContexts::CONTEXT_ROLE;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

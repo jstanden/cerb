@@ -4236,9 +4236,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 			case SearchFields_Ticket::TICKET_FIRST_WROTE_ID:
 			case SearchFields_Ticket::TICKET_LAST_WROTE_ID:
-				if(!is_array($values))
-					$values = array($values);
-				
 				$label_map = function($ids) {
 					return array_column(DevblocksPlatform::objectsToArrays(DAO_Address::getIds($ids)), 'email', 'id');
 				};
@@ -4301,7 +4298,7 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST:
 			case SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST:
 				$now = time();
-				@$then = intval(strtotime($value, $now));
+				$then = intval(@strtotime($value, $now));
 				$value = $then - $now;
 				
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
@@ -5256,7 +5253,7 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$context = CerberusContexts::CONTEXT_TICKET;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

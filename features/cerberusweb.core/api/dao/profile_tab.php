@@ -1059,7 +1059,7 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 		$context = CerberusContexts::CONTEXT_PROFILE_TAB;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

@@ -2800,7 +2800,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		$context = CerberusContexts::CONTEXT_MESSAGE;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

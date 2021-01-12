@@ -1008,7 +1008,7 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 		$context = CerberusContexts::CONTEXT_CLASSIFIER_ENTITY;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

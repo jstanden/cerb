@@ -1243,7 +1243,7 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		$context = CerberusContexts::CONTEXT_PORTAL;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

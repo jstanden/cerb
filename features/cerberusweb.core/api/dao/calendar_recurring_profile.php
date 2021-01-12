@@ -1415,7 +1415,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

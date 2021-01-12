@@ -1114,7 +1114,7 @@ class Context_TwitterMessage extends Extension_DevblocksContext {
 		$context = Context_TwitterMessage::ID;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

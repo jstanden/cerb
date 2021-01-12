@@ -1422,7 +1422,7 @@ class Context_Bot extends Extension_DevblocksContext implements IDevblocksContex
 		$context = CerberusContexts::CONTEXT_BOT;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

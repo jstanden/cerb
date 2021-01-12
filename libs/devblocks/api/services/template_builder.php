@@ -2012,11 +2012,9 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			case 'json':
 				$array = DevblocksPlatform::strParseQueryString($string);
 				return json_encode($array);
-				break;
 			
 			default:
 				return rawurldecode($string);
-				break;
 		}
 	}
 	

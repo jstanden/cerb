@@ -17,7 +17,7 @@ class _DevblocksUiManager {
 	/**
 	 * @return DevblocksUiEventHandler
 	 */
-	public function eventHandler() {
+	public function eventHandler() : DevblocksUiEventHandler {
 		return new DevblocksUiEventHandler();
 	}
 	
@@ -376,7 +376,7 @@ class DevblocksUiToolbar {
 			if(!is_array($toolbar_item))
 				continue;
 			
-			@list($type, $key) = explode('/', $toolbar_item_key);
+			list($type, $key) = array_pad(explode('/', $toolbar_item_key), 2, null);
 			
 			if(!$key)
 				continue;

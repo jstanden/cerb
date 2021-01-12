@@ -2171,7 +2171,7 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 		$context = CerberusContexts::CONTEXT_CONTACT;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

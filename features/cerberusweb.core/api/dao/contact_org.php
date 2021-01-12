@@ -1928,7 +1928,7 @@ class Context_Org extends Extension_DevblocksContext implements IDevblocksContex
 		if(empty($context_id))
 			return;
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

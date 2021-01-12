@@ -1323,7 +1323,7 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		$context = CerberusContexts::CONTEXT_WORKSPACE_WORKLIST;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

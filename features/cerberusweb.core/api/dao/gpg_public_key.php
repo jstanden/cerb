@@ -1111,7 +1111,7 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		$context = CerberusContexts::CONTEXT_GPG_PUBLIC_KEY;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

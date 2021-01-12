@@ -1665,7 +1665,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		$context = CerberusContexts::CONTEXT_DRAFT;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

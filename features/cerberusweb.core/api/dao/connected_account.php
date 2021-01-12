@@ -1378,7 +1378,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 		$context = CerberusContexts::CONTEXT_CONNECTED_ACCOUNT;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = array();
 		
 		if(!$is_loaded) {

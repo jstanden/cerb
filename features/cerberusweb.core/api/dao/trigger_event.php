@@ -2333,7 +2333,7 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$context = CerberusContexts::CONTEXT_BEHAVIOR;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

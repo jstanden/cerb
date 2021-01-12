@@ -1186,7 +1186,7 @@ class Context_JiraProject extends Extension_DevblocksContext implements IDevbloc
 		$context = Context_JiraProject::ID;
 		$context_id = $dictionary['id'];
 		
-		@$is_loaded = $dictionary['_loaded'];
+		$is_loaded = $dictionary['_loaded'] ?? false;
 		$values = [];
 		
 		if(!$is_loaded) {

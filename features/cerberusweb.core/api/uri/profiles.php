@@ -157,7 +157,6 @@ class Page_Profiles extends CerberusPageExtension {
 	
 	static function renderProfile($context, $context_id, $path=[]) {
 		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Context
 		
