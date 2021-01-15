@@ -89,6 +89,9 @@ class EncryptPgpAction extends AbstractAction {
 				} elseif('fingerprint' == $key_type) {
 					$public_key_fingerprints[] = $key_value;
 					
+				} elseif('ids' == $key_type && is_array($key_value)) {
+					$public_key_fingerprints = array_merge($public_key_fingerprints, $key_value);
+					
 				} elseif('id' == $key_type) {
 					$public_key_fingerprints[] = $key_value;
 				}
