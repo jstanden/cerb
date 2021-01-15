@@ -21,11 +21,11 @@ class AutomationTrigger_MapClicked extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'widget_*',
-				'notes' => 'The widget record. Supports key expansion.',
+				'notes' => 'The widget [record](https://cerb.ai/docs/records/types/). Supports key expansion.',
 			],
 			[
 				'key' => 'worker_*',
-				'notes' => 'The active worker record. Supports key expansion.',
+				'notes' => 'The active [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];
 	}

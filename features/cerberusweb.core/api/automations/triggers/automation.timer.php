@@ -10,7 +10,12 @@ class AutomationTrigger_AutomationTimer extends Extension_AutomationTrigger {
 	}
 	
 	function getInputsMeta() {
-		return [];
+		return [
+			[
+				'key' => 'timer_*',
+				'notes' => 'The [automation timer](https://cerb.ai/docs/records/types/automation_timer/#dictionary-placeholders) record. Supports key expansion.',
+			],
+		];
 	}
 	
 	function getOutputsMeta() {

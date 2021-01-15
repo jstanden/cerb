@@ -17,7 +17,7 @@ class AutomationTrigger_ReminderRemind extends Extension_AutomationTrigger {
 		return [
 			[
 				'key' => 'reminder_*',
-				'notes' => 'The reminder record. Supports key expansion.',
+				'notes' => 'The [reminder](https://cerb.ai/docs/records/types/reminder/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];
 	}
