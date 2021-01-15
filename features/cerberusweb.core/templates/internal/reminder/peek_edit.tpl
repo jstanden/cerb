@@ -49,10 +49,10 @@
 	<legend>Event: Remind (KATA)</legend>
 	<div class="cerb-code-editor-toolbar">
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
-		'caller_name' => 'cerb.toolbar.eventHandlers.editor',
-		
-		'worker__context' => CerberusContexts::CONTEXT_WORKER,
-		'worker_id' => $active_worker->id,
+			'caller_name' => 'cerb.toolbar.eventHandlers.editor',
+			
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
 		])}
 
 		{$toolbar_kata =
@@ -71,9 +71,15 @@
 		{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 
 		<div class="cerb-code-editor-toolbar-divider"></div>
+		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
 	</div>
 
 	<textarea name="automations_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automations_kata}</textarea>
+
+	{$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_ReminderRemind::ID, true)}
+	{if $trigger_ext}
+		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+	{/if}
 </fieldset>
 
 <div style="margin:5px 0px 10px 0px;">
@@ -109,7 +115,7 @@ $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'Reminder'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 
@@ -118,7 +124,7 @@ $(function() {
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 
 		// Editors
-		var $automation_editor = $popup.find('textarea[data-editor-mode]')
+		var $automation_editor = $popup.find('textarea[name=automations_kata]')
 			.cerbCodeEditor()
 			.nextAll('pre.ace_editor')
 		;
@@ -126,7 +132,7 @@ $(function() {
 		var automation_editor = ace.edit($automation_editor.attr('id'));
 
 		// Toolbars
-		$popup.find('.cerb-code-editor-toolbar').cerbToolbar({
+		var $toolbar = $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
 				params: {
@@ -155,6 +161,10 @@ $(function() {
 					automation_editor.insertSnippet(e.eventData.return.snippet);
 				}
 			}
+		});
+		
+		$toolbar.cerbCodeEditorToolbarEventHandler({
+			editor: automation_editor
 		});
 
 		// Helpers

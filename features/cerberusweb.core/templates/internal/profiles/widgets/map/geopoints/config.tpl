@@ -44,8 +44,15 @@
 			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 
 			<div class="cerb-code-editor-toolbar-divider"></div>
+			{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
 		</div>
+		
 		<textarea name="params[automation][map_clicked]" data-editor-mode="ace/mode/cerb_kata">{$model->extension_params.automation.map_clicked}</textarea>
+
+		{$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_MapClicked::ID, true)}
+		{if $trigger_ext}
+			{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+		{/if}
 	</fieldset>
 </div>
 
@@ -62,9 +69,12 @@ $(function() {
 		})
 	;
 
-	$config.find('textarea[name="params[automation][map_clicked]"]')
+	var $automation_editor =  $config.find('textarea[name="params[automation][map_clicked]"]')
 		.cerbCodeEditor()
+		.nextAll('pre.ace_editor')
 	;
+	
+	var automation_editor = ace.edit($automation_editor.attr('id'));
 
 	var doneFunc = function(e) {
 		e.stopPropagation();
@@ -81,10 +91,6 @@ $(function() {
 			// [TODO] Show error
 
 		} else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-			var $toolbar = $target.closest('.cerb-code-editor-toolbar');
-			var $automation_editor = $toolbar.nextAll('pre.ace_editor');
-
-			var automation_editor = ace.edit($automation_editor.attr('id'));
 			automation_editor.insertSnippet(e.eventData.return.snippet);
 		}
 	};
@@ -105,7 +111,7 @@ $(function() {
 		})
 	;
 
-	$fieldset_map_clicked.find('.cerb-code-editor-toolbar')
+	var $toolbar_map_clicked = $fieldset_map_clicked.find('.cerb-code-editor-toolbar')
 		.cerbToolbar({
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
@@ -119,5 +125,9 @@ $(function() {
 			done: doneFunc
 		})
 	;
+	
+	$toolbar_map_clicked.cerbCodeEditorToolbarEventHandler({
+		editor: automation_editor
+	});
 });
 </script>

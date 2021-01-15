@@ -74,10 +74,15 @@
 
 		<div class="cerb-code-editor-toolbar-divider"></div>
 
-		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
 	</div>
 
 	<textarea name="cards_kata" data-editor-mode="ace/mode/cerb_kata">{$model->cards_kata}</textarea>
+
+	{$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_ProjectBoardRenderCard::ID, true)}
+	{if $trigger_ext}
+		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+	{/if}
 </fieldset>
 
 <fieldset class="peek" data-cerb-editor-functions>
@@ -114,10 +119,15 @@
 
 		<div class="cerb-code-editor-toolbar-divider"></div>
 
-		<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
 	</div>
 
 	<textarea name="functions_kata" data-editor-mode="ace/mode/cerb_kata">{$model->functions_kata}</textarea>
+
+	{$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_ProjectBoardCardAction::ID, true)}
+	{if $trigger_ext}
+		{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+	{/if}
 </fieldset>
 
 <fieldset class="peek" data-cerb-editor-toolbar>
@@ -224,7 +234,7 @@ $(function() {
 
 		var editor_cards = ace.edit($editor_cards.attr('id'));
 
-		$cards.find('.cerb-code-editor-toolbar').cerbToolbar({
+		var $toolbar_cards = $cards.find('.cerb-code-editor-toolbar').cerbToolbar({
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
 				params: {
@@ -254,6 +264,10 @@ $(function() {
 				}
 			}
 		});
+		
+		$toolbar_cards.cerbCodeEditorToolbarEventHandler({
+			editor: editor_cards
+		});
 
 		// Functions
 
@@ -266,7 +280,7 @@ $(function() {
 
 		var editor_functions = ace.edit($editor_functions.attr('id'));
 
-		$functions.find('.cerb-code-editor-toolbar').cerbToolbar({
+		var $toolbar_functions = $functions.find('.cerb-code-editor-toolbar').cerbToolbar({
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
 				params: {
@@ -295,6 +309,10 @@ $(function() {
 					editor_functions.insertSnippet(e.eventData.return.snippet);
 				}
 			}
+		});
+		
+		$toolbar_functions.cerbCodeEditorToolbarEventHandler({
+			editor: editor_functions
 		});
 
 		// Toolbar

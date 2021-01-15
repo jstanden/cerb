@@ -33,11 +33,52 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 			switch($action) {
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
+				case 'tester':
+					return $this->_profileAction_tester();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
 			}
 		}
 		return false;
+	}
+	
+	private function _profileAction_tester() {
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string');
+		@$placeholders_kata = DevblocksPlatform::importGPC($_POST['placeholders_kata'], 'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		try {
+			$error = null;
+			
+			if(false === ($values = DevblocksPlatform::services()->kata()->parse($placeholders_kata, $error)))
+				throw new Exception_DevblocksValidationError($error);
+			
+			if(false === ($values = DevblocksPlatform::services()->kata()->formatTree($values, null, $error)))
+				throw new Exception_DevblocksValidationError($error);
+			
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			
+			if(false === ($handlers = $event_handler->parse($automations_kata, $dict, $error)))
+				throw new Exception_DevblocksValidationError($error);
+			
+			echo json_encode(array_values($handlers));
+			
+		} catch(Exception_DevblocksValidationError $e) {
+			echo json_encode([
+				'error' => $e->getMessage(),
+			]);
+			
+		} catch(Exception $e) {
+			echo json_encode([
+				'error' => 'An unexpected error occurred.',
+			]);
+		}
 	}
 	
 	private function _profileAction_savePeekJson() {

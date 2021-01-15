@@ -33,7 +33,7 @@
 
     {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-    <fieldset>
+    <fieldset class="peek">
         <legend>Event: Automation Timer (KATA)</legend>
         <div class="cerb-code-editor-toolbar">
             {$toolbar_dict = DevblocksDictionaryDelegate::instance([
@@ -59,9 +59,16 @@
             {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 
             <div class="cerb-code-editor-toolbar-divider"></div>
+
+            {include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
         </div>
 
         <textarea name="automations_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automations_kata}</textarea>
+
+        {$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_AutomationTimer::ID, true)}
+        {if $trigger_ext}
+            {include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+        {/if}
     </fieldset>    
 
     {if !empty($model->id)}
@@ -114,7 +121,7 @@
             });
 
             // Editors
-            var $automation_editor = $popup.find('textarea[data-editor-mode]')
+            var $automation_editor = $popup.find('textarea[name=automations_kata]')
                 .cerbCodeEditor()
                 .nextAll('pre.ace_editor')
             ;
@@ -122,7 +129,7 @@
             var automation_editor = ace.edit($automation_editor.attr('id'));
 
             // Toolbars
-            $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
+            var $toolbar = $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
                 caller: {
                     name: 'cerb.toolbar.eventHandlers.editor',
                     params: {
@@ -151,6 +158,10 @@
                         automation_editor.insertSnippet(e.eventData.return.snippet);
                     }
                 }
+            });
+
+            $toolbar.cerbCodeEditorToolbarEventHandler({
+                editor: automation_editor
             });
 
             // Helpers

@@ -55,10 +55,16 @@
 
             <div class="cerb-code-editor-toolbar-divider"></div>
 
+            {include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
+
             <button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
         </div>
 
         <textarea name="automations_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automations_kata}</textarea>
+
+        {if is_a($trigger_ext, 'Extension_AutomationTrigger')}
+        {include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+        {/if}
     </fieldset>
     
     <div class="buttons" style="margin-top:10px;">
@@ -104,7 +110,9 @@
 
             // Toolbar
 
-            $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
+            var $toolbar = $popup.find('.cerb-code-editor-toolbar');
+            
+            $toolbar.cerbToolbar({
                 caller: {
                     name: 'cerb.toolbar.editor',
                     params: {
@@ -138,6 +146,10 @@
                 reset: function(e) {
                     e.stopPropagation();
                 }
+            });
+            
+            $toolbar.cerbCodeEditorToolbarEventHandler({
+                editor: editor
             });
         });
     });

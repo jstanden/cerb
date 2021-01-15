@@ -1592,6 +1592,138 @@ var ajax = new cAjaxCalls();
 			editor.setOptions(aceOptions);
 		});
 	};
+	
+	$.fn.cerbCodeEditorToolbarEventHandler = function(options) {
+		if(undefined === options)
+			options = {};
+
+		if(!options.hasOwnProperty('editor') || 'object' !== typeof options.editor) {
+			options.editor = null;
+		}
+
+		return this.each(function() {
+			var $toolbar = $(this);
+			var $fieldset = $toolbar.closest('fieldset');
+
+			var $panel_placeholders = $fieldset.find('[data-cerb-event-placeholders]');
+			var $panel_tester = $fieldset.find('[data-cerb-event-tester]');
+			
+			$toolbar.find('.cerb-editor-button-event-placeholders').on('click', function() {
+			  var $button = $(this);
+			
+			  if($panel_placeholders.is(':visible')) {
+				  $button.removeClass('cerb-code-editor-toolbar-button--enabled');
+				  $panel_placeholders.hide();
+			
+			  } else {
+				  $button.addClass('cerb-code-editor-toolbar-button--enabled');
+				  $panel_placeholders.fadeIn();
+			  }
+			});
+			
+			var $editor_placeholders = $panel_tester.find('[data-editor-mode]')
+			  .cerbCodeEditor()
+			  .next('pre.ace_editor')
+			;
+			
+			var editor_placeholders = ace.edit($editor_placeholders.attr('id'));
+			
+			$toolbar.find('.cerb-editor-button-event-tester').on('click', function() {
+			  var $button = $(this);
+			
+			  if($panel_tester.is(':visible')) {
+				  $button.removeClass('cerb-code-editor-toolbar-button--enabled');
+				  $panel_tester.hide();
+			
+			  } else {
+				  $button.addClass('cerb-code-editor-toolbar-button--enabled');
+				  $panel_tester.fadeIn();
+			  }
+			});
+			
+			$panel_tester.find('.cerb-code-editor-toolbar-button--run').on('click', function() {
+				if(!options.editor)
+					return;
+				
+				var formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'automation_event');
+				formData.set('action', 'tester');
+
+				formData.set('automations_kata', options.editor.getValue());
+				formData.set('placeholders_kata', editor_placeholders.getValue());
+
+				var $results = $panel_tester.find('[data-cerb-event-tester-results]').empty();
+
+				genericAjaxPost(formData, null, null, function(json) {
+					if(typeof json !== 'object')
+						return;
+
+					var $div;
+
+					if(json.hasOwnProperty('error') && json.error) {
+						$div = $('<div/>')
+							.addClass('ui-state-error ui-corner-all')
+							.css('padding', '5px')
+							.text(json.error)
+						;
+						$results.append($div);
+						return;
+					}
+
+					if($.isArray(json)) {
+						var $container = $('<div/>')
+							.addClass('bubbles')
+						;
+
+						for(var i in json) {
+							var handler = json[i];
+
+							$div = $('<div/>')
+								.addClass('bubble')
+								.css('font-weight', 'bold')
+								.css('margin', '0 5px 5px 0')
+								.css('cursor', 'pointer')
+								.attr('data-line', handler.hasOwnProperty('kata') && handler.kata.line ? handler.kata.line : null)
+								.text(handler.id)
+								.on('click', function() {
+									var line = $(this).attr('data-line');
+
+									if(null === line)
+										return;
+
+									// Move to the definition
+									options.editor.gotoLine(line, 0, true);
+									options.editor.focus();
+								})
+								.appendTo($container)
+							;
+						}
+
+						var $close_button = $('<span/>')
+							.addClass('glyphicons glyphicons-circle-remove')
+							.css('position', 'absolute')
+							.css('top', '0')
+							.css('right', '0')
+							.css('cursor', 'pointer')
+							.css('font-size', '16px')
+							.on('click', function() {
+								$results.empty();
+							})
+						;
+
+						var $fieldset = $('<fieldset/>').addClass('black');
+						$fieldset.append($('<legend/>').text('Results'));
+						$fieldset.append($container);
+
+						$results.append($fieldset);
+						$results.append($close_button);
+					}
+				});				
+			});
+	  });
+	};
 
 	$.fn.cerbCodeEditorToolbarHtml = function() {
 	  return this.each(function() {

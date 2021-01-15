@@ -95,8 +95,15 @@
                         {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 
                         <div class="cerb-code-editor-toolbar-divider"></div>
+                        {include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
                     </div>
+                    
                     <textarea name="automation_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automation_kata}</textarea>
+
+                    {$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_ResourceGet::ID, true)}
+                    {if $trigger_ext}
+                        {include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+                    {/if}
                 </fieldset>
             </div>
         </div>
@@ -172,9 +179,12 @@
             
             // Editors
 
-            $popup.find('textarea[data-editor-mode]')
+            var $automation_editor = $popup.find('textarea[name=automation_kata]')
                 .cerbCodeEditor()
+                .nextAll('pre.ace_editor')
             ;
+
+            var automation_editor = ace.edit($automation_editor.attr('id'));
             
             var $fieldset_resource_get = $popup.find('[data-cerb-event-resource-get]');
 
@@ -193,15 +203,11 @@
                     // [TODO] Show error
 
                 } else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
-                    var $toolbar = $target.closest('.cerb-code-editor-toolbar');
-                    var $automation_editor = $toolbar.nextAll('pre.ace_editor');
-
-                    var automation_editor = ace.edit($automation_editor.attr('id'));
                     automation_editor.insertSnippet(e.eventData.return.snippet);
                 }
             };
 
-            $fieldset_resource_get.find('.cerb-code-editor-toolbar')
+            var $toolbar = $fieldset_resource_get.find('.cerb-code-editor-toolbar')
                 .cerbToolbar({
                     caller: {
                         name: 'cerb.toolbar.eventHandlers.editor',
@@ -215,6 +221,10 @@
                     done: doneFunc
                 })
             ;
+
+            $toolbar.cerbCodeEditorToolbarEventHandler({
+                editor: automation_editor
+            });
         });
     });
 </script>

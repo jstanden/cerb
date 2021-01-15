@@ -75,10 +75,15 @@
 				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
 
 				<div class="cerb-code-editor-toolbar-divider"></div>
-
-				<button type="button" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+				{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler_buttons.tpl"}
 			</div>
+			
 			<textarea name="cards_kata" data-editor-mode="ace/mode/cerb_kata">{$model->cards_kata}</textarea>
+			
+			{$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_ProjectBoardRenderCard::ID, true)}
+			{if $trigger_ext}
+				{include file="devblocks:cerberusweb.core::automations/triggers/editor_event_handler.tpl" trigger_inputs=$trigger_ext->getInputsMeta()}
+			{/if}
 		</fieldset>
 
 		{if !empty($model->id)}
@@ -141,7 +146,7 @@ $(function() {
 
 		// Toolbar
 
-		$fieldset_cards.find('.cerb-code-editor-toolbar').cerbToolbar({
+		var $cards_toolbar = $fieldset_cards.find('.cerb-code-editor-toolbar').cerbToolbar({
 			caller: {
 				name: 'cerb.toolbar.eventHandlers.editor',
 				params: {
@@ -171,12 +176,15 @@ $(function() {
 				}
 			}
 		});
+		
+		$cards_toolbar.cerbCodeEditorToolbarEventHandler({
+			editor: cards_editor
+		});
 
 		// Package Library
 		
 		{if !$model->id && $packages}
-			var $tabs = $popup.find('.cerb-tabs').tabs();
-			var $library_container = $tabs;
+			var $library_container = $popup.find('.cerb-tabs').tabs();
 			{include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
 			
 			$library_container.on('cerb-package-library-form-submit', function(e) {
