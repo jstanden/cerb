@@ -139,6 +139,12 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_TOOLBAR;
 		
+		// These records can't be created outside of the patcher
+		if(!$id) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.create');
+			return false;
+		}
+		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
 		
@@ -843,10 +849,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 	}
 	
 	static function isDeletableByActor($models, $actor) {
-		if(!DEVELOPMENT_MODE)
-			return false;
-		
-		return self::isWriteableByActor($models, $actor);
+		return false;
 	}
 	
 	function getRandom() {
@@ -1118,17 +1121,6 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			if(!is_numeric($context_id) && is_string($context_id)) {
 				if (false != ($model = DAO_Toolbar::getByName($context_id))) {
 					$context_id = $model->id;
-					
-				} else { // If it doesn't exist with a record prefix, create it (e.g. custom records)
-					if ($active_worker->is_superuser) {
-						$context_id = DAO_Toolbar::create([
-							DAO_Toolbar::NAME => $context_id,
-							DAO_Toolbar::DESCRIPTION => '',
-							DAO_Toolbar::TOOLBAR_KATA => '',
-							DAO_Toolbar::CREATED_AT => time(),
-							DAO_Toolbar::UPDATED_AT => time(),
-						]);
-					}
 				}
 			}
 			

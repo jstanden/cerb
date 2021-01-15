@@ -352,7 +352,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		$toolbar_kata = '';
 		
-		if(null != ($toolbar = DAO_Toolbar::getByName('cerb.toolbar.global.menu')))
+		if(null != ($toolbar = DAO_Toolbar::getByName('global.menu')))
 			$toolbar_kata = $toolbar->toolbar_kata;
 		
 		if($legacy_interactions) {

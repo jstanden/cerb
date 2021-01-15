@@ -251,7 +251,7 @@
 						])}
 
 						{$toolbar = []}
-						{$toolbar_mail_read = DAO_Toolbar::getByName('cerb.toolbar.mail.read')}
+						{$toolbar_mail_read = DAO_Toolbar::getByName('mail.read')}
 						{if $toolbar_mail_read}
 							{$toolbar = $toolbar_mail_read->getKata($message_dict)}
 						{/if}

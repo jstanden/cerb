@@ -5724,7 +5724,7 @@ EOD;
 			'worker_id' => $active_worker->id
 		]);
 		
-		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('cerb.toolbar.mail.compose', $toolbar_dict))) {
+		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('mail.compose', $toolbar_dict))) {
 			$tpl->assign('toolbar_custom', $toolbar_reply_custom);
 		}
 		

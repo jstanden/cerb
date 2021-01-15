@@ -7,33 +7,28 @@
     <input type="hidden" name="module" value="toolbar">
     <input type="hidden" name="action" value="savePeekJson">
     <input type="hidden" name="view_id" value="{$view_id}">
-    {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+    {if $model && $model->id}
+        <input type="hidden" name="id" value="{$model->id}">
+        <input type="hidden" name="name" value="{$model->name}">
+    {/if}
     <input type="hidden" name="do_delete" value="0">
     <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+    <h1>{$model->name}</h1>
+
+    <div style="margin-bottom:10px;">
+        {$model->description}
+    </div>
+
+    {if $custom_fields}
     <table cellspacing="0" cellpadding="2" border="0" width="98%">
-        <tr>
-            <td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus" spellcheck="false">
-            </td>
-        </tr>
-
-        <tr>
-            <td width="1%" nowrap="nowrap"><b>{'common.description'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <input type="text" name="description" value="{$model->description}" style="width:98%;">
-            </td>
-        </tr>
-
-        {if !empty($custom_fields)}
-            {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-        {/if}
+        {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
     </table>
+    {/if}
 
     {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-    <fieldset>
+    <fieldset class="peek">
         <legend>Toolbar: (KATA)</legend>
         <div class="cerb-code-editor-toolbar">
             {$toolbar_dict = DevblocksDictionaryDelegate::instance([
@@ -61,7 +56,9 @@
 
             <div class="cerb-code-editor-toolbar-divider"></div>
 
-            <button type="button" data-cerb-button="interactions-preview" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-play"></span></button>
+            <button type="button" data-cerb-button="toolbar-placeholders" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-tags"></span></button>
+            <button type="button" data-cerb-button="toolbar-preview" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-lab"></span></button>
+            <div class="cerb-code-editor-toolbar-divider"></div>
 
             <button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
         </div>
@@ -69,24 +66,10 @@
         <textarea name="toolbar_kata" data-editor-mode="ace/mode/cerb_kata">{$model->toolbar_kata}</textarea>
     </fieldset>
 
-    {if !empty($model->id)}
-        <fieldset style="display:none;" class="delete">
-            <legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-
-            <div>
-                Are you sure you want to permanently delete this toolbar?
-            </div>
-
-            <button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-            <button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
-        </fieldset>
-    {/if}
-
     <div class="buttons" style="margin-top:10px;">
         {if $model->id}
             <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
             <button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-            {if $smarty.const.DEVELOPMENT_MODE && $active_worker->is_superuser}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
         {else}
             <button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
         {/if}

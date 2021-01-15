@@ -55,66 +55,19 @@ class PageSection_ProfilesToolbar extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(!DEVELOPMENT_MODE)
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-					
-				if(!$active_worker->is_superuser || !$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TOOLBAR)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-				
-				if(false == ($model = DAO_Toolbar::get($id)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
-				
-				if(!Context_Toolbar::isDeletableByActor($model, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-				
-				CerberusContexts::logActivityRecordDelete(Context_Toolbar::ID, $model->id, $model->name);
-				
-				DAO_Toolbar::delete($id);
-				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'view_id' => $view_id,
-				));
-				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$description = DevblocksPlatform::importGPC($_POST['description'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? 'Toolbar', 'string');
 				@$toolbar_kata = DevblocksPlatform::importGPC($_POST['toolbar_kata'], 'string', '');
 				
 				$error = null;
 				
 				if(empty($id)) { // New
-					if(!DEVELOPMENT_MODE)
 						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
-					if(!$active_worker->is_superuser || !$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_TOOLBAR)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
-					$fields = array(
-						DAO_Toolbar::NAME => $name,
-						DAO_Toolbar::DESCRIPTION => $description,
-						DAO_Toolbar::TOOLBAR_KATA => $toolbar_kata,
-						DAO_Toolbar::UPDATED_AT => time(),
-					);
-					
-					if(!DAO_Toolbar::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_Toolbar::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					$id = DAO_Toolbar::create($fields);
-					DAO_Toolbar::onUpdateByActor($active_worker, $fields, $id);
-					
-					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_TOOLBAR, $id);
 					
 				} else { // Edit
 					$fields = array(
-						DAO_Toolbar::NAME => $name,
-						DAO_Toolbar::DESCRIPTION => $description,
 						DAO_Toolbar::TOOLBAR_KATA => $toolbar_kata,
 						DAO_Toolbar::UPDATED_AT => time(),
 					);
@@ -127,7 +80,6 @@ class PageSection_ProfilesToolbar extends Extension_PageSection {
 					
 					DAO_Toolbar::update($id, $fields);
 					DAO_Toolbar::onUpdateByActor($active_worker, $fields, $id);
-					
 				}
 				
 				if($id) {

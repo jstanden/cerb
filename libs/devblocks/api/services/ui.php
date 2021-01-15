@@ -466,12 +466,22 @@ class DevblocksUiToolbar {
 		}
 	}
 	
-	function render($toolbar) {
+	function fetch($toolbar) {
 		if(!is_array($toolbar))
-			return;
+			return null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('toolbar', $toolbar);
-		$tpl->display('devblocks:devblocks.core::ui/toolbar/render.tpl');
+		return $tpl->fetch('devblocks:devblocks.core::ui/toolbar/render.tpl');
+	}
+	
+	function render($toolbar) {
+		if(!is_array($toolbar))
+			return null;
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('toolbar', $toolbar);
+		
+		echo $this->fetch($toolbar);
 	}
 }
