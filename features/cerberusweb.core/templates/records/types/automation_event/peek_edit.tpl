@@ -7,34 +7,28 @@
     <input type="hidden" name="module" value="automation_event">
     <input type="hidden" name="action" value="savePeekJson">
     <input type="hidden" name="view_id" value="{$view_id}">
-    {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
-    <input type="hidden" name="do_delete" value="0">
+    {if $model && $model->id}
+        <input type="hidden" name="id" value="{$model->id}">
+        <input type="hidden" name="name" value="{$model->name}">
+    {/if}
     <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
+    <h1>{$model->name}</h1>
+    
+    <div style="margin-bottom:10px;">
+        {$model->description}
+    </div>
+    
+    {if !empty($custom_fields)}
     <table cellspacing="0" cellpadding="2" border="0" width="98%">
-        <tr>
-            <td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus" spellcheck="false">
-            </td>
-        </tr>
-
-        <tr>
-            <td width="1%" nowrap="nowrap"><b>{'common.description'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <input type="text" name="description" value="{$model->description}" style="width:98%;">
-            </td>
-        </tr>
-
-        {if !empty($custom_fields)}
             {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
-        {/if}
     </table>
+    {/if}
 
     {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-    <fieldset>
-        <legend>Event: (KATA)</legend>
+    <fieldset class="peek">
+        <legend>Automations: (KATA)</legend>
         <div class="cerb-code-editor-toolbar">
             {$toolbar_dict = DevblocksDictionaryDelegate::instance([
             'caller_name' => 'cerb.eventHandler.automation',
@@ -46,12 +40,13 @@
 {$toolbar_kata =
 "menu/add:
   icon: circle-plus
+  tooltip: Add
   items:
     interaction/automation:
       label: Automation
       uri: ai.cerb.eventHandler.automation
       inputs:
-        trigger: {$model->name}
+        trigger: {$model->extension_id}
 "}
 
             {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
@@ -66,29 +61,14 @@
         <textarea name="automations_kata" data-editor-mode="ace/mode/cerb_kata">{$model->automations_kata}</textarea>
     </fieldset>
     
-    {if !empty($model->id)}
-        <fieldset style="display:none;" class="delete">
-            <legend>{'common.delete'|devblocks_translate|capitalize}</legend>
-
-            <div>
-                Are you sure you want to permanently delete this automation event?
-            </div>
-
-            <button type="button" class="delete red">{'common.yes'|devblocks_translate|capitalize}</button>
-            <button type="button" onclick="$(this).closest('form').find('div.buttons').fadeIn();$(this).closest('fieldset.delete').fadeOut();">{'common.no'|devblocks_translate|capitalize}</button>
-        </fieldset>
-    {/if}
-
     <div class="buttons" style="margin-top:10px;">
         {if $model->id}
             <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
             <button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-            {if $smarty.const.DEVELOPMENT_MODE && $active_worker->is_superuser && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
         {else}
             <button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
         {/if}
     </div>
-
 </form>
 
 <script type="text/javascript">
@@ -96,7 +76,7 @@
         var $frm = $('#{$form_id}');
         var $popup = genericAjaxPopupFind($frm);
 
-        $popup.one('popup_open', function(event,ui) {
+        $popup.one('popup_open', function() {
             $popup.dialog('option','title',"{'Automation Event'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
             $popup.css('overflow', 'inherit');
 
@@ -104,8 +84,6 @@
 
             $popup.find('button.save').click(Devblocks.callbackPeekEditSave);
             $popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
-            //$popup.find('button.create-continue').click({ mode: 'create_continue' }, Devblocks.callbackPeekEditSave);
-            $popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 
             // Close confirmation
 

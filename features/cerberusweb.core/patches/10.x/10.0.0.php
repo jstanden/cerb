@@ -179,6 +179,7 @@ if(!isset($tables['automation_event'])) {
 		id int(10) unsigned NOT NULL AUTO_INCREMENT,
 		name varchar(255) NOT NULL DEFAULT '',
 		description varchar(255) NOT NULL DEFAULT '',
+		extension_id varchar(255) NOT NULL DEFAULT '',
 		automations_kata text,
 		updated_at int(10) unsigned NOT NULL DEFAULT '0',
 		PRIMARY KEY (id),
@@ -193,7 +194,7 @@ if(!isset($tables['automation_event'])) {
 	// =====================
 	// Insert default events
 	
-	// cerb.trigger.mail.filter
+	// mail.filter
 	
 	$automations_kata = '';
 	
@@ -211,7 +212,8 @@ if(!isset($tables['automation_event'])) {
 		}
 	}
 	
-	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, description, automations_kata, updated_at) VALUES (%s,%s,%s,%d)',
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('mail.filter'),
 		$db->qstr('cerb.trigger.mail.filter'),
 		$db->qstr('Modify or reject inbound mail before it\'s accepted'),
 		$db->qstr($automations_kata),
@@ -220,13 +222,14 @@ if(!isset($tables['automation_event'])) {
 	
 	// cerb.trigger.mail.route
 	
-	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, description, updated_at) VALUES (%s,%s,%d)',
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, updated_at) VALUES (%s,%s,%s,%d)',
+		$db->qstr('mail.route'),
 		$db->qstr('cerb.trigger.mail.route'),
 		$db->qstr('Route accepted inbound mail to a group inbox'),
 		time()
 	));
 	
-	// cerb.trigger.record.changed
+	// record.changed
 	
 	$automations_kata = '';
 	
@@ -294,9 +297,10 @@ if(!isset($tables['automation_event'])) {
 		}
 	}
 	
-	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, description, automations_kata, updated_at) VALUES (%s,%s,%s,%d)',
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('record.changed'),
 		$db->qstr('cerb.trigger.record.changed'),
-		$db->qstr('React to changes in record field values'),
+		$db->qstr('Actions in response to changes in record field values'),
 		$db->qstr($automations_kata),
 		time()
 	));

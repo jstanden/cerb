@@ -55,67 +55,20 @@ class PageSection_ProfilesAutomationEvent extends Extension_PageSection {
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(!DEVELOPMENT_MODE)
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_AUTOMATION_EVENT)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-				
-				if(false == ($model = DAO_AutomationEvent::get($id)))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
-				
-				if(!Context_AutomationEvent::isDeletableByActor($model, $active_worker))
-					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
-				
-				CerberusContexts::logActivityRecordDelete(Context_AutomationEvent::ID, $model->id, $model->name);
-				
-				DAO_AutomationEvent::delete($id);
-				
-				echo json_encode(array(
-					'status' => true,
-					'id' => $id,
-					'view_id' => $view_id,
-				));
-				return;
 				
 			} else {
-				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$description = DevblocksPlatform::importGPC($_POST['description'], 'string', '');
+				$name = DevblocksPlatform::importGPC($_POST['name'] ?? 'Automation Event', 'string');
 				@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string', '');
 				
 				$error = null;
 				
 				if(empty($id)) { // New
-					if(!DEVELOPMENT_MODE)
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
-					if(!$active_worker->is_superuser || !$active_worker->hasPriv(sprintf("contexts.%s.create", CerberusContexts::CONTEXT_AUTOMATION_EVENT)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
-					$fields = array(
-						DAO_AutomationEvent::AUTOMATIONS_KATA => $automations_kata,
-						DAO_AutomationEvent::DESCRIPTION => $description,
-						DAO_AutomationEvent::NAME => $name,
-						DAO_AutomationEvent::UPDATED_AT => time(),
-					);
-					
-					if(!DAO_AutomationEvent::validate($fields, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					if(!DAO_AutomationEvent::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-						throw new Exception_DevblocksAjaxValidationError($error);
-					
-					$id = DAO_AutomationEvent::create($fields);
-					DAO_AutomationEvent::onUpdateByActor($active_worker, $fields, $id);
-					
-					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_AUTOMATION_EVENT, $id);
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
 					
 				} else { // Edit
 					$fields = array(
 						DAO_AutomationEvent::AUTOMATIONS_KATA => $automations_kata,
-						DAO_AutomationEvent::DESCRIPTION => $description,
-						DAO_AutomationEvent::NAME => $name,
 						DAO_AutomationEvent::UPDATED_AT => time(),
 					);
 					

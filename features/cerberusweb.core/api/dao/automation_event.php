@@ -2,6 +2,7 @@
 class DAO_AutomationEvent extends Cerb_ORMHelper {
 	const AUTOMATIONS_KATA = 'automations_kata';
 	const DESCRIPTION = 'description';
+	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const NAME = 'name';
 	const UPDATED_AT = 'updated_at';
@@ -21,6 +22,12 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 		$validation
 			->addField(self::DESCRIPTION)
 			->string()
+		;
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->setRequired(true)
+			->addValidator($validation->validators()->extension('Extension_AutomationTrigger'))
 		;
 		$validation
 			->addField(self::ID)
@@ -131,6 +138,12 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
 		$context = CerberusContexts::CONTEXT_AUTOMATION_EVENT;
 		
+		// These records can't be created outside of the patcher
+		if(!$id) {
+			$error = DevblocksPlatform::translate('error.core.no_acl.create');
+			return false;
+		}
+		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
 		
@@ -155,7 +168,7 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, description, automations_kata, updated_at ".
+		$sql = "SELECT id, name, extension_id, description, automations_kata, updated_at ".
 			"FROM automation_event ".
 			$where_sql.
 			$sort_sql.
@@ -262,6 +275,7 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 			$object = new Model_AutomationEvent();
 			$object->automations_kata = $row['automations_kata'];
 			$object->description = $row['description'];
+			$object->extension_id = $row['extension_id'];
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->updated_at = intval($row['updated_at']);
@@ -321,10 +335,12 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 			"automation_event.id as %s, ".
 			"automation_event.name as %s, ".
 			"automation_event.description as %s, ".
+			"automation_event.extension_id as %s, ".
 			"automation_event.updated_at as %s ",
 			SearchFields_AutomationEvent::ID,
 			SearchFields_AutomationEvent::NAME,
 			SearchFields_AutomationEvent::DESCRIPTION,
+			SearchFields_AutomationEvent::EXTENSION_ID,
 			SearchFields_AutomationEvent::UPDATED_AT
 		);
 		
@@ -382,6 +398,7 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 	const ID = 'a_id';
 	const NAME = 'a_name';
 	const DESCRIPTION = 'a_description';
+	const EXTENSION_ID = 'a_extension_id';
 	const UPDATED_AT = 'a_updated_at';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -454,6 +471,7 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'automation_event', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'automation_event', 'name', $translate->_('common.name'), null, true),
 			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'automation_event', 'description', $translate->_('common.description'), null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'automation_event', 'extension_id', $translate->_('common.extension'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_event', 'updated_at', $translate->_('common.updated'), null, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -476,9 +494,14 @@ class SearchFields_AutomationEvent extends DevblocksSearchFields {
 class Model_AutomationEvent {
 	public ?string $automations_kata;
 	public ?string $description;
+	public ?string $extension_id;
 	public ?int $id;
 	public ?string $name;
 	public ?int $updated_at;
+	
+	function getExtension($as_instance=true) {
+		return Extension_AutomationTrigger::get($this->extension_id, $as_instance);
+	}
 	
 	/**
 	 * @param DevblocksDictionaryDelegate $dict
@@ -619,6 +642,11 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_AutomationEvent::DESCRIPTION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'extension' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_AutomationEvent::EXTENSION_ID),
+				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -728,6 +756,7 @@ class View_AutomationEvent extends C4_AbstractView implements IAbstractView_Subt
 		switch($field) {
 			case SearchFields_AutomationEvent::NAME:
 			case SearchFields_AutomationEvent::DESCRIPTION:
+			case SearchFields_AutomationEvent::EXTENSION_ID:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 			
@@ -791,7 +820,7 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 	}
 	
 	static function isDeletableByActor($models, $actor) {
-		return self::isWriteableByActor($models, $actor);
+		return false;
 	}
 	
 	function getRandom() {
@@ -817,6 +846,12 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			'label' => mb_ucfirst($translate->_('common.description')),
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
 			'value' => $model->description,
+		];
+		
+		$properties['extension'] = [
+			'label' => mb_ucfirst($translate->_('common.extension')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->extension_id,
 		];
 		
 		$properties['name'] = [
@@ -893,6 +928,7 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'description' => $prefix.$translate->_('common.description'),
+			'extension_id' => $prefix.$translate->_('common.extension'),
 			'name' => $prefix.$translate->_('common.name'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
@@ -902,6 +938,7 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 		$token_types = [
 			'_label' => 'context_url',
 			'description' => Model_CustomField::TYPE_MULTI_LINE,
+			'extension' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
@@ -927,6 +964,7 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $automation_event->name;
 			$token_values['description'] = $automation_event->description;
+			$token_values['extension_id'] = $automation_event->extension_id;
 			$token_values['id'] = $automation_event->id;
 			$token_values['name'] = $automation_event->name;
 			$token_values['updated_at'] = $automation_event->updated_at;
@@ -946,6 +984,7 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 		return [
 			'automations_kata' => DAO_AutomationEvent::AUTOMATIONS_KATA,
 			'description' => DAO_AutomationEvent::DESCRIPTION,
+			'extension_id' => DAO_AutomationEvent::EXTENSION_ID,
 			'id' => DAO_AutomationEvent::ID,
 			'links' => '_links',
 			'name' => DAO_AutomationEvent::NAME,
@@ -1071,6 +1110,11 @@ class Context_AutomationEvent extends Extension_DevblocksContext implements IDev
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
+			
+			
+			if(false != ($trigger_ext = $model->getExtension())) {
+				$tpl->assign('trigger_ext', $trigger_ext);
+			}
 			
 			// View
 			$tpl->assign('id', $context_id);

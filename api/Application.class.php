@@ -2353,7 +2353,7 @@ class CerberusContexts {
 			return;
 
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
-		$record_changed_events = DAO_AutomationEvent::getByName('cerb.trigger.record.changed');
+		$record_changed_events = DAO_AutomationEvent::getByName('record.changed');
 		
 		foreach(self::$_context_checkpoints as $context => &$old_models) {
 
