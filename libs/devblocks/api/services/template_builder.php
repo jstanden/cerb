@@ -1,5 +1,7 @@
 <?php
 
+use Twig\Error\SyntaxError;
+use Twig\Lexer;
 use Twig\Markup;
 use Twig\NodeVisitor\NodeVisitorInterface;
 use Twig\Sandbox\SecurityNotAllowedFilterError;
@@ -327,6 +329,13 @@ class _DevblocksTemplateBuilder {
 		return $this->_errors;
 	}
 	
+	public function getLastError() {
+		if(!$this->_errors)
+			return false;
+		
+		return reset($this->_errors);
+	}
+	
 	private function _setUp() {
 		$this->_errors = [];
 	}
@@ -334,7 +343,7 @@ class _DevblocksTemplateBuilder {
 	private function _tearDown() {
 	}
 	
-	function setLexer(\Twig\Lexer $lexer) {
+	function setLexer(Lexer $lexer) {
 		$this->_twig->setLexer($lexer);
 	}
 	
@@ -395,7 +404,7 @@ class _DevblocksTemplateBuilder {
 	 */
 	function build($template, $dict, $lexer = null) {
 		if($lexer && is_array($lexer)) {
-			$this->setLexer(new \Twig\Lexer($this->_twig, $lexer));
+			$this->setLexer(new Lexer($this->_twig, $lexer));
 		}
 		
 		$this->_setUp();
@@ -412,13 +421,19 @@ class _DevblocksTemplateBuilder {
 				$out = $template->render([]);
 			}
 			
+		} catch(SyntaxError $e) {
+			$this->_errors[] = sprintf("%s (line %d)",
+				$e->getRawMessage(),
+				$e->getTemplateLine()
+			);
+			
 		} catch(Exception $e) {
 			$this->_errors[] = $e->getMessage();
 		}
 		$this->_tearDown();
 		
 		if($lexer) {
-			$this->setLexer(new \Twig\Lexer($this->_twig));
+			$this->setLexer(new Lexer($this->_twig));
 		}
 
 		if(!empty($this->_errors))

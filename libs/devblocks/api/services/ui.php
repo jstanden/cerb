@@ -60,18 +60,20 @@ class _DevblocksUiManager {
 }
 
 class DevblocksUiEventHandler {
-	function parse(?string $handlers_kata, DevblocksDictionaryDelegate $dict, &$error=null) : array {
+	function parse(?string $handlers_kata, DevblocksDictionaryDelegate $dict, &$error=null) {
 		if(is_null($handlers_kata))
 			return [];
 		
 		$kata = DevblocksPlatform::services()->kata();
 		
 		$results = [];
+		$symbols_meta= [];
 		
-		if(false == ($handlers = $kata->parse($handlers_kata, $error)))
-			return [];
+		if(false === ($handlers = $kata->parse($handlers_kata, $error, true, $symbols_meta)))
+			return false;
 		
-		$handlers = $kata->formatTree($handlers, $dict);
+		if(false === ($handlers = $kata->formatTree($handlers, $dict, $error)))
+			return false;
 		
 		foreach($handlers as $handler_key => $handler_data) {
 			if(array_key_exists('disabled', $handler_data) && $handler_data['disabled'])
@@ -79,10 +81,16 @@ class DevblocksUiEventHandler {
 			
 			list($handler_type, $handler_name) = array_pad(explode('/', $handler_key, 2), 2, null);
 			
+			$line = $symbols_meta[$handler_key] ?? -1;
+			
 			$result = [
+				'id' => $handler_key,
 				'type' => $handler_type,
 				'key' => $handler_name,
 				'data' => $handler_data,
+				'kata' => [
+					'line' => ++$line,
+				]
 			];
 			
 			$results[$handler_name] = $result;

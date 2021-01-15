@@ -370,22 +370,39 @@ class _DevblocksKataService {
 		}
 	}
 	
-	function formatTree($tree, DevblocksDictionaryDelegate $dict=null) {
+	private array $_formatTreeStack;
+	
+	function formatTree($tree, DevblocksDictionaryDelegate $dict=null, &$error=null) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
 		if(!is_array($tree))
 			return false;
 		
 		$parsed_tree = [];
+		$this->_formatTreeStack = [];
 		
 		foreach(array_keys($tree) as $k) {
-			$parsed_tree = array_merge($parsed_tree, $this->_formatTree($tree[$k], $k, $dict, $tpl_builder));
+			$merge_tree = $this->_formatTree($tree[$k], $k, $dict, $tpl_builder, $error);
+			
+			if(!is_null($error)) {
+				$error = sprintf("[%s] %s",
+					implode(':', $this->_formatTreeStack),
+					$error
+				);
+				return false;
+			}
+			
+			array_pop($this->_formatTreeStack);
+			
+			$parsed_tree = array_merge($parsed_tree, $merge_tree);
 		}
 		
 		return $parsed_tree;
 	}
 	
-	private function _formatTree($v, $k, DevblocksDictionaryDelegate $dict=null, _DevblocksTemplateBuilder $tpl_builder=null) {
+	private function _formatTree($v, $k, DevblocksDictionaryDelegate $dict=null, _DevblocksTemplateBuilder $tpl_builder=null, &$error=null) {
+		$this->_formatTreeStack[] = DevblocksPlatform::services()->string()->strBefore($k, '@');
+		
 		if(is_string($v)) {
 			$annotations = [];
 			
@@ -404,7 +421,10 @@ class _DevblocksKataService {
 					return [$k => $v];
 				}
 				
-				$v = $tpl_builder->build($v, $dict);
+				if(false === ($v = $tpl_builder->build($v, $dict))) {
+					$error = $tpl_builder->getLastError();
+					return false;
+				}
 			}
 			
 			foreach($annotations as $annotation) {
@@ -460,7 +480,13 @@ class _DevblocksKataService {
 			}
 				
 			foreach(array_keys($v) as $kk) {
-				$result = $this->_formatTree($v[$kk], $kk, $dict, $tpl_builder);
+				$result = $this->_formatTree($v[$kk], $kk, $dict, $tpl_builder, $error);
+				
+				if(!is_null($error))
+					return false;
+				
+				array_pop($this->_formatTreeStack);
+				
 				$values[key($result)] = current($result);
 			}
 			
