@@ -2036,10 +2036,50 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	public function getTests() {
 		return array(
 			new \Twig\TwigTest('numeric', [$this, 'test_numeric']),
+			new \Twig\TwigTest('pattern', [$this, 'test_pattern']),
+			new \Twig\TwigTest('prefixed', [$this, 'test_prefixed']),
+			new \Twig\TwigTest('suffixed', [$this, 'test_suffixed']),
 		);
 	}
 	
-	function test_numeric($value) {
+	function test_numeric($value) : bool {
 		return is_numeric($value);
+	}
+	
+	function test_pattern($value, ...$patterns) : bool {
+		if(!is_array($patterns))
+			return false;
+		
+		if(!is_array($value)) {
+			if(!is_string($value) && !is_numeric($value))
+				return false;
+			
+			$value = [$value];
+		}
+		
+		foreach($patterns as $pattern) {
+			$pattern = DevblocksPlatform::strToRegExp($pattern);
+			
+			foreach($value as $v) {
+				if(preg_match($pattern, $v))
+					return true;
+			}
+		}
+		
+		return false;
+	}
+
+	function test_prefixed($value, ...$prefixes) : bool {
+		if(!is_string($value))
+			return false;
+		
+		return DevblocksPlatform::strStartsWith($value, $prefixes);
+	}
+	
+	function test_suffixed($value, ...$suffixes) : bool {
+		if(!is_string($value) && !is_string($suffixes))
+			return false;
+		
+		return DevblocksPlatform::strEndsWith($value, $suffixes);
 	}
 };
