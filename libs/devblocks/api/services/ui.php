@@ -353,9 +353,9 @@ class DevblocksUiMap {
 }
 
 class DevblocksUiToolbar {
-	function parse($kata, DevblocksDictionaryDelegate $dict) {
-		$error = null;
+	function parse($kata, DevblocksDictionaryDelegate $dict, &$error=null) {
 		$kata_tree = null;
+		$symbol_meta = [];
 		
 		if(!$kata)
 			return [];
@@ -365,7 +365,7 @@ class DevblocksUiToolbar {
 			unset($kata);
 			
 		} elseif (is_string($kata)) {
-			if(false === ($kata_tree = DevblocksPlatform::services()->kata()->parse($kata, $error))) {
+			if(false === ($kata_tree = DevblocksPlatform::services()->kata()->parse($kata, $error, true, $symbol_meta))) {
 				return false;
 			}
 		}
@@ -400,8 +400,13 @@ class DevblocksUiToolbar {
 				}
 			}
 			
+			$line = $symbol_meta[$toolbar_item_key] ?? -1;
+			
 			$toolbar_item['key'] = $key;
 			$toolbar_item['type'] = $type;
+			$toolbar_item['kata'] = [
+				'line' => ++$line,
+			];
 			
 			$results[$key] = $toolbar_item;
 		}
