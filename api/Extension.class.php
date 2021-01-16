@@ -1113,6 +1113,15 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	}
 };
 
+abstract class Extension_Toolbar extends DevblocksExtension {
+	use DevblocksExtensionGetterTrait;
+	
+	const POINT = 'cerb.toolbar';
+	
+	abstract function getPlaceholdersMeta() : array;
+	abstract function getAfterMeta() : array;
+}
+
 abstract class Extension_WorkspacePage extends DevblocksExtension {
 	const POINT = 'cerberusweb.ui.workspace.page';
 	

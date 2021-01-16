@@ -3,6 +3,7 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const DESCRIPTION = 'description';
+	const EXTENSION_ID = 'extension_id';
 	const TOOLBAR_KATA = 'toolbar_kata';
 	const CREATED_AT = 'created_at';
 	const UPDATED_AT = 'updated_at';
@@ -26,6 +27,12 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 		$validation
 			->addField(self::DESCRIPTION)
 			->string()
+		;
+		$validation
+			->addField(self::EXTENSION_ID)
+			->string()
+			->addValidator($validation->validators()->extension('Extension_Toolbar'))
+			->setRequired(true)
 		;
 		$validation
 			->addField(self::NAME)
@@ -169,7 +176,7 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, description, toolbar_kata, created_at, updated_at ".
+		$sql = "SELECT id, name, extension_id, description, toolbar_kata, created_at, updated_at ".
 			"FROM toolbar ".
 			$where_sql.
 			$sort_sql.
@@ -261,6 +268,7 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->description = $row['description'];
+			$object->extension_id = $row['extension_id'];
 			$object->toolbar_kata = $row['toolbar_kata'];
 			$object->created_at = intval($row['created_at']);
 			$object->updated_at = intval($row['updated_at']);
@@ -319,11 +327,13 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 			"toolbar.id as %s, ".
 			"toolbar.name as %s, ".
 			"toolbar.description as %s, ".
+			"toolbar.extension_id as %s, ".
 			"toolbar.created_at as %s, ".
 			"toolbar.updated_at as %s ",
 			SearchFields_Toolbar::ID,
 			SearchFields_Toolbar::NAME,
 			SearchFields_Toolbar::DESCRIPTION,
+			SearchFields_Toolbar::EXTENSION_ID,
 			SearchFields_Toolbar::CREATED_AT,
 			SearchFields_Toolbar::UPDATED_AT
 		);
@@ -394,6 +404,7 @@ class SearchFields_Toolbar extends DevblocksSearchFields {
 	const ID = 't_id';
 	const NAME = 't_name';
 	const DESCRIPTION = 't_description';
+	const EXTENSION_ID = 't_extension_id';
 	const CREATED_AT = 't_created_at';
 	const UPDATED_AT = 't_updated_at';
 	
@@ -472,6 +483,7 @@ class SearchFields_Toolbar extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'toolbar', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'toolbar', 'name', $translate->_('common.name'), null, true),
 			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'toolbar', 'description', $translate->_('common.description'), null, true),
+			self::EXTENSION_ID => new DevblocksSearchField(self::EXTENSION_ID, 'toolbar', 'extension_id', $translate->_('common.extension'), null, true),
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'toolbar', 'created_at', $translate->_('common.created'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'toolbar', 'updated_at', $translate->_('common.updated'), null, true),
 			
@@ -497,9 +509,18 @@ class Model_Toolbar {
 	public $id;
 	public $name;
 	public $description;
+	public $extension_id;
 	public $toolbar_kata;
 	public $created_at;
 	public $updated_at;
+	
+	/**
+	 * @param bool $as_instance
+	 * @return Extension_Toolbar|DevblocksExtensionManifest|null
+	 */
+	function getExtension($as_instance=true) {
+		return Extension_Toolbar::get($this->extension_id, $as_instance);
+	}
 	
 	/**
 	 * @param DevblocksDictionaryDelegate $dict
@@ -662,6 +683,11 @@ class View_Toolbar extends C4_AbstractView implements IAbstractView_Subtotals, I
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_Toolbar::DESCRIPTION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
+			'extension' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_Toolbar::EXTENSION_ID),
+				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -780,6 +806,7 @@ class View_Toolbar extends C4_AbstractView implements IAbstractView_Subtotals, I
 		switch($field) {
 			case SearchFields_Toolbar::NAME:
 			case SearchFields_Toolbar::DESCRIPTION:
+			case SearchFields_Toolbar::EXTENSION_ID:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 			
@@ -892,6 +919,12 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			'value' => $model->description,
 		);
 		
+		$properties['extension'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.extension'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->extension_id,
+		);
+		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
@@ -927,6 +960,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 	function getDefaultProperties() {
 		return array(
 			'description',
+			'extension',
 			'created_at',
 			'updated_at',
 		);
@@ -955,6 +989,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			'_label' => $prefix,
 			'created_at' => $prefix.$translate->_('common.created'),
 			'description' => $prefix.$translate->_('common.description'),
+			'extension_id' => $prefix.$translate->_('common.extension'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'toolbar_kata' => $prefix.$translate->_('common.toolbar'),
@@ -967,6 +1002,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			'_label' => 'context_url',
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'description' => Model_CustomField::TYPE_SINGLE_LINE,
+			'extension_id' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'toolbar_kata' => Model_CustomField::TYPE_MULTI_LINE,
@@ -995,6 +1031,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 			$token_values['_label'] = $toolbar->name;
 			$token_values['created_at'] = $toolbar->created_at;
 			$token_values['description'] = $toolbar->description;
+			$token_values['extension_id'] = $toolbar->extension_id;
 			$token_values['id'] = $toolbar->id;
 			$token_values['name'] = $toolbar->name;
 			$token_values['toolbar_kata'] = $toolbar->toolbar_kata;
@@ -1015,6 +1052,7 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 		return [
 			'created_at' => DAO_Toolbar::CREATED_AT,
 			'description' => DAO_Toolbar::DESCRIPTION,
+			'extension_id' => DAO_Toolbar::EXTENSION_ID,
 			'id' => DAO_Toolbar::ID,
 			'links' => '_links',
 			'name' => DAO_Toolbar::NAME,

@@ -62,7 +62,7 @@
 			</div>
 			{if $active_worker->is_superuser}
 				<div data-cerb-toolbar-setup style="display:inline-block;vertical-align:middle;">
-					<a href="javascript:" data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="cerb.toolbar.record.{$page_record_uri}.profile" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
+					<a href="javascript:" data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.profile" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
 				</div>
 			{/if}
 		</form>
@@ -176,7 +176,7 @@ $(function() {
 
 	$toolbar.cerbToolbar({
 		caller: {
-			name: 'cerb.toolbar.record.{$page_record_uri}.profile',
+			name: 'cerb.toolbar.record.profile',
 			params: {
 				'record__context': '{$dict->_context}',
 				'record_id': '{$dict->id}'
@@ -194,7 +194,7 @@ $(function() {
 	$toolbar_setup.find('a')
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function() {
-			genericAjaxGet('', 'c=profiles&a=renderToolbar&record_type={$dict->_context}&record_id={$dict->id}&toolbar=cerb.toolbar.record.{$page_record_uri}.profile', function(html) {
+			genericAjaxGet('', 'c=profiles&a=renderToolbar&record_type={$dict->_context}&record_id={$dict->id}&toolbar=record.profile', function(html) {
 				$toolbar
 					.html(html)
 					.trigger('cerb-toolbar--refreshed')

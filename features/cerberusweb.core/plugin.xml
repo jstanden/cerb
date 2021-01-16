@@ -4810,6 +4810,68 @@
 			</params>
 		</extension>
 
+		<!-- Toolbars -->
+
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.global.menu</id>
+			<name>global.menu</name>
+			<class>
+				<file>api/toolbars/global.menu.php</file>
+				<name>Toolbar_GlobalMenu</name>
+			</class>
+			<params/>
+		</extension>
+		
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.mail.compose</id>
+			<name>mail.compose</name>
+			<class>
+				<file>api/toolbars/mail.compose.php</file>
+				<name>Toolbar_MailCompose</name>
+			</class>
+			<params/>
+		</extension>
+		
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.mail.read</id>
+			<name>mail.read</name>
+			<class>
+				<file>api/toolbars/mail.read.php</file>
+				<name>Toolbar_MailRead</name>
+			</class>
+			<params/>
+		</extension>
+		
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.mail.reply</id>
+			<name>mail.reply</name>
+			<class>
+				<file>api/toolbars/mail.reply.php</file>
+				<name>Toolbar_MailReply</name>
+			</class>
+			<params/>
+		</extension>
+		
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.record.card</id>
+			<name>record.card</name>
+			<class>
+				<file>api/toolbars/record.card.php</file>
+				<name>Toolbar_RecordCard</name>
+			</class>
+			<params/>
+		</extension>
+		
+		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.record.profile</id>
+			<name>record.profile</name>
+			<class>
+				<file>api/toolbars/record.profile.php</file>
+				<name>Toolbar_RecordProfile</name>
+			</class>
+			<params/>
+		</extension>
+		
 		<!-- Card Widgets -->
 		
 		<extension point="cerb.card.widget">

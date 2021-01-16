@@ -493,12 +493,14 @@ if(!isset($tables['toolbar'])) {
 		CREATE TABLE `toolbar` (
 		id int(10) unsigned NOT NULL AUTO_INCREMENT,
 		name varchar(255) NOT NULL DEFAULT '',
+		extension_id varchar(255) NOT NULL DEFAULT '',
 		description varchar(255) NOT NULL DEFAULT '',
 		toolbar_kata mediumtext,
 		created_at int(10) unsigned NOT NULL DEFAULT '0',
 		updated_at int(10) unsigned NOT NULL DEFAULT '0',
 		PRIMARY KEY (id),
 		UNIQUE (name),
+		INDEX (extension_id),
 		INDEX (updated_at)
 		) ENGINE=%s
 	", APP_DB_ENGINE);
@@ -506,7 +508,8 @@ if(!isset($tables['toolbar'])) {
 	
 	$tables['toolbar'] = 'toolbar';
 
-	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %d, %d)",
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %s, %d, %d)",
+		$db->qstr('global.menu'),
 		$db->qstr('cerb.toolbar.global.menu'),
 		$db->qstr('Global interactions from the floating icon in the lower right'),
 		$db->qstr(''),
@@ -514,7 +517,8 @@ if(!isset($tables['toolbar'])) {
 		time()
 	));
 	
-	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %d, %d)",
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %s, %d, %d)",
+		$db->qstr('mail.compose'),
 		$db->qstr('cerb.toolbar.mail.compose'),
 		$db->qstr('Composing new email messages'),
 		$db->qstr(''),
@@ -522,7 +526,8 @@ if(!isset($tables['toolbar'])) {
 		time()
 	));
 	
-	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %d, %d)",
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %s, %d, %d)",
+		$db->qstr('mail.read'),
 		$db->qstr('cerb.toolbar.mail.read'),
 		$db->qstr('Reading email messages'),
 		$db->qstr(''),
@@ -530,9 +535,28 @@ if(!isset($tables['toolbar'])) {
 		time()
 	));
 	
-	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %d, %d)",
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %s, %d, %d)",
+		$db->qstr('mail.reply'),
 		$db->qstr('cerb.toolbar.mail.reply'),
 		$db->qstr('Replying to email messages'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %s, %d, %d)",
+		$db->qstr('record.card'),
+		$db->qstr('cerb.toolbar.record.card'),
+		$db->qstr('Viewing a record card popup'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %s, %d, %d)",
+		$db->qstr('record.profile'),
+		$db->qstr('cerb.toolbar.record.profile'),
+		$db->qstr('Viewing a record profile page'),
 		$db->qstr(''),
 		time(),
 		time()

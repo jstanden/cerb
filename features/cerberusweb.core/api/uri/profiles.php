@@ -136,14 +136,11 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		// Toolbar
 		
-		$toolbar_name = sprintf('cerb.toolbar.record.%s.card', $context_ext->manifest->params['alias'] ?? '');
+		$toolbar_dict = DevblocksDictionaryDelegate::instance(
+			$dict->getDictionary(null, false, 'record_')
+		);
 		
-		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'record__context' => $context,
-			'record_id' => $context_id,
-		]);
-		
-		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName($toolbar_name, $toolbar_dict))) {
+		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName('record.card', $toolbar_dict))) {
 			$tpl->assign('toolbar_card', $toolbar_kata);
 		}
 		
@@ -182,11 +179,12 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->assign('dict', $dict);
 
 		// Toolbar
-		$toolbar_name = sprintf('cerb.toolbar.record.%s.profile', $context_ext->manifest->params['alias'] ?? '');
 		
-		$toolbar_dict = DevblocksDictionaryDelegate::instance($dict->getDictionary('record_'));
+		$toolbar_dict = DevblocksDictionaryDelegate::instance(
+			$dict->getDictionary(null, false, 'record_')
+		);
 		
-		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName($toolbar_name, $toolbar_dict))) {
+		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName('record.profile', $toolbar_dict))) {
 			$tpl->assign('toolbar_profile', $toolbar_kata);
 		}
 		

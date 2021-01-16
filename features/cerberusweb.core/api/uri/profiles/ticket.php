@@ -654,14 +654,14 @@ EOD;
 			$tpl->assign('toolbar_formatting', $toolbar_reply_formatting);
 		}
 		
-		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'caller_name' => 'cerb.toolbar.mail.reply',
-			
-			'worker__context' => CerberusContexts::CONTEXT_WORKER,
-			'worker_id' => $active_worker->id
-		]);
+		$message_dict = DevblocksDictionaryDelegate::getDictionaryFromModel($message, CerberusContexts::CONTEXT_MESSAGE);
 		
-		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('cerb.toolbar.mail.reply', $toolbar_dict))) {
+		$toolbar_dict = DevblocksDictionaryDelegate::instance($message_dict->getDictionary(null, false, 'message_'));
+		$toolbar_dict->set('caller_name', 'cerb.toolbar.mail.reply');
+		$toolbar_dict->set('worker__context', CerberusContexts::CONTEXT_WORKER);
+		$toolbar_dict->set('worker_id', $active_worker->id);
+		
+		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('mail.reply', $toolbar_dict))) {
 			$tpl->assign('toolbar_custom', $toolbar_reply_custom);
 		}
 		
