@@ -33,12 +33,59 @@ class PageSection_ProfilesToolbar extends Extension_PageSection {
 			switch($action) {
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
+				case 'tester':
+					return $this->_profileAction_tester();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
 			}
 		}
 		return false;
 	}
+	
+	private function _profileAction_tester() {
+		$toolbar = DevblocksPlatform::services()->ui()->toolbar();
+		
+		@$toolbar_kata = DevblocksPlatform::importGPC($_POST['toolbar_kata'], 'string');
+		@$placeholders_kata = DevblocksPlatform::importGPC($_POST['placeholders_kata'], 'string');
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		try {
+			$error = null;
+			
+			if(false === ($values = DevblocksPlatform::services()->kata()->parse($placeholders_kata, $error)))
+				throw new Exception_DevblocksValidationError($error);
+			
+			if(false === ($values = DevblocksPlatform::services()->kata()->formatTree($values, null, $error)))
+				throw new Exception_DevblocksValidationError($error);
+			
+			$dict = DevblocksDictionaryDelegate::instance($values);
+			
+			if(false === ($items = $toolbar->parse($toolbar_kata, $dict, $error)))
+				throw new Exception_DevblocksValidationError($error);
+			
+			$tpl = DevblocksPlatform::services()->template();
+			$tpl->assign('toolbar', $items);
+			$toolbar_html = $tpl->fetch('devblocks:devblocks.core::ui/toolbar/preview.tpl');
+			
+			echo json_encode([
+				'html' => $toolbar_html,
+			]);
+			
+		} catch(Exception_DevblocksValidationError $e) {
+			echo json_encode([
+				'error' => $e->getMessage(),
+			]);
+			
+		} catch(Exception $e) {
+			echo json_encode([
+				'error' => 'An unexpected error occurred.',
+			]);
+		}
+	}	
 	
 	private function _profileAction_savePeekJson() {
 		@$view_id = DevblocksPlatform::importGPC($_POST['view_id'], 'string', '');

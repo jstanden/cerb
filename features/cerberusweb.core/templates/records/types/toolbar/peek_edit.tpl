@@ -56,14 +56,15 @@
 
             <div class="cerb-code-editor-toolbar-divider"></div>
 
-            <button type="button" data-cerb-button="toolbar-placeholders" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-tags"></span></button>
-            <button type="button" data-cerb-button="toolbar-preview" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-lab"></span></button>
-            <div class="cerb-code-editor-toolbar-divider"></div>
-
-            <button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="#" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+            {include file="devblocks:cerberusweb.core::toolbars/editor_toolbar_buttons.tpl"}
         </div>
 
         <textarea name="toolbar_kata" data-editor-mode="ace/mode/cerb_kata">{$model->toolbar_kata}</textarea>
+
+        {$toolbar_ext = $model->getExtension()}
+        {if $toolbar_ext}
+            {include file="devblocks:cerberusweb.core::toolbars/editor_toolbar.tpl" toolbar_placeholders=$toolbar_ext->getPlaceholdersMeta()}
+        {/if}
     </fieldset>
 
     <div class="buttons" style="margin-top:10px;">
@@ -135,7 +136,7 @@
                 e.stopPropagation();
             };
 
-            $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
+           var $toolbar = $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
                 caller: {
                     name: 'cerb.toolbar.editor',
                     params: {
@@ -151,6 +152,10 @@
                 done: doneFunc,
                 reset: resetFunc,
             });
+           
+           $toolbar.cerbCodeEditorToolbarHandler({
+               editor: editor
+           });
         });
     });
 </script>

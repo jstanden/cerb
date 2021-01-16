@@ -1722,7 +1722,94 @@ var ajax = new cAjaxCalls();
 					}
 				});				
 			});
-	  });
+		});
+	};
+	
+	$.fn.cerbCodeEditorToolbarHandler = function(options) {
+		if(undefined === options)
+			options = {};
+
+		if(!options.hasOwnProperty('editor') || 'object' !== typeof options.editor) {
+			options.editor = null;
+		}
+
+		return this.each(function() {
+			var $toolbar = $(this);
+			var $fieldset = $toolbar.closest('fieldset');
+
+			var $panel_placeholders = $fieldset.find('[data-cerb-toolbar-placeholders]');
+			var $panel_tester = $fieldset.find('[data-cerb-toolbar-tester]');
+			
+			$toolbar.find('.cerb-editor-button-toolbar-placeholders').on('click', function() {
+			  var $button = $(this);
+			
+			  if($panel_placeholders.is(':visible')) {
+				  $button.removeClass('cerb-code-editor-toolbar-button--enabled');
+				  $panel_placeholders.hide();
+			
+			  } else {
+				  $button.addClass('cerb-code-editor-toolbar-button--enabled');
+				  $panel_placeholders.fadeIn();
+			  }
+			});
+			
+			var $editor_placeholders = $panel_tester.find('[data-editor-mode]')
+			  .cerbCodeEditor()
+			  .next('pre.ace_editor')
+			;
+			
+			var editor_placeholders = ace.edit($editor_placeholders.attr('id'));
+			
+			$toolbar.find('.cerb-editor-button-toolbar-tester').on('click', function() {
+			  var $button = $(this);
+			
+			  if($panel_tester.is(':visible')) {
+				  $button.removeClass('cerb-code-editor-toolbar-button--enabled');
+				  $panel_tester.hide();
+			
+			  } else {
+				  $button.addClass('cerb-code-editor-toolbar-button--enabled');
+				  $panel_tester.fadeIn();
+			  }
+			});
+			
+			$panel_tester.find('.cerb-code-editor-toolbar-button--run').on('click', function() {
+				if(!options.editor)
+					return;
+				
+				var formData = new FormData();
+				formData.set('c', 'profiles');
+				formData.set('a', 'invoke');
+				formData.set('module', 'toolbar');
+				formData.set('action', 'tester');
+
+				formData.set('toolbar_kata', options.editor.getValue());
+				formData.set('placeholders_kata', editor_placeholders.getValue());
+
+				var $results = $panel_tester.find('[data-cerb-toolbar-tester-results]').empty();
+
+				genericAjaxPost(formData, null, null, function(json) {
+					if(typeof json !== 'object')
+						return;
+
+					var $div;
+
+					if(json.hasOwnProperty('error') && json.error) {
+						$div = $('<div/>')
+							.addClass('ui-state-error ui-corner-all')
+							.css('padding', '5px')
+							.text(json.error)
+						;
+						$results.append($div);
+						return;
+					} else if (json.hasOwnProperty('html') && json.html) {
+						
+					}
+
+					$results.html($(json.html));
+				});
+			});
+		});
 	};
 
 	$.fn.cerbCodeEditorToolbarHtml = function() {
