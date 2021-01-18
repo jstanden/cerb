@@ -104,6 +104,8 @@ class DAO_CalendarRecurringProfile extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING, $id);
+		
 		self::update($id, $fields);
 		
 		if(

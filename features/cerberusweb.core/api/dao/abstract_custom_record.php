@@ -82,6 +82,8 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 		
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(self::_getContextName(), $id);
+		
 		if(!isset($fields[self::CREATED_AT]))
 			$fields[self::CREATED_AT] = time();
 		

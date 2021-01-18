@@ -142,7 +142,9 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 		$sql = "INSERT INTO mailbox () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
-
+		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_MAILBOX, $id);
+		
 		self::update($id, $fields);
 
 		return $id;

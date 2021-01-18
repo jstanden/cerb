@@ -360,6 +360,8 @@ class DAO_Group extends Cerb_ORMHelper {
 			return false;
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_GROUP, $id);
+		
 		if(!isset($fields[self::CREATED]))
 			$fields[self::CREATED] = time();
 		

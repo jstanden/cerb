@@ -109,6 +109,8 @@ class DAO_Attachment extends Cerb_ORMHelper {
 			return false;
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_ATTACHMENT, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

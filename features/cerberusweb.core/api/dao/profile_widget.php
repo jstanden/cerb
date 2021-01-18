@@ -82,6 +82,8 @@ class DAO_ProfileWidget extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_PROFILE_WIDGET, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

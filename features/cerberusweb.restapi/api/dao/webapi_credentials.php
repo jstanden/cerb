@@ -86,6 +86,8 @@ class DAO_WebApiCredentials extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_WEBAPI_CREDENTIAL, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

@@ -64,6 +64,8 @@ class DAO_WebhookListener extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(Context_WebhookListener::ID, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

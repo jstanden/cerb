@@ -119,6 +119,8 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_DRAFT, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

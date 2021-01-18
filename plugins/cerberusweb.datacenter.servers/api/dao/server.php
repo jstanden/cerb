@@ -472,6 +472,8 @@ class DAO_Server extends Cerb_ORMHelper {
 		if(!isset($fields[self::CREATED]))
 			$fields[self::CREATED] = time();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_SERVER, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

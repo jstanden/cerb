@@ -97,6 +97,8 @@ class DAO_WorkerRole extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_ROLE, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

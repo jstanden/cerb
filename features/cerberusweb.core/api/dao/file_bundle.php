@@ -80,7 +80,9 @@ class DAO_FileBundle extends Cerb_ORMHelper {
 		$sql = "INSERT INTO file_bundle () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
-
+		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_FILE_BUNDLE, $id);
+		
 		self::update($id, $fields);
 
 		return $id;

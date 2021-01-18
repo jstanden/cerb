@@ -124,6 +124,8 @@ class DAO_ContactOrg extends Cerb_ORMHelper {
 		
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_ORG, $id);
+		
 		self::update($id, $fields);
 		return $id;
 	}

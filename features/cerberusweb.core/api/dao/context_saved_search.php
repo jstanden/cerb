@@ -92,6 +92,8 @@ class DAO_ContextSavedSearch extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_SAVED_SEARCH, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

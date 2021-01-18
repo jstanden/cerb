@@ -260,7 +260,7 @@ if(!isset($tables['automation_event'])) {
 				uniqid(),
 				$behavior['uri'] ?: $behavior['id'],
 				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
-				"{{record__type == 'task' and not was_record_title and not was_record_created ? 'no' : 'yes'}}"
+				"{{record__type != 'task' or not is_new}}"
 			);
 		}
 	}
@@ -276,7 +276,7 @@ if(!isset($tables['automation_event'])) {
 				uniqid(),
 				$behavior['uri'] ?: $behavior['id'],
 				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
-				"{{record__type == 'comment' and not was_record_comment and not was_record_created ? 'no' : 'yes'}}"
+				"{{record__type != 'comment' or not is_new}}"
 			);
 		}
 	}
@@ -292,7 +292,7 @@ if(!isset($tables['automation_event'])) {
 				uniqid(),
 				$behavior['uri'] ?: $behavior['id'],
 				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
-				"{{record__type == 'comment' and record_target__type == 'ticket' and not was_record_comment and not was_record_created ? 'no' : 'yes'}}"
+				"{{record__type != 'comment' or record_target__type != 'ticket' or not is_new}}"
 			);
 		}
 	}

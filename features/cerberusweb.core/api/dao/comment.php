@@ -92,6 +92,8 @@ class DAO_Comment extends Cerb_ORMHelper {
 		$db->ExecuteMaster("INSERT INTO comment () VALUES ()");
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_COMMENT, $id);
+		
 		self::update($id, $fields);
 		
 		/*

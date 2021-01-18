@@ -90,6 +90,8 @@ class DAO_KbArticle extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_KB_ARTICLE, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

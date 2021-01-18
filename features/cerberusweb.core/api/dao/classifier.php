@@ -75,6 +75,8 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CLASSIFIER, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

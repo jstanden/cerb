@@ -126,6 +126,8 @@ class DAO_WorkspaceList extends Cerb_ORMHelper {
 			return false;
 		
 		$id = $db->LastInsertId();
+		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_WORKSPACE_WORKLIST, $id);
 
 		self::update($id, $fields);
 		

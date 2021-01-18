@@ -63,6 +63,8 @@ class DAO_GpgPublicKey extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(Context_GpgPublicKey::ID, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

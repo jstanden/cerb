@@ -146,6 +146,8 @@ class DAO_TriggerEvent extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_BEHAVIOR, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

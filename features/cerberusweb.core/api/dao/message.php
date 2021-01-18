@@ -184,7 +184,9 @@ class DAO_Message extends Cerb_ORMHelper {
 		if(false == ($db->ExecuteMaster($sql)))
 			return false;
 		$id = $db->LastInsertId();
-
+		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_MESSAGE, $id);
+		
 		self::update($id, $fields);
 		
 		if(isset($fields[self::TICKET_ID])) {

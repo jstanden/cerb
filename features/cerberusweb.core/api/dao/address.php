@@ -138,6 +138,8 @@ class DAO_Address extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_ADDRESS, $id);
+		
 		if(!isset($fields[DAO_Address::CREATED_AT]))
 			$fields[DAO_Address::CREATED_AT] = time();
 		

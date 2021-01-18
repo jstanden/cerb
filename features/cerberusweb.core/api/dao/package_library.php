@@ -100,6 +100,8 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_PACKAGE, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

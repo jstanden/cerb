@@ -162,6 +162,8 @@ class DAO_CustomField extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CUSTOM_FIELD, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

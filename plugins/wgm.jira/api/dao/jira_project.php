@@ -93,6 +93,8 @@ class DAO_JiraProject extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(Context_JiraProject::ID, $id);
+		
 		self::update($id, $fields, $check_deltas);
 		
 		return $id;

@@ -87,6 +87,8 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_WORKSPACE_TAB, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

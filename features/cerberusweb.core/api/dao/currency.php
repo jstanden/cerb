@@ -76,6 +76,8 @@ class DAO_Currency extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CURRENCY, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

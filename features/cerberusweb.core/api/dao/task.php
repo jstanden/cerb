@@ -106,6 +106,7 @@ class DAO_Task extends Cerb_ORMHelper {
 	
 	static function create($fields, $custom_fields=[]) {
 		$db = DevblocksPlatform::services()->database();
+		$context = CerberusContexts::CONTEXT_TASK;
 		
 		$sql = sprintf("INSERT INTO task () ".
 			"VALUES ()"
@@ -113,6 +114,8 @@ class DAO_Task extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		
 		$id = $db->LastInsertId();
+		
+		CerberusContexts::checkpointCreations($context, $id);
 		
 		if(!isset($fields[DAO_Task::CREATED_AT]))
 			$fields[DAO_Task::CREATED_AT] = time();
@@ -123,7 +126,7 @@ class DAO_Task extends Cerb_ORMHelper {
 		self::update($id, $fields);
 		
 		if(!empty($custom_fields)) {
-			DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_TASK, $id, $custom_fields);
+			DAO_CustomFieldValue::formatAndSetFieldValues($context, $id, $custom_fields);
 		}
 		
 		/*

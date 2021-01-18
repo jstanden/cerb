@@ -89,6 +89,8 @@ class DAO_CardWidget extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CARD_WIDGET, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

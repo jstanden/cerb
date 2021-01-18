@@ -79,6 +79,8 @@ class DAO_CalendarEvent extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CALENDAR_EVENT, $id);
+		
 		self::update($id, $fields);
 		
 		/*

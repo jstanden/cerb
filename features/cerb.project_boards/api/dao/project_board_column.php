@@ -84,6 +84,8 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(Context_ProjectBoardColumn::ID, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

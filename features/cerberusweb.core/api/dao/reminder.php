@@ -69,6 +69,8 @@ class DAO_Reminder extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_REMINDER, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

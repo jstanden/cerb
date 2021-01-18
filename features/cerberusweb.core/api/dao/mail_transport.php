@@ -75,6 +75,8 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 		if(!isset($fields[self::CREATED_AT]))
 			$fields[self::CREATED_AT] = time();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_MAIL_TRANSPORT, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

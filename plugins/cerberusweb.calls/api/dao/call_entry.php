@@ -91,6 +91,8 @@ class DAO_CallEntry extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CALL, $id);
+		
 		self::update($id, $fields);
 		
 		/*

@@ -82,6 +82,8 @@ class DAO_CustomRecord extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CUSTOM_RECORD, $id);
+		
 		$sql = sprintf("
 			CREATE TABLE `custom_record_%d` (
 				id INT UNSIGNED NOT NULL AUTO_INCREMENT,

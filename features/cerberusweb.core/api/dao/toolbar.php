@@ -87,6 +87,8 @@ class DAO_Toolbar extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_TOOLBAR, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

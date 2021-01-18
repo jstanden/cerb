@@ -119,6 +119,8 @@ class DAO_Bucket extends Cerb_ORMHelper {
 			return false;
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_BUCKET, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

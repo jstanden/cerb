@@ -96,6 +96,8 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 		// [TODO] This should be an example for insertion of other immutable records
 		$id = parent::_insert('context_activity_log', $fields);
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_ACTIVITY_LOG, $id);
+		
 		return $id;
 	}
 	

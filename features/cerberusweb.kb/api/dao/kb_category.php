@@ -59,6 +59,8 @@ class DAO_KbCategory extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_KB_CATEGORY, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

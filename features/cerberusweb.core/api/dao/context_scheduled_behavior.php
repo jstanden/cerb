@@ -84,7 +84,9 @@ class DAO_ContextScheduledBehavior extends Cerb_ORMHelper {
 		$sql = "INSERT INTO context_scheduled_behavior () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
-
+		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED, $id);
+		
 		self::update($id, $fields);
 
 		return $id;

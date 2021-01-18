@@ -69,10 +69,13 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
+		$context = Context_ProjectBoard::ID;
 		
 		$sql = "INSERT INTO project_board () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
+		
+		CerberusContexts::checkpointCreations($context, $id);
 		
 		self::update($id, $fields);
 		

@@ -91,6 +91,8 @@ class DAO_ConnectedService extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CONNECTED_SERVICE, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

@@ -104,7 +104,9 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		$sql = "INSERT INTO workspace_page () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
-
+		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $id);
+		
 		self::update($id, $fields);
 
 		return $id;

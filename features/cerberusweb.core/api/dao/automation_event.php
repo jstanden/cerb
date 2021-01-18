@@ -79,6 +79,8 @@ class DAO_AutomationEvent extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_AUTOMATION_EVENT, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

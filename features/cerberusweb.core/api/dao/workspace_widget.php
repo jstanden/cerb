@@ -110,6 +110,8 @@ class DAO_WorkspaceWidget extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

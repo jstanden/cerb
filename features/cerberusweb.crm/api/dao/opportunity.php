@@ -104,6 +104,8 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_OPPORTUNITY, $id);
+		
 		self::update($id, $fields);
 		
 		// New opportunity

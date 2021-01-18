@@ -16,12 +16,16 @@ class AutomationTrigger_RecordChanged extends Extension_AutomationTrigger {
 	function getInputsMeta() {
 		return [
 			[
+				'key' => 'is_new',
+				'notes' => '`true` if the record was just created, `false` otherwise.',
+			],
+			[
 				'key' => 'record_',
 				'notes' => 'The changed record dictionary. Supports key expansion.',
 			],
 			[
 				'key' => 'was_record_',
-				'notes' => 'The record dictionary before the change. Supports key expansion.',
+				'notes' => 'The record dictionary before the changes. Supports key expansion.',
 			],
 			[
 				'key' => 'actor_*',

@@ -50,6 +50,8 @@ class DAO_Feed extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_FEED, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

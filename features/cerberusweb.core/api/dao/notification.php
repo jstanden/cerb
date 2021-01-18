@@ -105,6 +105,8 @@ class DAO_Notification extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_NOTIFICATION, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

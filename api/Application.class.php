@@ -2302,7 +2302,24 @@ class CerberusContexts {
 		return $models;
 	}
 
-	static private $_context_checkpoints = [];
+	static private array $_context_creations = [];
+	
+	static function checkpointCreations($context, $id) {
+		if (php_sapi_name() == 'cli')
+			return;
+		
+		if (!DevblocksPlatform::services()->event()->isEnabled())
+			return;
+		
+		$id = DevblocksPlatform::importVar($id, 'integer');
+		
+		if(!array_key_exists($context, self::$_context_creations))
+			self::$_context_creations[$context] = [];
+		
+		self::$_context_creations[$context][$id] = true;
+	}
+	
+	static private array $_context_checkpoints = [];
 
 	static function checkpointChanges($context, $ids) {
 		if(php_sapi_name() == 'cli')
@@ -2334,6 +2351,18 @@ class CerberusContexts {
 					json_decode(json_encode($model), true);
 			}
 		}
+	}
+	
+	/**
+	 * @param string $context
+	 * @param int $id
+	 * @return bool
+	 */
+	private static function _wasJustCreated(string $context, int $id) : bool {
+		if(!array_key_exists($context, self::$_context_creations))
+			return false;
+		
+		return array_key_exists($id, self::$_context_creations[$context]);
 	}
 
 	static function getCheckpoints($context, $ids) {
@@ -2385,6 +2414,7 @@ class CerberusContexts {
 							$dict_old->getDictionary(null, false, 'was_record_')
 						);
 						
+						$initial_state['is_new'] = self::_wasJustCreated($context, $context_id);
 						$initial_state['actor__context'] = $actor['context'];
 						$initial_state['actor_id'] = $actor['context_id'];
 						
@@ -2470,6 +2500,7 @@ class CerberusContexts {
 			}
 		}
 
+		self::$_context_creations = [];
 		self::$_context_checkpoints = [];
 	}
 	

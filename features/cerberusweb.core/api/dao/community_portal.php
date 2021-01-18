@@ -122,6 +122,8 @@ class DAO_CommunityTool extends Cerb_ORMHelper {
 			return false;
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_PORTAL, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

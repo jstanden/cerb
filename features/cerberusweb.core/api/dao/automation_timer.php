@@ -70,6 +70,8 @@ class DAO_AutomationTimer extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_AUTOMATION_TIMER, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

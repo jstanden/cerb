@@ -253,6 +253,8 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_WORKER, $id);
+		
 		if(!array_key_exists(DAO_Worker::TIMEOUT_IDLE_SECS, $fields))
 			$fields[DAO_Worker::TIMEOUT_IDLE_SECS] = 600;
 

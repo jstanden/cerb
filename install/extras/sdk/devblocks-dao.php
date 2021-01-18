@@ -107,7 +107,10 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		$sql = "INSERT INTO <?php echo $table_name; ?> () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
-		
+
+        // [TODO]
+        CerberusContexts::checkpointCreations(Context_<?php echo $class_name; ?>::ID, $id);
+    
 		self::update($id, $fields);
 		
 		return $id;

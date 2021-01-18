@@ -104,6 +104,8 @@ class DAO_Snippet extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_SNIPPET, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

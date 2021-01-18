@@ -677,6 +677,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			return false;
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_TICKET, $id);
+		
 		self::update($id, $fields, false);
 		
 		return $id;

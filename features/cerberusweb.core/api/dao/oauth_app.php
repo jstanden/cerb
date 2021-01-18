@@ -72,6 +72,8 @@ class DAO_OAuthApp extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(Context_OAuthApp::ID, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

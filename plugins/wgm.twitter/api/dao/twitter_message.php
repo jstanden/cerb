@@ -100,6 +100,8 @@ class DAO_TwitterMessage extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(Context_TwitterMessage::ID, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

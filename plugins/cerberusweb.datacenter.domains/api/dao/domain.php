@@ -600,6 +600,8 @@ class DAO_Domain extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_DOMAIN, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;

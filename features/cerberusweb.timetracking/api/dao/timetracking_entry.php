@@ -114,6 +114,8 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_TIMETRACKING, $id);
+		
 		self::update($id, $fields);
 		
 		return $id;
