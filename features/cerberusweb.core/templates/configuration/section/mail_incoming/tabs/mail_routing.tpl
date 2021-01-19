@@ -1,16 +1,25 @@
-<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
-	<button type="button" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id=0',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
-</form>
-
-<fieldset>
-	<legend>Rules</legend>
+<fieldset id="frmSetupMailRouting" class="peek" style="margin-bottom:20px;">
+	<legend>{'common.automations'|devblocks_translate|capitalize}</legend>
 	
+	<button type="button" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_AUTOMATION_EVENT}" data-context-id="mail.route" data-edit="true">
+		<span class="glyphicons glyphicons-cogwheel"></span> {'common.configure'|devblocks_translate|capitalize}
+	</button>
+</fieldset>
+
+{if !empty($rules)}
+<fieldset class="peek">
+	<legend>Legacy Rules (Needs Migration)</legend>
+
+	<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:5px;">
+		<button type="button" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id=0',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus" style="color:rgb(0,180,0);"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	</form>
+
 	<form action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="config">
-<input type="hidden" name="a" value="invoke">
-<input type="hidden" name="module" value="mail_incoming">
-<input type="hidden" name="action" value="saveRouting">
-<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
+	<input type="hidden" name="a" value="invoke">
+	<input type="hidden" name="module" value="mail_incoming">
+	<input type="hidden" name="action" value="saveRouting">
+	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 	
 	{if !empty($rules)}
 	<table cellspacing="2" cellpadding="2">
@@ -95,3 +104,11 @@
 	<button type="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 	</form>
 </fieldset>
+{/if}
+
+<script type="text/javascript">
+$(function() {
+	var $frm = $('#frmSetupMailRouting');
+	$frm.find('.cerb-peek-trigger').cerbPeekTrigger();
+});
+</script>

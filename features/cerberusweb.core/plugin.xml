@@ -4701,6 +4701,22 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.mail.route</id>
+			<name>mail.route</name>
+			<class>
+				<file>api/automations/triggers/mail.route.php</file>
+				<name>AutomationTrigger_MailRoute</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.reminder.remind</id>
 			<name>reminder.remind</name>
 			<class>

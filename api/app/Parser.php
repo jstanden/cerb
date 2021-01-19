@@ -1561,16 +1561,65 @@ class CerberusParser {
 				}
 			}
 			
-			// Routing new tickets
-			if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
-				$model->getSenderAddressModel(),
-				$message
-			))) {
-				
-				// Update our model with the results of the routing rules
-				if(is_array($routing_rules))
-				foreach($routing_rules as $rule) {
-					$rule->run($model);
+			// Trigger automations first, and if we don't have an explicit `return` match then run routing rules
+			
+			$did_rule_match = false;
+			$error = null;
+			
+			$initial_state = [
+				'email_sender__context' => CerberusContexts::CONTEXT_ADDRESS,
+				'email_sender_id' => @$model->getSenderAddressModel()->id ?: 0,
+				'email_subject' => $model->getSubject(),
+				'email_headers' => $model->getHeaders(),
+				'email_body' => $model->getMessage()->body,
+				'email_body_html' => $model->getMessage()->htmlbody,
+				'email_recipients' => $model->getRecipients(),
+			];
+			
+			$events_kata = DAO_AutomationEvent::getKataByName('mail.route');
+			
+			$handlers = DevblocksPlatform::services()->ui()->eventHandler()->parse(
+				$events_kata,
+				DevblocksDictionaryDelegate::instance($initial_state)
+			);
+			
+			$automation_results = DevblocksPlatform::services()->ui()->eventHandler()->handleUntilReturn(
+				AutomationTrigger_MailRoute::ID,
+				$handlers,
+				$initial_state,
+				$error
+			);
+			
+			if($automation_results instanceof DevblocksDictionaryDelegate) {
+				if('return' == $automation_results->getKeyPath('__exit')) {
+					$group_id = $automation_results->getKeyPath('__return.group_id');
+					
+					// If `group_id` was null, check `group_name`
+					if(is_null($group_id) 
+						&& null != ($group_id = $automation_results->getKeyPath('__return.group_name')))
+							$group_id = DAO_Group::getByName($group_id);
+					
+					if($group_id)
+						$model->setGroupId($group_id);
+					
+					$did_rule_match = true;
+				}
+			}
+			
+			// Only run legacy routing rules if no automations matched above
+			
+			if(!$did_rule_match) {
+				// Routing new tickets
+				if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
+					$model->getSenderAddressModel(),
+					$message
+				))) {
+					
+					// Update our model with the results of the routing rules
+					if(is_array($routing_rules))
+					foreach($routing_rules as $rule) {
+						$rule->run($model);
+					}
 				}
 			}
 			

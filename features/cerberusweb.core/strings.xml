@@ -1653,6 +1653,16 @@
 				<seg>Mail routing</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.mail.routing.rule">
+			<tuv xml:lang="en_US">
+				<seg>email routing rule</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.mail.routing.rules">
+			<tuv xml:lang="en_US">
+				<seg>email routing rules</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.mailbox">
 			<tuv xml:lang="en_US">
 				<seg>Mailbox</seg>
