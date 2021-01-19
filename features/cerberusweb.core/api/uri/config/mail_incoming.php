@@ -541,23 +541,7 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$view_id = 'setup_mail_filtering';
-		
-		$view = C4_AbstractViewLoader::getView($view_id);
-		
-		if(null == $view) {
-			$ctx = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_BEHAVIOR);
-			$view = $ctx->getChooserView($view_id);
-		}
-		
-		// [TODO] Limit to VA owned bots?
-		
-		$view->addParamsRequired(array(
-			new DevblocksSearchCriteria(SearchFields_TriggerEvent::EVENT_POINT, '=', 'event.mail.received.app'),
-		), true);
-		
-		$tpl->assign('view', $view);
-		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_filtering.tpl');
 	}
 	
 	private function _configAction_renderTabMailHtml() {

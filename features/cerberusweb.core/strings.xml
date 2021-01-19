@@ -1628,6 +1628,16 @@
 				<seg>Mail filtering</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.mail.filtering.rule">
+			<tuv xml:lang="en_US">
+				<seg>email filtering rule</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.mail.filtering.rules">
+			<tuv xml:lang="en_US">
+				<seg>email filtering rules</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.mail.incoming">
 			<tuv xml:lang="en_US">
 				<seg>Incoming mail</seg>

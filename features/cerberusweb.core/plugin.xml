@@ -4685,6 +4685,22 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.mail.filter</id>
+			<name>mail.filter</name>
+			<class>
+				<file>api/automations/triggers/mail.filter.php</file>
+				<name>AutomationTrigger_MailFilter</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.reminder.remind</id>
 			<name>reminder.remind</name>
 			<class>

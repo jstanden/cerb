@@ -61,6 +61,8 @@ class CerberusParserMessage {
 	private function _buildHeaders() {
 		if(empty($this->raw_headers) && !empty($this->headers))
 		foreach($this->headers as $k => $v) {
+			$k = DevblocksPlatform::services()->string()->capitalizeDashed($k);
+			
 			if(is_array($v)) {
 				foreach($v as $vv) {
 					$this->raw_headers .= sprintf("%s: %s\r\n", $k, $vv);
@@ -1075,6 +1077,140 @@ class CerberusParser {
 		return true;
 	}
 	
+	static private function _handleMailFilteringAutomations(CerberusParserModel &$model) {
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		$error = null;
+		
+		$initial_state = [
+			'email_sender__context' => CerberusContexts::CONTEXT_ADDRESS,
+			'email_sender_id' => @$model->getSenderAddressModel()->id ?: 0,
+			'email_subject' => $model->getSubject(),
+			'email_headers' => $model->getHeaders(),
+			'email_body' => $model->getMessage()->body,
+			'email_body_html' => $model->getMessage()->htmlbody,
+			'email_recipients' => $model->getRecipients(),
+			'parent_ticket__context' => CerberusContexts::CONTEXT_TICKET,
+			'parent_ticket_id' => $model->getTicketId(),
+		];
+		
+		$handlers_dict = DevblocksDictionaryDelegate::instance($initial_state);
+		
+		$handlers_kata = DAO_AutomationEvent::getKataByName('mail.filter', null);
+		
+		if($handlers_kata) {
+			$handlers = $event_handler->parse($handlers_kata, $handlers_dict, $error);
+			
+			$behavior_callback = function (Model_TriggerEvent $behavior) use (&$model) {
+				$return = DevblocksDictionaryDelegate::instance([
+					'__exit' => 'exit',
+				]);
+				
+				$event = new Model_DevblocksEvent(
+					Event_MailReceivedByApp::ID,
+					[
+						'parser_model' => &$model,
+						'_whisper' => [
+							'_trigger_id' => [$behavior->id],
+						],
+					]
+				);
+				
+				if (false == ($results = DevblocksPlatform::services()->event()->trigger($event)))
+					return $return;
+				
+				$result = array_shift($results);
+				
+				if (!($result instanceof DevblocksDictionaryDelegate))
+					return $return;
+				
+				$result->unset('_types');
+				$result->unset('_labels');
+				$result->unset('__trigger');
+				$result->clearCaches();
+				
+				if(null === ($model_result = $result->getKeyPath('_parser_model')))
+					return $return;
+				
+				/* @var $model CerberusParserModel */
+				
+				// Convert the behavior response to an automation result
+				
+				$pre_actions = $model_result->getPreActions();
+				
+				if(array_key_exists('reject', $pre_actions) && $pre_actions['reject']) {
+					$return->setKeyPath('__exit', 'return');
+					$return->setKeyPath('__return.reject', true);
+				}
+				
+				if(array_key_exists('attachment_filters', $pre_actions) && $pre_actions['attachment_filters']) {
+					$return->setKeyPath('__exit', 'return');
+					$model->addPreAction('attachment_filters', $pre_actions['attachment_filters']);
+				}
+				
+				return $return;
+			};
+			
+			$results = $event_handler->handleEach(
+				AutomationTrigger_MailFilter::ID,
+				$handlers,
+				$initial_state,
+				$error,
+				function(DevblocksDictionaryDelegate $result) {
+					// Continue unless we rejected the message
+					return false != ($reject = $result->getKeyPath('__return.reject'));
+				},
+				$behavior_callback
+			);
+			
+			foreach($results as $result) { /** @var DevblocksDictionaryDelegate $result */
+				if(null != ($reject = $result->getKeyPath('__return.reject'))) {
+					$model->addPreAction('reject');
+					break;
+				}
+				
+				if(null != ($subject = $result->getKeyPath('__return.set.email_subject'))) {
+					$model->setSubject($subject);
+				}
+				
+				if(null != ($body = $result->getKeyPath('__return.set.email_body'))) {
+					$model->getMessage()->body = $body;
+					unset($body);
+				}
+				
+				if(null != ($html_body = $result->getKeyPath('__return.set.email_body_html'))) {
+					$model->getMessage()->htmlbody = $html_body;
+					unset($html_body);
+				}
+				
+				if(null != ($headers = $result->getKeyPath('__return.set.headers'))) {
+					if(is_array($headers)) {
+						foreach($headers as $k => $v) {
+							$model->getMessage()->headers[$k] = $v;
+						}
+						
+						$model->getMessage()->raw_headers = '';
+						$model->getMessage()->build();
+					}
+				}
+				
+				if(null != ($custom_fields = $result->getKeyPath('__return.set.custom_fields'))) {
+					if(is_array($custom_fields)) {
+						foreach($custom_fields as $cf_key => $cf_value) {
+							$model->getMessage()->custom_fields[] = [
+								'field_id' => $cf_key,
+								'context' => CerberusContexts::CONTEXT_TICKET,
+								'value' => $cf_value,
+							];
+						}
+					}
+				}
+			}
+		}
+		
+		return $model;
+	}
+	
 	/**
 	 * @param CerberusParserMessage $message
 	 * @return integer
@@ -1095,7 +1231,7 @@ class CerberusParser {
 		
 		// Pre-parse mail filters
 		// Changing the incoming message through a VA
-		Event_MailReceivedByApp::trigger($model);
+		self::_handleMailFilteringAutomations($model);
 		
 		// Log headers after bots run
 		
@@ -1615,16 +1751,29 @@ class CerberusParser {
 		// Pre-load custom fields
 		
 		$cf_values = [];
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
+		$custom_field_uris = array_column($custom_fields, 'id', 'uri');
 		
 		if(isset($message->custom_fields) && !empty($message->custom_fields))
 		foreach($message->custom_fields as $cf_data) {
 			if(!is_array($cf_data))
 				continue;
 			
-			@$cf_id = $cf_data['field_id'];
-			@$cf_context = $cf_data['context'];
-			@$cf_context_id = $cf_data['context_id'];
-			@$cf_val = $cf_data['value'];
+			$cf_id = $cf_data['field_id'] ?? null;
+			$cf_context = $cf_data['context'] ?? null;
+			$cf_context_id = $cf_data['context_id'] ?? null;
+			$cf_val = $cf_data['value'] ?? null;
+			
+			if($cf_id && !is_numeric($cf_id) && is_string($cf_id)) {
+				if(array_key_exists($cf_id, $custom_field_uris)) {
+					$cf_id = $custom_field_uris[$cf_id];
+				} else {
+					$cf_id = 0;
+				}
+			}
+			
+			if(!$cf_id || array_key_exists($cf_id, $custom_fields))
+				continue;
 			
 			// If we're setting fields on the ticket, find the ticket ID
 			if($cf_context == CerberusContexts::CONTEXT_TICKET && empty($cf_context_id))
