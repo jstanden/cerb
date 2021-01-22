@@ -4917,6 +4917,16 @@ For example: *receipt*</seg>
 				<seg># Messages</seg>
 			</tuv>
 		</tu>
+		<tu tuid="ticket.num_messages_in">
+			<tuv xml:lang="en_US">
+				<seg># Messages In</seg>
+			</tuv>
+		</tu>
+		<tu tuid="ticket.num_messages_out">
+			<tuv xml:lang="en_US">
+				<seg># Messages Out</seg>
+			</tuv>
+		</tu>
 		<tu tuid="ticket.recipients.empty">
 			<tuv xml:lang="en_US">
 				<seg>This conversation has no participants.</seg>

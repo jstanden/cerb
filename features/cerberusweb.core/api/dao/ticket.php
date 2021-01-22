@@ -32,6 +32,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 	const LAST_WROTE_ID = 'last_wrote_address_id';
 	const MASK = 'mask';
 	const NUM_MESSAGES = 'num_messages';
+	const NUM_MESSAGES_IN = 'num_messages_in';
+	const NUM_MESSAGES_OUT = 'num_messages_out';
 	const ORG_ID = 'org_id';
 	const OWNER_ID = 'owner_id';
 	const REOPEN_AT = 'reopen_at';
@@ -130,6 +132,16 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			;
 		$validation
 			->addField(self::NUM_MESSAGES)
+			->uint(4)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NUM_MESSAGES_IN)
+			->uint(4)
+			->setEditable(false)
+			;
+		$validation
+			->addField(self::NUM_MESSAGES_OUT)
 			->uint(4)
 			->setEditable(false)
 			;
@@ -711,6 +723,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$messages = $ticket->getMessages();
 		$first_message = reset($messages);
 		$last_message = end($messages);
+		$num_messages = count($messages);
+		$num_messages_in = 0;
+		$num_messages_out = 0;
 		
 		// If no messages, delete the ticket
 		if(empty($first_message) && empty($last_message)) {
@@ -739,6 +754,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		// Reindex the first outgoing message
 		if(is_array($messages))
 		foreach($messages as $message_id => $message) { /* @var $message Model_Message */
+			if($message->is_outgoing) $num_messages_out++; else $num_messages_in++;
+			
 			if($message->is_outgoing && !empty($message->worker_id) && !isset($fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID])) {
 				$fields[DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID] = $message_id;
 				$fields[DAO_Ticket::ELAPSED_RESPONSE_FIRST] = max($message->created_date - $ticket->created_date, 0);
@@ -754,7 +771,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$fields[DAO_Ticket::ELAPSED_RESOLUTION_FIRST] = max($closed_at - $ticket->created_date, 0);
 		
 		// Reindex message count
-		$fields[DAO_Ticket::NUM_MESSAGES] = count($messages);
+		$fields[DAO_Ticket::NUM_MESSAGES] = $num_messages;
+		$fields[DAO_Ticket::NUM_MESSAGES_IN] = $num_messages_in;
+		$fields[DAO_Ticket::NUM_MESSAGES_OUT] = $num_messages_out;
 		
 		// Update
 		if(!empty($fields)) {
@@ -788,7 +807,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		$sql = "SELECT id , mask, subject, status_id, group_id, bucket_id, org_id, owner_id, importance, first_message_id, first_outgoing_message_id, last_message_id, ".
 			"first_wrote_address_id, last_wrote_address_id, created_date, updated_date, closed_at, reopen_at, spam_training, ".
-			"spam_score, interesting_words, num_messages, elapsed_response_first, elapsed_resolution_first ".
+			"spam_score, interesting_words, num_messages, num_messages_in, num_messages_out, elapsed_response_first, elapsed_resolution_first ".
 			"FROM ticket ".
 			$where_sql.
 			$sort_sql.
@@ -832,7 +851,9 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$object->spam_score = floatval($row['spam_score']);
 			$object->spam_training = $row['spam_training'];
 			$object->interesting_words = $row['interesting_words'];
-			$object->num_messages = $row['num_messages'];
+			$object->num_messages = intval($row['num_messages']);
+			$object->num_messages_in = intval($row['num_messages_in']);
+			$object->num_messages_out = intval($row['num_messages_out']);
 			$object->elapsed_response_first = $row['elapsed_response_first'];
 			$object->elapsed_resolution_first = $row['elapsed_resolution_first'];
 			$objects[$object->id] = $object;
@@ -1484,7 +1505,10 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		$db->ExecuteMaster(sprintf("UPDATE ticket ".
-			"SET num_messages = (SELECT count(id) FROM message WHERE message.ticket_id = ticket.id) ".
+			"SET ".
+			"num_messages = (SELECT count(id) FROM message WHERE message.ticket_id = ticket.id), ".
+			"num_messages_in = (SELECT count(id) FROM message WHERE message.ticket_id = ticket.id AND message.is_outgoing=0), ".
+			"num_messages_out = (SELECT count(id) FROM message WHERE message.ticket_id = ticket.id AND message.is_outgoing=1) ".
 			"WHERE ticket.id = %d",
 			$id
 		));
@@ -1805,6 +1829,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			"t.spam_training as %s, ".
 			"t.spam_score as %s, ".
 			"t.num_messages as %s, ".
+			"t.num_messages_in as %s, ".
+			"t.num_messages_out as %s, ".
 			"t.elapsed_response_first as %s, ".
 			"t.elapsed_resolution_first as %s, ".
 			"t.owner_id as %s, ".
@@ -1828,6 +1854,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				SearchFields_Ticket::TICKET_SPAM_TRAINING,
 				SearchFields_Ticket::TICKET_SPAM_SCORE,
 				SearchFields_Ticket::TICKET_NUM_MESSAGES,
+				SearchFields_Ticket::TICKET_NUM_MESSAGES_IN,
+				SearchFields_Ticket::TICKET_NUM_MESSAGES_OUT,
 				SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST,
 				SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST,
 				SearchFields_Ticket::TICKET_OWNER_ID,
@@ -1956,6 +1984,8 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				DAO_Ticket::FIRST_OUTGOING_MESSAGE_ID => 0,
 				DAO_Ticket::LAST_MESSAGE_ID => 0,
 				DAO_Ticket::NUM_MESSAGES => 0,
+				DAO_Ticket::NUM_MESSAGES_IN => 0,
+				DAO_Ticket::NUM_MESSAGES_OUT => 0,
 				DAO_Ticket::ELAPSED_RESPONSE_FIRST => 0,
 				DAO_Ticket::ELAPSED_RESOLUTION_FIRST => 0,
 			];
@@ -2197,6 +2227,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	const TICKET_SPAM_TRAINING = 't_spam_training';
 	const TICKET_INTERESTING_WORDS = 't_interesting_words';
 	const TICKET_NUM_MESSAGES = 't_num_messages';
+	const TICKET_NUM_MESSAGES_IN = 't_num_messages_in';
+	const TICKET_NUM_MESSAGES_OUT = 't_num_messages_out';
 	const TICKET_ELAPSED_RESPONSE_FIRST = 't_elapsed_response_first';
 	const TICKET_ELAPSED_RESOLUTION_FIRST = 't_elapsed_resolution_first';
 	const TICKET_GROUP_ID = 't_group_id';
@@ -2670,6 +2702,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			SearchFields_Ticket::TICKET_STATUS_ID => new DevblocksSearchField(SearchFields_Ticket::TICKET_STATUS_ID, 't', 'status_id',$translate->_('common.status'), Model_CustomField::TYPE_NUMBER, true),
 
 			SearchFields_Ticket::TICKET_NUM_MESSAGES => new DevblocksSearchField(SearchFields_Ticket::TICKET_NUM_MESSAGES, 't', 'num_messages',$translate->_('ticket.num_messages'), Model_CustomField::TYPE_NUMBER, true),
+			SearchFields_Ticket::TICKET_NUM_MESSAGES_IN => new DevblocksSearchField(SearchFields_Ticket::TICKET_NUM_MESSAGES_IN, 't', 'num_messages_in',$translate->_('ticket.num_messages_in'), Model_CustomField::TYPE_NUMBER, true),
+			SearchFields_Ticket::TICKET_NUM_MESSAGES_OUT => new DevblocksSearchField(SearchFields_Ticket::TICKET_NUM_MESSAGES_OUT, 't', 'num_messages_out',$translate->_('ticket.num_messages_out'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST => new DevblocksSearchField(SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST, 't', 'elapsed_response_first',$translate->_('ticket.elapsed_response_first'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST => new DevblocksSearchField(SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST, 't', 'elapsed_resolution_first',$translate->_('ticket.elapsed_resolution_first'), Model_CustomField::TYPE_NUMBER, true),
 			SearchFields_Ticket::TICKET_SPAM_TRAINING => new DevblocksSearchField(SearchFields_Ticket::TICKET_SPAM_TRAINING, 't', 'spam_training',$translate->_('ticket.spam_training'), null, true),
@@ -2756,6 +2790,8 @@ class Model_Ticket {
 	public $spam_training;
 	public $interesting_words;
 	public $num_messages;
+	public $num_messages_in;
+	public $num_messages_out;
 	public $elapsed_response_first;
 	public $elapsed_resolution_first;
 	
@@ -3502,6 +3538,16 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => array('param_key' => SearchFields_Ticket::TICKET_NUM_MESSAGES),
+				),
+			'messages.count.in' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_NUM_MESSAGES_IN),
+				),
+			'messages.count.out' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_Ticket::TICKET_NUM_MESSAGES_OUT),
 				),
 			'messages.first' =>
 				array(
@@ -4272,6 +4318,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::TICKET_ID:
 			case SearchFields_Ticket::TICKET_IMPORTANCE:
 			case SearchFields_Ticket::TICKET_NUM_MESSAGES:
+			case SearchFields_Ticket::TICKET_NUM_MESSAGES_IN:
+			case SearchFields_Ticket::TICKET_NUM_MESSAGES_OUT:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
@@ -4797,6 +4845,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'importance' => $prefix.$translate->_('common.importance'),
 			'mask' => $prefix.$translate->_('ticket.mask'),
 			'num_messages' => $prefix.$translate->_('ticket.num_messages'),
+			'num_messages_in' => $prefix.$translate->_('ticket.num_messages_in'),
+			'num_messages_out' => $prefix.$translate->_('ticket.num_messages_out'),
 			'reopen_date' => $prefix.$translate->_('common.reopen_at'),
 			'spam_score' => $prefix.$translate->_('ticket.spam_score'),
 			'spam_training' => $prefix.$translate->_('ticket.spam_training'),
@@ -4817,6 +4867,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'importance' => Model_CustomField::TYPE_NUMBER,
 			'mask' => Model_CustomField::TYPE_SINGLE_LINE,
 			'num_messages' => Model_CustomField::TYPE_NUMBER,
+			'num_messages_in' => Model_CustomField::TYPE_NUMBER,
+			'num_messages_out' => Model_CustomField::TYPE_NUMBER,
 			'reopen_date' => Model_CustomField::TYPE_DATE,
 			'spam_score' => 'percent',
 			'spam_training' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -4853,6 +4905,8 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$token_values['importance'] = $ticket->importance;
 			$token_values['mask'] = $ticket->mask;
 			$token_values['num_messages'] = $ticket->num_messages;
+			$token_values['num_messages_in'] = $ticket->num_messages_in;
+			$token_values['num_messages_out'] = $ticket->num_messages_out;
 			$token_values['org_id'] = $ticket->org_id;
 			$token_values['reopen_date'] = $ticket->reopen_at;
 			$token_values['spam_score'] = $ticket->spam_score;
