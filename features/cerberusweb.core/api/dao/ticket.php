@@ -4707,6 +4707,24 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'value' => $model->spam_score,
 		);
 		
+		$properties['num_messages'] = array(
+			'label' => mb_ucfirst($translate->_('ticket.num_messages')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->num_messages,
+		);
+		
+		$properties['num_messages_in'] = array(
+			'label' => mb_ucfirst($translate->_('ticket.num_messages_in')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->num_messages_in,
+		);
+		
+		$properties['num_messages_out'] = array(
+			'label' => mb_ucfirst($translate->_('ticket.num_messages_out')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->num_messages_out,
+		);
+		
 		$properties['id'] = array(
 			'label' => mb_ucfirst($translate->_('common.id')),
 			'type' => Model_CustomField::TYPE_NUMBER,
