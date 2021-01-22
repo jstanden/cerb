@@ -382,6 +382,41 @@ class _DevblocksDateManager {
 			return sprintf("%02d:%02d", $parts['hour'], $parts['minute']);
 		}
 	}
+	
+	public function parseTimezoneOffset(string $timezone, ?string &$error=null) {
+		if(!is_string($timezone)) {
+			$error = 'timezone must be a string';
+			return false;
+		}
+		
+		$matches = [];
+		$is_neg = DevblocksPlatform::strStartsWith($timezone, '-');
+		$timezone = ltrim($timezone, '+-');
+		
+		if(false == (preg_match('#^(\d{1,2}):(\d{1,2})$#', $timezone, $matches))) {
+			$error = "timezone must be specified like `-07:00`";
+			return false;
+		}
+		
+		$hour = DevblocksPlatform::intClamp($matches[1], 0, 12);
+		$min = DevblocksPlatform::intClamp($matches[2], 0, 59);
+		
+		if($hour != $matches[1]) {
+			$error = "timezone hour must be between -12 and +12";
+			return false;
+		}
+		
+		if($min != $matches[2]) {
+			$error = "timezone minute must be between 0 and 59";
+			return false;
+		}
+		
+		return sprintf("%s%s:%s",
+			$is_neg ? '-' : '+',
+			str_pad($hour,2,'0', STR_PAD_LEFT),
+			str_pad($min,2,'0', STR_PAD_LEFT)
+		);
+	}
 };
 
 class DevblocksCalendarHelper {

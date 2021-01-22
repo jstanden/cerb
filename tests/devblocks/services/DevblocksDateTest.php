@@ -418,4 +418,25 @@ class DevblocksDateTest extends PHPUnit_Framework_TestCase {
 		$actual = $date->parseTimes('8-9a,2-3:30p');
 		$this->assertEquals($expected, $actual);
 	}
+	
+	function testParseTimezoneOffset() {
+		$date = DevblocksPlatform::services()->date();
+		
+		$expected = '-07:00';
+		$actual = $date->parseTimezoneOffset('-07:00');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = '+01:30';
+		$actual = $date->parseTimezoneOffset('1:30');
+		$this->assertEquals($expected, $actual);
+		
+		$actual = $date->parseTimezoneOffset('12');
+		$this->assertFalse($actual);
+		
+		$actual = $date->parseTimezoneOffset('a non time string');
+		$this->assertFalse($actual);
+		
+		$actual = $date->parseTimezoneOffset('abc:123');
+		$this->assertFalse($actual);
+	}
 }

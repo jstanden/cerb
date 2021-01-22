@@ -136,6 +136,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			if($field->key == 'type') {
 				// Do nothing
+				true;
 				
 			} else if($field->key == 'function') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -193,6 +194,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$data_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$data_query = substr($data_query, 1, -1);
 				$chart_model['query_required'] = $data_query;
+				
+			} else if($field->key == 'timezone') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['timezone'] = DevblocksPlatform::strLower($value);
 				
 			} else {
 				$error = sprintf("The parameter '%s' is unknown.", $field->key);
@@ -266,6 +271,16 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		if(!isset($chart_model['by']) || !$chart_model['by']) {
 			$error = "The `by:` field is not a valid context type.";
 			return false;
+		}
+		
+		$tz = null;
+		
+		// Timezone
+		if(array_key_exists('timezone', $chart_model)) {
+				if(false == ($tz = DevblocksPlatform::services()->date()->parseTimezoneOffset($chart_model['timezone'], $error)))
+					return false;
+					
+				@$db->QueryReader(sprintf("SET @@SESSION.time_zone = %s", $db->qstr($tz)));
 		}
 		
 		$query_parts = $dao_class::getSearchQueryComponents([], $view->getParams());
@@ -615,6 +630,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$sort_children($response['children']);
 		
 		@$format = $chart_model['format'] ?: 'tree';
+		
+		if($tz instanceof DateTimeZone) {
+			$db->QueryReader("SET @@SESSION.time_zone = @@GLOBAL.time_zone");
+		}
 		
 		switch($format) {
 			case 'categories':
