@@ -300,4 +300,16 @@ class _DevblocksStringService {
 		
 		return true;
 	}
+	
+	public function capitalizeDashed(string $k) : string {
+		return implode(
+			'-',
+			array_map(
+				function($str) { 
+					return DevblocksPlatform::strUpperFirst($str); 
+				},
+				explode('-', $k)
+			)
+		);
+	}
 }

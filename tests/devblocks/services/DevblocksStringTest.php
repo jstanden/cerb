@@ -110,4 +110,16 @@ class DevblocksStringTest extends TestCase {
 		$this->assertFalse(DevblocksPlatform::services()->string()->toBool(0));
 		$this->assertFalse(DevblocksPlatform::services()->string()->toBool('0'));
 	}
+	
+	function testCapitalizeDashed() {
+		$string = DevblocksPlatform::services()->string();
+		
+		$expected = 'X-Example-Header';
+		$actual = $string->capitalizeDashed('x-example-header');
+		$this->assertEquals($expected, $actual);
+		
+		$expected = 'X-EXAMPLE';
+		$actual = $string->capitalizeDashed('x-EXAMPLE');
+		$this->assertEquals($expected, $actual);
+	}
 }
