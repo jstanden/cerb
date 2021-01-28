@@ -177,8 +177,8 @@ class Controller_Default extends DevblocksControllerExtension {
 		$tpl->assign('search_menu', $search_menu);
 		
 		// Conversational interactions
-		$interactions = Event_GetInteractionsForWorker::getByPoint('global');
-		$tpl->assign('global_interactions_show', !empty($interactions));
+		$global_menu = Toolbar_GlobalMenu::getInteractionsMenu();
+		$tpl->assign('global_interactions_show', null != $global_menu);
 		
 		if(!empty($active_worker)) {
 			// Proactive interactions
