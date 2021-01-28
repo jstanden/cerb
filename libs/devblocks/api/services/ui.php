@@ -76,7 +76,7 @@ class DevblocksUiEventHandler {
 			return false;
 		
 		foreach($handlers as $handler_key => $handler_data) {
-			if(array_key_exists('disabled', $handler_data) && $handler_data['disabled'])
+			if(!$this->_isHandlerEnabled($handler_data))
 				continue;
 			
 			list($handler_type, $handler_name) = array_pad(explode('/', $handler_key, 2), 2, null);
@@ -97,6 +97,25 @@ class DevblocksUiEventHandler {
 		}
 		
 		return $results;
+	}
+	
+	private function _isHandlerEnabled(array $handler_data) : bool {
+		foreach($handler_data as $k => $v) {
+			$key_type = DevblocksPlatform::strLower(DevblocksPlatform::services()->string()->strBefore($k, '/'));
+			
+			if(in_array($key_type, ['enabled', 'disabled'])) {
+				if(!is_bool($v))
+					$v = DevblocksPlatform::services()->string()->toBool($v);
+				
+				if($key_type == 'enabled' && $v)
+					return true;
+				
+				if($key_type == 'disabled' && $v)
+					return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	function handleOnce(string $trigger, array $handlers, array $initial_state, &$error=null, ?callable $behavior_callback=null, &$handler=null) {
