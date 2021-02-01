@@ -211,7 +211,7 @@ class _DevblocksKataService {
 						$v = DevblocksPlatform::objectToArray($v);
 					
 					if(is_array($v)) {
-						if($indent && DevblocksPlatform::arrayIsIndexed($v)) {
+						if(DevblocksPlatform::arrayIsIndexed($v)) {
 							$output .= str_repeat('  ', $indent) . strval($k) . "@list:\n";
 							
 							foreach($v as $list_item) {
