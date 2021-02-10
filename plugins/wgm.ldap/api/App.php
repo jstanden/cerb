@@ -108,6 +108,9 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 			ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 			
+			if(!ldap_start_tls($ldap))
+				throw new Exception("Failed to Start TLS.");
+			
 			@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 			
 			if(!$login)

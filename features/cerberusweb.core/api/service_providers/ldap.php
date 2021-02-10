@@ -32,6 +32,9 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 		
+		if(!ldap_start_tls($ldap))
+			return 'Failed to Start TLS';
+		
 		@$login = ldap_bind($ldap, $params['bind_dn'], $params['bind_password']);
 		
 		if(empty($login))
@@ -131,6 +134,9 @@ class ServiceProvider_Ldap extends Extension_ConnectedServiceProvider {
 		
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+		
+		if(!ldap_start_tls($ldap))
+			return false;
 		
 		@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 		
