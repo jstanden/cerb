@@ -99,6 +99,9 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				'field_firstname' => @$service_params['field_firstname'],
 				'field_lastname' => @$service_params['field_lastname'],
 			];
+			
+			if(636 == $ldap_settings['port'] && !DevblocksPlatform::strStartsWith($ldap_settings['host'], 'ldaps://'))
+				$ldap_settings['host'] = 'ldaps://' . $ldap_settings['host'];
 
 			@$ldap = ldap_connect($ldap_settings['host'], $ldap_settings['port']);
 			
@@ -107,6 +110,9 @@ class ScLdapLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 			ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 			ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+			
+			if(389 == $ldap_settings['port'] && !ldap_start_tls($ldap))
+				throw new Exception("Failed to Start TLS.");
 			
 			@$login = ldap_bind($ldap, $ldap_settings['username'], $ldap_settings['password']);
 			
