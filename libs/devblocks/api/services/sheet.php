@@ -69,6 +69,7 @@ class _DevblocksSheetService {
 	function getLayout(array $sheet) {
 		$layout = [
 			'style' => 'table',
+			'params' => [],
 			'headings' => true,
 			'paging' => true,
 			'filtering' => false,
@@ -99,6 +100,9 @@ class _DevblocksSheetService {
 			
 			if(array_key_exists('style', $sheet['layout']))
 				$layout['style'] = $sheet['layout']['style'];
+			
+			if(array_key_exists('params', $sheet['layout']))
+				$layout['params'] = $sheet['layout']['params'];
 			
 			if(array_key_exists('title_column', $sheet['layout'])) {
 				$columns = $this->getColumns($sheet);
