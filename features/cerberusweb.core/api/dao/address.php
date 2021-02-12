@@ -2363,7 +2363,6 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		// Address token values
 		if(null != $address) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $address->getNameWithEmail();
 			$token_values['_image_url'] = $url_writer->writeNoProxy(sprintf('c=avatars&ctx=%s&id=%d', 'address', $address->id), true) . '?v=' . $address->updated;
 			$token_values['id'] = $address->id;
 			$token_values['address'] = $address->email;
@@ -2546,6 +2545,21 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		}
 		
 		switch($token) {
+			case '_label':
+				$dict = DevblocksDictionaryDelegate::instance($dictionary);
+				
+				$contact_name = $dict->get('contact__label');
+				
+				if($contact_name) {
+					$values['_label'] = sprintf('%s <%s>',
+						$contact_name,
+						$dict->get('email')
+					);
+				} else {
+					$values['_label'] = $dict->get('email');
+				}
+				break;
+				
 			// Deprecated
 			case 'first_name':
 				$dict = DevblocksDictionaryDelegate::instance($dictionary);

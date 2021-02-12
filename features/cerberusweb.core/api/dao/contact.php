@@ -2039,6 +2039,9 @@ class Context_Contact extends Extension_DevblocksContext implements IDevblocksCo
 					$token_labels,
 					$token_values
 				);
+				
+		} else {
+			$token_values['email__context'] = CerberusContexts::CONTEXT_ADDRESS;
 		}
 		
 		// Org
