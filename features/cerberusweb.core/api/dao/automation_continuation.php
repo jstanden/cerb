@@ -1,6 +1,8 @@
 <?php
 class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	const EXPIRES_AT = 'expires_at';
+	const PARENT_TOKEN = 'parent_token';
+	const ROOT_TOKEN = 'root_token';
 	const STATE = 'state';
 	const STATE_DATA = 'state_data';
 	const TOKEN = 'token';
@@ -15,6 +17,16 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		$validation
 			->addField(self::EXPIRES_AT)
 			->timestamp()
+			;
+		$validation
+			->addField(self::PARENT_TOKEN)
+			->string()
+			->setMaxLength(40)
+			;
+		$validation
+			->addField(self::ROOT_TOKEN)
+			->string()
+			->setMaxLength(40)
 			;
 		$validation
 			->addField(self::STATE)
@@ -109,7 +121,7 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT token, uri, state, state_data, expires_at, updated_at ".
+		$sql = "SELECT token, uri, state, state_data, parent_token, root_token, expires_at, updated_at ".
 			"FROM automation_continuation ".
 			$where_sql.
 			$sort_sql.
@@ -142,6 +154,22 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 			return $objects[$token];
 		
 		return null;
+	}
+	
+	/**
+	 * @param string $token
+	 * @return Model_AutomationContinuation[]
+	 */
+	static function getByRootToken(string $token) : iterable {
+		if(!$token)
+			return [];
+		
+		return self::getWhere(sprintf("%s = %s OR %s = %s",
+			self::TOKEN,
+			Cerb_ORMHelper::qstr($token),
+			self::ROOT_TOKEN,
+			Cerb_ORMHelper::qstr($token)
+		));
 	}
 	
 	/**
@@ -191,6 +219,8 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AutomationContinuation();
 			$object->token = $row['token'];
+			$object->parent_token = $row['parent_token'];
+			$object->root_token = $row['root_token'];
 			$object->uri = $row['uri'];
 			$object->state = $row['state'];
 			$object->expires_at = intval($row['expires_at']);
@@ -245,12 +275,17 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		
 		$select_sql = sprintf("SELECT ".
 			"automation_continuation.token as %s, ".
+			"automation_continuation.parent_token as %s, ".
+			"automation_continuation.root_token as %s, ".
 			"automation_continuation.uri as %s, ".
 			"automation_continuation.state as %s, ".
 			"automation_continuation.expires_at as %s, ".
 			"automation_continuation.updated_at as %s ",
 			SearchFields_AutomationContinuation::TOKEN,
+			SearchFields_AutomationContinuation::PARENT_TOKEN,
+			SearchFields_AutomationContinuation::ROOT_TOKEN,
 			SearchFields_AutomationContinuation::URI,
+			SearchFields_AutomationContinuation::STATE,
 			SearchFields_AutomationContinuation::EXPIRES_AT,
 			SearchFields_AutomationContinuation::UPDATED_AT
 			);
@@ -305,9 +340,11 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 };
 
 class SearchFields_AutomationContinuation extends DevblocksSearchFields {
-	const TOKEN = 'a_token';
-	const STATE = 'a_state';
 	const EXPIRES_AT = 'a_expires_at';
+	const PARENT_TOKEN = 'a_parent_token';
+	const ROOT_TOKEN = 'a_root_token';
+	const STATE = 'a_state';
+	const TOKEN = 'a_token';
 	const UPDATED_AT = 'a_updated_at';
 	const URI = 'a_uri';
 
@@ -357,6 +394,8 @@ class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 		
 		$columns = array(
 			self::EXPIRES_AT => new DevblocksSearchField(self::EXPIRES_AT, 'automation_continuation', 'expires_at', $translate->_('common.expires'), null, true),
+			self::PARENT_TOKEN => new DevblocksSearchField(self::PARENT_TOKEN, 'automation_continuation', 'parent_token', null, null, true),
+			self::ROOT_TOKEN => new DevblocksSearchField(self::ROOT_TOKEN, 'automation_continuation', 'root_token', null, null, true),
 			self::STATE => new DevblocksSearchField(self::STATE, 'automation_continuation', 'state', DevblocksPlatform::translateCapitalized('common.state'), null, true),
 			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'automation_continuation', 'token', null, null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_continuation', 'updated_at', $translate->_('common.updated'), null, true),
@@ -378,9 +417,39 @@ class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 
 class Model_AutomationContinuation {
 	public $expires_at = 0;
+	public $parent_token = null;
+	public $root_token = null;
 	public $state = null;
 	public $state_data = [];
 	public $token = null;
 	public $updated_at = 0;
 	public $uri = null;
+	
+	private ?Model_AutomationContinuation  $_parent = null;
+	private ?Model_AutomationContinuation  $_root = null;
+	private ?Model_Automation $_automation = null;
+	
+	function getAutomation() : ?Model_Automation {
+		if(is_null($this->_automation)) {
+			$this->_automation = DAO_Automation::getByUri($this->uri);
+		}
+		
+		return $this->_automation;
+	}
+	
+	public function getParent() : ?Model_AutomationContinuation {
+		if(is_null($this->_parent) && $this->parent_token) {
+			$this->_parent = DAO_AutomationContinuation::getByToken($this->parent_token);
+		}
+		
+		return $this->_parent;
+	}
+	
+	public function getRoot() : ?Model_AutomationContinuation {
+		if(is_null($this->_root) && $this->root_token) {
+			$this->_root = DAO_AutomationContinuation::getByToken($this->root_token);
+		}
+		
+		return $this->_root;
+	}
 };
