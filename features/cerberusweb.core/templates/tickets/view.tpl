@@ -264,7 +264,6 @@
 				{$participant_count_hidden = $participant_count - 3}
 
 				{foreach name=participants from=array_slice($participants.{$result.t_id},0,3) item=participant}
-					{*<img src="{devblocks_url}c=avatars&context=address&context_id={$participant->id}{/devblocks_url}?v={$participant->updated}" style="height:1.5em;width:1.5em;border-radius:0.75em;vertical-align:middle;">*}
 					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$participant->_context}" data-context-id="{$participant->id}" title="{$participant->email}">{$participant->email|truncate:45:'...':true:true}</a>{if !$smarty.foreach.participants.last}, {/if}
 				{/foreach}
 

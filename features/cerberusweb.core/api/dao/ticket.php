@@ -372,7 +372,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		$results = [];
-		$dicts = [];
 		$where_ticket_ids = implode(',', $ticket_ids) ?: '-1';
 		
 		$sql = sprintf("SELECT %s AS context, address_id AS context_id, ticket_id FROM requester WHERE ticket_id IN (%s) ",
@@ -380,31 +379,38 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$where_ticket_ids
 		);
 		
+		$rows_addresses = $db->GetArrayReader($sql);
+		$models_addresses = DAO_Address::getIds(array_column($rows_addresses, 'context_id'));
+		
+		$dicts_addresses = DevblocksDictionaryDelegate::getDictionariesFromModels($models_addresses, CerberusContexts::CONTEXT_ADDRESS, ['contact_']);
+		
+		$rows_workers = [];
+		$dicts_workers = [];
+		
 		if($with_workers) {
-			$sql .= sprintf("UNION SELECT %s AS context, worker_id AS context_id, ticket_id FROM message WHERE is_outgoing = 1 AND worker_id > 0 AND ticket_id IN (%s) ",
-				$db->qstr(CerberusContexts::CONTEXT_WORKER),
+			$sql = sprintf("SELECT %s AS context, worker_id AS context_id, ticket_id FROM message WHERE is_outgoing = 1 AND worker_id > 0 AND ticket_id IN (%s) ",
+			$db->qstr(CerberusContexts::CONTEXT_WORKER),
 				$where_ticket_ids
 			);
+			
+			$rows_workers = $db->GetArrayReader($sql);
+			$models_workers = DAO_Worker::getIds(array_column($rows_workers, 'context_id'));
+			$dicts_workers = DevblocksDictionaryDelegate::getDictionariesFromModels($models_workers, CerberusContexts::CONTEXT_WORKER);
 		}
 		
-		$rows = $db->GetArrayReader($sql);
-		
-		foreach($rows as $row) {
+		foreach(array_merge($rows_addresses, $rows_workers) as $row) {
+			$context = $row['context'];
 			$ticket_id = $row['ticket_id'];
 			
 			if(!array_key_exists($ticket_id, $results))
 				$results[$ticket_id] = [];
 			
-			$dict = DevblocksDictionaryDelegate::instance([
-				'_context' => $row['context'],
-				'id' => $row['context_id']
-			]);
-			$dicts[] =& $dict;
-			
-			$results[$ticket_id][] = $dict;
+			if($context == CerberusContexts::CONTEXT_ADDRESS) {
+				$results[$ticket_id][] = $dicts_addresses[$row['context_id']];
+			} else if($context == CerberusContexts::CONTEXT_WORKER) {
+				$results[$ticket_id][] = $dicts_workers[$row['context_id']];
+			}
 		}
-		
-		DevblocksDictionaryDelegate::bulkLazyLoad($dicts,'_label');
 		
 		return $results;
 	}
