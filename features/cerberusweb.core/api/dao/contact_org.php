@@ -1211,7 +1211,10 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'score' => 2000,
-					'options' => array('param_key' => SearchFields_ContactOrg::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'options' => [
+						'param_key' => SearchFields_ContactOrg::NAME,
+						'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL,
+					],
 					'suggester' => [
 						'type' => 'autocomplete',
 						'query' => 'type:worklist.subtotals of:orgs by:name~25 query:(name:{{term}}*) format:dictionaries',

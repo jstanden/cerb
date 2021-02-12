@@ -942,8 +942,8 @@ class _DevblocksValidationService {
 				// May be empty
 				
 			} else {
-				@$dao_class = $data['dao_class'];
-				@$callback = $data['callback'];
+				$dao_class = $data['dao_class'] ?? null;
+				$callback = $data['callback'] ?? null;
 				
 				if($dao_class) {
 					if(isset($scope['id'])) {

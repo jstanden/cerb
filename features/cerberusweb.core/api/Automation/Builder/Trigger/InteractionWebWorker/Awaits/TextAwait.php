@@ -11,8 +11,8 @@ class TextAwait extends AbstractAwait {
 	}
 
 	function validate(_DevblocksValidationService $validation) {
-		@$prompt_label = $this->_data['label'];
-		@$prompt_type = $this->_data['type'] ?: 'freeform';
+		$prompt_label = $this->_data['label'] ?? null;
+		$prompt_type = $this->_data['type'] ?? 'freeform';
 		
 		$input_field = $validation->addField($this->_key, $prompt_label);
 		$input_field_type = null;
@@ -110,7 +110,7 @@ class TextAwait extends AbstractAwait {
 	}
 	
 	function formatValue() {
-		@$prompt_type = $this->_data['type'] ?: 'freeform';
+		$prompt_type = $this->_data['type'] ?? 'freeform';
 		
 		switch ($prompt_type) {
 			case 'bool':
@@ -133,10 +133,10 @@ class TextAwait extends AbstractAwait {
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$label = $this->_data['label'];
-		@$placeholder = $this->_data['placeholder'];
-		@$default = $this->_data['default'];
-		@$max_length = $this->_data['max_length'];
+		$label = $this->_data['label'] ?? null;
+		$placeholder = $this->_data['placeholder'] ?? null;
+		$default = $this->_data['default'] ?? null;
+		$max_length = $this->_data['max_length'] ?? null;
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];
 	
 		// Defaults by type

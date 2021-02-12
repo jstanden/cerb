@@ -5,7 +5,7 @@
 	<description>This explains what your plugin does.</description>
 	<author>Webgroup Media, LLC.</author>
 	<version>0.0.0</version>
-	<link>http://cerbweb.com/book/latest/developer_guide/plugins/plugin.xml</link>
+	<link>https://cerb.ai/docs/plugins/</link>
 	<!--<image>plugin.png</image>-->
 
 	<!-- Requirements -->

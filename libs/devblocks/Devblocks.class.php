@@ -1022,7 +1022,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		return $str;
 	}
 	
-	static function strParseQueryString($string) {
+	static function strParseQueryString($string) : array {
 		if(empty($string))
 			return [];
 		
@@ -1030,7 +1030,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		$vars = [];
 		
 		foreach($tuples as $tuple) {
-			@list($key, $value) = explode('=', $tuple);
+			list($key, $value) = array_pad(explode('=', $tuple), 2, null);
 			
 			if(empty($key))
 				continue;
@@ -1060,7 +1060,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_array($string)) {
 			$string = implode(', ', $string);
 		} elseif (!is_string($string)) {
-			@$string = strval($string);
+			$string = strval($string) ?: '';
 		}
 		
 		if($lower_rest)
@@ -1073,7 +1073,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_array($string)) {
 			$string = implode(', ', $string);
 		} elseif (!is_string($string)) {
-			@$string = strval($string);
+			$string = strval($string) ?: '';
 		}
 		
 		return mb_convert_case($string, MB_CASE_LOWER);

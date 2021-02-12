@@ -618,7 +618,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::console/window.tpl');
 	}
 	
-	private function _profileAction_sendMessage() {
+	private function _profileAction_sendMessage() : void {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
@@ -644,10 +644,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					DevblocksPlatform::dieWithHttpError(null, 404);
 				
 				if($behavior->event_point == Event_FormInteractionWorker::ID) {
-					return $this->_consoleSendMessageAsFormBehavior($bot_session, $behavior);
+					$this->_consoleSendMessageAsFormBehavior($bot_session, $behavior);
 					
 				} else if($behavior->event_point == Event_NewMessageChatWorker::ID) {
-					return $this->_consoleSendMessageAsConvoBehavior($bot_session, $behavior);
+					$this->_consoleSendMessageAsConvoBehavior($bot_session, $behavior);
 				
 				} else {
 					DevblocksPlatform::dieWithHttpError(null, 403);
@@ -1838,7 +1838,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$validation_values = [];
 		
 		foreach($last_prompts as $last_prompt_key => $last_prompt) {
-			@list($last_prompt_type, $prompt_set_key) = explode('/', $last_prompt_key, 2);
+			list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
 			
 			if(!$prompt_set_key)
 				continue;
@@ -1976,7 +1976,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$continuation->state_data['dict'] = $automation_results->getDictionary();
 		
 		foreach($elements as $element_key => $element_data) {
-			@list($action_key_type, $var) = explode('/', $element_key, 2);
+			list($action_key_type, $var) = array_pad(explode('/', $element_key, 2), 2, null);
 			
 			if(is_array($element_data) && array_key_exists('hidden', $element_data) && $element_data['hidden'])
 				continue;

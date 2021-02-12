@@ -12,8 +12,8 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 	}
 
 	function render(Model_WorkspaceWidget $widget) {
-		@$target_context = $widget->params['context'];
-		@$target_context_id = $widget->params['context_id'];
+		$target_context = $widget->params['context'] ?? '';
+		$target_context_id = $widget->params['context_id'] ?? 0;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

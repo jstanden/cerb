@@ -194,14 +194,14 @@ class _DevblocksSheetService {
 }
 
 class _DevblocksSheetServiceTypes {
-	function card() {
+	function card() : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$url_writer = DevblocksPlatform::services()->url();
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
-			@$column_key = $column['key'];
-			@$column_params = $column['params'] ?: [];
+			$column_key = $column['key'] ?? null;
+			$column_params = $column['params'] ?? [];
 			
 			@$card_label = $column_params['label'];
 			@$card_context = $column_params['context'];
@@ -457,8 +457,8 @@ class _DevblocksSheetServiceTypes {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
-			@$column_key = $column['key'];
-			@$column_params = $column['params'] ?: [];
+			$column_key = $column['key'] ?? null;
+			$column_params = $column['params'] ?? [];
 			
 			@$is_underlined = !array_key_exists('underline', $column_params) || $column_params['underline'];
 			$value = '';
@@ -574,7 +574,7 @@ class _DevblocksSheetServiceTypes {
 		};
 	}
 	
-	function selection() {
+	function selection() : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 			
@@ -641,8 +641,6 @@ class _DevblocksSheetServiceTypes {
 				($value/$value_max)*100,
 				DevblocksPlatform::strEscapeHtml($color)
 			);
-			
-			return $value;
 		};
 	}
 	

@@ -355,7 +355,6 @@ class SearchFields_AutomationContinuation extends DevblocksSearchFields {
 	}
 	
 	static function getCustomFieldContextKeys() {
-		// [TODO] Context
 		return array(
 			'' => new DevblocksSearchFieldContextKeys('automation_continuation.token', self::TOKEN),
 		);

@@ -168,8 +168,8 @@ $(function() {
 	
 	var $tab_search = $('#widget{$widget->id}TabSearchButtons');
 	
-	$tab_search_template = $tab_search.find('tbody.cerb-placeholder').detach();
-	$tab_search_table = $tab_search.find('> table:first');
+	var $tab_search_template = $tab_search.find('tbody.cerb-placeholder').detach();
+	var $tab_search_table = $tab_search.find('> table:first');
 	
 	$tab_search.find('button.cerb-placeholder-add').on('click', function(e) {
 		var $this = $(this);

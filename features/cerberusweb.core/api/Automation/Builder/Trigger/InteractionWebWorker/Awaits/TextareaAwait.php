@@ -11,7 +11,7 @@ class TextareaAwait extends AbstractAwait {
 	}
 	
 	function validate(_DevblocksValidationService $validation) {
-		@$prompt_label = $this->_data['label'];
+		$prompt_label = $this->_data['label'] ?? null;
 		
 		$field = $validation->addField($this->_key, $prompt_label);
 		
@@ -31,10 +31,10 @@ class TextareaAwait extends AbstractAwait {
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		@$label = $this->_data['label'];
-		@$placeholder = $this->_data['placeholder'];
-		@$default = $this->_data['default'];
-		@$max_length = $this->_data['max_length'];
+		$label = $this->_data['label'] ?? null;
+		$placeholder = $this->_data['placeholder'] ?? null;
+		$default = $this->_data['default'] ?? null;
+		$max_length = $this->_data['max_length'] ?? null;
 		$is_required = array_key_exists('required', $this->_data) && $this->_data['required'];
 		
 		$tpl->assign('label', $label);

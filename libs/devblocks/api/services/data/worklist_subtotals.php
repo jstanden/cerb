@@ -240,7 +240,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			foreach($subtotal_by as $by) {
 				// Handle limits and orders
-				@list($by, $limit) = explode('~', $by, 2);
+				list($by, $limit) = array_pad(explode('~', $by, 2), 2, null);
 				
 				if(false == ($subtotal_field = $search_class::getFieldForSubtotalKey($by, $subtotals_context->id, $query_fields, $search_fields, $search_class::getPrimaryKey())))
 					continue;

@@ -589,6 +589,7 @@ class CerberusMail {
 			// Body
 			
 			switch($format) {
+				case 'markdown':
 				case 'parsedown':
 					$properties = [
 						'html_template_id' => $html_template_id,

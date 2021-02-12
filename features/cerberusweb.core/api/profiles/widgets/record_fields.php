@@ -16,8 +16,8 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 	}
 	
 	function render(Model_ProfileWidget $model, $context, $context_id) {
-		@$target_context = $model->extension_params['context'];
-		@$target_context_id = $model->extension_params['context_id'];
+		$target_context = $model->extension_params['context'] ?? '';
+		$target_context_id = $model->extension_params['context_id'] ?? 0;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -83,7 +83,8 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		
 		$properties_available = $context_ext->profileGetFields($record);
 		
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds($context, $record->id)) or [];
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $record->id);
+		$values = array_shift($custom_field_values) ?? [];
 		$tpl->assign('custom_field_values', $values);
 		
 		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields($context, $values);

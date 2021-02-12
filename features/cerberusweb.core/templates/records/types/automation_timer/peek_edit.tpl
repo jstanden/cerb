@@ -133,7 +133,7 @@
                 caller: {
                     name: 'cerb.toolbar.eventHandlers.editor',
                     params: {
-                        trigger: 'cerb.trigger.reminder.remind',
+                        trigger: 'cerb.trigger.automation.timer',
                         selected_text: ''
                     }
                 },

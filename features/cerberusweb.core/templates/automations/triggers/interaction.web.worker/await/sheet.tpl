@@ -22,7 +22,7 @@
 		<div data-cerb-sheet-container style="box-shadow:0 0 5px rgb(200,200,200);">
 		{if $layout.style == 'grid'}
 			{include file="devblocks:cerberusweb.core::ui/sheets/render_grid.tpl" sheet_selection_key=$selection_key default=$default}
-		{elseif $layout.style == 'grid'}
+		{elseif $layout.style == 'fieldsets'}
 			{include file="devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl" sheet_selection_key=$selection_key default=$default}
 		{else}
 			{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" sheet_selection_key=$selection_key default=$default}

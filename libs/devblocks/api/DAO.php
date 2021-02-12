@@ -27,19 +27,15 @@ abstract class DevblocksORMHelper {
 		switch($actor->_context) {
 			case CerberusContexts::CONTEXT_APPLICATION:
 				return true;
-				break;
 				
 			case CerberusContexts::CONTEXT_BOT:
 				return true;
-				break;
 				
 			case CerberusContexts::CONTEXT_ROLE:
 				return true;
-				break;
 				
 			case CerberusContexts::CONTEXT_GROUP:
 				return false;
-				break;
 				
 			case CerberusContexts::CONTEXT_WORKER:
 				if(false == ($worker = DAO_Worker::get($actor->id)))
