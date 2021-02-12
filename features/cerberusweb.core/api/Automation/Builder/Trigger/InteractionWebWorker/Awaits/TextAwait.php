@@ -47,9 +47,8 @@ class TextAwait extends AbstractAwait {
 				break;
 			
 			case 'email':
-				// [TODO] Return email with mailbox/host/full
 				$input_field_type = $input_field->string()
-					->addValidator($validation->validators()->email(true));
+					->addValidator($validation->validators()->email(!$is_required));
 				break;
 			
 			case 'geopoint':

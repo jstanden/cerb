@@ -334,8 +334,8 @@ class _DevblocksValidators {
 		};
 	}
 	
-	function email($allow_empty=false) {
-		return function($value, &$error=null) use ($allow_empty) {
+	function email($allow_empty=false) : callable {
+		return function(&$value, &$error=null) use ($allow_empty) {
 			if($allow_empty && 0 == strlen($value))
 				return true;
 			
@@ -351,12 +351,19 @@ class _DevblocksValidators {
 				return false;
 			}
 			
+			if(1 !== count($validated_emails)) {
+				$error = "must be a single email address.";
+				return false;
+			}
+			
+			$value = DevblocksPlatform::strLower(key($validated_emails));
+			
 			return true;
 		};
 	}
 	
-	function emails($allow_empty=false) {
-		return function($value, &$error=null) use ($allow_empty) {
+	function emails($allow_empty=false) : callable {
+		return function(&$value, &$error=null) use ($allow_empty) {
 			if($allow_empty && 0 == strlen($value))
 				return true;
 			
@@ -371,6 +378,8 @@ class _DevblocksValidators {
 				$error = "is invalid. It must be a comma-separated list of properly formatted email address.";
 				return false;
 			}
+			
+			$value = implode(', ', array_map(['DevblocksPlatform','strUpper'], array_keys($validated_emails)));
 			
 			return true;
 		};
