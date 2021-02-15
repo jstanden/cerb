@@ -689,6 +689,27 @@ DIV.dashboard-widget DIV.updated {
   white-space: normal;
 }
 
+.cerb-sheet-buttons .cerb-sheet-buttons--button {
+  background: #4696fa none;
+  color: white;
+  padding: 10px 10px;
+  border-radius: 5px;
+  margin: 5px 0 0 0;
+  cursor: pointer;
+  text-align: center;
+}
+.cerb-sheet-buttons .cerb-sheet-buttons--button:hover {
+  filter: brightness(1.2);
+}
+.cerb-sheet-buttons .cerb-sheet-buttons--title {
+  font-size: 120%;
+  font-weight: bold;
+}
+.cerb-sheet-buttons .cerb-sheet-buttons--button input[type=checkbox],
+.cerb-sheet-buttons .cerb-sheet-buttons--button input[type=radio] {
+  display: none;
+}
+
 TABLE.worklist {
   background-color: #6487e1;
   -webkit-border-radius: 5px 5px 0px 0px;

@@ -4,7 +4,7 @@
 	<h6>{$label}</h6>
 	{/if}
 
-	<div style="margin-left:10px;">
+	<div>
 		{if $layout.filtering}
 			<div style="box-sizing:border-box;width:100%;border:1px solid rgb(220,220,220);border-radius:10px;padding:5px;">
 				<textarea data-cerb-sheet-query data-editor-mode="ace/mode/text" data-editor-lines="1">{$filter}</textarea>
@@ -19,13 +19,17 @@
 
 		{$selection_key = uniqid('selection_')}
 
-		<div data-cerb-sheet-container style="box-shadow:0 0 5px rgb(200,200,200);">
-		{if $layout.style == 'grid'}
+		<div data-cerb-sheet-container>
+		{if $layout.style == 'buttons'}
+			{include file="devblocks:cerberusweb.core::ui/sheets/render_buttons.tpl" sheet_selection_key=$selection_key default=$default}
+		{elseif $layout.style == 'grid'}
 			{include file="devblocks:cerberusweb.core::ui/sheets/render_grid.tpl" sheet_selection_key=$selection_key default=$default}
 		{elseif $layout.style == 'fieldsets'}
 			{include file="devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl" sheet_selection_key=$selection_key default=$default}
 		{else}
-			{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" sheet_selection_key=$selection_key default=$default}
+			<div style="box-shadow:0 0 5px rgb(200,200,200);">
+				{include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" sheet_selection_key=$selection_key default=$default}
+			</div>
 		{/if}
 		</div>
 
@@ -52,6 +56,7 @@
 <script type="text/javascript">
 $(function() {
 	var $prompt = $('#{$element_id}');
+	var $form = $prompt.closest('form');
 	var $sheet = $prompt.find('[data-cerb-sheet-container]');
 	var $sheet_toolbar = $prompt.find('[data-cerb-sheet-toolbar]')
 	var $sheet_query_editor = $prompt.find('[data-cerb-sheet-query]')
@@ -187,22 +192,26 @@ $(function() {
 			}
 
 		} else {
-			if(e.selected) {
-				$item = $('<li/>')
-					//.css('position', 'relative')
-					.text(e.ui.item.closest('.cerb-sheet--row').text())
-					.prepend(
-						e.ui.item
-						.clone()
-						.attr('type', 'hidden')
-						.attr('name', 'prompts[{$var}]')
-					)
-				;
-				$sheet_selections.html($item);
-			} else {
-				$sheet_selections.empty();
-			}
+			$sheet_selections.empty();
+			
+			$item = $('<li/>')
+				//.css('position', 'relative')
+				.text(e.ui.item.closest('.cerb-sheet--row').text())
+				.prepend(
+					e.ui.item
+					.clone()
+					.attr('type', 'hidden')
+					.attr('name', 'prompts[{$var}]')
+				)
+			;
+			$sheet_selections.html($item);
 		}
+
+		{if $layout.style == 'buttons'}
+		if(0 === $form.find('.cerb-form-builder-continue').length) {
+			$form.triggerHandler($.Event('cerb-form-builder-submit'));
+		}
+		{/if}
 
 		$prompt.triggerHandler('cerb-sheet--toolbar-refresh');
 	});
