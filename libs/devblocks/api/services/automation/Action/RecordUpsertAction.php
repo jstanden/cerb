@@ -48,6 +48,10 @@ class RecordUpsertAction extends AbstractAction {
 				->setRequired(true)
 			;
 			
+			$validation->addField('record_query_params', 'inputs:record_query_params:')
+				->array()
+			;
+			
 			$validation->addField('fields', 'inputs:fields:')
 				->array()
 				->setRequired(true)
@@ -73,9 +77,9 @@ class RecordUpsertAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			@$record_type = $inputs['record_type'];
-			@$query = $inputs['record_query'];
-			@$fields = $inputs['fields'] ?? [];
+			$record_type = $inputs['record_type'] ?? null;
+			$query = $inputs['record_query'] ?? null;
+			$query_params = $inputs['record_query_params'] ?? [];
 			
 			if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true))) {
 				throw new Exception_DevblocksAutomationError(sprintf(
@@ -92,7 +96,7 @@ class RecordUpsertAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError("Upsert not implemented.");
 			
 			$view->setAutoPersist(false);
-			$view->addParamsWithQuickSearch($query, true);
+			$view->addParamsWithQuickSearch($query, true, $query_params);
 			list($results, $total) = $view->getData();
 			
 			// If the results were limited to a single result, treat that as the entire set
@@ -101,6 +105,7 @@ class RecordUpsertAction extends AbstractAction {
 			
 			if(0 == $total) {
 				unset($params['inputs']['record_query']);
+				unset($params['inputs']['record_query_params']);
 				
 				$action_node = clone $this->node;
 				$action_node->setType('record.create');
@@ -111,6 +116,7 @@ class RecordUpsertAction extends AbstractAction {
 			} elseif (1 == $total) {
 				$params['inputs']['record_id'] = key($results);
 				unset($params['inputs']['record_query']);
+				unset($params['inputs']['record_query_params']);
 				
 				$action_node = clone $this->node;
 				$action_node->setType('record.update');

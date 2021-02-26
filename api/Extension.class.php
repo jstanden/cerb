@@ -1061,8 +1061,9 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				
 				'(.*):record.upsert:inputs:' => [
-					'record_query:',
 					'record_type:',
+					'record_query:',
+					'record_query_params:',
 					'fields:',
 				],
 				
