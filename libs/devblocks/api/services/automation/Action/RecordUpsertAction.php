@@ -95,6 +95,10 @@ class RecordUpsertAction extends AbstractAction {
 			$view->addParamsWithQuickSearch($query, true);
 			list($results, $total) = $view->getData();
 			
+			// If the results were limited to a single result, treat that as the entire set
+			if($view->renderLimit == 1)
+				$total = $total ? 1 : 0;
+			
 			if(0 == $total) {
 				unset($params['inputs']['record_query']);
 				
