@@ -847,6 +847,7 @@ class CerberusMail {
 			// Body
 			
 			switch($content_format) {
+				case 'markdown':
 				case 'parsedown':
 					$embedded_files = self::_generateMailBodyMarkdown($email, @$properties['content_sent'], $properties, $group_id, $bucket->id);
 					break;
@@ -989,7 +990,7 @@ class CerberusMail {
 		
 		// Save a copy of the sent HTML body
 		$html_body_id = 0;
-		if($content_format == 'parsedown') {
+		if(in_array($content_format, ['markdown','parsedown'])) {
 			if(false !== ($html_saved = CerberusMail::getMailTemplateFromContent(@$properties['content_saved'], $properties, 'html'))) {
 				$html_body_id = DAO_Attachment::create([
 					DAO_Attachment::NAME => 'original_message.html',
@@ -1471,6 +1472,7 @@ class CerberusMail {
 			// Body
 			
 			switch ($content_format) {
+				case 'markdown':
 				case 'parsedown':
 					$embedded_files = self::_generateMailBodyMarkdown($mail, @$properties['content_sent'], $properties, $ticket->group_id, $ticket->bucket_id);
 					break;
@@ -1648,7 +1650,7 @@ class CerberusMail {
 			
 			// Save a copy of the sent HTML body
 			$html_body_id = 0;
-			if($content_format == 'parsedown') {
+			if(in_array($content_format,  ['markdown', 'parsedown'])) {
 				if(false !== ($html_saved = CerberusMail::getMailTemplateFromContent(@$properties['content_saved'], $properties, 'html'))) {
 					$html_body_id = DAO_Attachment::create([
 						DAO_Attachment::NAME => 'original_message.html',
@@ -1856,6 +1858,7 @@ class CerberusMail {
 						$bucket = $group->getDefaultBucket();
 						
 						switch($content_format) {
+							case 'markdown':
 							case 'parsedown':
 								// Determine if we have an HTML template
 								
@@ -1952,7 +1955,7 @@ class CerberusMail {
 						if(false == ($group = DAO_Group::get($group_id)))
 							break;
 						
-						if($content_format == 'parsedown') {
+						if(in_array($content_format, ['markdown','parsedown'])) {
 							// Template override
 							
 							$html_template = null;
@@ -2104,7 +2107,7 @@ class CerberusMail {
 							DevblocksPlatform::services()->string()->indentWith($message->getContent(), '> ')
 						);
 						
-						if('parsedown' == @$message_properties['content_format']) {
+						if(in_array($message_properties['content_format'] ?? null, ['markdown','parsedown'])) {
 							if($message->html_attachment_id) {
 								$message_content = $message->getContentAsHtml();
 							} else {
@@ -2132,7 +2135,7 @@ class CerberusMail {
 							break;
 
 						
-						if ($content_format == 'parsedown') {
+						if(in_array($content_format, ['markdown','parsedown'])) {
 							$signature_text = $signature_html = null;
 							
 							// HTML template override
