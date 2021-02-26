@@ -171,6 +171,12 @@ class DAO_AbstractCustomRecord extends Cerb_ORMHelper {
 			}
 			
 		} else {
+			// If this record type can only be owned by app, and not given, then imply app
+			if($owner_contexts == [CerberusContexts::CONTEXT_APPLICATION] && !$owner_context && !$owner_context_id) {
+				$owner_context = CerberusContexts::CONTEXT_APPLICATION;
+				$owner_context_id = 0;
+			}
+			
 			// If creating, we must provide an owner
 			if((!$id && $owner_contexts && !$owner_context)) {
 				$error = sprintf("'owner__context' is required and must be one of: %s", implode(', ', $owner_contexts));
