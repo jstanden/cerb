@@ -536,7 +536,13 @@ class _DevblocksAutomationService {
 			}
 			
 		} elseif ($node_type == 'outcome') {
-			$node->getParent()->removeParam($node->getId());
+			$is_decision = 'decision' == $node->getParent()->getNameType();
+			
+			// Is the parent a decision node?
+			if($is_decision) {
+				$node->getParent()->removeParam($node->getId());
+			}
+			
 			$node->removeParam('then');
 			
 			foreach($yaml as $type => $child) {

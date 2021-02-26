@@ -832,6 +832,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	public function getAutocompleteSuggestionsJson() {
 		$common_actions = [
 			'decision:',
+			'outcome:',
 			[
 				'caption' => 'error:',
 				'snippet' => "error:\n\t",
@@ -963,11 +964,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):decision:' => [
 					'outcome:',
 				],
-				'(.*):decision:outcome:' => [
+				
+				'(.*):outcome:' => [
 					'if@bool:',
 					'then:'
 				],
-				'(.*):decision:outcome:then:' => $common_actions,
+				'(.*):outcome:then:' => $common_actions,
 				
 				'(.*):data.query:' => $action_base,
 				'(.*):data.query:inputs:' => [
