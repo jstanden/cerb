@@ -44,10 +44,15 @@ class DataQueryAction extends AbstractAction {
 				->setRequired(true)
 			;
 			
+			$validation->addField('query_params', 'inputs:query_params:')
+				->array()
+			;
+			
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
-			@$query = $inputs['query'];
+			$query = $inputs['query'] ?? null;
+			$query_params = $inputs['query_params'] ?? [];
 			
 			$query_data = $data->parseQuery($query);
 			
@@ -71,7 +76,7 @@ class DataQueryAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			if(false == ($results = $data->executeQuery($query, $error))) {
+			if(false == ($results = $data->executeQuery($query, $query_params, $error))) {
 				throw new Exception_DevblocksAutomationError($error);
 				
 			} else {

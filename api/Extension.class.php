@@ -978,6 +978,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):data.query:' => $action_base,
 				'(.*):data.query:inputs:' => [
 					'query@text:',
+					'query_params:',
 				],
 				
 				'(.*):decrypt.pgp:' => $action_base,
