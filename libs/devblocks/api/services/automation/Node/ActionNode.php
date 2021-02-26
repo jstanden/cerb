@@ -25,6 +25,7 @@ class ActionNode extends AbstractNode {
 			'record.create' => '\Cerb\AutomationBuilder\Action\RecordCreateAction',
 			'record.delete' => '\Cerb\AutomationBuilder\Action\RecordDeleteAction',
 			'record.get' => '\Cerb\AutomationBuilder\Action\RecordGetAction',
+			'record.search' => '\Cerb\AutomationBuilder\Action\RecordSearchAction',
 			'record.update' => '\Cerb\AutomationBuilder\Action\RecordUpdateAction',
 			'record.upsert' => '\Cerb\AutomationBuilder\Action\RecordUpsertAction',
 			'return' => '\Cerb\AutomationBuilder\Action\ReturnAction',

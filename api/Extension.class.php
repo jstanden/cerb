@@ -901,6 +901,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "record.get:\n\t",
 			],
 			[
+				'caption' => 'record.search:',
+				'snippet' => "record.search:\n\t",
+			],
+			[
 				'caption' => 'record.update:',
 				'snippet' => "record.update:\n\t",
 			],
@@ -1022,6 +1026,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):record.create:' => $action_base,
 				'(.*):record.delete:' => $action_base,
 				'(.*):record.get:' => $action_base,
+				'(.*):record.search:' => $action_base,
 				'(.*):record.update:' => $action_base,
 				'(.*):record.upsert:' => $action_base,
 				
@@ -1039,6 +1044,12 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'(.*):record.get:inputs:' => [
 					'record_type:',
 					'record_id:',
+				],
+				
+				'(.*):record.search:inputs:' => [
+					'record_type:',
+					'record_query:',
+					'record_query_params:',
 				],
 				
 				'(.*):record.update:inputs:' => [

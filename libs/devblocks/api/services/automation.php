@@ -434,6 +434,7 @@ class _DevblocksAutomationService {
 			'record.create',
 			'record.delete',
 			'record.get',
+			'record.search',
 			'record.update',
 			'record.upsert',
 			'return',
