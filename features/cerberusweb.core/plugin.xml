@@ -4669,15 +4669,50 @@
 		<!-- Triggers -->
 
 		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.ui.sheet.data</id>
-			<name>ui.sheet.data</name>
+			<id>cerb.trigger.automation.function</id>
+			<name>automation.function</name>
 			<class>
-				<file>api/automations/triggers/ui.sheet.data.php</file>
-				<name>AutomationTrigger_UiSheetData</name>
+				<file>api/automations/triggers/automation.function.php</file>
+				<name>AutomationTrigger_AutomationFunction</name>
 			</class>
 			<params>
 				<param key="features">
 					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.automation.timer</id>
+			<name>automation.timer</name>
+			<class>
+				<file>api/automations/triggers/automation.timer.php</file>
+				<name>AutomationTrigger_AutomationTimer</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.interaction.web.worker</id>
+			<name>interaction.web.worker</name>
+			<class>
+				<file>api/automations/triggers/interaction.web.worker.php</file>
+				<name>AutomationTrigger_InteractionWebWorker</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="callers" />
 						<data key="inputs" />
 					</value>
 				</param>
@@ -4717,48 +4752,15 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.reminder.remind</id>
-			<name>reminder.remind</name>
+			<id>cerb.trigger.map.clicked</id>
+			<name>map.clicked</name>
 			<class>
-				<file>api/automations/triggers/reminder.remind.php</file>
-				<name>AutomationTrigger_ReminderRemind</name>
+				<file>api/automations/triggers/map.clicked.php</file>
+				<name>AutomationTrigger_MapClicked</name>
 			</class>
 			<params>
 				<param key="features">
 					<value>
-						<data key="inputs" />
-					</value>
-				</param>
-			</params>
-		</extension>
-
-		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.automation.function</id>
-			<name>automation.function</name>
-			<class>
-				<file>api/automations/triggers/automation.function.php</file>
-				<name>AutomationTrigger_AutomationFunction</name>
-			</class>
-			<params>
-				<param key="features">
-					<value>
-						<data key="inputs" />
-					</value>
-				</param>
-			</params>
-		</extension>
-		
-		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.automation.timer</id>
-			<name>automation.timer</name>
-			<class>
-				<file>api/automations/triggers/automation.timer.php</file>
-				<name>AutomationTrigger_AutomationTimer</name>
-			</class>
-			<params>
-				<param key="features">
-					<value>
-						<data key="await" />
 						<data key="inputs" />
 					</value>
 				</param>
@@ -4780,7 +4782,23 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.reminder.remind</id>
+			<name>reminder.remind</name>
+			<class>
+				<file>api/automations/triggers/reminder.remind.php</file>
+				<name>AutomationTrigger_ReminderRemind</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.resource.get</id>
 			<name>resource.get</name>
@@ -4798,17 +4816,15 @@
 		</extension>
 		
 		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.interaction.web.worker</id>
-			<name>interaction.web.worker</name>
+			<id>cerb.trigger.ui.sheet.data</id>
+			<name>ui.sheet.data</name>
 			<class>
-				<file>api/automations/triggers/interaction.web.worker.php</file>
-				<name>AutomationTrigger_InteractionWebWorker</name>
+				<file>api/automations/triggers/ui.sheet.data.php</file>
+				<name>AutomationTrigger_UiSheetData</name>
 			</class>
 			<params>
 				<param key="features">
 					<value>
-						<data key="await" />
-						<data key="callers" />
 						<data key="inputs" />
 					</value>
 				</param>
@@ -4823,22 +4839,6 @@
 				<name>AutomationTrigger_WebhookRespond</name>
 			</class>
 			<params>
-			</params>
-		</extension>
-
-		<extension point="cerb.automation.trigger">
-			<id>cerb.trigger.map.clicked</id>
-			<name>map.clicked</name>
-			<class>
-				<file>api/automations/triggers/map.clicked.php</file>
-				<name>AutomationTrigger_MapClicked</name>
-			</class>
-			<params>
-				<param key="features">
-					<value>
-						<data key="inputs" />
-					</value>
-				</param>
 			</params>
 		</extension>
 
