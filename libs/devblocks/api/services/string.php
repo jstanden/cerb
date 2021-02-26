@@ -301,6 +301,15 @@ class _DevblocksStringService {
 		return true;
 	}
 	
+	public function toDate(string $value) {
+		$ts = @strtotime($value);
+		
+		if(false === $ts)
+			return false;
+		
+		return intval($ts);
+	}
+	
 	public function capitalizeDashed(string $k) : string {
 		return implode(
 			'-',
