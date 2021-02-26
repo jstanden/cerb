@@ -95,8 +95,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		$validation
 			->addField(self::WORKER_ID)
 			->id()
-			->setRequired(true)
-			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER))
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_WORKER, true))
 			;
 		$validation
 			->addField('_fieldsets')
@@ -158,22 +157,24 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
 		
-		if(!$id && !isset($fields[self::WORKER_ID])) {
-			$error = "A 'worker_id' is required.";
-			return false;
-		}
-		
-		if(isset($fields[self::WORKER_ID])) {
-			@$worker_id = $fields[self::WORKER_ID];
-			
-			if(!$worker_id) {
-				$error = "Invalid 'worker_id' value.";
-				return false;
+		if(array_key_exists(self::TYPE, $fields) && in_array($fields[self::TYPE], ['mail.compose','ticket.reply','ticket.forward'])) {
+			if(!$id && !array_key_exists(self::WORKER_ID, $fields)) {
+					$error = "A 'worker_id' is required.";
+					return false;
 			}
 			
-			if(!CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor)) {
-				$error = "You do not have permission to create drafts for this worker.";
-				return false;
+			if(array_key_exists(self::WORKER_ID, $fields)) {
+				$worker_id = $fields[self::WORKER_ID] ?? null;
+				
+				if(!$worker_id) {
+					$error = "Invalid 'worker_id' value.";
+					return false;
+				}
+				
+				if(!CerberusContexts::isOwnableBy(CerberusContexts::CONTEXT_WORKER, $worker_id, $actor)) {
+					$error = "You do not have permission to create drafts for this worker.";
+					return false;
+				}
 			}
 		}
 		
@@ -831,12 +832,13 @@ class Model_MailQueue {
 			'subject' => $this->getParam('subject'),
 			'content' => $this->getParam('content'),
 			'content_format' => $this->getParam('format'),
-			'worker_id' => $this->worker_id,
 		];
 		
-		if($this->ticket_id) {
+		if($this->worker_id)
+			$properties['worker_id'] = $this->worker_id;
+		
+		if($this->ticket_id)
 			$properties['ticket_id'] = $this->ticket_id;
-		}
 		
 		if($this->hasParam('is_forward'))
 			$properties['is_forward'] = $this->getParam('is_forward');
