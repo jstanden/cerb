@@ -44,6 +44,9 @@ class _DevblocksAutomationService {
 					} else {
 						$input_field_type = null;
 						
+						if(0 == strlen($input_value))
+							$input_value = null;
+						
 						switch(@$input_data['type']) {
 							case 'bool':
 								$bool = DevblocksPlatform::services()->string()->toBool($input_value);
