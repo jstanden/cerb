@@ -1671,10 +1671,10 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		if(!$is_preview) {
 			@unlink($csv_file); // nuke the imported file}
 			$visit->set('import.last.csv',null);
-		}
-		
-		if(!empty($view_id) && !empty($context)) {
-			C4_AbstractView::setMarqueeContextImported($view_id, $context, $line_number);
+			
+			if(!empty($view_id) && !empty($context)) {
+				C4_AbstractView::setMarqueeContextImported($view_id, $context, $line_number);
+			}
 		}
 	}
 }
