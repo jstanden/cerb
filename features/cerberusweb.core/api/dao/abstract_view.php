@@ -472,7 +472,7 @@ abstract class C4_AbstractView {
 		}
 	}
 	
-	function getParamsFromQuickSearch($query) {
+	function getParamsFromQuickSearch(?string $query, array $bindings=[]) {
 		if(!($this instanceof IAbstractView_QuickSearch))
 			return false;
 		
@@ -484,7 +484,7 @@ abstract class C4_AbstractView {
 		
 		// Get fields
 		
-		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
+		$fields = CerbQuickSearchLexer::getFieldsFromQuery($query, $bindings);
 		
 		// Quick search multi-sorting
 		
@@ -4107,7 +4107,7 @@ class CerbQuickSearchLexer {
 		}
 	}
 	
-	static function getFieldsFromQuery($query) {
+	static function getFieldsFromQuery($query, array $bindings=[]) {
 		$tokens = [];
 		
 		// Extract double-quoted literals text
@@ -4461,13 +4461,30 @@ class CerbQuickSearchLexer {
 				);
 		});
 		
+		// Sort out the boolean mode of each group
+		if($bindings) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			
+			$lexer = [
+				'tag_variable'  => ['${', '}'],
+				'tag_comment'   => ['${#', '#}'],
+				'tag_block'     => ['${%', '%}'],
+				'interpolation' => ['$#{', '}'],
+			];
+			
+			$token_dict = DevblocksDictionaryDelegate::instance($bindings);
+			
+			self::_recurse($tokens, ['T_TEXT', 'T_QUOTED_TEXT'], function (CerbQuickSearchLexerToken $token) use ($tpl_builder, $token_dict, $lexer) {
+				$token->value = $tpl_builder->build($token->value, $token_dict, $lexer);
+			});
+		}
+		
 		$params = null;
 		self::buildParams($tokens, $params);
 		
 		// Remove the outer grouping if it's not necessary
 		if($params[0] == 'AND') {
 			array_shift($params);
-			$params = $params;
 		} else {
 			$params = array($params);
 		}
