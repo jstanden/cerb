@@ -185,7 +185,7 @@ class Cerb_Packages {
 					
 					$error = null;
 					
-					if(false == ($results = $data->executeQuery($data_query, $error)))
+					if(false == ($results = $data->executeQuery($data_query, [], $error)))
 						throw new Exception_DevblocksValidationError($error);
 					
 					if($validate) {

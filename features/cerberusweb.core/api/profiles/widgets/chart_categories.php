@@ -42,7 +42,7 @@ class ProfileWidget_ChartCategories extends Extension_ProfileWidget {
 		if(!$query)
 			return;
 		
-		if(false === ($results = $data->executeQuery($query, $error))) {
+		if(false === ($results = $data->executeQuery($query, [], $error))) {
 			echo DevblocksPlatform::strEscapeHtml($error);
 			return;
 		}

@@ -578,13 +578,13 @@ abstract class C4_AbstractView {
 		return $fields;
 	}
 	
-	function addParamsWithQuickSearch($query, $replace=true) {
-		$fields = $this->getParamsFromQuickSearch($query);
+	function addParamsWithQuickSearch(?string $query, bool $replace=true, array $bindings=[]) {
+		$fields = $this->getParamsFromQuickSearch($query, $bindings);
 		$this->addParams($fields, $replace);
 	}
 	
-	function addParamsRequiredWithQuickSearch($query, $replace=true) {
-		$fields = $this->getParamsFromQuickSearch($query);
+	function addParamsRequiredWithQuickSearch(?string $query, bool $replace=true, array $bindings=[]) {
+		$fields = $this->getParamsFromQuickSearch($query, $bindings);
 		$this->addParamsRequired($fields, $replace);
 	}
 	

@@ -33,7 +33,7 @@ class WorkspaceWidget_ChartTable extends Extension_WorkspaceWidget implements IC
 			return false;
 		}
 		
-		if(false === ($results = $data->executeQuery($query, $error, $cache_secs)))
+		if(false === ($results = $data->executeQuery($query, [], $error, $cache_secs)))
 			return false;
 		
 		return $results;

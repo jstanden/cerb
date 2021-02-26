@@ -33,7 +33,7 @@ class WorkspaceWidget_ChartTimeSeries extends Extension_WorkspaceWidget implemen
 			return false;
 		}
 		
-		if(false === ($results = $data->executeQuery($query, $error, $cache_secs)))
+		if(false === ($results = $data->executeQuery($query, [], $error, $cache_secs)))
 			return false;
 		
 		return $results;

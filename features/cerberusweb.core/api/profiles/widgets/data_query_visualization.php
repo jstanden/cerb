@@ -49,7 +49,7 @@ class ProfileWidget_Visualization extends Extension_ProfileWidget {
 			$error = null;
 			
 			if(!$cache_ttl || false == ($results = $cache->load($cache_key))) {
-				if(false === ($results = $data_service->executeQuery($query, $error))) {
+				if(false === ($results = $data_service->executeQuery($query, [], $error))) {
 					echo DevblocksPlatform::strEscapeHtml($error);
 					return;
 				}

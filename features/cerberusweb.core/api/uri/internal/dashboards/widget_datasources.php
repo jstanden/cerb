@@ -693,7 +693,7 @@ class WorkspaceWidgetDatasource_DataQueryMetric extends Extension_WorkspaceWidge
 		
 		$query = $tpl_builder->build($data_query, $dict);
 		
-		if(false === ($results = $data->executeQuery($query)))
+		if(false === ($results = $data->executeQuery($query, [])))
 			return [];
 		
 		@$type = $results['_']['type'];

@@ -372,7 +372,7 @@ class Controller_UI extends DevblocksControllerExtension {
 			return;
 		}
 		
-		if(false == ($results = $data->executeQuery($data_query, $error))) {
+		if(false == ($results = $data->executeQuery($data_query, [], $error))) {
 			echo DevblocksPlatform::strFormatJson(json_encode([
 				'error' => $error,
 			]));
@@ -439,7 +439,7 @@ class Controller_UI extends DevblocksControllerExtension {
 		
 		$error = null;
 		
-		if(false == ($results = $data->executeQuery($data_query, $error))) {
+		if(false == ($results = $data->executeQuery($data_query, [], $error))) {
 			echo $error;
 			return;
 		}

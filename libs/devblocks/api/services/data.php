@@ -151,7 +151,7 @@ class _DevblocksDataService {
 		return $types;
 	}
 	
-	function executeQuery($query, &$error=null, $cache_secs=0) {
+	function executeQuery($query, array $bindings=[], &$error=null, $cache_secs=0) {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache_key = 'data_query_' . sha1($query);
 		
@@ -165,7 +165,7 @@ class _DevblocksDataService {
 			}
 		}
 		
-		$chart_fields = CerbQuickSearchLexer::getFieldsFromQuery($query);
+		$chart_fields = CerbQuickSearchLexer::getFieldsFromQuery($query, $bindings);
 		
 		if(false == ($type_field = CerbQuickSearchLexer::getFieldByKey('type', $chart_fields))) {
 			$error = "A data query 'type:' is required.";
