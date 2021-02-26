@@ -89,6 +89,13 @@ class SheetAwait extends AbstractAwait {
 					$sheet_paging = $callback_return['paging'] ?? [];
 				}
 			}
+			
+		} else if(DevblocksPlatform::arrayIsIndexed($sheet_data)) {
+			// If the values are empty, synthesize a key
+			foreach($sheet_data as $k => $v) {
+				if(is_array($v) && empty($v))
+					$sheet_data[$k] = ['key' => $k];
+			}
 		}
 		
 		if(!is_array($sheet_data))
