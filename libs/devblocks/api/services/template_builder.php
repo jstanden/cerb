@@ -2038,6 +2038,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigTest('numeric', [$this, 'test_numeric']),
 			new \Twig\TwigTest('pattern', [$this, 'test_pattern']),
 			new \Twig\TwigTest('prefixed', [$this, 'test_prefixed']),
+			new \Twig\TwigTest('record type', [$this, 'test_record_type']),
 			new \Twig\TwigTest('suffixed', [$this, 'test_suffixed']),
 		);
 	}
@@ -2067,6 +2068,22 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		}
 		
 		return false;
+	}
+
+	function test_record_type($record_type, ...$allowed_record_types) : bool {
+		if(!is_string($record_type))
+			return false;
+		
+		if(!is_array($allowed_record_types))
+			return false;
+		
+		if(false == ($record_context = Extension_DevblocksContext::getByAlias($record_type)))
+			return false;
+		
+		if(false == ($allowed_record_contexts = Extension_DevblocksContext::getByAliases($allowed_record_types)))
+			return false;
+		
+		return in_array($record_context->id, array_keys($allowed_record_contexts));
 	}
 
 	function test_prefixed($value, ...$prefixes) : bool {
