@@ -866,7 +866,7 @@ class CerberusMail {
 					
 					@$mime_type = $files['type'][$idx];
 					
-					$attach = Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx], $mime_type);
+					$attach = Swift_Attachment::fromPath($file, $mime_type)->setFilename($files['name'][$idx]);
 					
 					if('message/rfc822' == $mime_type)
 						$attach->setContentType('application/octet-stream');
@@ -1492,7 +1492,7 @@ class CerberusMail {
 						
 						@$mime_type = $files['type'][$idx];
 						
-						$attach = Swift_Attachment::fromPath($file)->setFilename($files['name'][$idx], $mime_type);
+						$attach = Swift_Attachment::fromPath($file, $mime_type)->setFilename($files['name'][$idx]);
 						
 						if('message/rfc822' == $mime_type)
 							$attach->setContentType('application/octet-stream');
