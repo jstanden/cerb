@@ -125,6 +125,7 @@ class _DevblocksTemplateManager {
 			$security->streams = array(
 				'none'
 			);
+			$security->disabled_special_smarty_vars = ["template_object"];			
 			$instance->enableSecurity($security);
 			
 			self::$_instance_sandbox = $instance;

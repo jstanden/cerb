@@ -40,7 +40,7 @@
 		"ext-mysqli": "*",
 		"ext-simplexml": "*",
 		"ext-yaml": "*",
-		"smarty/smarty" : "^3.1",
+		"smarty/smarty" : "^3.1.39",
 		"swiftmailer/swiftmailer" : "^6.0",
 		"lcobucci/jwt": "^4.0",
 		"dragonmantank/cron-expression": "^2.3",
