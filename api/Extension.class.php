@@ -804,11 +804,32 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			
 			// [TODO] Divider
 			
-			'interaction/help' => [
-				'icon' => 'circle-question-mark',
-				'name' => 'ai.erb.automationBuilder.help',
-			]
 		]; // $toolbar
+		
+		// Merge Options from `automation.editor`
+		
+		if(false != ($editor_toolbar = DAO_Toolbar::getByName('automation.editor'))) {
+			$editor_toolbar_dict = DevblocksDictionaryDelegate::instance([
+				'trigger_id' => $this->manifest->id,
+				'trigger_name' => $this->manifest->name,
+			]);
+			
+			if(false != ($editor_toolbar_items = $editor_toolbar->getKata($editor_toolbar_dict))) {
+				foreach($editor_toolbar_items as $item) {
+					$item_k = sprintf('%s/%s', $item['type'], $item['key']);
+					$toolbar[$item_k] = $item;
+				}
+			}
+		}
+		
+		$toolbar['interaction/help'] = [
+			'icon' => 'circle-question-mark',
+			'uri' => 'ai.cerb.automationBuilder.help',
+			'inputs' => [
+				'trigger_id' => $this->manifest->id,
+				'trigger_name' => $this->manifest->name,
+			]
+		];
 		
 		// Trigger features
 		

@@ -567,6 +567,15 @@ if(!isset($tables['toolbar'])) {
 		time(),
 		time()
 	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO toolbar (name, extension_id, description, toolbar_kata, created_at, updated_at) VALUES (%s, %s, %s, %s, %d, %d)",
+		$db->qstr('automation.editor'),
+		$db->qstr('cerb.toolbar.automation.editor'),
+		$db->qstr('Editing an automation'),
+		$db->qstr(''),
+		time(),
+		time()
+	));
 }
 
 // ===========================================================================
