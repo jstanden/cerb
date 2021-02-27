@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerb.website.interactions</id>
+	<name>Interactions for Websites</name>
+	<description>Embed customer-facing interactions on any website.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>1.0.0</version>
+	<link>https://cerb.ai/docs/plugins/</link>
+	<image>plugin.png</image>
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="10.0" max="10.0.99" />
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" />
+	</dependencies>
+
+	<!-- Extensions -->
+
+	<extensions>
+		<extension point="cerb.portal">
+			<id>cerb.website.interactions</id>
+			<name>Website Interactions</name>
+			<class>
+				<file>src/App.php</file>
+				<name>Portal_WebsiteInteractions</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.interaction.website</id>
+			<name>interaction.website</name>
+			<class>
+				<file>src/automations/triggers/interaction.website.php</file>
+				<name>AutomationTrigger_InteractionWebsite</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="await" />
+						<data key="callers" />
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+	</extensions>
+</plugin>

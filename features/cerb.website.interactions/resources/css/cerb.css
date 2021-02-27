@@ -1,0 +1,412 @@
+.cerb-interaction-popup {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    width: 40vw;
+    bottom: 2.5vw;
+    right: 2.5vw;
+    position: fixed;
+    z-index: 10000;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0 10px 0 rgb(50, 50, 50);
+}
+
+.cerb-interaction-popup--style-full {
+    width: 75vw;
+    right: 12.5vw;
+    bottom: unset;
+    top: 2.5vh;
+}
+
+.cerb-interaction-popup--header {
+}
+
+.cerb-interaction-popup--close {
+    z-index: 10010;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    right: -10px;
+    top: -5px;
+    font-size: 28px;
+    line-height: 32px;
+    cursor: pointer;
+    background-color: rgb(95, 95, 95);
+    color: white;
+    text-align: center;
+    border-radius: 24px;
+}
+
+.div.cerb-interaction-popup--close:hover {
+    background-color: rgb(125, 125, 125);
+}
+
+.cerb-interaction-popup--close:after {
+    content: '✖';
+    color: white;
+}
+
+.cerb-interaction-popup--title {
+    text-align: center;
+    background-color: rgb(75, 75, 75);
+    color: white;
+    font-weight: bold;
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 10px 10px 0 0;
+}
+
+.cerb-interaction-popup--container {
+}
+
+.cerb-interaction-badge {
+    z-index:9999;
+    position:fixed;
+    width:60px;
+    height:60px;
+    bottom:40px;
+    right:40px;
+}
+
+.cerb-interaction-badge--icon {
+    position:relative;
+    width:60px;
+    height:60px;
+    border: 3px solid #41acff;
+    border-radius:60px;
+    background-color:#cfddeb;
+    background-size: 60px 60px;
+    background-image:url(data:image/png;base64,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);
+    box-shadow:0 0 12px 2px rgb(50,50,50);
+    cursor:pointer;
+}
+
+.cerb-interaction-popup--form {
+    overflow: auto;
+    height: 75vh;
+}
+
+.cerb-interaction-popup--form-elements {
+    padding: 10px 10px 10px 10px;
+}
+
+.cerb-interaction-popup--form-elements H1,
+.cerb-interaction-popup--form-elements H2,
+.cerb-interaction-popup--form-elements H3,
+.cerb-interaction-popup--form-elements H4,
+.cerb-interaction-popup--form-elements H5,
+.cerb-interaction-popup--form-elements H6 {
+    color: inherit;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0.5em 0;
+    padding: 0;
+}
+
+.cerb-interaction-popup--form-elements H1 {
+    font-size: 1.9em;
+}
+
+.cerb-interaction-popup--form-elements H2 {
+    font-size: 1.75em;
+}
+
+.cerb-interaction-popup--form-elements H3 {
+    font-size: 1.6em;
+}
+
+.cerb-interaction-popup--form-elements H4 {
+    font-size: 1.45em;
+}
+
+.cerb-interaction-popup--form-elements H5 {
+    font-size: 1.3em;
+}
+
+.cerb-interaction-popup--form-elements H6 {
+    font-size: 1.15em;
+}
+
+.cerb-interaction-popup--form-elements-say {
+    
+}
+
+.cerb-interaction-popup--form-elements-say-error {
+    background-color: rgb(255, 240, 240);
+    color: rgb(200, 0, 0);
+    padding: 15px;
+}
+
+.cerb-interaction-popup--form-elements-say-error H1 {
+    margin: 0;
+    color: rgb(200,0,0);
+}
+
+.cerb-interaction-popup--form-elements-say-error > P {
+    margin: 0;
+    padding: 0;
+    color: inherit;
+}
+
+.cerb-interaction-popup--form-elements-button {
+    background: rgb(18, 131, 225) none;
+    color: white;
+    height: unset;
+    font-size: 1.1em;
+    border: 0;
+    border-radius: 50px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.cerb-interaction-popup--form-elements-button:hover {
+}
+
+.cerb-interaction-popup--form-elements-submit {
+    display:flex;
+    margin-top:50px;
+}
+
+.cerb-interaction-popup--form-elements-continue {
+    flex:1 1;
+    max-width:5em;
+}
+
+.cerb-interaction-popup--form-elements-continue::after {
+    content: "⟶";
+}
+
+.cerb-interaction-popup--form-elements-reset {
+    background-color: rgb(230, 230, 230);
+    flex:1 1;
+    max-width:5em;
+}
+
+.cerb-interaction-popup--form-elements-reset::after {
+    color: black;
+    content: "⟲";
+}
+
+.cerb-interaction-popup--form-elements-text input[type=text],
+.cerb-interaction-popup--form-elements-textarea textarea {
+    border: 1px solid rgb(220,220,220);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+    font-size: 1em;
+}
+
+.cerb-interaction-popup--form-elements-textarea textarea {
+    min-height:6.5em;
+    font-size: 1em;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet th {
+    font-weight: bold;
+    font-size: 1.25em;
+    text-align: left;
+    padding: 0 5px 5px 5px;
+}
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet td {
+    padding: 5px;
+}
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody:nth-child(even) td {
+    background-color: whitesmoke;
+}
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody {
+    cursor: pointer;
+}
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.selected td {
+    background-color: #fbec88;
+}
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.hover tr td {
+    background-color: #ffffc8 !important;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--button {
+    background: rgb(70, 150, 250) none;
+    color: white;
+    padding: 10px 10px;
+    border-radius: 5px;
+    margin: 5px 0 0 0;
+    cursor: pointer;
+    text-align: center;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--button:hover {
+    filter: brightness(1.2);
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--title {
+    font-size: 120%;
+    font-weight: bold;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--button input[type=checkbox],
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--button input[type=radio] {
+    display: none;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale {
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--cells {
+    box-sizing: border-box;
+    column-fill: balance;
+    column-gap: 2px;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--labels {
+    column-count: 2;
+    margin-top: 10px;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--labels div:nth-child(1) {
+    text-align: left;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--labels div:nth-child(2) {
+    text-align: right;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--cell {
+    text-align: center;
+    cursor: pointer;
+    padding: 8px 0;
+    border: 1px solid rgb(200,200,200);
+    border-bottom-width: 3px;
+    border-radius: 5px;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--cell-selected {
+    background-color: rgb(70, 150, 250);
+    color: white;
+    border: 1px solid rgb(50, 140, 250);
+    border-bottom-width: 3px;
+    border-radius: 5px;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--cell:hover {
+    border: 1px solid rgb(102, 171, 253);
+    border-bottom-width: 3px;
+    border-radius: 5px;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--title {
+    font-size: 120%;
+    font-weight: bold;
+}
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--cell input[type=checkbox],
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet-scale--cell input[type=radio] {
+    display: none;
+}
+
+svg.cerb-spinner {
+    animation: 2s linear infinite cerb-spinner-animation;
+    display: inline-block;
+    max-width: 32px;
+    margin: 5px;
+    vertical-align: middle;
+    opacity: 1;
+}
+
+svg.cerb-spinner circle {
+    animation: 1.4s ease-in-out infinite both cerb-spinner-circle-animation;
+    fill: transparent;
+    stroke: #2f3d4c;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 280;
+    stroke-width: 10px;
+    transform-origin: 50% 50%;
+}
+
+@keyframes cerb-spinner-animation {
+    0% {
+        transform: rotateZ(0deg);
+    }
+    100% {
+        transform: rotateZ(360deg)
+    }
+}
+
+@keyframes cerb-spinner-circle-animation {
+    0%,
+    25% {
+        stroke-dashoffset: 280;
+        transform: rotate(0);
+    }
+
+    50%,
+    75% {
+        stroke-dashoffset: 75;
+        transform: rotate(45deg);
+    }
+
+    100% {
+        stroke-dashoffset: 280;
+        transform: rotate(360deg);
+    }
+}
+
+@media screen and (min-width: 1500px) {
+    .cerb-interaction-popup {
+        width: 50vw;
+        bottom: 2.5vw;
+        right: 2.5vw;
+    }
+
+    .cerb-interaction-popup--style-full {
+        width: 60vw;
+        right: 20vw;
+        bottom: unset;
+        top: 2.5vh;
+    }
+}
+
+@media screen and (max-width: 1050px) {
+    .cerb-interaction-popup {
+        width: 50vw;
+        bottom: 2.5vw;
+        right: 2.5vw;
+    }
+
+    .cerb-interaction-popup--style-full {
+        width: 75vw;
+        right: 12.5vw;
+        bottom: unset;
+        top: 2.5vh;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .cerb-interaction-popup {
+        width: 75vw;
+        bottom: 2.5vw;
+        right: 2.5vw;
+    }
+
+    .cerb-interaction-popup--style-full {
+        width: 90vw;
+        right: 5vw;
+        bottom: unset;
+        top: 2.5vh;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .cerb-interaction-popup {
+        width: 95vw;
+        bottom: 2.5vw;
+        right: 2.5vw;
+    }
+
+    .cerb-interaction-popup--style-full {
+        width: 95vw;
+        right: 2.5vw;
+        bottom: unset;
+        top: 2.5vh;
+    }
+}

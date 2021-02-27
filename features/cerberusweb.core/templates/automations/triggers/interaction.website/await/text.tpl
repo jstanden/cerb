@@ -1,0 +1,16 @@
+{$element_id = uniqid('el')}
+<div id="{$element_id}" class="cerb-interaction-popup--form-elements--prompt cerb-interaction-popup--form-elements-text">
+	<h6>{$label}{if $is_required}<span>*</span>{/if}</h6>
+	<input name="prompts[{$var}]" type="text" placeholder="{$placeholder}" value="{$value|default:$default}" autocomplete="off">
+</div>
+
+<script type="text/javascript">
+{
+	var $prompt = document.querySelector('#{$element_id}');
+	var $input = $prompt.querySelector('input[type=text]');
+
+	// Move the cursor to the end of the text
+	$input.focus();
+	$input.setSelectionRange($input.value.length, $input.value.length);
+}
+</script>
