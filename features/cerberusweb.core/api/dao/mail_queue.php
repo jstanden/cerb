@@ -84,7 +84,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(255)
 			->setRequired(true)
-			->setPossibleValues(['mail.compose', 'ticket.reply', 'ticket.forward'])
+			->setPossibleValues(['mail.compose', 'mail.transactional', 'ticket.reply', 'ticket.forward'])
 			;
 		// int(10) unsigned
 		$validation
@@ -643,6 +643,7 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 			case SearchFields_MailQueue::TYPE:
 				$label_map = array(
 					'mail.compose' => 'Compose',
+					'mail.transactional' => 'Transactional',
 					'ticket.reply' => 'Reply',
 					'ticket.forward' => 'Forward',
 				);
@@ -699,6 +700,7 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 
 class Model_MailQueue {
 	const TYPE_COMPOSE = 'mail.compose';
+	const TYPE_TRANSACTIONAL = 'mail.transactional';
 	const TYPE_TICKET_FORWARD = 'ticket.forward';
 	const TYPE_TICKET_REPLY = 'ticket.reply';
 	
@@ -834,29 +836,68 @@ class Model_MailQueue {
 			'content_format' => $this->getParam('format'),
 		];
 		
-		if($this->worker_id)
-			$properties['worker_id'] = $this->worker_id;
-		
-		if($this->ticket_id)
-			$properties['ticket_id'] = $this->ticket_id;
-		
-		if($this->hasParam('is_forward'))
-			$properties['is_forward'] = $this->getParam('is_forward');
-		
-		if($this->hasParam('in_reply_message_id'))
-			$properties['message_id'] = $this->getParam('in_reply_message_id');
+		if($this->type == self::TYPE_TRANSACTIONAL) {
+			if($this->hasParam('from'))
+				$properties['from'] = $this->getParam('from');
+			
+		} else {
+			if($this->worker_id)
+				$properties['worker_id'] = $this->worker_id;
+			
+			if($this->ticket_id)
+				$properties['ticket_id'] = $this->ticket_id;
+			
+			if($this->hasParam('is_forward'))
+				$properties['is_forward'] = $this->getParam('is_forward');
+			
+			if($this->hasParam('in_reply_message_id'))
+				$properties['message_id'] = $this->getParam('in_reply_message_id');
+			
+			if($this->hasParam('is_autoreply'))
+				$properties['is_autoreply'] = $this->getParam('is_autoreply');
+			
+			if($this->hasParam('is_broadcast'))
+				$properties['is_broadcast'] = $this->getParam('is_broadcast');
+			
+			if($this->hasParam('options_dont_send'))
+				$properties['dont_send'] = $this->getParam('options_dont_send');
+			
+			if($this->hasParam('custom_fields'))
+				$properties['custom_fields'] = $this->getParam('custom_fields', []);
+			
+			if($this->hasParam('custom_fieldset_deletes'))
+				$properties['custom_fieldset_deletes'] = $this->getParam('custom_fieldset_deletes', []);
+			
+			if($this->hasParam('context_links'))
+				$properties['context_links'] = $this->getParam('context_links', []);
+			
+			if($this->hasParam('org_id'))
+				$properties['org_id'] = $this->getParam('org_id');
+			
+			if($this->hasParam('org_name'))
+				$properties['org_id'] = DAO_ContactOrg::lookup($this->getParam('org_name'));
+			
+			if($this->hasParam('status_id'))
+				$properties['status_id'] = $this->getParam('status_id');
+			
+			if($this->hasParam('group_id'))
+				$properties['group_id'] = $this->getParam('group_id');
+			
+			if($this->hasParam('bucket_id'))
+				$properties['bucket_id'] = $this->getParam('bucket_id');
+			
+			if($this->hasParam('owner_id'))
+				$properties['owner_id'] = $this->getParam('owner_id');
+			
+			if($this->hasParam('watcher_ids'))
+				$properties['watcher_ids'] = $this->getParam('watcher_ids');
+			
+			if($this->hasParam('ticket_reopen'))
+				$properties['ticket_reopen'] = $this->getParam('ticket_reopen');
+		}
 		
 		if($this->hasParam('html_template_id'))
 			$properties['html_template_id'] = $this->getParam('html_template_id');
-		
-		if($this->hasParam('is_autoreply'))
-			$properties['is_autoreply'] = $this->getParam('is_autoreply');
-		
-		if($this->hasParam('is_broadcast'))
-			$properties['is_broadcast'] = $this->getParam('is_broadcast');
-		
-		if($this->hasParam('options_dont_send'))
-			$properties['dont_send'] = $this->getParam('options_dont_send');
 		
 		if($this->hasParam('options_gpg_encrypt'))
 			$properties['gpg_encrypt'] = $this->getParam('options_gpg_encrypt');
@@ -864,43 +905,10 @@ class Model_MailQueue {
 		if($this->hasParam('options_gpg_sign'))
 			$properties['gpg_sign'] = $this->getParam('options_gpg_sign');
 		
-		if($this->hasParam('custom_fields'))
-			$properties['custom_fields'] = $this->getParam('custom_fields', []);
-		
-		if($this->hasParam('custom_fieldset_deletes'))
-			$properties['custom_fieldset_deletes'] = $this->getParam('custom_fieldset_deletes', []);
-		
-		if($this->hasParam('context_links'))
-			$properties['context_links'] = $this->getParam('context_links', []);
-		
 		if($this->hasParam('file_ids')) {
 			$properties['forward_files'] = $this->getParam('file_ids', []);
 			$properties['link_forward_files'] = true;
 		}
-		
-		if($this->hasParam('org_id'))
-			$properties['org_id'] = $this->getParam('org_id');
-		
-		if($this->hasParam('org_name'))
-			$properties['org_id'] = DAO_ContactOrg::lookup($this->getParam('org_name'));
-		
-		if($this->hasParam('status_id'))
-			$properties['status_id'] = $this->getParam('status_id');
-			
-		if($this->hasParam('group_id'))
-			$properties['group_id'] = $this->getParam('group_id');
-		
-		if($this->hasParam('bucket_id'))
-			$properties['bucket_id'] = $this->getParam('bucket_id');
-		
-		if($this->hasParam('owner_id'))
-			$properties['owner_id'] = $this->getParam('owner_id');
-		
-		if($this->hasParam('watcher_ids'))
-			$properties['watcher_ids'] = $this->getParam('watcher_ids');
-		
-		if($this->hasParam('ticket_reopen'))
-			$properties['ticket_reopen'] = $this->getParam('ticket_reopen');
 		
 		if($this->hasParam('send_at'))
 			$properties['send_at'] = $this->getParam('send_at');
@@ -920,6 +928,10 @@ class Model_MailQueue {
 				$success = $this->_sendCompose();
 				break;
 				
+			case Model_MailQueue::TYPE_TRANSACTIONAL:
+				$success = $this->_sendTransactional();
+				break;
+				
 			case Model_MailQueue::TYPE_TICKET_FORWARD:
 			case Model_MailQueue::TYPE_TICKET_REPLY:
 				$success = $this->_sendTicketReply();
@@ -933,6 +945,12 @@ class Model_MailQueue {
 		$properties = $this->getMessageProperties();
 		
 		return CerberusMail::compose($properties);
+	}
+	
+	private function _sendTransactional() {
+		$properties = $this->getMessageProperties();
+		
+		return CerberusMail::sendTransactional($properties);
 	}
 	
 	private function _sendTicketReply() {
@@ -1049,6 +1067,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 			case SearchFields_MailQueue::TYPE:
 				$label_map = array(
 					'mail.compose' => 'Compose',
+					'mail.transactional' => 'Transactional',
 					'ticket.reply' => 'Reply',
 					'ticket.forward' => 'Forward',
 				);
@@ -1123,6 +1142,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 					'options' => array('param_key' => SearchFields_MailQueue::TYPE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 					'examples' => [
 						'mail.compose',
+						'mail.transactional',
 						'ticket.forward',
 						'ticket.reply',
 					]
@@ -1190,6 +1210,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 
 		$label_map_type = [
 			'mail.compose' => 'Compose',
+			'mail.transactional' => 'Transactional',
 			'ticket.reply' => 'Reply',
 			'ticket.forward' => 'Forward',
 		];
@@ -1609,6 +1630,16 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 					'ticket_reopen' => 'When the status is waiting or closed, the timestamp to reopen at',
 					'to' => 'The `To:` recipients',
 				],
+				'params (mail.transactional)' => [
+					'bcc' => 'The `Bcc:` recipients',
+					'cc' => 'The `Cc:` recipients',
+					'content' => 'The message content',
+					'file_ids' => 'An array of [attachment](/docs/records/types/attachment/) IDs',
+					'format' => '`parsedown` (Markdown), or blank for plaintext',
+					'from' => 'The `From:` sender (uses system default if omitted)',
+					'subject' => 'The message `Subject:`',
+					'to' => 'The `To:` recipients',
+				],
 				'params (ticket.reply / ticket.forward)' => [
 					'bcc' => 'The `Bcc:` recipients',
 					'bucket_id' => 'The [bucket](/docs/records/types/bucket/) ID to move the ticket to',
@@ -1631,7 +1662,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		
 		$keys['name']['notes'] = "The subject line of the draft message";
 		$keys['to']['notes'] = "The `To:` line of the draft message";
-		$keys['type']['notes'] = "The type of draft: `mail.compose`, `ticket.reply`, or `ticket.forward`";
+		$keys['type']['notes'] = "The type of draft: `mail.compose`, `mail.transactional`, `ticket.reply`, or `ticket.forward`";
 		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who owns the draft";
 		
 		return $keys;

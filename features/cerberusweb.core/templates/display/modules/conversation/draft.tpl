@@ -33,20 +33,30 @@
 	{/if}
 
 	<div style="display:inline-block;">
-		{if !empty($draft_worker)}<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-weight:bold;font-size:1.2em;">{$draft_worker->getName()}</a>{else}{/if}
-		&nbsp;
-		{if $draft_worker->title}
-			{$draft_worker->title}
+		{if $draft_worker}
+			<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-weight:bold;font-size:1.2em;">{$draft_worker->getName()}</a>
+			{if $draft_worker->title}
+				{$draft_worker->title}
+			{/if}
+		{else}
+			{if $draft->params.from}
+				<span style="font-weight:bold;font-size:1.2em;">{$draft->getParam('from')}</span>
+			{/if}
 		{/if}
 	</div>
 
 	<div style="float:left;margin:0 10px 10px 0;">
-		<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft_worker->id}{/devblocks_url}?v={$draft_worker->updated}" style="height:48px;width:48px;border-radius:48px;">
+		{if $draft_worker}
+			<img src="{devblocks_url}c=avatars&context=worker&context_id={$draft_worker->id}{/devblocks_url}?v={$draft_worker->updated}" style="height:48px;width:48px;border-radius:48px;">
+		{else}
+			<img src="{devblocks_url}c=avatars&context=bot&context_id=0{/devblocks_url}?v={$smarty.const.APP_BUILD}" style="height:48px;width:48px;border-radius:48px;">
+		{/if}
 	</div>
 
 	<div style="display:block;margin-top:2px;overflow:hidden;">
 		<div style="line-height:1.4em;">
-			{if isset($draft->hint_to)}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$draft->getParam('to')}<br>{/if}
+			{$to = $draft->hint_to|default:$draft->getParam('to')}
+			{if $to}<b>{'message.header.to'|devblocks_translate|capitalize}:</b> {$to}<br>{/if}
 			{if $draft->params.cc}<b>{'message.header.cc'|devblocks_translate|capitalize}:</b> {$draft->getParam('cc')}<br>{/if}
 			{if $draft->params.bcc}<b>{'message.header.bcc'|devblocks_translate|capitalize}:</b> {$draft->getParam('bcc')}<br>{/if}
 			{if $draft->params.subject}<b>{'message.header.subject'|devblocks_translate|capitalize}:</b> {$draft->getParam('subject')}<br>{/if}
