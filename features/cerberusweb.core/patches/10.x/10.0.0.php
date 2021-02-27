@@ -321,7 +321,7 @@ if(!isset($tables['automation_timer'])) {
 		CREATE TABLE `automation_timer` (
 		id int(10) unsigned NOT NULL AUTO_INCREMENT,
 		name varchar(255) NOT NULL DEFAULT '',
-		automation_kata text,
+		automations_kata text,
 		resume_at int(10) unsigned NOT NULL DEFAULT '0',
 		created_at int(10) unsigned NOT NULL DEFAULT '0',
 		updated_at int(10) unsigned NOT NULL DEFAULT '0',
