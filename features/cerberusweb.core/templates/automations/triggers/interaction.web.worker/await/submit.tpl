@@ -1,12 +1,13 @@
-{if $continue_options.reset || $continue_options.continue}
 {$response_uid = "response{uniqid()}"}
 <div id="{$response_uid}" style="display:flex;margin-top:50px;">
+	<input type="hidden" name="prompts[__submit]" value="continue">
+	
 	{if $continue_options.reset}
 	<button style="flex:1 1;max-width:5em;" type="button" class="cerb-button cerb-form-builder-reset" tabindex="-1"><span></span></button>
 	{/if}
 	<div style="flex:2 2;"></div>
+	
 	{if $continue_options.continue}
-	<input type="hidden" name="prompts[__submit]" value="continue">
 	<button style="flex:1 1;max-width:5em;" type="button" class="cerb-button cerb-form-builder-continue"><span></span></button>
 	{/if}
 </div>
@@ -39,4 +40,3 @@ $(function() {
 	});
 });
 </script>
-{/if}

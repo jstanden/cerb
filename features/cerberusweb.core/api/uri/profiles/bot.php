@@ -625,11 +625,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		@$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'], 'string', '');
 		
 		if($continuation_token) {
-			// Load the session
-			if(false == ($automation_continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
-				DevblocksPlatform::dieWithHttpError(null, 404);
-			
-			return $this->_consoleSendMessageAsAutomation($automation_continuation);
+			$this->_consoleSendMessageAsAutomation($continuation_token);
 			
 		} else {
 			@$session_id = DevblocksPlatform::importGPC($_POST['session_id'], 'string', '');
@@ -1671,7 +1667,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 	}
 	
 	private function _startBotInteractionAsAutomation(Model_Automation $automation) {
-		@$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'], 'string', null);
+		$automator = DevblocksPlatform::services()->automation();
+		
+		@$interaction_style = DevblocksPlatform::importGPC($_POST['interaction_style'], 'string');
 		@$interaction_params = DevblocksPlatform::importGPC($_POST['params'], 'array', []);
 		@$layer = DevblocksPlatform::importGPC($_POST['layer'], 'string', '');
 		@$caller = DevblocksPlatform::importGPC($_POST['caller'], 'array', []);
@@ -1679,32 +1677,49 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$error = null;
 		
-		if('headless' === $interaction_style) {
-			$automator = DevblocksPlatform::services()->automation();
+		$initial_state = [
+			'caller_name' => '',
+			'caller_params' => [],
+			'inputs' => $interaction_params,
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+		];
+		
+		if($caller) {
+			$initial_state['caller_name'] = DevblocksPlatform::importGPC($caller['name'] ?? null, 'string', '');
+			$initial_state['caller_params'] = DevblocksPlatform::importGPC($caller['params'] ?? null, 'array', []);
+		}
+		
+		$policy = $automation->getPolicy();
+		
+		if (!$policy->isCallerAllowed($initial_state['caller_name'], DevblocksDictionaryDelegate::instance($initial_state))) {
+			$error = sprintf(
+				"The automation policy does not allow this command (%s).",
+				$initial_state['caller_name']
+			);
 			
+			$automation_results = DevblocksDictionaryDelegate::instance([
+				'__exit' => 'await',
+				'__return' => [
+					'form' => [
+						'elements' => [
+							'say/__validation' => [
+								'content' => $error,
+								'style' => 'error',
+							],
+						],
+					],
+				]
+			]);
+			
+		} else {
+			$automation_results = $automator->executeScript($automation, $initial_state, $error);
+		}
+		
+		if('headless' === $interaction_style) {
 			header('Content-Type: application/json; charset=utf-8');
 			
-			$initial_state = [
-				'caller_name' => '',
-				'caller_params' => [],
-				'inputs' => $interaction_params,
-				'worker__context' => CerberusContexts::CONTEXT_WORKER,
-				'worker_id' => $active_worker->id,
-			];
-			
-			if($caller) {
-				$initial_state['caller_name'] = DevblocksPlatform::importGPC(@$caller['name'], 'string', '');
-				$initial_state['caller_params'] = DevblocksPlatform::importGPC(@$caller['params'], 'array', []);
-			}
-			
-			$policy = $automation->getPolicy();
-			
-			if(!$policy->isCallerAllowed($initial_state['caller_name'], DevblocksDictionaryDelegate::instance($initial_state))) {
-				$error = sprintf(
-					"The automation policy does not allow this command (%s).",
-					$initial_state['caller_name']
-				);
-				
+			if (false === $automation_results) {
 				echo json_encode([
 					'exit' => 'error',
 					'exit_state' => null,
@@ -1716,45 +1731,40 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				return;
 			}
 			
-			if(false === ($automation_result = $automator->executeScript($automation, $initial_state, $error))) {
-				echo json_encode([
-					'exit' => 'error',
-					'exit_state' => null,
-					'dict' => DevblocksPlatform::services()->string()->yamlEmit([
-						'__exit' => 'error',
-						'error' => $error,
-					], false),
-				]);
-				return;
-			}
-			
-			$exit_code = $automation_result->get('__exit');
-			$return = $automation_result->get('__return', []);
+			$exit_code = $automation_results->get('__exit');
+			$return = $automation_results->get('__return', []);
 			
 			echo json_encode([
 				'exit' => $exit_code,
 				'return' => $return,
 			]);
 			
-		} else if('inline' == $interaction_style) {
-			$continuation_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
-			
+		} else { // Interactive, not headless
 			$tpl = DevblocksPlatform::services()->template();
 			$tpl->assign('layer', $layer);
-			$tpl->assign('continuation_token', $continuation_token);
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/panel.tpl');
 			
-		} else {
-			$continuation_token = $this->_startInteractionAutomationSession($automation, $caller, $interaction_params);
+			list($continuation_token, $state_data) = array_values($this->_startInteractionAutomationSession($automation, $caller, $interaction_params));
 			
-			$tpl = DevblocksPlatform::services()->template();
-			$tpl->assign('layer', $layer);
 			$tpl->assign('continuation_token', $continuation_token);
-			$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/popup.tpl');
-		}
+			
+			$exit_code = $automation_results->get('__exit');
+			
+			$state_data['dict'] = $automation_results->getDictionary();
+			
+			DAO_AutomationContinuation::update($continuation_token, [
+				DAO_AutomationContinuation::STATE => $exit_code,
+				DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
+			]);
+			
+			if('inline' == $interaction_style) {
+				$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/panel.tpl');
+			} else {
+				$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/popup.tpl');
+			}
+		} 
 	}
 	
-	private function _startInteractionAutomationSession(Model_Automation $automation, array $caller=[], array $interaction_params=[], $continuation_token=null, &$error=null) {
+	private function _startInteractionAutomationSession(Model_Automation $automation, array $caller=[], array $interaction_params=[], $continuation_token=null) : array {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$initial_state = [
@@ -1794,23 +1804,43 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			]);
 		}
 		
-		return $continuation_token;
+		return [
+			'token' => $continuation_token,
+			'state_data' => $state_data,
+		];
 	}
 	
-	private function _consoleSendMessageAsAutomation(Model_AutomationContinuation $continuation) {
+	private function _consoleSendMessageAsAutomation(string $continuation_token) {
+		// Load the session
+		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$initial_state = $continuation->state_data['dict'] ?? [];
+		
+		if(array_key_exists('__return', $initial_state)) {
+			if(array_key_exists('form', $initial_state['__return'])) {
+				$this->_handleAutomationAwaitForm($continuation);
+			} else if(array_key_exists('interaction', $initial_state['__return'])) {
+				$this->_handleAutomationAwaitInteraction($continuation);
+			}
+		}
+	}
+	
+	private function _handleAutomationAwaitForm(Model_AutomationContinuation $continuation) {
+		$automator = DevblocksPlatform::services()->automation();
+		$validation = DevblocksPlatform::services()->validation();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		@$prompts = DevblocksPlatform::importGPC($_POST['prompts'], 'array', []);
 		@$reset = DevblocksPlatform::importGPC($_POST['reset'], 'integer', 0);
 		
-		$active_worker = CerberusApplication::getActiveWorker();
-		$automator = DevblocksPlatform::services()->automation();
-		$validation = DevblocksPlatform::services()->validation();
+		$prompts_without_output = ['say','submit'];
 		
-		$interaction_uri = $continuation->uri ?? null;
+		unset($_POST);
 		
-		if(!$interaction_uri)
-			DevblocksPlatform::dieWithHttpError(null, 404);
+		$is_submit = array_key_exists('__submit', $prompts);
 		
-		if(false == ($automation = DAO_Automation::getByUri($interaction_uri)))
+		if(false == ($automation = $continuation->getAutomation()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if($automation->extension_id != AutomationTrigger_InteractionWebWorker::ID)
@@ -1821,121 +1851,150 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		// Restart the session
 		if($reset) {
+			if($continuation->root_token) {
+				// Exit this continuation
+				DAO_AutomationContinuation::update($continuation->token,[
+					DAO_AutomationContinuation::STATE => 'exit',
+				]);
+				$continuation = $continuation->getRoot();
+				$automation = $continuation->getAutomation();
+			}
+			
 			$this->_startInteractionAutomationSession($automation, $continuation->state_data['caller'], $continuation->state_data['interaction_params'], $continuation->token);
 			$continuation = DAO_AutomationContinuation::getByToken($continuation->token);
 		}
 		
 		$form_components = AutomationTrigger_InteractionWebWorker::getFormComponentMeta();
 		
-		$initial_state = $continuation->state_data['dict'];
-		
+		$initial_state = $continuation->state_data['dict'] ?? [];
 		$error = null;
 		
 		unset($initial_state['__return']['form']['elements']['say/__validation']);
 		
-		@$last_prompts = $initial_state['__return']['form']['elements'] ?: [];
-		$validation_errors = [];
-		$validation_values = [];
-		
-		foreach($last_prompts as $last_prompt_key => $last_prompt) {
-			list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
+		if($is_submit) {
+			@$last_prompts = $initial_state['__return']['form']['elements'] ?: [];
+			$validation_errors = [];
+			$validation_values = [];
 			
-			if(!$prompt_set_key)
-				continue;
-			
-			if(array_key_exists($last_prompt_type, $form_components)) {
-				@$prompt_value = $prompts[$prompt_set_key];
+			foreach ($last_prompts as $last_prompt_key => $last_prompt) {
+				list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
 				
-				$is_required = array_key_exists('required', $last_prompt) && $last_prompt['required'];
+				if (!$prompt_set_key)
+					continue;
 				
-				$is_set = (is_string($prompt_value) && strlen($prompt_value))
-					|| (is_array($prompt_value) && count($prompt_value))
-					;
-				
-				if($is_required || $is_set) {
-					$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
+				if (array_key_exists($last_prompt_type, $form_components)) {
+					if(in_array($last_prompt_type, $prompts_without_output))
+						continue;
 					
-					$component->validate($validation);
+					$prompt_value = $prompts[$prompt_set_key] ?? null;
 					
-					$validation_values[$prompt_set_key] = $prompt_value;
+					$is_required = array_key_exists('required', $last_prompt) && $last_prompt['required'];
+					
+					$is_set = (is_string($prompt_value) && strlen($prompt_value))
+						|| (is_array($prompt_value) && count($prompt_value));
+					
+					if ($is_required || $is_set) {
+						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
+						
+						$component->validate($validation);
+						
+						$validation_values[$prompt_set_key] = $prompt_value;
+					}
+					
+					$initial_state[$prompt_set_key] = $prompt_value;
 				}
-				
-				$initial_state[$prompt_set_key] = $prompt_value;
 			}
-		}
-		
-		if($validation_values) {
-			if(false === $validation->validateAll($validation_values, $error))
-				$validation_errors[] = $error;
-		}
-		
-		// Verify permissions
-		$policy = $automation->getPolicy();
-		
-		if (!$policy->isCallerAllowed($continuation->state_data['caller']['name'] ?? null, DevblocksDictionaryDelegate::instance($continuation->state_data['dict']))) {
-			$error = sprintf(
-				"The automation policy does not allow this caller (%s).",
-				$continuation->state_data['caller']['name']
-			);
 			
-			$initial_state['__exit'] = 'await';
+			if ($validation_values) {
+				if (false === $validation->validateAll($validation_values, $error))
+					$validation_errors[] = $error;
+				
+				$initial_state = array_merge($initial_state, $validation_values);
+			}
 			
-			$initial_state['__return']['form']['elements'] = [
+			// Verify permissions
+			$policy = $automation->getPolicy();
+			
+			if (!$policy->isCallerAllowed($continuation->state_data['caller']['name'] ?? null, DevblocksDictionaryDelegate::instance($continuation->state_data['dict']))) {
+				$error = sprintf(
+					"The automation policy does not allow this caller (%s).",
+					$continuation->state_data['caller']['name']
+				);
+				
+				$initial_state['__exit'] = 'await';
+				
+				$initial_state['__return']['form']['elements'] = [
 					'say/__accessDenied' => [
 						'content' => sprintf("# Access denied\n%s",
 							$error
 						),
 						'style' => 'error',
 					],
-					'submit/'. uniqid() => [
+					'submit/' . uniqid() => [
 						'continue' => false,
 						'reset' => true,
 					]
 				];
-			
-			$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
-		
-		} else if($validation_errors) {
-			$initial_state['__return']['form']['elements'] = [
-					'say/__validation' => [
-						'content' => sprintf("# Correct the following errors to continue:\n%s",
-							implode("\n", array_map(function($error) {
-								return '* ' . rtrim($error);
-							}, $validation_errors))
-						),
-						'style' => 'error',
-					]
-				] + $last_prompts;
-			
-			$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
-			
-		} else {
-			// Format dictionary keys
-			foreach($last_prompts as $last_prompt_key => $last_prompt) {
-				@list($last_prompt_type, $prompt_set_key) = explode('/', $last_prompt_key, 2);
-				@$prompt_value = $prompts[$prompt_set_key];
 				
-				if(array_key_exists($last_prompt_type, $form_components)) {
-					$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
-					$initial_state[$prompt_set_key] = $component->formatValue();
+				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+				
+			} else if ($validation_errors) {
+				$initial_state['__return']['form']['elements'] = [
+						'say/__validation' => [
+							'content' => sprintf("# Correct the following errors to continue:\n%s",
+								implode("\n", array_map(function ($error) {
+									return '* ' . rtrim($error);
+								}, $validation_errors))
+							),
+							'style' => 'error',
+						]
+					] + $last_prompts;
+				
+				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+				
+			} else {
+				// Format dictionary keys
+				foreach ($last_prompts as $last_prompt_key => $last_prompt) {
+					list($last_prompt_type, $prompt_set_key) = array_pad(explode('/', $last_prompt_key, 2), 2, null);
+					$prompt_value = $prompts[$prompt_set_key] ?? null;
+					
+					if (array_key_exists($last_prompt_type, $form_components)) {
+						if(in_array($last_prompt_type, $prompts_without_output))
+							continue;
+						
+						$component = new $form_components[$last_prompt_type]($prompt_set_key, $prompt_value, $last_prompt);
+						$initial_state[$prompt_set_key] = $component->formatValue();
+					}
 				}
-			}
-			
-			if(false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
-				$initial_state['__exit'] = 'await';
-				$initial_state['__return'] = [
-					'form' => [
-						'elements' => [
-							'say/__validation' => [
-								'content' => $error,
-								'style' => 'error',
+				
+				if (false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+					$initial_state['__exit'] = 'await';
+					$initial_state['__return'] = [
+						'form' => [
+							'elements' => [
+								'say/__validation' => [
+									'content' => $error,
+									'style' => 'error',
+								],
 							],
 						],
-					],
-				];
-				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+					];
+					$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+				}
 			}
+		} else {
+			$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
 		}
+		
+		if($automation_results->getKeyPath('__return.interaction')) {
+			$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
+		} else {
+			$this->_respondAutomationAwaitForm($automation_results, $continuation);
+		}
+	}
+	
+	private function _respondAutomationAwaitForm(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
+		$form_components = AutomationTrigger_InteractionWebWorker::getFormComponentMeta();
 		
 		$exit_code = $automation_results->get('__exit');
 		
@@ -1953,8 +2012,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if('await' == $exit_code) {
 			if(!array_key_exists('submit', $elements)) {
 				$submits = array_filter(array_keys($elements), function($element_key) {
-					if($element_key == 'submit' || DevblocksPlatform::strStartsWith($element_key, 'submit/'))
-						return true;
+					return ($element_key == 'submit' || DevblocksPlatform::strStartsWith($element_key, 'submit/'));
 				});
 				
 				if(!$submits) {
@@ -1968,9 +2026,35 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			// Wait up to a day
 			$continuation->expires_at = time() + 86400;
 			
-		// Synthesize an end action on other states
+			// Synthesize an end action on other states
 		} else {
-			$elements['end/' . uniqid()] = $automation_results->get('__return', []);
+			// We just finished a delegate interaction
+			if(null != ($parent_continuation = $continuation->getParent())) {
+				$continuation->state_data['__exit'] = $exit_code;
+				
+				// Save delegate state
+				DAO_AutomationContinuation::update($continuation->token, [
+					DAO_AutomationContinuation::STATE => $exit_code,
+					DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+					DAO_AutomationContinuation::UPDATED_AT => time(),
+				]);
+				
+				if(null != ($output_placeholder = $parent_continuation->state_data['dict']['__return']['interaction']['output'] ?? null)) {
+					$parent_continuation->state_data['dict'][$output_placeholder] = $automation_results->get('__return', []);
+				}
+				
+				// Save parent state
+				DAO_AutomationContinuation::update($parent_continuation->token, [
+					DAO_AutomationContinuation::STATE_DATA => json_encode($parent_continuation->state_data),
+					DAO_AutomationContinuation::UPDATED_AT => time(),
+				]);
+				
+				$this->_handleAutomationAwaitInteraction($parent_continuation);
+				return;
+				
+			} else { // Not a delegate
+				$elements['end/' . uniqid()] = $automation_results->get('__return', []);
+			}			
 		}
 		
 		$continuation->state_data['dict'] = $automation_results->getDictionary();
@@ -1999,5 +2083,131 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
 			DAO_AutomationContinuation::UPDATED_AT => time(),
 		]);
+	}
+	
+	private function _handleAutomationAwaitInteraction(Model_AutomationContinuation $continuation) {
+		$delegate_token = $continuation->state_data['dict']['__return']['interaction']['token'] ?? null;
+		
+		if(null == $delegate_token)
+			DevblocksPlatform::dieWithHttpError("Null delegate", 404);
+		
+		if(false == ($delegate_continuation = DAO_AutomationContinuation::getByToken($delegate_token)))
+			DevblocksPlatform::dieWithHttpError("Null delegate continuation", 404);
+		
+		// Is the delegate completed?
+		
+		if('await' != $delegate_continuation->state) {
+			$automator = DevblocksPlatform::services()->automation();
+			
+			if(false == ($automation = $continuation->getAutomation()))
+				DevblocksPlatform::dieWithHttpError("Null delegate automation", 404);
+			
+			$error = null;
+			$initial_state = $continuation->state_data['dict'];
+			
+			if(false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+				$initial_state['__exit'] = 'error';
+				$initial_state['__error'] = [
+					'message' => 'An unexpected error occurred.'
+				];
+				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+			}
+			
+			if($automation_results->getKeyPath('__return.interaction')) {
+				$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
+			} else {
+				$this->_respondAutomationAwaitForm($automation_results, $continuation);
+			}
+			
+			return;
+		}
+		
+		$initial_state = $delegate_continuation->state_data['dict'] ?? [];
+		
+		if(array_key_exists('__return', $initial_state)) {
+			if(array_key_exists('interaction', $initial_state['__return'])) {
+				$this->_handleAutomationAwaitInteraction($delegate_continuation);
+			} else if(array_key_exists('form', $initial_state['__return'])) {
+				$this->_handleAutomationAwaitForm($delegate_continuation);
+			}
+		}
+	}
+	
+	private function _respondAutomationAwaitInteraction(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		// Must have a URI
+		if(false == ($interaction_uri = trim($automation_results->getKeyPath('__return.interaction.uri'))))
+			DevblocksPlatform::dieWithHttpError("invalid return interaction uri", 404);
+		
+		$handler_name = uniqid();
+		
+		$handlers = [
+			$handler_name => [
+				'id' => 'automation/' . $handler_name,
+				'type' => 'automation',
+				'key' => $handler_name,
+				'data' => [
+					'uri' => $interaction_uri,
+				]
+			]
+		];
+		
+		// [TODO] Parent/caller
+		$initial_state = [
+			'inputs' => $automation_results->getKeyPath('__return.interaction.inputs', []),
+		];
+		
+		$delegate_results = $event_handler->handleOnce(
+			AutomationTrigger_InteractionWebWorker::ID,
+			$handlers,
+			$initial_state,
+			$error,
+			null,
+			$handler
+		);
+		
+		if(false == $delegate_results)
+			DevblocksPlatform::dieWithHttpError("null delegate results", 404);
+		
+		// [TODO] Copy the state data from the parent
+		$state_data = [
+			'trigger' => AutomationTrigger_InteractionWebWorker::ID,
+			'dict' => $delegate_results->getDictionary(),
+		];
+		
+		// Create a new continuation to track the delegate
+		
+		$delegate_continuation = new Model_AutomationContinuation();
+		$delegate_continuation->updated_at = time();
+		$delegate_continuation->expires_at = time() + 1200;
+		$delegate_continuation->state = $delegate_results->getKeyPath('__exit');
+		$delegate_continuation->state_data = $state_data;
+		$delegate_continuation->uri = $handler->name;
+		
+		$delegate_continuation->token = DAO_AutomationContinuation::create([
+			DAO_AutomationContinuation::PARENT_TOKEN => $continuation->token,
+			DAO_AutomationContinuation::ROOT_TOKEN => $continuation->root_token ?: $continuation->token,
+			DAO_AutomationContinuation::UPDATED_AT => $delegate_continuation->updated_at,
+			DAO_AutomationContinuation::EXPIRES_AT => $delegate_continuation->expires_at,
+			DAO_AutomationContinuation::STATE => $delegate_continuation->state,
+			DAO_AutomationContinuation::STATE_DATA => json_encode($delegate_continuation->state_data),
+			DAO_AutomationContinuation::URI => $delegate_continuation->uri,
+		]);
+		
+		// Update the parent continuation with the delegate token
+		
+		$continuation->state_data['dict'] = $automation_results->getDictionary();
+		$continuation->state_data['dict']['__return']['interaction']['token'] = $delegate_continuation->token;
+		
+		DAO_AutomationContinuation::update($continuation->token, [
+			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+		]);
+		
+		if($delegate_results->getKeyPath('__return.interaction')) {
+			$this->_respondAutomationAwaitInteraction($delegate_results, $delegate_continuation);
+		} else {
+			$this->_respondAutomationAwaitForm($delegate_results, $delegate_continuation);
+		}		
 	}
 };
