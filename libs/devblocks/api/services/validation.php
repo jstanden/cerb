@@ -1007,14 +1007,14 @@ class _DevblocksValidationService {
 					$value = 0;
 				
 				if(!is_numeric($value)) {
-					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a decimal (%s: %s).", $field_label, gettype($value), $value));
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a decimal (%s: %s).", $field_label, gettype($value), json_encode($value)));
 				}
 				break;
 				
 			case '_DevblocksValidationTypeId':
 			case '_DevblocksValidationTypeNumber':
 				if(!is_numeric($value)) {
-					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a number (%s: %s).", $field_label, gettype($value), $value));
+					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a number (%s: %s).", $field_label, gettype($value), json_encode($value)));
 				}
 				
 				if($data) {
@@ -1041,7 +1041,7 @@ class _DevblocksValidationService {
 						$id = 0;
 					
 					if(!is_numeric($id)) {
-						throw new Exception_DevblocksValidationError(sprintf("Value '%s' must be a number (%s: %s).", $field_label, gettype($id), $id));
+						throw new Exception_DevblocksValidationError(sprintf("Value '%s' must be a number (%s: %s).", $field_label, gettype($id), json_encode($id)));
 					}
 				}
 				break;

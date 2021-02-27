@@ -68,27 +68,27 @@ class RecordGetAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
-			$record_type = $inputs['record_type'];
-			$id = $inputs['record_id'];
+			$record_type = $inputs['record_type'] ?? null;
+			$record_id = $inputs['record_id'] ?? null;
 			
-			if ($record_type && $id) {
+			if ($record_type && $record_id) {
 				if (false == ($context_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
 					throw new Exception_DevblocksAutomationError(sprintf(
 						"Unknown record type `%s`",
 						$record_type
 					));
 				
-				if (false == (@$model = $context_ext->getDaoClass()::get($id))) {
+				if (false == (@$model = $context_ext->getDaoClass()::get($record_id))) {
 					throw new Exception_DevblocksAutomationError(sprintf(
 						"Record %s:%d not found",
 						$record_type,
-						$id
+						$record_id
 					));
 				}
 				
-				$record_dict = DevblocksDictionaryDelegate::getDictionariesFromModels([$id => $model], $context_ext->id);
+				$record_dict = DevblocksDictionaryDelegate::getDictionariesFromModels([$record_id => $model], $context_ext->id);
 				
-				$dict->set($output, $record_dict[$id]);
+				$dict->set($output, $record_dict[$record_id]);
 			}
 			
 		} catch (Exception_DevblocksAutomationError $e) {

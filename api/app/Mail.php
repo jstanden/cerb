@@ -647,7 +647,7 @@ class CerberusMail {
 	 * @param array $properties
 	 * @return array|false
 	 */
-	static function compose($properties) {
+	static function compose(array $properties) {
 		/*
 		'group_id'
 		'bucket_id'
@@ -676,10 +676,10 @@ class CerberusMail {
 		$mail_service = DevblocksPlatform::services()->mail();
 		$email = $mail_service->createMessage();
 		
-		@$draft_id = $properties['draft_id'];
-		@$group_id = $properties['group_id'];
-		@$bucket_id = intval($properties['bucket_id']);
-		@$worker_id = $properties['worker_id'];
+		$draft_id = $properties['draft_id'] ?? null;
+		$group_id = $properties['group_id'] ?? null;
+		$bucket_id = intval($properties['bucket_id'] ?? 0);
+		$worker_id = $properties['worker_id'] ?? null;
 		
 		$worker = null;
 		
@@ -2216,10 +2216,10 @@ class CerberusMail {
 						break;
 					
 					case 'signature':
-						@$group_id = $message_properties['group_id'];
-						@$bucket_id = $message_properties['bucket_id'];
-						@$content_format = $message_properties['content_format'];
-						@$html_template_id = $message_properties['html_template_id'];
+						$group_id = $message_properties['group_id'] ?? null;
+						$bucket_id = $message_properties['bucket_id'] ?? null;
+						$content_format = $message_properties['content_format'] ?? null;
+						$html_template_id = $message_properties['html_template_id'] ?? null;
 						
 						if(false == ($group = DAO_Group::get($group_id)))
 							break;

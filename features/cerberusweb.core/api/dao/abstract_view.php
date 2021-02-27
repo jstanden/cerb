@@ -4486,7 +4486,7 @@ class CerbQuickSearchLexer {
 		if($params[0] == 'AND') {
 			array_shift($params);
 		} else {
-			$params = array($params);
+			$params = [$params];
 		}
 
 		return $params;
