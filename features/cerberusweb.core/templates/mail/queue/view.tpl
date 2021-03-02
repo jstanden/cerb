@@ -63,19 +63,7 @@
 		<tr class="{$tableRowClass}">
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.m_id}" style="display:none;">
-				
-				{if !$result.m_is_queued}
-					{if $result.m_type=="mail.compose"}
-						<a href="javascript:;" onclick="genericAjaxPopup('peek','c=internal&a=invoke&module=records&action=showPeekPopup&context={CerberusContexts::CONTEXT_TICKET}&context_id=0&view_id={$view->id}&draft_id={$result.m_id}',null,false,'80%');" class="subject">{if empty($result.m_name)}(no subject){else}{$result.m_name}{/if}</a>
-					{elseif $result.m_type=="ticket.reply"}
-						<a href="{devblocks_url}c=profiles&type=ticket&id={$result.m_ticket_id}{/devblocks_url}#draft{$result.m_id}" class="subject">{if empty($result.m_name)}(no subject){else}{$result.m_name}{/if}</a>
-					{elseif $result.m_type=="ticket.forward"}
-						<a href="{devblocks_url}c=profiles&type=ticket&id={$result.m_ticket_id}{/devblocks_url}#draft{$result.m_id}" class="subject">{if empty($result.m_name)}(no subject){else}{$result.m_name}{/if}</a>
-					{/if}
-				{else}
-					<b class="subject">{if empty($result.m_name)}(no subject){else}{$result.m_name}{/if}</b>
-				{/if}
-				{if $active_worker->is_superuser || $result.m_worker_id==$active_worker->id}<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$result.m_id}" data-view-id="{$view->id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>{/if}
+				<a href="javascript:;" class="subject peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_DRAFT}" data-context-id="{$result.m_id}" data-view-id="{$view->id}">{if empty($result.m_name)}(no subject){else}{$result.m_name}{/if}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
