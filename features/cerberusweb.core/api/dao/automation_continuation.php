@@ -93,7 +93,7 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 		return $token;
 	}
 	
-	static function update($ids, $fields, $check_deltas=true) {
+	static function update($ids, $fields) {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($ids))

@@ -118,6 +118,7 @@ class Controller_Security extends DevblocksControllerExtension {
 			DevblocksPlatform::dieWithHttpError(null, 408);
 			
 		} catch (Exception $e) {
+			error_log($e->getMessage());
 			DevblocksPlatform::dieWithHttpError(null, 500);
 		}
 	}

@@ -18,7 +18,7 @@
 			<b>{'common.name'|devblocks_translate|capitalize}:</b><br>
 		</td>
 		<td width="99%">
-			<input type="text" name="name" value="{$model->name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;"><br>
+			<input type="text" name="name" value="{$model->name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" autofocus="autofocus"><br>
 		</td>
 	</tr>
 	<tr>
