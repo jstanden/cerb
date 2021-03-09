@@ -49,7 +49,6 @@ class DAO_Automation extends Cerb_ORMHelper {
 			->addField(self::NAME)
 			->string()
 			->setUnique(get_class())
-			->setNotEmpty(false)
 			->addValidator(function($string, &$error=null) {
 				if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '.-_'))) {
 					$error = "may only contain letters, numbers, dashes, and dots";
