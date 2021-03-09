@@ -1069,6 +1069,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_BotDatastore::maint();
 		DAO_BotInteractionProactive::maint();
 		DAO_DevblocksRegistry::maint();
+		DAO_MessageHtmlCache::maint();
 		Cerb_DevblocksSessionHandler::gc(0); // Purge inactive sessions
 	}
 	

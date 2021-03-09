@@ -1063,13 +1063,32 @@ class Model_Message {
 				return false;
 		}
 		
-		// If attachment size is more than 1MB, fall back to plaintext
-		if($attachment->storage_size > 1000000)
-			return false;
+		// We can keep a local warm cache of remote HTML content
+		$is_stored_remotely = in_array(
+			$attachment->storage_extension,
+			[
+				'cerb.cloud.storage.engine.s3',
+				'devblocks.storage.engine.s3',
+				'devblocks.storage.engine.gatekeeper',
+			]
+		);
 		
-		// If the attachment is inaccessible, fallback to plaintext 
-		if(false == ($dirty_html = $attachment->getFileContents()))
-			return false;
+		// Was it previous cached?
+		$dirty_html = $is_stored_remotely ? DAO_MessageHtmlCache::get($this->id) : null;
+		
+		if(!$dirty_html) {
+			// If attachment size is more than 1MB, fall back to plaintext
+			if($attachment->storage_size > 1000000)
+				return false;
+			
+			// If the attachment is inaccessible, fallback to plaintext 
+			if(false == ($dirty_html = $attachment->getFileContents()))
+				return false;
+		}
+		
+		// Cache it
+		if($is_stored_remotely)
+			DAO_MessageHtmlCache::set($this->id, $dirty_html);
 		
 		// If the 'tidy' extension exists
 		if(extension_loaded('tidy')) {

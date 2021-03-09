@@ -3,6 +3,24 @@ $db = DevblocksPlatform::services()->database();
 $tables = $db->metaTables();
 
 // ===========================================================================
+// Add `message_html_cache` table
+
+if(!isset($tables['message_html_cache'])) {
+	$sql = sprintf("
+		CREATE TABLE `message_html_cache` (
+		`message_id` int(10) unsigned NOT NULL,
+		`expires_at` int(10) unsigned NOT NULL DEFAULT 0,
+		`html_content` mediumtext,
+		PRIMARY KEY (message_id),
+		INDEX (expires_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['message_html_cache'] = 'message_html_cache';
+}
+
+// ===========================================================================
 // Add `custom_field.uri`
 
 list($columns,) = $db->metaTable('custom_field');

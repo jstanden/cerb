@@ -565,6 +565,10 @@
 			<class name="DAO_MessageHeaders" />
 		</file>
 		
+		<file path="api/dao/message_html_cache.php">
+			<class name="DAO_MessageHtmlCache" />
+		</file>
+		
 		<file path="api/dao/oauth_app.php">
 			<class name="Context_OAuthApp" />
 			<class name="DAO_OAuthApp" />
