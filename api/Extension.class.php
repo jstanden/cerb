@@ -1028,6 +1028,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'method:',
 					'headers:',
 					'body:',
+					'timeout:',
 					'authentication:',
 				],
 				'(.*):http.request:inputs:method:' => [

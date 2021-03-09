@@ -17,7 +17,6 @@ class HttpRequestAction extends AbstractAction {
 		$http = DevblocksPlatform::services()->http();
 		$validation = DevblocksPlatform::services()->validation();
 		
-		// [TODO] Timeout
 		// [TODO] SSL certs
 		// [TODO] User-level option to follow redirects
 		
@@ -73,6 +72,12 @@ class HttpRequestAction extends AbstractAction {
 				->setMaxLength('24 bits')
 			;
 			
+			$validation->addField('timeout', 'inputs:timeout:')
+				->float()
+				->setMin(0)
+				->setMax(60)
+			;
+			
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
@@ -118,6 +123,10 @@ class HttpRequestAction extends AbstractAction {
 				$request_options['verify'] = false;
 			}
 			*/
+			
+			if(array_key_exists('timeout', $inputs) && $inputs['timeout']) {
+				$request_options['timeout'] = $inputs['timeout'];
+			}
 			
 			if(array_key_exists('authentication', $inputs) && $inputs['authentication']) {
 				$uri_parts = DevblocksPlatform::services()->ui()->parseURI($inputs['authentication']);
