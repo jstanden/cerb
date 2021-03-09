@@ -21,6 +21,23 @@ if(!isset($tables['message_html_cache'])) {
 }
 
 // ===========================================================================
+// Convert `mail_queue.name` to utf8mb4
+
+if(!isset($tables['mail_queue']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('mail_queue');
+
+if(!array_key_exists('name', $columns))
+	return FALSE;
+
+if('utf8_general_ci' == $columns['name']['collation']) {
+	$db->ExecuteMaster("ALTER TABLE mail_queue MODIFY COLUMN name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+	$db->ExecuteMaster("REPAIR TABLE mail_queue");
+	$db->ExecuteMaster("OPTIMIZE TABLE mail_queue");
+}
+
+// ===========================================================================
 // Add `custom_field.uri`
 
 list($columns,) = $db->metaTable('custom_field');

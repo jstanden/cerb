@@ -69,7 +69,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		// varchar(255)
 		$validation
 			->addField(self::NAME, DevblocksPlatform::translateCapitalized('message.header.subject'))
-			->string()
+			->string($validation::STRING_UTF8MB4)
 			->setMaxLength(255)
 			;
 		// int(10) unsigned
