@@ -671,6 +671,7 @@ class CerberusMail {
 		'gpg_encrypt'
 		'gpg_sign'
 		'send_at'
+		'token'
 		 */
 		
 		$mail_service = DevblocksPlatform::services()->mail();
@@ -1024,6 +1025,10 @@ class CerberusMail {
 			//$fields[DAO_Message::SIGNED_KEY_FINGERPRINT] = null;
 		}
 		
+		if(array_key_exists('token', $properties) && $properties['token']) {
+			$fields[DAO_Message::TOKEN] = $properties['token'];
+		}
+		
 		$message_id = DAO_Message::create($fields);
 		
 		// Convert to a plaintext part
@@ -1164,6 +1169,7 @@ class CerberusMail {
 		'gpg_encrypt'
 		'gpg_sign'
 		'send_at'
+		'token'
 		 */
 		
 		$mail_service = DevblocksPlatform::services()->mail();
@@ -1447,6 +1453,7 @@ class CerberusMail {
 		'dont_send'
 		'dont_keep_copy'
 		'send_at'
+		'token'
 		*/
 
 		try {
@@ -1955,6 +1962,10 @@ class CerberusMail {
 			if(!empty(@$properties['gpg_sign'])) {
 				$fields[DAO_Message::SIGNED_AT] = time();
 				//$fields[DAO_Message::SIGNED_KEY_FINGERPRINT] = null;
+			}
+			
+			if(array_key_exists('token', $properties) && $properties['token']) {
+				$fields[DAO_Message::TOKEN] = $properties['token'];
 			}
 			
 			$message_id = DAO_Message::create($fields);

@@ -21,6 +21,19 @@ if(!isset($tables['message_html_cache'])) {
 }
 
 // ===========================================================================
+// Update `message`
+
+if(!isset($tables['message']))
+	return FALSE;
+
+list($columns,) = $db->metaTable('message');
+
+// Add token column
+if(!array_key_exists('token', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE message ADD COLUMN token VARCHAR(16) NOT NULL DEFAULT '', ADD INDEX token (token(4))");
+}
+
+// ===========================================================================
 // Update `mail_queue`
 
 if(!isset($tables['mail_queue']))
