@@ -16,7 +16,7 @@ $(function() {
 	if(null == $popup_compose) {
 		$popup_compose = genericAjaxPopup('compose','c=internal&a=invoke&module=records&action=showPeekPopup&context=ticket&context_id=0&draft_id={$draft_id}',null,false,'80%');
 
-		$popup_compose.on('compose_save', function(json) {
+		$popup_compose.on('cerb-compose-sent', function(json) {
 			if(json && json.record && json.record.id) {
 				$element.find('input[name="prompts[{$var}]"]').val(json.record.id);
 

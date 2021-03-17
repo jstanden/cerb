@@ -961,7 +961,7 @@ $(function() {
 						function(json) {
 							$popup.trigger('popup_saved');
 
-							var post_event = $.Event('compose_save', {
+							var post_event = $.Event('cerb-compose-sent', {
 								record: json
 							});
 							genericAjaxPopupClose($popup, post_event);

@@ -375,7 +375,7 @@ $(function() {
 			'80%'
 		);
 
-		$popup_compose.on('compose_save', function() {
+		$popup_compose.on('cerb-compose-sent', function() {
 			genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
 		});
 	});
