@@ -12,8 +12,8 @@ class CardWidget_Conversation extends Extension_CardWidget {
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {
-		@$target_context = $model->extension_params['context'];
-		@$target_context_id = $model->extension_params['context_id'];
+		$target_context = $model->extension_params['context'] ?? null;
+		$target_context_id = $model->extension_params['context_id'] ?? null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();

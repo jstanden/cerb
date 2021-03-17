@@ -1019,7 +1019,7 @@ class CerberusMail {
 			DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
 		);
 		
-		if(@$properties['gpg_sign']) {
+		if(array_key_exists('gpg_sign', $properties) && $properties['gpg_sign']) {
 			$fields[DAO_Message::SIGNED_AT] = time();
 			// [TODO]
 			//$fields[DAO_Message::SIGNED_KEY_FINGERPRINT] = null;

@@ -927,7 +927,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 				$label_map = array_column($models, 'email', 'id');
 				$label_map[0] = DevblocksPlatform::translate('common.nobody');
 				return $label_map;
-				break;
 				
 			case 'group':
 			case 'ticket.group':
@@ -936,14 +935,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 				$label_map[0] = DevblocksPlatform::translate('common.none');
 				return $label_map;
 	
-				break;
 			case 'bucket':
 			case 'ticket.bucket':
 				$models = DAO_Bucket::getIds($values);
 				$label_map = array_column($models, 'name', 'id');
 				$label_map[0] = DevblocksPlatform::translate('common.none');
 				return $label_map;
-				break;
 				
 			case SearchFields_Message::TICKET_ID:
 				$models = DAO_Ticket::getIds($values);
@@ -959,14 +956,12 @@ class SearchFields_Message extends DevblocksSearchFields {
 				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, 'ticket_');
 				DevblocksDictionaryDelegate::bulkLazyLoad($dicts, '_label');
 				return array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
-				break;
 				
 			case SearchFields_Message::IS_BROADCAST:
 			case SearchFields_Message::IS_NOT_SENT:
 			case SearchFields_Message::IS_OUTGOING:
 			case SearchFields_Message::WAS_ENCRYPTED:
 				return parent::_getLabelsForKeyBooleanValues();
-				break;
 				
 			case SearchFields_Message::WORKER_ID:
 				$models = DAO_Worker::getIds($values);
@@ -974,7 +969,6 @@ class SearchFields_Message extends DevblocksSearchFields {
 				$label_map = array_column(DevblocksPlatform::objectsToArrays($dicts), '_label', 'id');
 				$label_map[0] = DevblocksPlatform::translate('common.nobody');
 				return $label_map;
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);

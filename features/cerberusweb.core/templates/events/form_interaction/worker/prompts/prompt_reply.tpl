@@ -26,8 +26,6 @@ $(function() {
 		$popup = genericAjaxPopup('replyInteraction', formData, null, false, '80%');
 
 		$popup.on('cerb-reply-sent cerb-reply-saved cerb-reply-draft', function(json) {
-			console.log(json);
-
 			if(json && json.record && json.record.id) {
 				$element.find('input[name="prompts[{$var}]"]').val(json.record.id);
 

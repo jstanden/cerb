@@ -1229,15 +1229,11 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 		switch($field) {
 			case 'worker':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_MailQueue::VIRTUAL_WORKER_SEARCH);
-				break;
 			
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 
 	function render() {

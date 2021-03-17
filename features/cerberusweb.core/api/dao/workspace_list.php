@@ -1071,7 +1071,7 @@ class Context_WorkspaceList extends Extension_DevblocksContext implements IDevbl
 		} elseif($worklist instanceof Model_WorkspaceList) {
 			// It's what we want already.
 		} elseif(is_array($worklist)) {
-			$worklist = Cerb_ORMHelper::recastArrayToModel($worklist, 'Model_WorkspaceWorklist');
+			$worklist = Cerb_ORMHelper::recastArrayToModel($worklist, 'Model_WorkspaceList');
 		} else {
 			$worklist = null;
 		}
