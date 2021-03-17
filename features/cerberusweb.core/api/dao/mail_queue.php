@@ -24,6 +24,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	const QUEUE_FAILS = 'queue_fails';
 	const NAME = 'name';
 	const TICKET_ID = 'ticket_id';
+	const TOKEN = 'token';
 	const TYPE = 'type';
 	const UPDATED = 'updated';
 	const WORKER_ID = 'worker_id';
@@ -78,6 +79,12 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			->id()
 			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_TICKET, true))
 			;
+		// varchar(16)
+		$validation
+			->addField(self::TOKEN)
+			->string()
+			->setMaxLength(16)
+			;
 		// varchar(255)
 		$validation
 			->addField(self::TYPE)
@@ -113,6 +120,13 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
+		
+		if(!array_key_exists(self::TOKEN, $fields)) {
+			do {
+				$token = substr(DevblocksPlatform::services()->string()->base64UrlEncode(random_bytes(48)), 0, 10);
+			} while(false != DAO_Message::getByToken($token));
+			$fields[self::TOKEN] = $token;
+		}
 		
 		$sql = "INSERT INTO mail_queue () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -253,7 +267,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, worker_id, updated, type, ticket_id, hint_to, name, params_json, is_queued, queue_delivery_date, queue_fails ".
+		$sql = "SELECT id, worker_id, updated, type, token, ticket_id, hint_to, name, params_json, is_queued, queue_delivery_date, queue_fails ".
 			"FROM mail_queue ".
 			$where_sql.
 			$sort_sql.
@@ -280,6 +294,18 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			return $objects[$id];
 		
 		return null;
+	}
+	
+	public static function getByToken($token) {
+		if(empty($token))
+			return null;
+		
+		$objects = self::getWhere(sprintf("%s = %s",
+			self::TOKEN,
+			self::qstr($token)
+		));
+		
+		return array_shift($objects);
 	}
 	
 	static function getDraftsByTicketIds($ids, $max_age=600, $ignore_worker_ids=[]) {
@@ -338,6 +364,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			$object->id = $row['id'];
 			$object->worker_id = $row['worker_id'];
 			$object->updated = $row['updated'];
+			$object->token = $row['token'];
 			$object->type = $row['type'];
 			$object->ticket_id = $row['ticket_id'];
 			$object->hint_to = $row['hint_to'];
@@ -401,6 +428,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			"mail_queue.id as %s, ".
 			"mail_queue.worker_id as %s, ".
 			"mail_queue.updated as %s, ".
+			"mail_queue.token as %s, ".
 			"mail_queue.type as %s, ".
 			"mail_queue.ticket_id as %s, ".
 			"mail_queue.hint_to as %s, ".
@@ -411,6 +439,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 				SearchFields_MailQueue::ID,
 				SearchFields_MailQueue::WORKER_ID,
 				SearchFields_MailQueue::UPDATED,
+				SearchFields_MailQueue::TOKEN,
 				SearchFields_MailQueue::TYPE,
 				SearchFields_MailQueue::TICKET_ID,
 				SearchFields_MailQueue::HINT_TO,
@@ -582,6 +611,7 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 	const ID = 'm_id';
 	const WORKER_ID = 'm_worker_id';
 	const UPDATED = 'm_updated';
+	const TOKEN = 'm_token';
 	const TYPE = 'm_type';
 	const TICKET_ID = 'm_ticket_id';
 	const HINT_TO = 'm_hint_to';
@@ -680,6 +710,7 @@ class SearchFields_MailQueue extends DevblocksSearchFields {
 			self::ID => new DevblocksSearchField(self::ID, 'mail_queue', 'id', $translate->_('common.id'), null, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'mail_queue', 'worker_id', ucwords($translate->_('common.worker')), null, true),
 			self::UPDATED => new DevblocksSearchField(self::UPDATED, 'mail_queue', 'updated', ucwords($translate->_('common.updated')), null, true),
+			self::TOKEN => new DevblocksSearchField(self::TOKEN, 'mail_queue', 'token', $translate->_('common.token'), null, true),
 			self::TYPE => new DevblocksSearchField(self::TYPE, 'mail_queue', 'type', $translate->_('mail_queue.type'), null, true),
 			self::TICKET_ID => new DevblocksSearchField(self::TICKET_ID, 'mail_queue', 'ticket_id', $translate->_('mail_queue.ticket_id'), null, true),
 			self::HINT_TO => new DevblocksSearchField(self::HINT_TO, 'mail_queue', 'hint_to', $translate->_('message.header.to'), null, true),
@@ -707,6 +738,7 @@ class Model_MailQueue {
 	public $id;
 	public $worker_id;
 	public $updated;
+	public $token;
 	public $type;
 	public $ticket_id;
 	public $hint_to;
@@ -846,6 +878,9 @@ class Model_MailQueue {
 			
 			if($this->ticket_id)
 				$properties['ticket_id'] = $this->ticket_id;
+			
+			if($this->token)
+				$properties['token'] = $this->token;
 			
 			if($this->hasParam('is_forward'))
 				$properties['is_forward'] = $this->getParam('is_forward');
@@ -1136,6 +1171,11 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => array('param_key' => SearchFields_MailQueue::QUEUE_DELIVERY_DATE),
 				),
+			'token' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_MailQueue::TOKEN),
+				),
 			'type' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
@@ -1268,6 +1308,7 @@ class View_MailQueue extends C4_AbstractView implements IAbstractView_Subtotals,
 			case SearchFields_MailQueue::TYPE:
 			case SearchFields_MailQueue::HINT_TO:
 			case SearchFields_MailQueue::NAME:
+			case SearchFields_MailQueue::TOKEN:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
@@ -1416,6 +1457,12 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			],
 		);
 		
+		$properties['token'] = array(
+			'label' => mb_ucfirst($translate->_('common.token')),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->token,
+		);
+		
 		$properties['to'] = array(
 			'label' => mb_ucfirst($translate->_('message.header.to')),
 			'type' => Model_CustomField::TYPE_MULTI_LINE,
@@ -1522,6 +1569,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
 			'to' => $prefix.$translate->_('message.header.to'),
+			'token' => $prefix.$translate->_('common.token'),
 			'updated' => $prefix.$translate->_('common.updated'),
 		);
 		
@@ -1532,6 +1580,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'to' => Model_CustomField::TYPE_SINGLE_LINE,
+			'token' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated' => Model_CustomField::TYPE_DATE,
 		);
 		
@@ -1549,6 +1598,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['id'] = $object->id;
 			$token_values['name'] = $object->name;
 			$token_values['to'] = $object->hint_to;
+			$token_values['token'] = $object->token;
 			$token_values['updated'] = $object->updated;
 			
 			$token_values['worker_id'] = $object->worker_id;
@@ -1596,6 +1646,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'name' => DAO_MailQueue::NAME,
 			'to' => DAO_MailQueue::HINT_TO,
 			'ticket_id' => DAO_MailQueue::TICKET_ID,
+			'token' => DAO_MailQueue::TOKEN,
 			'type' => DAO_MailQueue::TYPE,
 			'updated' => DAO_MailQueue::UPDATED,
 			'worker_id' => DAO_MailQueue::WORKER_ID,
@@ -1662,6 +1713,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 		
 		$keys['name']['notes'] = "The subject line of the draft message";
 		$keys['to']['notes'] = "The `To:` line of the draft message";
+		$keys['token']['notes'] = "A random unique token for this draft, copied to the eventual message for tracing";
 		$keys['type']['notes'] = "The type of draft: `mail.compose`, `mail.transactional`, `ticket.reply`, or `ticket.forward`";
 		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who owns the draft";
 		
