@@ -141,6 +141,7 @@ if(!isset($tables['automation'])) {
 		'cerb.editor.toolbar.markdownTable.json',
 		'cerb.editor.toolbar.wrapSelection.json',
 		'cerb.map.clicked.sheet.json',
+		'cerb.mail.compose.json',
 		'cerb.mailRouting.moveToGroup.json',
 		'cerb.mailRouting.recipientRules.json',
 		'cerb.projectBoard.action.task.close.json',
