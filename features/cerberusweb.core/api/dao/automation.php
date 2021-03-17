@@ -682,6 +682,8 @@ class Model_Automation {
 		
 		$this->_ast = $automator->buildAstFromKata($tree, $error);
 		
+		$symbol_meta = $this->_ast_symbols;
+		
 		return $this->_ast;
 	}
 	
