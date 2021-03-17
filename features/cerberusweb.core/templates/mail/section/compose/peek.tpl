@@ -285,7 +285,7 @@ $(function() {
 		
 		// Close confirmation
 		
-		$popup.on('dialogbeforeclose', function(e, ui) {
+		$popup.on('dialogbeforeclose', function(e) {
 			var keycode = e.keyCode || e.which;
 			if(27 === keycode)
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
@@ -1009,7 +1009,7 @@ $(function() {
 						function() {
 							hideLoadingPanel();
 							genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
-							genericAjaxPopupClose($popup);
+							genericAjaxPopupClose($popup, $.Event('cerb-compose-draft'));
 						}
 					);
 
@@ -1042,7 +1042,7 @@ $(function() {
 
 				genericAjaxPost(formData, '', '', function(o) {
 					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
-					genericAjaxPopupClose($popup);
+					genericAjaxPopupClose($popup, $.Event('cerb-compose-discard'));
 				});
 			}
 		});

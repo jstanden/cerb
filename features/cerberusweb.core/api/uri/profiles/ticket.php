@@ -160,6 +160,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				if(!Context_Comment::isReadableByActor($comment, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 				
+				$is_writeable = Context_Comment::isWriteableByActor($comment, $active_worker);
+				$tpl->assign('is_writeable', $is_writeable);
+				
 				$tpl->assign('comment', $comment);
 				$tpl->display('devblocks:cerberusweb.core::tickets/peek_preview.tpl');
 				break;
@@ -170,6 +173,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 				
 				if(!Context_Draft::isReadableByActor($draft, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
+				
+				$is_writeable = Context_Draft::isWriteableByActor($draft, $active_worker);
+				$tpl->assign('is_writeable', $is_writeable);
 					
 				$tpl->assign('draft', $draft);
 				$tpl->display('devblocks:cerberusweb.core::tickets/peek_preview.tpl');

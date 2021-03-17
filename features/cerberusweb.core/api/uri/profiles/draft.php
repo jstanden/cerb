@@ -33,6 +33,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			switch ($action) {
 				case 'get':
 					return $this->_profileAction_get();
+				case 'resume':
+					return $this->_profileAction_resume();
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
 				case 'deleteDraft':
@@ -79,6 +81,45 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		
 		$tpl->assign('draft', $draft);
 		$tpl->display('devblocks:cerberusweb.core::display/modules/conversation/draft.tpl');
+	}
+	
+	private function _profileAction_resume() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		@$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'], 'integer', 0);
+		
+		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			DevblocksPlatform::dieWithHttpError(null,404);
+		
+		if(!Context_Draft::isReadableByActor($draft, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null,403);
+		
+		$_REQUEST = $_POST = $_GET = [];
+		
+		if($draft->type == Model_MailQueue::TYPE_COMPOSE) {
+			$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_TICKET, true);
+			
+			/* @var $context_ext Context_Ticket */
+			
+			$_REQUEST = [
+				'draft_id' => $draft_id,
+			];
+			
+			$context_ext->renderPeekPopup(0);
+			
+		} else if(in_array($draft->type, [Model_MailQueue::TYPE_TICKET_REPLY, Model_MailQueue::TYPE_TICKET_FORWARD])) {
+			$_POST = [
+				'draft_id' => $draft_id,
+				'id' => $draft->params['id'] ?? 0,
+				'reply_mode' => $draft->params['reply_mode'] ?? null,
+				'is_confirmed' => 1,
+				'forward' => ($draft->type == Model_MailQueue::TYPE_TICKET_FORWARD ? 1 : 0),
+				'timestamp' => time(),
+			];
+			
+			$ticket_page = new PageSection_ProfilesTicket();
+			$ticket_page->handleActionForPage('reply', 'profileAction');
+		}
 	}
 	
 	private function _profileAction_savePeekJson() {
