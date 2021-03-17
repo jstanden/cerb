@@ -86,8 +86,15 @@ class AutomationTrigger_InteractionWebWorker extends Extension_AutomationTrigger
 		return [
 			'*' => [
 				'(.*):await:' => [
+					'draft:',
 					'form:',
 				],
+				
+				'(.*):await:draft:' => [
+					'uri:',
+					'output:',
+				],
+				
 				'(.*):await:form:' => [
 					'title:',
 					'elements:',

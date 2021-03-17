@@ -1822,10 +1822,97 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				$this->_handleAutomationAwaitForm($continuation);
 			} else if(array_key_exists('interaction', $initial_state['__return'])) {
 				$this->_handleAutomationAwaitInteraction($continuation);
+			} else if(array_key_exists('draft', $initial_state['__return'])) {
+				$this->_handleAutomationAwaitDraft($continuation);
 			}
 		}
 	}
 	
+	private function _handleAutomationAwaitDraft(Model_AutomationContinuation $continuation) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$automator = DevblocksPlatform::services()->automation();
+		
+		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? [], 'array', []);
+		
+		unset($_POST);
+		
+		if(false == ($automation = $continuation->getAutomation()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if($automation->extension_id != AutomationTrigger_InteractionWebWorker::ID)
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!Context_Automation::isReadableByActor($automation, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$initial_state = $continuation->state_data['dict'] ?? [];
+		$draft_state = $initial_state['__return']['draft'] ?? [];
+		
+		$error = null;
+		
+		if(array_key_exists('draft', $prompts)) {
+			$draft_status = $prompts['draft'];
+			$draft_token = $draft_state['token'] ?? null;
+			
+			if(null != ($output_placeholder = $continuation->state_data['dict']['__return']['draft']['output'] ?? null)) {
+				$draft_results = [
+					'status' => $draft_status,
+					'token' => $draft_token,
+				];
+				
+				switch($draft_status) {
+					case 'compose.sent':
+					case 'reply.sent':
+						if(false != ($message = DAO_Message::getByToken($draft_token))) {
+							$draft_results['record'] = DevblocksDictionaryDelegate::getDictionaryFromModel($message, CerberusContexts::CONTEXT_MESSAGE, ['ticket_','customfields']);
+						}
+						break;
+						
+					case 'compose.draft':
+					case 'reply.draft':
+						if(false != ($draft = DAO_MailQueue::getByToken($draft_token))) {
+							$draft_results['record'] = DevblocksDictionaryDelegate::getDictionaryFromModel($draft, CerberusContexts::CONTEXT_DRAFT, ['customfields']);
+						}
+						break;
+						
+					case 'compose.discard':
+					case 'reply.discard':
+						break;
+				}
+				
+				$initial_state[$output_placeholder] = $draft_results;
+			}
+			
+			if (false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+				$initial_state['__exit'] = 'error';
+				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+			}
+			
+			$exit_code = $automation_results->get('__exit');
+			
+			$continuation->state_data['dict'] = $automation_results->getDictionary();
+			
+			// Save session scope
+			DAO_AutomationContinuation::update($continuation->token, [
+				DAO_AutomationContinuation::STATE => $exit_code,
+				DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+				DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+				DAO_AutomationContinuation::UPDATED_AT => time(),
+			]);
+			
+			if($automation_results->getKeyPath('__return.interaction')) {
+				$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
+			} else if($automation_results->getKeyPath('__return.draft')) {
+				$this->_respondAutomationAwaitDraft($continuation);
+			} else {
+				$this->_respondAutomationAwaitForm($automation_results, $continuation);
+			}
+			
+		} else {
+			$this->_respondAutomationAwaitDraft($continuation);			
+		}
+	}		
+		
 	private function _handleAutomationAwaitForm(Model_AutomationContinuation $continuation) {
 		$automator = DevblocksPlatform::services()->automation();
 		$validation = DevblocksPlatform::services()->validation();
@@ -1988,9 +2075,41 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		
 		if($automation_results->getKeyPath('__return.interaction')) {
 			$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
+		} else if($automation_results->getKeyPath('__return.draft')) {
+			$this->_respondAutomationAwaitDraft($continuation);
 		} else {
 			$this->_respondAutomationAwaitForm($automation_results, $continuation);
 		}
+	}
+	
+	private function _respondAutomationAwaitDraft(Model_AutomationContinuation $continuation) {
+		$initial_state = $continuation->state_data['dict'] ?? [];
+		$draft_state = $initial_state['__return']['draft'] ?? [];
+		
+		if(false == ($draft_uri = DevblocksPlatform::services()->ui()->parseURI($draft_state['uri'] ?? null)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!array_key_exists('context', $draft_uri) || !array_key_exists('context_id', $draft_uri))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(CerberusContexts::CONTEXT_DRAFT != $draft_uri['context'])
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($draft = DAO_MailQueue::get($draft_uri['context_id'])))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$continuation->state_data['dict']['__return']['draft']['token'] = $draft->token;
+		
+		// Save session scope
+		DAO_AutomationContinuation::update($continuation->token, [
+			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+			DAO_AutomationContinuation::UPDATED_AT => time(),
+		]);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('draft', $draft);
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/_await_draft.tpl');
 	}
 	
 	private function _respondAutomationAwaitForm(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
