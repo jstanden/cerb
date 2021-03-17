@@ -191,6 +191,56 @@ class _DevblocksSheetService {
 		
 		return $rows;
 	}
+	
+	public function getPaging($count, $page, $limit, $total) : array {
+		$paging = [
+			'page' => [
+				'of' => intval(ceil($total / $limit)),
+				'rows' => [
+					'of' => intval($total),
+					'count' => $count,
+					'limit' => $limit,
+				],
+			]
+		];
+		
+		$paging['page']['index'] = DevblocksPlatform::intClamp($page, 0, PHP_INT_MAX);
+		
+		$paging['page']['rows']['from'] = $paging['page']['index'] * $paging['page']['rows']['limit'] + 1;
+		$paging['page']['rows']['to'] = min($paging['page']['rows']['from']+$paging['page']['rows']['limit'] - 1, $paging['page']['rows']['of']);
+		
+		if($paging['page']['rows']['from'] > $paging['page']['rows']['of']) {
+			$paging['page']['rows']['from'] = 0;
+			$paging['page']['rows']['to'] = 0;
+		}
+		
+		if($paging['page']['index'] - 1 >= 0) {
+			$paging['page']['prev'] = $paging['page']['index'] - 1;
+			$paging['page']['first'] = 0;
+		}
+		
+		if($paging['page']['index'] + 1 < $paging['page']['of']) {
+			$paging['page']['next'] = $paging['page']['index'] + 1;
+			$paging['page']['last'] = $paging['page']['of']-1;
+		}
+		
+		return $paging;
+	}
+	
+	public function withDefaultTypes() {
+		$this->addType('card', $this->types()->card());
+		$this->addType('date', $this->types()->date());
+		$this->addType('icon', $this->types()->icon());
+		$this->addType('link', $this->types()->link());
+		$this->addType('search', $this->types()->search());
+		$this->addType('search_button', $this->types()->searchButton());
+		$this->addType('selection', $this->types()->selection());
+		$this->addType('slider', $this->types()->slider());
+		$this->addType('text', $this->types()->text());
+		$this->addType('time_elapsed', $this->types()->timeElapsed());
+		$this->setDefaultType('text');
+		return $this;
+	}
 }
 
 class _DevblocksSheetServiceTypes {
