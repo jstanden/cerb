@@ -132,6 +132,9 @@ class DevblocksValidationField {
 		// Default max length
 		$this->_type->setMaxLength(255);
 		
+		// Default truncation enabled
+		$this->_type->setTruncation();
+		
 		// If utf8mb4 is not enabled for this field, strip 4-byte chars
 		if(0 == $options & _DevblocksValidationService::STRING_UTF8MB4) {
 			$this->_type->addFormatter($validation->formatters()->stringWithoutEmoji());
@@ -148,6 +151,7 @@ class DevblocksValidationField {
 		$this->_type = new _DevblocksValidationTypeStringOrArray('stringOrArray');
 		return $this->_type
 			->setMaxLength(255)
+			->setTruncation()
 			;
 	}
 	
@@ -816,6 +820,11 @@ trait _DevblocksValidationStringTrait {
 		return $this;
 	}
 	
+	function setTruncation(bool $enabled=true) {
+		$this->_data['truncation'] = $enabled;
+		return $this;
+	}
+	
 	function setPossibleValues(array $possible_values) {
 		$this->_data['possible_values'] = $possible_values;
 		return $this;
@@ -1057,7 +1066,12 @@ class _DevblocksValidationService {
 					}
 					
 					if(isset($data['length_max']) && strlen($value) > $data['length_max']) {
-						throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
+						// Truncation
+						if(array_key_exists('truncation', $data) && $data['truncation']) {
+							$value = substr($value, 0, $data['length_max'] - 3) . '...';
+						} else {
+							throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
+						}
 					}
 					
 					@$possible_values = $data['possible_values'];
@@ -1089,7 +1103,12 @@ class _DevblocksValidationService {
 							}
 							
 							if(isset($data['length_max']) && strlen($v) > $data['length_max']) {
-								throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
+								// Truncation
+								if(array_key_exists('truncation', $data) && $data['truncation']) {
+									$value = substr($value, 0, $data['length_max'] - 3) . '...';
+								} else {
+									throw new Exception_DevblocksValidationError(sprintf("'%s' must be no longer than %d characters.", $field_label, $data['length_max']));
+								}
 							}
 						
 							@$possible_values = $data['possible_values'];
