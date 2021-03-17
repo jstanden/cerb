@@ -22,7 +22,9 @@ Devblocks.loadResources({
     var $toolbar = $panel.find('.cerb-code-editor-toolbar');
 
     $toolbar.find('button').on('click', function() {
-        $tabs.tabs('load', $tabs.tabs('option','active'));
+        var tab_id = $tabs.tabs('option','active');
+        $tabs.tabs('option', 'active', null)
+        $tabs.tabs('option', 'active', tab_id);
     });
 
     var data = {$ast_json nofilter};
