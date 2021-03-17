@@ -271,31 +271,63 @@ class _DevblocksAutomationService {
 	 */
 	public function executeScript(Model_Automation $automation, array $initial_state=[], &$error=null) {
 		$error = null;
+		$is_simulate = array_key_exists('__simulate', $initial_state) && $initial_state['__simulate'];
 		
-		if(false == ($automation_script = DevblocksPlatform::services()->kata()->parse($automation->script, $error))) {
-			if(!$automation_script) {
-				$error = "No `start:` node was found";
-			} else {
-				$error = "Invalid automation script";
+		try {
+			if(false == ($automation_script = DevblocksPlatform::services()->kata()->parse($automation->script, $error))) {
+				if(!$automation_script) {
+					$error = "No `start:` node was found";
+				} else {
+					$error = "Invalid automation script";
+				}
+				throw new Exception_DevblocksAutomationError($error);
 			}
+			
+			$dict = DevblocksDictionaryDelegate::instance($initial_state);
+			
+			// On the first run
+			if(!$dict->exists('__state')) {
+				if(false === $this->_validateInputs($automation_script, $dict, $error))
+					throw new Exception_DevblocksAutomationError($error);
+			}
+			
+			// Remove inputs before running
+			unset($automation_script['inputs']);
+			
+			if(false == $automation->execute($dict, $error))
+				throw new Exception_DevblocksAutomationError($error);
+			
+			// Log when we exit in an error state and are not simulating
+			if($dict->getKeyPath('__exit') == 'error') {
+				if(!$is_simulate) {
+					DAO_AutomationLog::create([
+						DAO_AutomationLog::LOG_MESSAGE => $dict->getKeyPath('__error.message'),
+						DAO_AutomationLog::LOG_LEVEL => 3,
+						DAO_AutomationLog::CREATED_AT => time(),
+						DAO_AutomationLog::AUTOMATION_NAME => $automation->name ?? '',
+						DAO_AutomationLog::AUTOMATION_NODE => $dict->getKeyPath('__error.at'),
+					]);
+				}
+			}
+			
+			return $dict;
+			
+		} catch (Exception_DevblocksAutomationError $e) {
+			$error = $e->getMessage();
+			
+			// Log exceptions
+			if(!$is_simulate) {
+				DAO_AutomationLog::create([
+					DAO_AutomationLog::LOG_MESSAGE => $error,
+					DAO_AutomationLog::LOG_LEVEL => 3,
+					DAO_AutomationLog::CREATED_AT => time(),
+					DAO_AutomationLog::AUTOMATION_NAME => $automation->name ?? '',
+					DAO_AutomationLog::AUTOMATION_NODE => '',
+				]);
+			}
+			
 			return false;
 		}
-		
-		$dict = DevblocksDictionaryDelegate::instance($initial_state);
-		
-		// On the first run
-		if(!$dict->exists('__state')) {
-			if(false === $this->_validateInputs($automation_script, $dict, $error))
-				return false;
-		}
-		
-		// Remove inputs before running
-		unset($automation_script['inputs']);
-		
-		if(false == $automation->execute($dict, $error))
-			return false;
-		
-		return $dict;
 	}
 	
 	public function buildAstFromKata(array $yaml, &$error=null) {
