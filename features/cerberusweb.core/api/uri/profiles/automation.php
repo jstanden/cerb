@@ -31,6 +31,10 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	function handleActionForPage(string $action, string $scope=null) {
 		if('profileAction' == $scope) {
 			switch ($action) {
+				case 'editorLog':
+					return $this->_profileAction_editorLog();
+				case 'editorLogRefresh':
+					return $this->_profileAction_editorLogRefresh();
 				case 'editorVisualize':
 					return $this->_profileAction_editorVisualize();
 				case 'getAutocompleteJson':
@@ -189,6 +193,97 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			));
 			return;
 		}
+	}
+	
+	private function _profileAction_editorLog() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$automation_name = DevblocksPlatform::importGPC($_POST['automation_name'] ?? null, 'string');
+		$tpl->assign('automation_name', $automation_name);
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/tab_log.tpl');
+	}
+	
+	private function _profileAction_editorLogRefresh() {
+		$tpl = DevblocksPlatform::services()->template();
+		$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 403);
+
+		if(!$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$automation_name = DevblocksPlatform::importGPC($_POST['automation_name'] ?? null, 'string');
+		$page = DevblocksPlatform::importGPC($_POST['page'] ?? 0, 'integer', 0);
+		$limit = 10;
+		$sheet_dicts = [];
+		
+		list($results, $total) = DAO_AutomationLog::search(
+			[],
+			[
+				new DevblocksSearchCriteria(SearchFields_AutomationLog::AUTOMATION_NAME,'=',$automation_name)
+			],
+			$limit,
+			$page,
+			SearchFields_AutomationLog::CREATED_AT,
+			false
+		);
+		
+		foreach($results as $result) {
+			$sheet_dicts[] = DevblocksDictionaryDelegate::instance([
+				'id' => $result[SearchFields_AutomationLog::ID],
+				'name' => $result[SearchFields_AutomationLog::AUTOMATION_NAME],
+				'node' => $result[SearchFields_AutomationLog::AUTOMATION_NODE],
+				'created_at' => $result[SearchFields_AutomationLog::CREATED_AT],
+				'log_level' => $result[SearchFields_AutomationLog::LOG_LEVEL],
+				'log_message' => $result[SearchFields_AutomationLog::LOG_MESSAGE],
+			]);
+		}
+		
+		$sheet_kata = <<< EOD
+		layout:
+		  headings@bool: no
+		  paging@bool: yes
+		columns:
+		  date/created_at:
+		    label: Date
+		  text/node:
+		    label: At
+		  text/log_message:
+		    label: Message
+		EOD;
+		
+		$sheet = $sheets->parse($sheet_kata, $error);
+		
+		$layout = $sheets->getLayout($sheet);
+		$rows = $sheets->getRows($sheet, $sheet_dicts);
+		$columns = $sheets->getColumns($sheet);
+		
+		$tpl->assign('layout', $layout);
+		$tpl->assign('rows', $rows);
+		$tpl->assign('columns', $columns);
+		
+		$paging = $sheets->getPaging(
+			count($results),
+			$page,
+			$limit,
+			$total
+		);
+		
+		if($layout['paging'] && $paging) {
+			$tpl->assign('paging', $paging);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::ui/sheets/render.tpl');
 	}
 	
 	private function _profileAction_editorVisualize() {

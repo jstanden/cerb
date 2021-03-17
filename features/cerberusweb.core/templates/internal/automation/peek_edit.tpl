@@ -86,6 +86,7 @@
 	<ul>
 		<li data-cerb-tab="run"><a href="#{$tabs_uid}Run">{'common.run'|devblocks_translate|capitalize}</a></li>
 		<li data-cerb-tab="policy"><a href="#{$tabs_uid}Policy">{'common.policy'|devblocks_translate|capitalize}</a></li>
+		<li data-cerb-tab="log"><a href="#{$tabs_uid}Log">{'common.log'|devblocks_translate|capitalize}</a></li>
 		{*<li data-cerb-tab="versions"><a href="#{$tabs_uid}Versions">{'common.versions'|devblocks_translate|capitalize}</a></li>*}
 		<li data-cerb-tab="visualization"><a href="#{$tabs_uid}Visualization">Visualization</a></li>
 	</ul>
@@ -135,9 +136,8 @@
 	</div>
 	*}
 
-	<div id="{$tabs_uid}Visualization">
-
-	</div>
+	<div id="{$tabs_uid}Log"></div>
+	<div id="{$tabs_uid}Visualization"></div>
 </div>
 
 {if !empty($model->id)}
@@ -168,21 +168,36 @@ $(function() {
 	$popup.one('popup_open', function() {
 		$frm.find('[data-cerb-automation-editor-tabs]').tabs({
 			beforeActivate: function(event, ui) {
-				if(ui.newTab.attr('data-cerb-tab') !== 'visualization')
-					return;
+				var formData;
+				
+				if(ui.newTab.attr('data-cerb-tab') === 'visualization') {
+					Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
 
-				Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
+					formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'automation');
+					formData.set('action', 'editorVisualize');
+					formData.set('script', editor_automation.getValue());
 
-				var formData = new FormData();
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'automation');
-				formData.set('action', 'editorVisualize');
-				formData.set('script', editor_automation.getValue());
+					genericAjaxPost(formData, null, null, function (html) {
+						ui.newPanel.html(html);
+					});
+					
+				} else if(ui.newTab.attr('data-cerb-tab') === 'log') {
+					Devblocks.getSpinner().appendTo(ui.newPanel.html(''));
 
-				genericAjaxPost(formData, null, null, function(html) {
-					ui.newPanel.html(html);
-				});
+					formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'automation');
+					formData.set('action', 'editorLog');
+					formData.set('automation_name', $frm.find('input[name="name"]').val());
+
+					genericAjaxPost(formData, null, null, function (html) {
+						ui.newPanel.html(html);
+					});
+				}
 			}
 		});
 

@@ -287,7 +287,7 @@ class SearchFields_AutomationLog extends DevblocksSearchFields {
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			default:
-				break;
+				return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 		}
 	}
 	
