@@ -44,7 +44,7 @@
         "{{{uid.project_board_kanban_in_progress}}}",
         "{{{uid.project_board_kanban_completed}}}"
       ],
-      "cards_kata": "automation/task_sheet:\n  uri: cerb:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context|context_alias != 'task' ? 'yes'}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes"
+      "cards_kata": "automation/task_sheet:\n  uri: cerb:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context is not record type ('task')}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes"
     },
     {
       "uid": "project_board_kanban_todo",

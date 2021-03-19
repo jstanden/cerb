@@ -306,7 +306,7 @@ if(!isset($tables['automation_event'])) {
 				uniqid(),
 				$behavior['uri'] ?: $behavior['id'],
 				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
-				sprintf("{{record__context != '%s' ? 'yes'}}", $behavior_params['context'])
+				sprintf("{{record__context is not record type ('%s')}}", $behavior_params['context'])
 			);
 		}
 	}
@@ -322,7 +322,7 @@ if(!isset($tables['automation_event'])) {
 				uniqid(),
 				$behavior['uri'] ?: $behavior['id'],
 				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
-				"{{record__type != 'task' or not is_new}}"
+				"{{record__type is not record type ('task') or not is_new}}"
 			);
 		}
 	}
@@ -338,7 +338,7 @@ if(!isset($tables['automation_event'])) {
 				uniqid(),
 				$behavior['uri'] ?: $behavior['id'],
 				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
-				"{{record__type != 'comment' or not is_new}}"
+				"{{record__type is not record type ('comment') or not is_new}}"
 			);
 		}
 	}
@@ -354,7 +354,7 @@ if(!isset($tables['automation_event'])) {
 				uniqid(),
 				$behavior['uri'] ?: $behavior['id'],
 				$behavior['is_disabled'] ? "yes\n    #" : "\n    ",
-				"{{record__type != 'comment' or record_target__type != 'ticket' or not is_new}}"
+				"{{record__type is not record type ('comment') or record_target__type is not record type ('ticket') or not is_new}}"
 			);
 		}
 	}
