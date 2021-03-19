@@ -39,13 +39,14 @@ class _DevblocksUiManager {
 	 * @param string $uri
 	 * @return array|false
 	 */
-	function parseURI(string $uri) {
+	function parseURI(?string $uri) {
 		if(!DevblocksPlatform::strStartsWith($uri, 'cerb:'))
 			return false;
 		
 		$uri_parts = explode(':', $uri);
 		
-		if(3 !== count($uri_parts))
+		// Must have a length of 2 (context) or 3 (context:id)
+		if(!in_array(count($uri_parts), [2,3]))
 			return false;
 		
 		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($uri_parts[1])))
@@ -53,7 +54,7 @@ class _DevblocksUiManager {
 		
 		return [
 			'context' => $context_ext->id,
-			'context_id' => $uri_parts[2],
+			'context_id' => $uri_parts[2] ?? 0,
 			'context_ext' => $context_ext,
 		];
 	}
