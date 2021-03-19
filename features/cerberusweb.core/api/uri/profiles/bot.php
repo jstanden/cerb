@@ -1924,8 +1924,95 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		} else {
 			$this->_respondAutomationAwaitDraft($continuation);			
 		}
-	}		
+	}
+	
+	private function _handleAutomationAwaitRecord(Model_AutomationContinuation $continuation) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		$automator = DevblocksPlatform::services()->automation();
 		
+		$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? [], 'array', []);
+		
+		unset($_POST);
+		
+		if(false == ($automation = $continuation->getAutomation()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if($automation->extension_id != AutomationTrigger_InteractionWebWorker::ID)
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		if(!Context_Automation::isReadableByActor($automation, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$initial_state = $continuation->state_data['dict'] ?? [];
+		$record_state = $initial_state['__return']['record'] ?? [];
+		
+		$error = null;
+		
+		if(array_key_exists('_started', $record_state) && array_key_exists('record_type', $prompts)) {
+			if(null != ($output_placeholder = $continuation->state_data['dict']['__return']['record']['output'] ?? null)) {
+				$record_results = [
+					'event' => $prompts['event'] ?? null,
+					'record' => DevblocksDictionaryDelegate::instance([
+						'_context' => $prompts['record_type'] ?? null,
+						'id' => intval($prompts['record_id'] ?? 0),
+					]),
+				];
+				
+				$initial_state[$output_placeholder] = $record_results;
+			}
+			
+			if (false === ($automation_results = $automator->executeScript($automation, $initial_state, $error))) {
+				$initial_state['__exit'] = 'error';
+				$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
+			}
+			
+			$exit_code = $automation_results->get('__exit');
+			
+			$continuation->state_data['dict'] = $automation_results->getDictionary();
+			
+			// Save session scope
+			DAO_AutomationContinuation::update($continuation->token, [
+				DAO_AutomationContinuation::STATE => $exit_code,
+				DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+				DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+				DAO_AutomationContinuation::UPDATED_AT => time(),
+			]);
+			
+			$this->_respondAutomationAwait($continuation, $automation_results);
+			
+		} else {
+			$this->_respondAutomationAwaitRecord($continuation);
+		}		
+	}
+	
+	private function _respondAutomationAwaitRecord(Model_AutomationContinuation $continuation) {
+		$initial_state = $continuation->state_data['dict'] ?? [];
+		$record_state = $initial_state['__return']['record'] ?? [];
+		
+		if(false == ($record_uri = DevblocksPlatform::services()->ui()->parseURI($record_state['uri'] ?? null)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!array_key_exists('context', $record_uri) || !$record_uri['context'])
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_uri['context'], true)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$continuation->state_data['dict']['__return']['record']['_started'] = true;
+		
+		// Save session scope
+		DAO_AutomationContinuation::update($continuation->token, [
+			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
+			DAO_AutomationContinuation::EXPIRES_AT => $continuation->expires_at,
+			DAO_AutomationContinuation::UPDATED_AT => time(),
+		]);
+		
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('context_ext', $context_ext);
+		$tpl->assign('record_id', $record_uri['context_id'] ?? 0);
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/_await_record.tpl');
+	}
+	
 	private function _handleAutomationAwaitForm(Model_AutomationContinuation $continuation) {
 		$automator = DevblocksPlatform::services()->automation();
 		$validation = DevblocksPlatform::services()->validation();

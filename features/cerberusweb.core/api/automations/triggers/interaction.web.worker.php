@@ -88,6 +88,8 @@ class AutomationTrigger_InteractionWebWorker extends Extension_AutomationTrigger
 				'(.*):await:' => [
 					'draft:',
 					'form:',
+					'interaction:',
+					'record:',
 				],
 				
 				'(.*):await:draft:' => [
@@ -141,6 +143,15 @@ class AutomationTrigger_InteractionWebWorker extends Extension_AutomationTrigger
 					'message@text:',
 				],
 				
+				'(.*):await:interaction:' => [
+					'uri:',
+					'output:',
+				],
+				
+				'(.*):await:record:' => [
+					'uri:',
+					'output:',
+				],
 			]
 		];
 	}
