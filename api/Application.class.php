@@ -878,9 +878,9 @@ class CerberusApplication extends DevblocksApplication {
 					continue;
 
 				// Dupe detection
-				@$sha1_hash = sha1_file($file, false);
+				$sha1_hash = sha1_file($file) ?? null;
 
-				if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['name'][$idx]))) {
+				if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $files['size'][$idx], $files['type'][$idx]))) {
 					$fields = array(
 						DAO_Attachment::NAME => $files['name'][$idx],
 						DAO_Attachment::MIME_TYPE => $files['type'][$idx],

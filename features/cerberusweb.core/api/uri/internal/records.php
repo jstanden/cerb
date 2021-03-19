@@ -372,9 +372,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		fseek($fp, 0);
 		
 		// SHA-1 the temp file
-		@$sha1_hash = sha1_file($temp_name, false);
+		$sha1_hash = sha1_file($temp_name) ?? null;
 		
-		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name, $file_size))) {
+		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_size, $file_type))) {
 			// Create a record w/ timestamp + ID
 			$fields = [
 				DAO_Attachment::NAME => $file_name,

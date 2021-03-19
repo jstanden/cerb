@@ -96,7 +96,7 @@ class BotAction_CreateAttachment extends Extension_DevblocksEventAction {
 
 		$sha1_hash = sha1($content, false);
 		
-		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_name))) {
+		if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file_size, $file_type))) {
 			$fields = array(
 				DAO_Attachment::NAME => $file_name,
 				DAO_Attachment::MIME_TYPE => $file_type,
