@@ -121,11 +121,11 @@ $(function() {
 		$buttons.find('button.submit').click({ before: timeTrackingTimer.finish }, Devblocks.callbackPeekEditSave);
 		$buttons.find('button.resume').on('click', function(e) {
 			timeTrackingTimer.play();
-			genericAjaxPopupClose($popup);
+			genericAjaxPopupClose($popup, 'peek_aborted');
 		});
 		$buttons.find('button.cancel').on('click', function(e) {
 			timeTrackingTimer.finish();
-			genericAjaxPopupClose($popup);
+			genericAjaxPopupClose($popup, 'peek_aborted');
 		});
 		
 		$popup.find('input.input_date').cerbDateInputHelper();

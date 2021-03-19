@@ -4234,8 +4234,22 @@ var ajax = new cAjaxCalls();
 
 					e.stopPropagation();
 				});
+				
+				$peek.on('peek_aborted', function(e) {
+					var abort_event = $.Event(e.type, e);
+					abort_event.type = 'cerb-peek-aborted';
+					abort_event.context = context;
+					abort_event.is_rebroadcast = e.type === 'cerb-peek-aborted';
+					$trigger.trigger(abort_event);
 
-				$peek.on('dialogclose', function(e) {
+					e.stopPropagation();
+				});
+				
+				$peek.closest('.ui-dialog').find('.ui-dialog-titlebar-close').on('click', function(e) {
+					$trigger.trigger('cerb-peek-aborted');
+				});
+
+				$peek.on('dialogclose', function() {
 					$trigger.trigger('cerb-peek-closed');
 				});
 			});
