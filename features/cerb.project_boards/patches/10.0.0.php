@@ -13,7 +13,7 @@ if(!array_key_exists('cards_kata', $columns)) {
 	
 	$cards_kata = "automation/task_sheet:\n  uri: cerb:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context is not record type ('task')}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes";
 	
-	$db->ExecuteMaster(sprintf("UPDATE project_board SET cards_kata = %s WHERE cards_kata = ''",
+	$db->ExecuteMaster(sprintf("UPDATE project_board SET cards_kata = %s WHERE cards_kata IS NULL",
 		$db->qstr($cards_kata)
 	));
 }
@@ -50,6 +50,12 @@ list($columns,) = $db->metaTable('project_board_column');
 if(!isset($columns['cards_kata'])) {
 	$sql = "ALTER TABLE project_board_column ADD COLUMN cards_kata mediumtext";
 	$db->ExecuteMaster($sql);
+	
+	$cards_kata = "automation/done:\n  uri: cerb:automation:cerb.projectBoard.card.done";
+	
+	$db->ExecuteMaster(sprintf("UPDATE project_board_column SET cards_kata = %s WHERE name IN ('Completed','Completed!')",
+		$db->qstr($cards_kata)
+	));
 }
 
 if(!isset($columns['toolbar_kata'])) {
