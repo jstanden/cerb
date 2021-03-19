@@ -332,10 +332,11 @@ function DevblocksClass() {
 		var $button = $(e.target);
 		var $popup = genericAjaxPopupFind($button);
 		var $frm = $button.closest('form');
+		var id = $frm.find('input:hidden[name=id]').val();
 		var options = e.data;
-		var is_delete = (options && options.mode == 'delete');
-		var is_create = (options && (options.mode == 'create' || options.mode == 'create_continue'));
-		var is_continue = (options && (options.mode == 'continue' || options.mode == 'create_continue'));
+		var is_delete = (options && options.mode === 'delete');
+		var is_create = (options && (options.mode === 'create' || options.mode === 'create_continue')) || (0 === String(id).length);
+		var is_continue = (options && (options.mode === 'continue' || options.mode === 'create_continue'));
 		
 		if(e.originalEvent && e.originalEvent.detail && e.originalEvent.detail > 1)
 			return;
