@@ -1815,16 +1815,35 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
+		$this->_handleAutomationAwait($continuation);
+	}
+	
+	private function _handleAutomationAwait(Model_AutomationContinuation $continuation) {
 		$initial_state = $continuation->state_data['dict'] ?? [];
+		$return = $initial_state['__return'] ?? [];
 		
 		if(array_key_exists('__return', $initial_state)) {
-			if(array_key_exists('form', $initial_state['__return'])) {
+			if(array_key_exists('form', $return)) {
 				$this->_handleAutomationAwaitForm($continuation);
-			} else if(array_key_exists('interaction', $initial_state['__return'])) {
+			} else if(array_key_exists('interaction', $return)) {
 				$this->_handleAutomationAwaitInteraction($continuation);
-			} else if(array_key_exists('draft', $initial_state['__return'])) {
+			} else if(array_key_exists('draft', $return)) {
 				$this->_handleAutomationAwaitDraft($continuation);
+			} else if(array_key_exists('record', $return)) {
+				$this->_handleAutomationAwaitRecord($continuation);
 			}
+		}
+	}
+	
+	private function _respondAutomationAwait(Model_AutomationContinuation $continuation, DevblocksDictionaryDelegate $automation_results) {
+		if($automation_results->getKeyPath('__return.interaction')) {
+			$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
+		} else if($automation_results->getKeyPath('__return.draft')) {
+			$this->_respondAutomationAwaitDraft($continuation);
+		} else if($automation_results->getKeyPath('__return.record')) {
+			$this->_respondAutomationAwaitRecord($continuation);
+		} else {
+			$this->_respondAutomationAwaitForm($automation_results, $continuation);
 		}
 	}
 	
@@ -1900,13 +1919,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 				DAO_AutomationContinuation::UPDATED_AT => time(),
 			]);
 			
-			if($automation_results->getKeyPath('__return.interaction')) {
-				$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
-			} else if($automation_results->getKeyPath('__return.draft')) {
-				$this->_respondAutomationAwaitDraft($continuation);
-			} else {
-				$this->_respondAutomationAwaitForm($automation_results, $continuation);
-			}
+			$this->_respondAutomationAwait($continuation, $automation_results);
 			
 		} else {
 			$this->_respondAutomationAwaitDraft($continuation);			
@@ -2073,13 +2086,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$automation_results = DevblocksDictionaryDelegate::instance($initial_state);
 		}
 		
-		if($automation_results->getKeyPath('__return.interaction')) {
-			$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
-		} else if($automation_results->getKeyPath('__return.draft')) {
-			$this->_respondAutomationAwaitDraft($continuation);
-		} else {
-			$this->_respondAutomationAwaitForm($automation_results, $continuation);
-		}
+		$this->_respondAutomationAwait($continuation, $automation_results);
 	}
 	
 	private function _respondAutomationAwaitDraft(Model_AutomationContinuation $continuation) {
@@ -2241,15 +2248,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			return;
 		}
 		
-		$initial_state = $delegate_continuation->state_data['dict'] ?? [];
-		
-		if(array_key_exists('__return', $initial_state)) {
-			if(array_key_exists('interaction', $initial_state['__return'])) {
-				$this->_handleAutomationAwaitInteraction($delegate_continuation);
-			} else if(array_key_exists('form', $initial_state['__return'])) {
-				$this->_handleAutomationAwaitForm($delegate_continuation);
-			}
-		}
+		$this->_handleAutomationAwait($delegate_continuation);
 	}
 	
 	private function _respondAutomationAwaitInteraction(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
@@ -2323,10 +2322,6 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
 		]);
 		
-		if($delegate_results->getKeyPath('__return.interaction')) {
-			$this->_respondAutomationAwaitInteraction($delegate_results, $delegate_continuation);
-		} else {
-			$this->_respondAutomationAwaitForm($delegate_results, $delegate_continuation);
-		}		
+		$this->_respondAutomationAwait($delegate_continuation, $delegate_results);
 	}
 };
