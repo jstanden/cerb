@@ -107,8 +107,6 @@ $(function() {
 			genericAjaxGet($('#frm{$guid}').closest('div.cerb-workspace-widget--content'), 'c=pages&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
 			e.stopPropagation();
 		})
-		.on('cerb-peek-closed', function(e) {
-		})
 		;
 });
 </script>

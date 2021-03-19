@@ -169,9 +169,6 @@ $(function() {
 		.on('cerb-peek-deleted', function(e) {
 			e.stopPropagation();
 			$('#draft{$draft->id}').remove();
-
-		})
-		.on('cerb-peek-closed', function(e) {
 		})
 		;
 

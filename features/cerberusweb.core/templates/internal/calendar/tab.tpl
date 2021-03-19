@@ -107,8 +107,6 @@ $(function() {
 			genericAjaxGet($('#frm{$guid}').closest('div.ui-tabs-panel'), 'c=internal&a=invoke&module=calendars&action=showCalendarTab&id={$calendar->id}&month=' + month + '&year=' + year);
 			e.stopPropagation();
 		})
-		.on('cerb-peek-closed', function(e) {
-		})
 		;
 });
 </script>

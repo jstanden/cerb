@@ -521,9 +521,6 @@ $(function() {
 		.on('cerb-peek-deleted', function(e) {
 			e.stopPropagation();
 			$('#message{$message->id}').remove();
-			
-		})
-		.on('cerb-peek-closed', function(e) {
 		})
 		;
 

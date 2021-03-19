@@ -4161,7 +4161,7 @@ var ajax = new cAjaxCalls();
 				var context_id = $trigger.attr('data-context-id');
 				var layer = $trigger.attr('data-layer');
 				var width = $trigger.attr('data-width');
-				var edit_mode = $trigger.attr('data-edit') ? true : false;
+				var edit_mode = !!$trigger.attr('data-edit');
 				
 				var profile_url = $trigger.attr('data-profile-url');
 				

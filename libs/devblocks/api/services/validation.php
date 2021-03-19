@@ -1074,7 +1074,7 @@ class _DevblocksValidationService {
 						}
 					}
 					
-					@$possible_values = $data['possible_values'];
+					$possible_values = $data['possible_values'] ?? null;
 					
 					if(!($field->_type->canBeEmpty() && 0 == strlen($value))) {
 						if ($possible_values && !in_array($value, $possible_values)) {
@@ -1111,7 +1111,7 @@ class _DevblocksValidationService {
 								}
 							}
 						
-							@$possible_values = $data['possible_values'];
+							$possible_values = $data['possible_values'] ?? null;
 							
 							if($possible_values && !in_array($v, $possible_values)) {
 								throw new Exception_DevblocksValidationError(sprintf("'%s' must be one of: %s", $field_label, implode(', ', $data['possible_values'])));

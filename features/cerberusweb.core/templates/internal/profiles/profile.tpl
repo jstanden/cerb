@@ -139,8 +139,6 @@ $(function() {
 				document.location.href = '{devblocks_url}{/devblocks_url}';
 			}
 		})
-		.on('cerb-peek-closed', function(e) {
-		})
 	;
 	
 	var $profile_toolbar = $('#profileToolbar');

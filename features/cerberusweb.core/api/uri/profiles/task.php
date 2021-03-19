@@ -132,7 +132,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 							'view_id' => $view_id,
 						]);
 						return;
-						break;
 						
 					case 'build':
 						// Load the existing model so we can detect changes
@@ -229,7 +228,6 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 							'view_id' => $view_id,
 						));
 						return;
-						break;
 				}
 			}
 			
