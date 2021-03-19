@@ -62,7 +62,7 @@ if(!isset($columns['functions_kata'])) {
 	$db->ExecuteMaster($sql);
 
 	$boards = $db->GetArrayMaster("SELECT id, columns_json FROM project_board");
-	$toolbar_kata = "interaction/add:\n  uri: cerb:automation:cerb.projectBoard.toolbar.task.add\n  icon: circle-plus\n  inputs:\n    column: {{column_id}}\n\ninteraction/find:\n  uri: cerb:automation:cerb.projectBoard.toolbar.task.find\n  icon: search\n  inputs:\n    column: {{column_id}}";
+	$toolbar_kata = "interaction/add:\n  uri: cerb:automation:cerb.projectBoard.record.create\n  icon: circle-plus\n  inputs:\n    record_type: task\n    column: {{column_id}}\n\ninteraction/find:\n  uri: cerb:automation:cerb.projectBoard.toolbar.task.find\n  icon: search\n  inputs:\n    column: {{column_id}}";
 	
 	foreach($boards as $board) {
 		$column_ids = json_decode($board['columns_json'] ?? '[]', true);

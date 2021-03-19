@@ -167,7 +167,7 @@ if(!isset($tables['automation'])) {
 		'cerb.projectBoard.action.task.close.json',
 		'cerb.projectBoard.card.done.json',
 		'cerb.projectBoard.card.sheet.json',
-		'cerb.projectBoard.toolbar.task.add.json',
+		'cerb.projectBoard.record.create.json',
 		'cerb.projectBoard.toolbar.task.find.json',
 		'cerb.reminder.remind.notification.json',
 		'cerb.ticket.participants.add.json',
