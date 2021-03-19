@@ -149,9 +149,9 @@ if(array_key_exists('params_json', $columns)) {
 			
 			$db->ExecuteMaster($sql);
 		}
-		
-		$db->ExecuteMaster("ALTER TABLE project_board_column DROP COLUMN params_json");
 	}
+	
+	$db->ExecuteMaster("ALTER TABLE project_board_column DROP COLUMN params_json");
 }
 
 return TRUE;
