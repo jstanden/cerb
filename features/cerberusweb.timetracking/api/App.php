@@ -48,21 +48,6 @@ class ChTimeTrackingPreBodyRenderer extends Extension_AppPreBodyRenderer {
 	}
 };
 
-/*
-class ChTimeTrackingProfileScript extends Extension_ContextProfileScript {
-	const ID = 'timetracking.profile_script.timer';
-	
-	function renderScript($context, $context_id) {
-		$tpl = DevblocksPlatform::services()->template();
-
-		$tpl->assign('page_context', $context);
-		$tpl->assign('page_context_id', $context_id);
-
-		$tpl->display('devblocks:cerberusweb.timetracking::timetracking/renderers/toolbar_timer.js.tpl');
-	}
-}
-*/
-
 class ChTimeTrackingEventListener extends DevblocksEventListenerExtension {
 	/**
 	 * @param Model_DevblocksEvent $event
