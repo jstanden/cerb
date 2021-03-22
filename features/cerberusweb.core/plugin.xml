@@ -4849,6 +4849,16 @@
 		<!-- Toolbars -->
 
 		<extension point="cerb.toolbar">
+			<id>cerb.toolbar.automation.editor</id>
+			<name>automation.editor</name>
+			<class>
+				<file>api/toolbars/automation.editor.php</file>
+				<name>Toolbar_AutomationEditor</name>
+			</class>
+			<params/>
+		</extension>
+		
+		<extension point="cerb.toolbar">
 			<id>cerb.toolbar.global.menu</id>
 			<name>global.menu</name>
 			<class>

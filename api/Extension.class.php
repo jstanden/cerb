@@ -688,6 +688,8 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	abstract function getEditorToolbarItems(array $toolbar) : array;
 	
 	public function getEditorToolbar() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
 		$toolbar = [
 			'menu/insert' => [
 				'icon' => 'circle-plus',
@@ -812,6 +814,8 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			$editor_toolbar_dict = DevblocksDictionaryDelegate::instance([
 				'trigger_id' => $this->manifest->id,
 				'trigger_name' => $this->manifest->name,
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id
 			]);
 			
 			if(false != ($editor_toolbar_items = $editor_toolbar->getKata($editor_toolbar_dict))) {
