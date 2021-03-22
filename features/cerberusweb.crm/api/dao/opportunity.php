@@ -551,6 +551,37 @@ class DAO_CrmOpportunity extends Cerb_ORMHelper {
 			$withCounts
 		);
 	}
+	
+	/**
+	 * @param string $term
+	 * @param string $as
+	 * @return array|Model_CrmOpportunity[]
+	 */
+	static function autocomplete($term, $as='models') {
+		$db = DevblocksPlatform::services()->database();
+		$objects = [];
+		
+		$results = $db->GetArrayReader(sprintf("SELECT id ".
+			"FROM crm_opportunity ".
+			"WHERE name LIKE %s ".
+			"ORDER BY id DESC ".
+			"LIMIT 25 ",
+			$db->qstr($term.'%')
+		));
+		
+		if(is_array($results))
+			foreach($results as $row) {
+				$objects[$row['id']] = null;
+			}
+		
+		switch($as) {
+			case 'ids':
+				return array_keys($objects);
+			
+			default:
+				return DAO_CrmOpportunity::getIds(array_keys($objects));
+		}
+	}
 };
 
 class SearchFields_CrmOpportunity extends DevblocksSearchFields {
@@ -1164,7 +1195,7 @@ class View_CrmOpportunity extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextBroadcast {
+class Context_Opportunity extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextImport, IDevblocksContextMerge, IDevblocksContextBroadcast {
 	const ID = 'cerberusweb.contexts.opportunity';
 	const URI = 'opportunity';
 	
@@ -1261,6 +1292,21 @@ class Context_Opportunity extends Extension_DevblocksContext implements IDevbloc
 		);
 		
 		return $properties;
+	}
+	
+	function autocomplete($term, $query=null) {
+		$results = DAO_CrmOpportunity::autocomplete($term);
+		$list = [];
+		
+		if(is_array($results))
+			foreach($results as $opp) {
+				$entry = new stdClass();
+				$entry->label = sprintf("%s", $opp->name);
+				$entry->value = sprintf("%d", $opp->id);
+				$list[] = $entry;
+			}
+		
+		return $list;
 	}
 	
 	function getMeta($context_id) {
