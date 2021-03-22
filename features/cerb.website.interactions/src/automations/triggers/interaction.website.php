@@ -92,6 +92,7 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 			'*' => [
 				'(.*):await:' => [
 					'form:',
+					'interaction:',
 				],
 				
 				'(.*):await:form:' => [
@@ -112,6 +113,10 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'message@text:',
 				],
 				
+				'(.*):await:interaction:' => [
+					'uri:',
+					'output:',
+				],
 			]
 		];
 	}
