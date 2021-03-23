@@ -762,6 +762,10 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	abstract function getMeta($context_id);
 	abstract function getContext($object, &$token_labels, &$token_values, $prefix=null);
 	
+	function getContextIdFromAlias($alias) {
+		return is_numeric($alias) ? intval($alias) : null;
+	}
+	
 	function getKeyToDaoFieldMap() {
 		$map = [];
 		

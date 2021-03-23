@@ -854,6 +854,14 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 		);
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a GUID?
+		if(false != ($model = DAO_WebhookListener::getByGUID($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($webhook_listener, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Webhook Listener:';

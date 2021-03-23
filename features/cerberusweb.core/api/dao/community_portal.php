@@ -1104,6 +1104,14 @@ class Context_CommunityTool extends Extension_DevblocksContext implements IDevbl
 		);
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_CommunityTool::getByCode($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($community_tool, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Community Portal:';

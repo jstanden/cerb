@@ -908,6 +908,16 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		);
 	}
 	
+    /*
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_<?php echo $class_name; ?>::getByUri($alias)))
+			return $model->id;
+		
+		return null;
+	}
+    */
+    
 	function getContext($<?php echo $ctx_var_model; ?>, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = '<?php echo $object_name; ?>:';

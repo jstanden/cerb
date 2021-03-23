@@ -968,6 +968,14 @@ class Context_Toolbar extends Extension_DevblocksContext implements IDevblocksCo
 		);
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_Toolbar::getByName($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($toolbar, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Toolbar:';

@@ -463,6 +463,20 @@ class DAO_Worker extends Cerb_ORMHelper {
 		return array_flip($mentions);
 	}
 	
+	public static function getByAtMention($at_mention) {
+		$all_workers = DAO_Worker::getAllActive();
+		
+		$at_mentions = array_change_key_case(
+			array_column($all_workers, 'id', 'at_mention_name'),
+			CASE_LOWER
+		);
+		
+		if(array_key_exists($at_mention, $at_mentions))
+			return DAO_Worker::get($at_mentions[$at_mention]);
+		
+		return null;
+	}
+	
 	static function getByAtMentions($at_mentions, $with_searches=true) {
 		if(!is_array($at_mentions) && is_string($at_mentions))
 			$at_mentions = [$at_mentions];
@@ -3411,6 +3425,14 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		}
 
 		return $list;
+	}
+	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_Worker::getByAtMention($alias)))
+			return $model->id;
+		
+		return null;
 	}
 	
 	function getContext($worker, &$token_labels, &$token_values, $prefix=null) {

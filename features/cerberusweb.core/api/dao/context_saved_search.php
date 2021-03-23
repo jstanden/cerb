@@ -1002,6 +1002,14 @@ class Context_ContextSavedSearch extends Extension_DevblocksContext implements I
 		);
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_ContextSavedSearch::getByTag($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($context_saved_search, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Saved Search:';

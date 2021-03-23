@@ -1215,6 +1215,14 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		return $list;
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_Automation::getByUri($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($automation, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Automation:';

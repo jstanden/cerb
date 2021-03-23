@@ -1337,6 +1337,14 @@ class Context_Resource extends Extension_DevblocksContext implements IDevblocksC
 		);
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_Resource::getByName($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($resource, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Resource:';

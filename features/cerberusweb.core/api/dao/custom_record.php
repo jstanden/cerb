@@ -1014,6 +1014,14 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_CustomRecord::getByUri($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($custom_record, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Custom Record:';

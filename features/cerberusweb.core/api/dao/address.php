@@ -2283,6 +2283,14 @@ class Context_Address extends Extension_DevblocksContext implements IDevblocksCo
 		return $list;
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_Address::getByEmail($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($address, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Email:';

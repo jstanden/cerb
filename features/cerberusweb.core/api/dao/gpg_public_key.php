@@ -994,6 +994,14 @@ class Context_GpgPublicKey extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_GpgPublicKey::getByFingerprint($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($gpg_public_key, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Gpg Public Key:';

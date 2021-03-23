@@ -2176,6 +2176,14 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		);
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a URI?
+		if(false != ($model = DAO_TriggerEvent::getByUri($alias)))
+			return $model->id;
+		
+		return null;
+	}
+	
 	function getContext($trigger_event, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Behavior:';

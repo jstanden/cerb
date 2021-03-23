@@ -4814,6 +4814,14 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		return $list;
 	}
 	
+	function getContextIdFromAlias($alias) {
+		// Is it a mask?
+		if(false != ($id = DAO_Ticket::getTicketIdByMask($alias)))
+			return $id;
+		
+		return null;
+	}
+	
 	function getContext($ticket, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Ticket:';
