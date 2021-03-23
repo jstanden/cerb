@@ -218,7 +218,7 @@ class _DevblocksAutomationService {
 					
 					$dict->setKeyPath('inputs.' . $input_key,
 						DevblocksDictionaryDelegate::instance([
-							'id' => $input_value,
+							'id' => $input_values[$input_key],
 							'_context' => $input_data['record_type'],
 						])
 					);

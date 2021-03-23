@@ -127,7 +127,9 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 			return false;
 		}
 		
-		$oauth = DevblocksPlatform::services()->oauth()->getOAuth1Client($service_params['client_id'], $service_params['client_secret'], $service_params['signature_method']);
+		$signature_method = $service_params['signature_method'] ?? $service_params['signature_method_'] ?? 'HMAC-SHA1';
+		
+		$oauth = DevblocksPlatform::services()->oauth()->getOAuth1Client($service_params['client_id'], $service_params['client_secret'], $signature_method);
 		
 		// OAuth callback
 		$redirect_url = $url_writer->write(sprintf('c=oauth&a=callback&ext=%s', ServiceProvider_OAuth1::ID), true);
@@ -162,8 +164,9 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		
 		$oauth_token = $_REQUEST['oauth_token'];
 		$oauth_verifier = $_REQUEST['oauth_verifier'];
+		$signature_method = $service_params['signature_method'] ?? $service_params['signature_method_'] ?? 'HMAC-SHA1';
 		
-		$oauth = DevblocksPlatform::services()->oauth()->getOAuth1Client($service_params['client_id'], $service_params['client_secret'], $service_params['signature_method']);
+		$oauth = DevblocksPlatform::services()->oauth()->getOAuth1Client($service_params['client_id'], $service_params['client_secret'], $signature_method);
 		$oauth->setTokens($oauth_token);
 		
 		$params = $oauth->getAccessToken($service_params['access_token_url'], array('oauth_verifier' => $oauth_verifier));
@@ -185,7 +188,9 @@ class ServiceProvider_OAuth1 extends Extension_ConnectedServiceProvider implemen
 		if(false == ($service_params = $service->decryptParams()))
 			return false;
 		
-		$oauth = DevblocksPlatform::services()->oauth()->getOAuth1Client($service_params['client_id'], $service_params['client_secret'], $service_params['signature_method']);
+		$signature_method = $service_params['signature_method'] ?? $service_params['signature_method_'] ?? 'HMAC-SHA1';
+		
+		$oauth = DevblocksPlatform::services()->oauth()->getOAuth1Client($service_params['client_id'], $service_params['client_secret'], $signature_method);
 		$oauth->setTokens($account_params['oauth_token'], $account_params['oauth_token_secret']);
 		
 		$oauth->authenticateHttpRequest($request, $options);
