@@ -259,15 +259,35 @@ class _DevblocksValidators {
 	}
 	
 	function contextId($context, $allow_empty=false) {
-		return function($value, &$error=null) use ($context, $allow_empty) {
+		return function(&$value, &$error=null) use ($context, $allow_empty) {
 			if(!is_numeric($value)) {
-				$error = "must be an ID.";
-				return false;
+				if(DevblocksPlatform::strStartsWith($value, 'cerb:')) {
+					if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($value))) {
+						$error = "must be an ID or URI.";
+						return false;
+					}
+					
+					if(!CerberusContexts::isSameContext($uri_parts['context'], $context)) {
+						$error = sprintf('(%s) must be a URI of type `%s`', $value, $context);
+						return false;
+					}
+					
+					if(is_numeric($uri_parts['context_id'])) {
+						$value = $uri_parts['context_id'];
+					} else {
+						$context_ext = Extension_DevblocksContext::get($uri_parts['context'], true);
+						$value = $context_ext->getContextIdFromAlias($uri_parts['context_id']);
+					}
+					
+				} else {
+					$error = "must be an ID or URI.";
+					return false;
+				}
 			}
 			
-			$id = intval($value);
+			$value = intval($value);
 			
-			if(empty($id)) {
+			if(empty($value)) {
 				if($allow_empty) {
 					return true;
 					
@@ -277,9 +297,9 @@ class _DevblocksValidators {
 				}
 			}
 			
-			$models = CerberusContexts::getModels($context, [$id]);
+			$models = CerberusContexts::getModels($context, [$value]);
 			
-			if(!isset($models[$id])) {
+			if(!isset($models[$value])) {
 				$error = "is not a valid target record.";
 				return false;
 			}
