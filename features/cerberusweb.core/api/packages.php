@@ -601,6 +601,20 @@ class Cerb_Packages {
 				}
 			}
 		}
+		
+		$toolbars = $json['toolbars'] ?? [];
+		
+		if(is_array($toolbars)) {
+			foreach ($toolbars as $toolbar) {
+				$keys_to_require = ['toolbar', 'kata'];
+				$diff = array_diff_key(array_flip($keys_to_require), $toolbar);
+				if (count($diff))
+					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: toolbar is missing properties (%s)", implode(', ', array_keys($diff))));
+				
+				if(false == DAO_Toolbar::getByName($toolbar['toolbar']))
+					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: toolbar (%s) doesn't exist", $toolbar['toolbar']));
+			}
+		}
 	}
 	
 	/**
@@ -1574,6 +1588,23 @@ class Cerb_Packages {
 				'id' => $project_board_id,
 				'label' => $project_board['name'],
 			];
+		}
+		
+		$toolbars = $json['toolbars'] ?? [];
+		
+		if(is_array($toolbars)) {
+			foreach ($toolbars as $toolbar) {
+				if (false != ($toolbar_model = DAO_Toolbar::getByName($toolbar['toolbar']))) {
+					DAO_Toolbar::update($toolbar_model->id, [
+						DAO_Toolbar::TOOLBAR_KATA => rtrim($toolbar_model->toolbar_kata) . "\n\n" . rtrim($toolbar['kata']),
+					]);
+					
+					$records_modified['cerb.contexts.toolbar'][$toolbar_model->id] = [
+						'id' => $toolbar_model->id,
+						'label' => $toolbar_model->name,
+					];
+				}
+			}
 		}
 	}
 };
