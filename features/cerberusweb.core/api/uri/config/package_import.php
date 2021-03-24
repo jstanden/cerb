@@ -73,10 +73,12 @@ class PageSection_SetupPackageImport extends Extension_PageSection {
 			}
 			
 			$records_created = [];
+			$records_modified = [];
 			
-			CerberusApplication::packages()->import($json_string, $prompts, $records_created);
+			CerberusApplication::packages()->import($json_string, $prompts, $records_created, $records_modified);
 			
 			$tpl->assign('records_created', $records_created);
+			$tpl->assign('records_modified', $records_modified);
 			
 			$context_mfts = Extension_DevblocksContext::getAll(false);
 			DevblocksPlatform::sortObjects($context_mfts, 'name', true);

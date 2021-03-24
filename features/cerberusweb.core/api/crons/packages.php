@@ -53,6 +53,7 @@ class Cron_Packages extends CerberusCronPageExtension {
 			
 			foreach($files as $file) {
 				$records_created = [];
+				$records_modified = [];
 				
 				$import_filename = basename($file);
 				$import_path = $path_fail . $import_filename;
@@ -64,7 +65,7 @@ class Cron_Packages extends CerberusCronPageExtension {
 				
 				try {
 					$logger->info('[Packages Importer] Importing ' . $import_filename);
-					$packages->import(file_get_contents($import_path), [], $records_created);
+					$packages->import(file_get_contents($import_path), [], $records_created, $records_modified);
 					
 					unlink($import_path);
 					

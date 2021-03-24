@@ -90,10 +90,11 @@ class Cerb_Packages {
 	 * @param array $json
 	 * @param array $prompts
 	 * @param array $records_created
+	 * @param array $records_modified
 	 * @return bool|null
 	 * @throws Exception_DevblocksValidationError
 	 */
-	static function importFromJson(array $json, array $prompts=[], &$records_created=null) {
+	static function importFromJson(array $json, array $prompts=[], array &$records_created=null, array &$records_modified=null) {
 		$event = DevblocksPlatform::services()->event();
 		
 		if(!is_array($json))
@@ -232,15 +233,16 @@ class Cerb_Packages {
 		
 		$uids = [];
 		$records_created = [];
+		$records_modified = [];
 		
 		if($config_options['disable_events'])
 			$event->disable();
 		
-		self::_packageCreateCustomRecords($json, $uids, $records_created, $placeholders);
-		self::_packageFilterExcluded($json, $uids, $records_created, $placeholders);
-		self::_packageValidate($json, $uids, $records_created, $placeholders);
-		self::_packageGenerateIds($json, $uids, $records_created, $placeholders);
-		self::_packageImport($json, $uids, $records_created);
+		self::_packageCreateCustomRecords($json, $uids, $records_created, $records_modified, $placeholders);
+		self::_packageFilterExcluded($json, $uids, $records_created, $records_modified, $placeholders);
+		self::_packageValidate($json, $uids, $records_created, $records_modified, $placeholders);
+		self::_packageGenerateIds($json, $uids, $records_created, $records_modified, $placeholders);
+		self::_packageImport($json, $uids, $records_created, $records_modified);
 		
 		// Flush the entire cache
 		DevblocksPlatform::services()->cache()->clean();
@@ -251,8 +253,8 @@ class Cerb_Packages {
 		return true;
 	}
 	
-	private static function _packageCreateCustomRecords(&$json, &$uids, &$records_created, &$placeholders) {
-		@$records = $json['records'];
+	private static function _packageCreateCustomRecords(&$json, &$uids, &$records_created, &$records_modified, &$placeholders) {
+		$records = $json['records'] ?? [];
 		
 		// Only keep custom records
 		if(is_array($records))
@@ -270,12 +272,12 @@ class Cerb_Packages {
 			'records' => $custom_records,
 		];
 		
-		self::_packageFilterExcluded($custom_records_json, $uids, $records_created, $placeholders);
-		self::_packageValidate($custom_records_json, $uids, $records_created, $placeholders);
-		self::_packageGenerateIds($custom_records_json, $uids, $records_created, $placeholders);
+		self::_packageFilterExcluded($custom_records_json, $uids, $records_created, $records_modified, $placeholders);
+		self::_packageValidate($custom_records_json, $uids, $records_created, $records_modified, $placeholders);
+		self::_packageGenerateIds($custom_records_json, $uids, $records_created, $records_modified, $placeholders);
 	}
 	
-	private static function _packageFilterExcluded(&$json, &$uids, &$records_created, &$placeholders) {
+	private static function _packageFilterExcluded(&$json, &$uids, &$records_created, &$records_modified, &$placeholders) {
 		// Prepare the template builder
 		
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -314,11 +316,12 @@ class Cerb_Packages {
 	 * @param $json
 	 * @param $uids
 	 * @param $records_created
+	 * @param $records_modified
 	 * @param $placeholders
 	 * @throws Exception_DevblocksValidationError
 	 */
-	private static function _packageValidate(&$json, &$uids, &$records_created, &$placeholders) {
-		@$records = $json['records'];
+	private static function _packageValidate(&$json, &$uids, &$records_created, &$records_modified, &$placeholders) {
+		$records = $json['records'] ?? [];
 		
 		// Validate records
 		if(is_array($records))
@@ -604,11 +607,12 @@ class Cerb_Packages {
 	 * @param $json
 	 * @param $uids
 	 * @param $records_created
+	 * @param $records_modified
 	 * @param $placeholders
 	 * @throws Exception_DevblocksValidationError
 	 */
-	private static function _packageGenerateIds(&$json, &$uids, &$records_created, &$placeholders) {
-		@$records = $json['records'];
+	private static function _packageGenerateIds(&$json, &$uids, &$records_created, &$records_modified, &$placeholders) {
+		$records = $json['records'] ?? [];
 		
 		// Prepare the template builder
 		
@@ -968,9 +972,10 @@ class Cerb_Packages {
 	 * @param $json
 	 * @param $uids
 	 * @param $records_created
+	 * @param $records_modified
 	 * @throws Exception_DevblocksValidationError
 	 */
-	private static function _packageImport(&$json, &$uids, &$records_created) {
+	private static function _packageImport(&$json, &$uids, &$records_created, &$records_modified) {
 		// Records
 		@$records = $json['records'];
 		

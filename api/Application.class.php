@@ -3654,13 +3654,14 @@ class _CerbApplication_Packages {
 	/**
 	 * @param string $json_string
 	 * @param array $prompts
-	 * @param null $records_created
+	 * @param array $records_created
+	 * @param array $records_modified
 	 * @return bool|null
 	 * @throws Exception_DevblocksValidationError
 	 */
-	function import($json_string, array $prompts=[], &$records_created=null) {
+	function import($json_string, array $prompts=[], &$records_created=null, &$records_modified=null) : ?bool {
 		$json = Cerb_Packages::loadPackageFromJson($json_string);
-		return Cerb_Packages::importFromJson($json, $prompts, $records_created);
+		return Cerb_Packages::importFromJson($json, $prompts, $records_created, $records_modified);
 	}
 	
 	function importToLibraryFromString($package_json) {
