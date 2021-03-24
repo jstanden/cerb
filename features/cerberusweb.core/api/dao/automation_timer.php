@@ -613,7 +613,7 @@ class Model_AutomationTimer {
 			}
 			
 			// Cleanup
-			DAO_AutomationContinuation::delete($continuation->id);
+			DAO_AutomationContinuation::delete($continuation->token);
 			DAO_AutomationTimer::delete($this->id);
 			
 			return $automation_results;
