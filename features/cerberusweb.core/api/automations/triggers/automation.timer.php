@@ -19,7 +19,14 @@ class AutomationTrigger_AutomationTimer extends Extension_AutomationTrigger {
 	}
 	
 	function getOutputsMeta() {
-		return [];
+		return [
+			'await' => [
+				[
+					'key' => 'datetime',
+					'notes' => 'When to resume the timer, as a Unix timestamp',
+				]
+			]
+		];
 	}
 	
 	public function getEditorToolbarItems(array $toolbar): array {
