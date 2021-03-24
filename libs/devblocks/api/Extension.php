@@ -666,6 +666,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	
 	/**
 	 * @internal
+	 * @deprecated 
 	 */
 	static function getPlaceholderTree($labels, $label_separator=' ', $key_separator=' ', $condense=true) {
 		natcasesort($labels);
@@ -948,7 +949,8 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 	
 	/**
 	 * @internal
-	 * 
+	 * @deprecated
+	 *
 	 * @return array
 	 */
 	function getCardProperties() {

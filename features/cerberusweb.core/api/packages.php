@@ -120,7 +120,7 @@ class Cerb_Packages {
 				if(!$key)
 					throw new Exception_DevblocksValidationError(sprintf("Prompt key is missing."));
 				
-				@$value = $prompts[$key];
+				$value = $prompts[$key] ?? null;
 				
 				switch($config_prompt['type']) {
 					case 'chooser':
@@ -423,7 +423,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$behaviors = $json['behaviors'];
+		$behaviors = $json['behaviors'] ?? [];
 		
 		if(is_array($behaviors))
 		foreach($behaviors as $behavior) {
@@ -433,7 +433,7 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: behavior is missing properties (%s)", implode(', ', array_keys($diff))));
 		}
 		
-		@$behavior_nodes = $json['behavior_nodes'];
+		$behavior_nodes = $json['behavior_nodes'] ?? [];
 		
 		if(is_array($behavior_nodes))
 		foreach($behavior_nodes as $behavior_node) {
@@ -443,7 +443,7 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: behavior node is missing properties (%s)", implode(', ', array_keys($diff))));
 		}
 		
-		@$workspaces = $json['workspaces'];
+		$workspaces = $json['workspaces'] ?? [];
 		
 		if(is_array($workspaces))
 		foreach($workspaces as $workspace) {
@@ -464,7 +464,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$portals = $json['portals'];
+		$portals = $json['portals'] ?? [];
 		
 		if(is_array($portals))
 		foreach($portals as $portal) {
@@ -474,7 +474,7 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: portal is missing properties (%s)", implode(', ', array_keys($diff))));
 		}
 	
-		@$saved_searches = $json['saved_searches'];
+		$saved_searches = $json['saved_searches'] ?? [];
 		
 		if(is_array($saved_searches))
 		foreach($saved_searches as $saved_search) {
@@ -484,7 +484,7 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: saved search is missing properties (%s)", implode(', ', array_keys($diff))));
 		}
 		
-		@$calendars = $json['calendars'];
+		$calendars = $json['calendars'] ?? [];
 		
 		if(is_array($calendars))
 		foreach($calendars as $calendar) {
@@ -505,7 +505,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$classifiers = $json['classifiers'];
+		$classifiers = $json['classifiers'] ?? [];
 		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		if(is_array($classifiers))
@@ -537,7 +537,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$project_boards = $json['project_boards'];
+		$project_boards = $json['project_boards'] ?? [];
 		
 		if(is_array($project_boards))
 		foreach($project_boards as $project_board) {
@@ -650,7 +650,6 @@ class Cerb_Packages {
 				throw new Exception_DevblocksValidationError(sprintf("Unknown context on record (%s)", $record['_context']));
 
 			$dict = [];
-			$fields = [];
 			
 			// If we're creating a custom record, also include its uri so we can use the context later in the package
 			if(in_array($record['_context'], ['custom_record', CerberusContexts::CONTEXT_CUSTOM_RECORD])) {
@@ -668,7 +667,7 @@ class Cerb_Packages {
 		//@$settings = $json['settings'];
 		//@$worker_prefs = $json['worker_preferences'];
 		
-		@$custom_fieldsets = $json['custom_fieldsets'];
+		$custom_fieldsets = $json['custom_fieldsets'] ?? [];
 		
 		if(is_array($custom_fieldsets))
 		foreach($custom_fieldsets as $custom_fieldset) {
@@ -681,7 +680,7 @@ class Cerb_Packages {
 				DAO_CustomFieldset::OWNER_CONTEXT_ID => 0,
 			]);
 			
-			$uids[$custom_fieldset['uid']] = $custom_fieldset_id;
+			$uids[$uid] = $custom_fieldset_id;
 			
 			$fields = $custom_fieldset['fields'];
 			
@@ -700,7 +699,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$bots = $json['bots'];
+		$bots = $json['bots'] ?? [];
 		
 		if(is_array($bots))
 		foreach($bots as $bot) {
@@ -729,7 +728,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$behaviors = $json['behaviors'];
+		$behaviors = $json['behaviors'] ?? [];
 		
 		if(is_array($behaviors))
 		foreach($behaviors as $behavior) {
@@ -748,7 +747,7 @@ class Cerb_Packages {
 			$uids[$uid] = $behavior_id;
 		}
 		
-		@$workspaces = $json['workspaces'];
+		$workspaces = $json['workspaces'] ?? [];
 		
 		if(is_array($workspaces))
 		foreach($workspaces as $workspace) {
@@ -785,7 +784,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$portals = $json['portals'];
+		$portals = $json['portals'] ?? [];
 		
 		if(is_array($portals))
 		foreach($portals as $portal) {
@@ -802,7 +801,7 @@ class Cerb_Packages {
 			$uids[$uid] = $portal_id;
 		}
 		
-		@$saved_searches = $json['saved_searches'];
+		$saved_searches = $json['saved_searches'] ?? [];
 		
 		if(is_array($saved_searches))
 		foreach($saved_searches as $saved_search) {
@@ -818,7 +817,7 @@ class Cerb_Packages {
 			$uids[$uid] = $search_id;
 		}
 		
-		@$calendars = $json['calendars'];
+		$calendars = $json['calendars'] ?? [];
 		
 		if(is_array($calendars))
 		foreach($calendars as $calendar) {
@@ -848,7 +847,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$classifiers = $json['classifiers'];
+		$classifiers = $json['classifiers'] ?? [];
 		
 		if(is_array($classifiers))
 		foreach($classifiers as $classifier) {
@@ -880,7 +879,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$project_boards = $json['project_boards'];
+		$project_boards = $json['project_boards'] ?? [];
 		
 		if(is_array($project_boards))
 		foreach($project_boards as $project_board) {
@@ -888,7 +887,6 @@ class Cerb_Packages {
 			
 			$project_board_id = DAO_ProjectBoard::create([
 				DAO_ProjectBoard::NAME => $project_board['name'],
-				DAO_ProjectBoard::PARAMS_JSON => '{}',
 				DAO_ProjectBoard::COLUMNS_JSON => '[]',
 				DAO_ProjectBoard::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 				DAO_ProjectBoard::OWNER_CONTEXT_ID => 0,
@@ -921,7 +919,6 @@ class Cerb_Packages {
 						throw new Exception_DevblocksValidationError(sprintf("Unknown context on project card (%s)", $card['_context']));
 
 					$dict = [];
-					$fields = [];
 					
 					if(false == ($dao_class = $context_ext->getDaoClass()))
 						throw new Exception_DevblocksValidationError(sprintf("Error on project card (%s): %s", $uid_card, "Can't load DAO class."));
@@ -991,7 +988,7 @@ class Cerb_Packages {
 	 */
 	private static function _packageImport(&$json, &$uids, &$records_created, &$records_modified) {
 		// Records
-		@$records = $json['records'];
+		$records = $json['records'] ?? [];
 		
 		if(is_array($records))
 		foreach($records as $record) {
@@ -1060,7 +1057,7 @@ class Cerb_Packages {
 			$records_created[$context_ext_id] = $records;
 		}
 		
-		@$plugin_settings = $json['settings'];
+		$plugin_settings = $json['settings'] ?? [];
 		$plugins = DevblocksPlatform::getPluginRegistry();
 		
 		if(is_array($plugin_settings))
@@ -1079,7 +1076,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$worker_prefs = $json['worker_preferences'];
+		$worker_prefs = $json['worker_preferences'] ?? [];
 		$workers = DAO_Worker::getAll();
 		
 		if(is_array($worker_prefs))
@@ -1097,7 +1094,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$custom_fieldsets = $json['custom_fieldsets'];
+		$custom_fieldsets = $json['custom_fieldsets'] ?? [];
 		
 		if(is_array($custom_fieldsets))
 		foreach($custom_fieldsets as $custom_fieldset) {
@@ -1131,7 +1128,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$bots = $json['bots'];
+		$bots = $json['bots'] ?? [];
 		
 		if(is_array($bots))
 		foreach($bots as $bot) {
@@ -1218,7 +1215,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$behaviors = $json['behaviors'];
+		$behaviors = $json['behaviors'] ?? [];
 		
 		if(is_array($behaviors))
 		foreach($behaviors as $behavior) {
@@ -1263,7 +1260,7 @@ class Cerb_Packages {
 			];
 		}
 		
-		@$behavior_nodes = $json['behavior_nodes'];
+		$behavior_nodes = $json['behavior_nodes'] ?? [];
 		
 		if(is_array($behavior_nodes))
 		foreach($behavior_nodes as $behavior_node) {
@@ -1303,7 +1300,7 @@ class Cerb_Packages {
 			];
 		}
 		
-		@$workspaces = $json['workspaces'];
+		$workspaces = $json['workspaces'] ?? [];
 		
 		if(is_array($workspaces))
 		foreach($workspaces as $workspace) {
@@ -1347,7 +1344,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$portals = $json['portals'];
+		$portals = $json['portals'] ?? [];
 		
 		if(is_array($portals))
 		foreach($portals as $portal) {
@@ -1378,7 +1375,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$saved_searches = $json['saved_searches'];
+		$saved_searches = $json['saved_searches'] ?? [];
 		
 		if(is_array($saved_searches))
 		foreach($saved_searches as $saved_search) {
@@ -1406,7 +1403,7 @@ class Cerb_Packages {
 			];
 		}
 		
-		@$calendars = $json['calendars'];
+		$calendars = $json['calendars'] ?? [];
 		
 		if(is_array($calendars))
 		foreach($calendars as $calendar) {
@@ -1454,7 +1451,7 @@ class Cerb_Packages {
 			}
 		}
 		
-		@$classifiers = $json['classifiers'];
+		$classifiers = $json['classifiers'] ?? [];
 		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		if(is_array($classifiers))
@@ -1516,7 +1513,7 @@ class Cerb_Packages {
 			$bayes::build($classifier_id);
 		}
 		
-		@$project_boards = $json['project_boards'];
+		$project_boards = $json['project_boards'] ?? [];
 		
 		if(is_array($project_boards))
 		foreach($project_boards as $project_board) {
@@ -1567,7 +1564,6 @@ class Cerb_Packages {
 					DAO_ProjectBoardColumn::NAME => $column['name'],
 					DAO_ProjectBoardColumn::BOARD_ID => $project_board_id,
 					DAO_ProjectBoardColumn::CARDS_JSON => json_encode($card_ids),
-					DAO_ProjectBoardColumn::PARAMS_JSON => isset($column['params']) ? json_encode($column['params']) : '',
 					DAO_ProjectBoardColumn::UPDATED_AT => time(),
 				]);
 			}
@@ -1575,7 +1571,6 @@ class Cerb_Packages {
 			DAO_ProjectBoard::update($project_board_id, [
 				DAO_ProjectBoard::NAME => $project_board['name'],
 				DAO_ProjectBoard::COLUMNS_JSON => json_encode($column_ids),
-				DAO_ProjectBoard::PARAMS_JSON => isset($project_board['params']) ? json_encode($project_board['params']) : '',
 				DAO_ProjectBoard::UPDATED_AT => time(),
 				DAO_ProjectBoard::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 				DAO_ProjectBoard::OWNER_CONTEXT_ID => 0,
