@@ -216,12 +216,23 @@ class _DevblocksAutomationService {
 						return false;
 					}
 					
-					$dict->setKeyPath('inputs.' . $input_key,
-						DevblocksDictionaryDelegate::instance([
-							'id' => $input_values[$input_key],
-							'_context' => $input_data['record_type'],
-						])
-					);
+					$record_dict = DevblocksDictionaryDelegate::instance([
+						'id' => $input_values[$input_key],
+						'_context' => $input_data['record_type'],
+					]);
+					
+					if(array_key_exists('expand', $input_data)) {
+						if(is_string($input_data['expand'])) {
+							$input_data['expand'] = DevblocksPlatform::parseCsvString($input_data['expand']);
+						}
+						
+						if(is_array($input_data['expand'])) {
+							foreach ($input_data['expand'] as $key)
+								$record_dict->get($key);
+						}
+					}
+					
+					$dict->setKeyPath('inputs.' . $input_key, $record_dict);
 					
 				} else if ('records' == $input_type) {
 					$inputs_validation = DevblocksPlatform::services()->validation();
@@ -244,13 +255,25 @@ class _DevblocksAutomationService {
 						return false;
 					}
 					
-					if(is_array($input_value))
-						foreach($input_value as $v) {
+					if(is_array($input_value)) {
+						foreach ($input_value as $v) {
 							$records[] = DevblocksDictionaryDelegate::instance([
 								'id' => $v,
 								'_context' => $input_data['record_type'],
 							]);
 						}
+						
+						if(array_key_exists('expand', $input_data)) {
+							if(is_string($input_data['expand'])) {
+								$input_data['expand'] = DevblocksPlatform::parseCsvString($input_data['expand']);
+							}
+							
+							if(is_array($input_data['expand'])) {
+								foreach($input_data['expand'] as $key)
+									DevblocksDictionaryDelegate::bulkLazyLoad($records, $key);
+							}
+						}
+					}
 					
 					$dict->setKeyPath('inputs.' . $input_key, $records);
 					
