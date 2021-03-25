@@ -94,6 +94,9 @@ class DAO_Automation extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
+		if(!array_key_exists(DAO_Automation::NAME, $fields))
+			$fields[DAO_Automation::NAME] = uniqid('automation_');
+		
 		if(!array_key_exists(DAO_Automation::CREATED_AT, $fields))
 			$fields[DAO_Automation::CREATED_AT] = time();
 		

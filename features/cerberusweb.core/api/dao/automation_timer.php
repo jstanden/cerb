@@ -63,6 +63,9 @@ class DAO_AutomationTimer extends Cerb_ORMHelper {
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
+		if(!array_key_exists(DAO_AutomationTimer::NAME, $fields))
+			$fields[DAO_AutomationTimer::NAME] = uniqid('timer_');
+		
 		if(!array_key_exists(self::CREATED_AT, $fields))
 			$fields[DAO_AutomationTimer::CREATED_AT] = time();
 		
