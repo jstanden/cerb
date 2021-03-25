@@ -2261,6 +2261,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	// Virtuals
 	const VIRTUAL_BUCKET_SEARCH = '*_bucket_search';
 	const VIRTUAL_COMMENTS_SEARCH = '*_comments_search';
+	const VIRTUAL_COMMENTS_FIRST_SEARCH = '*_comments_first_search';
+	const VIRTUAL_COMMENTS_LAST_SEARCH = '*_comments_last_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_GROUP_SEARCH = '*_group_search';
 	const VIRTUAL_GROUPS_OF_WORKER = '*_groups_of_worker';
@@ -2385,7 +2387,13 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 				
 			case self::VIRTUAL_COMMENTS_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET), '%s'), 't.id');
-				
+			
+			case self::VIRTUAL_COMMENTS_FIRST_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id = (SELECT MIN(id) FROM comment WHERE context = %s AND context_id = %s) AND id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET), Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET), 't.id', '%s'), 't.id');
+			
+			case self::VIRTUAL_COMMENTS_LAST_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_COMMENT, sprintf('SELECT context_id FROM comment WHERE context = %s AND id = (SELECT MAX(id) FROM comment WHERE context = %s AND context_id = %s) AND id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET), Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_TICKET), 't.id', '%s'), 't.id');
+			
 			case self::VIRTUAL_GROUP_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_GROUP, 't.group_id');
 				
@@ -2702,6 +2710,8 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 
 			SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH, '*', 'bucket_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH, '*', 'comments_search', null, null, false),
+			SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH, '*', 'comments_first_search', null, null, false),
+			SearchFields_Ticket::VIRTUAL_COMMENTS_LAST_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_COMMENTS_LAST_SEARCH, '*', 'comments_last_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			SearchFields_Ticket::VIRTUAL_GROUP_SEARCH => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUP_SEARCH, '*', 'group_search', null, null, false),
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER => new DevblocksSearchField(SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER, '*', 'groups_of_worker', $translate->_('ticket.groups_of_worker'), null, false),
@@ -2989,6 +2999,8 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
 			SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH,
+			SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH,
+			SearchFields_Ticket::VIRTUAL_COMMENTS_LAST_SEARCH,
 			SearchFields_Ticket::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Ticket::VIRTUAL_GROUPS_OF_WORKER,
 			SearchFields_Ticket::VIRTUAL_HAS_FIELDSET,
@@ -3439,6 +3451,22 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_COMMENT],
 					)
 				),
+			'comments.first' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [],
+					'examples' => array(
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_COMMENT],
+					)
+				),
+			'comments.last' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [],
+					'examples' => array(
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_COMMENT],
+					)
+				),
 			'closed' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -3740,6 +3768,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH);
 				break;
 				
+			case 'comments.first':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH);
+				
+			case 'comments.last':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_COMMENTS_LAST_SEARCH);
+				
 			case 'group':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_GROUP_SEARCH);
 				break;
@@ -4026,6 +4060,20 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 			case SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH:
 				echo sprintf("%s matches <b>%s</b>",
 					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.comments')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH:
+				echo sprintf("First %s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateLower('common.comment')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
+			case SearchFields_Ticket::VIRTUAL_COMMENTS_LAST_SEARCH:
+				echo sprintf("Last %s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateLower('common.comment')),
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
