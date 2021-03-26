@@ -43,38 +43,20 @@ class RepeatNode extends AbstractNode {
 				if(!is_array($each))
 					$each = [];
 				
-				if(empty($each))
+				if(0 === count($each))
 					return $this->node->getParent()->getId();
 				
 				$node_memory['each_keys'] = array_keys($each);
 				$node_memory['each'] = $each;
-				$node_memory['stack'] = array_map(function($child) { return $child->getId(); }, $this->node->getChildren());
-				
-				if(is_array($node_memory['each'])) {
-					if(!empty($node_memory['each'])) {
-						if($as_key)
-							$dict->set($as_key, current($node_memory['each_keys']));
-						
-						$dict->set($as_value, current($node_memory['each']));
-						
-						array_shift($node_memory['each_keys']);
-						array_shift($node_memory['each']);
-					}
-					
-				} else {
-					if($as_key)
-						$dict->unset($as_key);
-					
-					$dict->unset($as_value);
-				}
+				$node_memory['stack'] = [];
 			}
 			
-			if(!empty($node_memory['stack'])) {
+			if(0 !== count($node_memory['stack'])) {
 				return array_shift($node_memory['stack']);
 				
 			} else {
-				if(!empty($node_memory['each'])) {
-					if($as_key)
+				if(0 !== count($node_memory['each'])) {
+					if(!is_null($as_key))
 						$dict->set($as_key, current($node_memory['each_keys']));
 					
 					$dict->set($as_value, current($node_memory['each']));
