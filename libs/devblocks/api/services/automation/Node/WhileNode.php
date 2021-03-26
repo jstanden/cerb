@@ -28,7 +28,7 @@ class WhileNode extends AbstractNode {
 		
 		if(!$if) {
 			unset($node_memory['stack']);
-			$dict->scrubKeyPathPrefix('__state.memory', $this->node->getId() . ':');
+			$dict->scrubKeyPathPrefix('__state|memory', $this->node->getId() . ':', '|');
 			return $this->node->getParent()->getId();
 			
 		} else {
@@ -40,7 +40,7 @@ class WhileNode extends AbstractNode {
 				$node_memory['stack'] = array_map(function($child) { return $child->getId(); }, $this->node->getChildren());
 			}
 			
-			$dict->scrubKeyPathPrefix('__state.memory', $this->node->getId() . ':');
+			$dict->scrubKeyPathPrefix('__state|memory', $this->node->getId() . ':', '|');
 			
 			// Next child on the stack
 			if(!empty($node_memory['stack'])) {

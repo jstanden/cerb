@@ -67,7 +67,7 @@ class RepeatNode extends AbstractNode {
 					$node_memory['stack'] = array_map(function($child) { return $child->getId(); }, $this->node->getChildren());
 					
 					// Clear branch memory
-					$dict->scrubKeyPathPrefix('__state.memory', $this->node->getId() . ':');
+					$dict->scrubKeyPathPrefix('__state|memory', $this->node->getId() . ':', '|');
 					
 					// Next state is the first node of the stack
 					return array_shift($node_memory['stack']);

@@ -1085,9 +1085,9 @@ class CerbAutomationAstNode implements JsonSerializable {
 	}
 	
 	public function activate(Model_Automation $automation, DevblocksDictionaryDelegate $dict, &$error=null) {
-		$node_memory_key = '__state.memory.' . $this->getId();
+		$node_memory_key = '__state|memory|' . $this->getId();
 		
-		if(null === ($node_memory = $dict->getKeyPath($node_memory_key, [])))
+		if(null === ($node_memory = $dict->getKeyPath($node_memory_key, [], '|')))
 			$node_memory = [];
 		
 		$error = null;
@@ -1117,7 +1117,7 @@ class CerbAutomationAstNode implements JsonSerializable {
 			return $this->_triggerError($error, $dict);
 		}
 		
-		$dict->setKeyPath($node_memory_key, $node_memory);
+		$dict->setKeyPath($node_memory_key, $node_memory, '|');
 		
 		$dict->setKeyPath('__state.last', $this->getId());
 		$dict->setKeyPath('__state.next', $next_state);
