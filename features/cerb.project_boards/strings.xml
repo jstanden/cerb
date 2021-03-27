@@ -22,5 +22,17 @@
 			<tuv xml:lang="en_US"><seg>Project Board Columns</seg></tuv>
 		</tu>
 		
+		<!-- DAO -->
+		
+		<tu tuid='dao.project_board.cards_kata'>
+			<tuv xml:lang="en_US"><seg>Cards KATA</seg></tuv>
+		</tu>
+		<tu tuid='dao.project_board.functions_kata'>
+			<tuv xml:lang="en_US"><seg>Functions KATA</seg></tuv>
+		</tu>
+		<tu tuid='dao.project_board.toolbar_kata'>
+			<tuv xml:lang="en_US"><seg>Toolbar KATA</seg></tuv>
+		</tu>
+		
 	</body>
 </tmx>
