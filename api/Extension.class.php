@@ -830,8 +830,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 			'icon' => 'circle-question-mark',
 			'uri' => 'ai.cerb.automationBuilder.help',
 			'inputs' => [
-				'trigger_id' => $this->manifest->id,
-				'trigger_name' => $this->manifest->name,
+				'topic' => 'editor',
 			]
 		];
 		

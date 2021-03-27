@@ -102,7 +102,7 @@
 					<button type="button" title="Simulate" class="cerb-code-editor-toolbar-button cerb-editor-toolbar-button--mode" data-mode="simulator">Simulate</button>
 					<div class="cerb-code-editor-toolbar-divider"></div>
 					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-play"></span></button>
-					<button type="button" class="cerb-code-editor-toolbar-button" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=input" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 				</div>
 
 				<textarea name="start_state_yaml" data-editor-mode="ace/mode/yaml" rows="5" cols="45"></textarea>
@@ -115,7 +115,7 @@
 
 				<div class="cerb-code-editor-toolbar">
 					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--step" title="Copy to input" style="display:none;"><span class="glyphicons glyphicons-left-arrow"></span></button>
-					<button type="button" class="cerb-code-editor-toolbar-button" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+					<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=output" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 				</div>
 
 				<textarea name="end_state_yaml" data-editor-mode="ace/mode/yaml" rows="5" cols="45"></textarea>
@@ -125,7 +125,7 @@
 
 	<div id="{$tabs_uid}Policy">
 		<div class="cerb-code-editor-toolbar">
-			<button type="button" class="cerb-code-editor-toolbar-button" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+			<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--interaction" data-interaction-uri="ai.cerb.automationBuilder.help" data-interaction-params="topic=policy" title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 		</div>
 
 		<textarea name="automation_policy_kata" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->policy_kata}</textarea>
@@ -237,6 +237,12 @@ $(function() {
 				return confirm('{'warning.core.editor.close'|devblocks_translate}');
 		});
 
+		// Help
+		
+		$popup.find('.cerb-code-editor-toolbar-button--interaction')
+			.cerbBotTrigger()
+		;
+		
 		// Trigger chooser
 
 		var $trigger_chooser = $popup.find('[data-cerb-trigger-chooser]');
