@@ -166,12 +166,15 @@ class _DevblocksSheetService {
 		$rows = [];
 		
 		$layout = $this->getLayout($sheet);
+		$index = 0;
 		
 		foreach($sheet_dicts as $sheet_dict_id => $sheet_dict) {
 			$row = [];
 			
 			if(!($sheet_dict instanceof DevblocksDictionaryDelegate))
 				$sheet_dict = DevblocksDictionaryDelegate::instance($sheet_dict);
+			
+			$sheet_dict->setKeyPath('__row.index', $index++);
 			
 			foreach($columns as $column) {
 				if(false == (@$column_key = $column['key']))
