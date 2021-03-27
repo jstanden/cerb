@@ -143,6 +143,128 @@ class AutomationTrigger_InteractionWebWorker extends Extension_AutomationTrigger
 					'message@text:',
 				],
 				
+				'(.*):await:form:elements:sheet:' => [
+					'data:',
+					'default:',
+					'label:',
+					'limit:',
+					'required@bool:',
+					'schema:',
+				],
+				'(.*):await:form:elements:sheet:schema:' => [
+					'columns:',
+					'layout:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:' => [
+					'card/key:',
+					'selection/key:',
+					'text/key:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:card:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:card:params:' => [
+					'bold@bool: yes',
+					'context_key:',
+					'icon:',
+					'id_key:',
+					'image@bool: yes',
+					'label_key:',
+					'underline@bool: yes',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:card:params:icon:' => [
+					'image:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:date:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:date:params:' => [
+					'format: d-M-Y H:i:s T',
+					'value: 1577836800',
+					'value_key: updated',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:icon:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:icon:params:' => [
+					'image: circle-ok',
+					'image_key: icon_key',
+					'image_template@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:link:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:link:params:' => [
+					'href: https://example.com/',
+					'href_key: record_url',
+					'href_template@raw:',
+					'text: Link title',
+					'text_key: _label',
+					'text_template@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:search:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:search:params:' => [
+					'context: ticket',
+					'query_key: query',
+					'query_template@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:search_button:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:search_button:params:' => [
+					'context: ticket',
+					'query_key: query',
+					'query_template@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:selection:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:selection:params:' => [
+					'mode: single',
+					'mode: multiple',
+					'value: 123',
+					'value_key: key',
+					'value_template@raw: {{key}}',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:slider:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:slider:params:' => [
+					'min: 0',
+					'max: 100',
+					'value: 50',
+					'value_key: importance',
+					'value_template@raw: {{importance}}',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:text:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:text:params:' => [
+					'bold@bool: yes',
+					'value: Text',
+					'value_key: key',
+					'value_template@raw: {{key}}',
+					'value_map:',
+					'icon:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:text:params:icon:' => [
+					'image:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:params:' => [
+					'precision: 2',
+				],
+				'(.*):await:form:elements:sheet:schema:layout:' => [
+					'filtering@bool:',
+					'headings@bool:',
+					'paging@bool:',
+					'title_column:',
+				],
+				
 				'(.*):await:form:elements:text:' => [
 					'default:',
 					'label:',
