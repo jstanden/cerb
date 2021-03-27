@@ -374,8 +374,14 @@ $(function() {
 		var editor_automation = ace.edit($automation_yaml.nextAll('pre.ace_editor').attr('id'));
 		var editor_state_start = ace.edit($state_yaml.nextAll('pre.ace_editor').attr('id'));
 		var editor_state_end = ace.edit($end_state_yaml.nextAll('pre.ace_editor').attr('id'));
-		var editor_policy = ace.edit($editor_policy.nextAll('pre.ace_editor').attr('id'));
+		//var editor_policy = ace.edit($editor_policy.nextAll('pre.ace_editor').attr('id'));
 
+		$editor_policy
+			.cerbCodeEditorAutocompleteKata({
+				autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationPolicy
+			})
+		;
+		
 		{if $cursor}
 		editor_automation.gotoLine({$cursor.row}, {$cursor.column});
 		{/if}

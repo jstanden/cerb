@@ -1,4 +1,91 @@
 var cerbAutocompleteSuggestions = {
+	kataAutomationPolicy: {
+		'': [
+			'commands:'
+		],
+		'commands:': [
+			'data.query:',
+			'decrypt.pgp:',
+			'email.parse:',
+			'email.send:',
+			'encrypt.pgp:',
+			'function:',
+			'http.request:',
+			'record.create:',
+			'record.delete:',
+			'record.get:',
+			'record.search:',
+			'record.update:',
+			'record.upsert:',
+			'storage.delete:',
+			'storage.get:',
+			'storage.set:'
+		],
+		'commands:data.query:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:decrypt.pgp:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:email.parse:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:email.send:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:encrypt.pgp:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:function:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:http.request:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:record.create:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:record.delete:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:record.get:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:record.search:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:record.update:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:record.upsert:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:storage.delete:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:storage.get:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+		'commands:storage.set:': [
+			'allow@bool: yes',
+			'deny@bool: yes'
+		],
+	},
 	kataSchemaMap: {
 		'': [
 			'map:'
