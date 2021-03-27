@@ -233,6 +233,7 @@ class _DevblocksTemplateBuilder {
 				'array_combine',
 				'array_diff',
 				'array_extract_keys',
+				'array_fill_keys',
 				'array_intersect',
 				'array_matches',
 				'array_sort_keys',
@@ -1123,6 +1124,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('array_combine', [$this, 'function_array_combine']),
 			new \Twig\TwigFunction('array_diff', [$this, 'function_array_diff']),
 			new \Twig\TwigFunction('array_extract_keys', [$this, 'function_array_extract_keys']),
+			new \Twig\TwigFunction('array_fill_keys', [$this, 'function_array_fill_keys']),
 			new \Twig\TwigFunction('array_intersect', [$this, 'function_array_intersect']),
 			new \Twig\TwigFunction('array_matches', [$this, 'function_array_matches']),
 			new \Twig\TwigFunction('array_sort_keys', [$this, 'function_array_sort_keys']),
@@ -1241,6 +1243,13 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		}, $array);
 		
 		return $array;
+	}
+	
+	function function_array_fill_keys($keys, $value=null) {
+		if(!is_array($keys))
+			$keys = [];
+		
+		return array_fill_keys($keys, $value);
 	}
 	
 	function function_array_intersect($arr1, $arr2) {
