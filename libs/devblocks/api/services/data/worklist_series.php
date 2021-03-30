@@ -10,6 +10,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				],
 				'x.label:',
 				'format:',
+				'timeout:',
 			],
 			'series.*:' => [
 				'' => [
@@ -67,6 +68,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			'series' => [],
 			'x.label' => 'Metric',
 			'format' => 'timeseries',
+			'timeout' => 20000,
 		];
 		
 		foreach($chart_fields as $field) {
@@ -77,6 +79,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			
 			if($field->key == 'type') {
 				// Do nothing
+				true;
 				
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -85,6 +88,10 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 			} else if($field->key == 'x.label') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['x.label'] = $value;
+				
+			} else if($field->key == 'timeout') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['timeout'] = DevblocksPlatform::intClamp($value, 0, 60000);
 				
 			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
@@ -252,7 +259,13 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 				$view->renderLimit
 			);
 			
-			$results = $db->GetArrayReader($sql);
+			try {
+				$results = $db->GetArrayReader($sql, $chart_model['timeout']);
+				
+			} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+				$error = sprintf('Query timed out (%d ms)', $chart_model['timeout']);
+				return false;
+			}
 			
 			$results = array_column($results, 'metric', 'value');
 			ksort($results);

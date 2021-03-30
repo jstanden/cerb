@@ -43,6 +43,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 					'snippet' => 'expand:[${1}]',
 				],
 				'page:',
+				'timeout:',
 			],
 			'of:' => array_values(Extension_DevblocksContext::getUris()),
 			'query:' => [],
@@ -85,6 +86,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			'expand' => [],
 			'query' => '',
 			'format' => 'dictionaries',
+			'timeout' => 20000,
 		];
 		
 		$context = null;
@@ -126,6 +128,10 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = $value;
 				
+			} else if($field->key == 'timeout') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['timeout'] = DevblocksPlatform::intClamp($value, 0, 60000);
+
 			} else {
 				$error = sprintf("The parameter '%s' is unknown.", $field->key);
 				return false;
@@ -185,8 +191,14 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			$view->renderLimit
 		);
 		
-		if(false == ($results = $db->GetArrayReader($sql)))
-			$results = [];
+		try {
+			if(false == ($results = $db->GetArrayReader($sql, $chart_model['timeout'])))
+				$results = [];
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$error = sprintf('Query timed out (%d ms)', $chart_model['timeout']);
+			return false;
+		}
 		
 		// Paging
 		
@@ -195,7 +207,14 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			$query_parts['where'],
 			$view->renderLimit
 		);
-		$total = $db->GetOneReader($sql_count);
+		
+		try {
+			$total = $db->GetOneReader($sql_count, $chart_model['timeout']);
+			
+		} catch(Exception_DevblocksDatabaseQueryTimeout $e) {
+			$error = sprintf('Query timed out (%d ms)', $chart_model['timeout']);
+			return false;
+		}
 		
 		$paging = $view->getPaging($results, $total);
 		$chart_model['paging'] = $paging;

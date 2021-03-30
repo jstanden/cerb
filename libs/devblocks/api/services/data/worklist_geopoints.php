@@ -8,6 +8,7 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 					'snippet' => "series.\${1:alias}:(\n  of:\${2:org}\n  point:\${3:coordinates}\n  fields:[\${4:name,coordinates}]\n  query:(\n    \${5:coordinates:!null}\n  )\n)",
 					'suppress_autocomplete' => true,
 				],
+				'timeout:',
 				'format:',
 			],
 			'series.*:' => [
@@ -59,6 +60,7 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 		$chart_model = [
 			'type' => 'worklist.geo.points',
 			'series' => [],
+			'timeout' => 20000,
 			'format' => 'geojson',
 		];
 		
@@ -75,6 +77,10 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = $value;
 				
+			} else if($field->key == 'timeout') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['timeout'] = DevblocksPlatform::intClamp($value, 0, 60000);
+
 			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$series_query = substr($series_query, 1, -1);
@@ -200,9 +206,14 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 				$view->renderLimit
 			);
 			
-			if(false == ($results = $db->GetArrayReader($sql)))
-				$results = [];
-			
+			try {
+				if(false == ($results = $db->GetArrayReader($sql, $chart_model['timeout'])))
+					$results = [];
+				
+			} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+				$error = sprintf('Query timed out (%d ms)', $chart_model['timeout']);
+				return false;
+			}
 			
 			$key_map = [];
 			$data = [];

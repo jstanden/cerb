@@ -55,6 +55,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					'caption' => 'query.required:',
 					'snippet' => 'query.required:(${1})',
 				],
+				'timeout:',
 				'format:',
 				'metric:',
 				[
@@ -121,6 +122,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 		$chart_model = [
 			'type' => 'worklist.subtotals',
 			'function' => 'count',
+			'timeout' => 20000,
 		];
 		
 		$subtotals_context = null;
@@ -194,6 +196,10 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			} else if($field->key == 'timezone') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['timezone'] = DevblocksPlatform::strLower($value);
+				
+			} else if($field->key == 'timeout') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['timeout'] = DevblocksPlatform::intClamp($value, 0, 60000);
 				
 			} else {
 				$error = sprintf("The parameter '%s' is unknown.", $field->key);
@@ -321,7 +327,12 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$limit
 			);
 			
-			$results = $db->GetArrayReader($sql);
+			try {
+				$results = $db->GetArrayReader($sql, $chart_model['timeout']);
+			} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+				$error = sprintf('Query timed out (%d ms)', $chart_model['timeout']);
+				return false;
+			}
 			
 			$values = array_column($results, $by['key_select']);
 			
@@ -398,8 +409,14 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			$sql = $outer_sql;
 		}
 		
-		if(false == ($rows = $db->GetArrayReader($sql)))
-			$rows = [];
+		try {
+			if(false == ($rows = $db->GetArrayReader($sql, $chart_model['timeout'])))
+				$rows = [];
+			
+		} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+			$error = sprintf('Query timed out (%d ms)', $chart_model['timeout']);
+			return false;
+		}
 			
 		$labels = [];
 		$queries = [];

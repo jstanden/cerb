@@ -9,6 +9,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 					'suppress_autocomplete' => true,
 				],
 				'format:',
+				'timeout:',
 			],
 			'series.*:' => [
 				'' => [
@@ -61,6 +62,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			'y' => '',
 			'series' => [],
 			'format' => 'scatterplot',
+			'timeout' => 20000,
 		];
 		
 		foreach($chart_fields as $field) {
@@ -84,6 +86,10 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$chart_model['format'] = $value;
 				
+			} else if($field->key == 'timeout') {
+				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
+				$chart_model['timeout'] = DevblocksPlatform::intClamp($value, 0, 60000);
+
 			} else if(DevblocksPlatform::strStartsWith($field->key, 'series.')) {
 				$series_query = CerbQuickSearchLexer::getTokensAsQuery($field->tokens);
 				$series_query = substr($series_query, 1, -1);
@@ -220,8 +226,14 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 				$view->renderLimit
 			);
 			
-			if(false == ($results = $db->GetArrayReader($sql)))
-				$results = [];
+			try {
+				if(false == ($results = $db->GetArrayReader($sql, $chart_model['timeout'])))
+					$results = [];
+				
+			} catch (Exception_DevblocksDatabaseQueryTimeout $e) {
+				$error = sprintf('Query timed out (%d ms)', $chart_model['timeout']);
+				return false;
+			}
 			
 			$x_labels = $search_class::getLabelsForKeyValues($series['x']['key_select'], array_column($results, 'x'));
 			$y_labels = $search_class::getLabelsForKeyValues($series['y']['key_select'], array_column($results, 'y'));

@@ -490,13 +490,23 @@ class _DevblocksDatabaseManager {
 	
 	/**
 	 * @param $sql
+	 * @param int $timeout
 	 * @return array|bool
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
-	function GetArrayReader($sql) {
+	function GetArrayReader($sql, $timeout=0) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			DevblocksPlatform::services()->log('READER');
 		
-		$rs = $this->QueryReader($sql);
+		if($timeout) {
+			$rs = $this->QueryReaderAsync($sql, $timeout);
+			
+			if($rs instanceof Exception_DevblocksDatabaseQueryTimeout)
+				throw $rs;
+				
+		} else {
+			$rs = $this->QueryReader($sql);
+		}
 		
 		return $this->_GetArray($rs);
 	}
@@ -526,13 +536,24 @@ class _DevblocksDatabaseManager {
 	
 	/**
 	 * @param $sql
+	 * @param int $timeout
 	 * @return array|false
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
-	public function GetRowReader($sql) {
+	public function GetRowReader($sql, $timeout=0) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			DevblocksPlatform::services()->log('READER');
 		
-		$rs = $this->QueryReader($sql);
+		if($timeout) {
+			$rs = $this->QueryReaderAsync($sql, $timeout);
+			
+			if($rs instanceof Exception_DevblocksDatabaseQueryTimeout)
+				throw $rs;
+			
+		} else {
+			$rs = $this->QueryReader($sql);
+		}
+		
 		return $this->_GetRow($rs);
 	}
 	
@@ -553,11 +574,26 @@ class _DevblocksDatabaseManager {
 		return $this->GetOneFromResultset($rs);
 	}
 	
-	function GetOneReader($sql) {
+	/**
+	 * @param $sql
+	 * @param int $timeout
+	 * @return false|mixed
+	 * @throws Exception_DevblocksDatabaseQueryTimeout
+	 */
+	function GetOneReader($sql, $timeout=0) {
 		if(DEVELOPMENT_MODE_QUERIES)
 			DevblocksPlatform::services()->log('READER');
 		
-		$rs = $this->QueryReader($sql);
+		if($timeout) {
+			$rs = $this->QueryReaderAsync($sql, $timeout);
+			
+			if($rs instanceof Exception_DevblocksDatabaseQueryTimeout)
+				throw $rs;
+			
+		} else {
+			$rs = $this->QueryReader($sql);
+		}
+		
 		return $this->GetOneFromResultset($rs);
 	}
 	
