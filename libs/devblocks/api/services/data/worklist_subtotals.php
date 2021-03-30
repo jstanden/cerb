@@ -338,11 +338,14 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			}
 		}
 		
-		$response = [];
-		
-		if(!empty($by_fields)) {
-			// [TODO] Rename `hits` to `metric`
-			// [TODO] In `function` also accept data type (int, float, etc)
+		if(!$by_fields) {
+			$sql = sprintf("SELECT %s AS hits %s %s",
+				$func,
+				$query_parts['join'],
+				$sql_where
+			);
+			
+		} else {
 			$sql = sprintf("SELECT %s AS hits, %s %s %s %s GROUP BY %s",
 				$func,
 				implode(', ', array_map(function($e) use ($db) {
@@ -362,45 +365,42 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					);
 				}, $by_fields))
 			);
-			
-			if(array_key_exists('group', $chart_model) && is_array($chart_model['group']) && !empty($chart_model['group'])) {
-				$group_func = @$chart_model['group_function'] ?: 'sum';
-				$group_func_select = sprintf('%s(_stats.hits)', $func_map[$group_func]);
-				
-				$outer_sql = sprintf("SELECT %s AS hits, %s FROM (%s) AS _stats GROUP BY %s",
-					$group_func_select,
-					implode(', ', array_map(function($e) use ($db) {
-						return sprintf("_stats.`%s`",
-							$db->escape($e['key_select'])
-						);
-					}, $chart_model['group'])),
-					$sql,
-					implode(', ', array_map(function($e) use ($db) {
-						return sprintf("_stats.`%s`",
-							$db->escape($e['key_select'])
-						);
-					}, $chart_model['group']))
-				);
-				
-				$by_fields = $chart_model['group'];
-				
-				if($func == 'COUNT(*)') {
-					$chart_model['by'] = $by_fields;
-					
-				} else {
-					$chart_model['by'] = array_merge($by_fields, array_slice($chart_model['by'],-1,1));
-				}
-				
-				$sql = $outer_sql;
-			}
-			
-			if(false == ($rows = $db->GetArrayReader($sql)))
-				$rows = [];
-			
-		} else {
-			$rows = [];
 		}
 		
+		if($by_fields && array_key_exists('group', $chart_model) && is_array($chart_model['group']) && !empty($chart_model['group'])) {
+			$group_func = @$chart_model['group_function'] ?: 'sum';
+			$group_func_select = sprintf('%s(_stats.hits)', $func_map[$group_func]);
+			
+			$outer_sql = sprintf("SELECT %s AS hits, %s FROM (%s) AS _stats GROUP BY %s",
+				$group_func_select,
+				implode(', ', array_map(function($e) use ($db) {
+					return sprintf("_stats.`%s`",
+						$db->escape($e['key_select'])
+					);
+				}, $chart_model['group'])),
+				$sql,
+				implode(', ', array_map(function($e) use ($db) {
+					return sprintf("_stats.`%s`",
+						$db->escape($e['key_select'])
+					);
+				}, $chart_model['group']))
+			);
+			
+			$by_fields = $chart_model['group'];
+			
+			if($func == 'COUNT(*)') {
+				$chart_model['by'] = $by_fields;
+				
+			} else {
+				$chart_model['by'] = array_merge($by_fields, array_slice($chart_model['by'],-1,1));
+			}
+			
+			$sql = $outer_sql;
+		}
+		
+		if(false == ($rows = $db->GetArrayReader($sql)))
+			$rows = [];
+			
 		$labels = [];
 		$queries = [];
 		
@@ -558,26 +558,37 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				$query = [];
 			}
 			
-			foreach(array_slice(array_keys($row),1) as $k) {
-				$label = (array_key_exists($k, $labels) && array_key_exists($row[$k], $labels[$k])) ? $labels[$k][$row[$k]] : $row[$k];
-				$query[] = array_key_exists($row[$k], $queries[$k]) ? $queries[$k][$row[$k]] : '';
-				
+			if(!$by_fields && 1 == count($row) && !in_array($chart_model['function'], ['','count'])) {
 				$data = [
-					'name' => $label,
-					'value' => $row[$k],
+					'name' => $chart_model['function'],
+					'value' => $row['hits'],
 					'hits' => $row['hits'],
-					'query' => implode(' ', $query),
 				];
 				
 				$ptr[] = $data;
-				end($ptr);
-				$ptr =& $ptr[key($ptr)];
+				
+			} else {
+				foreach(array_slice(array_keys($row),1) as $k) {
+					$label = (array_key_exists($k, $labels) && array_key_exists($row[$k], $labels[$k])) ? $labels[$k][$row[$k]] : $row[$k];
+					$query[] = array_key_exists($row[$k], $queries[$k]) ? $queries[$k][$row[$k]] : '';
 					
-				if($k != $last_k) {
-					if(!array_key_exists('children', $ptr))
-						$ptr['children'] = [];
+					$data = [
+						'name' => $label,
+						'value' => $row[$k],
+						'hits' => $row['hits'],
+						'query' => implode(' ', $query),
+					];
 					
-					$ptr =& $ptr['children'];
+					$ptr[] = $data;
+					end($ptr);
+					$ptr =& $ptr[key($ptr)];
+					
+					if($k != $last_k) {
+						if(!array_key_exists('children', $ptr))
+							$ptr['children'] = [];
+						
+						$ptr =& $ptr['children'];
+					}
 				}
 			}
 		}
@@ -829,7 +840,15 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 					@$type = $column['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
 					$value = null;
 					
-					if($column_index == $depth) {
+					if(!in_array($chart_model['function'], ['','count']) && 1 == count($chart_model['by'])) {
+						$value = $node['hits'];
+						
+						$row[$key_prefix] = $value;
+						$row[$key_prefix . '_' . 'func'] = $chart_model['function'];
+						$rows[] = $row;
+						return;
+						
+					} else if($column_index == $depth) {
 						$value = $node['hits'];
 						
 						if(!array_key_exists($column_index, $parents)) {
@@ -1078,10 +1097,16 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			if(!array_key_exists('children', $node)) {
 				$row = [];
 				
+				// If a top-level aggregation
 				foreach($chart_model['by'] as $column_index => $column) {
 					@$type = $column['type'] ?: DevblocksSearchCriteria::TYPE_TEXT;
 					
-					if($column_index == $depth) {
+					$value = null;
+					
+					if(!in_array($chart_model['function'], ['','count']) && 1 == count($chart_model['by'])) {
+						$value = $node['hits'];
+						
+					} else if($column_index == $depth) {
 						$value = $node['hits'];
 						
 					} else {
