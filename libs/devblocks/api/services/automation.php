@@ -874,10 +874,10 @@ class CerbAutomationPolicy {
 			];
 			$rule = DevblocksPlatform::services()->kata()->formatTree($rule, $dict);
 			
-			if(array_key_exists('allow', $rule) && $rule['allow'])
+			if(is_array($rule) && array_key_exists('allow', $rule) && $rule['allow'])
 				return true;
 			
-			if(array_key_exists('deny', $rule) && $rule['deny'])
+			if(is_array($rule) && array_key_exists('deny', $rule) && $rule['deny'])
 				return false;
 		}
 		
