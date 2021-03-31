@@ -253,6 +253,14 @@ EOD;
 	$out_lazy = '';
 	$lazy_keys = $context_ext->lazyLoadGetKeys();
 	
+	$labels['_context'] = '[Record type](/docs/records/types/) extension ID';
+	$labels['_type'] = '[Record type](/docs/records/types/) alias';
+	$values['_types']['_context'] = 'Text';
+	$values['_types']['_type'] = 'Text';
+	
+	ksort($labels);
+	ksort($values);
+	
 	if($lazy_keys) {
 		foreach($lazy_keys as $lazy_key => $lazy_meta) {
 			$labels[$lazy_key] = $lazy_meta['label'];
