@@ -99,6 +99,8 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 
 			if($field->key == 'type') {
 				// Do nothing
+				true;
+				
 			} else if($field->key == 'of') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				if(false == ($context = Extension_DevblocksContext::getByAlias($value, true)))
@@ -145,16 +147,14 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 			return false;
 		}
 		
-		$dao_class = $context->getDaoClass();
-		$search_class = $context->getSearchClass();
 		$view = $context->getTempView();
 		
 		$view->addParamsWithQuickSearch(@$chart_model['query']);
 		
 		// Query
 		
-		@$query = $chart_model['query'];
-		@$query_required = $chart_model['query_required'];
+		$query = $chart_model['query'] ?? null;
+		$query_required = $chart_model['query_required'] ?? null;
 		
 		$context_ext = Extension_DevblocksContext::get($chart_model['context'], true);
 		$dao_class = $context_ext->getDaoClass();
@@ -245,7 +245,7 @@ class _DevblocksDataProviderWorklistRecords extends _DevblocksDataProvider {
 		}
 	}
 	
-	function _formatDataAsDictionaries($chart_model) {
+	function _formatDataAsDictionaries($chart_model) : array {
 		$meta = [
 			'data' => $chart_model['data'],
 			'_' => [

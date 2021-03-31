@@ -1365,6 +1365,11 @@
 				<seg>fingerprint</seg>
 			</tuv>
 		</tu>
+		<tu tuid="common.first">
+			<tuv xml:lang="en_US">
+				<seg>first</seg>
+			</tuv>
+		</tu>
 		<tu tuid="common.for">
 			<tuv xml:lang="en_US">
 				<seg>for</seg>
@@ -1951,6 +1956,11 @@
 		<tu tuid="common.languages">
 			<tuv xml:lang="en_US">
 				<seg>Languages</seg>
+			</tuv>
+		</tu>
+		<tu tuid="common.last">
+			<tuv xml:lang="en_US">
+				<seg>last</seg>
 			</tuv>
 		</tu>
 		<tu tuid="common.last_activity">

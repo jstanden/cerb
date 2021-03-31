@@ -74,6 +74,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 			
 			if($field->key == 'type') {
 				// Do nothing
+				true;
 				
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -348,11 +349,9 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 		switch($format) {
 			case 'pie':
 				return $this->_formatDataAsPie($chart_model);
-				break;
 				
 			case 'table':
 				return $this->_formatDataAsTable($chart_model);
-				break;
 				
 			default:
 				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be: table",
@@ -363,7 +362,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 		}
 	}
 	
-	private function _formatDataAsPie(array $chart_model=[]) {
+	private function _formatDataAsPie(array $chart_model=[]) : array {
 		if(!isset($chart_model['values']))
 			return [];
 		
@@ -393,7 +392,7 @@ class _DevblocksDataProviderWorklistMetrics extends _DevblocksDataProvider {
 		];
 	}
 	
-	private function _formatDataAsTable(array $chart_model=[]) {
+	private function _formatDataAsTable(array $chart_model=[]) : array {
 		$rows = [];
 		
 		$table = [

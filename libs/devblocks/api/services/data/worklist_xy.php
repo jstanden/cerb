@@ -73,6 +73,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			
 			if($field->key == 'type') {
 				// Do nothing
+				true;
 				
 			} else if($field->key == 'x') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -208,13 +209,11 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 			
 			$sort_data = Cerb_ORMHelper::buildSort($view->renderSortBy, $view->renderSortAsc, $view->getFields(), $search_class);
 			
-			$x_field = $y_field = null;
-			
 			if(!array_key_exists('x', $series) || !array_key_exists('y', $series))
 				continue;
 			
-			$x_field = $series['x']['sql_select'];
-			$y_field = $series['y']['sql_select'];
+			$x_field = $series['x']['sql_select'] ?? null;
+			$y_field = $series['y']['sql_select'] ?? null;
 			
 			$sql = sprintf("SELECT %s AS x, %s AS y%s %s %s %s LIMIT %d",
 				$x_field,
@@ -254,6 +253,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 						]);
 						
 						if(false === $out || !is_numeric($out)) {
+							true;
 						} else {
 							$data['x'] = floatval($out);
 						}
@@ -270,6 +270,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 						]);
 						
 						if(false === $out || !is_numeric($out)) {
+							true;
 						} else {
 							$data['y'] = floatval($out);
 						}
@@ -291,19 +292,15 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		switch($format) {
 			case 'categories':
 				return $this->_formatDataAsCategories($chart_model);
-				break;
 				
 			case 'pie':
 				return $this->_formatDataAsPie($chart_model);
-				break;
 				
 			case 'table':
 				return $this->_formatDataAsTable($chart_model);
-				break;
 				
 			case 'scatterplot':
 				return $this->_formatDataAsScatterplot($chart_model);
-				break;
 				
 			default:
 				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: categories, pie, scatterplot, table",
@@ -314,7 +311,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		}
 	}
 	
-	function _formatDataAsCategories($chart_model) {
+	function _formatDataAsCategories($chart_model) : array {
 		$series_data = $chart_model['series'];
 		
 		$response = [
@@ -349,7 +346,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		];
 	}
 	
-	function _formatDataAsPie($chart_model) {
+	function _formatDataAsPie($chart_model) : array {
 		$series_data = $chart_model['series'];
 		
 		$response = [];
@@ -378,7 +375,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		];
 	}
 	
-	function _formatDataAsScatterplot($chart_model) {
+	function _formatDataAsScatterplot($chart_model) : array {
 		$series_data = $chart_model['series'];
 		
 		$response = [];
@@ -405,7 +402,7 @@ class _DevblocksDataProviderWorklistXy extends _DevblocksDataProvider {
 		]];
 	}
 	
-	function _formatDataAsTable($chart_model) {
+	function _formatDataAsTable($chart_model) : array {
 		$series_data = $chart_model['series'];
 		
 		$rows = $columns = [];

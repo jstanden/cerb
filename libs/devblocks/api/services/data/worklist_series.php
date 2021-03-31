@@ -299,11 +299,9 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		switch($format) {
 			case 'table':
 				return $this->_formatDataAsTable($chart_model);
-				break;
 				
 			case 'timeseries':
 				return $this->_formatDataAsTimeSeries($chart_model);
-				break;
 				
 			default:
 				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: table, tree",
@@ -314,7 +312,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		}
 	}
 	
-	private function _formatDataAsTable(array $chart_model) {
+	private function _formatDataAsTable(array $chart_model) : array {
 		$columns = [
 			'x' => [
 				'label' => @$chart_model['x.label'],
@@ -378,7 +376,7 @@ class _DevblocksDataProviderWorklistSeries extends _DevblocksDataProvider {
 		];
 	}
 	
-	private function _formatDataAsTimeSeries(array $chart_model) {
+	private function _formatDataAsTimeSeries(array $chart_model) : array {
 		// [TODO] Verify that 'x' is a date
 		
 		// Domain

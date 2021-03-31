@@ -726,7 +726,7 @@ class WorkspaceWidgetDatasource_BotBehavior extends Extension_WorkspaceWidgetDat
 	}
 
 	function getData(Model_WorkspaceWidget $widget, array $params=array(), $params_prefix=null) {
-		@$behavior_id = $widget->params['behavior_id'];
+		$behavior_id = $widget->params['behavior_id'] ?? null;
 		
 		if(!$behavior_id 
 			|| false == ($widget_behavior = DAO_TriggerEvent::get($behavior_id))

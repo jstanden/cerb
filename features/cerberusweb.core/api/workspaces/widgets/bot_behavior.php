@@ -8,8 +8,8 @@ class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		@$behavior_id = $widget->params['behavior_id'];
-		@$behavior_vars = DevblocksPlatform::importVar(@$widget->params['behavior_vars'], 'array', []);
+		$behavior_id = $widget->params['behavior_id'] ?? null;
+		$behavior_vars = DevblocksPlatform::importVar($widget->params['behavior_vars'] ?? [], 'array', []);
 		
 		if(!$behavior_id 
 			|| false == ($widget_behavior = DAO_TriggerEvent::get($behavior_id))

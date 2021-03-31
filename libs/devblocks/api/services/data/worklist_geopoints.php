@@ -72,6 +72,7 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 			
 			if($field->key == 'type') {
 				// Do nothing
+				true;
 				
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -104,6 +105,7 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 				foreach($series_fields as $series_field) {
 					if(in_array($series_field->key, ['point'])) {
 						// Do nothing
+						true;
 						
 					} else if($series_field->key == 'of') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
@@ -184,7 +186,6 @@ class _DevblocksDataProviderWorklistGeoPoints extends _DevblocksDataProvider {
 			
 			$context_ext = Extension_DevblocksContext::get($series['context'], true);
 			$dao_class = $context_ext->getDaoClass();
-			$search_class = $context_ext->getSearchClass();
 			$view = $context_ext->getTempView();
 			$view->addParamsRequiredWithQuickSearch($query_required);
 			$view->addParamsWithQuickSearch($query);
