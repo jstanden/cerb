@@ -202,6 +202,9 @@ $(function() {
 
 	var $editor = $tab_toolbar.find('[name="params[toolbar_kata]"]')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataToolbar
+		})
 		.next('pre.ace_editor')
 	;
 

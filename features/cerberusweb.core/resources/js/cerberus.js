@@ -272,6 +272,50 @@ var cerbAutocompleteSuggestions = {
 			}
 		]
 	},
+	kataToolbar: {
+		'': [
+			{
+				'caption': 'interaction:',
+				'snippet': 'interaction/${1:name}:'
+			},
+			{
+				'caption': 'menu:',
+				'snippet': 'menu/${1:name}:'
+			}
+		],
+		'*': {
+			'(.*):?interaction:': [
+				{
+					'caption': 'uri:',
+					'snippet': 'uri: cerb:automation:${1:name}'
+				},
+				'label:',
+				'icon:',
+				'tooltip:',
+				{
+					'caption': 'hidden:',
+					'snippet': 'hidden@bool: ${1:yes}'
+				},
+				'inputs:'
+			],
+			'(.*):?menu:': [
+				'label:',
+				'icon:',
+				'tooltip:',
+				'items:'
+			],
+			'(.*):?menu:items:': [
+				{
+					'caption': 'interaction:',
+					'snippet': 'interaction/${1:name}:'
+				},
+				{
+					'caption': 'menu:',
+					'snippet': 'menu/${1:name}:'
+				}
+			],
+		}
+	},
 	yamlSheetSchema: {
 		'': [
 			{

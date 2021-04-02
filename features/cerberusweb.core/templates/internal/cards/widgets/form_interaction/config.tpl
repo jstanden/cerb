@@ -49,6 +49,9 @@ $(function() {
 
 	var $editor = $config.find('.cerb-code-editor')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataToolbar
+		})
 		.next('pre.ace_editor')
 		;
 

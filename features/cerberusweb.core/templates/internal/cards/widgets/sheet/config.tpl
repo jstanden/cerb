@@ -332,6 +332,9 @@ $(function() {
 
 	var $toolbar_editor = $config.find('textarea.cerb-toolbar-yaml-editor')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataToolbar
+		})
 		.nextAll('pre.ace_editor')
 	;
 
