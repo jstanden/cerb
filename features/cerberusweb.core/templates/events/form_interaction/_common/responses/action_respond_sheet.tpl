@@ -135,9 +135,9 @@ $(function() {
 	
 	var $yaml_editor = $action.find('textarea.cerb-sheet-yaml-editor')
 		.cerbCodeEditor()
-		// .cerbCodeEditorAutocompleteYaml({
-		// 	autocomplete_suggestions: cerbAutocompleteSuggestions.yamlSheetSchema
-		// })
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaSheet
+		})
 		.nextAll('pre.ace_editor')
 		;
 

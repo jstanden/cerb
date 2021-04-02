@@ -316,7 +316,7 @@ var cerbAutocompleteSuggestions = {
 			],
 		}
 	},
-	yamlSheetSchema: {
+	kataSchemaSheet: {
 		'': [
 			{
 				caption: 'layout:',
@@ -324,7 +324,7 @@ var cerbAutocompleteSuggestions = {
 			},
 			{
 				caption: 'columns:',
-				snippet: 'columns:\n- ',
+				snippet: 'columns:\n',
 			}
 		],
 		
@@ -336,11 +336,15 @@ var cerbAutocompleteSuggestions = {
 			},
 			{
 				caption: 'headings:',
-				snippet: 'headings: ${1:true}'
+				snippet: 'headings@bool: ${1:yes}'
+			},
+			{
+				caption: 'filtering:',
+				snippet: 'filtering@bool: ${1:yes}'
 			},
 			{
 				caption: 'paging:',
-				snippet: 'paging: ${1:true}'
+				snippet: 'paging@bool: ${1:yes}'
 			},
 			'title_column: '
 		],
@@ -358,79 +362,81 @@ var cerbAutocompleteSuggestions = {
 			],
 		
 		// Column types
-		'columns:-:': [
-			{
-				caption: 'text:',
-				snippet: 'text:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #value: literal text\n      #value_key: some_key\n      #value_template: "{{some_key}}"\n      #bold: true\n      #value_map: { 0: No, 1: Yes }\n- '
-			},
+		'columns:': [
 			{
 				caption: 'card:',
-				snippet: 'card:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #image: true\n      #bold: true\n      #underline: false\n- '
+				snippet: 'card/${1:key}:\n  label: ${2:Label}\n  params:\n    #image@bool: yes\n    #bold@bool: yes\n    #underline: false\n'
 			},
 			{
 				caption: 'date:',
-				snippet: 'date:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #format: d-M-Y H:i:s T # See: https://php.net/date\n      #format: r\n      #value: 1577836800\n      #value_key: updated\n- '
+				snippet: 'date/${1:key}:\n  label: ${2:Label}\n  params:\n    #format: d-M-Y H:i:s T # See: https://php.net/date\n    #format: r\n    #value: 1577836800\n    #value_key: updated\n'
 			},
 			{
 				caption: 'icon:',
-				snippet: 'icon:\n    key: ${1:_icon}\n    label: ${2:Icon}\n    params:\n      # See: Setup->Developers->Icon Reference\n      image: ${3:circle-ok}\n- '
+				snippet: 'icon/${1:key}:\n  label: ${2:Icon}\n  params:\n    # See: Setup->Developers->Icon Reference\n    image: ${3:circle-ok}\n'
 			},
 			{
 				caption: 'link:',
-				snippet: 'link:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      href: ${3:/some/path}\n      #href_key: some_key\n      #href_template: /some/path/{{placeholder}}\n      text: ${4:Link text}\n      #text_key: some_key\n- '
+				snippet: 'link/${1:key}:\n  label: ${2:Label}\n  params:\n    href: ${3:/some/path}\n    #href_key: some_key\n    #href_template: /some/path/{{placeholder}}\n    text: ${4:Link text}\n    #text_key: some_key\n'
 			},
 			{
 				caption: 'search:',
-				snippet: 'search:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      context: ticket\n      #context_key: _context\n      query: status:o\n      #query_key: query\n      label: Label\n      #label: count\n- '
+				snippet: 'search/${1:key}:\n  label: ${2:Label}\n  params:\n    context: ticket\n    #context_key: _context\n    query: status:o\n    #query_key: query\n    label: Label\n    #label: count\n'
 			},
 			{
 				caption: 'search_button:',
-				snippet: 'search_button:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      context: ticket\n      #context_key: _context\n      query: status:o\n      #query_key: query      #query_template: status:o owner.id:{{id}}\n- '
+				snippet: 'search_button/${1:key}:\n  label: ${2:Label}\n  params:\n    context: ticket\n    #context_key: _context\n    query: status:o\n    #query_key: query    #query_template: status:o owner.id:{{id}}\n'
+			},
+			{
+				caption: 'selection:',
+				snippet: 'selection/${1:key}:\n  params:\n    value_key: id\n    #value: 123\n    #value_template@raw: {{id}}\n'
 			},
 			{
 				caption: 'slider:',
-				snippet: 'slider:\n    key: ${1:_label}\n    label: ${2:Label}\n    params:\n      #value: 75\n      #value_key: some_key\n      #value_template: "{{some_key+50}}"\n      min: 0\n      max: 100\n- '
+				snippet: 'slider/${1:key}:\n  label: ${3:Label}\n  params:\n    #value: 75\n    #value_key: some_key\n    #value_template: "{{some_key+50}}"\n    min: 0\n    max: 100\n'
+			},
+			{
+				caption: 'text:',
+				snippet: 'text/${1:key}:\n  label: ${2:Label}\n  params:\n    #value: literal text\n    #value_key: some_key\n    #value_template: "{{some_key}}"\n    #bold@bool: yes\n    #value_map:\n      #0: No\n      #1: Yes\n'
 			},
 			{
 				caption: 'time_elapsed:',
-				snippet: 'time_elapsed:\n    key: ${1:key}\n    label: ${2:Label}\n    params:\n      precision: ${3:2}\n- '
+				snippet: 'time_elapsed/${1:key}:\n  label: ${2:Label}\n  params:\n    precision@int: ${3:2}\n'
 			}
 		],
 		
 		// Text
-		'columns:-:text:': [
-			'key:',
+		'columns:text:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:text:params:': [
+		'columns:text:params:': [
 			'value:',
 			'value_key:',
 			'value_template:',
 			'value_map:',
-			'bold:',
+			'bold@bool:',
 			'icon:'
 		],
-		'columns:-:text:params:bold:': [
+		'columns:text:params:bold:': [
 			'true',
 			'false'
 		],
-		'columns:-:text:params:icon:': [
+		'columns:text:params:icon:': [
 			'image:',
 			'image_key:',
 			'image_template:'
 		],
 
 		// Cards
-		'columns:-:card:': [
-			'key:',
+		'columns:card:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:card:params:': [
-			'image:',
-			'bold:',
-			'underline:',
+		'columns:card:params:': [
+			'image@bool:',
+			'bold@bool:',
+			'underline@bool:',
 			'context:',
 			'context_key:',
 			'context_template:',
@@ -442,85 +448,81 @@ var cerbAutocompleteSuggestions = {
 			'label_key:',
 			'label_template:'
 		],
-		'columns:-:card:params:icon:': [
+		'columns:card:params:icon:': [
 			'image:',
 			'image_key:',
 			'image_template:'
 		],
-		'columns:-:card:params:image:': [
-			'true',
-			'false'
+		'columns:card:params:image:': [
+			'yes',
+			'no'
 		],
-		'columns:-:card:params:bold:': [
-			'true',
-			'false'
+		'columns:card:params:bold:': [
+			'yes',
+			'no'
 		],
-		'columns:-:card:params:underline:': [
-			'true',
-			'false'
+		'columns:card:params:underline:': [
+			'yes',
+			'no'
 		],
 		
 		// Dates
-		'columns:-:date:': [
-			'key:',
+		'columns:date:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:date:params:': [
+		'columns:date:params:': [
 			'value:',
 			'format:',
 			'value_key:',
 			'value_template:',
-			'bold:'
+			'bold@bool:'
 		],
-		'columns:-:date:params:bold:': [
-			'true',
-			'false'
+		'columns:date:params:bold:': [
+			'yes',
+			'no'
 		],
-		'columns:-:date:params:format:': [
+		'columns:date:params:format:': [
 			'r',
 			'Y-m-d H:i:s a'
 		],
 
 		// Icon
-		'columns:-:icon:': [
-			'key:',
+		'columns:icon:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:icon:params:': [
+		'columns:icon:params:': [
 			'image:',
 			'image_key:',
 			'image_template:',
 		],
 
 		// Links
-		'columns:-:link:': [
-			'key:',
+		'columns:link:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:link:params:': [
+		'columns:link:params:': [
 			'href:',
 			'href_key:',
 			'href_template:',
 			'text:',
 			'text_key:',
 			'text_template:',
-			'bold:'
+			'bold@bool:'
 		],
-		'columns:-:link:params:bold:': [
-			'true',
-			'false'
+		'columns:link:params:bold:': [
+			'yes',
+			'no'
 		],
 		
 		// Search
-		'columns:-:search:': [
-			'key:',
+		'columns:search:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:search:params:': [
+		'columns:search:params:': [
 			'context:',
 			'context_key:',
 			'context_template:',
@@ -530,20 +532,19 @@ var cerbAutocompleteSuggestions = {
 			'label:',
 			'label_key:',
 			'label_template:',
-			'bold:'
+			'bold@bool:'
 		],
-		'columns:-:search:params:bold:': [
-			'true',
-			'false'
+		'columns:search:params:bold:': [
+			'yes',
+			'no'
 		],
 		
 		// Search button
-		'columns:-:search_button:': [
-			'key:',
+		'columns:search_button:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:search_button:params:': [
+		'columns:search_button:params:': [
 			'context:',
 			'context_key:',
 			'context_template:',
@@ -552,13 +553,22 @@ var cerbAutocompleteSuggestions = {
 			'query_template:'
 		],
 		
+		// Selection
+		'columns:selection:': [
+			'params:'
+		],
+		'columns:selection:params:': [
+			'value:',
+			'value_key:',
+			'value_template@raw: {{id}}',
+		],
+		
 		// Slider
-		'columns:-:slider:': [
-			'key:',
+		'columns:slider:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:slider:params:': [
+		'columns:slider:params:': [
 			'value:',
 			'value_key:',
 			'value_template:',
@@ -567,21 +577,20 @@ var cerbAutocompleteSuggestions = {
 		],
 		
 		// Time elapsed
-		'columns:-:time_elapsed:': [
-			'key:',
+		'columns:time_elapsed:': [
 			'label:',
 			'params:'
 		],
-		'columns:-:time_elapsed:params:': [
+		'columns:time_elapsed:params:': [
 			'value:',
 			'value_key:',
 			'value_template:',
 			'precision:',
-			'bold:'
+			'bold@bool:'
 		],
-		'columns:-:time_elapsed:params:bold:': [
-			'true',
-			'false'
+		'columns:time_elapsed:params:bold:': [
+			'yes',
+			'no'
 		]
 	}
 };

@@ -40,8 +40,8 @@ $(function() {
 	$editor_schema
 		.addClass('placeholders')
 		.cerbCodeEditor()
-		.cerbCodeEditorAutocompleteYaml({
-			autocomplete_suggestions: cerbAutocompleteSuggestions.yamlSheetSchema
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaSheet
 		})
 	;
 });
