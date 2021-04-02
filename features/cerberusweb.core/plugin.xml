@@ -4836,6 +4836,22 @@
 		</extension>
 
 		<extension point="cerb.automation.trigger">
+			<id>cerb.trigger.ui.widget</id>
+			<name>ui.widget</name>
+			<class>
+				<file>api/automations/triggers/ui.widget.php</file>
+				<name>AutomationTrigger_UiWidget</name>
+			</class>
+			<params>
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="cerb.automation.trigger">
 			<id>cerb.trigger.webhook.respond</id>
 			<name>webhook.respond</name>
 			<class>
@@ -4926,6 +4942,17 @@
 			<class>
 				<file>api/cards/widgets/attachment_viewer.php</file>
 				<name>CardWidget_AttachmentViewer</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
+		<extension point="cerb.card.widget">
+			<id>cerb.card.widget.automation</id>
+			<name>Automation</name>
+			<class>
+				<file>api/cards/widgets/automation.php</file>
+				<name>CardWidget_Automation</name>
 			</class>
 			<params>
 			</params>
@@ -7155,7 +7182,18 @@
 		</extension>
 
 		<!-- Profile Widgets -->
-		
+
+		<extension point="cerb.profile.tab.widget">
+			<id>cerb.profile.tab.widget.automation</id>
+			<name>Automation</name>
+			<class>
+				<file>api/profiles/widgets/automation.php</file>
+				<name>ProfileWidget_Automation</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+
 		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.behavior.tree</id>
 			<name>Behavior Tree</name>
@@ -7257,7 +7295,7 @@
 
 		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.bot</id>
-			<name>Custom</name>
+			<name>Custom (Deprecated)</name>
 			<class>
 				<file>api/profiles/widgets/bot_behavior.php</file>
 				<name>ProfileWidget_BotBehavior</name>
@@ -7435,8 +7473,19 @@
 		<!-- Workspace Widgets -->
 		
 		<extension point="cerberusweb.ui.workspace.widget">
+			<id>core.workspace.widget.automation</id>
+			<name>Automation</name>
+			<class>
+				<file>api/workspaces/widgets/automation.php</file>
+				<name>WorkspaceWidget_Automation</name>
+			</class>
+			<params>
+			</params>
+		</extension>
+		
+		<extension point="cerberusweb.ui.workspace.widget">
 			<id>core.workspace.widget.bot</id>
-			<name>Bot Custom Widget</name>
+			<name>Bot Custom Widget (Deprecated)</name>
 			<class>
 				<file>api/workspaces/widgets/bot_behavior.php</file>
 				<name>WorkspaceWidget_BotBehavior</name>

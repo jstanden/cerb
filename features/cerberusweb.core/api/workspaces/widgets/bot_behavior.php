@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * Class WorkspaceWidget_BotBehavior
+ * @deprecated 
+ */
 class WorkspaceWidget_BotBehavior extends Extension_WorkspaceWidget {
 	public function invoke(string $action, Model_WorkspaceWidget $model) {
 		return false;

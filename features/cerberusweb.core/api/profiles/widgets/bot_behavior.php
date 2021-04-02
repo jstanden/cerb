@@ -1,4 +1,8 @@
 <?php
+/**
+ * Class ProfileWidget_BotBehavior
+ * @deprecated 
+ */
 class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 	const ID = 'cerb.profile.tab.widget.bot';
 
