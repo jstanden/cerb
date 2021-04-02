@@ -1,6 +1,6 @@
 {$element_id = uniqid('el')}
 <div id="{$element_id}" class="cerb-interaction-popup--form-elements--prompt cerb-interaction-popup--form-elements-textarea">
-	<h6>{$label}{if $is_required}<span>*</span>{/if}</h6>
+	<h6>{$label}</h6>
 	<textarea name="prompts[{$var}]" placeholder="{$placeholder}">{$value|default:$default}</textarea>
 </div>
 

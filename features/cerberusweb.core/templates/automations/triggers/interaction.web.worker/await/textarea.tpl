@@ -1,6 +1,6 @@
 {$element_id = uniqid()}
 <div class="cerb-form-builder-prompt cerb-form-builder-prompt-text" id="{$element_id}">
-	<h6>{$label}{if $is_required}<span>*</span>{/if}</h6>
+	<h6>{$label}</h6>
 
 	<div style="margin-left:10px;">
 		<textarea name="prompts[{$var}]" style="width:100%;min-height:4.5em;box-sizing:border-box;" placeholder="{$placeholder}">{$value|default:$default}</textarea>

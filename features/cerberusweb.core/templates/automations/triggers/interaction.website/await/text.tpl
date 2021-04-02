@@ -1,6 +1,6 @@
 {$element_id = uniqid('el')}
 <div id="{$element_id}" class="cerb-interaction-popup--form-elements--prompt cerb-interaction-popup--form-elements-text">
-	<h6>{$label}{if $is_required}<span>*</span>{/if}</h6>
+	<h6>{$label}</h6>
 	<input name="prompts[{$var}]" type="text" placeholder="{$placeholder}" value="{$value|default:$default}" autocomplete="off">
 </div>
 
