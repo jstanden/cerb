@@ -1494,6 +1494,27 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 			'is_required' => false,
 			'notes' => 'JSON-encoded key/value object',
 			'type' => 'object',
+			'_reference' => [
+				'params' => [
+					'color_available' => 'The hex color code for available events (e.g. `#a0d95b`)',
+					'color_busy' => 'The hex color code for busy events (e.g. `#c8c8c8`)',
+					'hide_start_time' => '`0` to show event start times, `1` to disable',
+					'manual_disabled' => '`0` to enable manual event creation, `1` to disable',
+					'series' => 'An optional array of **series** objects',
+					'start_on_mon' => '`0` to start weeks on Sunday, `1` to start on Monday',
+					'sync_enabled' => '`0` to disable event synchronization, `1` to enable',
+				],
+				'series' => [
+					'datasource' => '`calendar.datasource.worklist`',
+					'color' => '',
+					'field_end_date' => '',
+					'field_end_date_offset' => '',
+					'field_start_date' => '',
+					'field_start_date_offset' => '',
+					'is_available' => '',
+					'label' => '',
+				]
+			]
 		];
 
 		return $keys;
