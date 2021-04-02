@@ -89,87 +89,11 @@ $(function() {
 	var $frm = $('#tab{$tab->id}Config');
 	var $textarea = $frm.find('.cerb-code-editor');
 
-	/*
-	var kataDashboardFilters = {
-		'': [
-		],
-		'picklist:': [
-			{
-				'caption': 'label:',
-				'snippet': 'label: Label'
-			},
-			'default:',
-			'params:'
-		],
-		'picklist:params:': [
-			{
-				'caption': 'multiple:',
-				'snippet': 'multiple@bool: no'
-			},
-			{
-				'caption': 'options:',
-				'snippet': 'options@list:\n  day\n  week\n  month\n  year\n'
-			}
-		],
-		'picklist:params:multiple:': [
-			'yes',
-			'no'
-		],
-		'date_range:': [
-			{
-				'caption': 'label:',
-				'snippet': 'label: Label'
-			},
-			'default:',
-			'params:'
-		],
-		'date_range:params:': [
-			{
-				'caption': 'presets:',
-				'snippet': 'presets:\n  1d:\n    label: 1d\n    query: today to now\n'
-			}
-		],
-		'text:': [
-			{
-				'caption': 'label:',
-				'snippet': 'label: Label'
-			},
-			'default:'
-		],
-		'chooser:': [
-			{
-				'caption': 'label:',
-				'snippet': 'label: Label'
-			},
-			'params:'
-		],
-		'chooser:params:': [
-			'context:',
-			{
-				'caption': 'single:',
-				'snippet': 'single@bool: yes\n'
-			}
-		],
-		'chooser:params:context:': [
-		],
-		'chooser:params:single:': [
-			'yes',
-			'no'
-		],
-		'type:': [
-			'date_range:',
-			'picklist:',
-			'text:',
-			'chooser:'
-		]
-	};
-	*/
-
 	var $editor = $textarea
 		.cerbCodeEditor()
-		// .cerbCodeEditorAutocompleteYaml({
-		// 	autocomplete_suggestions: kataDashboardFilters
-		// })
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaDashboardFilters
+		})
 		.nextAll('pre.ace_editor')
 	;
 

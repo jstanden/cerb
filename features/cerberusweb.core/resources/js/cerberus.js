@@ -105,6 +105,58 @@ var cerbAutocompleteSuggestions = {
 			'deny@bool: yes'
 		],
 	},
+	kataSchemaDashboardFilters: {
+		'': [
+			{
+				'caption': 'chooser:',
+				'snippet': 'chooser/${1:key}:\n  label: ${2:Chooser:}\n  params:\n    context: ${3: record_type}\n    single@bool: no\n'
+			},
+			{
+				'caption': 'date_range:',
+				'snippet': 'date_range/${1:key}:\n  label: ${2:Date:}\n  default: ${3:first day of this month -12 months}\n'
+			},
+			{
+				'caption': 'picklist:',
+				'snippet': 'picklist/${1:key}:\n  label: ${2:Picklist:}\n  default: ${3:month}\n  params:\n    options@list:\n      day\n      week\n      month\n      year\n'
+			},
+			{
+				'caption': 'text:',
+				'snippet': 'text/${1:key}:\n  label: ${2:Text:}\n  default: ${3:text}\n'
+			}
+		],
+		'chooser:': [
+			'label:',
+			'default:',
+			'params:'
+		],
+		'chooser:params:': [
+			'context:',
+			'single@bool: no'
+		],
+		'date_range:': [
+			'label:',
+			'default:',
+			'params:'
+		],
+		'date_range:params:': [
+			{
+				'caption': 'presets:',
+				'snippet': 'presets:\n  1d:\n    label: 1d\n    query: today to now\n'
+			}
+		],
+		'picklist:': [
+			'label:',
+			'default:',
+			'params:'
+		],
+		'picklist:params:': [
+			'options@list:'
+		],
+		'text:': [
+			'label:',
+			'default:',
+		]
+	},
 	kataSchemaMap: {
 		'': [
 			'map:'
