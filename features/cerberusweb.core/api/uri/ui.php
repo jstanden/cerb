@@ -67,8 +67,6 @@ class Controller_UI extends DevblocksControllerExtension {
 				return $this->_uiAction_resource();
 			case 'sheet':
 				return $this->_uiAction_sheet();
-			case 'yamlSuggestionsFormInteractions':
-				return $this->_uiAction_yamlSuggestionsFormInteractions();
 		}
 		return false;
 	}
@@ -236,56 +234,6 @@ class Controller_UI extends DevblocksControllerExtension {
 			return;
 		
 		$suggestions = $view->getQueryAutocompleteFieldSuggestions($types);
-		
-		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
-	}
-	
-	private function _uiAction_yamlSuggestionsFormInteractions() {
-		$events = DAO_TriggerEvent::getByEvent(Event_FormInteractionWorker::ID);
-		
-		header('Content-Type: application/json; charset=utf-8');
-		
-		$suggestions = [
-			'' => [
-				[
-					'caption' => 'behaviors:',
-					'snippet' => "behaviors:\r\n- ",
-				]
-			],
-			'behaviors:' => [],
-			'behaviors:-:' => [],
-		];
-		
-		// Load form interaction behaviors
-		
-		foreach($events as $event) {
-			$suggestion = [
-				'caption' => $event->title,
-				'snippet' => sprintf("id: %s\r\n  label: >-\r\n    %s\r\n",
-					$event->uri ?: $event->id,
-					$event->title
-				),
-			];
-			
-			if($event->hasPublicVariables()) {
-				$suggestion['snippet'] .= "  inputs:\r\n";
-				
-				foreach($event->variables as $var) {
-					if($var['is_private'])
-						continue;
-					
-					// [TODO] Per variable defaults
-					
-					$suggestion['snippet'] .= sprintf("    %s: >-\r\n      ~\r\n",
-						$var['key']
-					);
-				}
-			}
-			
-			$suggestion['snippet'] .= '- ';
-			
-			$suggestions['behaviors:-:'][] = $suggestion;
-		}
 		
 		echo DevblocksPlatform::strFormatJson(json_encode($suggestions));
 	}

@@ -583,11 +583,6 @@ var cerbAutocompleteSuggestions = {
 			'true',
 			'false'
 		]
-	},
-	getYamlFormInteractions: function(cb) {
-		genericAjaxGet('', 'c=ui&a=yamlSuggestionsFormInteractions', function(json) {
-			cb(json);
-		});
 	}
 };
 
