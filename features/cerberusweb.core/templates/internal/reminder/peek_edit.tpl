@@ -126,6 +126,9 @@ $(function() {
 		// Editors
 		var $automation_editor = $popup.find('textarea[name=automations_kata]')
 			.cerbCodeEditor()
+			.cerbCodeEditorAutocompleteKata({
+				autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
+			})
 			.nextAll('pre.ace_editor')
 		;
 

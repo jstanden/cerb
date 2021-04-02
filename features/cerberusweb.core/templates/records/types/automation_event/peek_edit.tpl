@@ -103,6 +103,9 @@
 
             var $editor = $popup.find('[name=automations_kata]')
                 .cerbCodeEditor()
+                .cerbCodeEditorAutocompleteKata({
+                    autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
+                })
                 .next('pre.ace_editor')
             ;
 

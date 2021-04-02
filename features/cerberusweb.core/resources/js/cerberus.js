@@ -1,4 +1,23 @@
 var cerbAutocompleteSuggestions = {
+	kataAutomationEvent: {
+		'': [
+			{
+				'caption': 'automation:',
+				'snippet': 'automation/${1:name}:'
+			}
+		],
+		'automation:': [
+			{
+				'caption': 'uri:',
+				'snippet': 'uri: cerb:automation:${1:name}' 
+			},
+			{
+				'caption': 'disabled:',
+				'snippet': 'disabled@bool: ${1:yes}'
+			},
+			'inputs:'
+		]
+	},
 	kataAutomationPolicy: {
 		'': [
 			'commands:'

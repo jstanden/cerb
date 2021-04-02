@@ -71,6 +71,9 @@ $(function() {
 
 	var $automation_editor =  $config.find('textarea[name="params[automation][map_clicked]"]')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
+		})
 		.nextAll('pre.ace_editor')
 	;
 	

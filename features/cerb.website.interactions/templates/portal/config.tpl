@@ -90,6 +90,9 @@ $(function() {
 	// Editors
 	var $automation_editor = $frm.find('textarea[name="params[automations_kata]"]')
 		.cerbCodeEditor()
+		.cerbCodeEditorAutocompleteKata({
+			autocomplete_suggestions: cerbAutocompleteSuggestions.kataAutomationEvent
+		})
 		.nextAll('pre.ace_editor')
 	;
 
