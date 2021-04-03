@@ -148,7 +148,7 @@ class AutomationTrigger_InteractionWebWorker extends Extension_AutomationTrigger
 					'default:',
 					'label:',
 					'limit:',
-					'required@bool:',
+					'required@bool: yes',
 					'schema:',
 				],
 				'(.*):await:form:elements:sheet:schema:' => [
@@ -157,8 +157,13 @@ class AutomationTrigger_InteractionWebWorker extends Extension_AutomationTrigger
 				],
 				'(.*):await:form:elements:sheet:schema:columns:' => [
 					'card/key:',
+					'date/key:',
+					'icon/key:',
+					'link/key:',
 					'selection/key:',
+					'slider/key:',
 					'text/key:',
+					'time_elapsed/key:',
 				],
 				'(.*):await:form:elements:sheet:schema:columns:card:' => [
 					'params:',
@@ -259,9 +264,9 @@ class AutomationTrigger_InteractionWebWorker extends Extension_AutomationTrigger
 					'precision: 2',
 				],
 				'(.*):await:form:elements:sheet:schema:layout:' => [
-					'filtering@bool:',
-					'headings@bool:',
-					'paging@bool:',
+					'filtering@bool: yes',
+					'headings@bool: yes',
+					'paging@bool: yes',
 					'title_column:',
 				],
 				

@@ -113,6 +113,92 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'message@text:',
 				],
 				
+				'(.*):await:form:elements:sheet:' => [
+					'data:',
+					'default:',
+					'label:',
+					'limit:',
+					'required@bool: yes',
+					'schema:',
+				],
+				'(.*):await:form:elements:sheet:schema:' => [
+					'columns:',
+					'layout:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:' => [
+					'date/key:',
+					'link/key:',
+					'selection/key:',
+					'slider/key:',
+					'text/key:',
+					'time_elapsed/key:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:date:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:date:params:' => [
+					'format: d-M-Y H:i:s T',
+					'value: 1577836800',
+					'value_key: updated',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:link:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:link:params:' => [
+					'href: https://example.com/',
+					'href_key: record_url',
+					'href_template@raw:',
+					'text: Link title',
+					'text_key: _label',
+					'text_template@raw:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:selection:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:selection:params:' => [
+					'mode: single',
+					'mode: multiple',
+					'value: 123',
+					'value_key: key',
+					'value_template@raw: {{key}}',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:slider:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:slider:params:' => [
+					'min: 0',
+					'max: 100',
+					'value: 50',
+					'value_key: importance',
+					'value_template@raw: {{importance}}',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:text:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:text:params:' => [
+					'bold@bool: yes',
+					'value: Text',
+					'value_key: key',
+					'value_template@raw: {{key}}',
+					'value_map:',
+					'icon:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:text:params:icon:' => [
+					'image:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:' => [
+					'params:',
+				],
+				'(.*):await:form:elements:sheet:schema:columns:time_elapsed:params:' => [
+					'precision: 2',
+				],
+				'(.*):await:form:elements:sheet:schema:layout:' => [
+					'filtering@bool: yes',
+					'headings@bool: yes',
+					'paging@bool: yes',
+					'title_column:',
+				],
+				
 				'(.*):await:interaction:' => [
 					'uri:',
 					'output:',
