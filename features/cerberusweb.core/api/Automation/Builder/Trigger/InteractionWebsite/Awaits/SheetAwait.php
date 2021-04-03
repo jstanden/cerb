@@ -124,7 +124,7 @@ class SheetAwait extends AbstractAwait {
 	function render(Model_AutomationContinuation $continuation) {
 		$tpl = DevblocksPlatform::services()->template();
 		
-		$prompt_key = 'sheet/' . $this->_key;
+		$prompt_key = rtrim('sheet/' . $this->_key, '/');
 		
 		$form = $continuation->state_data['dict']['__return']['form']['elements'] ?? [];
 		
