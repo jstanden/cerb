@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
+namespace Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
@@ -29,6 +29,6 @@ class EndAwait extends AbstractAwait {
 		
 		$tpl->assign('event_data', $event_data);
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/await/end.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/end.tpl');
 	}
 }

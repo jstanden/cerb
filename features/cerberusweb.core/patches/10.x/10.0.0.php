@@ -140,11 +140,11 @@ if(!isset($tables['automation'])) {
 		'ai.cerb.automationBuilder.input.record.json',
 		'ai.cerb.automationBuilder.input.records.json',
 		'ai.cerb.automationBuilder.input.text.json',
-		'ai.cerb.automationBuilder.interaction.web.worker.await.map.json',
-		'ai.cerb.automationBuilder.interaction.web.worker.await.promptEditor.json',
-		'ai.cerb.automationBuilder.interaction.web.worker.await.promptSheet.json',
-		'ai.cerb.automationBuilder.interaction.web.worker.await.promptText.json',
-		'ai.cerb.automationBuilder.interaction.web.worker.await.say.json',
+		'ai.cerb.automationBuilder.interaction.worker.await.map.json',
+		'ai.cerb.automationBuilder.interaction.worker.await.promptEditor.json',
+		'ai.cerb.automationBuilder.interaction.worker.await.promptSheet.json',
+		'ai.cerb.automationBuilder.interaction.worker.await.promptText.json',
+		'ai.cerb.automationBuilder.interaction.worker.await.say.json',
 		'ai.cerb.cardEditor.automation.triggerChooser.json',
 		'ai.cerb.editor.mapBuilder.json',
 		'ai.cerb.eventHandler.automation.json',
@@ -185,6 +185,15 @@ if(!isset($tables['automation'])) {
 		
 		unset($automation_data);
 	}	
+	
+} else {
+	// ===========================================================================
+	// Rename 10.0-beta automations
+	
+	$db->ExecuteMaster("UPDATE automation SET extension_id = 'cerb.trigger.interaction.worker' WHERE extension_id = 'cerb.trigger.interaction.web.worker'");
+	$db->ExecuteMaster("UPDATE automation SET name = REPLACE(name, 'interaction.web.worker', 'interaction.worker') WHERE name LIKE '%interaction.web.worker%'");
+	$db->ExecuteMaster("UPDATE automation SET script = REPLACE(script, 'interaction.web.worker', 'interaction.worker') WHERE script LIKE '%interaction.web.worker%'");
+	$db->ExecuteMaster("UPDATE automation SET policy_kata = REPLACE(policy_kata, 'interaction.web.worker', 'interaction.worker') WHERE policy_kata LIKE '%interaction.web.worker%'");
 }
 
 // ===========================================================================
@@ -367,6 +376,11 @@ if(!isset($tables['automation_event'])) {
 		time()
 	));
 	
+} else {
+	// ===========================================================================
+	// Rename 10.0-beta automation events
+	
+	$db->ExecuteMaster("UPDATE automation_event SET automations_kata = REPLACE(automations_kata, 'interaction.web.worker', 'interaction.worker') WHERE automations_kata LIKE '%interaction.web.worker%'");
 }
 
 // ===========================================================================
@@ -632,6 +646,12 @@ if(!isset($tables['toolbar'])) {
 		time(),
 		time()
 	));
+	
+} else {
+	// ===========================================================================
+	// Rename 10.0-beta toolbars
+	
+	$db->ExecuteMaster("UPDATE toolbar SET toolbar_kata = REPLACE(toolbar_kata, 'interaction.web.worker', 'interaction.worker') WHERE toolbar.toolbar_kata LIKE '%interaction.web.worker%'");
 }
 
 // ===========================================================================

@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
+namespace Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits;
 
 use _DevblocksValidationService;
 use Cerb_HTMLPurifier_URIFilter_Email;

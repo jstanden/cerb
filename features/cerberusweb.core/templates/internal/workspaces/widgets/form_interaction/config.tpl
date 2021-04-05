@@ -35,7 +35,7 @@
 			<div class="cerb-code-editor-toolbar-divider"></div>
 			<button type="button" data-cerb-button="interactions-preview" class="cerb-code-editor-toolbar-button"><span class="glyphicons glyphicons-play"></span></button>
 
-			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/automations/triggers/interaction.web.worker/callers/cerb.toolbar.workspaceWidget.interactions/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
+			<button type="button" style="float:right;" class="cerb-code-editor-toolbar-button cerb-editor-button-help"><a href="https://cerb.ai/docs/automations/triggers/interaction.worker/callers/cerb.toolbar.workspaceWidget.interactions/" target="_blank"><span class="glyphicons glyphicons-circle-question-mark"></span></a></button>
 		</div>
 		<textarea name="params[interactions_kata]" class="cerb-code-editor placeholders" data-editor-mode="ace/mode/cerb_kata" style="width:100%;">{$widget->params.interactions_kata}</textarea>
 		<div class="cerb-code-editor-preview-output"></div>

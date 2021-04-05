@@ -207,6 +207,9 @@ $(function() {
 			$sheet_selections.html($item);
 		}
 
+		// [TODO] If there's no submit button, advance
+		// [TODO] if there's a submit, but no continue button
+		// [TODO] If we're the only prompt
 		{if $layout.style == 'buttons'}
 		if(0 === $form.find('.cerb-form-builder-continue').length) {
 			$form.triggerHandler($.Event('cerb-form-builder-submit'));
@@ -281,7 +284,7 @@ $(function() {
 
 	$sheet_toolbar.cerbToolbar({
 		caller: {
-			name: 'cerb.toolbar.interaction.web.worker.await.sheet',
+			name: 'cerb.toolbar.interaction.worker.await.sheet',
 			params: {
 			}
 		},

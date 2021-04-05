@@ -1,5 +1,5 @@
 <div id="{$layer}" data-cerb-interaction-popup>
-	{include file="devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/panel.tpl"}
+	{include file="devblocks:cerberusweb.core::automations/triggers/interaction.worker/panel.tpl"}
 </div>
 
 <script type="text/javascript">

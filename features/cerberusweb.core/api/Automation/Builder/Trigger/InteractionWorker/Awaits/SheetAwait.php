@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
+namespace Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits;
 
 use _DevblocksValidationService;
 use AutomationTrigger_UiSheetData;
@@ -155,7 +155,7 @@ class SheetAwait extends AbstractAwait {
 		
 		if($toolbar_schema) {
 			$toolbar_dict = DevblocksDictionaryDelegate::instance([
-				'caller_name' => 'cerb.toolbar.interaction.web.worker.await.sheet',
+				'caller_name' => 'cerb.toolbar.interaction.worker.await.sheet',
 				
 				'worker__context' => CerberusContexts::CONTEXT_WORKER,
 				'worker_id' => CerberusApplication::getActiveWorker()->id,
@@ -174,7 +174,7 @@ class SheetAwait extends AbstractAwait {
 		
 		$this->_render($prompt_key, $continuation);
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/await/sheet.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/sheet.tpl');
 	}
 	
 	private function _promptAction_refresh(string $prompt_key, Model_AutomationContinuation $continuation) {
@@ -240,7 +240,7 @@ class SheetAwait extends AbstractAwait {
 		$toolbar_kata = $prompt['toolbar'];
 		
 		$toolbar_dict = DevblocksDictionaryDelegate::instance([
-			'caller_name' => 'cerb.toolbar.interaction.web.worker.await.sheet',
+			'caller_name' => 'cerb.toolbar.interaction.worker.await.sheet',
 			
 			'worker__context' => CerberusContexts::CONTEXT_WORKER,
 			'worker_id' => CerberusApplication::getActiveWorker()->id,

@@ -71,15 +71,15 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 			'items' => [
 //				'interaction/respond_say' => [
 //					'label' => 'Say',
-//					'uri' => 'ai.cerb.automationBuilder.interaction.web.worker.await.say',
+//					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.say',
 //				],
 //				'interaction/prompt_sheet' => [
 //					'label' => 'Sheet',
-//					'uri' => 'ai.cerb.automationBuilder.interaction.web.worker.await.promptSheet',
+//					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.promptSheet',
 //				],
 //				'interaction/prompt_text' => [
 //					'label' => 'Text',
-//					'uri' => 'ai.cerb.automationBuilder.interaction.web.worker.await.promptText',
+//					'uri' => 'ai.cerb.automationBuilder.interaction.worker.await.promptText',
 //				]
 			], // items
 		];

@@ -1,5 +1,5 @@
 <?php
-namespace Cerb\Automation\Builder\Trigger\InteractionWebWorker\Awaits;
+namespace Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits;
 
 use _DevblocksValidationService;
 use DevblocksPlatform;
@@ -36,6 +36,6 @@ class EditorAwait extends AbstractAwait {
 		$tpl->assign('default', $default);
 		$tpl->assign('editor_mode', $mode);
 		
-		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.web.worker/await/editor.tpl');
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/interaction.worker/await/editor.tpl');
 	}
 }
