@@ -202,6 +202,14 @@
     font-size: 1em;
 }
 
+.cerb-interaction-popup--form-elements-sheet a {
+    color: #333333;
+}
+
+.cerb-interaction-popup--form-elements-sheet [data-cerb-sheet-container] {
+    position: relative;
+}
+
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet th {
     font-weight: bold;
     font-size: 1.25em;
@@ -211,7 +219,7 @@
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet td {
     padding: 5px;
 }
-.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody:nth-child(even) td {
+.cerb-interaction-popup--form-elements-sheet tbody:nth-child(even) td {
     background-color: whitesmoke;
 }
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody {
@@ -220,8 +228,9 @@
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.selected td {
     background-color: #fbec88;
 }
-.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.hover tr td {
-    background-color: #ffffc8 !important;
+
+.cerb-interaction-popup--form-elements-sheet .cerb-sheet tbody.cerb-sheet--row:hover td {
+    background-color: #ffffc8;
 }
 
 .cerb-interaction-popup--form-elements-sheet .cerb-sheet-buttons--button {

@@ -95,6 +95,36 @@
 
 	$prompt.addEventListener('cerb-sheet--page-changed', function(e) {
 		e.stopPropagation();
+
+		if(!e.detail.hasOwnProperty('page'))
+			return;
+		
+		// Update the sheet
+		var formData = new FormData();
+		formData.set('continuation_token', '{$continuation_token}');
+		formData.set('prompt_key', 'sheet/{$var}');
+		formData.set('prompt_action', 'refresh');
+		formData.set('page', e.detail.page);
+		
+		var $spinner = $$.getSpinner();
+		$spinner.style.position = 'absolute';
+		$spinner.style.marginTop = '-16px';
+		$spinner.style.marginLeft = '-16px';
+		$spinner.style.left = '50%';
+		$spinner.style.top = '50%';
+		
+		$sheet.prepend($spinner);
+		$sheet.style.opacity = 0.35;
+		
+		$$.interactionInvoke(formData, function(res) {
+			$sheet.style.opacity = 1.0;
+			$spinner.remove();
+			
+			if(200 === res.status) {
+				$sheet.innerHTML = res.responseText;
+				$prompt.dispatchEvent($$.createEvent('cerb-sheet--update-selections'));
+			}
+		});
 	});
 
 	$sheet.addEventListener('cerb-sheet--selection', function(e) {

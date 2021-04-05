@@ -81,55 +81,59 @@
 {
 	var $script = document.querySelector('#{$script_uid}');
 	var $sheet = $script.parentElement.querySelector('.cerb-sheet');
-
-	{if $is_selection_enabled}
-	$$.forEach($sheet.querySelectorAll('tbody'), function(index, $tbody) {
-		$$.disableSelection($tbody);
+	var $prompt = $sheet.closest('.cerb-interaction-popup--form-elements-sheet');
+	
+	$$.disableSelection($prompt);
+	
+	$prompt.addEventListener('click', function(e) {
+		e.stopPropagation();
 		
-		$tbody.addEventListener('click', function(e) {
-			e.stopPropagation();
+		var $target = e.target;
+		
+		if($target.hasAttribute('data-page')) {
+			var page = $target.getAttribute('data-page');
+
+			var evt = $$.createEvent('cerb-sheet--page-changed', { "page": page });
+			$prompt.dispatchEvent(evt);
 			
-			if('a' === e.target.nodeName.toLowerCase())
+		} else {
+			{if $is_selection_enabled}
+			var $tbody = $target.closest('tbody');
+			
+			if(!$tbody)
+				return;
+			
+			if('a' === e.target.nodeName.toLowerCase() || 'input' === e.target.nodeName.toLowerCase())
 				return;
 
 			// If removing selected, add back hover
 
 			var $checkbox = $tbody.querySelector('input[type=radio], input[type=checkbox]');
-			
+
 			// If our target was something other than the input toggle
 			if($checkbox !== e.target) {
 				$checkbox.checked = !$checkbox.checked;
 			}
 
 			var is_multiple = 'checkbox' === $checkbox.attributes.type.value.toLowerCase();
-			
+
 			$sheet.dispatchEvent(
-				$$.createEvent('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple })				
+				$$.createEvent('cerb-sheet--selection', { ui: { item: $checkbox }, is_multiple: is_multiple })
 			);
 
 			var row_selections = [];
 
 			var $checkboxes = $tbody.closest('table.cerb-sheet').querySelectorAll('input[type=radio]:checked ,input[type=checkbox]:checked');
-			
+
 			$$.forEach($checkboxes, function(index, $e) {
 				row_selections.push($e.value);
 			});
-			
+
 			$sheet.dispatchEvent(
 				$$.createEvent('cerb-sheet--selections-changed', { row_selections: row_selections, is_multiple: is_multiple })
 			);
-		});
-
-		$tbody.addEventListener('mouseover', function(e) {
-			e.stopPropagation();
-			$tbody.classList.add('hover');
-		});
-		
-		$tbody.addEventListener('mouseout', function(e) {
-			e.stopPropagation();
-			$tbody.classList.remove('hover');
-		});
+			{/if}
+		}
 	});
-	{/if}
 }
 </script>
