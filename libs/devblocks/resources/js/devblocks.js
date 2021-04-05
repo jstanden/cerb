@@ -822,8 +822,7 @@ function DevblocksClass() {
 							
 							if(path.length === matches) {
 								// [TODO] This could be multiple following tokens (e.g. [1,2,3])
-								var val = iter.stepForward().value;
-								return val;
+								return iter.stepForward().value;
 							}
 						}
 					}

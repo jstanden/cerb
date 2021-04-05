@@ -23,7 +23,7 @@ class SheetAwait extends AbstractAwait {
 	}
 	
 	function validate(_DevblocksValidationService $validation) {
-		@$prompt_label = $this->_data['label'];
+		$prompt_label = $this->_data['label'] ?? null;
 		
 		$field = $validation->addField($this->_key, $prompt_label);
 		$field_type = $field->stringOrArray();

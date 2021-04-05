@@ -251,6 +251,9 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		
 		$is_single_result = false;
 		
+		if(!$context_ids)
+			return [];
+		
 		if(!is_array($context_ids)) {
 			$is_single_result = true;
 			$context_ids = [$context_ids];

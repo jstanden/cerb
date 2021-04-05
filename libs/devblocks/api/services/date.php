@@ -539,7 +539,7 @@ class DevblocksCalendarHelper {
 		$date_range_from = strtotime('00:00', $range_from['timestamp']);
 		$date_range_to = strtotime('23:59', $range_to['timestamp']);
 		
-		$calendar_properties = array(
+		return [
 			'today' => strtotime('today'),
 			'month' => $month,
 			'prev_month' => $prev_month,
@@ -551,9 +551,7 @@ class DevblocksCalendarHelper {
 			'date_range_to' => $date_range_to,
 			'calendar_date' => $calendar_date,
 			'calendar_weeks' => $calendar_weeks,
-		);
-		
-		return $calendar_properties;
+		];
 	}
 	
 	static function getDailyDates($start, $every_n=1, $until=null, $max_iter=null) {

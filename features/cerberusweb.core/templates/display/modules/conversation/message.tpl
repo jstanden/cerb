@@ -403,13 +403,6 @@
 						{if $message->is_outgoing}
 							<button type="button" onclick="genericAjaxPopup('message_resend','c=profiles&a=invoke&module=ticket&action=showResendMessagePopup&id={$message->id}');"><span class="glyphicons glyphicons-share"></span> Send Again</button>
 						{/if}
-
-						{* Plugin Toolbar *}
-						{if !empty($message_toolbaritems)}
-							{foreach from=$message_toolbaritems item=renderer}
-								{if !empty($renderer)}{$renderer->render($message)}{/if}
-							{/foreach}
-						{/if}
 					</form>
 				</td>
 			</tr>
@@ -431,13 +424,6 @@
 
 			{if $message->is_outgoing}
 				<button type="button" onclick="genericAjaxPopup('message_resend','c=profiles&a=invoke&module=ticket&action=showResendMessagePopup&id={$message->id}');"><span class="glyphicons glyphicons-share"></span> Send Again</button>
-			{/if}
-
-			{* Plugin Toolbar *}
-			{if !empty($message_toolbaritems)}
-				{foreach from=$message_toolbaritems item=renderer}
-					{if !empty($renderer)}{$renderer->render($message)}{/if}
-				{/foreach}
 			{/if}
 		</form>
 		

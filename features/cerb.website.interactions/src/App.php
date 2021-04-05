@@ -1,6 +1,8 @@
 <?php /** @noinspection PhpUnused DuplicatedCode */
 
 class Portal_WebsiteInteractions extends Extension_CommunityPortal {
+	const ID = 'cerb.website.interactions';
+	
 	const PARAM_AUTOMATIONS_KATA = 'automations_kata';
 	const PARAM_CORS_ORIGINS_ALLOWED = 'cors_origins_allowed';
 	

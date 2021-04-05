@@ -724,15 +724,12 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_BEHAVIOR), '%s'), self::getPrimaryKey());
-				break;
-				
+			
 			case self::VIRTUAL_USABLE_BY:
 				return self::_getWhereSQLForUsableBy($param, self::getPrimaryKey());
-				break;
 				
 			case self::VIRTUAL_WATCHERS:
 				return self::_getWhereSQLFromWatchersField($param, CerberusContexts::CONTEXT_BEHAVIOR, self::getPrimaryKey());
-				break;
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
@@ -740,7 +737,6 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 				} else {
 					return $param->getWhereSQL(self::getFields(), self::getPrimaryKey());
 				}
-				break;
 		}
 	}
 	
@@ -786,21 +782,17 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			case SearchFields_TriggerEvent::BOT_ID:
 				$models = DAO_Bot::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_TriggerEvent::EVENT_POINT:
 				return parent::_getLabelsForKeyExtensionValues(Extension_DevblocksEvent::POINT);
-				break;
 				
 			case SearchFields_TriggerEvent::ID:
 				$models = DAO_TriggerEvent::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'title', 'id');
-				break;
 				
 			case SearchFields_TriggerEvent::IS_DISABLED:
 			case SearchFields_TriggerEvent::IS_PRIVATE:
 				return parent::_getLabelsForKeyBooleanValues();
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -1853,11 +1845,9 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		switch($field) {
 			case 'bot':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 				
 			case 'usableBy.bot':
 				$oper = $value = null;
@@ -1869,15 +1859,11 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					DevblocksSearchCriteria::OPER_CUSTOM,
 					['context' => CerberusContexts::CONTEXT_BOT, 'id' => $bot_id]
 				);
-				break;
 				
 			default:
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {

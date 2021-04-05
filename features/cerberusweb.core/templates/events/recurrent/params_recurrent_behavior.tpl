@@ -38,7 +38,7 @@
 		</select>
 	</div>
 	
-	<b>Timezone:</b>
+	<b>{'common.timezone'|devblocks_translate|capitalize}:</b>
 	<div style="margin-left:10px;margin-bottom:5px;">
 		<select name="event_params[timezone]">
 			{foreach from=$timezones item=timezone}

@@ -83,7 +83,7 @@ $(function() {
 			$buttonbar.find('> *').remove();
 			
 			if($.isArray(json)) {
-				for(idx in json) {
+				for(var idx in json) {
 					var row = json[idx];
 					var $btn = $('<button type="button"/>')
 						.css('margin-right', '5px')
@@ -182,7 +182,6 @@ $(function() {
 			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpen&context=' + encodeURIComponent(context) + '&link_context=' + from_context + '&link_context_id=' + from_context_id,null,false,'90%');
 			$popup.one('chooser_save', function(event) {
 				event.stopPropagation();
-				var $id = context.replace(/\./g,'_');
 
 				var formData = new FormData();
 				formData.set('c', 'internal');

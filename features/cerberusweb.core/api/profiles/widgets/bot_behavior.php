@@ -33,7 +33,7 @@ class ProfileWidget_BotBehavior extends Extension_ProfileWidget {
 			'widget_id' => $model->id,
 		]);
 		
-		@$behavior_id = $model->extension_params['behavior_id'];
+		$behavior_id = $model->extension_params['behavior_id'] ?? null;
 		
 		if(false == ($behavior = DAO_TriggerEvent::get($behavior_id)))
 			return;
