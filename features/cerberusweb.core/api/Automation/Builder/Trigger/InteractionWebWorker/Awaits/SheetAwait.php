@@ -90,7 +90,15 @@ class SheetAwait extends AbstractAwait {
 				}
 			}
 			
-		} else if(DevblocksPlatform::arrayIsIndexed($sheet_data)) {
+		} else {
+			$total = count($sheet_data);
+			$sheet_offset = $sheet_page * $sheet_limit;
+			
+			if($sheet_limit)
+				$sheet_data = array_slice($sheet_data, $sheet_offset, $sheet_limit, true);
+			
+			$sheet_paging = $sheets->getPaging(count($sheet_data), $sheet_page, $sheet_limit, $total);
+			
 			// If the values are empty, synthesize a key
 			foreach($sheet_data as $k => $v) {
 				if(is_array($v) && empty($v))
@@ -177,8 +185,6 @@ class SheetAwait extends AbstractAwait {
 		
 		$is_dirty = false;
 		
-		list(,$prompt_name) = explode('/', $prompt_key, 2);
-		
 		$prompt =& $continuation->state_data['dict']['__return']['form']['elements'][$prompt_key];
 		
 		if(is_null($prompt))
@@ -200,7 +206,7 @@ class SheetAwait extends AbstractAwait {
 		
 		$tpl->assign('layout_style', $layout_style);
 		
-		$tpl->assign('sheet_selection_key', sprintf("prompts[%s]", $prompt_name));
+		$tpl->assign('sheet_selection_key', uniqid('selection_'));
 		
 		if($layout_style == 'grid') {
 			$tpl->display('devblocks:cerberusweb.core::ui/sheets/render_grid.tpl');
