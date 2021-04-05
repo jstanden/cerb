@@ -99,6 +99,11 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 						
 						$this->_handleInteractionContinue($continuation_token);
 						break;
+						
+					case 'invoke':
+						$continuation_token = DevblocksPlatform::importGPC($_POST['continuation_token'] ?? null, 'string');
+						$this->_handleInteractionInvoke($continuation_token);
+						break;
 				}
 				break;
 				
@@ -231,6 +236,31 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				$this->_handleAwaitForm($continuation);
 			}
  		}
+	}
+	
+	private function _handleInteractionInvoke(string $continuation_token) : void {
+		if(false == ($continuation = DAO_AutomationContinuation::getByToken($continuation_token)))
+			DevblocksPlatform::dieWithHttpError("null continuation token", 404);
+		
+		$form_components = AutomationTrigger_InteractionWebsite::getFormComponentMeta();
+		
+		$initial_state = $continuation->state_data['dict'] ?? [];
+		$last_prompts = $initial_state['__return']['form']['elements'] ?? [];
+		
+		$prompt_key = rtrim(DevblocksPlatform::importGPC($_POST['prompt_key'] ?? null, 'string'), '/');
+		$prompt_action = DevblocksPlatform::importGPC($_POST['prompt_action'] ?? null, 'string');
+		
+		if(!array_key_exists($prompt_key, $last_prompts))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$last_prompt = $last_prompts[$prompt_key];
+		
+		list($prompt_type, $prompt_set_key) = array_pad(explode('/', $prompt_key), 2, null);
+		
+		if(array_key_exists($prompt_type, $form_components)) {
+			$component = new $form_components[$prompt_type]($prompt_set_key, null, $last_prompt);
+			$component->invoke($prompt_key, $prompt_action, $continuation);
+		}
 	}
 	
 	private function _handleAwaitForm(Model_AutomationContinuation $continuation) {

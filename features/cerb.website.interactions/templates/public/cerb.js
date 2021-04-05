@@ -272,6 +272,27 @@ CerbInteractions.prototype.interactionContinue = function(is_submit) {
     xhttp.send(formData);
 }
 
+CerbInteractions.prototype.interactionInvoke = function(formData, callback) {
+    var xhttp = new XMLHttpRequest()
+
+    xhttp.onreadystatechange = function () {
+        if (4 === this.readyState) {
+            if(200 === this.status) {
+                return callback(this);
+
+            } else if (404 === this.status) {
+                return callback(this);
+
+            } else {
+                return callback(this);
+            }
+        }
+    };
+
+    xhttp.open('POST', '{devblocks_url full=true}c=interaction&a=invoke{/devblocks_url}');
+    xhttp.send(formData);
+}
+
 CerbInteractions.prototype.interactionEnd = function() {
     this.$body.removeChild(this.$popup);
     this.$popup = null;
