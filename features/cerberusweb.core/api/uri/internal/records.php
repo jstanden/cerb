@@ -131,9 +131,11 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			if(false == (@$context = $contexts[$ext_id]))
 				continue;
 			
+			$aliases = Extension_DevblocksContext::getAliasesForContext($context);
+			
 			$results[] = [
 				'context' => $ext_id,
-				'label' => $context->name,
+				'label' => DevblocksPlatform::strTitleCase($aliases['plural']) ?? $context->name,
 				'count' => $count,
 			];
 		}

@@ -30,7 +30,9 @@
 				{$has_links = false}
 				{foreach from=$link_ctxs item=link_ctx key=link_ctx_extid name=links}
 				{if $link_counts.$link_ctx_extid}
-					<button type="button" data-context="{$link_ctx_extid}"><div class="badge-count">{$link_counts.$link_ctx_extid|number_format}</div> {$link_ctx->name}</button>
+					{$link_ctx_aliases = Extension_DevblocksContext::getAliasesForContext($link_ctx)}
+					{$link_ctx_alias = $link_ctx_aliases.plural|default:$link_ctx->name}
+					<button type="button" data-context="{$link_ctx_extid}"><div class="badge-count">{$link_counts.$link_ctx_extid|number_format}</div> {$link_ctx_alias|capitalize}</button>
 					{$has_links = true}
 				{/if}
 				{/foreach}
