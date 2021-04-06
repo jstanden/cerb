@@ -103,6 +103,8 @@ $db->ExecuteMaster("UPDATE trigger_event SET is_disabled = 1 WHERE event_point =
 // ===========================================================================
 // Add `automation` table
 
+$automation_files = [];
+
 if(!isset($tables['automation'])) {
 	$sql = sprintf("
 		CREATE TABLE `automation` (
@@ -175,17 +177,6 @@ if(!isset($tables['automation'])) {
 		'cerb.ticket.participants.remove.json',
 	];
 	
-	foreach($automation_files as $automation_file) {
-		$path = realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/') . '/' . $automation_file;
-		
-		if(!file_exists($path) || false === ($automation_data = json_decode(file_get_contents($path), true)))
-			continue;
-		
-		DAO_Automation::importFromJson($automation_data);
-		
-		unset($automation_data);
-	}	
-	
 } else {
 	// ===========================================================================
 	// Rename 10.0-beta automations
@@ -194,6 +185,25 @@ if(!isset($tables['automation'])) {
 	$db->ExecuteMaster("UPDATE automation SET name = REPLACE(name, 'interaction.web.worker', 'interaction.worker') WHERE name LIKE '%interaction.web.worker%'");
 	$db->ExecuteMaster("UPDATE automation SET script = REPLACE(script, 'interaction.web.worker', 'interaction.worker') WHERE script LIKE '%interaction.web.worker%'");
 	$db->ExecuteMaster("UPDATE automation SET policy_kata = REPLACE(policy_kata, 'interaction.web.worker', 'interaction.worker') WHERE policy_kata LIKE '%interaction.web.worker%'");
+	
+	$automation_files = [
+		'cerb.data.platform.extensions.json',
+		'cerb.data.record.fields.json',
+		'cerb.data.record.types.json',
+		'cerb.data.records.json',
+		'cerb.data.ui.icons.json',
+	];
+}
+
+foreach($automation_files as $automation_file) {
+	$path = realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/') . '/' . $automation_file;
+	
+	if(!file_exists($path) || false === ($automation_data = json_decode(file_get_contents($path), true)))
+		continue;
+	
+	DAO_Automation::importFromJson($automation_data);
+	
+	unset($automation_data);
 }
 
 // ===========================================================================

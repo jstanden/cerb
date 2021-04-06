@@ -19,6 +19,18 @@ class AutomationTrigger_UiSheetData extends Extension_AutomationTrigger {
 				'key' => 'inputs',
 				'notes' => 'The input parameters.',
 			],
+			[
+				'key' => 'sheet_filter',
+				'notes' => 'The optional text to filter results by (if `schema:layout:filtering:` is enabled).',
+			],
+			[
+				'key' => 'sheet_limit',
+				'notes' => 'The number of results per page.',
+			],
+			[
+				'key' => 'sheet_page',
+				'notes' => 'The zero-based current page of the sheet (if `schema:layout:paging:` is enabled).',
+			],
 		];
 	}
 	
@@ -30,8 +42,8 @@ class AutomationTrigger_UiSheetData extends Extension_AutomationTrigger {
 					'notes' => 'An array of dictionaries.',
 				],
 				[
-					'key' => 'paging',
-					'notes' => 'Paging metadata.',
+					'key' => 'total',
+					'notes' => 'The total number of results in the `data:` before paging.',
 				],
 			],
 		];

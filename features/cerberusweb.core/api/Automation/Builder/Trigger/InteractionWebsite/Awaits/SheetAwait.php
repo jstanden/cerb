@@ -64,12 +64,12 @@ class SheetAwait extends AbstractAwait {
 				$automator = DevblocksPlatform::services()->automation();
 				
 				$callback_inputs = $sheet_data['function']['inputs'] ?? [];
-				$callback_inputs['limit'] = $sheet_limit;
-				$callback_inputs['page'] = $sheet_page;
-				$callback_inputs['filter'] = $sheet_filter;
 				
 				$callback_init = [
 					'inputs' => $callback_inputs,
+					'sheet_limit' => $sheet_limit,
+					'sheet_page' => $sheet_page,
+					'sheet_filter' => $sheet_filter,
 				];
 				
 				$callback_results = $automator->executeScript($callback, $callback_init, $error);
@@ -81,7 +81,8 @@ class SheetAwait extends AbstractAwait {
 					$callback_return = $callback_results->getKeyPath('__return');
 					
 					$sheet_data = $callback_return['data'] ?? [];
-					$sheet_paging = $callback_return['paging'] ?? [];
+					$total = $callback_return['total'] ?? count($sheet_data);
+					$sheet_paging = $sheets->getPaging(count($sheet_data), $sheet_page, $sheet_limit, $total);
 				}
 			}
 			
