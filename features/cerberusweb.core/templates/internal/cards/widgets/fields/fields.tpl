@@ -13,7 +13,7 @@
 		
 	<div data-cerb-toolbar-container style="margin:5px 0 10px 5px;">
 		{if $search_buttons}
-			<div class="cerb-search-buttons" style="display:inline-block;">
+			<div class="cerb-search-buttons" style="display:inline;">
 				{foreach from=$search_buttons item=search_button}
 				<button type="button" class="cerb-search-trigger" data-context="{$search_button.context}" data-query="{$search_button.query}"><div class="badge-count">{$search_button.count|default:0}</div> {$search_button.label|capitalize}</button>
 				{/foreach}
