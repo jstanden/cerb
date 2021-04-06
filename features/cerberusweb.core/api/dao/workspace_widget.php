@@ -1318,10 +1318,9 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-//			$params_req = array(
-//				new DevblocksSearchCriteria(SearchFields_WorkspaceWidget::CONTEXT_LINK,'=',$context),
-//				new DevblocksSearchCriteria(SearchFields_WorkspaceWidget::CONTEXT_LINK_ID,'=',$context_id),
-//			);
+			$params_req = [
+				new DevblocksSearchCriteria(SearchFields_WorkspaceWidget::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

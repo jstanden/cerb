@@ -1513,11 +1513,10 @@ class Context_Notification extends Extension_DevblocksContext {
 		
 		$params_req = [];
 		
-		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Notification::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_Notification::CONTEXT_LINK_ID,'=',$context_id),
-			);
+		if($context && $context_id) {
+			$params_req = [
+				//new DevblocksSearchCriteria(SearchFields_Notification::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

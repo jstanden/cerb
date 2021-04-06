@@ -1170,10 +1170,9 @@ class Context_TwitterMessage extends Extension_DevblocksContext {
 		
 		// [TODO] virtual_context_link
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_TwitterMessage::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_TwitterMessage::CONTEXT_LINK_ID,'=',$context_id),
-			);
+			$params_req = [
+				//new DevblocksSearchCriteria(Context_TwitterMessage::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

@@ -696,6 +696,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 	const UPDATED_AT = 't_updated_at';
 	
 	const VIRTUAL_BOT_SEARCH = '*_bot_search';
+	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_USABLE_BY = '*_usable_by';
 	const VIRTUAL_WATCHERS = '*_workers';
@@ -717,8 +718,10 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 		switch($param->field) {
 			case self::VIRTUAL_BOT_SEARCH:
 				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_BOT, 'trigger_event.bot_id');
-				break;
 				
+			case self::VIRTUAL_CONTEXT_LINK:
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_BEHAVIOR, self::getPrimaryKey());
+
 			case self::VIRTUAL_HAS_FIELDSET:
 				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_BEHAVIOR), '%s'), self::getPrimaryKey());
 				break;
@@ -831,6 +834,7 @@ class SearchFields_TriggerEvent extends DevblocksSearchFields {
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'trigger_event', 'updated_at', $translate->_('common.updated'), null, true),
 				
 			self::VIRTUAL_BOT_SEARCH => new DevblocksSearchField(self::VIRTUAL_BOT_SEARCH, '*', 'bot_search', null, null, false),
+			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_USABLE_BY => new DevblocksSearchField(self::VIRTUAL_USABLE_BY, '*', 'usable_by', null, null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
@@ -1591,6 +1595,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 		
 		$this->addColumnsHidden(array(
 			SearchFields_TriggerEvent::VIRTUAL_BOT_SEARCH,
+			SearchFields_TriggerEvent::VIRTUAL_CONTEXT_LINK,
 			SearchFields_TriggerEvent::VIRTUAL_USABLE_BY,
 		));
 		
@@ -1649,6 +1654,7 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					break;
 					
 				// Virtuals
+				case SearchFields_TriggerEvent::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_TriggerEvent::VIRTUAL_HAS_FIELDSET:
 				case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
 					$pass = true;
@@ -1692,6 +1698,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				
 			case SearchFields_TriggerEvent::PRIORITY:
 				$counts = $this->_getSubtotalCountForNumberColumn($context, $column);
+				break;
+			
+			case SearchFields_TriggerEvent::VIRTUAL_CONTEXT_LINK:
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
 			case SearchFields_TriggerEvent::VIRTUAL_HAS_FIELDSET:
@@ -1821,6 +1831,10 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				),
 		);
 		
+		// Add quick search links
+		
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_TriggerEvent::VIRTUAL_CONTEXT_LINK);
+
 		// Add searchable custom fields
 		
 		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_BEHAVIOR, $fields, null);
@@ -1926,7 +1940,11 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 					DevblocksPlatform::strEscapeHtml($param->value)
 				);
 				break;
-				
+			
+			case SearchFields_TriggerEvent::VIRTUAL_CONTEXT_LINK:
+				$this->_renderVirtualContextLinks($param);
+				break;
+
 			case SearchFields_TriggerEvent::VIRTUAL_USABLE_BY:
 				if(!is_array($param->value) || !isset($param->value['context']))
 					return;
@@ -1999,7 +2017,12 @@ class View_TriggerEvent extends C4_AbstractView implements IAbstractView_Subtota
 				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
-				
+			
+			case SearchFields_TriggerEvent::VIRTUAL_CONTEXT_LINK:
+				@$context_links = DevblocksPlatform::importGPC($_POST['context_link'],'array',[]);
+				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
+				break;
+
 			case SearchFields_TriggerEvent::VIRTUAL_WATCHERS:
 				@$worker_ids = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_ids);
@@ -2397,10 +2420,9 @@ class Context_TriggerEvent extends Extension_DevblocksContext implements IDevblo
 		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_TriggerEvent::CONTEXT_LINK,'=',$context),
-				new DevblocksSearchCriteria(SearchFields_TriggerEvent::CONTEXT_LINK_ID,'=',$context_id),
-			);
+			$params_req = [
+				new DevblocksSearchCriteria(SearchFields_TriggerEvent::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);

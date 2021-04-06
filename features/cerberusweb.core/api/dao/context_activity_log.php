@@ -1356,11 +1356,10 @@ class Context_ContextActivityLog extends Extension_DevblocksContext implements I
 		
 		$params_req = array();
 		
-		if(!empty($context) && !empty($context_id)) {
-			$params_req = array(
-// 				new DevblocksSearchCriteria(SearchFields_ContextActivityLog::CONTEXT_LINK,'=',$context),
-// 				new DevblocksSearchCriteria(SearchFields_ContextActivityLog::CONTEXT_LINK_ID,'=',$context_id),
-			);
+		if($context && $context_id) {
+			$params_req = [
+				//new DevblocksSearchCriteria(SearchFields_ContextActivityLog::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+			];
 		}
 		
 		$view->addParamsRequired($params_req, true);
