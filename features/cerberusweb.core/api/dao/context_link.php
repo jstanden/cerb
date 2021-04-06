@@ -246,20 +246,30 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		return $rows;
 	}
 	
-	static public function getContextLinkCounts($context, $context_id, $ignore_contexts=array()) {
+	static public function getContextLinkCounts($context, $context_ids, $ignore_contexts=[]) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$rs = $db->QueryReader(sprintf("SELECT count(to_context_id) AS hits, to_context as context ".
+		$is_single_result = false;
+		
+		if(!is_array($context_ids)) {
+			$is_single_result = true;
+			$context_ids = [$context_ids];
+		}
+		
+		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
+		
+		$sql = sprintf("SELECT count(to_context_id) AS hits, to_context as context, from_context_id ".
 			"FROM context_link ".
 			"WHERE from_context = %s ".
-			"AND from_context_id = %d ".
-			"GROUP BY to_context ".
+			"AND from_context_id IN (%s) ".
+			"GROUP BY to_context, from_context_id ".
 			"ORDER BY hits desc ",
 			$db->qstr($context),
-			$context_id
-		));
+			implode(',', $context_ids)
+		);
+		$rs = $db->QueryReader($sql);
 		
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
@@ -268,10 +278,17 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			if(is_array($ignore_contexts) && in_array($row['context'], $ignore_contexts))
 				continue;
 			
-			$objects[$row['context']] = intval($row['hits']);
+			if(!array_key_exists('from_context_id', $row))
+				$objects[$row['from_context_id']] = [];
+				
+			$objects[$row['from_context_id']][$row['context']] = intval($row['hits']);
 		}
 		
 		mysqli_free_result($rs);
+		
+		if($is_single_result) {
+			return $objects[current($context_ids)] ?? [];
+		}
 		
 		return $objects;
 	}
