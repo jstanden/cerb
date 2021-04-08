@@ -3,6 +3,10 @@ class AutomationTrigger_AutomationFunction extends Extension_AutomationTrigger {
 	const ID = 'cerb.trigger.automation.function';
 	
 	function renderConfig(Model_Automation $model) {
+		$tpl = DevblocksPlatform::services()->template();
+		$tpl->assign('inputs', $this->getInputsMeta());
+		$tpl->assign('outputs', $this->getOutputsMeta());
+		$tpl->display('devblocks:cerberusweb.core::automations/triggers/config_inputs_outputs.tpl');
 	}
 	
 	function validateConfig(array &$params, &$error=null) {
