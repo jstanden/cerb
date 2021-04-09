@@ -80,7 +80,7 @@ INSERT INTO `card_widget` VALUES (75,'Tickets','cerberusweb.contexts.worker','ce
 
 INSERT INTO `cerb_patch_history` VALUES ('cerb.project_boards',8,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerb.webhooks',5,UNIX_TIMESTAMP());
-INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.core',1386,UNIX_TIMESTAMP());
+INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.core',1387,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.crm',23,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.kb',13,UNIX_TIMESTAMP());
 INSERT INTO `cerb_patch_history` VALUES ('cerberusweb.restapi',3,UNIX_TIMESTAMP());
@@ -270,8 +270,8 @@ INSERT INTO `profile_tab` VALUES (54,'Overview','cerberusweb.contexts.timetracki
 INSERT INTO `profile_tab` VALUES (55,'Overview','cerberusweb.contexts.timetracking.activity','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP());
 INSERT INTO `profile_tab` VALUES (56,'Overview','cerberusweb.contexts.webapi.credential','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP());
 INSERT INTO `profile_tab` VALUES (57,'Overview','cerberusweb.contexts.webhook_listener','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP());
-INSERT INTO `profile_tab` VALUES (58,'Overview','cerberusweb.contexts.oauth.app','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',1616115537);
-INSERT INTO `profile_tab` VALUES (59,'Overview','cerberusweb.contexts.connected_service','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',1616115537);
+INSERT INTO `profile_tab` VALUES (58,'Overview','cerberusweb.contexts.oauth.app','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP());
+INSERT INTO `profile_tab` VALUES (59,'Overview','cerberusweb.contexts.connected_service','cerb.profile.tab.dashboard','{\"layout\":\"sidebar_left\"}',UNIX_TIMESTAMP());
 
 INSERT INTO `profile_widget` VALUES (1,'Email Address',1,'cerb.profile.tab.widget.fields','{\"context\":\"cerberusweb.contexts.address\",\"context_id\":\"{{record_id}}\",\"properties\":[[\"contact\",\"num_spam\",\"num_nonspam\",\"is_banned\",\"is_defunct\",\"org\"]],\"links\":{\"show\":\"1\"}}','sidebar',1,4,UNIX_TIMESTAMP());
 INSERT INTO `profile_widget` VALUES (2,'Contact',1,'cerb.profile.tab.widget.fields','{\"context\":\"cerberusweb.contexts.contact\",\"context_id\":\"{{record_contact_id}}\",\"properties\":[[\"name\",\"title\",\"location\",\"language\",\"timezone\",\"phone\",\"mobile\",\"updated\",\"last_login\"]]}','sidebar',2,4,UNIX_TIMESTAMP());
