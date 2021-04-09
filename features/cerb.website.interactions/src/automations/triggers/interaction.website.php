@@ -118,8 +118,23 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'default:',
 					'label:',
 					'limit:',
+					'page:',
 					'required@bool: yes',
 					'schema:',
+				],
+				'(.*):await:form:elements:sheet:data:' => [
+					[
+						'caption' => 'automation:',
+						'snippet' => "automation:\n  uri: cerb:automation:\${1:automation.name}\n  inputs:\n",
+					],
+					[
+						'caption' => '(manual)',
+						'snippet' => "0:\n  key: key1\n  value: value1\n1:\n  key: key2\n  value: value2\n",
+					]
+				],
+				'(.*):await:form:elements:sheet:data:automation:' => [
+					'uri:',
+					'inputs:',
 				],
 				'(.*):await:form:elements:sheet:schema:' => [
 					'columns:',
