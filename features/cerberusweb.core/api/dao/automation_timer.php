@@ -1,13 +1,16 @@
 <?php
-// [TODO] Enabled/disabled
-// [TODO] Last update message (from automation/await)
 class DAO_AutomationTimer extends Cerb_ORMHelper {
 	const AUTOMATIONS_KATA = 'automations_kata';
 	const CONTINUATION_ID = 'continuation_id';
 	const CREATED_AT = 'created_at';
 	const ID = 'id';
+	const IS_DISABLED = 'is_disabled';
+	const IS_RECURRING = 'is_recurring';
+	const RECURRING_PATTERNS = 'recurring_patterns';
+	const RECURRING_TIMEZONE = 'recurring_timezone';
 	const NAME = 'name';
-	const RESUME_AT = 'resume_at';
+	const LAST_RAN_AT = 'last_ran_at';
+	const NEXT_RUN_AT = 'next_run_at';
 	const UPDATED_AT = 'updated_at';
 	
 	private function __construct() {}
@@ -39,7 +42,29 @@ class DAO_AutomationTimer extends Cerb_ORMHelper {
 			->setRequired(true)
 		;
 		$validation
-			->addField(self::RESUME_AT)
+			->addField(self::IS_DISABLED)
+			->bit()
+		;
+		$validation
+			->addField(self::IS_RECURRING)
+			->bit()
+		;
+		$validation
+			->addField(self::RECURRING_PATTERNS)
+			->string()
+			->setMaxLength('16 bits')
+		;
+		$validation
+			->addField(self::RECURRING_TIMEZONE)
+			->string()
+			->addValidator($validation->validators()->timezone())
+		;
+		$validation
+			->addField(self::LAST_RAN_AT)
+			->timestamp()
+		;
+		$validation
+			->addField(self::NEXT_RUN_AT)
 			->timestamp()
 		;
 		$validation
@@ -155,7 +180,7 @@ class DAO_AutomationTimer extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, automations_kata, continuation_id, resume_at, created_at, updated_at ".
+		$sql = "SELECT id, name, automations_kata, continuation_id, is_disabled, is_recurring, recurring_patterns, recurring_timezone, last_ran_at, next_run_at, created_at, updated_at ".
 			"FROM automation_timer ".
 			$where_sql.
 			$sort_sql.
@@ -229,12 +254,17 @@ class DAO_AutomationTimer extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_AutomationTimer();
-			$object->id = $row['id'];
-			$object->name = $row['name'];
 			$object->automations_kata = $row['automations_kata'];
 			$object->continuation_id = $row['continuation_id'];
-			$object->resume_at = $row['resume_at'];
 			$object->created_at = $row['created_at'];
+			$object->id = $row['id'];
+			$object->is_disabled = $row['is_disabled'];
+			$object->is_recurring = $row['is_recurring'];
+			$object->name = $row['name'];
+			$object->last_ran_at = $row['last_ran_at'];
+			$object->next_run_at = $row['next_run_at'];
+			$object->recurring_patterns = $row['recurring_patterns'];
+			$object->recurring_timezone = $row['recurring_timezone'];
 			$object->updated_at = $row['updated_at'];
 			$objects[$object->id] = $object;
 		}
@@ -282,12 +312,22 @@ class DAO_AutomationTimer extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"automation_timer.id as %s, ".
 			"automation_timer.name as %s, ".
-			"automation_timer.resume_at as %s, ".
+			"automation_timer.is_disabled as %s, ".
+			"automation_timer.is_recurring as %s, ".
+			"automation_timer.recurring_patterns as %s, ".
+			"automation_timer.recurring_timezone as %s, ".
+			"automation_timer.last_ran_at as %s, ".
+			"automation_timer.next_run_at as %s, ".
 			"automation_timer.created_at as %s, ".
 			"automation_timer.updated_at as %s ",
 			SearchFields_AutomationTimer::ID,
 			SearchFields_AutomationTimer::NAME,
-			SearchFields_AutomationTimer::RESUME_AT,
+			SearchFields_AutomationTimer::IS_DISABLED,
+			SearchFields_AutomationTimer::IS_RECURRING,
+			SearchFields_AutomationTimer::RECURRING_PATTERNS,
+			SearchFields_AutomationTimer::RECURRING_TIMEZONE,
+			SearchFields_AutomationTimer::LAST_RAN_AT,
+			SearchFields_AutomationTimer::NEXT_RUN_AT,
 			SearchFields_AutomationTimer::CREATED_AT,
 			SearchFields_AutomationTimer::UPDATED_AT
 		);
@@ -343,10 +383,15 @@ class DAO_AutomationTimer extends Cerb_ORMHelper {
 };
 
 class SearchFields_AutomationTimer extends DevblocksSearchFields {
-	const ID = 'a_id';
-	const NAME = 'a_name';
-	const RESUME_AT = 'a_resume_at';
 	const CREATED_AT = 'a_created_at';
+	const ID = 'a_id';
+	const IS_DISABLED = 'a_is_disabled';
+	const IS_RECURRING = 'a_is_recurring';
+	const RECURRING_PATTERNS = 'a_recurring_patterns';
+	const RECURRING_TIMEZONE = 'a_recurring_timezone';
+	const NAME = 'a_name';
+	const LAST_RAN_AT = 'a_last_ran_at';
+	const NEXT_RUN_AT = 'a_next_run_at';
 	const UPDATED_AT = 'a_updated_at';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
@@ -424,8 +469,13 @@ class SearchFields_AutomationTimer extends DevblocksSearchFields {
 		$columns = array(
 			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'automation_timer', 'created_at', $translate->_('common.created'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'automation_timer', 'id', $translate->_('common.id'), null, true),
+			self::IS_DISABLED => new DevblocksSearchField(self::IS_DISABLED, 'automation_timer', 'is_disabled', $translate->_('common.disabled'), null, true),
+			self::IS_RECURRING => new DevblocksSearchField(self::IS_RECURRING, 'automation_timer', 'is_recurring', $translate->_('dao.automation_timer.is_recurring'), null, true),
+			self::RECURRING_PATTERNS => new DevblocksSearchField(self::RECURRING_PATTERNS, 'automation_timer', 'recurring_patterns', $translate->_('dao.automation_timer.recurring_patterns'), null, true),
+			self::RECURRING_TIMEZONE => new DevblocksSearchField(self::RECURRING_TIMEZONE, 'automation_timer', 'recurring_timezone', $translate->_('common.timezone'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'automation_timer', 'name', $translate->_('common.name'), null, true),
-			self::RESUME_AT => new DevblocksSearchField(self::RESUME_AT, 'automation_timer', 'resume_at', $translate->_('common.resume.at'), null, true),
+			self::LAST_RAN_AT => new DevblocksSearchField(self::LAST_RAN_AT, 'automation_timer', 'last_ran_at', $translate->_('dao.automation_timer.last_ran_at'), null, true),
+			self::NEXT_RUN_AT => new DevblocksSearchField(self::NEXT_RUN_AT, 'automation_timer', 'next_run_at', $translate->_('dao.automation_timer.next_run_at'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'automation_timer', 'updated_at', $translate->_('common.updated'), null, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
@@ -451,8 +501,13 @@ class Model_AutomationTimer {
 	public $continuation_id;
 	public $created_at;
 	public $id;
+	public $is_disabled;
+	public $is_recurring;
 	public $name;
-	public $resume_at;
+	public $last_ran_at;
+	public $next_run_at;
+	public $recurring_patterns;
+	public $recurring_timezone;
 	public $updated_at;
 	
 	/**
@@ -466,13 +521,17 @@ class Model_AutomationTimer {
 		}
 	}
 	
-	// [TODO] Rather than deleting the timer, disable it in a completed status?
-	
 	private function _start() {
 		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
 		
 		$error = null;
 		$handler = null;
+		$automation_results = [];
+		
+		$fields = [
+			DAO_AutomationTimer::LAST_RAN_AT => time(),
+			DAO_AutomationTimer::UPDATED_AT => time(),
+		];
 		
 		try {
 			$dict = DevblocksDictionaryDelegate::instance([]);
@@ -496,12 +555,22 @@ class Model_AutomationTimer {
 				throw new Exception_DevblocksAutomationError();
 				
 			$exit_code = $automation_results->get('__exit');
+			$next_run_at = $automation_results->getKeyPath('__return.until');
+			$delete = $automation_results->getKeyPath('__return.delete') ?? false;
+			
+			// Delete?
+			if('return' == $exit_code && $delete) {
+				DAO_AutomationTimer::delete($this->id);
+				
+				if($this->continuation_id)
+					DAO_AutomationContinuation::delete($this->continuation_id);
+				
+				return $automation_results;
 			
 			// Are we resuming later?
-			if ('await' == $exit_code
-				&& $handler instanceof Model_Automation
-				&& null != ($resume_at = $automation_results->getKeyPath('__return.datetime'))
-			) {
+			} else if ('await' == $exit_code && $handler instanceof Model_Automation) {
+				if(!$next_run_at)
+					$next_run_at = 900;
 				
 				$state_data = [
 					'trigger' => AutomationTrigger_AutomationTimer::ID,
@@ -512,32 +581,35 @@ class Model_AutomationTimer {
 				// Create a continuation?
 				$continuation_id = DAO_AutomationContinuation::create([
 					DAO_AutomationContinuation::UPDATED_AT => time(),
-					DAO_AutomationContinuation::EXPIRES_AT => $resume_at + 604800,
+					DAO_AutomationContinuation::EXPIRES_AT => $next_run_at + 604800,
 					DAO_AutomationContinuation::STATE => $exit_code,
 					DAO_AutomationContinuation::STATE_DATA => json_encode($state_data),
 					DAO_AutomationContinuation::URI => $handler->name,
 				]);
 				
 				// Update record
-				DAO_AutomationTimer::update($this->id, [
-					DAO_AutomationTimer::CONTINUATION_ID => $continuation_id,
-					DAO_AutomationTimer::RESUME_AT => intval($resume_at),
-				]);
+				$fields[DAO_AutomationTimer::CONTINUATION_ID] = $continuation_id;
+				$fields[DAO_AutomationTimer::NEXT_RUN_AT] = intval($next_run_at);
 				
-				return $automation_results;
-				
-			// We're not resuming; we're done
+			// Do we need to repeat the timer (if not a continuation)?
 			} else {
-				//if('error' == $exit_code) {
-				// [TODO] Log automation errors
-				//}
+				if($this->is_recurring 
+					&& $this->recurring_patterns 
+					&& false !== ($next_run_at = $this->_getNextOccurrence())) {
+					$fields[DAO_AutomationTimer::NEXT_RUN_AT] = $next_run_at;		
+				} else {
+					$fields[DAO_AutomationTimer::NEXT_RUN_AT] = 0;		
+					$fields[DAO_AutomationTimer::IS_DISABLED] = 1;
+				}
 			}
-			
-			DAO_AutomationTimer::delete($this->id);
-			
+				
 		} catch(Exception_DevblocksAutomationError $e) {
-				DAO_AutomationTimer::delete($this->id);
+			$fields[DAO_AutomationTimer::IS_DISABLED] = 1;
+			$fields[DAO_AutomationTimer::NEXT_RUN_AT] = 0;
 		}
+		
+		if($fields)
+			DAO_AutomationTimer::update($this->id, $fields);
 		
 		return $automation_results;
 	}
@@ -545,7 +617,13 @@ class Model_AutomationTimer {
 	private function _continue() {
 		$automator = DevblocksPlatform::services()->automation();
 		
+		$automation_results = [];
 		$error = null;
+		
+		$fields = [
+			DAO_AutomationTimer::LAST_RAN_AT => time(),
+			DAO_AutomationTimer::UPDATED_AT => time(),
+		];
 		
 		try {
 			if(false == ($continuation = DAO_AutomationContinuation::getByToken($this->continuation_id)))
@@ -559,13 +637,14 @@ class Model_AutomationTimer {
 				throw new Exception_DevblocksAutomationError();
 			
 			// Verify the await timestamp has elapsed
-			$resume_at = $continuation->state_data['dict']['__return']['datetime'] ?? 0;
+			$next_run_at = $continuation->state_data['dict']['__return']['until'] ?? 0;
 			
 			// Has the expected time not elapsed yet?
-			if($resume_at > time()) {
+			if($next_run_at > time()) {
 				// Reschedule
 				DAO_AutomationTimer::update($this->id, [
-					DAO_AutomationTimer::RESUME_AT => $resume_at,
+					DAO_AutomationTimer::LAST_RAN_AT => time(),
+					DAO_AutomationTimer::NEXT_RUN_AT => $next_run_at,
 					DAO_AutomationTimer::UPDATED_AT => time(),
 				]);
 				return false;
@@ -588,43 +667,60 @@ class Model_AutomationTimer {
 				throw new Exception_DevblocksAutomationError();
 			
 			$exit_code = $automation_results->get('__exit');
+			$next_run_at = $automation_results->getKeyPath('__return.until');
+			$delete = $automation_results->getKeyPath('__return.delete') ?? false;
 			
-			// Error?
-			//if('error' == $exit_code) {
-				// [TODO]
-			//}
-			
-			// Are we resuming again?
-			if('await' == $exit_code 
-				&& null != ($resume_at = $automation_results->getKeyPath('__return.datetime'))
-			) {
+			// Delete?
+			if('return' == $exit_code && $delete) {
+				DAO_AutomationTimer::delete($this->id);
+				DAO_AutomationContinuation::delete($continuation->token);
+				
+			// Are we awaiting again?
+			} else if('await' == $exit_code && $next_run_at) {
 				$continuation->state_data['dict'] = $automation_results->getDictionary();
 				
 				DAO_AutomationContinuation::update($continuation->token, [
 					DAO_AutomationContinuation::STATE => $exit_code,
 					DAO_AutomationContinuation::STATE_DATA => json_encode($continuation->state_data),
 					DAO_AutomationContinuation::UPDATED_AT => time(),
-					DAO_AutomationContinuation::EXPIRES_AT => $resume_at + 604800,
+					DAO_AutomationContinuation::EXPIRES_AT => $next_run_at + 604800,
 				]);
 				
-				DAO_AutomationTimer::update($this->id, [
-					DAO_AutomationTimer::RESUME_AT => intval($resume_at),
-					DAO_AutomationTimer::UPDATED_AT => time(),
-				]);
+				$fields[DAO_AutomationTimer::NEXT_RUN_AT] = intval($next_run_at);
 				
-				return $automation_results;
+			// Do we need to repeat the timer (if not a continuation)?
+			} else {
+				DAO_AutomationContinuation::delete($continuation->token);
+				$fields[DAO_AutomationTimer::CONTINUATION_ID] = '';
+				
+				if($this->is_recurring
+					&& $this->recurring_patterns
+					&& false !== ($next_run_at = $this->_getNextOccurrence())) {
+					$fields[DAO_AutomationTimer::NEXT_RUN_AT] = $next_run_at;
+				} else {
+					$fields[DAO_AutomationTimer::NEXT_RUN_AT] = 0;
+					$fields[DAO_AutomationTimer::IS_DISABLED] = 1;
+				}
 			}
 			
-			// Cleanup
-			DAO_AutomationContinuation::delete($continuation->token);
-			DAO_AutomationTimer::delete($this->id);
-			
-			return $automation_results;
-			
 		} catch (Exception_DevblocksAutomationError $e) {
-			DAO_AutomationTimer::delete($this->id);
-			return false;
+			DAO_AutomationContinuation::delete($this->continuation_id);
+			
+			$fields[DAO_AutomationTimer::IS_DISABLED] = 1;
+			$fields[DAO_AutomationTimer::NEXT_RUN_AT] = 0;
+			$fields[DAO_AutomationTimer::CONTINUATION_ID] = '';
 		}
+		
+		if($fields)
+			DAO_AutomationTimer::update($this->id, $fields);
+		
+		return $automation_results;
+	}
+	
+	private function _getNextOccurrence() {
+		$patterns = DevblocksPlatform::parseCrlfString($this->recurring_patterns);
+		$timezone = $this->recurring_timezone ?: DevblocksPlatform::getTimezone();
+		return DevblocksPlatform::services()->date()->getNextOccurrence($patterns, $timezone);
 	}
 };
 
@@ -635,13 +731,15 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 		$this->id = self::DEFAULT_ID;
 		$this->name = DevblocksPlatform::translateCapitalized('common.automation.timers');
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_AutomationTimer::RESUME_AT;
+		$this->renderSortBy = SearchFields_AutomationTimer::NEXT_RUN_AT;
 		$this->renderSortAsc = true;
 		
 		$this->view_columns = array(
 			SearchFields_AutomationTimer::NAME,
-			SearchFields_AutomationTimer::RESUME_AT,
-			SearchFields_AutomationTimer::UPDATED_AT,
+			SearchFields_AutomationTimer::LAST_RAN_AT,
+			SearchFields_AutomationTimer::NEXT_RUN_AT,
+			SearchFields_AutomationTimer::IS_RECURRING,
+			SearchFields_AutomationTimer::IS_DISABLED,
 		);
 		
 		$this->addColumnsHidden(array(
@@ -797,10 +895,20 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => array('param_key' => SearchFields_AutomationTimer::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
-			'resumeAt' =>
+			'lastRanAt' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_AutomationTimer::RESUME_AT),
+					'options' => array('param_key' => SearchFields_AutomationTimer::LAST_RAN_AT),
+				),
+			'nextRunAt' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => array('param_key' => SearchFields_AutomationTimer::NEXT_RUN_AT),
+				),
+			'isRecurring' =>
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_BOOL,
+					'options' => array('param_key' => SearchFields_AutomationTimer::IS_RECURRING),
 				),
 			'updated' =>
 				array(
@@ -900,6 +1008,8 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 		
 		switch($field) {
 			case SearchFields_AutomationTimer::NAME:
+			case SearchFields_AutomationTimer::RECURRING_PATTERNS:
+			case SearchFields_AutomationTimer::RECURRING_TIMEZONE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 			
@@ -907,13 +1017,15 @@ class View_AutomationTimer extends C4_AbstractView implements IAbstractView_Subt
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 			
-			case SearchFields_AutomationTimer::RESUME_AT:
 			case SearchFields_AutomationTimer::CREATED_AT:
+			case SearchFields_AutomationTimer::LAST_RAN_AT:
+			case SearchFields_AutomationTimer::NEXT_RUN_AT:
 			case SearchFields_AutomationTimer::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 			
-			case 'placeholder_bool':
+			case SearchFields_AutomationTimer::IS_DISABLED:
+			case SearchFields_AutomationTimer::IS_RECURRING:
 				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',1);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
@@ -1008,10 +1120,40 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			'value' => $model->created_at,
 		);
 		
-		$properties['resume_at'] = array(
-			'label' => DevblocksPlatform::translateCapitalized('common.resume_at'),
+		$properties['is_disabled'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('dao.disabled'),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_disabled,
+		);
+		
+		$properties['is_recurring'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('dao.automation_timer.is_recurring'),
+			'type' => Model_CustomField::TYPE_CHECKBOX,
+			'value' => $model->is_recurring,
+		);
+		
+		$properties['recurring_patterns'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('dao.automation_timer.recurring_patterns'),
+			'type' => Model_CustomField::TYPE_MULTI_LINE,
+			'value' => $model->recurring_patterns,
+		);
+		
+		$properties['recurring_timezone'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('common.timezone'),
+			'type' => Model_CustomField::TYPE_SINGLE_LINE,
+			'value' => $model->recurring_timezone,
+		);
+		
+		$properties['last_ran_at'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('dao.automation_timer.last_ran_at'),
 			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $model->resume_at,
+			'value' => $model->last_ran_at,
+		);
+		
+		$properties['next_run_at'] = array(
+			'label' => DevblocksPlatform::translateCapitalized('dao.automation_timer.next_run_at'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->next_run_at,
 		);
 		
 		$properties['updated'] = array(
@@ -1064,6 +1206,7 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			$automation_timer = DAO_AutomationTimer::get($automation_timer);
 		} elseif($automation_timer instanceof Model_AutomationTimer) {
 			// It's what we want already.
+			true;
 		} elseif(is_array($automation_timer)) {
 			$automation_timer = Cerb_ORMHelper::recastArrayToModel($automation_timer, 'Model_AutomationTimer');
 		} else {
@@ -1075,8 +1218,13 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			'_label' => $prefix,
 			'created_at' => $prefix.$translate->_('common.created'),
 			'id' => $prefix.$translate->_('common.id'),
+			'is_disabled' => $prefix.$translate->_('common.disabled'),
+			'is_recurring' => $prefix.$translate->_('dao.automation_timer.is_recurring'),
 			'name' => $prefix.$translate->_('common.name'),
-			'resume_at' => $prefix.$translate->_('common.resume_at'),
+			'last_ran_at' => $prefix.$translate->_('dao.automation_timer.last_ran_at'),
+			'next_run_at' => $prefix.$translate->_('dao.automation_timer.next_run_at'),
+			'recurring_patterns' => $prefix.$translate->_('dao.automation_timer.recurring_patterns'),
+			'recurring_timezone' => $prefix.$translate->_('common.timezone'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1086,8 +1234,13 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			'_label' => 'context_url',
 			'created_at' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
+			'is_disabled' => Model_CustomField::TYPE_CHECKBOX,
+			'is_recurring' => Model_CustomField::TYPE_CHECKBOX,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'resume_at' => Model_CustomField::TYPE_DATE,
+			'last_ran_at' => Model_CustomField::TYPE_DATE,
+			'next_run_at' => Model_CustomField::TYPE_DATE,
+			'recurring_patterns' => Model_CustomField::TYPE_MULTI_LINE,
+			'recurring_timezone' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1113,8 +1266,13 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			$token_values['_label'] = $automation_timer->name;
 			$token_values['created_at'] = $automation_timer->created_at;
 			$token_values['id'] = $automation_timer->id;
+			$token_values['is_disabled'] = $automation_timer->is_disabled;
+			$token_values['is_recurring'] = $automation_timer->is_recurring;
 			$token_values['name'] = $automation_timer->name;
-			$token_values['resume_at'] = $automation_timer->resume_at;
+			$token_values['last_ran_at'] = $automation_timer->last_ran_at;
+			$token_values['next_run_at'] = $automation_timer->next_run_at;
+			$token_values['recurring_patterns'] = $automation_timer->recurring_patterns;
+			$token_values['recurring_timezone'] = $automation_timer->recurring_timezone;
 			$token_values['updated_at'] = $automation_timer->updated_at;
 			
 			// Custom fields
@@ -1134,8 +1292,13 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			'links' => '_links',
 			'automations_kata' => DAO_AutomationTimer::AUTOMATIONS_KATA,
 			'created_at' => DAO_AutomationTimer::CREATED_AT,
+			'is_disabled' => DAO_AutomationTimer::IS_DISABLED,
+			'is_recurring' => DAO_AutomationTimer::IS_RECURRING,
 			'name' => DAO_AutomationTimer::NAME,
-			'resume_at' => DAO_AutomationTimer::RESUME_AT,
+			'last_ran_at' => DAO_AutomationTimer::LAST_RAN_AT,
+			'next_run_at' => DAO_AutomationTimer::NEXT_RUN_AT,
+			'recurring_patterns' => DAO_AutomationTimer::RECURRING_PATTERNS,
+			'recurring_timezone' => DAO_AutomationTimer::RECURRING_TIMEZONE,
 			'updated_at' => DAO_AutomationTimer::UPDATED_AT,
 		];
 	}
@@ -1236,15 +1399,19 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 		if($context_id) {
 			if(false == ($model = DAO_AutomationTimer::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 403);
+		} else {
+			$model = new Model_AutomationTimer();
+			$model->recurring_patterns = "# https://en.wikipedia.org/wiki/Cron#CRON_expression\r\n# [min] [hour] [dom] [month] [dow]\r\n";
+			$model->recurring_timezone = DevblocksPlatform::getTimezone();
 		}
 		
 		if(empty($context_id) || $edit) {
 			if($model) {
 				if(!CerberusContexts::isWriteableByActor($context, $model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
-				
-				$tpl->assign('model', $model);
 			}
+			
+			$tpl->assign('model', $model);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
@@ -1256,6 +1423,9 @@ class Context_AutomationTimer extends Extension_DevblocksContext implements IDev
 			
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
+			
+			$timezones = DevblocksPlatform::services()->date()->getTimezones();
+			$tpl->assign('timezones', $timezones);
 			
 			// View
 			$tpl->assign('id', $context_id);

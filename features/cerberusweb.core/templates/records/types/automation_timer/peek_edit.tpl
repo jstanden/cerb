@@ -22,7 +22,40 @@
         <tr>
             <td width="1%" nowrap="nowrap"><b>{'common.when'|devblocks_translate|capitalize}:</b></td>
             <td width="99%">
-                <input type="text" name="resume_at" value="{$model->resume_at|devblocks_date}" style="width:98%;">
+                <input type="text" name="next_run_at" value="{$model->next_run_at|devblocks_date}" style="width:98%;">
+            </td>
+        </tr>
+
+        <tr>
+            <td width="1%" nowrap="nowrap"><b>{'common.status'|devblocks_translate|capitalize}:</b></td>
+            <td width="99%">
+                <label><input type="radio" name="is_disabled" value="0" {if empty($model->is_disabled)}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+                <label><input type="radio" name="is_disabled" value="1" {if !empty($model->is_disabled)}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
+            </td>
+        </tr>
+
+        <tr>
+            <td width="1%" valign="top" nowrap="nowrap">
+                <label>
+                    <b>{'common.repeat'|devblocks_translate|capitalize}:</b>
+                    <input type="checkbox" name="is_recurring" value="1" {if $model->is_recurring}checked="checked"{/if}>
+                </label>
+            </td>
+            <td width="99%">
+                <div data-cerb-timer-schedule style="display:{if $model->is_recurring}block{else}none{/if};">
+                    <textarea name="recurring_patterns" data-editor-mode="ace/mode/ini">{$model->recurring_patterns}</textarea>
+                    
+                    <div style="margin-top:0.5em;">
+                        <b>{'common.timezone'|devblocks_translate|capitalize}</b>: 
+                        
+                        <select name="recurring_timezone">
+                            <option value=""></option>
+                            {foreach from=$timezones item=timezone}
+                                <option value="{$timezone}" {if $timezone == $model->recurring_timezone}selected="selected"{/if}>{$timezone}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
             </td>
         </tr>
 
@@ -33,7 +66,7 @@
 
     {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
-    <fieldset class="peek">
+    <fieldset data-cerb-timer-events class="peek">
         <legend>Event: Automation Timer (KATA)</legend>
         <div class="cerb-code-editor-toolbar">
             {$toolbar_dict = DevblocksDictionaryDelegate::instance([
@@ -119,8 +152,27 @@
                 if(27 === keycode)
                     return confirm('{'warning.core.editor.close'|devblocks_translate}');
             });
-
+            
+            $popup.find('input[name=is_recurring]').on('click', function(e) {
+               e.stopPropagation();
+               var $checkbox = $(this);
+               var $textarea = $popup.find('textarea[name=recurring_patterns]');
+               
+               if($checkbox.is(':checked')) {
+                   $textarea.closest('[data-cerb-timer-schedule]').show();
+               } else {
+                   $textarea.closest('[data-cerb-timer-schedule]').hide();
+               }
+            });
+            
             // Editors
+            var $schedule_editor = $popup.find('textarea[name=recurring_patterns]')
+                .cerbCodeEditor()
+                .nextAll('pre.ace_editor')
+            ;
+            
+            var schedule_editor = ace.edit($schedule_editor.attr('id'));
+            
             var $automation_editor = $popup.find('textarea[name=automations_kata]')
                 .cerbCodeEditor()
                 .cerbCodeEditorAutocompleteKata({
@@ -132,7 +184,8 @@
             var automation_editor = ace.edit($automation_editor.attr('id'));
 
             // Toolbars
-            var $toolbar = $popup.find('.cerb-code-editor-toolbar').cerbToolbar({
+
+            var $toolbar = $popup.find('[data-cerb-timer-events] .cerb-code-editor-toolbar').cerbToolbar({
                 caller: {
                     name: 'cerb.toolbar.eventHandlers.editor',
                     params: {
@@ -169,7 +222,7 @@
 
             // Helpers
 
-            $popup.find('input[name=resume_at]')
+            $popup.find('input[name=next_run_at]')
                 .cerbDateInputHelper()
             ;
         });

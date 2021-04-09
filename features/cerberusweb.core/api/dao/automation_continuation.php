@@ -244,11 +244,11 @@ class DAO_AutomationContinuation extends Cerb_ORMHelper {
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
 		
-		if(!is_array($ids))
-			$ids = [$ids];
-		
 		if(empty($ids))
 			return false;
+		
+		if(!is_array($ids))
+			$ids = [$ids];
 		
 		$ids_list = implode(',', $db->qstrArray($ids));
 		

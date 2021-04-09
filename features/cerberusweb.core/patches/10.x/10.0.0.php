@@ -417,12 +417,17 @@ if(!isset($tables['automation_timer'])) {
 		id int(10) unsigned NOT NULL AUTO_INCREMENT,
 		name varchar(255) NOT NULL DEFAULT '',
 		automations_kata text,
-		resume_at int(10) unsigned NOT NULL DEFAULT '0',
+		is_disabled tinyint(1) NOT NULL DEFAULT '0',
+		last_ran_at int(10) unsigned NOT NULL DEFAULT '0',
+		next_run_at int(10) unsigned NOT NULL DEFAULT '0',
+		is_recurring tinyint(1) NOT NULL DEFAULT '0',
+		recurring_patterns mediumtext,
+		recurring_timezone varchar(255) NOT NULL DEFAULT '',
 		created_at int(10) unsigned NOT NULL DEFAULT '0',
 		updated_at int(10) unsigned NOT NULL DEFAULT '0',
 		continuation_id varchar(255) NOT NULL DEFAULT '',
 		PRIMARY KEY (id),
-		INDEX (resume_at),
+		INDEX (next_run_at),
 		INDEX continuation_id (continuation_id(4)),
 		INDEX (updated_at)
 		) ENGINE=%s
@@ -436,6 +441,40 @@ if(!isset($tables['automation_timer'])) {
 	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'term', 'm')");
 	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'lastrun', '0')");
 	$db->ExecuteMaster("REPLACE INTO cerb_property_store (extension_id, property, value) VALUES ('cron.automations', 'locked', '0')");
+	
+} else {
+	list($columns,) = $db->metaTable('automation_timer');
+	
+	$changes = [];
+	
+	if(array_key_exists('ran_at', $columns)) {
+		$changes[] = "CHANGE COLUMN ran_at last_ran_at int(10) unsigned NOT NULL DEFAULT '0'";
+	}
+	
+	if(array_key_exists('resume_at', $columns)) {
+		$changes[] = "CHANGE COLUMN resume_at next_run_at int(10) unsigned NOT NULL DEFAULT '0'";
+	}
+	
+	if(!array_key_exists('is_disabled', $columns)) {
+		$changes[] = "ADD COLUMN is_disabled tinyint(1) NOT NULL DEFAULT '0'";
+	}
+	
+	if(!array_key_exists('is_recurring', $columns)) {
+		$changes[] = "ADD COLUMN is_recurring tinyint(1) NOT NULL DEFAULT '0'";
+	}
+	
+	if(!array_key_exists('recurring_patterns', $columns)) {
+		$changes[] = "ADD COLUMN recurring_patterns mediumtext";
+	}
+	
+	if(!array_key_exists('recurring_timezone', $columns)) {
+		$changes[] = "ADD COLUMN recurring_timezone varchar(255) NOT NULL DEFAULT ''";
+	}
+	
+	if($changes) {
+		$sql = "ALTER TABLE automation_timer " . implode(', ', $changes);
+		$db->ExecuteMaster($sql);
+	}
 }
 
 // ===========================================================================

@@ -82,13 +82,19 @@
                     {elseif $column == "a_name"}
                         <td>
                             <input type="checkbox" name="row_id[]" value="{$result.a_id}" style="display:none;">
-                            <a href="{devblocks_url}c=profiles&type=automation_timer&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.a_name}</a>
+                            <a href="{devblocks_url}c=profiles&type=automation_timer&id={$result.a_id}-{$result.a_name|devblocks_permalink}{/devblocks_url}" class="subject" style="{if $result.a_is_disabled}text-decoration:line-through;{/if}">{$result.a_name}</a>
                             <button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.a_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
                         </td>
-                    {elseif in_array($column, ["a_created_at","a_resume_at","a_updated_at"])}
+                    {elseif in_array($column, ["a_created_at","a_updated_at","a_last_ran_at","a_next_run_at"])}
                         <td>
                             {if !empty($result.$column)}
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
+                            {/if}
+                        </td>
+                    {elseif in_array($column, ["a_is_disabled","a_is_recurring"])}
+                        <td style="text-align:center;">
+                            {if !empty($result.$column)}
+                                <span class="glyphicons glyphicons-circle-ok" style="color:rgb(100,100,100);"></span>
                             {/if}
                         </td>
                     {else}

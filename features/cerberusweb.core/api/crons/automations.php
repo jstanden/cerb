@@ -24,13 +24,11 @@ class Cron_Automations extends CerberusCronPageExtension {
 
 		do {
 			$timers = DAO_AutomationTimer::getWhere(
-				sprintf("%s < %d AND %s > %d",
-					DAO_AutomationTimer::RESUME_AT,
+				sprintf("is_disabled = 0 AND next_run_at < %d AND id > %d",
 					time(),
-					DAO_AutomationTimer::ID,
 					$last_timer_id
 				),
-				DAO_AutomationTimer::RESUME_AT,
+				DAO_AutomationTimer::NEXT_RUN_AT,
 				true,
 				25
 			);

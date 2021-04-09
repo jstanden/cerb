@@ -26,8 +26,14 @@ class AutomationTrigger_AutomationTimer extends Extension_AutomationTrigger {
 		return [
 			'await' => [
 				[
-					'key' => 'datetime',
+					'key' => 'until',
 					'notes' => 'When to resume the timer, as a Unix timestamp',
+				]
+			],
+			'return' => [
+				[
+					'key' => 'delete',
+					'notes' => '`true` to delete the timer when complete',
 				]
 			]
 		];
@@ -38,6 +44,15 @@ class AutomationTrigger_AutomationTimer extends Extension_AutomationTrigger {
 	}
 	
 	public function getAutocompleteSuggestions() : array {
-		return [];
+		return [
+			'*' => [
+				'(.*):await:' => [
+					'until@date: +5 mins',
+				],
+				'(.*):return:' => [
+					'delete@bool: yes',
+				],
+			]
+		];
 	}
 }

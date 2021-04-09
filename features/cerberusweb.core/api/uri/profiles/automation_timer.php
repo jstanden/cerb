@@ -80,20 +80,52 @@ class PageSection_ProfilesAutomationTimer extends Extension_PageSection {
 				
 			} else {
 				@$name = DevblocksPlatform::importGPC($_POST['name'], 'string', '');
-				@$resume_at = DevblocksPlatform::importGPC($_POST['resume_at'], 'string', '');
+				@$next_run_at = DevblocksPlatform::importGPC($_POST['next_run_at'], 'string', '');
+				@$is_disabled = DevblocksPlatform::importGPC($_POST['is_disabled'], 'bit', 0);
+				@$is_recurring = DevblocksPlatform::importGPC($_POST['is_recurring'], 'bit', 0);
+				@$recurring_patterns = DevblocksPlatform::importGPC($_POST['recurring_patterns'], 'string', '');
+				@$recurring_timezone = DevblocksPlatform::importGPC($_POST['recurring_timezone'], 'string', '');
 				@$automations_kata = DevblocksPlatform::importGPC($_POST['automations_kata'], 'string', '');
 				
 				if(!$active_worker->is_superuser)
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.modify'));
 				
+				if(!$recurring_timezone)
+					$recurring_timezone = DevblocksPlatform::getTimezone();
+				
+				$patterns = DevblocksPlatform::parseCrlfString($recurring_patterns);
+				
+				if($is_recurring && $recurring_patterns) {
+					// Validate all patterns
+					foreach($patterns as $pattern) {
+						if(DevblocksPlatform::strStartsWith($pattern, '#'))
+							continue;
+						
+						if(!Cron\CronExpression::isValidExpression($pattern))
+							throw new Exception_DevblocksAjaxValidationError(sprintf("Invalid cron expression: `%s`", $pattern));
+					}
+				}
+				
 				$error = null;
 				
-				$resume_at = strtotime($resume_at);
+				if(!$next_run_at) {
+					if($is_recurring && $recurring_patterns) {
+						$next_run_at = DevblocksPlatform::services()->date()->getNextOccurrence($patterns, $recurring_timezone);
+					} else {
+						$next_run_at = time();
+					}
+				} else {
+					$next_run_at = strtotime($next_run_at);
+				}
 				
 				$fields = [
 					DAO_AutomationTimer::AUTOMATIONS_KATA => $automations_kata,
 					DAO_AutomationTimer::NAME => $name,
-					DAO_AutomationTimer::RESUME_AT => $resume_at,
+					DAO_AutomationTimer::NEXT_RUN_AT => $next_run_at,
+					DAO_AutomationTimer::IS_DISABLED => $is_disabled,
+					DAO_AutomationTimer::IS_RECURRING => $is_recurring,
+					DAO_AutomationTimer::RECURRING_PATTERNS => $recurring_patterns,
+					DAO_AutomationTimer::RECURRING_TIMEZONE => $recurring_timezone,
 					DAO_AutomationTimer::UPDATED_AT => time(),
 				];
 				
