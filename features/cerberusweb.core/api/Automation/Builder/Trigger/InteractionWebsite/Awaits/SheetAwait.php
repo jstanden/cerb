@@ -54,16 +54,16 @@ class SheetAwait extends AbstractAwait {
 		$sheet_paging = [];
 		
 		// If an assoc/object and not indexed
-		if(is_array($sheet_data) && !DevblocksPlatform::arrayIsIndexed($sheet_data) && array_key_exists('function', $sheet_data)) {
-			$function_uri = $sheet_data['function']['uri'] ?? null;
+		if(is_array($sheet_data) && !DevblocksPlatform::arrayIsIndexed($sheet_data) && array_key_exists('automation', $sheet_data)) {
+			$automation_uri = $sheet_data['automation']['uri'] ?? null;
 			
-			if(!is_null($function_uri) && false != ($callback = DAO_Automation::getByUri($function_uri))) {
+			if(!is_null($automation_uri) && false != ($callback = DAO_Automation::getByUri($automation_uri))) {
 				if($callback->extension_id != AutomationTrigger_UiSheetData::ID)
 					return;
 				
 				$automator = DevblocksPlatform::services()->automation();
 				
-				$callback_inputs = $sheet_data['function']['inputs'] ?? [];
+				$callback_inputs = $sheet_data['automation']['inputs'] ?? [];
 				
 				$callback_init = [
 					'inputs' => $callback_inputs,

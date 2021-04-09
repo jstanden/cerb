@@ -187,11 +187,26 @@ if(!isset($tables['automation'])) {
 	$db->ExecuteMaster("UPDATE automation SET policy_kata = REPLACE(policy_kata, 'interaction.web.worker', 'interaction.worker') WHERE policy_kata LIKE '%interaction.web.worker%'");
 	
 	$automation_files = [
+		'ai.cerb.automationBuilder.action.function.json',
+		'ai.cerb.automationBuilder.action.httpRequest.json',
+		'ai.cerb.automationBuilder.action.recordCreate.json',
+		'ai.cerb.automationBuilder.input.record.json',
+		'ai.cerb.automationBuilder.input.records.json',
+		'ai.cerb.automationBuilder.interaction.worker.await.promptSheet.json',
+		'ai.cerb.cardEditor.automation.triggerChooser.json',
+		'ai.cerb.editor.mapBuilder.json',
+		'ai.cerb.eventHandler.automation.json',
+		'ai.cerb.timerEditor.schedule.add',
+		'ai.cerb.toolbarBuilder.interaction.json',
+		'ai.cerb.toolbarBuilder.menu.json',
 		'cerb.data.platform.extensions.json',
 		'cerb.data.record.fields.json',
 		'cerb.data.record.types.json',
 		'cerb.data.records.json',
 		'cerb.data.ui.icons.json',
+		'cerb.projectBoard.toolbar.task.find.json',
+		'cerb.ticket.participants.add.json',
+		'cerb.ticket.participants.manage.json',
 	];
 }
 
