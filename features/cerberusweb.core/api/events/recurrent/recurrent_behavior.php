@@ -58,7 +58,7 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 			}
 		}
 		
-		$run_at = Event_RecurrentBehavior::getNextOccurrence($patterns, $timezone);
+		$run_at = DevblocksPlatform::services()->date()->getNextOccurrence($patterns, $timezone);
 		
 		// Store the next run time
 		$event_params['repeat_run_at'] = $run_at;
@@ -83,30 +83,6 @@ class Event_RecurrentBehavior extends Extension_DevblocksEvent {
 		});
 		
 		return $behaviors;
-	}
-	
-	static function getNextOccurrence(array $patterns, $timezone=null) {
-		if(empty($timezone))
-			$timezone = DevblocksPlatform::getTimezone();
-		
-		$earliest = null;
-		$now = new DateTime('now', new DateTimeZone($timezone));
-		
-		foreach($patterns as $pattern) {
-			// Skip commented lines
-			if(empty($pattern) || DevblocksPlatform::strStartsWith($pattern, '#'))
-				continue;
-			
-			$cron = Cron\CronExpression::factory($pattern);
-			$next = $cron->getNextRunDate($now);
-			
-			$next_ts = $next->getTimestamp();
-			
-			if(!$earliest || $next_ts < $earliest)
-				$earliest = $next_ts;
-		}
-		
-		return $earliest;
 	}
 	
 	/**

@@ -441,4 +441,32 @@ class DevblocksDateTest extends TestCase {
 		$actual = $date->parseTimezoneOffset('abc:123');
 		$this->assertFalse($actual);
 	}
+	
+	function testGetNextOccurrence() {
+		$date = DevblocksPlatform::services()->date();
+		
+		// Every 5 mins
+		$patterns = [
+			'*/5 * * * *',
+		];
+		$expected = gmmktime(0,5,0,1,1,2021);
+		$actual = $date->getNextOccurrence($patterns, 'GMT', 'Jan 1 2021 00:01:23');
+		$this->assertEquals($expected, $actual);
+		
+		// Last day of every month
+		$patterns = [
+			'0 0 L * *',
+		];
+		$expected = gmmktime(0,0,0,1,31,2021);
+		$actual = $date->getNextOccurrence($patterns, 'GMT', 'Jan 1 2021 00:00:00');
+		$this->assertEquals($expected, $actual);
+		
+		// Every Thursday at 5:30pm
+		$patterns = [
+			'30 17 * * 4',
+		];
+		$expected = gmmktime(17,30,0,1,7,2021);
+		$actual = $date->getNextOccurrence($patterns, 'GMT', 'Jan 1 2021 00:00:00');
+		$this->assertEquals($expected, $actual);
+	}
 }

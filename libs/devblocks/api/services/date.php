@@ -417,6 +417,36 @@ class _DevblocksDateManager {
 			str_pad($min,2,'0', STR_PAD_LEFT)
 		);
 	}
+	
+	public function getNextOccurrence(array $patterns, $timezone=null, $from='now') {
+		if(empty($timezone))
+			$timezone = DevblocksPlatform::getTimezone();
+		
+		$earliest = null;
+		$now = null;
+		
+		try {
+			$now = new DateTime($from, new DateTimeZone($timezone));
+		} catch(Exception $e) {
+			return false;
+		}
+		
+		foreach($patterns as $pattern) {
+			// Skip commented lines
+			if(empty($pattern) || DevblocksPlatform::strStartsWith($pattern, '#'))
+				continue;
+			
+			$cron = Cron\CronExpression::factory($pattern);
+			$next = $cron->getNextRunDate($now);
+			
+			$next_ts = $next->getTimestamp();
+			
+			if(!$earliest || $next_ts < $earliest)
+				$earliest = $next_ts;
+		}
+		
+		return $earliest;
+	}
 };
 
 class DevblocksCalendarHelper {

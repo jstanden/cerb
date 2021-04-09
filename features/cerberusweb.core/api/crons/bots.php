@@ -49,7 +49,7 @@ class Cron_BotScheduledBehavior extends CerberusCronPageExtension {
 				$history = [];
 			
 			if(is_array($patterns)) {
-				$run_at = Event_RecurrentBehavior::getNextOccurrence($patterns, $timezone);
+				$run_at = DevblocksPlatform::services()->date()->getNextOccurrence($patterns, $timezone);
 				$behavior->event_params['repeat_run_at'] = $run_at;
 				
 				$history[] = time();
