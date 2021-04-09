@@ -5,6 +5,10 @@ define("ace/mode/cerb_kata_highlight_rules",["require","exports","module","ace/l
     var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 
     var CerbKataHighlightRules = function() {
+        var keywordMapper = this.createKeywordMapper({
+            // "constant.language.twig": twig_constants
+        }, "identifier");
+        
         this.$rules = {
             "start" : [
                 {
@@ -20,8 +24,80 @@ define("ace/mode/cerb_kata_highlight_rules",["require","exports","module","ace/l
                     token : "text.cerb-uri",
                     regex : /cerb:[^\s]+/
                 },{
+                    token : "variable.other.readwrite.local.twig",
+                    regex : "\\{\\{-?",
+                    push : "twig-start"
+                },{
+                    token : "meta.tag.twig",
+                    regex : "\\{%-?",
+                    push : "twig-start"
+                },{
                     token : "text",
                     regex : /[^\s]+/
+                }
+            ],
+            "twig-start" : [
+                {
+                    token : "variable.other.readwrite.local.twig",
+                    regex : "-?\\}\\}",
+                    next : "pop"
+                }, {
+                    token : "meta.tag.twig",
+                    regex : "-?%\\}",
+                    next : "pop"
+                }, {
+                    token : "string",
+                    regex : "'",
+                    next  : "twig-qstring"
+                }, {
+                    token : "string",
+                    regex : '"',
+                    next  : "twig-qqstring"
+                }, {
+                    token : keywordMapper,
+                    regex : "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
+                }, {
+                    token : "keyword.operator.assignment",
+                    regex : "=|~"
+                }, {
+                    token : "keyword.operator.other.pipe",
+                    regex : "\\.\\.|\\|"
+                }, {
+                    token : "punctuation.operator",
+                    regex : /\?|:|,|;|\./
+                }, {
+                    token : "paren.lparen",
+                    regex : /[\[\({]/
+                }, {
+                    token : "paren.rparen",
+                    regex : /[\])}]/
+                }, {
+                    token: "text",
+                    regex: "\\s+"
+                }
+            ],
+            "twig-qqstring" : [
+                {
+                    token : "constant.language.escape",
+                    regex : /\\[\\"$#ntr]|#{[^"}]*}/
+                }, {
+                    token : "string",
+                    regex : '"',
+                    next  : "twig-start"
+                }, {
+                    defaultToken : "string"
+                }
+            ],
+            "twig-qstring" : [
+                {
+                    token : "constant.language.escape",
+                    regex : /\\[\\'ntr]}/
+                }, {
+                    token : "string",
+                    regex : "'",
+                    next  : "twig-start"
+                }, {
+                    defaultToken : "string"
                 }
             ]
         };

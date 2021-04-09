@@ -453,7 +453,7 @@ $(function() {
 					if(json.hasOwnProperty('exit_state')) {
 						var state_path = json.exit_state;
 
-						var row = Devblocks.cerbCodeEditor.getYamlRowByPath(editor_automation, state_path);
+						var row = Devblocks.cerbCodeEditor.getKataRowByPath(editor_automation, state_path);
 
 						if(row) {
 							highlight_marker = editor_automation.session.highlightLines(row,row);
