@@ -43,6 +43,27 @@
             </td>
             <td width="99%">
                 <div data-cerb-timer-schedule style="display:{if $model->is_recurring}block{else}none{/if};">
+                    <div class="cerb-code-editor-toolbar">
+                        {$toolbar_dict = DevblocksDictionaryDelegate::instance([
+                            'caller_name' => 'cerb.toolbar.editor.timer.schedule',
+                            'worker__context' => CerberusContexts::CONTEXT_WORKER,
+                            'worker_id' => $active_worker->id
+                        ])}
+
+                        {$toolbar_kata =
+"interaction/schedule:
+  icon: circle-plus
+  tooltip: Add schedule
+  uri: ai.cerb.timerEditor.schedule.add
+"}
+
+                        {$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_kata, $toolbar_dict)}
+
+                        {DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+
+                        <div class="cerb-code-editor-toolbar-divider"></div>
+                    </div>
+
                     <textarea name="recurring_patterns" data-editor-mode="ace/mode/ini">{$model->recurring_patterns}</textarea>
                     
                     <div style="margin-top:0.5em;">
@@ -218,6 +239,36 @@
 
             $toolbar.cerbCodeEditorToolbarEventHandler({
                 editor: automation_editor
+            });
+
+            $popup.find('[data-cerb-timer-schedule] .cerb-code-editor-toolbar').cerbToolbar({
+                caller: {
+                    name: 'cerb.toolbar.editor.timer.schedule',
+                    params: {
+                        selected_text: ''
+                    }
+                },
+                start: function(formData) {
+                    formData.set('caller[params][selected_text]', schedule_editor.getSelectedText())
+                },
+                done: function(e) {
+                    e.stopPropagation();
+
+                    var $target = e.trigger;
+
+                    if(!$target.is('.cerb-bot-trigger'))
+                        return;
+
+                    if(!e.eventData || !e.eventData.exit)
+                        return;
+
+                    if (e.eventData.exit === 'error') {
+                        // [TODO] Show error
+
+                    } else if(e.eventData.exit === 'return' && e.eventData.return.snippet) {
+                        schedule_editor.insertSnippet(e.eventData.return.snippet);
+                    }
+                }
             });
 
             // Helpers

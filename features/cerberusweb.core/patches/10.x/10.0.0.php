@@ -150,6 +150,7 @@ if(!isset($tables['automation'])) {
 		'ai.cerb.cardEditor.automation.triggerChooser.json',
 		'ai.cerb.editor.mapBuilder.json',
 		'ai.cerb.eventHandler.automation.json',
+		'ai.cerb.timerEditor.schedule.add',
 		'ai.cerb.toolbarBuilder.interaction.json',
 		'ai.cerb.toolbarBuilder.menu.json',
 		'cerb.data.platform.extensions.json',
