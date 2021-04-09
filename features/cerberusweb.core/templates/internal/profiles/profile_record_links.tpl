@@ -11,21 +11,25 @@
 	{foreach from=$from_ctx_ids key=from_ctx_id item=link_counts}
 
 		{* Do we have links to display? Always display the links block for this record *}
-		<fieldset class="{if $peek}peek{else}properties{/if}" style="border:0;padding:0;background:none;{if !$peek}display:inline-block;vertical-align:top;{/if}" data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">
+		{if !$links_label_compact}
+		<fieldset data-cerb-links-container class="{if $peek}peek{else}properties{/if}" style="border:0;padding:0;background:none;{if !$peek}display:inline-block;vertical-align:top;{/if}" data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">
 			<legend>
-				<a href="javascript:;" data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">{if $links_label}{$links_label}{else}{if $page_context == $from_ctx_extid && $page_context_id == $from_ctx_id}{else}{$from_ctx->name} {/if}{'common.links'|devblocks_translate|capitalize}{/if}</a>
+				<a href="javascript:;" data-cerb-links-add data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">{if $links_label}{$links_label}{else}{if $page_context == $from_ctx_extid && $page_context_id == $from_ctx_id}{else}{$from_ctx->name} {/if}{'common.links'|devblocks_translate|capitalize}{/if}</a>
 				&#x25be;
 			</legend>
+		{else}
+			<div data-cerb-links-container data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">
+		{/if}
 			
 			<ul class="menu cerb-float" style="width:600px;column-count:3;column-gap:10px;display:none;">
 				{foreach from=$link_ctxs item=link_ctx}
-				{if $link_ctx->hasOption('links')}
-				<li data-context="{$link_ctx->id}"><b>{$link_ctx->name}</b></li>
-				{/if}
+					{if $link_ctx->hasOption('links')}
+						<li data-context="{$link_ctx->id}"><b>{$link_ctx->name}</b></li>
+					{/if}
 				{/foreach}
 			</ul>
 			
-			<div class="cerb-buttonbar">
+			<div class="cerb-buttonbar" style="display:inline;">
 				{* Loop through each possible context so they remain alphabetized *}
 				{$has_links = false}
 				{foreach from=$link_ctxs item=link_ctx key=link_ctx_extid name=links}
@@ -36,13 +40,23 @@
 					{$has_links = true}
 				{/if}
 				{/foreach}
-				
-				{if !$has_links}
+				{if !$has_links && !$links_label_compact}
 					<div style="color:rgb(175,175,175);">({'common.none'|devblocks_translate|lower})</div>
 				{/if}
 			</div>
-		</fieldset>
+
+			{if $links_label_compact}
+			<button type="button" data-cerb-links-add data-context="{$from_ctx_extid}" data-context-id="{$from_ctx_id}">
+				<span class="glyphicons glyphicons-circle-plus"></span>
+				{'common.links'|devblocks_translate|capitalize}
+			</button>
+			{/if}
 		
+		{if !$links_label_compact}
+			</fieldset>
+		{else}
+			</div>
+		{/if}
 	{/foreach}
 {/foreach}
 </div>
@@ -51,7 +65,7 @@
 $(function() {
 	var $div = $('#{$uniqid}');
 	
-	$div.find('fieldset').on('cerb-redraw', function(e) {
+	$div.find('[data-cerb-links-container]').on('cerb-redraw', function(e) {
 		var $fieldset = $(this);
 		var context = $fieldset.attr('data-context');
 		var context_id = $fieldset.attr('data-context-id');
@@ -79,16 +93,18 @@ $(function() {
 					$('<div class="badge-count"/>').text(row.count).prependTo($btn);
 					$buttonbar.append($btn);
 				}
-				
-				if(json.length == 0) {
+
+				{if !$links_label_compact}
+				if(0 === json.length) {
 					var $none = $('<div style="color:rgb(175,175,175);"/>').text('({'common.none'|devblocks_translate|lower|escape:'javascript'})');
 					$buttonbar.append($none);
 				}
+				{/if}
 			}
 		});
 	});
 	
-	$div.find('fieldset div.cerb-buttonbar').click(function(e) {
+	$div.find('[data-cerb-links-container] div.cerb-buttonbar').click(function(e) {
 		var $target = $(e.target);
 		var $fieldset = $target.closest('fieldset');
 		var context = $target.attr('data-context');
@@ -97,6 +113,11 @@ $(function() {
 
 		if(!$target.is('button'))
 			return;
+
+		var $fieldset = $target.closest('[data-cerb-links-container]');
+		var context = $target.attr('data-context');
+		var from_context = $fieldset.attr('data-context');
+		var from_context_id = $fieldset.attr('data-context-id');
 		
 		var popup_id = 'links_' + context.replace(/\./g, '_');
 
@@ -112,7 +133,7 @@ $(function() {
 		var $popup = genericAjaxPopup(popup_id,formData,null,false,'90%');
 		
 		$popup.on('links_save', function(e) {
-			$div.find('fieldset').trigger('cerb-redraw');
+			$div.find('[data-cerb-links-container]').trigger('cerb-redraw');
 			
 			var evt = jQuery.Event('cerb-links-changed');
 			evt.context = from_context;
@@ -121,10 +142,10 @@ $(function() {
 		});
 	});
 	
-	$div.find('fieldset legend a').each(function() {
+	$div.find('[data-cerb-links-container] [data-cerb-links-add]').each(function() {
 		var $a = $(this);
 		
-		var $menu = $a.closest('fieldset')
+		var $menu = $a.closest('[data-cerb-links-container]')
 			.find('ul.menu')
 			.hide()
 			.menu()
@@ -152,7 +173,7 @@ $(function() {
 			if(!$target.is('li'))
 				return;
 			
-			var $fieldset = $target.closest('fieldset');
+			var $fieldset = $target.closest('[data-cerb-links-container]');
 			var from_context = $fieldset.attr('data-context');
 			var from_context_id = $fieldset.attr('data-context-id');
 			
@@ -179,7 +200,7 @@ $(function() {
 				}
 				
 				genericAjaxPost(formData, null, null, function() {
-					$div.find('fieldset').trigger('cerb-redraw');
+					$div.find('[data-cerb-links-container]').trigger('cerb-redraw');
 					
 					var evt = jQuery.Event('cerb-links-changed');
 					evt.context = from_context;
@@ -191,12 +212,11 @@ $(function() {
 		
 		$a.on('click', function(e) {
 			e.stopPropagation();
-			var $this = $(this);
 			
 			if($menu.is(':hidden')) {
 				$menu
 					.show()
-					.position({ my:'left top', at:'left bottom', of:$this, collision: 'fit' })
+					.position({ my:'left top', at:'left bottom', of:$div, collision: 'fit' })
 					;
 			} else {
 				$menu
