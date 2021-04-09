@@ -92,6 +92,13 @@ class SheetAwait extends AbstractAwait {
 			}
 			
 		} else {
+			if($sheet_filter) {
+				$sheet_data = array_filter($sheet_data, function($row) use ($sheet_filter) {
+					$text = implode(' ', $row);
+					return stristr($text, $sheet_filter) ? true : false;
+				});
+			}
+			
 			$total = count($sheet_data);
 			$sheet_offset = $sheet_page * $sheet_limit;
 			
