@@ -448,8 +448,8 @@ if(!isset($tables['automation_timer'])) {
 	
 	$changes = [];
 	
-	if(array_key_exists('ran_at', $columns)) {
-		$changes[] = "CHANGE COLUMN ran_at last_ran_at int(10) unsigned NOT NULL DEFAULT '0'";
+	if(!array_key_exists('last_ran_at', $columns)) {
+		$changes[] = "ADD COLUMN last_ran_at int(10) unsigned NOT NULL DEFAULT '0'";
 	}
 	
 	if(array_key_exists('resume_at', $columns)) {
