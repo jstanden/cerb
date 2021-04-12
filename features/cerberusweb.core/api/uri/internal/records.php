@@ -926,16 +926,16 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		} catch (Exception_DevblocksValidationError $e) {
 			$tpl->assign('error_message', $e->getMessage());
 			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
-			return;
 			
 		} catch (Exception $e) {
 			$tpl->assign('error_message', 'An unexpected error occurred.');
 			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
-			return;
 		}
+		
+		return true;
 	}
 	
-	private function _internalAction_saveMerge() {
+	private function _internalAction_saveMerge() : bool {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -1073,6 +1073,40 @@ class PageSection_InternalRecords extends Extension_PageSection {
 				var_dump($changeset);
 			}
 			
+			if(false != ($merge_automation = DAO_AutomationEvent::getByName('record.merge'))) {
+				$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+				$error = null;
+				
+				$initial_state = [
+					'record_type' => $context_ext->manifest->getParam('uri', $context_ext->id),
+					'records' => $dicts,
+					'source_ids' => $source_ids,
+					'target_id' => $target_id,
+					'worker__context' => CerberusContexts::CONTEXT_WORKER,
+					'worker_id' => $active_worker->id,
+				];
+				
+				$event_dict = DevblocksDictionaryDelegate::instance($initial_state);
+				
+				if(false != ($handlers = $merge_automation->getKata($event_dict, $error))) {
+					$automation_results = $event_handler->handleUntilReturn(
+						AutomationTrigger_RecordMerge::ID,
+						$handlers,
+						$initial_state,
+						$error
+					);
+					
+					if($automation_results instanceof DevblocksDictionaryDelegate) {
+						$return = $automation_results->getKeyPath('__return', []);
+						
+						if (array_key_exists('deny', $return)) {
+							$error_message = $return['deny'] ?: 'This merge is not allowed.';
+							throw new Exception_DevblocksValidationError($error_message);
+						}
+					}
+				}
+			}
+			
 			$dao_class = $context_ext->getDaoClass();
 			$dao_fields = $custom_fields = [];
 			$error = null;
@@ -1159,13 +1193,13 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		} catch(Exception_DevblocksValidationError $e) {
 			$tpl->assign('error_message', $e->getMessage());
 			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
-			return;
 			
 		} catch(Exception $e) {
 			$tpl->assign('error_message', 'An unexpected error occurred.');
 			$tpl->display('devblocks:cerberusweb.core::internal/merge/merge_error.tpl');
-			return;
 		}
+		
+		return true;
 	}
 	
 	private function _internalAction_viewLogDelete() {

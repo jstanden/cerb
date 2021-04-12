@@ -32,7 +32,7 @@ $(function() {
 			;
 		
 		$dialog
-			.find('button.ui-dialog-titlebar-close')
+			.find('button.ui-dialog-titlebar button')
 			.hide()
 			;
 		

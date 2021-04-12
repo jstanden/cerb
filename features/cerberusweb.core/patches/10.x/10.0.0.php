@@ -409,6 +409,16 @@ if(!isset($tables['automation_event'])) {
 	$db->ExecuteMaster("UPDATE automation_event SET automations_kata = REPLACE(automations_kata, 'interaction.web.worker', 'interaction.worker') WHERE automations_kata LIKE '%interaction.web.worker%'");
 }
 
+if(!$db->GetOneMaster("SELECT 1 FROM automation_event WHERE name = 'record.merge'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO automation_event (name, extension_id, description, automations_kata, updated_at) VALUES (%s,%s,%s,%s,%d)',
+		$db->qstr('record.merge'),
+		$db->qstr('cerb.trigger.record.merge'),
+		$db->qstr('Approve or deny record merge requests'),
+		$db->qstr(''),
+		time()
+	));
+}
+
 // ===========================================================================
 // Add `automation_timer` table
 
