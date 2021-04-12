@@ -269,7 +269,7 @@
 						{/if}
 
 						{if !array_key_exists('comment', $toolbar) && $active_worker->hasPriv('contexts.cerberusweb.contexts.message.comment')}
-							<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_MESSAGE} context.id:{$message->id}" title="{'common.comment'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+							<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_MESSAGE} context.id:{$message->id}" title="{'common.comment'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-comments"></span> {'display.ui.sticky_note'|devblocks_translate|capitalize}</button>
 						{/if}
 
 						{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
