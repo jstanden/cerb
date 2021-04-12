@@ -47,6 +47,8 @@ class Controller_UI extends DevblocksControllerExtension {
 	
 	private function _invoke($action) {
 		switch($action) {
+			case 'behavior':
+				return $this->_uiAction_behavior();
 			case 'dataQuery':
 				return $this->_uiAction_dataQuery();
 			case 'dataQuerySuggestions':
@@ -188,6 +190,88 @@ class Controller_UI extends DevblocksControllerExtension {
 		}
 		
 		echo json_encode($results);
+	}
+	
+	private function _uiAction_behavior() {
+		$request = DevblocksPlatform::getHttpRequest();
+		$stack = $request->path;
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		array_shift($stack); // ui
+		array_shift($stack); // behavior
+		@$behavior_uri = array_shift($stack);
+		
+		if(!$behavior_uri || false == ($behavior = DAO_TriggerEvent::getByUri($behavior_uri)))
+			return DevblocksPlatform::dieWithHttpError('Temporarily unavailable', 503);
+		
+		$this->_runBehavior($behavior);
+	}
+	
+	private function _runBehavior(Model_TriggerEvent $behavior) {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(false == ($bot = $behavior->getBot())) {
+			return DevblocksPlatform::dieWithHttpError('Temporarily unavailable', 503);
+		}
+		
+		$event = $behavior->getEvent();
+		
+		// Validate event
+		
+		if(!($event instanceof Event_AjaxHttpRequest)) {
+			return DevblocksPlatform::dieWithHttpError('Forbidden', 403);
+		}
+		
+		if($behavior->is_disabled || $bot->is_disabled) {
+			return DevblocksPlatform::dieWithHttpError('Temporarily unavailable', 503);
+		}
+		
+		$variables = [];
+		
+		$http_request = [
+			'body' => DevblocksPlatform::getHttpBody(),
+			'client_ip' => DevblocksPlatform::getClientIp(),
+			'headers' => DevblocksPlatform::getHttpHeaders(),
+			'params' => DevblocksPlatform::getHttpParams(),
+			'path' => '',
+			'verb' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
+		];
+		
+		// Can this worker run this bot behavior?
+		if(!Context_TriggerEvent::isReadableByActor($behavior, $active_worker)) {
+			return DevblocksPlatform::dieWithHttpError('Forbidden', 403);
+		}
+		
+		$dicts = Event_AjaxHttpRequest::trigger($behavior->id, $http_request, $active_worker, $variables);
+		$dict = $dicts[$behavior->id];
+		
+		if(!($dict instanceof DevblocksDictionaryDelegate)) {
+			return DevblocksPlatform::dieWithHttpError('Temporarily unavailable', 503);
+		}
+		
+		// HTTP status code
+
+		if(isset($dict->_http_status))
+			http_response_code($dict->_http_status);
+		
+		// HTTP response headers
+		
+		if(isset($dict->_http_response_headers) && is_array($dict->_http_response_headers)) {
+			foreach($dict->_http_response_headers as $header_k => $header_v) {
+				header(sprintf("%s: %s",
+					$header_k,
+					$header_v
+				));
+			}
+		}
+		
+		// HTTP response body
+		
+		if(isset($dict->_http_response_body)) {
+			echo $dict->_http_response_body;
+		}
 	}
 	
 	private function _uiAction_querySuggestionMeta() {

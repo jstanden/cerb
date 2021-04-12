@@ -806,6 +806,10 @@
 			<class name="AbstractEvent_Worker" />
 		</file>
 		
+		<file path="api/events/ajax/abstract_event_ajax_request.php">
+			<class name="AbstractEvent_AjaxHttpRequest" />
+		</file>
+		
 		<file path="api/events/api/api_request.php">
 			<class name="Event_ApiRequest" />
 		</file>
@@ -3796,6 +3800,25 @@
 		</extension>
 		
 		<!-- Event Triggers -->
+		
+		<extension point="devblocks.event">
+			<id>event.ajax.request</id>
+			<name>Respond to Ajax HTTP request</name>
+			<class>
+				<file>api/events/ajax/ajax_request.php</file>
+				<name>Event_AjaxHttpRequest</name>
+			</class>
+			<params>
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.role" />
+					</value>
+				</param>
+				<param key="menu_key" value="UI:Respond to Ajax HTTP request" />
+				<param key="options" />
+			</params>
+		</extension>
 		
 		<extension point="devblocks.event">
 			<id>event.behavior.recurrent</id>
