@@ -2250,6 +2250,11 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'type' => 'Records',
 		];
 		
+		$lazy_keys['default_bucket_'] = [
+			'label' => 'Default Bucket',
+			'type' => 'Record',
+		];
+		
 		$lazy_keys['members'] = [
 			'label' => 'Members',
 			'type' => 'Records',
@@ -2388,8 +2393,16 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				break;
 			
 			default:
-				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
-				$values = array_merge($values, $defaults);
+				if(DevblocksPlatform::strStartsWith($token, 'default_bucket_')) {
+					if(false != ($bucket = DAO_Bucket::getDefaultForGroup($dictionary['id']))) {
+						$values['default_bucket__context'] = CerberusContexts::CONTEXT_BUCKET;
+						$values['default_bucket_id'] = $bucket->id;
+					}
+					
+				} else {
+					$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
+					$values = array_merge($values, $defaults);
+				}
 				break;
 		}
 		
