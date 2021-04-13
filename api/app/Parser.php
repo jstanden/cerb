@@ -1158,7 +1158,7 @@ class CerberusParser {
 				$error,
 				function(DevblocksDictionaryDelegate $result) {
 					// Continue unless we rejected the message
-					return false != ($reject = $result->getKeyPath('__return.reject'));
+					return false == $result->getKeyPath('__return.reject');
 				},
 				$behavior_callback
 			);
