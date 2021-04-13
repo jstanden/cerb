@@ -322,7 +322,7 @@ if(!isset($tables['automation_event'])) {
 		foreach($behaviors as $behavior) {
 			$automations_kata .= sprintf("# %s\n# [TODO] Migrate to automations\nbehavior/%s:\n  uri: cerb:behavior:%d\n%s\n",
 				$behavior['title'],
-				$behavior['uri'] ?? uniqid(),
+				$behavior['uri'] ?: uniqid(),
 				$behavior['id'],
 				$behavior['is_disabled'] ? "  disabled@bool: yes\n" : "  # disabled@bool: yes\n",
 			);
