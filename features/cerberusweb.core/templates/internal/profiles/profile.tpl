@@ -111,6 +111,7 @@ $(function() {
 	
 	// Tabs
 	var $tabs = $("#{$tabset_id}").tabs(tabOptions);
+	var $profile_tab = $tabs.find('.ui-tabs-panel[aria-hidden=false]');
 	
 	// Set the browser tab label to the record label
 	document.title = "{$dict->_label|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
@@ -149,8 +150,7 @@ $(function() {
 		.on('cerb-peek-saved', function(e) {
 			e.stopPropagation();
 
-			if(e.id && e.comment_html) {
-				var $tabs = $("#{$tabset_id}");
+			if(e.id && e.hasOwnProperty('comment_html') && e.comment_html) {
 				var $tab_content = $('#' + $tabs.find('li.ui-tabs-active').attr('aria-controls'));
 				var $widgets = $tab_content.find('div.cerb-profile-widget');
 				
@@ -184,6 +184,51 @@ $(function() {
 		},
 		done: function(e) {
 			e.stopPropagation();
+			
+			var $target = e.trigger;
+			
+			if(!$target.is('.cerb-bot-trigger'))
+				return;
+
+			var done_params = new URLSearchParams($target.attr('data-interaction-done'));
+			
+			// Refresh all widgets by default
+			if(!done_params.has('refresh_widgets[]')) {
+				done_params.set('refresh_widgets[]', 'all');
+			}
+
+			var refresh = done_params.getAll('refresh_widgets[]');
+			var widget_ids = [];
+			
+			if(-1 !== $.inArray('all', refresh)) {
+				// Everything
+			} else {
+				$profile_tab.find('.cerb-profile-widget')
+					.filter(function() {
+						var $this = $(this);
+						var name = $this.attr('data-widget-name');
+
+						if(undefined === name)
+							return false;
+
+						return -1 !== $.inArray(name, refresh);
+					})
+					.each(function() {
+						var $this = $(this);
+						var widget_id = parseInt($this.attr('data-widget-id'));
+
+						if(widget_id)
+							widget_ids.push(widget_id);
+					})
+				;
+			}
+
+			var evt = $.Event('cerb-widgets-refresh', {
+				widget_ids: widget_ids,
+				refresh_options: { }
+			});
+			
+			$profile_tab.find('.cerb-profile-layout').triggerHandler(evt);			
 		}
 	});
 	
@@ -208,6 +253,7 @@ $(function() {
 $(function() {
 	var $document = $(document);
 	var $body = $document.find('body');
+	var $tabs = $("#{$tabset_id}").tabs();
 	
 	$body.bind('keypress', 'E', function(e) {
 		e.preventDefault();
@@ -249,7 +295,6 @@ $(function() {
 		
 		try {
 			var idx = event.which-49;
-			$tabs = $("#{$tabset_id}").tabs();
 			$tabs.tabs('option', 'active', idx);
 		} catch(ex) { }
 	});
@@ -258,7 +303,6 @@ $(function() {
 		if($(e.target).is(':input'))
 			return;
 		
-		var $tabs = $("#{$tabset_id}");
 		var $tab_content = $('#' + $tabs.find('li.ui-tabs-active').attr('aria-controls'));
 		var $widgets = $tab_content.find('div.cerb-profile-widget');
 		
