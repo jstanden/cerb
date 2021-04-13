@@ -759,6 +759,20 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 								'label' => 'HTTP request',
 								'uri' => 'ai.cerb.automationBuilder.action.httpRequest',
 							],
+							'menu/actions_pgp' => [
+								'label' => 'PGP',
+								'items' => [
+									'interaction/pgp_decrypt' => [
+										'label' => 'Decrypt',
+										'uri' => 'ai.cerb.automationBuilder.action.pgpDecrypt',
+										'headless' => true,
+									],
+									'interaction/pgp_encrypt' => [
+										'label' => 'Encrypt',
+										'uri' => 'ai.cerb.automationBuilder.action.pgpEncrypt',
+									],
+								],
+							],
 							'menu/actions_record' => [
 								'label' => 'Record',
 								'items' => [
@@ -774,9 +788,34 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 										'label' => 'Get',
 										'uri' => 'ai.cerb.automationBuilder.action.recordGet',
 									],
+									'interaction/record_search' => [
+										'label' => 'Search',
+										'uri' => 'ai.cerb.automationBuilder.action.recordSearch',
+									],
 									'interaction/record_update' => [
 										'label' => 'Update',
 										'uri' => 'ai.cerb.automationBuilder.action.recordUpdate',
+									],
+									'interaction/record_upsert' => [
+										'label' => 'Upsert',
+										'uri' => 'ai.cerb.automationBuilder.action.recordUpsert',
+									],
+								],
+							],
+							'menu/actions_storage' => [
+								'label' => 'Storage',
+								'items' => [
+									'interaction/storage_delete' => [
+										'label' => 'Delete',
+										'uri' => 'ai.cerb.automationBuilder.action.storageDelete',
+									],
+									'interaction/storage_get' => [
+										'label' => 'Get',
+										'uri' => 'ai.cerb.automationBuilder.action.storageGet',
+									],
+									'interaction/storage_set' => [
+										'label' => 'Set',
+										'uri' => 'ai.cerb.automationBuilder.action.storageSet',
 									],
 								],
 							],
