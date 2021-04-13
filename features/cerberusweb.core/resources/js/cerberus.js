@@ -1381,42 +1381,61 @@ var ajax = new cAjaxCalls();
 					.each(function() {
 						var $button = $(this);
 						var $ul = $button.next('ul');
-						
-						if($button.attr('data-cerb-toolbar-menu-hover') !== undefined) {
-							$button.hoverIntent({
-								interval: 200,
-								over: function () {
-									$ul.show().position({
-										my: 'left top',
-										at: 'left bottom',
-										of: $button,
-										collision: 'fit'
-									});
-								},
-								out: function () {
-								}
-							});
-							
-						} else {
-							$button.on('click', function() {
+
+						$button.on('click', function(e) {
+							e.stopPropagation();
+							if(!$ul.is(':visible')) {
 								$ul.toggle().position({
 									my: 'left top',
 									at: 'left bottom',
 									of: $button,
 									collision: 'fit'
 								});
-							});
+
+								// Focus the first item
+								$ul.menu('focus', null, $ul.find('.ui-menu-item:first')).focus();
+							} else {
+								$ul.hide();
+							}
+						});
+						
+						if($button.attr('data-cerb-toolbar-menu-hover') !== undefined) {
+							$button
+								.hoverIntent({
+									interval: 200,
+									over: function () {
+										$ul.show().position({
+											my: 'left top',
+											at: 'left bottom',
+											of: $button,
+											collision: 'fit'
+										});
+										
+										// Focus the first item
+										$ul.menu('focus', null, $ul.find('.ui-menu-item:first')).focus();
+									},
+									out: function () {
+									}
+								})
+							;
 						}
 					})
 					.next('ul.cerb-float')
 					.hoverIntent({
-						timeout: 300,
+						timeout: 0,
 						over: function() {},
 						out: function() {
 							$(this).hide();
 						}
 					})
-					.menu()
+					.menu({
+						select: function(event, ui) {
+							event.stopPropagation();
+							var $li = $(ui.item);
+							if($li.is('.cerb-bot-trigger'))
+								$li.click();
+						}
+					})
 				;
 			});
 

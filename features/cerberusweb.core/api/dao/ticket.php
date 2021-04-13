@@ -5717,7 +5717,7 @@ interaction/image:
 
 menu/formatting:
   icon: more
-  hover@bool: yes
+  #hover@bool: yes
   items:
     interaction/bold:
       label: Bold
