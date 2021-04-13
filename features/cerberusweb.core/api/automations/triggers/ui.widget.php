@@ -27,7 +27,14 @@ class AutomationTrigger_UiWidget extends Extension_AutomationTrigger {
 	}
 	
 	function getOutputsMeta() {
-		return [];
+		return [
+			'return' => [
+				[
+					'key' => 'html',
+					'notes' => 'The HTML to render for the widget',
+				]
+			]
+		];
 	}
 	
 	public function getEditorToolbarItems(array $toolbar): array {

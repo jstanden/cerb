@@ -5199,10 +5199,14 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			'type' => 'string',
 		];
 		
+		if(array_key_exists('elapsed_response_first', $keys))
+			$keys['elapsed_response_first']['notes'] = "The number of seconds between the creation of this ticket and its first worker response";
+		
+		if(array_key_exists('elapsed_resolution_first', $keys))
+			$keys['elapsed_resolution_first']['notes'] = "The number of seconds between the creation of this ticket and its first resolution";
+		
 		$keys['bucket_id']['notes'] = "The ID of the [bucket](/docs/records/types/bucket/) containing this ticket";
 		$keys['closed']['notes'] = "The date/time this ticket was first set to status `closed`";
-		$keys['elapsed_response_first']['notes'] = "The number of seconds between the creation of this ticket and its first worker response";
-		$keys['elapsed_resolution_first']['notes'] = "The number of seconds between the creation of this ticket and its first resolution";
 		$keys['group_id']['notes'] = "The ID of the [group](/docs/records/types/group/) containing this ticket";
 		$keys['importance']['notes'] = "A number from `0` (least) to `100` (most)";
 		$keys['mask']['notes'] = "The randomized reference number for this ticket; auto-generated if blank";

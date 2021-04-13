@@ -684,7 +684,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				);
 				
 				return $out;
-				break;
 				
 			case 'replace_content':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -722,14 +721,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				}
 				
 				return $out;
-				break;
 				
 			case 'reject':
 				$dict->pre_actions['reject'] = true;
 				$out = ">>> Rejecting message\n";
 				
 				return $out;
-				break;
 			
 			case 'redirect_email':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -740,11 +737,10 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				);
 			
 				return $out;
-				break;
 			
 			case 'remove_attachments':
-				@$oper = $params['match_oper'];
-				@$value = $params['match_value'];
+				$oper = $params['match_oper'] ?? null;
+				$value = $params['match_value'] ?? null;
 				
 				$out = sprintf(">>> Removing attachments where filename %s %s\n",
 					$oper,
@@ -766,7 +762,6 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				);
 				
 				return $out;
-				break;
 				
 			case 'set_header':
 				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
@@ -796,15 +791,12 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 				);
 				
 				return $out;
-				break;
 				
 			case 'set_sender_is_banned':
 				return DevblocksEventHelper::simulateActionSetAbstractField('is banned', Model_CustomField::TYPE_CHECKBOX, 'sender_is_banned', $params, $dict);
-				break;
 				
 			case 'set_sender_is_defunct':
 				return DevblocksEventHelper::simulateActionSetAbstractField('is defunct', Model_CustomField::TYPE_CHECKBOX, 'sender_is_defunct', $params, $dict);
-				break;
 				
 			default:
 				$matches = [];

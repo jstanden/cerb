@@ -30,11 +30,9 @@ class _DevblocksDataProviderUsageBotBehaviors extends _DevblocksDataProvider {
 			default:
 			case 'table':
 				return $this->_formatDataAsTable($chart_fields, $error);
-				break;
 				
 			case 'timeseries':
 				return $this->_formatDataAsTimeSeries($chart_fields, $error);
-				break;
 		}
 	}
 	

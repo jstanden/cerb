@@ -2316,7 +2316,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 							case '_labels':
 							case '_types':
 								return false;
-								break;
 								
 							default:
 								if(preg_match('#^(.*)_loaded$#', $key))
@@ -2377,7 +2376,6 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 							case 'address_':
 							case 'custom_':
 								return false;
-								break;
 								
 							default:
 								if(preg_match('#^(.*)_loaded$#', $key))
