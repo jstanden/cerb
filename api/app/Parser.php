@@ -1822,7 +1822,7 @@ class CerberusParser {
 				}
 			}
 			
-			if(!$cf_id || array_key_exists($cf_id, $custom_fields))
+			if(!$cf_id || !array_key_exists($cf_id, $custom_fields))
 				continue;
 			
 			// If we're setting fields on the ticket, find the ticket ID
