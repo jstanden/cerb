@@ -10,7 +10,7 @@ if(!isset($tables['message_html_cache'])) {
 		CREATE TABLE `message_html_cache` (
 		`message_id` int(10) unsigned NOT NULL,
 		`expires_at` int(10) unsigned NOT NULL DEFAULT 0,
-		`html_content` mediumtext,
+		`html_content` mediumtext character set utf8mb4,
 		PRIMARY KEY (message_id),
 		INDEX (expires_at)
 		) ENGINE=%s
@@ -18,6 +18,14 @@ if(!isset($tables['message_html_cache'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['message_html_cache'] = 'message_html_cache';
+	
+} else {
+	list($columns,) = $db->metaTable('message_html_cache');
+	
+	if('utf8_general_ci' == $columns['html_content']['collation']) {
+		$db->ExecuteMaster("DELETE FROM message_html_cache");
+		$db->ExecuteMaster("ALTER TABLE message_html_cache MODIFY COLUMN html_content MEDIUMTEXT CHARACTER SET utf8mb4");
+	}
 }
 
 // ===========================================================================
