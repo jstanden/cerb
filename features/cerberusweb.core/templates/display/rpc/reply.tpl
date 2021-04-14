@@ -838,13 +838,22 @@ $(function() {
 		$frm.find('.cerb-reply-deliver-later-toggle').on('click', function(e) {
 			e.stopPropagation();
 
-			var $div = $(this).closest('fieldset').find('> div');
-
-			$div
-				.toggle()
-				.find('input:text')
-					.focus()
-			;
+			var $checkbox = $(this);
+			var $div = $checkbox.closest('fieldset').find('> div');
+			
+			if($checkbox.is(':checked')) {
+				$div
+					.show()
+					.find('input:text')
+						.focus()
+				;
+			} else {
+				$div
+					.hide()
+					.find('input:text')
+						.val('')
+				;
+			}
 		});
 
 		// Focus
