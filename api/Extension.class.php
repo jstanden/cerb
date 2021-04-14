@@ -1115,6 +1115,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'record_type:',
 					'record_query:',
 					'record_query_params:',
+					'record_expand:',
 				],
 				
 				'(.*):record.update:inputs:' => [
