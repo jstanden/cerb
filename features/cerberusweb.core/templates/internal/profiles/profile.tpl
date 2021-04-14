@@ -51,15 +51,16 @@
 				{/if}
 			{/if}
 			
-			{if !is_array($toolbar_profile) || !array_key_exists('refresh', $toolbar_profile)}
-				<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location.reload();"><span class="glyphicons glyphicons-refresh"></span></button>
-			{/if}
-			
 			<div data-cerb-toolbar style="display:inline-block;">
 				{if $toolbar_profile}
 				{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar_profile)}
 				{/if}
 			</div>
+			
+			{if !is_array($toolbar_profile) || !array_key_exists('refresh', $toolbar_profile)}
+				<button type="button" title="{'common.refresh'|devblocks_translate|capitalize}" onclick="document.location.reload();"><span class="glyphicons glyphicons-refresh"></span></button>
+			{/if}
+			
 			{if $active_worker->is_superuser}
 				<div data-cerb-toolbar-setup style="display:inline-block;vertical-align:middle;">
 					<a href="javascript:" data-context="{CerberusContexts::CONTEXT_TOOLBAR}" data-context-id="record.profile" data-edit="true"><span class="glyphicons glyphicons-cogwheel" style="color:lightgray;"></span></a>
