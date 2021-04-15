@@ -348,6 +348,7 @@ class PageSection_InternalRecords extends Extension_PageSection {
 		@$file_size = $_SERVER['HTTP_X_FILE_SIZE'];
 		
 		$url_writer = DevblocksPlatform::services()->url();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
@@ -388,6 +389,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 			// Save the file
 			Storage_Attachments::put($file_id, $fp);
 		}
+		
+		// A worker who uploaded this file will always have access to it, whether it was a dupe or not
+		DAO_Attachment::addLinks(CerberusContexts::CONTEXT_WORKER, $active_worker->id, $file_id);
 		
 		// Close the temp file
 		fclose($fp);
