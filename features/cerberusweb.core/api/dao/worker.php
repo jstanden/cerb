@@ -3694,6 +3694,22 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 	
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['emails'] = [
+			'label' => 'Emails',
+			'type' => 'Records',
+		];
+		
+		$lazy_keys['groups'] = [
+			'label' => 'Groups',
+			'type' => 'Records',
+		];
+		
+		$lazy_keys['roles'] = [
+			'label' => 'Roles',
+			'type' => 'Records',
+		];
+		
 		return $lazy_keys;
 	}
 	
@@ -3713,6 +3729,21 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		}
 		
 		switch($token) {
+			case 'emails':
+				$models = DAO_Address::getByWorkerId($context_id);
+				$values['emails'] = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_ADDRESS);
+				break;
+			
+			case 'groups':
+				$models = DAO_Group::getByMembers([$context_id]);
+				$values['groups'] = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_GROUP);
+				break;
+				
+			case 'roles':
+				$models = DAO_WorkerRole::getByMember($context_id);
+				$values['roles'] = DevblocksDictionaryDelegate::getDictionariesFromModels($models, CerberusContexts::CONTEXT_ROLE);
+				break;
+			
 			default:
 				$defaults = $this->_lazyLoadDefaults($token, $context, $context_id);
 				$values = array_merge($values, $defaults);
