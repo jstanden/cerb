@@ -12,11 +12,10 @@ class CardWidget_AttachmentViewer extends Extension_CardWidget {
 	}
 	
 	function render(Model_CardWidget $model, $context, $context_id) {
-		@$target_context_id = $model->extension_params['attachment_id'];
+		$target_context_id = $model->extension_params['attachment_id'] ?? null;
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$dict = DevblocksDictionaryDelegate::instance([
 			'record__context' => $context,
@@ -30,13 +29,7 @@ class CardWidget_AttachmentViewer extends Extension_CardWidget {
 		if(false == ($attachment = DAO_Attachment::get($target_context_id)))
 			return;
 		
-		$dict = DevblocksDictionaryDelegate::instance([
-			'_context' => CerberusContexts::CONTEXT_ATTACHMENT,
-			'id' => $attachment->id,
-		]);
-		
-		if(!Context_Attachment::isDownloadableByActor($attachment, $active_worker))
-			return;
+		$dict = DevblocksDictionaryDelegate::getDictionaryFromModel($attachment, CerberusContexts::CONTEXT_ATTACHMENT);
 		
 		// Attachment context counts
 		$tpl->assign('contexts', Extension_DevblocksContext::getAll(false));
