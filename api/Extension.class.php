@@ -996,6 +996,10 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				'snippet' => "storage.set:\n\t",
 			],
 			[
+				'caption' => 'var.expand:',
+				'snippet' => "var.expand:\n\t",
+			],
+			[
 				'caption' => 'var.push:',
 				'snippet' => "var.push:\n\t",
 			],
@@ -1163,10 +1167,15 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 					'expires:',
 				],
 				
+				'(.*):var.expand:' => $action_base,
 				'(.*):var.push:' => $action_base,
 				'(.*):var.set:' => $action_base,
 				'(.*):var.unset:' => $action_base,
 				
+				'(.*):var.expand:inputs:' => [
+					'key:',
+					'paths:',
+				],
 				'(.*):var.push:inputs:' => [
 					'key:',
 					'value:',

@@ -499,6 +499,7 @@ class _DevblocksAutomationService {
 			'storage.delete',
 			'storage.get',
 			'storage.set',
+			'var.expand',
 			'var.push',
 			'var.set',
 			'var.unset',

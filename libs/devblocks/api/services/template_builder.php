@@ -579,7 +579,11 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 					return $default;
 				}
 				
-				$ptr =& $ptr[$k];
+				if($ptr instanceof DevblocksDictionaryDelegate) {
+					$ptr = $ptr->get($k);
+				} else {
+					$ptr =& $ptr[$k];
+				}
 				
 			} else {
 				if(empty($queue)) {
