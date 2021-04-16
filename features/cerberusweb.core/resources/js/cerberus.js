@@ -2842,7 +2842,9 @@ var ajax = new cAjaxCalls();
 								return callback(null, autocompleterKata.formatSuggestions(this.twigTags));
 								
 							} else if ('variable.other.readwrite.local.twig' === token.type && '{{' === token.value) {
-								//return callback(null, autocompleterKata.formatSuggestions(this.twigFunctions));
+								break;
+								
+							} else if ('variable.other.readwrite.local.twig' === token.type && '}}' === token.value) {
 								break;
 								
 							} else if ('keyword.operator.other.pipe' === token.type) {
