@@ -1,6 +1,20 @@
 <?php
 $db = DevblocksPlatform::services()->database();
+$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
+
+// ===========================================================================
+// Consolidate ticket status fields
+
+if(!isset($tables['ticket'])) {
+	$logger->error("The 'ticket' table does not exist.");
+	return FALSE;
+}
+
+list(, $indexes) = $db->metaTable('ticket');
+
+if(!array_key_exists('closed_at', $indexes))
+	$db->ExecuteMaster('ALTER TABLE ticket ADD INDEX closed_at (closed_at)');
 
 // ===========================================================================
 // Add `message_html_cache` table
