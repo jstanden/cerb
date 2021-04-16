@@ -182,6 +182,7 @@ class _DevblocksTemplateBuilder {
 				'markdown_to_html',
 				'md5',
 				'parse_emails',
+				'parse_url',
 				'permalink',
 				'quote',
 				'regexp',
@@ -1635,6 +1636,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('markdown_to_html', [$this, 'filter_markdown_to_html']),
 			new \Twig\TwigFilter('md5', [$this, 'filter_md5']),
 			new \Twig\TwigFilter('parse_emails', [$this, 'filter_parse_emails']),
+			new \Twig\TwigFilter('parse_url', [$this, 'filter_parse_url']),
 			new \Twig\TwigFilter('permalink', [$this, 'filter_permalink']),
 			new \Twig\TwigFilter('quote', [$this, 'filter_quote']),
 			new \Twig\TwigFilter('regexp', [$this, 'filter_regexp']),
@@ -1908,6 +1910,19 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		
 		$results = CerberusMail::parseRfcAddresses($string);
 		return $results;
+	}
+	
+	function filter_parse_url($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string))
+			return [];
+		
+		if(false == ($url_parts = parse_url($string)))
+			return [];
+		
+		return $url_parts;
 	}
 	
 	function filter_permalink($string, $spaces_as='-') {
