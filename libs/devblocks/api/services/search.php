@@ -1,4 +1,8 @@
 <?php
+/**
+ * Class DevblocksSearchEngineSphinx
+ * @deprecated 
+ */
 class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 	const ID = 'devblocks.search.engine.sphinx';
 	

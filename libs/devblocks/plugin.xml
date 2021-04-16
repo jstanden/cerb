@@ -178,7 +178,7 @@
 
 		<extension point="devblocks.search.engine">
 			<id>devblocks.search.engine.sphinx</id>
-			<name>Sphinx</name>
+			<name>Sphinx (Deprecated)</name>
 			<class>
 				<file>api/services/search.php</file>
 				<name>DevblocksSearchEngineSphinx</name>
