@@ -1199,8 +1199,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 						$link_context = $field->params['context'] ?? null;
 						
 						/** @noinspection SqlResolve */
-						$subquery_sql = sprintf("SELECT context_id FROM %s WHERE field_id = %d AND field_value IN (%s)",
+						$subquery_sql = sprintf("SELECT context_id FROM %s WHERE context = %s AND context_id = %s AND field_id = %d AND field_value IN (%s)",
 							$value_table,
+							Cerb_ORMHelper::qstr($field->context),
+							$cfield_key,
 							$field_id,
 							'%s'
 						);
