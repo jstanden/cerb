@@ -679,6 +679,7 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	const POINT = 'cerb.automation.trigger';
 	
 	static $_registry = [];
+	static $_cache_record_types = null;
 	
 	abstract function renderConfig(Model_Automation $model);
 	abstract function validateConfig(array &$params, &$error);
@@ -686,6 +687,19 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 	abstract function getOutputsMeta();
 	abstract function getAutocompleteSuggestions() : array;
 	abstract function getEditorToolbarItems(array $toolbar) : array;
+	
+	protected function _getRecordTypeSuggestions() : array {
+		if(self::$_cache_record_types)
+			return self::$_cache_record_types;
+		
+		$context_mfts = Extension_DevblocksContext::getAll(false);
+		
+		self::$_cache_record_types = array_values(array_map(function($context_mft) {
+			return $context_mft->params['alias'];
+		}, $context_mfts));
+		
+		return self::$_cache_record_types;
+	}
 	
 	public function getEditorToolbar() {
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -1189,7 +1203,69 @@ abstract class Extension_AutomationTrigger extends DevblocksExtension {
 				],
 				
 				'start:' => $common_actions,
-			],
+				
+				'inputs:' => [
+					[
+						'caption' => 'array:',
+						'snippet' => "array/\${1:name}:",
+					],
+					[
+						'caption' => 'record:',
+						'snippet' => "record/\${1:name}:",
+					],
+					[
+						'caption' => 'records:',
+						'snippet' => "records/\${1:name}:",
+					],
+					[
+						'caption' => 'text:',
+						'snippet' => "text/\${1:name}:",
+					],
+				],
+				
+				'inputs:array:' => [
+					'required@bool: yes',
+					'default@list:',
+				],
+				
+				'inputs:record:' => [
+					'record_type:',
+					'required@bool: yes',
+					'expand:',
+					'default:',
+				],
+				'inputs:record:record_type:' => $this->_getRecordTypeSuggestions(),
+				
+				'inputs:records:' => [
+					'record_type:',
+					'required@bool: yes',
+					'expand:',
+					'default:',
+				],
+				'inputs:records:record_type:' => $this->_getRecordTypeSuggestions(),
+				
+				'inputs:text:' => [
+					'type:',
+					'required@bool: yes',
+					'default:',
+				],
+				'inputs:text:type:' => [
+					'bool',
+					'date',
+					'decimal',
+					'email',
+					'freeform',
+					'geopoint',
+					'ip',
+					'ipv4',
+					'ipv6',
+					'record_type',
+					'number',
+					'timestamp',
+					'uri',
+					'url',
+				],
+			]
 		];
 		
 		// Trigger-specific autocomplete suggestions
