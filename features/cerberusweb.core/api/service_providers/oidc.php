@@ -286,6 +286,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		$validation
 			->addField('scope', 'Scope')
 			->string()
+			->setMaxLength(4096)
 			->setRequired(true)
 			;
 		

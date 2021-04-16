@@ -285,6 +285,7 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		$validation
 			->addField('scope', 'Scope')
 			->string()
+			->setMaxLength(4096)
 			->setNotEmpty(false)
 			;
 		$validation
