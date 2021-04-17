@@ -61,7 +61,14 @@ $(function() {
 				
 				$menu
 					.menu({
-						position: { my: "right middle", at: "left middle", collision: "fit" }
+						position: { my: "right middle", at: "left middle", collision: "fit" },
+						select: function(event, ui) {
+							event.stopPropagation();
+							var $li = $(ui.item);
+							
+							if($li.is('.cerb-bot-trigger'))
+								$li.click();
+						}
 					})
 					.css('position', 'absolute')
 					.css('right', '0')
