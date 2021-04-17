@@ -210,7 +210,7 @@ class DAO_Message extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = [$ids];
 		
@@ -229,7 +229,23 @@ class DAO_Message extends Cerb_ORMHelper {
 			unset($fields[self::_HEADERS]);
 		}
 		
-		parent::_update($ids, 'message', $fields);
+		$chunks = array_chunk($ids, 100, true);
+		while($batch_ids = array_shift($chunks)) {
+			if(empty($batch_ids))
+				continue;
+			
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_MESSAGE, $batch_ids);
+			}
+			
+			// Make changes
+			parent::_update($batch_ids, 'message', $fields);
+			
+			if($check_deltas) {
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_MESSAGE, $batch_ids);
+			}
+		}		
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
