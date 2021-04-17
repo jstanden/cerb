@@ -921,6 +921,8 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$is_only_cached_for_request = !$cache->isVolatile();
 		$cache_ttl = 300;
 		$is_cached = true;
+		$timeout_ms = 15000;
+		$did_timeout = false;
 		
 		if(array_key_exists('id', $attributes) && is_array($attributes['id']) && array_key_exists('sql', $attributes['id'])) {
 			$cache_key = sprintf("search:%s", sha1($ns.$escaped_query.$attributes['id']['sql'].json_encode($where_sql)));
@@ -951,13 +953,20 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
 					$max_results
 				);
-				$results = $db->GetArrayReader($sql);
+				$results = $db->QueryReaderAsync($sql, $timeout_ms);
+				
+				if($results instanceof Exception_DevblocksDatabaseQueryTimeout) {
+					$ids = [];
+					$did_timeout = true;
+				} else {
+					$results = $results->fetch_all(MYSQLI_ASSOC);
+					$ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::extractArrayValues($results, 'id'), 'int');
+				}
 				
 				$db->QueryReader(sprintf("DROP TABLE %s",
 					$temp_table
 				));
 				
-				$ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::extractArrayValues($results, 'id'), 'int');
 				$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
 			}
 			
@@ -977,9 +986,13 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			if(null == ($ids = $cache->load($cache_key, false, $is_only_cached_for_request))) {
 				$is_cached = false;
 				
-				if(false === ($results = $db->GetArrayReader($sql))) {
-					$ids = array();
+				$results = $db->QueryReaderAsync($sql, $timeout_ms);
+				
+				if(false === $results || $results instanceof Exception_DevblocksDatabaseQueryTimeout) {
+					$ids = [];
+					$did_timeout = true;
 				} else {
+					$results = $results->fetch_all(MYSQLI_ASSOC);
 					$ids = DevblocksPlatform::sanitizeArray(array_column($results, 'id'), 'int');
 					$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
 				}
@@ -995,7 +1008,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$meta = DevblocksPlatform::getRegistryKey($meta_key, DevblocksRegistryEntry::TYPE_JSON, '[]');
 		$entry_key = sha1($engine.$query.$count.$ns);
 		
-		if(!isset($meta[$entry_key])) {
+		if(!$did_timeout && !isset($meta[$entry_key])) {
 			$meta[$entry_key] = array('engine' => $engine, 'query' => $query, 'took_ms' => $took_ms, 'results' => $count, 'ns' => $ns, 'is_cached' => $is_cached, 'max' => $max_results, 'database' => APP_DB_DATABASE);
 			DevblocksPlatform::setRegistryKey($meta_key, $meta, DevblocksRegistryEntry::TYPE_JSON, false);
 		}
