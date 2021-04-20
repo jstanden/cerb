@@ -254,6 +254,7 @@ if(!isset($tables['automation'])) {
 		'cerb.mailRouting.moveToGroup.json',
 		'cerb.mailRouting.recipientRules.json',
 		'cerb.map.clicked.sheet.json',
+		'cerb.projectBoard.record.create.json',
 		'cerb.projectBoard.toolbar.task.find.json',
 		'cerb.ticket.move.json',
 		'cerb.ticket.participants.add.json',
