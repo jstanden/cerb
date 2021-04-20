@@ -1839,9 +1839,9 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if($automation_results->getKeyPath('__return.interaction')) {
 			$this->_respondAutomationAwaitInteraction($automation_results, $continuation);
 		} else if($automation_results->getKeyPath('__return.draft')) {
-			$this->_respondAutomationAwaitDraft($continuation);
+			$this->_respondAutomationAwaitDraft($automation_results, $continuation);
 		} else if($automation_results->getKeyPath('__return.record')) {
-			$this->_respondAutomationAwaitRecord($continuation);
+			$this->_respondAutomationAwaitRecord($automation_results, $continuation);
 		} else {
 			$this->_respondAutomationAwaitForm($automation_results, $continuation);
 		}
@@ -1922,7 +1922,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$this->_respondAutomationAwait($continuation, $automation_results);
 			
 		} else {
-			$this->_respondAutomationAwaitDraft($continuation);			
+			$automation_results = new DevblocksDictionaryDelegate($initial_state);
+			$this->_respondAutomationAwaitDraft($automation_results, $continuation);			
 		}
 	}
 	
@@ -1981,13 +1982,13 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 			$this->_respondAutomationAwait($continuation, $automation_results);
 			
 		} else {
-			$this->_respondAutomationAwaitRecord($continuation);
+			$automation_results = new DevblocksDictionaryDelegate($initial_state);
+			$this->_respondAutomationAwaitRecord($automation_results, $continuation);
 		}		
 	}
 	
-	private function _respondAutomationAwaitRecord(Model_AutomationContinuation $continuation) {
-		$initial_state = $continuation->state_data['dict'] ?? [];
-		$record_state = $initial_state['__return']['record'] ?? [];
+	private function _respondAutomationAwaitRecord(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
+		$record_state = $automation_results->getKeyPath('__return.record', []);
 		
 		if(false == ($record_uri = DevblocksPlatform::services()->ui()->parseURI($record_state['uri'] ?? null)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -1998,6 +1999,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == ($context_ext = Extension_DevblocksContext::getByAlias($record_uri['context'], true)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
+		$continuation->state_data['dict'] = $automation_results->getDictionary();
 		$continuation->state_data['dict']['__return']['record']['_started'] = true;
 		
 		// Save session scope
@@ -2176,9 +2178,8 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		$this->_respondAutomationAwait($continuation, $automation_results);
 	}
 	
-	private function _respondAutomationAwaitDraft(Model_AutomationContinuation $continuation) {
-		$initial_state = $continuation->state_data['dict'] ?? [];
-		$draft_state = $initial_state['__return']['draft'] ?? [];
+	private function _respondAutomationAwaitDraft(DevblocksDictionaryDelegate $automation_results, Model_AutomationContinuation $continuation) {
+		$draft_state = $automation_results->getKeyPath('__return.draft', []);
 		
 		if(false == ($draft_uri = DevblocksPlatform::services()->ui()->parseURI($draft_state['uri'] ?? null)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
@@ -2192,6 +2193,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 		if(false == ($draft = DAO_MailQueue::get($draft_uri['context_id'])))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
+		$continuation->state_data['dict'] = $automation_results->getDictionary();
 		$continuation->state_data['dict']['__return']['draft']['token'] = $draft->token;
 		
 		// Save session scope
