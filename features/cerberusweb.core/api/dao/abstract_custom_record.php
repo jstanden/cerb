@@ -622,7 +622,7 @@ class SearchFields_AbstractCustomRecord extends DevblocksSearchFields {
 				return self::_getWhereSQLFromContextAndID($param, sprintf('%s.owner_context', Cerb_ORMHelper::escape($table_name)), sprintf('%s.owner_context_id', Cerb_ORMHelper::escape($table_name)));
 				
 			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, '', self::getPrimaryKey());
+				return self::_getWhereSQLFromWatchersField($param, $context_name, self::getPrimaryKey());
 			
 			default:
 				if('cf_' == substr($param->field, 0, 3)) {
