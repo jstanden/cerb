@@ -3114,13 +3114,13 @@ class CerberusMail {
 		$output = strtr($output, "\r", '');
 		
 		if('html' == $format) {
-			$output = preg_replace('/^#signature$/m', @$message_properties['signature_html'], $output);
-			$output = preg_replace('/^#original_message$/m', @$message_properties['original_message_html'], $output);
+			$output = preg_replace('/^#signature$/m', addcslashes($message_properties['signature_html'] ?? '', '\\$'), $output);
+			$output = preg_replace('/^#original_message$/m', addcslashes($message_properties['original_message_html'] ?? '', '\\$'), $output);
 			return DevblocksPlatform::parseMarkdown($output);
 			
 		} else {
-			$output = preg_replace('/^#signature$/m', @$message_properties['signature'], $output);
-			$output = preg_replace('/^#original_message$/m', @$message_properties['original_message'], $output);
+			$output = preg_replace('/^#signature$/m', addcslashes($message_properties['signature'] ?? '', '\\$'), $output);
+			$output = preg_replace('/^#original_message$/m', addcslashes($message_properties['original_message'] ?? '', '\\$'), $output);
 			return CerberusMail::generateTextFromMarkdown($output);
 		}
 	}
