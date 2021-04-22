@@ -323,7 +323,7 @@ class DAO_Attachment extends Cerb_ORMHelper {
 		$db = DevblocksPlatform::services()->database();
 		
 		if(!is_array($file_ids))
-			$file_ids = array($file_ids);
+			$file_ids = [$file_ids];
 		
 		$values = [];
 		
@@ -1688,7 +1688,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 		
 		// Approve attachments by session (worklist export)
 
-		@$view_export_file_id = $_SESSION['view_export_file_id'];
+		$view_export_file_id = $_SESSION['view_export_file_id'] ?? null;
 		
 		if(isset($results[$view_export_file_id]))
 			$results[$view_export_file_id] = true;

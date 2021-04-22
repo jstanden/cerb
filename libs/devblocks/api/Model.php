@@ -1063,7 +1063,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					$pkey,
 					implode(',', $ids)
 				);
-				break;
 				
 			case DevblocksSearchCriteria::OPER_NIN:
 				return sprintf("%s NOT IN (SELECT from_context_id FROM context_link WHERE from_context = %s AND to_context = 'cerberusweb.contexts.worker' AND to_context_id IN (%s))",
@@ -1071,7 +1070,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					Cerb_ORMHelper::qstr($from_context),
 					implode(',', $ids)
 				);
-				break;
 			
 			case DevblocksSearchCriteria::OPER_IS_NOT_NULL:
 				return sprintf("%s IN (SELECT DISTINCT from_context_id FROM context_link WHERE from_context = %s AND from_context_id = %s AND to_context = 'cerberusweb.contexts.worker')",
@@ -1079,14 +1077,12 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					Cerb_ORMHelper::qstr($from_context),
 					$pkey
 				);
-				break;
 				
 			case DevblocksSearchCriteria::OPER_IS_NULL:
 				return sprintf("%s NOT IN (SELECT DISTINCT from_context_id FROM context_link WHERE from_context = %s AND to_context = 'cerberusweb.contexts.worker')",
 					$pkey,
 					Cerb_ORMHelper::qstr($from_context)
 				);
-				break;
 		}
 		
 		return null;
@@ -1271,7 +1267,6 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 					$field_table,
 					$field_id
 				);
-				break;
 
 			default:
 				return sprintf("%s %sIN (SELECT context_id FROM %s AS %s WHERE %s.context = %s AND %s.context_id = %s AND %s.field_id=%d AND %s)",
@@ -1390,7 +1385,7 @@ class DevblocksSearchCriteria {
 	
 	public static function getParamFromQueryFieldTokens($field, $tokens, $meta) {
 		$search_fields = $meta;
-		@$search_field = $search_fields[$field];
+		$search_field = $search_fields[$field] ?? null;
 		
 		// Only parse valid fields
 		if(!$search_field || !isset($search_field['type']))
@@ -1427,7 +1422,6 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::TYPE_DECIMAL:
 				$tokens = CerbQuickSearchLexer::getDecimalTokensAsNumbers($tokens);
 				return DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens);
-				break;
 				
 			case DevblocksSearchCriteria::TYPE_FULLTEXT:
 				if($param_key && false != ($param = DevblocksSearchCriteria::getFulltextParamFromTokens($param_key, $tokens)))
@@ -1448,7 +1442,6 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::TYPE_NUMBER_SECONDS:
 				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens);
 				return DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens);
-				break;
 				
 			case DevblocksSearchCriteria::TYPE_TEXT:
 				@$match_type = $search_field['options']['match'];

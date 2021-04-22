@@ -172,7 +172,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$tpl->assign('requesters', $requesters);
 		
 		// Expanded/Collapsed
-		if(empty($hide)) {
+		if(!$hide) {
 			$notes = DAO_Comment::getByContext(CerberusContexts::CONTEXT_MESSAGE, $message->id);
 			$message_notes = [];
 			// Index notes by message id

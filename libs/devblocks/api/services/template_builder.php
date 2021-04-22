@@ -1908,8 +1908,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		if(!is_string($string))
 			return '';
 		
-		$results = CerberusMail::parseRfcAddresses($string);
-		return $results;
+		return CerberusMail::parseRfcAddresses($string);
 	}
 	
 	function filter_parse_url($string) {

@@ -3762,11 +3762,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		switch($field) {
 			case 'bucket':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_BUCKET_SEARCH);
-				break;
 				
 			case 'comments':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_COMMENTS_SEARCH);
-				break;
 				
 			case 'comments.first':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_COMMENTS_FIRST_SEARCH);
@@ -3776,11 +3774,9 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case 'group':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_GROUP_SEARCH);
-				break;
 				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_HAS_FIELDSET);
-				break;
 				
 			case 'inGroupsOf':
 			case 'inGroupsOfWorker':
@@ -3826,31 +3822,24 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 
 			case 'messages':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_MESSAGES_SEARCH);
-				break;
 				
 			case 'messages.first':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_SEARCH);
-				break;
 				
 			case 'messages.firstOutgoing':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_MESSAGE_FIRST_OUTGOING_SEARCH);
-				break;
 				
 			case 'messages.last':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_MESSAGE_LAST_SEARCH);
-				break;
 				
 			case 'org':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_ORG_SEARCH);
-				break;
 				
 			case 'owner':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_OWNER_SEARCH);
-				break;
 				
 			case 'participant':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH);
-				break;
 				
 			// Alias
 			case 'recipient':
@@ -3862,14 +3851,12 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 				$field_key = SearchFields_Ticket::TICKET_ELAPSED_RESOLUTION_FIRST;
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
-				break;
 				
 			case 'response.first':
 				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens);
 				
 				$field_key = SearchFields_Ticket::TICKET_ELAPSED_RESPONSE_FIRST;
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
-				break;
 				
 			case 'spam.training':
 				$field_key = SearchFields_Ticket::TICKET_SPAM_TRAINING;
@@ -3900,7 +3887,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$oper,
 					array_keys($values)
 				);
-				break;
 			
 			case 'status':
 				$field_key = SearchFields_Ticket::VIRTUAL_STATUS;
@@ -3934,25 +3920,20 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 					$oper,
 					array_keys($values)
 				);
-				break;
 			
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_Ticket::VIRTUAL_WATCHERS, $tokens);
-				break;
 				
 			case 'watchers.count':
 				return DevblocksSearchCriteria::getNumberParamFromTokens(SearchFields_Ticket::VIRTUAL_WATCHERS_COUNT, $tokens);
-				break;
 				
 			case 'worker.commented':
 				$search_fields = SearchFields_Ticket::getFields();
 				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED, $tokens, $search_fields[SearchFields_Ticket::VIRTUAL_WORKER_COMMENTED]);
-				break;
 				
 			case 'worker.replied':
 				$search_fields = SearchFields_Ticket::getFields();
 				return DevblocksSearchCriteria::getWorkerParamFromTokens(SearchFields_Ticket::VIRTUAL_WORKER_REPLIED, $tokens, $search_fields[SearchFields_Ticket::VIRTUAL_WORKER_REPLIED]);
-				break;
 				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')

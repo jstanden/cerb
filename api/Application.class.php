@@ -2534,6 +2534,7 @@ class CerberusContexts {
 			$record_labels = array_column($dicts, '_label', 'id');
 		}
 		
+		if(count($record_ids) === count($record_labels))
 		foreach(array_combine($record_ids, $record_labels) as $record_id => $record_label) {
 			$entry = [
 				// {{actor}} deleted {{record_type}} `{{record_label}}` (#{{record_id}})

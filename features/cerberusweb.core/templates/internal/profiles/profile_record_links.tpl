@@ -106,11 +106,10 @@ $(function() {
 	
 	$div.find('[data-cerb-links-container] div.cerb-buttonbar').click(function(e) {
 		var $target = $(e.target);
-		var $fieldset = $target.closest('fieldset');
-		var context = $target.attr('data-context');
-		var from_context = $fieldset.attr('data-context');
-		var from_context_id = $fieldset.attr('data-context-id');
 
+		if($target.is('.badge-count'))
+			$target = $target.closest('button');
+		
 		if(!$target.is('button'))
 			return;
 

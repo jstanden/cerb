@@ -1958,7 +1958,7 @@ abstract class C4_AbstractView {
 					break;
 					
 				case Model_CustomField::TYPE_CURRENCY:
-					@$currency_id = $cfield->params['currency_id'];
+					$currency_id = $cfield->params['currency_id'] ?? 0;
 					
 					if(!$currency_id || false == ($currency = DAO_Currency::get($currency_id)))
 						break;
@@ -2048,22 +2048,14 @@ abstract class C4_AbstractView {
 					break;
 					
 				case Model_CustomField::TYPE_MULTI_LINE:
+				case Model_CustomField::TYPE_SINGLE_LINE:
+				case Model_CustomField::TYPE_URL:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
 					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
 					break;
 					
 				case Model_CustomField::TYPE_NUMBER:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_NUMBER;
-					break;
-					
-				case Model_CustomField::TYPE_SINGLE_LINE:
-					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
-					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
-					break;
-					
-				case Model_CustomField::TYPE_URL:
-					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_TEXT;
-					$search_field_meta['options']['match'] = DevblocksSearchCriteria::OPTION_TEXT_PARTIAL;
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:

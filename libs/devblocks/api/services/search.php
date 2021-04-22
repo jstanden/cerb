@@ -136,19 +136,19 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 		if(is_null($this->db))
 			return false;
 		
-		@$index = $this->_config['index'];
+		$index = $this->_config['index'] ?? null;
 		
 		if(empty($index))
 			return false;
 		
-		$where_sql = array();
-		$field_sql = array();
+		$where_sql = [];
+		$field_sql = [];
 
 		$schema_attributes = $schema->getAttributes();
 		
 		if(is_array($attributes))
 		foreach($attributes as $attr => $attr_val) {
-			@$attr_type = $schema_attributes[$attr];
+			$attr_type = $schema_attributes[$attr] ?? null;
 			
 			if(empty($attr_type))
 				continue;
@@ -838,7 +838,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			return false;
 		
 		$escaped_query = $db->escape($query_parts['terms']);
-		$where_sql = array();
+		$where_sql = [];
 		
 		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
 		foreach($query_parts['phrases'] as $phrase) {
@@ -851,7 +851,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		if(is_array($attributes))
 		foreach($attributes as $attr => $attr_val) {
-			@$attr_type = $schema_attributes[$attr];
+			$attr_type = $schema_attributes[$attr] ?? null;
 			
 			if(empty($attr_type))
 				continue;
@@ -999,7 +999,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			}
 		}
 		
-		@$took_ms = (microtime(true) - $start_time) * 1000;
+		$took_ms = (microtime(true) - $start_time) * 1000;
 		$count = count($ids);
 		
 		// Store the search info in a request registry for later use

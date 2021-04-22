@@ -343,9 +343,9 @@ class PageSection_InternalRecords extends Extension_PageSection {
 	}
 	
 	private function _internalAction_chooserOpenFileAjaxUpload() {
-		@$file_name = rawurldecode($_SERVER['HTTP_X_FILE_NAME']);
-		@$file_type = $_SERVER['HTTP_X_FILE_TYPE'];
-		@$file_size = $_SERVER['HTTP_X_FILE_SIZE'];
+		$file_name = rawurldecode($_SERVER['HTTP_X_FILE_NAME'] ?? null);
+		$file_type = $_SERVER['HTTP_X_FILE_TYPE'] ?? null;
+		$file_size = $_SERVER['HTTP_X_FILE_SIZE'] ?? null;
 		
 		$url_writer = DevblocksPlatform::services()->url();
 		$active_worker = CerberusApplication::getActiveWorker();
