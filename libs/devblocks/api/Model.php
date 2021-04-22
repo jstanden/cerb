@@ -1189,10 +1189,16 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				}
 				break;
 				
+			case Model_CustomField::TYPE_FILE:
+			case Model_CustomField::TYPE_FILES:
 			case Model_CustomField::TYPE_LINK:
 				switch($param->operator) {
 					case DevblocksSearchCriteria::OPER_CUSTOM:
-						$link_context = $field->params['context'] ?? null;
+						if(in_array($field->type, [Model_CustomField::TYPE_FILE, Model_CustomField::TYPE_FILES])) {
+							$link_context = CerberusContexts::CONTEXT_ATTACHMENT;
+						} else {
+							$link_context = $field->params['context'] ?? null;
+						}
 						
 						/** @noinspection SqlResolve */
 						$subquery_sql = sprintf("SELECT context_id FROM %s WHERE context = %s AND context_id = %s AND field_id = %d AND field_value IN (%s)",
@@ -1458,6 +1464,8 @@ class DevblocksSearchCriteria {
 				
 				switch($custom_field->type) {
 					// If a custom record link, add a deep search filter
+					case Model_CustomField::TYPE_FILE:
+					case Model_CustomField::TYPE_FILES:
 					case Model_CustomField::TYPE_LINK:
 						if($param_key && false != $param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key))
 							return $param;

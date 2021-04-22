@@ -1991,10 +1991,16 @@ abstract class C4_AbstractView {
 						);
 					break;
 					
+				case Model_CustomField::TYPE_FILE:
+				case Model_CustomField::TYPE_FILES:
 				case Model_CustomField::TYPE_LINK:
 					$search_field_meta['type'] = DevblocksSearchCriteria::TYPE_VIRTUAL;
 					
-					@$link_context_id = $cfield->params['context'];
+					if(in_array($cfield->type, [Model_CustomField::TYPE_FILE,Model_CustomField::TYPE_FILES])) {
+						$link_context_id = CerberusContexts::CONTEXT_ATTACHMENT;
+					} else {
+						$link_context_id = $cfield->params['context'] ?? null;
+					}
 					
 					// Deep search links
 					
