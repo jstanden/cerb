@@ -348,6 +348,7 @@ var cerbAutocompleteSuggestions = {
 					'caption': 'hidden:',
 					'snippet': 'hidden@bool: ${1:yes}'
 				},
+				'headless@bool: yes',
 				'inputs:'
 			],
 			'(.*):?menu:': [
