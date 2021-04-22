@@ -1676,6 +1676,9 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 					'format' => '`parsedown` (Markdown), or blank for plaintext',
 					'file_ids' => 'An array of [attachment](/docs/records/types/attachment/) IDs',
 					'group_id' => 'The [group](/docs/records/types/group/) ID to move the ticket to',
+					'html_template_id' => 'An optional [HTML template](/docs/records/types/html_template/) ID if `format` is `parsedown`',
+					'options_gpg_encrypt' => '`1` to enable PGP encryption, `0` (or omit) to disable',
+					'options_gpg_sign' => '`1` to enable PGP signatures, `0` (or omit) to disable',
 					'org_id' => 'The [org](/docs/records/types/org/) ID to assign',
 					'org_name' => 'The [org](/docs/records/types/org/) name to assign',
 					'owner_id' => 'The [worker](/docs/records/types/worker/) ID to assign',
@@ -1692,6 +1695,9 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 					'file_ids' => 'An array of [attachment](/docs/records/types/attachment/) IDs',
 					'format' => '`parsedown` (Markdown), or blank for plaintext',
 					'from' => 'The `From:` sender (uses system default if omitted)',
+					'html_template_id' => 'An optional [HTML template](/docs/records/types/html_template/) ID if `format` is `parsedown`',
+					'options_gpg_encrypt' => '`1` to enable PGP encryption, `0` (or omit) to disable',
+					'options_gpg_sign' => '`1` to enable PGP signatures, `0` (or omit) to disable',
 					'subject' => 'The message `Subject:`',
 					'to' => 'The `To:` recipients',
 				],
@@ -1704,7 +1710,10 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 					'file_ids' => 'An array of [attachment](/docs/records/types/attachment/) IDs',
 					'format' => '`parsedown` (Markdown), or blank for plaintext',
 					'group_id' => 'The [group](/docs/records/types/group/) ID to move the ticket to',
+					'html_template_id' => 'An optional [HTML template](/docs/records/types/html_template/) ID if `format` is `parsedown`',
 					'in_reply_message_id' => 'The [message](/docs/records/types/message/) ID being responded to',
+					'options_gpg_encrypt' => '`1` to enable PGP encryption, `0` (or omit) to disable',
+					'options_gpg_sign' => '`1` to enable PGP signatures, `0` (or omit) to disable',
 					'owner_id' => 'The [worker](/docs/records/types/worker/) ID to assign',
 					'send_at' => 'The optional timestamp to deliver the message at',
 					'status_id' => '`0` (open), `1` (waiting), `2` (closed)',
@@ -1715,6 +1724,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			],
 		];
 		
+		$keys['is_queued']['notes'] = "`1` for true, `0` for false";
 		$keys['name']['notes'] = "The subject line of the draft message";
 		$keys['to']['notes'] = "The `To:` line of the draft message";
 		$keys['token']['notes'] = "A random unique token for this draft, copied to the eventual message for tracing";

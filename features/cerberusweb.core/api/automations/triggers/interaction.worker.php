@@ -43,7 +43,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			],
 			[
 				'key' => 'worker_*',
-				'notes' => 'The active worker record. Supports key expansion.',
+				'notes' => 'The active [worker](https://cerb.ai/docs/records/types/worker/#dictionary-placeholders) record. Supports key expansion.',
 			],
 		];
 	}
