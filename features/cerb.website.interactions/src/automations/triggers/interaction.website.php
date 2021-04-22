@@ -211,7 +211,13 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'filtering@bool: yes',
 					'headings@bool: yes',
 					'paging@bool: yes',
+					'style: table',
 					'title_column:',
+				],
+				'(.*):await:form:elements:sheet:schema:layout:style' => [
+					'buttons',
+					'scale',
+					'table',
 				],
 				
 				'(.*):await:interaction:' => [

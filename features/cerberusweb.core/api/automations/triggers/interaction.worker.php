@@ -282,7 +282,14 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'filtering@bool: yes',
 					'headings@bool: yes',
 					'paging@bool: yes',
+					'style: table',
 					'title_column:',
+				],
+				'(.*):await:form:elements:sheet:schema:layout:style' => [
+					'buttons',
+					'fieldsets',
+					'grid',
+					'table',
 				],
 				
 				'(.*):await:form:elements:text:' => [
