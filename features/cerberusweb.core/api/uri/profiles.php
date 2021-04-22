@@ -136,9 +136,11 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		// Toolbar
 		
-		$toolbar_dict = DevblocksDictionaryDelegate::instance(
-			$dict->getDictionary(null, false, 'record_')
-		);
+		$toolbar_placeholders = $dict->getDictionary(null, false, 'record_');
+		$toolbar_placeholders['worker__context'] = CerberusContexts::CONTEXT_WORKER;
+		$toolbar_placeholders['worker_id'] = $active_worker->id;
+
+		$toolbar_dict = DevblocksDictionaryDelegate::instance($toolbar_placeholders);
 		
 		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName('record.card', $toolbar_dict))) {
 			$tpl->assign('toolbar_card', $toolbar_kata);
@@ -154,6 +156,7 @@ class Page_Profiles extends CerberusPageExtension {
 	
 	static function renderProfile($context, $context_id, $path=[]) {
 		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
 
 		// Context
 		
@@ -179,10 +182,11 @@ class Page_Profiles extends CerberusPageExtension {
 		$tpl->assign('dict', $dict);
 
 		// Toolbar
+		$toolbar_placeholders = $dict->getDictionary(null, false, 'record_');
+		$toolbar_placeholders['worker__context'] = CerberusContexts::CONTEXT_WORKER;
+		$toolbar_placeholders['worker_id'] = $active_worker->id;
 		
-		$toolbar_dict = DevblocksDictionaryDelegate::instance(
-			$dict->getDictionary(null, false, 'record_')
-		);
+		$toolbar_dict = DevblocksDictionaryDelegate::instance($toolbar_placeholders);
 		
 		if(false != ($toolbar_kata = DAO_Toolbar::getKataByName('record.profile', $toolbar_dict))) {
 			$tpl->assign('toolbar_profile', $toolbar_kata);
