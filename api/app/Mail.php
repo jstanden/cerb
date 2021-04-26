@@ -2754,7 +2754,7 @@ class CerberusMail {
 					$mail->addBcc($bcc, $bcc_data['personal']);
 			}
 			
-			$mail->setDate(time());
+			$mail->setDate(new DateTime('now'));
 			$mail->setSubject($headers['subject']);
 			
 			// Message-ID
