@@ -253,11 +253,12 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 		layout:
 		  headings@bool: no
 		  paging@bool: yes
+		  title_column: node
 		columns:
-		  date/created_at:
-		    label: Date
 		  text/node:
 		    label: At
+		    params:
+		      value_template: {{node}} ({{created_at|date_pretty}})
 		  text/log_message:
 		    label: Message
 		EOD;
