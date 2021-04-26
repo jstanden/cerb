@@ -122,6 +122,11 @@ $db->ExecuteMaster("UPDATE trigger_event SET is_disabled = 1 WHERE event_point =
 $db->ExecuteMaster("UPDATE trigger_event SET is_disabled = 1 WHERE event_point = 'event.message.chat.mobile.worker'");
 
 // ===========================================================================
+// Disable behaviors on disabled bots
+
+$db->ExecuteMaster("UPDATE trigger_event SET is_disabled = 1 WHERE bot_id IN (SELECT id FROM bot WHERE bot.is_disabled = 1)");
+
+// ===========================================================================
 // Add `automation` table
 
 $automation_files = [];
