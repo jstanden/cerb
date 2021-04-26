@@ -92,8 +92,40 @@ class CardWidget_FormInteraction extends Extension_CardWidget {
 	}
 	
 	function getInteractions(Model_CardWidget $widget, DevblocksDictionaryDelegate $dict) {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		
 		$interactions_kata = $widget->extension_params['interactions_kata'];
-		return DevblocksPlatform::services()->ui()->toolbar()->parse($interactions_kata, $dict);
+		
+		$results = [];
+		
+		if(DevblocksPlatform::strStartsWith($interactions_kata, '---')) {
+			// Render errors
+			if(false == ($interactions_yaml = $tpl_builder->build($interactions_kata, $dict)))
+				return false;
+			
+			if(false == ($interactions = DevblocksPlatform::services()->string()->yamlParse($interactions_yaml, 0)))
+				return false;
+			
+			if(!array_key_exists('behaviors', $interactions))
+				return [];
+			
+			// Transpile YAML->KATA
+			foreach($interactions['behaviors'] as $interaction) {
+				$results[] = [
+					'key' => $interaction['id'],
+					'type' => 'interaction',
+					'label' => $interaction['label'] ?? '',
+					'icon' => $interaction['icon'] ?? '',
+					'uri' => 'cerb:behavior:' . $interaction['id'],
+					'inputs' => $interaction['inputs'] ?? [],
+				];
+			}
+			
+		} else {
+			$results = DevblocksPlatform::services()->ui()->toolbar()->parse($interactions_kata, $dict);
+		}
+		
+		return $results;
 	}
 	
 	function renderInteractionChooser(Model_CardWidget $widget, DevblocksDictionaryDelegate $dict) {
