@@ -54,14 +54,19 @@ class LogAction extends AbstractAction {
 				$log_level = 7;
 			}
 			
-			// Write to database
-			DAO_AutomationLog::create([
+			$fields = [
 				DAO_AutomationLog::LOG_MESSAGE => $log_message,
 				DAO_AutomationLog::LOG_LEVEL => $log_level,
 				DAO_AutomationLog::CREATED_AT => time(),
 				DAO_AutomationLog::AUTOMATION_NAME => $automation->name ?? '',
 				DAO_AutomationLog::AUTOMATION_NODE => $this->node->getId(),
-			]);
+			];
+			
+			if(false == DAO_AutomationLog::validate($fields, $error))
+				throw new Exception_DevblocksAutomationError($error);
+			
+			// Write to database
+			DAO_AutomationLog::create($fields);
 			
 		} catch(Exception_DevblocksAutomationError $e) {
 			$error = $e->getMessage();
