@@ -8,6 +8,8 @@ TABLE.cerb-widget-data-table {
 	
 	td {
 		padding: 5px;
+		white-space: normal;
+		word-break: break-word;
 	}
 	
 	tbody:nth-child(even) td {
