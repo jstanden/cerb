@@ -15,6 +15,10 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/**
+ * Class Event_MailBeforeSent
+ * @deprecated 
+ */
 class Event_MailBeforeSent extends AbstractEvent_MailBeforeSent {
 	const ID = 'event.mail.before.sent';
 	

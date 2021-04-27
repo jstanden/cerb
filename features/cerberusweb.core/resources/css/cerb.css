@@ -2653,6 +2653,8 @@ TABLE.cerb-widget-data-table th {
 }
 TABLE.cerb-widget-data-table td {
   padding: 5px;
+  white-space: normal;
+  word-break: break-word;
 }
 TABLE.cerb-widget-data-table tbody:nth-child(even) td {
   background-color: whitesmoke;

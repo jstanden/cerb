@@ -15,6 +15,10 @@
 |	http://cerb.ai	    http://webgroup.media
 ***********************************************************************/
 
+/**
+ * Class Event_MailBeforeSentByGroup
+ * @deprecated 
+ */
 class Event_MailBeforeSentByGroup extends AbstractEvent_MailBeforeSent {
 	const ID = 'event.mail.sent.group';
 	
