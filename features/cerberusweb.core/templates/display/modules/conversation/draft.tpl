@@ -113,6 +113,26 @@
 			{/if}
 
 			<button type="button" class="cerb-sticky-trigger" data-context="{CerberusContexts::CONTEXT_COMMENT}" data-context-id="0" data-edit="context:{CerberusContexts::CONTEXT_DRAFT} context.id:{$draft->id}"><span class="glyphicons glyphicons-comments"></span> {'common.comment'|devblocks_translate|capitalize}</button>
+			
+			<div data-cerb-toolbar style="display:inline-block;">
+			{$draft_dict = DevblocksDictionaryDelegate::instance([
+				'caller_name' => 'cerb.toolbar.draft.read',
+				
+				'draft__context' => CerberusContexts::CONTEXT_DRAFT,
+				'draft_id' => $draft->id,
+
+				'worker__context' => CerberusContexts::CONTEXT_WORKER,
+				'worker_id' => $active_worker->id
+			])}
+
+			{$toolbar = []}
+			{$toolbar_draft_read = DAO_Toolbar::getByName('draft.read')}
+			{if $toolbar_draft_read}
+				{$toolbar = $toolbar_draft_read->getKata($draft_dict)}
+			{/if}
+
+			{DevblocksPlatform::services()->ui()->toolbar()->render($toolbar)}
+			</div>
 		</div>
 		{/if}
 
@@ -128,6 +148,8 @@
 <script type="text/javascript">
 $(function() {
 	var $draft = $('#draftContainer{$draft->id}');
+	var $toolbar = $draft.find('[data-cerb-toolbar]');
+	var $profile_tab = $toolbar.closest('.cerb-profile-layout');
 	var $notes = $('#draft{$draft->id}_notes');
 	
 	$draft.find('.cerb-peek-trigger').cerbPeekTrigger();
@@ -184,6 +206,68 @@ $(function() {
 	$draft.find('.cerb-search-trigger')
 		.cerbSearchTrigger()
 		;
+	
+	var doneFunc = function(e) {
+		e.stopPropagation();
+
+		var $target = e.trigger;
+
+		if(!$target.is('.cerb-bot-trigger'))
+			return;
+
+		var done_params = new URLSearchParams($target.attr('data-interaction-done'));
+
+		if(!done_params.has('refresh_widgets[]'))
+			return;
+
+		var refresh = done_params.getAll('refresh_widgets[]');
+
+		var widget_ids = [];
+
+		if(-1 !== $.inArray('all', refresh)) {
+			// Everything
+		} else {
+			$profile_tab.find('.cerb-profile-widget')
+				.filter(function() {
+					var $this = $(this);
+					var name = $this.attr('data-widget-name');
+	
+					if(undefined === name)
+						return false;
+	
+					return -1 !== $.inArray(name, refresh);
+				})
+				.each(function() {
+					var $this = $(this);
+					var widget_id = parseInt($this.attr('data-widget-id'));
+	
+					if(widget_id)
+						widget_ids.push(widget_id);
+				})
+			;
+		}
+
+		var evt = $.Event('cerb-widgets-refresh', {
+			widget_ids: widget_ids,
+			refresh_options: { }
+		});
+
+		$profile_tab.triggerHandler(evt);
+	};
+
+	$toolbar.cerbToolbar({
+		caller: {
+			name: 'cerb.toolbar.draft.read',
+			params: {
+				draft_id: '{$draft->id}',
+				selected_text: ''
+			}
+		},
+		start: function(formData) {
+			formData.set('caller[params][selected_text]', document.getSelection());
+		},
+		done: doneFunc
+	});
 });
 </script>
 {/if}
