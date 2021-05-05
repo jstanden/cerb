@@ -420,8 +420,16 @@ class CerberusMail {
 							$email = trim($email);
 							
 							if(!$email) {
-								$email = $personal;
-								$personal = '';
+								$matches = [];
+								
+								// Formmail style?
+								if(preg_match('#^(.*?\@.*?) \((.*?)\)$#', $personal, $matches)) {
+									$email = $matches[1];
+									$personal = $matches[2];
+								} else {
+									$email = $personal;
+									$personal = '';
+								}
 								
 							} else {
 								if(DevblocksPlatform::strStartsWith($personal, '"')) {

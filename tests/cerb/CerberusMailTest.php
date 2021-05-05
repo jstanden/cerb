@@ -126,6 +126,19 @@ class CerberusMailTest extends TestCase {
 		];
 		$actual = CerberusMail::parseRfcAddresses('"Customer, James \"Jim\"" <jim@example.com>');
 		$this->assertEquals($expected, $actual);
+		
+		// Formmail style
+		$expected = [
+			'customer@example.com' => [
+				'full_email' => 'Customer Name <customer@example.com>',
+				'email' => 'customer@example.com',
+				'mailbox' => 'customer',
+				'host' => 'example.com',
+				'personal' => 'Customer Name',
+			],
+		];
+		$actual = CerberusMail::parseRfcAddresses('customer@example.com (Customer Name)');
+		$this->assertEquals($expected, $actual);
 	}
 	
 	public function testDecodeMimeHeader() {
