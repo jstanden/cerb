@@ -39,4 +39,32 @@ if(array_key_exists('extension_params_json', $columns)) {
 	$db->ExecuteMaster('alter table webhook_listener drop column extension_params_json');
 }
 
+// ===========================================================================
+// Migrate webhook portals to automations
+
+$sql = "SELECT tool_code, property_value FROM community_tool_property WHERE property_key = 'webhook_behavior_id' AND tool_code IN (SELECT code FROM community_tool WHERE extension_id = 'webhooks.portal')";
+
+$results = $db->GetArrayMaster($sql);
+
+if(is_array($results)) {
+	foreach ($results as $result) {
+		$webhook_kata = [
+			'behavior/' . $result['property_value'] => [
+				'uri' => 'cerb:behavior:' . $result['property_value'],
+				'disabled@bool' => 'no',
+			]
+		];
+		
+		$db->ExecuteMaster(sprintf("INSERT IGNORE INTO community_tool_property (tool_code, property_key, property_value) VALUES (%s, %s, %s)",
+			$db->qstr($result['tool_code']),
+			$db->qstr('automations_kata'),
+			$db->qstr(DevblocksPlatform::services()->kata()->emit($webhook_kata))
+		));
+		
+		$db->ExecuteMaster(sprintf("DELETE FROM community_tool_property WHERE tool_code = %s AND property_key = 'webhook_behavior_id'",
+			$db->qstr($result['tool_code'])
+		));
+	}
+}
+
 return TRUE;

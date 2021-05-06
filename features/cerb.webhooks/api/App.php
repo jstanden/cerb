@@ -1,8 +1,6 @@
 <?php
 class Controller_Webhooks implements DevblocksHttpRequestHandler {
 	function handleRequest(DevblocksHttpRequest $request) {
-		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
-		
 		$stack = $request->path;
 		
 		array_shift($stack); // webhooks
@@ -35,14 +33,20 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 			'request_path' => $path,
 		];
 		
-		$handlers = $event_handler->parse($webhook->automations_kata, $dict, $error);
+		$this->respond($initial_state, $webhook->automations_kata, $dict, $error);
+	}
+	
+	public function respond(array $initial_state, string $automations_kata, DevblocksDictionaryDelegate $dict, &$error=null) {
+		$event_handler = DevblocksPlatform::services()->ui()->eventHandler();
+		
+		$handlers = $event_handler->parse($automations_kata, $dict, $error);
 		
 		$automation_results = $event_handler->handleOnce(
 			AutomationTrigger_WebhookRespond::ID,
 			$handlers,
 			$initial_state,
 			$error,
-			function(Model_TriggerEvent $behavior, array $handler) use ($path) {
+			function(Model_TriggerEvent $behavior, array $handler) use ($initial_state) {
 				if($behavior->event_point != Event_WebhookReceived::ID)
 					return false;
 				
@@ -57,12 +61,12 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 				$variables = [];
 				
 				$http_request = [
-					'body' => DevblocksPlatform::getHttpBody(),
-					'client_ip' => DevblocksPlatform::getClientIp(),
-					'headers' => DevblocksPlatform::getHttpHeaders(),
-					'params' => DevblocksPlatform::getHttpParams(),
-					'path' => $path,
-					'verb' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
+					'body' => $initial_state['request_body'] ?? '',
+					'client_ip' => $initial_state['request_client_ip'] ?? '',
+					'headers' => $initial_state['request_headers'] ?? '',
+					'params' => $initial_state['request_params'] ?? '',
+					'path' => $initial_state['request_path'] ?? '',
+					'verb' => $initial_state['request_method'] ?? '',
 				];
 				
 				$dicts = Event_WebhookReceived::trigger($behavior->id, $http_request, $variables);
@@ -83,7 +87,7 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 			
 		} else {
 			DevblocksPlatform::dieWithHttpError(null, 404);
-		}
+		}		
 	}
 	
 	private function _webhookRequestAutomation(DevblocksDictionaryDelegate $automation_results) {
@@ -148,7 +152,7 @@ class Controller_Webhooks implements DevblocksHttpRequestHandler {
 };
 
 class Portal_Webhook extends Extension_CommunityPortal {
-	const PARAM_WEBHOOK_BEHAVIOR_ID = 'webhook_behavior_id';
+	const PARAM_WEBHOOK_AUTOMATIONS_KATA = 'automations_kata';
 	
 	private $_config = null;
 	
@@ -172,76 +176,43 @@ class Portal_Webhook extends Extension_CommunityPortal {
 		$path = $response->path;
 		
 		$config = $this->getConfig();
+		$portal = ChPortalHelper::getPortal();
 		
-		@$webhook_behavior_id = $config[self::PARAM_WEBHOOK_BEHAVIOR_ID];
+		$automations_kata = $config[self::PARAM_WEBHOOK_AUTOMATIONS_KATA] ?? '';
+		$error = null;
 		
-		if(
-			!$webhook_behavior_id 
-			|| false == ($behavior = DAO_TriggerEvent::get($webhook_behavior_id)) 
-			)
-			return;
-			
-		if(false == ($event = $behavior->getEvent()) || !($event instanceof Event_WebhookReceived))
-			return;
+		$controller = DevblocksPlatform::getExtension('webhooks.controller', true);
 		
-		if(false == ($bot = $behavior->getBot()))
-			return;
+		/** @var $controller Controller_Webhooks */
 		
-		if($behavior->is_disabled || $bot->is_disabled) {
-			http_response_code(503);
-			echo "<h1>503: Temporarily unavailable</h1>";
-			return;
-		}
+		$request_headers = DevblocksPlatform::getHttpHeaders() ?: [];
+		unset($request_headers['cookie']);
 		
-		$variables = [];
-		
-		$http_request = [
-			'body' => DevblocksPlatform::getHttpBody(),
-			'client_ip' => DevblocksPlatform::getClientIp(),
-			'headers' => DevblocksPlatform::getHttpHeaders(),
-			'params' => DevblocksPlatform::getHttpParams(),
-			'path' => implode('/', $path),
-			'verb' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
+		$initial_state = [
+			'request_method' => DevblocksPlatform::strUpper($_SERVER['REQUEST_METHOD']),
+			'request_body' => DevblocksPlatform::getHttpBody(),
+			'request_client_ip' => DevblocksPlatform::getClientIp(),
+			'request_headers' => $request_headers,
+			'request_params' => DevblocksPlatform::getHttpParams(),
+			'request_path' => implode('/', $path),
 		];
 		
-		$dicts = Event_WebhookReceived::trigger($behavior->id, $http_request, $variables);
-		$dict = $dicts[$behavior->id];
+		$dict = DevblocksDictionaryDelegate::instance([
+			'portal__context' => CerberusContexts::CONTEXT_PORTAL,
+			'portal_id' => $portal->id,
+		]);
 		
-		if(!($dict instanceof DevblocksDictionaryDelegate))
-			return;
-		
-		// HTTP status code
-
-		if(isset($dict->_http_status)) {
-			http_response_code($dict->_http_status);
-		}
-		
-		// HTTP response headers
-		
-		if(isset($dict->_http_response_headers) && is_array($dict->_http_response_headers)) {
-			foreach($dict->_http_response_headers as $header_k => $header_v) {
-				header(sprintf("%s: %s",
-					$header_k,
-					$header_v
-				));
-			}
-		}
-		
-		// HTTP response body
-		
-		if(isset($dict->_http_response_body)) {
-			echo $dict->_http_response_body;
-		}
+		$controller->respond($initial_state, $automations_kata, $dict, $error);
 	}
 	
 	/**
 	 * @param Model_CommunityTool $instance
 	 */
-	public function configure(Model_CommunityTool $portal) {
+	public function configure(Model_CommunityTool $instance) {
 		$tpl = DevblocksPlatform::services()->template();
-		$tpl->assign('portal', $portal);
+		$tpl->assign('portal', $instance);
 		
-		$params = DAO_CommunityToolProperty::getAllByTool($portal->code);
+		$params = DAO_CommunityToolProperty::getAllByTool($instance->code);
 		$tpl->assign('params', $params);
 		
 		$tpl->display('devblocks:cerb.webhooks::portal/config.tpl');
@@ -250,18 +221,8 @@ class Portal_Webhook extends Extension_CommunityPortal {
 	public function saveConfiguration(Model_CommunityTool $instance) {
 		@$params = DevblocksPlatform::importGPC($_POST['params'],'array',[]);
 		
-		if(array_key_exists(self::PARAM_WEBHOOK_BEHAVIOR_ID, $params)) {
-			$behavior_id = $params[self::PARAM_WEBHOOK_BEHAVIOR_ID];
-			
-			if(false !== ($behavior = DAO_TriggerEvent::get($behavior_id))) {
-				// Validate the event type
-				if($behavior->event_point == Event_WebhookReceived::ID) {
-					DAO_CommunityToolProperty::set($instance->code, self::PARAM_WEBHOOK_BEHAVIOR_ID, $behavior->id);
-				}
-			}
-			
-		} else {
-			DAO_CommunityToolProperty::set($instance->code, self::PARAM_WEBHOOK_BEHAVIOR_ID, 0);
-		}
+		$automations_kata = $params[self::PARAM_WEBHOOK_AUTOMATIONS_KATA] ?? '';
+		
+		DAO_CommunityToolProperty::set($instance->code, self::PARAM_WEBHOOK_AUTOMATIONS_KATA, $automations_kata);
 	}
 }
