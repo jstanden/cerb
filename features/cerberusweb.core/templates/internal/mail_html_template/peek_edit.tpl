@@ -25,6 +25,7 @@
 	<ul class="cerb-float" style="display:none;">
 		<li data-token="{literal}{{message_body}}{/literal}"><b>Message Body</b></li>
 		<li data-token="{literal}{{message_id_header}}{/literal}"><b>Message-Id Header</b></li>
+		<li data-token="{literal}{{message_token}}{/literal}"><b>Message Token</b></li>
 		<li data-token="{literal}{{group_id}}{/literal}"><b>Group ID</b></li>
 		<li data-token="{literal}{{group__label}}{/literal}"><b>Group Name</b></li>
 		<li data-token="{literal}{{bucket_id}}{/literal}"><b>Bucket ID</b></li>

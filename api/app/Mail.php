@@ -3042,6 +3042,10 @@ class CerberusMail {
 					$values['message_id_header'] = @$properties['outgoing_message_id'] ?? '';
 				}
 				
+				if(array_key_exists('token', $properties)) {
+					$values['message_token'] = $properties['token'] ?? '';
+				}
+				
 				if(array_key_exists('bucket_id', $properties)) {
 					$values['bucket__context'] = CerberusContexts::CONTEXT_BUCKET;
 					$values['bucket_id'] = @$properties['bucket_id'] ?? 0;
