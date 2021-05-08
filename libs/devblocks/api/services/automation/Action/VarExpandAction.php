@@ -38,7 +38,6 @@ class VarExpandAction extends AbstractAction {
 			
 			$validation->addField('key', 'inputs:key:')
 				->string()
-				->setRequired(true)
 			;
 			
 			$validation->addField('paths', 'inputs:paths:')
@@ -49,7 +48,9 @@ class VarExpandAction extends AbstractAction {
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
-			if(false !== strpos($inputs['key'], ':')) {
+			if(!array_key_exists('key', $inputs)) {
+				$targets = $dict;
+			} else if(false !== strpos($inputs['key'], ':')) {
 				$targets = $dict->getKeyPath($inputs['key'], null, ':');
 			} else {
 				$targets = $dict->get($inputs['key'], null);
