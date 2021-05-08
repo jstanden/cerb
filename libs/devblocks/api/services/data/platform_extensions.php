@@ -82,6 +82,13 @@ class _DevblocksDataProviderPlatformExtensions extends _DevblocksDataProvider {
 		
 		$extensions = DevblocksPlatform::getExtensions($chart_model['point'], false);
 		
+		if ($chart_model['filter']) {
+			$extensions = array_filter($extensions, function($extension) use ($chart_model) {
+				$match = sprintf('%s %s', $extension->name, $extension->id);
+				return stristr($match, $chart_model['filter']);
+			});
+		}
+		
 		foreach($extensions as $extension) {
 			$data[] = [
 				'id' => $extension->id,
