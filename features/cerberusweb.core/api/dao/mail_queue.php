@@ -1572,6 +1572,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'content' => $prefix.$translate->_('common.content'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'params' => $prefix.$translate->_('common.params'),
 			'to' => $prefix.$translate->_('message.header.to'),
 			'token' => $prefix.$translate->_('common.token'),
 			'type' => $prefix.$translate->_('common.type'),
@@ -1584,6 +1585,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			'content' => Model_CustomField::TYPE_MULTI_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'params' => 'dictionary',
 			'to' => Model_CustomField::TYPE_SINGLE_LINE,
 			'token' => Model_CustomField::TYPE_SINGLE_LINE,
 			'type' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1603,6 +1605,7 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['_label'] = $object->name;
 			$token_values['id'] = $object->id;
 			$token_values['name'] = $object->name;
+			$token_values['params'] = $object->params;
 			$token_values['to'] = $object->hint_to;
 			$token_values['token'] = $object->token;
 			$token_values['type'] = $object->type;
