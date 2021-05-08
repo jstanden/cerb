@@ -154,6 +154,7 @@
 				<name>AutomationTrigger_ProjectBoardRenderCard</name>
 			</class>
 			<params>
+				<param key="description" value="Dynamic card layouts on project boards" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -170,6 +171,7 @@
 				<name>AutomationTrigger_ProjectBoardCardAction</name>
 			</class>
 			<params>
+				<param key="description" value="Actions that take place for new cards in a project board column" />
 				<param key="features">
 					<value>
 						<data key="inputs" />

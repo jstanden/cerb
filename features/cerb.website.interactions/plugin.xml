@@ -42,6 +42,7 @@
 				<name>AutomationTrigger_InteractionWebsite</name>
 			</class>
 			<params>
+				<param key="description" value="Interaction with a visitor on any website" />
 				<param key="features">
 					<value>
 						<data key="await" />

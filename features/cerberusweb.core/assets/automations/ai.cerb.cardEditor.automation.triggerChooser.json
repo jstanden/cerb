@@ -3,8 +3,8 @@
     "description": "",
     "extension_id": "cerb.trigger.interaction.worker",
     "is_unlisted": 1,
-    "script": "start:\r\n  # [TODO] Grid chooser by type (e.g. toolbar, etc)\r\n  await:\r\n    form:\r\n      elements:\r\n        sheet/prompt_trigger:\r\n          label: Trigger:\r\n          required@bool: yes\r\n          data:\r\n            automation:\r\n              uri: cerb:automation:cerb.data.platform.extensions\r\n              inputs:\r\n                point: cerb.automation.trigger\r\n          limit: 10\r\n          #default: cerb.trigger.interaction.worker\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n              paging@bool: no\r\n              filtering@bool: yes\r\n              #title_column: key\r\n            columns:\r\n              selection/id:\r\n                params:\r\n                  mode: single\r\n              text/name:\r\n                params:\r\n                  bold@bool: yes\r\n  return:\r\n    trigger:\r\n      id: {{prompt_trigger}}\r\n      name: {{prompt_trigger}}",
+    "script": "start:\r\n  await:\r\n    form:\r\n      elements:\r\n        sheet/prompt_trigger:\r\n          label: Trigger:\r\n          required@bool: yes\r\n          data:\r\n            automation:\r\n              uri: cerb:automation:cerb.data.platform.extensions\r\n              inputs:\r\n                point: cerb.automation.trigger\r\n          limit: 10\r\n          schema:\r\n            layout:\r\n              headings@bool: no\r\n              paging@bool: no\r\n              filtering@bool: yes\r\n              title_column: name\r\n            columns:\r\n              selection/id:\r\n                params:\r\n                  mode: single\r\n              text/name:\r\n                params:\r\n                  bold@bool: yes\r\n              text/description:\r\n                params:\r\n                  value_template@raw: {{params.description}}\r\n  return:\r\n    trigger:\r\n      id: {{prompt_trigger}}\r\n      name: {{prompt_trigger}}",
     "policy_kata": "",
     "created_at": 1602889906,
-    "updated_at": 1617996853
+    "updated_at": 1620435620
 }

@@ -4703,6 +4703,7 @@
 				<name>AutomationTrigger_AutomationFunction</name>
 			</class>
 			<params>
+				<param key="description" value="A reusable function with shared functionality called by other automations" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4719,6 +4720,7 @@
 				<name>AutomationTrigger_AutomationTimer</name>
 			</class>
 			<params>
+				<param key="description" value="A scheduled automation with continuations" />
 				<param key="features">
 					<value>
 						<data key="await" />
@@ -4736,6 +4738,7 @@
 				<name>AutomationTrigger_InteractionWorker</name>
 			</class>
 			<params>
+				<param key="description" value="Worker interactions on toolbars and widgets" />
 				<param key="features">
 					<value>
 						<data key="await" />
@@ -4754,6 +4757,7 @@
 				<name>AutomationTrigger_MailFilter</name>
 			</class>
 			<params>
+				<param key="description" value=" Modify or reject an inbound message based on its properties" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4770,6 +4774,7 @@
 				<name>AutomationTrigger_MailRoute</name>
 			</class>
 			<params>
+				<param key="description" value="Determine a destination group inbox given properties of an incoming message" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4786,6 +4791,7 @@
 				<name>AutomationTrigger_MapClicked</name>
 			</class>
 			<params>
+				<param key="description" value="Handle clicks on map regions and points" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4802,6 +4808,7 @@
 				<name>AutomationTrigger_RecordChanged</name>
 			</class>
 			<params>
+				<param key="description" value="Actions that run when record fields change" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4818,6 +4825,7 @@
 				<name>AutomationTrigger_RecordMerge</name>
 			</class>
 			<params>
+				<param key="description" value="Allow or deny record merge requests" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4834,6 +4842,7 @@
 				<name>AutomationTrigger_ReminderRemind</name>
 			</class>
 			<params>
+				<param key="description" value="Actions that run for reminder alerts" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4850,6 +4859,7 @@
 				<name>AutomationTrigger_ResourceGet</name>
 			</class>
 			<params>
+				<param key="description" value="Dynamic resource content" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4866,6 +4876,7 @@
 				<name>AutomationTrigger_UiSheetData</name>
 			</class>
 			<params>
+				<param key="description" value="Data sources for sheets" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4882,6 +4893,7 @@
 				<name>AutomationTrigger_UiWidget</name>
 			</class>
 			<params>
+				<param key="description" value="Custom output for card, profile, or workspace widgets" />
 				<param key="features">
 					<value>
 						<data key="inputs" />
@@ -4898,6 +4910,12 @@
 				<name>AutomationTrigger_WebhookRespond</name>
 			</class>
 			<params>
+				<param key="description" value="Handle an incoming webhook request" />
+				<param key="features">
+					<value>
+						<data key="inputs" />
+					</value>
+				</param>
 			</params>
 		</extension>
 
