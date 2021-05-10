@@ -314,6 +314,19 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 		return $results;
 	}
 	
+	public static function getByFieldIds(array $ids) {
+		$custom_fields = DAO_CustomField::getIds($ids);
+		
+		$custom_fieldset_ids = array_unique(
+			array_column(
+				DevblocksPlatform::objectsToArrays($custom_fields), 
+				'custom_fieldset_id'
+			)
+		);
+		
+		return DAO_CustomFieldset::getIds($custom_fieldset_ids);
+	}
+	
 	/**
 	 * @param mysqli_result|false $rs
 	 * @return Model_CustomFieldset[]

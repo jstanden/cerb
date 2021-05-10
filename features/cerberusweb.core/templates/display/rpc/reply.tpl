@@ -278,10 +278,8 @@
 	</table>
 </fieldset>
 
-{$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, CerberusContexts::CONTEXT_TICKET)}
-
 {if $custom_fields || $custom_fieldsets_available}
-<fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0px;{/if}">
+<fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0;{/if}">
 	<legend>
 		<label>
 			{'common.update'|devblocks_translate|capitalize}
@@ -294,7 +292,7 @@
 	{/if}
 	</div>
 
-	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id bulk=true custom_fieldsets_available=$custom_fieldsets_available}
+	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=$ticket->id bulk=true custom_fieldsets_available=$custom_fieldsets_available custom_fieldsets_linked=$custom_fieldsets_linked custom_fields_expanded=$draft->params.custom_fields}
 </fieldset>
 {/if}
 

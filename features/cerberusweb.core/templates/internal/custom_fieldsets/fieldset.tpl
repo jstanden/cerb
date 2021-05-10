@@ -1,4 +1,7 @@
 {$fieldset_domid = "peek_fieldset_{uniqid()}"}
+{if !$custom_fields_expanded}
+	{$custom_fields_expanded = []}
+{/if}
 <fieldset class="block" id="{$fieldset_domid}">
 	{$owner = $custom_fieldset->getOwnerDictionary()}
 	<legend>
@@ -15,7 +18,7 @@
 	{/if}
 	{/if}
 	
-	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=$bulk field_wrapper=$field_wrapper custom_fields=$custom_fieldset->getCustomFields()}
+	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=$bulk field_wrapper=$field_wrapper custom_fields=$custom_fieldset->getCustomFields() custom_fields_expanded=$custom_fields_expanded}
 </fieldset>
 
 <script type="text/javascript">

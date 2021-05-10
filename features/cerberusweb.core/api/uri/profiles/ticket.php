@@ -590,7 +590,15 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl->assign('message', $message);
 		$tpl->assign('bucket', $bucket);
 		
-		// Transport
+		// Custom fields
+		
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
+		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
+		$custom_field_values = @$custom_field_values[$ticket->id] ?: [];
+		
+		// Fields
 		
 		if(array_key_exists('owner_id', $draft->params))
 			$ticket->owner_id = $draft->params['owner_id'];
@@ -605,6 +613,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			foreach($draft->params['custom_fields'] as $field_id => $field_value)
 				$custom_field_values[$field_id] = $field_value;
 		}
+		
+		$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, CerberusContexts::CONTEXT_TICKET);
+		$tpl->assign('custom_fieldsets_available', $custom_fieldsets_available);
+		
+		// Expanded custom fieldsets (including draft fields)
+		
+		$custom_fieldsets_linked = DAO_CustomFieldset::getByFieldIds(array_keys(array_filter($custom_field_values, fn($v) => !is_null($v))));
+		$tpl->assign('custom_fieldsets_linked', $custom_fieldsets_linked);
 		
 		$tpl->assign('custom_field_values', $custom_field_values);
 		
