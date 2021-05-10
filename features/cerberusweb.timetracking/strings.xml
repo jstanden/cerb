@@ -61,9 +61,6 @@
 		<tu tuid='timetracking.ui.entry_panel.debit_time_client_hint'>
 			<tuv xml:lang="en_US"><seg>(if org is known; autocompletes)</seg></tuv>
 		</tu>
-		<tu tuid='timetracking.ui.entry_panel.mins'>
-			<tuv xml:lang="en_US"><seg>min(s)</seg></tuv>
-		</tu>
 		<tu tuid='timetracking.ui.entry_panel.note'>
 			<tuv xml:lang="en_US"><seg>Note:</seg></tuv>
 		</tu>

@@ -5415,11 +5415,6 @@
                 <seg>(jeśli org znana; autouzupełnienie)</seg>
             </tuv>
         </tu>
-        <tu tuid="timetracking.ui.entry_panel.mins">
-            <tuv xml:lang="pl_PL">
-                <seg>min</seg>
-            </tuv>
-        </tu>
         <tu tuid="timetracking.ui.entry_panel.note">
             <tuv xml:lang="pl_PL">
                 <seg>Notatka:</seg>

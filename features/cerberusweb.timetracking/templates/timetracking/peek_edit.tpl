@@ -10,10 +10,6 @@
 <input type="hidden" name="action" value="savePeekJson">
 <input type="hidden" name="view_id" value="{$view_id}">
 <input type="hidden" name="id" value="{$model->id}">
-{if !empty($link_context)}
-<input type="hidden" name="link_context" value="{$link_context}">
-<input type="hidden" name="link_context_id" value="{$link_context_id}">
-{/if}
 <input type="hidden" name="do_delete" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
@@ -30,7 +26,7 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><b>{'timetracking.ui.entry_panel.time_spent'|devblocks_translate}</b>:</td>
 		<td width="100%">
-			<input type="text" name="time_actual_mins" size="5" value="{$model->time_actual_mins}" autofocus="autofocus"> {'timetracking.ui.entry_panel.mins'|devblocks_translate}
+			<input type="text" name="time_actual" size="64" value="{$model->time_actual_secs|devblocks_prettysecs}" placeholder="e.g. 2 hours, 5 mins" autofocus="autofocus">
 		</td>
 	</tr>
 	
@@ -93,14 +89,9 @@
 <div class="status"></div>
 
 <div class="buttons">
-{if empty($model->id)}
-	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'timetracking.ui.entry_panel.save_finish'|devblocks_translate}</button>
-	<button type="button" class="resume"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span> {'timetracking.ui.entry_panel.resume'|devblocks_translate}</button>
-	<button type="button" class="cancel"><span class="glyphicons glyphicons-stop" style="color:rgb(200,0,0);"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
-{else}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
-{/if}
+	<button type="button" class="resume"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span> {'timetracking.ui.entry_panel.resume'|devblocks_translate}</button>
+	{if $model->id && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 </form>
@@ -110,30 +101,52 @@ $(function() {
 	var $frm = $('#{$form_id}');
 	var $popup = genericAjaxPopupFind($frm);
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		$popup.dialog('option','title',"{'timetracking.ui.timetracking'|devblocks_translate|escape:'javascript' nofilter}");
 		
 		// Buttons
 		
-		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
+		$popup.find('button.delete').click(
+			{ 
+				mode: 'delete',
+				after: function(evt) {
+					if(evt.hasOwnProperty('id') && timeTrackingTimer.id == evt.id)
+						timeTrackingTimer.finish();
+				}
+			}, 
+			Devblocks.callbackPeekEditSave
+		);
 		
 		var $buttons = $popup.find('div.buttons');
-		$buttons.find('button.submit').click({ before: timeTrackingTimer.finish }, Devblocks.callbackPeekEditSave);
-		$buttons.find('button.resume').on('click', function(e) {
-			timeTrackingTimer.play();
-			genericAjaxPopupClose($popup, 'peek_aborted');
-		});
-		$buttons.find('button.cancel').on('click', function(e) {
-			timeTrackingTimer.finish();
-			genericAjaxPopupClose($popup, 'peek_aborted');
-		});
+		
+		$buttons.find('button.submit').click(
+			{
+				after: function(evt) {
+					if(evt.hasOwnProperty('id') && timeTrackingTimer.id == evt.id)
+						timeTrackingTimer.finish();
+				}
+			},
+			Devblocks.callbackPeekEditSave
+		);
+		
+		$buttons.find('button.resume').click(
+			{
+				after: function(evt) {
+					if(evt.hasOwnProperty('id')) {
+						timeTrackingTimer.play(evt.id);
+					} else {
+						//timeTrackingTimer.finish();
+					}
+				}
+			},
+			Devblocks.callbackPeekEditSave
+		);
 		
 		$popup.find('input.input_date').cerbDateInputHelper();
 		
 		$popup.find('button.chooser_worker').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','worker_id', { autocomplete:true });
 		});
-		
 	});
 });
 </script>

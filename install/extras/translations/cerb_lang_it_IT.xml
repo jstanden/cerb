@@ -4293,11 +4293,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.entry_panel.mins">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="timetracking.ui.entry_panel.note">
 			<tuv xml:lang="it_IT">
 				<seg/>

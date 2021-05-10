@@ -46,6 +46,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	const IS_CLOSED = 'is_closed';
 	const LOG_DATE = 'log_date';
 	const TIME_ACTUAL_MINS = 'time_actual_mins';
+	const TIME_ACTUAL_SECS = 'time_actual_secs';
 	const WORKER_ID = 'worker_id';
 	
 	private function __construct() {}
@@ -78,6 +79,13 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$validation
 			->addField(self::TIME_ACTUAL_MINS)
 			->uint(2)
+			->setNotEmpty(true)
+			->setRequired(true)
+			;
+		// int unsigned
+		$validation
+			->addField(self::TIME_ACTUAL_SECS)
+			->uint(4)
 			->setNotEmpty(true)
 			->setRequired(true)
 			;
@@ -339,7 +347,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 	static function getWhere($where=null) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = "SELECT id, time_actual_mins, log_date, worker_id, activity_id, is_closed ".
+		$sql = "SELECT id, time_actual_mins, time_actual_secs, log_date, worker_id, activity_id, is_closed ".
 			"FROM timetracking_entry ".
 			(!empty($where) ? sprintf("WHERE %s ",$where) : "").
 			"ORDER BY id asc";
@@ -379,7 +387,8 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_TimeTrackingEntry();
 			$object->id = $row['id'];
-			$object->time_actual_mins = $row['time_actual_mins'];
+			$object->time_actual_mins = intval($row['time_actual_mins']);
+			$object->time_actual_secs = intval($row['time_actual_secs']);
 			$object->log_date = $row['log_date'];
 			$object->worker_id = $row['worker_id'];
 			$object->activity_id = $row['activity_id'];
@@ -451,12 +460,14 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 		$select_sql = sprintf("SELECT ".
 			"tt.id as %s, ".
 			"tt.time_actual_mins as %s, ".
+			"tt.time_actual_secs as %s, ".
 			"tt.log_date as %s, ".
 			"tt.worker_id as %s, ".
 			"tt.activity_id as %s, ".
 			"tt.is_closed as %s ",
 			SearchFields_TimeTrackingEntry::ID,
 			SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS,
+			SearchFields_TimeTrackingEntry::TIME_ACTUAL_SECS,
 			SearchFields_TimeTrackingEntry::LOG_DATE,
 			SearchFields_TimeTrackingEntry::WORKER_ID,
 			SearchFields_TimeTrackingEntry::ACTIVITY_ID,
@@ -518,6 +529,7 @@ class DAO_TimeTrackingEntry extends Cerb_ORMHelper {
 class Model_TimeTrackingEntry {
 	public $id;
 	public $time_actual_mins;
+	public $time_actual_secs;
 	public $log_date;
 	public $worker_id;
 	public $activity_id;
@@ -531,7 +543,7 @@ class Model_TimeTrackingEntry {
 		if(!empty($this->activity_id))
 			$activity = DAO_TimeTrackingActivity::get($this->activity_id); // [TODO] Cache?
 
-		$time_increment = DevblocksPlatform::strSecsToString(intval($this->time_actual_mins) * 60, 2);
+		$time_increment = DevblocksPlatform::strSecsToString($this->time_actual_secs, 2);
 		
 		$who = 'A worker';
 		if(null != ($worker = DAO_Worker::get($this->worker_id)))
@@ -560,6 +572,7 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 	// TimeTracking_Entry
 	const ID = 'tt_id';
 	const TIME_ACTUAL_MINS = 'tt_time_actual_mins';
+	const TIME_ACTUAL_SECS = 'tt_time_actual_secs';
 	const LOG_DATE = 'tt_log_date';
 	const WORKER_ID = 'tt_worker_id';
 	const ACTIVITY_ID = 'tt_activity_id';
@@ -686,6 +699,7 @@ class SearchFields_TimeTrackingEntry extends DevblocksSearchFields {
 		$columns = array(
 			self::ID => new DevblocksSearchField(self::ID, 'tt', 'id', $translate->_('common.id'), null, true),
 			self::TIME_ACTUAL_MINS => new DevblocksSearchField(self::TIME_ACTUAL_MINS, 'tt', 'time_actual_mins', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
+			self::TIME_ACTUAL_SECS => new DevblocksSearchField(self::TIME_ACTUAL_SECS, 'tt', 'time_actual_secs', $translate->_('timetracking.ui.entry_panel.time_spent'), Model_CustomField::TYPE_NUMBER, true),
 			self::LOG_DATE => new DevblocksSearchField(self::LOG_DATE, 'tt', 'log_date', $translate->_('timetracking_entry.log_date'), Model_CustomField::TYPE_DATE, true),
 			self::WORKER_ID => new DevblocksSearchField(self::WORKER_ID, 'tt', 'worker_id', $translate->_('timetracking_entry.worker_id'), Model_CustomField::TYPE_WORKER, true),
 			self::ACTIVITY_ID => new DevblocksSearchField(self::ACTIVITY_ID, 'tt', 'activity_id', $translate->_('timetracking_entry.activity_id'), null, true),
@@ -926,8 +940,8 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				),
 			'timeSpent' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_NUMBER_MINUTES,
-					'options' => array('param_key' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS),
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER_SECONDS,
+					'options' => array('param_key' => SearchFields_TimeTrackingEntry::TIME_ACTUAL_SECS),
 					'examples' => array(
 						'30',
 						'"< 1 hour"',
@@ -999,23 +1013,20 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		switch($field) {
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
-				break;
 			
+			case 'secs':
 			case 'mins':
 			case 'timeSpent':
-				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens, 60);
+				$tokens = CerbQuickSearchLexer::getHumanTimeTokensAsNumbers($tokens, 1);
 				
-				$field_key = SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS;
+				$field_key = SearchFields_TimeTrackingEntry::TIME_ACTUAL_SECS;
 				return DevblocksSearchCriteria::getNumberParamFromTokens($field_key, $tokens);
-				break;
 
 			case 'watchers':
 				return DevblocksSearchCriteria::getWatcherParamFromTokens(SearchFields_TimeTrackingEntry::VIRTUAL_WATCHERS, $tokens);
-				break;
 				
 			case 'worker':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_TimeTrackingEntry::VIRTUAL_WORKER_SEARCH);
-				break;
 				
 			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
@@ -1023,10 +1034,7 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				
 				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
-				break;
 		}
-		
-		return false;
 	}
 	
 	function render() {
@@ -1094,6 +1102,24 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 				$this->_renderCriteriaParamWorker($param);
 				break;
 
+			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_SECS:
+				$strings = [];
+				$sep = ' or ';
+				
+				if($param->operator == DevblocksSearchCriteria::OPER_BETWEEN)
+					$sep = ' and ';
+				
+				foreach($values as $value) {
+					if(empty($value)) {
+						$strings[] = 'never';
+					} else {
+						$strings[] = DevblocksPlatform::strEscapeHtml(DevblocksPlatform::strSecsToString($value, 2));
+					}
+				}
+				
+				echo implode($sep, $strings);
+				break;
+				
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
 				$strings = [];
 				$sep = ' or ';
@@ -1133,19 +1159,15 @@ class View_TimeTracking extends C4_AbstractView implements IAbstractView_Subtota
 		switch($field) {
 			case SearchFields_TimeTrackingEntry::ID:
 			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_MINS:
+			case SearchFields_TimeTrackingEntry::TIME_ACTUAL_SECS:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
-				
 			case SearchFields_TimeTrackingEntry::IS_CLOSED:
 				@$bool = DevblocksPlatform::importGPC($_POST['bool'],'integer',0);
 				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
 				break;
-				
 			case SearchFields_TimeTrackingEntry::LOG_DATE:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
-				break;
-				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$worker_id);
 				break;
 			case SearchFields_TimeTrackingEntry::WORKER_ID:
 				@$worker_id = DevblocksPlatform::importGPC($_POST['worker_id'],'array',[]);
@@ -1266,8 +1288,8 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		
 		$properties['time_spent'] = array(
 			'label' => mb_ucfirst($translate->_('timetracking.ui.entry_panel.time_spent')),
-			'type' => 'time_mins',
-			'value' => $model->time_actual_mins,
+			'type' => 'time_secs',
+			'value' => $model->time_actual_secs,
 		);
 		
 		$properties['id'] = array(
@@ -1395,6 +1417,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			$token_values['log_date'] = $timeentry->log_date;
 			$token_values['id'] = $timeentry->id;
 			$token_values['mins'] = $timeentry->time_actual_mins;
+			$token_values['secs'] = $timeentry->time_actual_secs;
 			$token_values['summary'] = $timeentry->getSummary();
 			$token_values['is_closed'] = $timeentry->is_closed;
 			$token_values['activity_id'] = $timeentry->activity_id;
@@ -1446,6 +1469,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 			'links' => '_links',
 			'log_date' => DAO_TimeTrackingEntry::LOG_DATE,
 			'mins' => DAO_TimeTrackingEntry::TIME_ACTUAL_MINS,
+			'secs' => DAO_TimeTrackingEntry::TIME_ACTUAL_SECS,
 			'worker_id' => DAO_TimeTrackingEntry::WORKER_ID,
 		];
 	}
@@ -1457,6 +1481,7 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 		$keys['is_closed']['notes'] = "Is this time entry archived?";
 		$keys['log_date']['notes'] = "The date/time of the work";
 		$keys['mins']['notes'] = "The number of minutes worked";
+		$keys['secs']['notes'] = "The number of seconds worked";
 		$keys['worker_id']['notes'] = "The ID of the [worker](/docs/records/types/worker/) who completed the work";
 		
 		return $keys;
@@ -1589,8 +1614,9 @@ class Context_TimeTracking extends Extension_DevblocksContext implements IDevblo
 	
 				// Initial time
 				
-				@$total_mins = DevblocksPlatform::importGPC($_REQUEST['mins'],'integer',0);
-				$model->time_actual_mins = $total_mins;
+				@$total_secs = DevblocksPlatform::importGPC($_REQUEST['secs'],'integer',0);
+				$model->time_actual_mins = ceil($total_secs / 60);
+				$model->time_actual_secs = $total_secs;
 				
 				// If we're linking a context during creation
 				

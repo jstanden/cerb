@@ -4342,11 +4342,6 @@ Por exemplo: *recipiente*</seg>
 				<seg>(se a organização for conhecida completa automáticamente)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.entry_panel.mins">
-			<tuv xml:lang="pt_PT">
-				<seg>min(s)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="timetracking.ui.entry_panel.note">
 			<tuv xml:lang="pt_PT">
 				<seg>Nota:</seg>

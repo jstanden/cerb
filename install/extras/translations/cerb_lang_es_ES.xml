@@ -4338,11 +4338,6 @@ Por ejemplo: *recibo*</seg>
 				<seg>(Si la compañía es conocida; autocompletar)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.entry_panel.mins">
-			<tuv xml:lang="es_ES">
-				<seg>min(s)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="timetracking.ui.entry_panel.note">
 			<tuv xml:lang="es_ES">
 				<seg>Nota:</seg>

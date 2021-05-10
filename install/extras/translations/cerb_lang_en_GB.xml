@@ -4813,11 +4813,6 @@ For example: *receipt*</seg>
 				<seg>(if org is known; autocompletes)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.entry_panel.mins">
-			<tuv xml:lang="en_GB">
-				<seg>min(s)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="timetracking.ui.entry_panel.note">
 			<tuv xml:lang="en_GB">
 				<seg>Note:</seg>

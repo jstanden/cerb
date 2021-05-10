@@ -70,7 +70,7 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			@$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'],'integer',0);
 				
 			@$activity_id = DevblocksPlatform::importGPC($_POST['activity_id'],'integer',0);
-			@$time_actual_mins = DevblocksPlatform::importGPC($_POST['time_actual_mins'],'integer',0);
+			@$time_actual = DevblocksPlatform::importGPC($_POST['time_actual'],'string','');
 			@$is_closed = DevblocksPlatform::importGPC($_POST['is_closed'],'integer',0);
 			
 			@$comment = DevblocksPlatform::importGPC(@$_POST['comment'],'string','');
@@ -105,10 +105,16 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			
 			$error = null;
 			
+			if(!$time_actual || false === ($time_actual_ts = strtotime($time_actual)))
+				throw new Exception_DevblocksAjaxValidationError(sprintf('`%s` is not a valid duration', $time_actual));
+			
+			$time_actual_secs = $time_actual_ts - time();
+			
 			// New or modify
 			$fields = array(
 				DAO_TimeTrackingEntry::ACTIVITY_ID => intval($activity_id),
-				DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => intval($time_actual_mins),
+				DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => ceil($time_actual_secs/60),
+				DAO_TimeTrackingEntry::TIME_ACTUAL_SECS => $time_actual_secs,
 				DAO_TimeTrackingEntry::LOG_DATE => intval($log_date),
 				DAO_TimeTrackingEntry::IS_CLOSED => intval($is_closed),
 			);
@@ -253,7 +259,8 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 			}
 			
 			$model = new Model_TimeTrackingEntry();
-			$model->time_actual_mins = $time_actual_mins;
+			$model->time_actual_mins = ceil($time_actual_secs/60);
+			$model->time_actual_secs = $time_actual_secs;
 			$model->worker_id = $active_worker->id;
 			
 			echo json_encode(array(
@@ -281,12 +288,6 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		}
 	}
 	
-	private function _startTimer() {
-		if(!isset($_SESSION['timetracking_started'])) {
-			$_SESSION['timetracking_started'] = time();
-		}
-	}
-	
 	private function _stopTimer() {
 		@$time = intval($_SESSION['timetracking_started']);
 		
@@ -305,26 +306,63 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 	}
 	
 	private function _destroyTimer() {
-		unset($_SESSION['timetracking_context']);
-		unset($_SESSION['timetracking_context_id']);
+		unset($_SESSION['timetracking_id']);
 		unset($_SESSION['timetracking_started']);
 		unset($_SESSION['timetracking_total']);
-		unset($_SESSION['timetracking_link']);
+	}
+	
+	private function _getTimer() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		$id = $_SESSION['timetracking_id'] ?? 0;
+		
+		// If we have an invalid timer, create one
+		if(
+			!$id
+			|| false == ($timer = DAO_TimeTrackingEntry::get($id))
+			|| $timer->worker_id != $active_worker->id
+		) {
+			$id = DAO_TimeTrackingEntry::create([
+				DAO_TimeTrackingEntry::IS_CLOSED => 0,
+				DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => 0,
+				DAO_TimeTrackingEntry::TIME_ACTUAL_SECS => 0,
+				DAO_TimeTrackingEntry::WORKER_ID => $active_worker->id,
+			]);
+			$_SESSION['timetracking_id'] = $id;
+			
+			$timer = DAO_TimeTrackingEntry::get($id);
+		}
+		
+		return $timer;
 	}
 	
 	private function _profileAction_startTimer() {
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		@$context = urldecode(DevblocksPlatform::importGPC($_POST['context'],'string',''));
-		@$context_id = intval(DevblocksPlatform::importGPC($_POST['context_id'],'integer',0));
+		header("Content-Type: application/json");
 		
-		if(!empty($context) && !isset($_SESSION['timetracking_context'])) {
-			$_SESSION['timetracking_context'] = $context;
-			$_SESSION['timetracking_context_id'] = $context_id;
+		@$id = intval(DevblocksPlatform::importGPC($_POST['id'],'integer',0));
+		
+		$_SESSION['timetracking_id'] = $id;
+		
+		$timer = $this->_getTimer();
+		$total_mins = $timer->time_actual_mins;
+		$total_secs = $timer->time_actual_secs;
+		
+		$_SESSION['timetracking_total'] = $total_secs;
+		
+		if(!isset($_SESSION['timetracking_started'])) {
+			$_SESSION['timetracking_started'] = time();
 		}
 		
-		$this->_startTimer();
+		echo json_encode(array(
+			'status' => true,
+			'id' => $id,
+			'total_mins' => $total_mins,
+			'total_secs' => $total_secs,
+		));
+		DevblocksPlatform::exit();
 	}
 	
 	private function _profileAction_pauseTimerJson() {
@@ -335,9 +373,18 @@ class PageSection_ProfilesTimeTracking extends Extension_PageSection {
 		
 		$total_secs = $this->_stopTimer();
 		
+		$timer = $this->_getTimer();
+		
+		DAO_TimeTrackingEntry::update($timer->id, [
+			DAO_TimeTrackingEntry::TIME_ACTUAL_MINS => ceil($total_secs/60),
+			DAO_TimeTrackingEntry::TIME_ACTUAL_SECS => $total_secs,
+		]);
+		
 		echo json_encode(array(
 			'status' => true,
+			'id' => $timer->id,
 			'total_mins' => ceil($total_secs/60),
+			'total_secs' => $total_secs
 		));
 		DevblocksPlatform::exit();
 	}

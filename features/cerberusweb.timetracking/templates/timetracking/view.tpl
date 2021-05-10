@@ -91,16 +91,7 @@
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.tt_id}" style="display:none;">
 				{if $result.tt_is_closed}<span class="glyphicons glyphicons-circle-ok" style="font-size:16px;color:rgb(80,80,80);"></span>{/if}
-				{if $result.tt_time_actual_mins >= 60}
-					{$hrs = {$result.tt_time_actual_mins/60}|number_format:2}
-					{$time_spent = $hrs|cat:' hours'}
-				{else}
-					{$time_spent = $result.tt_time_actual_mins}
-					{$time_spent = $time_spent|cat:' min'}
-					{if $result.tt_time_actual_mins != 1}
-						{$time_spent = $time_spent|cat:'s'}
-					{/if}
-				{/if}
+				{$time_spent = $result.tt_time_actual_secs|devblocks_prettysecs} 
 				<a href="{devblocks_url}c=profiles&type=time_tracking&id={$result.tt_id}{/devblocks_url}" class="subject">{if isset($activities.$activity_id->name)}{'timetracking.ui.tracked_desc'|devblocks_translate:$worker_name:$time_spent:$activities.$activity_id->name}{else}{'%s tracked %s'|devblocks_translate:$worker_name:$time_spent}{/if}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{$view_context}" data-context-id="{$result.tt_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>

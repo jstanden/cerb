@@ -4329,11 +4329,6 @@ login</seg>
 				<seg>(falls Org. bekannt, autom. vervollständigen)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.entry_panel.mins">
-			<tuv xml:lang="de_DE">
-				<seg>Minute(n)</seg>
-			</tuv>
-		</tu>
 		<tu tuid="timetracking.ui.entry_panel.note">
 			<tuv xml:lang="de_DE">
 				<seg>Notiz:</seg>

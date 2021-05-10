@@ -4299,11 +4299,6 @@
 				<seg>(als organisatie bekend is; automatisch afgemaakt)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.entry_panel.mins">
-			<tuv xml:lang="nl_NL">
-				<seg>minuten</seg>
-			</tuv>
-		</tu>
 		<tu tuid="timetracking.ui.entry_panel.note">
 			<tuv xml:lang="nl_NL">
 				<seg>Aantekening:</seg>

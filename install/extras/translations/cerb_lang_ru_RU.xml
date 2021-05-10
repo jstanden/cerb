@@ -4332,11 +4332,6 @@ login &lt;ftp&#13;
 				<seg>(if org is known; autocompletes)</seg>
 			</tuv>
 		</tu>
-		<tu tuid="timetracking.ui.entry_panel.mins">
-			<tuv xml:lang="ru_RU">
-				<seg>минут</seg>
-			</tuv>
-		</tu>
 		<tu tuid="timetracking.ui.entry_panel.note">
 			<tuv xml:lang="ru_RU">
 				<seg>Заметка:</seg>
