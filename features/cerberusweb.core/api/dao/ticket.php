@@ -5548,7 +5548,28 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if(!$active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.create'))
-			return;
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$is_new_draft = false;
+		
+		if(!$draft_id) {
+			$draft_id = DAO_MailQueue::create([
+				DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
+				DAO_MailQueue::WORKER_ID => $active_worker->id,
+				DAO_MailQueue::IS_QUEUED => 0,
+				DAO_MailQueue::QUEUE_DELIVERY_DATE => 0,
+			]);
+			$is_new_draft = true;
+		}
+		
+		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if($draft->worker_id != $active_worker->id)
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
@@ -5565,109 +5586,112 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 		$workers = DAO_Worker::getAll();
 		$tpl->assign('workers', $workers);
 		
+		$signature_pos = DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2);
+		
 		// Preferences
-		$defaults = array(
-			'group_id' => DAO_WorkerPref::get($active_worker->id,'compose.group_id',0),
-			'bucket_id' => DAO_WorkerPref::get($active_worker->id,'compose.bucket_id',0),
-			'status' => DAO_WorkerPref::get($active_worker->id,'compose.status','waiting'),
-			'signature_pos' => DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2),
-		);
-		
-		if($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
-			$defaults['group_id'] = $bucket->group_id;
-			$defaults['bucket_id'] = $bucket->id;
+		if($is_new_draft) {
+			$defaults = array(
+				'group_id' => DAO_WorkerPref::get($active_worker->id, 'compose.group_id', 0),
+				'bucket_id' => DAO_WorkerPref::get($active_worker->id, 'compose.bucket_id', 0),
+				'status' => DAO_WorkerPref::get($active_worker->id, 'compose.status', 'waiting'),
+			);
 			
-		} else {
-			// Default group/bucket based on worklist
-			if(false != ($view = C4_AbstractViewLoader::getView($view_id)) && $view instanceof View_Ticket) {
-				$params = $view->getParams();
+			if ($bucket_id && false != ($bucket = DAO_Bucket::get($bucket_id))) {
+				$defaults['group_id'] = $bucket->group_id;
+				$defaults['bucket_id'] = $bucket->id;
 				
-				if(false != ($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
-					$filter_bucket = array_shift($filter_bucket);
+			} else {
+				// Default group/bucket based on worklist
+				if (false != ($view = C4_AbstractViewLoader::getView($view_id)) && $view instanceof View_Ticket) {
+					$params = $view->getParams();
 					
-					if(!is_array($filter_bucket->value) || 1 == count($filter_bucket->value)) {
-						$bucket_id = is_array($filter_bucket->value) ? current($filter_bucket->value) : $filter_bucket->value;
+					if (false != ($filter_bucket = $view->findParam(SearchFields_Ticket::TICKET_BUCKET_ID, $params, false))) {
+						$filter_bucket = array_shift($filter_bucket);
 						
-						if(isset($buckets[$bucket_id])) {
-							$group_id = $buckets[$bucket_id]->group_id;
-							$defaults['group_id'] = $group_id;
-							$defaults['bucket_id'] = $bucket_id;
+						if (!is_array($filter_bucket->value) || 1 == count($filter_bucket->value)) {
+							$bucket_id = is_array($filter_bucket->value) ? current($filter_bucket->value) : $filter_bucket->value;
+							
+							if (isset($buckets[$bucket_id])) {
+								$group_id = $buckets[$bucket_id]->group_id;
+								$defaults['group_id'] = $group_id;
+								$defaults['bucket_id'] = $bucket_id;
+							}
 						}
-					}
-					
-				} else if(false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
-					$filter_group = array_shift($filter_group);
-					
-					if(!is_array($filter_group->value) || 1 == count($filter_group->value)) {
-						$group_id = is_array($filter_group->value) ? current($filter_group->value) : $filter_group->value;
 						
-						if(isset($groups[$group_id])) {
-							$defaults['group_id'] = $group_id;
-							$defaults['bucket_id'] = intval(@$groups[$group_id]->getDefaultBucket()->id);
+					} else if (false != ($filter_group = $view->findParam(SearchFields_Ticket::TICKET_GROUP_ID, $params, false))) {
+						$filter_group = array_shift($filter_group);
+						
+						if (!is_array($filter_group->value) || 1 == count($filter_group->value)) {
+							$group_id = is_array($filter_group->value) ? current($filter_group->value) : $filter_group->value;
+							
+							if (isset($groups[$group_id])) {
+								$defaults['group_id'] = $group_id;
+								$defaults['bucket_id'] = intval(@$groups[$group_id]->getDefaultBucket()->id);
+							}
 						}
 					}
 				}
 			}
-		}
-		
-		if(!empty($edit)) {
-			$tokens = explode(' ', trim($edit));
 			
-			foreach($tokens as $token) {
-				list($k, $v) = array_pad(explode(':', $token), 2, null);
+			if (!empty($edit)) {
+				$tokens = explode(' ', trim($edit));
 				
-				if($v)
-				switch($k) {
-					case 'to':
-						$to = $v;
-						break;
-						
-					case 'org.id':
-						if(false != ($org = DAO_ContactOrg::get($v)))
-							$tpl->assign('org', $org->name);
-						break;
+				foreach ($tokens as $token) {
+					list($k, $v) = array_pad(explode(':', $token), 2, null);
+					
+					if ($v)
+						switch ($k) {
+							case 'to':
+								$to = $v;
+								break;
+							
+							case 'org.id':
+								if (false != ($org = DAO_ContactOrg::get($v)))
+									$draft->params['org_name'] = $org->name;
+								break;
+						}
 				}
 			}
+			
+			if(1 == $signature_pos) {
+				$draft->params['content'] = "\n\n\n#signature\n#cut\n";
+			} else if(in_array($signature_pos, [2,3])) {
+				$draft->params['content'] = "\n\n\n#signature\n";
+			}
+			
+			// If we still don't have a default group, use the first group
+			if(empty($defaults['group_id']) && count($groups)) {
+				$default_group = current($groups);
+				$defaults['group_id'] = $default_group->id;
+				$defaults['bucket_id'] = $default_group->getDefaultBucket()->id ?? 0;
+			}
+			
+			$draft->params['to'] = $to;
+			$draft->params['group_id'] = $defaults['group_id'];
+			$draft->params['bucket_id'] = $defaults['bucket_id'];
+			$draft->params['status_id'] = DAO_Ticket::getStatusIdFromText($defaults['status']);
 		}
-		
-		$tpl->assign('to', $to);
-		
-		if(!$draft_id) {
-			$draft_id = DAO_MailQueue::create([
-				DAO_MailQueue::TYPE => Model_MailQueue::TYPE_COMPOSE,
-				DAO_MailQueue::WORKER_ID => $active_worker->id,
-				DAO_MailQueue::IS_QUEUED => 0,
-				DAO_MailQueue::QUEUE_DELIVERY_DATE => 0,
-			]);
-		}
-		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
-			return false;
-		
-		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
-			return false;
-		
-		$tpl->assign('draft', $draft);
-		
-		// Overload the defaults of the form
-		if(isset($draft->params['group_id']))
-			$defaults['group_id'] = $draft->params['group_id'];
-		if(isset($draft->params['bucket_id']))
-			$defaults['bucket_id'] = $draft->params['bucket_id'];
-		
-		// If we still don't have a default group, use the first group
-		if(empty($defaults['group_id']))
-			$defaults['group_id'] = key($groups);
-		
-		// Default status
-		if(array_key_exists('status_id', $draft->params))
-			$defaults['status'] = DAO_Ticket::getStatusTextFromId($draft->params['status_id']);
-		
-		$tpl->assign('defaults', $defaults);
 		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, CerberusContexts::CONTEXT_TICKET);
+		$tpl->assign('custom_fieldsets_available', $custom_fieldsets_available);
+		
+		// Expanded custom fieldsets (including draft fields)
+		
+		$custom_field_values = [];
+		
+		if(array_key_exists('custom_fields', $draft->params)) {
+			foreach($draft->params['custom_fields'] as $field_id => $field_value)
+				$custom_field_values[$field_id] = $field_value;
+		}
+		
+		$custom_fieldsets_linked = DAO_CustomFieldset::getByFieldIds(array_keys(array_filter($custom_field_values, fn($v) => !is_null($v))));
+		$tpl->assign('custom_fieldsets_linked', $custom_fieldsets_linked);
+		
+		$tpl->assign('custom_field_values', $custom_field_values);
 		
 		// HTML templates
 		$html_templates = DAO_MailHtmlTemplate::getAll();
@@ -5799,6 +5823,8 @@ EOD;
 		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('mail.compose', $toolbar_dict))) {
 			$tpl->assign('toolbar_custom', $toolbar_reply_custom);
 		}
+		
+		$tpl->assign('draft', $draft);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.core::mail/section/compose/peek.tpl');

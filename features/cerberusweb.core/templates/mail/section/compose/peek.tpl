@@ -20,7 +20,7 @@
 			<select name="group_id">
 				{foreach from=$groups item=group key=group_id}
 				{if $active_worker->isGroupMember($group_id)}
-				<option value="{$group_id}" member="true" {if $defaults.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
+				<option value="{$group_id}" member="true" {if $draft->params.group_id == $group_id}selected="selected"{/if}>{$group->name}</option>
 				{/if}
 				{/foreach}
 			</select>
@@ -31,8 +31,8 @@
 			</select>
 			<select name="bucket_id">
 				{foreach from=$buckets item=bucket key=bucket_id}
-					{if $bucket->group_id == $defaults.group_id}
-					<option value="{$bucket_id}" {if $defaults.bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
+					{if $bucket->group_id == $draft->params.group_id}
+					<option value="{$bucket_id}" {if $draft->params.bucket_id == $bucket_id}selected="selected"{/if}>{$bucket->name}</option>
 					{/if}
 				{/foreach}
 			</select>
@@ -41,13 +41,13 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.organization'|devblocks_translate|capitalize}:&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="org_name" value="{if !empty($org)}{$org}{else}{$draft->params.org_name}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
+			<input type="text" name="org_name" value="{$draft->params.org_name}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="(optional) Link this ticket to an organization for suggested recipients">
 		</td>
 	</tr>
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top" align="right"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.to'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 		<td width="100%">
-			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{if $to}{$to}{elseif $draft}{$draft->getParam('to')}{/if}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
+			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{$draft->getParam('to')}" style="border:1px solid rgb(180,180,180);padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 
 			<div id="compose_suggested{$popup_uniqid}" style="display:none;">
 				<a href="javascript:;" onclick="$(this).closest('div').hide();">x</a>
@@ -113,13 +113,7 @@
 						<button type="button" title="{'common.encrypt.sign'|devblocks_translate|capitalize}" class="cerb-code-editor-toolbar-button cerb-reply-editor-toolbar-button--sign {if $draft->params.options_gpg_sign}cerb-code-editor-toolbar-button--enabled{/if}"><span class="glyphicons {if $draft->params.options_gpg_sign}glyphicons-user-lock{else}glyphicons-user{/if}"></span></button>
 					</div>
 
-					<textarea id="divComposeContent{$popup_uniqid}" name="content" style="box-sizing:border-box;">{if $draft && $draft->getParam('content')}{$draft->getParam('content')}{else}{if $defaults.signature_pos}
-
-
-
-#signature
-#cut
-{/if}{/if}</textarea>
+					<textarea id="divComposeContent{$popup_uniqid}" name="content" style="box-sizing:border-box;">{$draft->getParam('content')}</textarea>
 				</div>
 
 				<div id="compose{$popup_uniqid}EditorPreviewPanel" style="min-height:100px;max-height:400px;overflow:auto;border:1px dotted rgb(150,150,150);padding:5px;"></div>
@@ -164,11 +158,11 @@
 	<div>
 		<b>{'common.status'|devblocks_translate|capitalize}:</b>
 
-		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if $defaults.status=='open'}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','none');"> {'status.open'|devblocks_translate}</label>
-		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if $defaults.status=='waiting'}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.waiting'|devblocks_translate}</label>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if $defaults.status=='closed'}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.closed'|devblocks_translate}</label>{/if}
+		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','none');"> {'status.open'|devblocks_translate}</label>
+		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.waiting'|devblocks_translate}</label>
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.closed'|devblocks_translate}</label>{/if}
 
-		<div id="divComposeClosed{$popup_uniqid}" style="display:{if $defaults.status=='open'}none{else}block{/if};margin:5px 0px 10px 20px;">
+		<div id="divComposeClosed{$popup_uniqid}" style="display:{if $draft->params.status_id==Model_Ticket::STATUS_OPEN}none{else}block{/if};margin:5px 0px 10px 20px;">
 			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
 			{'display.reply.next.resume_eg'|devblocks_translate}<br>
 			<input type="text" name="ticket_reopen" size="64" class="input_date" value="{$draft->params.ticket_reopen}"><br>
@@ -216,9 +210,6 @@
 	</div>
 </fieldset>
 
-{$custom_field_values = $draft->params.custom_fields}
-{$custom_fieldsets_available = DAO_CustomFieldset::getUsableByActorByContext($active_worker, CerberusContexts::CONTEXT_TICKET)}
-
 {if $custom_fields || $custom_fieldsets_available}
 <fieldset class="peek" style="{if $custom_fieldsets_available}padding-bottom:0px;{/if}">
 	<legend>
@@ -229,11 +220,11 @@
 
 	<div style="{if $custom_fields}{else}display:none;{/if}">
 		{if !empty($custom_fields)}
-			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false}
+			{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false custom_fields_expanded=$draft->params.custom_fields}
 		{/if}
 	</div>
 
-	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=false custom_fieldsets_available=$custom_fieldsets_available}
+	{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET context_id=0 bulk=true custom_fieldsets_available=$custom_fieldsets_available custom_fieldsets_linked=$custom_fieldsets_linked custom_fields_expanded=$draft->params.custom_fields}
 </fieldset>
 {/if}
 
@@ -1047,7 +1038,7 @@ $(function() {
 			}
 		});
 
-		{if $org || $draft->params.org_name}
+		{if $draft->params.org_name}
 		$frm.find('input:text[name=org_name]').trigger('autocompletechange');
 		{/if}
 
