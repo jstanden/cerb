@@ -345,6 +345,185 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			
 		}
 	}
+
+	private function _createReplyDraft($id, $reply_mode, $is_forward) {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(false == ($message = DAO_Message::get($id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		if(false == ($ticket = $message->getTicket()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		$to = '';
+		$cc = '';
+		$bcc = '';
+		$subject = $ticket->subject;
+		$content = '';
+		$message_headers = $message->getHeaders();
+		$requesters = $ticket->getRequesters();
+		
+		$signature_pos = DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2);
+		$mail_status_reply = DAO_WorkerPref::get($active_worker->id,'mail_status_reply','waiting');
+		
+		// Forward
+		if($is_forward) {
+			$subject = sprintf("Fwd: %s",
+				$ticket->subject
+			);
+			
+			$content = "\n\n\n";
+			
+			if(0 != $signature_pos)
+				$content .= "#signature\n\n";
+			
+			$content .= DevblocksPlatform::translate('display.reply.forward.banner') . "\n";
+			
+			if(array_key_exists('subject', $message_headers))
+				$content .= sprintf("%s: %s\n",
+					DevblocksPlatform::translate('message.header.subject'),
+					$message_headers['subject']
+				);
+			
+			if(array_key_exists('from', $message_headers))
+				$content .= sprintf("%s: %s\n",
+					DevblocksPlatform::translate('message.header.from'),
+					$message_headers['from']
+				);
+			
+			if(array_key_exists('date', $message_headers))
+				$content .= sprintf("%s: %s\n",
+					DevblocksPlatform::translate('message.header.date'),
+					$message_headers['date']
+				);
+			
+			if(array_key_exists('to', $message_headers))
+				$content .= sprintf("%s: %s\n",
+					DevblocksPlatform::translate('message.header.to'),
+					$message_headers['to']
+				);
+			
+			$content .= "\n" . trim($message->getContent());
+			
+		// Normal reply (non-forward)
+		} else {
+			$recipients = [];
+			
+			if(!is_array($requesters))
+				$requesters = [];
+			
+			// Only reply to these recipients
+			if(2 == $reply_mode) {
+				if (array_key_exists('to', $message_headers)) {
+					$from = isset($message_headers['reply-to']) ? $message_headers['reply-to'] : $message_headers['from'];
+					$addys = CerberusMail::parseRfcAddresses($from . ', ' . $message_headers['to'], true);
+					
+					if (is_array($addys))
+						foreach ($addys as $addy) {
+							$recipients[] = $addy['full_email'];
+						}
+					
+					$to = implode(', ', $recipients);
+				}
+				
+				if (array_key_exists('cc', $message_headers)) {
+					$addys = CerberusMail::parseRfcAddresses($message_headers['cc'], true);
+					$recipients = [];
+					
+					if (is_array($addys))
+						foreach ($addys as $addy) {
+							$recipients[] = $addy['full_email'];
+						}
+					
+					$cc = implode(', ', $recipients);
+				}
+				
+			} else {
+				foreach($requesters as $requester) {
+					if(false !== ($recipient = CerberusMail::writeRfcAddress($requester->email, $requester->getName())))
+						$recipients[] = $recipient;
+				}
+				
+				$to = implode(', ', $recipients);
+			}
+			
+			$tpl->assign('suggested_recipients', DAO_Ticket::findMissingRequestersInHeaders($message_headers, $requesters));
+			
+			// If quoting content
+			if(in_array($reply_mode, [0,2])) {
+				$quoted_content = vsprintf(
+					DevblocksPlatform::translate('display.reply.reply_banner'),
+					[
+						DevblocksPlatform::services()->date()->formatTime('D, d M Y', $message->created_date),
+						$message->getSender()->getNameWithEmail() ?? ''
+					]
+				);
+				
+				$quoted_content .= "\n" . _DevblocksTemplateManager::modifier_devblocks_email_quote(DevblocksPlatform::services()->string()->indentWith(trim($message->getContent()), '> '));
+			} else {
+				$quoted_content = '';
+			}
+			
+			// Content
+			
+			if(0 == $signature_pos) { // No signature
+				$content .= $quoted_content;
+			} elseif(1 == $signature_pos) { // Above with #cut
+				$content .= "\n\n\n#signature\n#cut\n\n". $quoted_content;
+			} elseif (2 == $signature_pos) { // Below
+				$content .= $quoted_content . "\n\n\n#signature\n#cut\n";
+			} elseif (3 == $signature_pos) { // Above
+				$content .= "\n\n\n#signature\n\n" . $quoted_content;
+			}
+		}
+		
+		$draft_properties = [
+			'to' => $to,
+			'cc' => $cc,
+			'bcc' => $bcc,
+			'subject' => $subject,
+			'content' => $content,
+			'ticket_id' => $ticket->id,
+			'message_id' => $message->id,
+			'worker_id' => $active_worker->id,
+			'is_forward' => $is_forward ? 1 : 0,
+		];
+		
+		// Status
+		if('open' == $mail_status_reply) {
+			$draft_properties['status_id'] = Model_Ticket::STATUS_OPEN;
+		} else if('waiting' == $mail_status_reply) {
+			$draft_properties['status_id'] = Model_Ticket::STATUS_WAITING;
+		} else if('closed' == $mail_status_reply) {
+			$draft_properties['status_id'] = Model_Ticket::STATUS_CLOSED;
+		}
+		
+		// Reopen
+		if($ticket->reopen_at)
+			$draft_properties['ticket_reopen'] = $ticket->reopen_at;
+		
+		$draft_fields = DAO_MailQueue::getFieldsFromMessageProperties($draft_properties);
+			
+		$draft_fields[DAO_MailQueue::TYPE] = $is_forward ? Model_MailQueue::TYPE_TICKET_FORWARD : Model_MailQueue::TYPE_TICKET_REPLY;
+		
+		$draft_id = DAO_MailQueue::create($draft_fields);
+		
+		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			DevblocksPlatform::dieWithHttpError(null, 500);
+		
+		$draft->setTicket($ticket);
+		$draft->setMessage($message);
+		
+		return $draft;
+	}
+	
+	private function _loadReplyDraft($draft_id) {
+		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		return $draft;
+	}
 	
 	private function _profileAction_reply() {
 		$tpl = DevblocksPlatform::services()->template();
@@ -360,172 +539,74 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		@$draft_id = DevblocksPlatform::importGPC($_POST['draft_id'],'integer',0);
 		@$reply_format = DevblocksPlatform::importGPC($_POST['reply_format'],'string','');
 		
-		$tpl->assign('id',$id);
-		$tpl->assign('is_forward', $is_forward);
-		$tpl->assign('reply_mode', $reply_mode);
-		$tpl->assign('reply_format', $reply_format);
-		
-		$ticket = null;
-		$message = null;
-		
-		if(false == ($message = DAO_Message::get($id))) {
-			if(!$draft_id)
-				DevblocksPlatform::dieWithHttpError(null, 404);
-			
-			if(false == ($draft = DAO_MailQueue::get($draft_id)))
-				DevblocksPlatform::dieWithHttpError(null, 404);
-			
-			if(false == ($ticket = $draft->getTicket()))
-				DevblocksPlatform::dieWithHttpError(null, 404);
-			
-			if(false == ($message = $ticket->getLastMessage()))
-				DevblocksPlatform::dieWithHttpError(null, 404);
+		// Get a draft
+		if(!$draft_id) {
+			$is_resumed = false;
+			$draft = $this->_createReplyDraft($id, $reply_mode, $is_forward);
+		} else {
+			$is_resumed = true;
+			$draft = $this->_loadReplyDraft($draft_id);
 		}
 		
-		if(!($ticket instanceof Model_Ticket))
-			$ticket = $message->getTicket();
+		// Permissions
+		
+		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if($draft->worker_id != $active_worker->id)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		// Load records
+		
+		if(false == ($ticket = $draft->getTicket()))
+			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$tpl->assign('message', $message);
+		if(false == ($message = $draft->getMessage())) {
+			if(false != ($message = $ticket->getLastMessage()))
+				$draft->setMessage($message);
+		}
 		
-		$message_headers = $message->getHeaders();
-		$tpl->assign('message_headers', $message_headers);
+		if(false == ($bucket = $ticket->getBucket()))
+			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Check to see if other activity has happened on this ticket since the worker started looking
-		
 		if(!$draft_id && !$is_forward && !$is_confirmed) {
 			@$since_timestamp = DevblocksPlatform::importGPC($_POST['timestamp'],'integer',0);
-			$recent_activity = $this->_checkRecentTicketActivity($message->ticket_id, $since_timestamp);
+			$recent_activity = $this->_checkRecentTicketActivity($ticket->id, $since_timestamp);
 			
 			if(!empty($recent_activity))
 				$tpl->assign('recent_activity', $recent_activity);
 		}
 		
-		// Requesters
+		// Form variables
 		
-		$requesters = $ticket->getRequesters();
+		$tpl->assign('is_forward', $is_forward);
+		$tpl->assign('reply_mode', $reply_mode);
+		$tpl->assign('reply_format', $reply_format);
+		$tpl->assign('ticket', $ticket);
+		$tpl->assign('message', $message);
+		$tpl->assign('bucket', $bucket);
 		
-		// Custom fields
+		// Transport
 		
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET, false);
-		$tpl->assign('custom_fields', $custom_fields);
+		if(array_key_exists('owner_id', $draft->params))
+			$ticket->owner_id = $draft->params['owner_id'];
 		
-		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$custom_field_values = @$custom_field_values[$ticket->id] ?: [];
+		if(array_key_exists('group_id', $draft->params))
+			$ticket->group_id = $draft->params['group_id'];
 		
-		// Are we continuing a draft?
-		if($draft_id) {
-			if(false == ($draft = DAO_MailQueue::get($draft_id)))
-				DevblocksPlatform::dieWithHttpError(null, 404);
-			
-			if(!Context_Draft::isWriteableByActor($draft, $active_worker))
-				DevblocksPlatform::dieWithHttpError(null, 403);
-			
-			if($draft->worker_id != $active_worker->id)
-				DevblocksPlatform::dieWithHttpError(null, 403);
-			
-			$tpl->assign('draft', $draft);
-			
-			$tpl->assign('to', @$draft->params['to']);
-			$tpl->assign('cc', @$draft->params['cc']);
-			$tpl->assign('bcc', @$draft->params['bcc']);
-			$tpl->assign('subject', @$draft->params['subject']);
-			
-			if(array_key_exists('owner_id', $draft->params))
-				$ticket->owner_id = $draft->params['owner_id'];
-			
-			if(array_key_exists('group_id', $draft->params))
-				$ticket->group_id = $draft->params['group_id'];
-			
-			if(array_key_exists('bucket_id', $draft->params))
-				$ticket->bucket_id = $draft->params['bucket_id'];
-			
-			if(array_key_exists('custom_fields', $draft->params)) {
-				foreach($draft->params['custom_fields'] as $field_id => $field_value)
-					$custom_field_values[$field_id] = $field_value;
-			}
-			
-			// Or are we replying without a draft?
-		} else {
-			// [TODO] Create a draft first
-			
-			$to = '';
-			$cc = '';
-			$bcc = '';
-			$subject = $ticket->subject;
-			
-			/*
-			$draft = new Model_MailQueue();
-			$draft->params['options_gpg_encrypt'] = true;
-			$draft->params['options_gpg_sign'] = true;
-			$tpl->assign('draft', $draft);
-			*/
-			
-			// Reply to only these recipients
-			if(2 == $reply_mode) {
-				if(isset($message_headers['to'])) {
-					$from = isset($message_headers['reply-to']) ? $message_headers['reply-to'] : $message_headers['from'];
-					$addys = CerberusMail::parseRfcAddresses($from . ', ' . $message_headers['to'], true);
-					$recipients = [];
-					
-					if(is_array($addys))
-						foreach($addys as $addy) {
-							$recipients[] = $addy['full_email'];
-						}
-					
-					$to = implode(', ', $recipients);
-				}
-				
-				if(isset($message_headers['cc'])) {
-					$addys = CerberusMail::parseRfcAddresses($message_headers['cc'], true);
-					$recipients = [];
-					
-					if(is_array($addys))
-						foreach($addys as $addy) {
-							$recipients[] = $addy['full_email'];
-						}
-					
-					$cc = implode(', ', $recipients);
-				}
-				
-				// Forward
-			} else if($is_forward) {
-				$subject = sprintf("Fwd: %s",
-					$ticket->subject
-				);
-				
-				// Normal reply quoted or not
-			} else {
-				$recipients = [];
-				
-				if(is_array($requesters))
-					foreach($requesters as $requester) {
-						if(false !== ($recipient = CerberusMail::writeRfcAddress($requester->email, $requester->getName())))
-							$recipients[] = $recipient;
-					}
-				
-				$to = implode(', ', $recipients);
-				
-				// Suggested recipients
-				$suggested_recipients = DAO_Ticket::findMissingRequestersInHeaders($message_headers, $requesters);
-				$tpl->assign('suggested_recipients', $suggested_recipients);
-			}
-			
-			$tpl->assign('to', $to);
-			$tpl->assign('cc', $cc);
-			$tpl->assign('bcc', $bcc);
-			$tpl->assign('subject', $subject);
+		if(array_key_exists('bucket_id', $draft->params))
+			$ticket->bucket_id = $draft->params['bucket_id'];
+		
+		if(array_key_exists('custom_fields', $draft->params)) {
+			foreach($draft->params['custom_fields'] as $field_id => $field_value)
+				$custom_field_values[$field_id] = $field_value;
 		}
 		
-		$tpl->assign('ticket', $ticket);
 		$tpl->assign('custom_field_values', $custom_field_values);
-		
-		if(false == ($bucket = $ticket->getBucket()))
-			return;
-		
-		$tpl->assign('bucket', $bucket);
 		
 		// Transport
 		
@@ -561,14 +642,6 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		$html_templates = DAO_MailHtmlTemplate::getAll();
 		$tpl->assign('html_templates', $html_templates);
-		
-		if(null != $active_worker) {
-			// Signatures
-			@$ticket_group = $groups[$ticket->group_id]; /* @var $ticket_group Model_Group */
-			
-			$tpl->assign('signature_pos', DAO_WorkerPref::get($active_worker->id, 'mail_signature_pos', 2));
-			$tpl->assign('mail_status_reply', DAO_WorkerPref::get($active_worker->id,'mail_status_reply','waiting'));
-		}
 		
 		$tpl->assign('upload_max_filesize', ini_get('upload_max_filesize'));
 		
@@ -690,6 +763,8 @@ EOD;
 		if(false != ($toolbar_reply_custom = DAO_Toolbar::getKataByName('mail.reply', $toolbar_dict))) {
 			$tpl->assign('toolbar_custom', $toolbar_reply_custom);
 		}
+		
+		$tpl->assign('draft', $draft);
 		
 		// Display template
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/reply.tpl');

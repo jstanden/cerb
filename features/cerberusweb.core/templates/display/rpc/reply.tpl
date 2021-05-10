@@ -80,7 +80,7 @@
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query=""><b>{'message.header.to'|devblocks_translate|capitalize}</b></a>:&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="to" value="{$to}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence as participants{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="45" name="to" value="{$draft->params.to}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence as participants{/if}" class="required" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 						{if !$is_forward}
 							{if !empty($suggested_recipients)}
 								<div id="reply{$message->id}_suggested">
@@ -100,21 +100,21 @@
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="cc" value="{$cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="45" name="cc" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="bcc" value="{$bcc}" placeholder="These recipients will secretly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
+						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a one-time copy of this message" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;">
 					</td>
 				</tr>
 				
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.subject'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
-						<input type="text" size="45" name="subject" value="{$subject}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required" maxlength="255">
+						<input type="text" size="45" name="subject" value="{$draft->params.subject}" style="width:100%;border:1px solid rgb(180,180,180);padding:2px;" class="required" maxlength="255">
 					</td>
 				</tr>
 				
@@ -163,45 +163,7 @@
 
 		</div>
 
-		{if $is_forward}
-			<textarea name="content" id="reply_{$message->id}" class="reply" style="box-sizing:border-box;">
-{if !empty($draft)}{$draft->getParam('content')}{else}
-
-
-#signature
-
-{'display.reply.forward.banner'|devblocks_translate}
-{if isset($headers.subject)}{'message.header.subject'|devblocks_translate|capitalize}: {$headers.subject|cat:"\n"}{/if}
-{if isset($headers.from)}{'message.header.from'|devblocks_translate|capitalize}: {$headers.from|cat:"\n"}{/if}
-{if isset($headers.date)}{'message.header.date'|devblocks_translate|capitalize}: {$headers.date|cat:"\n"}{/if}
-{if isset($headers.to)}{'message.header.to'|devblocks_translate|capitalize}: {$headers.to|cat:"\n"}{/if}
-
-{$message_content|trim}
-{/if}
-</textarea>
-		{else}
-			<textarea name="content" id="reply_{$message->id}" class="reply" style="box-sizing:border-box;" autofocus="autofocus">
-{if !empty($draft)}{$draft->getParam('content')}{else}
-{if 1==$signature_pos || 3==$signature_pos}
-
-
-#signature
-{if 1==$signature_pos}
-#cut
-{/if}{if in_array($reply_mode,[0,2])}{*Sig above*}
-
-
-{/if}
-{/if}{if in_array($reply_mode,[0,2])}{$quote_sender=$message->getSender()}{$quote_sender_personal=$quote_sender->getName()}{if !empty($quote_sender_personal)}{$reply_personal=$quote_sender_personal}{else}{$reply_personal=$quote_sender->email}{/if}{$reply_date=$message->created_date|devblocks_date:'D, d M Y'}{'display.reply.reply_banner'|devblocks_translate:$reply_date:$reply_personal}
-{/if}{if in_array($reply_mode,[0,2])}{$message_content|trim|indent:1:'> '|devblocks_email_quote}
-{/if}{if 2==$signature_pos}
-
-
-#signature
-#cut
-{/if}{*Sig below*}{/if}
-</textarea>
-{/if}
+		<textarea name="content" id="reply_{$message->id}" class="reply" style="box-sizing:border-box;" {if !$is_forward}autofocus{/if}>{$draft->getParam('content')}</textarea>
 	</div>
 
 	<div id="reply{$message->id}EditorPreviewPanel" style="min-height:100px;max-height:400px;overflow:auto;border:1px dotted rgb(150,150,150);padding:5px;"></div>
@@ -251,12 +213,12 @@
 				<div>
 					<b>{'common.status'|devblocks_translate|capitalize}:</b>
 
-					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if (empty($draft) && 'open'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
-					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'waiting'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
-					{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if (empty($draft) && 'closed'==$mail_status_reply) || $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
+					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
+					{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
 					<br>
 
-					<div id="replyClosed{$message->id}" style="display:{if (empty($draft) && 'open'==$mail_status_reply) || (!empty($draft) && $draft->params.status_id==Model_Ticket::STATUS_OPEN)}none{else}block{/if};margin:5px 0px 10px 20px;">
+					<div id="replyClosed{$message->id}" style="display:{if $draft->params.status_id==Model_Ticket::STATUS_OPEN}none{else}block{/if};margin:5px 0px 10px 20px;">
 						<div style="display:flex;flex-flow:row wrap;">
 							<div style="flex:1 1 45%;padding-right:10px;">
 								<b>{'display.reply.next.resume'|devblocks_translate}</b>
@@ -266,7 +228,7 @@
 							</div>
 						</div>
 
-						<input type="text" name="ticket_reopen" size="55" value="{if !empty($draft)}{$draft->params.ticket_reopen}{elseif !empty($ticket->reopen_at)}{$ticket->reopen_at|devblocks_date}{/if}"><br>
+						<input type="text" name="ticket_reopen" size="55" value="{$draft->params.ticket_reopen}"><br>
 						{'display.reply.next.resume_blank'|devblocks_translate}<br>
 					</div>
 				</div>
@@ -346,7 +308,7 @@
 
 	<div style="{if $draft->params.send_at}{else}display:none;{/if}">
 		<b>When should the message be delivered?</b> (leave blank to send immediately)<br>
-		<input type="text" name="send_at" size="64" style="width:89%;" placeholder="now" value="{if !empty($draft)}{$draft->params.send_at}{/if}">
+		<input type="text" name="send_at" size="64" style="width:89%;" placeholder="now" value="{$draft->params.send_at}">
 	</div>
 </fieldset>
 

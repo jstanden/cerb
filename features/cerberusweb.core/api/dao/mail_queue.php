@@ -748,8 +748,31 @@ class Model_MailQueue {
 	public $queue_delivery_date;
 	public $queue_fails;
 	
+	private $_ticket = null;
+	private $_message = null;
+	
 	public function getTicket() {
-		return DAO_Ticket::get($this->ticket_id);
+		if(!$this->_ticket)
+			$this->_ticket = DAO_Ticket::get($this->ticket_id);
+		
+		return $this->_ticket;
+	}
+	
+	public function setTicket(Model_Ticket $ticket) {
+		$this->_ticket = $ticket;
+	}
+	
+	public function getMessage() {
+		if(!$this->_message) {
+			if(false != ($message_id = $this->getParam('in_reply_message_id', 0)))
+				$this->_message = DAO_Message::get($message_id);
+		}
+		
+		return $this->_message;
+	}
+	
+	public function setMessage(Model_Message $message) {
+		$this->_message = $message;
 	}
 	
 	public function getWorker() {
