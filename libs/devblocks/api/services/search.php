@@ -840,6 +840,9 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		$escaped_query = $db->escape($query_parts['terms']);
 		$where_sql = [];
 		
+		if(!trim($escaped_query,'+*'))
+			$escaped_query = '';
+		
 		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
 		foreach($query_parts['phrases'] as $phrase) {
 			$where_sql[] = sprintf("content LIKE '%%%s%%'",
