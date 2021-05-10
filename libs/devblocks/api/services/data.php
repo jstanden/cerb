@@ -24,47 +24,38 @@ class _DevblocksDataService {
 			case 'calendar.events':
 				$provider = new _DevblocksDataProviderCalendarEvents();
 				return $provider->getSuggestions($type, $params);
-				break;
 
 			case 'classifier.prediction':
 				$provider = new _DevblocksDataProviderClassifierPrediction();
 				return $provider->getSuggestions($type, $params);
-				break;
 
 			case 'worklist.records':
 				$provider = new _DevblocksDataProviderWorklistRecords();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'worklist.subtotals':
 				$provider = new _DevblocksDataProviderWorklistSubtotals();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'worklist.series':
 				$provider = new _DevblocksDataProviderWorklistSeries();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'worklist.metrics':
 				$provider = new _DevblocksDataProviderWorklistMetrics();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'worklist.xy':
 				$provider = new _DevblocksDataProviderWorklistXy();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'worklist.geo.points':
 				$provider = new _DevblocksDataProviderWorklistGeoPoints();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'gpg.keyinfo':
 				$provider = new _DevblocksDataProviderGpgKeyInfo();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'platform.extensions':
 				$provider = new _DevblocksDataProviderPlatformExtensions();
@@ -81,22 +72,18 @@ class _DevblocksDataService {
 			case 'sample.geo.points':
 				$provider = new _DevblocksDataProviderSampleGeoPoints();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'sample.timeseries':
 				$provider = new _DevblocksDataProviderSampleTimeSeries();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'sample.xy':
 				$provider = new _DevblocksDataProviderSampleXy();
 				return $provider->getSuggestions($type, $params);
-				break;
 				
 			case 'usage.behaviors':
 				$provider = new _DevblocksDataProviderUsageBotBehaviors();
 				return $provider->getSuggestions($type, $params);
-				break;
 			
 			case 'ui.icons':
 				$provider = new _DevblocksDataProviderUiIcons();
@@ -105,7 +92,6 @@ class _DevblocksDataService {
 			case 'usage.snippets':
 				$provider = new _DevblocksDataProviderUsageSnippets();
 				return $provider->getSuggestions($type, $params);
-				break;
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($type, 'behavior.')) {

@@ -4626,7 +4626,7 @@ class DevblocksEventHelper {
 		
 		$out = sprintf(">>> Sending email\n".
 			"From: %s<%s>\n".
-			"To: <%s>\n".
+			"To: %s\n".
 			"%s".
 			"%s".
 			"Subject: %s\n".

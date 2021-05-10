@@ -75,7 +75,6 @@ class _DevblocksDataProviderRecordFields extends _DevblocksDataProvider {
 		
 		// Data
 		
-		$data = [];
 		$paging = [];
 		
 		$fields = $record_type_ext->getKeyMeta(false);

@@ -176,7 +176,6 @@ $(function() {
 	$cfields.find('button.multi-text-add').click(function() {
 		var $button = $(this);
 		var field_name = $button.attr('data-field-name');
-		var $container = $button.closest('div');
 		var $input = $('<input type="text" size="45" style="width:98%;" maxlength="255" class="multi-text">')
 			.attr('name', field_name + '[]')
 			;

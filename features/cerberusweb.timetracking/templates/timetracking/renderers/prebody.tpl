@@ -70,7 +70,7 @@ var timeTrackingTimerClass = function() {
 	this.redraw = function() {
 		var $counterDiv = $('#divTimeTrackingCounter');
 		
-		if($counterDiv.length == 0)
+		if(0 === $counterDiv.length)
 			return;
 		
 		var strTime = "";
@@ -87,7 +87,7 @@ var timeTrackingTimerClass = function() {
 	this.show = function() {
 		var $timerDiv = $('#divTimeTrackingBox').show();
 
-		if($timerDiv.length == 0)
+		if(0 === $timerDiv.length)
 			return;
 		
 		var $playBtn = $('#btnTimeTrackingPlay');
@@ -147,7 +147,7 @@ var timeTrackingTimerClass = function() {
 
 		var $timerDiv = $('#divTimeTrackingBox').show();
 		
-		if($timerDiv.length == 0)
+		if(0 === $timerDiv.length)
 			return;
 		
 		var $playBtn = $('#btnTimeTrackingPlay').show();
@@ -160,7 +160,7 @@ var timeTrackingTimerClass = function() {
 
 		var $timerDiv = $('#divTimeTrackingBox').show();
 		
-		if($timerDiv.length == 0)
+		if(0 === $timerDiv.length)
 			return;
 		
 		var $playBtn = $('#btnTimeTrackingPlay').hide();
