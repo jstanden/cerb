@@ -1284,7 +1284,9 @@ abstract class Extension_Toolbar extends DevblocksExtension {
 	const POINT = 'cerb.toolbar';
 	
 	abstract function getPlaceholdersMeta() : array;
-	abstract function getAfterMeta() : array;
+	abstract function getInteractionInputsMeta() : array;
+	abstract function getInteractionOutputMeta() : array;
+	abstract function getInteractionAfterMeta() : array;
 }
 
 abstract class Extension_WorkspacePage extends DevblocksExtension {

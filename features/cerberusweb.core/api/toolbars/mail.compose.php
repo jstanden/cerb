@@ -11,7 +11,25 @@ class Toolbar_MailCompose extends Extension_Toolbar {
 		];
 	}
 	
-	function getAfterMeta() : array {
+	function getInteractionInputsMeta() : array {
+		return [
+			[
+				'key' => 'selected_text',
+				'notes' => 'The currently selected editor text',
+			],
+		];
+	}
+	
+	function getInteractionOutputMeta(): array {
+		return [
+			[
+				'key' => 'snippet:',
+				'notes' => 'A snippet of text to insert in the editor at the cursor',
+			],
+		];
+	}
+	
+	function getInteractionAfterMeta() : array {
 		return [
 		];
 	}

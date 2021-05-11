@@ -11,7 +11,17 @@ class Toolbar_GlobalMenu extends Extension_Toolbar {
 		];
 	}
 	
-	function getAfterMeta() : array {
+	function getInteractionInputsMeta() : array {
+		return [
+		];
+	}
+	
+	function getInteractionOutputMeta(): array {
+		return [
+		];
+	}
+	
+	function getInteractionAfterMeta() : array {
 		return [
 		];
 	}

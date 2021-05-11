@@ -19,8 +19,34 @@ class Toolbar_MailRead extends Extension_Toolbar {
 		];
 	}
 	
-	function getAfterMeta() : array {
+	function getInteractionInputsMeta() : array {
 		return [
+			[
+				'key' => 'message_id',
+				'notes' => 'The [message](https://cerb.ai/docs/records/types/message/) record. Supports key expansion.',
+			],
+			[
+				'key' => 'selected_text',
+				'notes' => 'The currently selected editor text',
+			],
+		];
+	}
+	
+	function getInteractionOutputMeta(): array {
+		return [
+			[
+				'key' => 'reply:draft_id:',
+				'notes' => 'The [draft](https://cerb.ai/docs/records/types/draft/) ID to resume',
+			],
+		];
+	}
+	
+	function getInteractionAfterMeta() : array {
+		return [
+			[
+				'key' => 'refresh_widgets@list:',
+				'notes' => 'One or more [profile widget](https://cerb.ai/docs/records/types/profile_widget/) names to refresh',
+			],
 		];
 	}
 }

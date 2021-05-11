@@ -15,7 +15,29 @@ class Toolbar_MailReply extends Extension_Toolbar {
 		];
 	}
 	
-	function getAfterMeta() : array {
+	function getInteractionInputsMeta() : array {
+		return [
+			[
+				'key' => 'message_id',
+				'notes' => 'The [message](https://cerb.ai/docs/records/types/message/) record. Supports key expansion.',
+			],
+			[
+				'key' => 'selected_text',
+				'notes' => 'The currently selected editor text',
+			],
+		];
+	}
+	
+	function getInteractionOutputMeta(): array {
+		return [
+			[
+				'key' => 'snippet:',
+				'notes' => 'A snippet of text to insert in the editor at the cursor',
+			],
+		];
+	}
+	
+	function getInteractionAfterMeta() : array {
 		return [
 		];
 	}

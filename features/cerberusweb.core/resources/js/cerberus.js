@@ -1835,19 +1835,19 @@ var ajax = new cAjaxCalls();
 			var $toolbar = $(this);
 			var $fieldset = $toolbar.closest('fieldset');
 
-			var $panel_placeholders = $fieldset.find('[data-cerb-event-placeholders]');
+			var $panel_help = $fieldset.find('[data-cerb-event-placeholders]');
 			var $panel_tester = $fieldset.find('[data-cerb-event-tester]');
 			
 			$toolbar.find('.cerb-editor-button-event-placeholders').on('click', function() {
 			  var $button = $(this);
 			
-			  if($panel_placeholders.is(':visible')) {
+			  if($panel_help.is(':visible')) {
 				  $button.removeClass('cerb-code-editor-toolbar-button--enabled');
-				  $panel_placeholders.hide();
+				  $panel_help.hide();
 			
 			  } else {
 				  $button.addClass('cerb-code-editor-toolbar-button--enabled');
-				  $panel_placeholders.fadeIn();
+				  $panel_help.fadeIn();
 			  }
 			});
 			
@@ -1967,19 +1967,19 @@ var ajax = new cAjaxCalls();
 			var $toolbar = $(this);
 			var $fieldset = $toolbar.closest('fieldset');
 
-			var $panel_placeholders = $fieldset.find('[data-cerb-toolbar-placeholders]');
+			var $panel_help = $fieldset.find('[data-cerb-toolbar-help]'); 
 			var $panel_tester = $fieldset.find('[data-cerb-toolbar-tester]');
 			
-			$toolbar.find('.cerb-editor-button-toolbar-placeholders').on('click', function() {
+			$toolbar.find('.cerb-editor-button-toolbar-help').on('click', function() {
 			  var $button = $(this);
 			
-			  if($panel_placeholders.is(':visible')) {
+			  if($panel_help.is(':visible')) {
 				  $button.removeClass('cerb-code-editor-toolbar-button--enabled');
-				  $panel_placeholders.hide();
+				  $panel_help.hide();
 			
 			  } else {
 				  $button.addClass('cerb-code-editor-toolbar-button--enabled');
-				  $panel_placeholders.fadeIn();
+				  $panel_help.fadeIn();
 			  }
 			});
 			

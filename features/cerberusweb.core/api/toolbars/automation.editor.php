@@ -19,7 +19,21 @@ class Toolbar_AutomationEditor extends Extension_Toolbar {
 		];
 	}
 	
-	function getAfterMeta() : array {
+	function getInteractionInputsMeta() : array {
+		return [
+		];
+	}
+	
+	function getInteractionOutputMeta() : array {
+		return [
+			[
+				'key' => 'snippet:',
+				'notes' => 'A snippet of text to insert in the editor at the cursor',
+			],
+		];
+	}
+	
+	function getInteractionAfterMeta() : array {
 		return [
 		];
 	}

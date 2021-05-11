@@ -63,7 +63,7 @@
 
         {$toolbar_ext = $model->getExtension()}
         {if $toolbar_ext}
-            {include file="devblocks:cerberusweb.core::toolbars/editor_toolbar.tpl" toolbar_placeholders=$toolbar_ext->getPlaceholdersMeta()}
+            {include file="devblocks:cerberusweb.core::toolbars/editor_toolbar.tpl" toolbar_ext=$toolbar_ext}
         {/if}
     </fieldset>
 

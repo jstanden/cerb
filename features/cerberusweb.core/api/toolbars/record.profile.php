@@ -15,8 +15,26 @@ class Toolbar_RecordProfile extends Extension_Toolbar {
 		];
 	}
 	
-	function getAfterMeta() : array {
+	function getInteractionInputsMeta() : array {
 		return [
+			[
+				'key' => 'record_*',
+				'notes' => 'The [record](https://cerb.ai/docs/records/types/) dictionary. Supports key expansion.',
+			],
+		];
+	}
+	
+	function getInteractionOutputMeta(): array {
+		return [
+		];
+	}
+	
+	function getInteractionAfterMeta() : array {
+		return [
+			[
+				'key' => 'refresh_widgets@list:',
+				'notes' => 'One or more [profile widget](https://cerb.ai/docs/records/types/profile_widget/) names to refresh',
+			],
 		];
 	}
 }
