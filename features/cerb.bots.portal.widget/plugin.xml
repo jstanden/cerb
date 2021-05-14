@@ -4,14 +4,14 @@
 	<name>Chat Bots for Websites (DEPRECATED)</name>
 	<description>This plugin is being retired. Use 'Interactions for Websites' instead.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>10.0.0</version>
+	<version>10.1.0</version>
 	<link>https://cerb.ai/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="10.0" max="10.0.99" />
+		<app_version min="10.1" max="10.1.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->

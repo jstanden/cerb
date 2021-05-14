@@ -4,14 +4,14 @@
 	<name>Collaborative Feed Reader</name>
 	<description>This plugin adds new records for Feeds and Feed Items.  These can be used to share monitoring duties on RSS/Atom feeds: moderate blog comments, audit wiki changes, read new forum posts, track vendor announcements, etc.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>10.0.0</version>
+	<version>10.1.0</version>
 	<link>http://www.cerbweb.com/book/latest/plugins/cerberusweb.feed_reader.git</link>
 	<image>plugin.png</image>
 	
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="10.0" max="10.0.99" />
+		<app_version min="10.1" max="10.1.99" />
 	</requires>
 	
 	<!-- Plugin Dependencies -->
