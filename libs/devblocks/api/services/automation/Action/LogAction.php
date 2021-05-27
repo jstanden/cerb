@@ -40,7 +40,11 @@ class LogAction extends AbstractAction {
 			if(!array_key_exists('', $params))
 				throw new Exception_DevblocksAutomationError('A log message is required.');
 			
-			$log_message = $params[''];
+			$log_message = $params[''] ?? '';
+			
+			// Ignore the action on an empty error message
+			if(empty($log_message))
+				return $this->node->getParent()->getId();
 			
 			$node_type = $this->node->getNameType();
 			
