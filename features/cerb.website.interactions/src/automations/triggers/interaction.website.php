@@ -220,6 +220,37 @@ class AutomationTrigger_InteractionWebsite extends Extension_AutomationTrigger {
 					'table',
 				],
 				
+				'(.*):await:form:elements:text:' => [
+					'default:',
+					'label:',
+					'max_length:',
+					'placeholder:',
+					'required@bool:',
+					'type:',
+				],
+				
+				'(.*):await:form:elements:text:type:' => [
+					'date',
+					'decimal',
+					'email',
+					'freeform',
+					'geopoint',
+					'ip',
+					'ipv4',
+					'ipv6',
+					'number',
+					'uri',
+					'url',
+				],
+				
+				'(.*):await:form:elements:textarea:' => [
+					'default:',
+					'label:',
+					'max_length:',
+					'placeholder:',
+					'required@bool:',
+				],
+				
 				'(.*):await:interaction:' => [
 					'uri:',
 					'output:',
