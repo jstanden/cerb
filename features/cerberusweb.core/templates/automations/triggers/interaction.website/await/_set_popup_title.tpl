@@ -3,7 +3,8 @@
 {
 	var $script = document.querySelector('#{$script_uid}');
 	var $popup = $script.closest('.cerb-interaction-popup');
-	
-	$popup.querySelector('.cerb-interaction-popup--title').textContent = '{$popup_title}';
+
+	var title = {$popup_title|json_encode nofilter};
+	$popup.querySelector('.cerb-interaction-popup--title').textContent = title;
 }
 </script>
