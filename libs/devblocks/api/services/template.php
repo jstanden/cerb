@@ -113,6 +113,8 @@ class _DevblocksTemplateManager {
 				'array_keys',
 				'count',
 				'explode',
+				'json_encode',
+				'ltrim',
 				'md5',
 				'nl2br',
 				'sort',
