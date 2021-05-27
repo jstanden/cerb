@@ -3206,7 +3206,7 @@ class Context_Worker extends Extension_DevblocksContext implements IDevblocksCon
 		// Only admins can edit
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEverything($models);
+			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);

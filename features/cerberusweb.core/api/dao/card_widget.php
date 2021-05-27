@@ -909,7 +909,7 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 		// Only admins can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEverything($models);
+			return CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want
 		if(CerberusContexts::isActorAnAdmin($actor))

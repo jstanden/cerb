@@ -939,7 +939,7 @@ class Context_Bucket extends Extension_DevblocksContext implements IDevblocksCon
 		// Only admins and group managers can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEverything($models);
+			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);

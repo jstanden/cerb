@@ -2426,7 +2426,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		// Only admins and group members can see, unless public
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEverything($models);
+			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
@@ -2454,7 +2454,7 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		// Only admins and group members can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEverything($models);
+			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);

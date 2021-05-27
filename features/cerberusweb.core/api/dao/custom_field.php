@@ -2156,7 +2156,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 		// Admins can modify
 		
 		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			CerberusContexts::denyEverything($models);
+			return CerberusContexts::denyEverything($models);
 		
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
