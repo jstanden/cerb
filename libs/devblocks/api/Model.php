@@ -2211,7 +2211,25 @@ class DevblocksSearchCriteria {
 	}
 
 	public static function getFulltextParamFromTokens($field_key, $tokens) {
-		$terms = array();
+		$terms = [];
+		
+		// Unwrap a parenthetical group ("quoted phrease" terms)
+		if(
+			is_array($tokens)
+			&& array_key_exists(0, $tokens)
+			&& $tokens[0] instanceof CerbQuickSearchLexerToken
+			&& $tokens[0]->type == 'T_GROUP'
+		) {
+			$new_tokens = [];
+			
+			foreach($tokens[0]->children as $token) {
+				if($token->type == 'T_FIELD' && $token->value == 'text')
+					$new_tokens = array_merge($new_tokens, $token->children);
+			}
+			
+			$tokens = $new_tokens;
+			unset($new_tokens);
+		}
 		
 		foreach($tokens as $token) {
 			switch($token->type) {
