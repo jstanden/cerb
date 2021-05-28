@@ -1,4 +1,8 @@
 <?php
+
+use Ramsey\Uuid\Provider\Node\RandomNodeProvider;
+use Ramsey\Uuid\Uuid;
+
 class _DevblocksStringService {
 	private static $_instance = null;
 	
@@ -329,5 +333,10 @@ class _DevblocksStringService {
 			return false;
 		
 		return true;
+	}
+	
+	public function uuid() : string {
+		$nodeProvider = new RandomNodeProvider();
+		return Uuid::uuid1($nodeProvider->getNode());
 	}
 }
