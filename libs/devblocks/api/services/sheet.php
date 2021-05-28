@@ -250,7 +250,7 @@ class _DevblocksSheetServiceTypes {
 	function card() : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
 			$url_writer = DevblocksPlatform::services()->url();
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			$column_key = $column['key'] ?? null;
@@ -353,7 +353,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function date(bool $filter_html=true) : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
 			if($filter_html)
@@ -394,7 +394,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function icon() {
 		return function($column, $sheet_dict) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			$value = '';
@@ -459,7 +459,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function link(bool $filter_html=true) : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
 			if($filter_html)
@@ -513,7 +513,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function search() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			$column_key = $column['key'] ?? null;
@@ -593,7 +593,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function searchButton() {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
 			
 			@$column_params = $column['params'] ?: [];
@@ -635,7 +635,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function selection() : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			
 			@$column_params = $column['params'] ?: [];
 			
@@ -662,7 +662,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function slider(bool $filter_html=true) : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
 			if($filter_html)
@@ -708,7 +708,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function text(bool $filter_html=true) : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
 			if($filter_html)
@@ -754,7 +754,7 @@ class _DevblocksSheetServiceTypes {
 	
 	function timeElapsed(bool $filter_html=true) : callable {
 		return function($column, DevblocksDictionaryDelegate $sheet_dict) use ($filter_html) {
-			$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
 			$filters = [];
 			
 			if($filter_html)
