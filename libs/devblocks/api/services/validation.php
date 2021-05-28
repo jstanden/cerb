@@ -58,6 +58,11 @@ class DevblocksValidationField {
 			;
 	}
 	
+	function error() : _DevblocksValidationTypeError {
+		$this->_type = new  _DevblocksValidationTypeError('error');
+		return $this->_type;
+	}
+	
 	/**
 	 * 
 	 * @return _DevblocksValidationTypeFloat
@@ -770,6 +775,18 @@ class _DevblocksValidationTypeBoolean extends _DevblocksValidationType {
 	}
 }
 
+class  _DevblocksValidationTypeError extends _DevblocksValidationType {
+	function __construct($type_name='false') {
+		parent::__construct($type_name);
+		return $this;
+	}
+	
+	function setError($message) : _DevblocksValidationTypeError {
+		$this->_data['error'] = $message;
+		return $this;
+	}
+}
+
 class _DevblocksValidationTypeGeoPoint extends _DevblocksValidationType {
 	function __construct($type_name='geopoint') {
 		parent::__construct($type_name);
@@ -1017,6 +1034,9 @@ class _DevblocksValidationService {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a boolean.", $field_label));
 				}
 				break;
+				
+			case '_DevblocksValidationTypeError':
+				throw new Exception_DevblocksValidationError($data['error'] ?? sprintf("'%s' is incorrect.", $field_label));
 				
 			case '_DevblocksValidationTypeGeoPoint':
 				if(!is_string($value)) {
