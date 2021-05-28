@@ -1742,10 +1742,12 @@ class Search_Worker extends Extension_DevblocksSearchSchema {
 		return [];
 	}
 	
-	public function getFields() {
-		return array(
-			'content',
-		);
+	public function getIdField() {
+		return 'id';
+	}
+	
+	public function getDataField() {
+		return 'content';
 	}
 	
 	public function query($query, $attributes=[], $limit=null) {

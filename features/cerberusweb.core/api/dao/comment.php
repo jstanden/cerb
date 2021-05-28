@@ -703,10 +703,12 @@ class Search_CommentContent extends Extension_DevblocksSearchSchema {
 		);
 	}
 	
-	public function getFields() {
-		return array(
-			'content',
-		);
+	public function getIdField() {
+		return 'id';
+	}
+	
+	public function getDataField() {
+		return 'content';
 	}
 	
 	public function reindex() {

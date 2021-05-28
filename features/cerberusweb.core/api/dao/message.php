@@ -1269,11 +1269,12 @@ class Search_MessageContent extends Extension_DevblocksSearchSchema {
 		return [];
 	}
 	
-	public function getFields() {
-		return array(
-			'content',
-			'created',
-		);
+	public function getIdField() {
+		return 'id';
+	}
+	
+	public function getDataField() {
+		return 'content';
 	}
 	
 	public function reindex() {

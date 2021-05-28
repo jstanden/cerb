@@ -228,10 +228,11 @@ class DevblocksSearchEngineSphinx extends Extension_DevblocksSearchEngine {
 			return false;
 		
 		$content = $this->_getTextFromDoc($doc);
+		$content_key = $schema->getDataField();
 		
 		$fields = array(
 			'id' => intval($id),
-			'content' => sprintf("'%s'", mysqli_real_escape_string($this->db, $content)),
+			$content_key => sprintf("'%s'", mysqli_real_escape_string($this->db, $content)),
 		);
 		
 		// Attributes
@@ -839,13 +840,16 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 		
 		$escaped_query = $db->escape($query_parts['terms']);
 		$where_sql = [];
+		$id_key = $schema->getIdField();
+		$content_key = $schema-> getDataField();
 		
 		if(!trim($escaped_query,'+*'))
 			$escaped_query = '';
 		
 		if(isset($query_parts['phrases']) && isset($query_parts['phrases']))
 		foreach($query_parts['phrases'] as $phrase) {
-			$where_sql[] = sprintf("content LIKE '%%%s%%'",
+			$where_sql[] = sprintf("%s LIKE '%%%s%%'",
+				$db->escape($content_key),
 				$db->escape($phrase)
 			);
 		}
@@ -936,8 +940,10 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				// Without locks
 				$db->QueryReader("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED");
 				
-				$sql = sprintf("CREATE TEMPORARY TABLE %s (id int unsigned, content text) ENGINE=MyISAM SELECT id, content FROM fulltext_%s WHERE id IN (%s)",
+				$sql = sprintf("CREATE TEMPORARY TABLE %s (%s int unsigned, %s text) ENGINE=MyISAM SELECT id, content FROM fulltext_%s WHERE id IN (%s)",
 					$db->escape($temp_table),
+					$db->escape($id_key),
+					$db->escape($content_key),
 					$this->escapeNamespace($ns),
 					$attributes['id']['sql']
 				);
@@ -946,12 +952,14 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 				// Resume locking
 				$db->QueryReader("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ");
 				
-				$sql = sprintf("SELECT id ".
+				$sql = sprintf("SELECT %s ".
 					"FROM %s ".
-					"WHERE MATCH (content) AGAINST ('%s' IN BOOLEAN MODE) ".
+					"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE) ".
 					"%s ".
 					"LIMIT %d",
+					$db->escape($id_key),
 					$db->escape($temp_table),
+					$db->escape($content_key),
 					$escaped_query,
 					!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : '',
 					$max_results
@@ -974,12 +982,14 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 			}
 			
 		} else {
-			$sql = sprintf("SELECT id ".
+			$sql = sprintf("SELECT %s ".
 				"FROM fulltext_%s ".
-				"WHERE MATCH content AGAINST ('%s' IN BOOLEAN MODE) ".
+				"WHERE MATCH (%s) AGAINST ('%s' IN BOOLEAN MODE) ".
 				"%s ".
 				($max_results ? sprintf("LIMIT %d ", $max_results) : ''),
+				$db->escape($id_key),
 				$this->escapeNamespace($ns),
+				$db->escape($content_key),
 				$escaped_query,
 				!empty($where_sql) ? ('AND ' . implode(' AND ', $where_sql)) : ''
 			);
@@ -996,7 +1006,7 @@ class DevblocksSearchEngineMysqlFulltext extends Extension_DevblocksSearchEngine
 					$did_timeout = true;
 				} else {
 					$results = $results->fetch_all(MYSQLI_ASSOC);
-					$ids = DevblocksPlatform::sanitizeArray(array_column($results, 'id'), 'int');
+					$ids = DevblocksPlatform::sanitizeArray(array_column($results, $id_key), 'int');
 					$cache->save($ids, $cache_key, array(), $cache_ttl, $is_only_cached_for_request);
 				}
 			}

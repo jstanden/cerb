@@ -753,10 +753,12 @@ class Search_Org extends Extension_DevblocksSearchSchema {
 		return array();
 	}
 	
-	public function getFields() {
-		return array(
-			'content',
-		);
+	public function getIdField() {
+		return 'id';
+	}
+	
+	public function getDataField() {
+		return 'content';
 	}
 	
 	public function query($query, $attributes=array(), $limit=null) {
