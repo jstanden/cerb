@@ -193,6 +193,9 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/event/event_helper.php', array(
 			'DevblocksEventHelper',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/file.php', array(
+			'_DevblocksFileService',
+		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/http.php', array(
 			'_DevblocksHttpService',
 		));

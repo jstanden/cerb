@@ -103,6 +103,14 @@ class _DevblocksServices {
 	}
 	
 	/**
+	 *
+	 * @return _DevblocksFileService
+	 */
+	function file() {
+		return _DevblocksFileService::getInstance();
+	}
+	
+	/**
 	 * 
 	 * @return _DevblocksHttpService
 	 */
