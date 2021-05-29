@@ -2256,7 +2256,6 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 	// Fulltexts
 	const FULLTEXT_COMMENT_CONTENT = 'ftcc_content';
 	const FULLTEXT_MESSAGE_CONTENT = 'ftmc_content';
-	const FULLTEXT_NOTE_CONTENT = 'ftnc_content';
 	
 	// Virtuals
 	const VIRTUAL_BUCKET_SEARCH = '*_bucket_search';
@@ -2721,14 +2720,12 @@ class SearchFields_Ticket extends DevblocksSearchFields {
 			
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT => new DevblocksSearchField(self::FULLTEXT_COMMENT_CONTENT, 'ftcc', 'content', $translate->_('comment.filters.content'), 'FT', false),
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT => new DevblocksSearchField(self::FULLTEXT_MESSAGE_CONTENT, 'ftmc', 'content', $translate->_('message.content'), 'FT', false),
-			SearchFields_Ticket::FULLTEXT_NOTE_CONTENT => new DevblocksSearchField(self::FULLTEXT_NOTE_CONTENT, 'ftnc', 'content', $translate->_('message.note.content'), 'FT', false),
 		);
 		
 		// Fulltext indexes
 		
 		$columns[self::FULLTEXT_COMMENT_CONTENT]->ft_schema = Search_CommentContent::ID;
 		$columns[self::FULLTEXT_MESSAGE_CONTENT]->ft_schema = Search_MessageContent::ID;
-		$columns[self::FULLTEXT_NOTE_CONTENT]->ft_schema = Search_CommentContent::ID;
 		
 		// Custom fields with fieldsets
 		
@@ -2983,7 +2980,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$this->addColumnsHidden(array(
 			SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT,
 			SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT,
-			SearchFields_Ticket::FULLTEXT_NOTE_CONTENT,
 			SearchFields_Ticket::REQUESTER_ADDRESS,
 			SearchFields_Ticket::REQUESTER_ID,
 			SearchFields_Ticket::TICKET_INTERESTING_WORDS,
@@ -4399,7 +4395,6 @@ class View_Ticket extends C4_AbstractView implements IAbstractView_Subtotals, IA
 				
 			case SearchFields_Ticket::FULLTEXT_COMMENT_CONTENT:
 			case SearchFields_Ticket::FULLTEXT_MESSAGE_CONTENT:
-			case SearchFields_Ticket::FULLTEXT_NOTE_CONTENT:
 				@$scope = DevblocksPlatform::importGPC($_POST['scope'],'string','expert');
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_FULLTEXT,array($value,$scope));
 				break;
